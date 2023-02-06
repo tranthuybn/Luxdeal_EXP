@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, unref, onBeforeMount } from 'vue'
+import { reactive, ref, watch, unref, onBeforeMount, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
@@ -693,6 +693,7 @@ const updatePrice = (_value, obj, scope) => {
     data.totalPrice = Number(obj.unitPrice) * data.quantity
     data.maximumQuantity = obj.maximumQuantity
     data.quantity = obj.quantity
+    getRefundPrice()
   }
 }
 const updateExchangePrice = (_value, obj, scope) => {
@@ -711,6 +712,7 @@ const updateExchangePrice = (_value, obj, scope) => {
     data.totalPrice = Number(obj.unitPrice) * data.quantity
     data.maximumQuantity = obj.maximumQuantity
     data.quantity = obj.quantity
+    getExportPrice()
   }
 }
 let customerID = ref()
@@ -1509,9 +1511,6 @@ const getReturnRequestOrder = async () => {
   if (objDetail?.statusHistory.length > 1) {
     approvalAtStatus.value = objDetail?.statusHistory[1]?.approveAt
   }
-  refundPrice.value = objDetail.tienHoan
-  exportPrice.value = objDetail.tienBan
-  exchangePrice.value = objDetail.totalPrice
   inputReasonReturn.value = objDetail.description
   if (objDetail.nhapDetails[0]?.productPropertyId)
     tableReturnFullyIntegrated.value = objDetail.nhapDetails
@@ -2306,45 +2305,29 @@ const ckeckChooseProduct = (scope) => {
   }
 }
 //TruongNgo
-const refundPrice = ref(0)
-const exportPrice = ref(0)
-const exchangePrice = ref(0)
-
-watch(
-  () => refundPrice.value,
-  () => {
-    exchangePrice.value = Math.abs(refundPrice.value - exportPrice.value)
-  },
-  {
-    deep: true
-  }
-)
-
-watch(
-  () => exportPrice.value,
-  () => {
-    exchangePrice.value = Math.abs(refundPrice.value - exportPrice.value)
-  },
-  {
-    deep: true
-  }
-)
+const refundPrice = computed(() => {
+  return getRefundPrice()
+})
+const exportPrice = computed(() => {
+  return getExportPrice()
+})
+const exchangePrice = computed(() => {
+  return refundPrice.value - exportPrice.value
+})
 
 const getRefundPrice = () => {
-  refundPrice.value = 0
-  if (tableReturnFullyIntegrated.value?.length) {
-    tableReturnFullyIntegrated?.value.map((item) => {
-      refundPrice.value += item.totalPrice
-    })
-  }
+  let price = 0
+  tableReturnFullyIntegrated.value.map((item) => {
+    item.totalPrice !== undefined ? (price += item.totalPrice) : ''
+  })
+  return price
 }
 const getExportPrice = () => {
-  exportPrice.value = 0
-  if (tableReturnFullyIntegrated.value?.length) {
-    tableProductInformationExportChange?.value?.map((item) => {
-      if (item.totalPrice) exportPrice.value += item.totalPrice
-    })
-  }
+  let money = 0
+  tableProductInformationExportChange.value.map((item) => {
+    item.totalPrice !== undefined ? (money += item.totalPrice) : ''
+  })
+  return money
 }
 
 const listOfOrderProduct = ref()
@@ -2622,28 +2605,8 @@ const cancelApproval = async () => {
   })
 }
 
-//lấy chi tiết phiếu nhập đổi
-const getInvoiceForGoodsEntering = () => {
-  tableInvoice.value = historyTable?.value?.map((e) => ({
-    productPropertyName: e?.productPropertyName,
-    accessory: e?.accessory,
-    quantity: e?.quantity,
-    warehouseTicketCode: e?.warehouseTicketCode
-  }))
-}
-
-//lấy chi tiết phiếu xuất trả
-const getInformationWarehouseReceipt = () => {
-  tableFullyIntegrated.value = historyTable?.value?.map((e) => ({
-    productPropertyName: e?.productPropertyName,
-    accessory: e?.accessory,
-    quantity: e?.quantity,
-    warehouseTicketCode: e?.warehouseTicketCode
-  }))
-}
-
 const ticketCode = ref()
-
+//lấy chi tiết phiếu nhập đổi/ xuất trả
 const showWarehouseTicket = async (scope) => {
   const data = scope.row
   const res_return = await getWareHouseTransactionList({ Id: data.warehouseTicketId })
@@ -2651,11 +2614,11 @@ const showWarehouseTicket = async (scope) => {
   inputRecharger.value = res_return?.data[0].staffName
   inputReasonReturn.value = res_return?.data[0].description
   if (data.returnDetailType == 1) {
+    tableInvoice.value = res_return?.data[0].transactionDetails
     invoiceForGoodsEntering.value = true
-    getInvoiceForGoodsEntering()
   } else {
+    tableFullyIntegrated.value = res_return?.data[0].transactionDetails
     informationWarehouseReceipt.value = true
-    getInformationWarehouseReceipt()
   }
 }
 
@@ -3797,14 +3760,15 @@ onBeforeMount(async () => {
         </div>
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableFullyIntegrated" border style="width: 100%">
-            <el-table-column label="STT" type="index" align="center" />
+            <el-table-column label="STT" type="index" align="center" width="60" />
             <el-table-column
               prop="productPropertyName"
               :label="t('formDemo.commodityName')"
-              width="280"
+              min-width="280"
             />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="100" />
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="100" />
+            <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" min-width="100" />
           </el-table>
         </div>
         <div class="flex items-center">
@@ -3895,14 +3859,15 @@ onBeforeMount(async () => {
         </div>
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableInvoice" border style="width: 100%">
-            <el-table-column label="STT" type="index" align="center" />
+            <el-table-column label="STT" type="index" align="center" width="60" />
             <el-table-column
               prop="productPropertyName"
               :label="t('formDemo.commodityName')"
-              width="280"
+              min-width="280"
             />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="100" />
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="100" />
+            <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" min-width="100" />
           </el-table>
         </div>
         <div class="flex items-center">
@@ -4752,7 +4717,7 @@ onBeforeMount(async () => {
             <p class="pr-2">{{ changeMoney.format(refundPrice) }}</p>
             <p class="pr-2">{{ changeMoney.format(exportPrice) }}</p>
             <p class="pr-2 text-black font-bold dark:text-white">{{
-              changeMoney.format(exchangePrice)
+              moneyFormat(Math.abs(exchangePrice))
             }}</p>
             <p class="pr-2" v-if="refundPrice < exportPrice">{{ t('reuse.haveToCollect') }}</p>
             <p class="pr-2" v-else>{{ t('reuse.havetoPay') }}</p>

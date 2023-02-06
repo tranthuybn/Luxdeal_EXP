@@ -693,7 +693,6 @@ const updatePrice = (_value, obj, scope) => {
     data.totalPrice = Number(obj.unitPrice) * data.quantity
     data.maximumQuantity = obj.maximumQuantity
     data.quantity = obj.quantity
-    getRefundPrice()
   }
 }
 const updateExchangePrice = (_value, obj, scope) => {
@@ -712,7 +711,6 @@ const updateExchangePrice = (_value, obj, scope) => {
     data.totalPrice = Number(obj.unitPrice) * data.quantity
     data.maximumQuantity = obj.maximumQuantity
     data.quantity = obj.quantity
-    getExportPrice()
   }
 }
 let customerID = ref()

@@ -2580,7 +2580,14 @@ const openFinishedExpendReturn = () => {
 // create đổi trả hàng
 const createdExpendReturn = () => {
   checkCreate.value = true
+  checkCancel.value = false
   getReturnOrder()
+
+  inputReasonReturn.value = ''
+  tableReturnFullyIntegrated.value = []
+  addRowReturnFullyIntegrated()
+  tableProductInformationExportChange.value = []
+  addProductInformationExportChange()
   changeReturnGoods.value = true
 }
 
@@ -4888,7 +4895,7 @@ onBeforeMount(async () => {
             <div>
               <span class="dialog-footer">
                 <el-button
-                v-if="!checkCancel && !checkCreate"
+                v-if="!checkCancel && checkCreate"
                   type="primary"
                   @click="
                     () => {
@@ -4899,7 +4906,7 @@ onBeforeMount(async () => {
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
                 >
                 <el-button
-                  v-else-if="checkCreate && !checkCancel"
+                  v-else-if="!checkCreate && !checkCancel"
                   type="primary"
                   @click="
                     () => {

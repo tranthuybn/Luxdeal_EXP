@@ -45,10 +45,7 @@ const ApprovalTable = [
 ]
 
 const changeActive = (...param) => {
-  console.log('param', param)
-
   idApprove = param[0].id
-
 
   const payload = {
     Id: idApprove,

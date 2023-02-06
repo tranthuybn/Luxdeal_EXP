@@ -69,7 +69,8 @@ import {
   getDetailReceiptPaymentVoucher,
   finishReturnOrder,
   GetWarehouseTransaction,
-  getReturnRequestForOrder
+  getReturnRequestForOrder,
+  cancelReturnOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -1668,6 +1669,7 @@ const getReturnRequestTable = async () => {
       createdAt: e.returnRequestInfo?.createdAt ?? '',
       productPropertyId: e?.productPropertyId,
       productPropertyName: e?.productPropertyName,
+      productPropertyCode: e?.productPropertyCode,
       accessory: e?.accessory,
       quantity: e?.quantity,
       unitName: e?.unitName,
@@ -1821,11 +1823,6 @@ const editOrderInfo = async () => {
 }
 // Dialog trả hàng trước hạn
 const changeReturnGoods = ref(false)
-// const updatePrice = (_value, obj, scope) => {
-//   scope.row.productPropertyId = obj.productPropertyId
-//   scope.row.refundUnitPrice = Number(obj.price)
-//   scope.row.intoUnitPrice = Number(obj.price) * scope.row.quantity
-// }
 
 // Thông tin phiếu để nghị thanh toán spa
 const dialogDepositFeeInformation = ref(false)
@@ -1960,20 +1957,67 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   )
 }
 
+const updateStatusReturnAheadOfTime = (index) => {
+  statusOrder.value = index
+}
+
+// Hủy trả hàng trước hạn
+const cancelExpendReturn = async() => {
+  cancelExpend.value = false
+  doneExpand.value = false
+  const payload = {
+    OrderId: id
+  }
+  await cancelReturnOrder(FORM_IMAGES(payload))
+  reloadStatusOrder()
+}
+
 const completePayment = ref(false)
 //TruongNgo
 const truocHan = ref(false)
 const hetHan = ref(false)
 const giaHan = ref(false)
+const doneExpand = ref(false)
+const cancelExpend = ref(false)
 
 const rentReturnOrder = ref({} as any)
 let productArray: any = []
 const listOfOrderProduct = ref()
-const setDataForReturnOrder = () => {
+const detailOfOrderProduct = ref()
+
+//Hủy trả hàng
+const openCancelPayment = () => {
+  setDataForReturnOrder()
+  callApiDetail()
+  cancelExpend.value = true
+  completePayment.value = true
+}
+
+// Hoàn thành trả hàng trước hạn
+const openCompletePayment = () => {
+  setDataForReturnOrder()
+  callApiDetail()
+  doneExpand.value = true
+  completePayment.value = true
+}
+
+// Hoàn thành trả hàng
+const callApiDetail = async() => {
+  const res = await getReturnRequest({ CustomerOrderId: id })
+  const objDetail = res?.data[0]
+    if (objDetail?.xuatDetails[0]?.productPropertyId) {
+      detailOfOrderProduct.value = objDetail?.xuatDetails
+    }
+
+}
+
+const setDataForReturnOrder = async () => {
   productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
   listOfOrderProduct.value = listProducts.value.filter((item) => {
     return productArray.includes(item.productPropertyId)
   })
+  
+
   rentReturnOrder.value.orderCode = ruleForm.orderCode
   rentReturnOrder.value.period = ruleForm.rentalPeriod
   rentReturnOrder.value.extendDate = ''
@@ -1990,10 +2034,11 @@ const postReturnRequest = async (reason) => {
     return
   }
   rentReturnOrder.value.tableData.pop()
-  tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
-    productPropertyId: Number(e.productPropertyId),
-    quantity: parseInt(e.quantity),
-    accessory: e.accessory,
+  tableReturnPost = rentReturnOrder?.value?.tableData.map((e) => ({
+    productPropertyId: Number(e?.productPropertyId),
+    quantity: parseInt(e?.quantity),
+    description: e?.description,
+    accessory: e?.accessory,
     returnDetailType: 4,
     unitPrice: 0,
     totalPrice: 0,
@@ -3865,7 +3910,9 @@ const openDetailOrder = (id, type) => {
         </template>
       </el-dialog>
 
+      <!-- Trả hàng trước thời hạn -->
       <ReturnOrder
+        v-if="truocHan"
         v-model="truocHan"
         :orderId="id"
         :orderData="rentReturnOrder"
@@ -3877,19 +3924,29 @@ const openDetailOrder = (id, type) => {
         :type="3"
         :statusActive="2"
       />
+      <!-- Hoàn thành trả hàng -->
       <ReturnOrder
         v-model="completePayment"
+        v-if="completePayment"
         :orderId="id"
         :orderData="rentReturnOrder"
         :listProductsTable="listOfOrderProduct"
+        :detailExpand="detailOfOrderProduct"
+        :doneExpand="doneExpand"
+        :cancelExpend="cancelExpend"
+        :statusApproval="arrayStatusOrder[arrayStatusOrder?.length - 1]?.orderStatus"
+        :dateApproval="arrayStatusOrder[arrayStatusOrder?.length - 1]?.approvedAt"
         @add-row="addRow"
         @remove-row="removeRow"
+        @cancel-expend="cancelExpendReturn"
         @post-return-request="doneReturnGoods"
-        :orderStatusType="2"
+        @update-status="updateStatusReturnAheadOfTime"
+        :orderStatusType="3"
         :type="3"
-        :statusActive="3"
       />
+      <!-- Hết hạn -->
       <ReturnOrder
+        v-if="hetHan"
         v-model="hetHan"
         :orderId="id"
         :orderData="rentReturnOrder"
@@ -3899,6 +3956,7 @@ const openDetailOrder = (id, type) => {
         :orderStatusType="3"
         :type="3"
       />
+      <!-- Gia hạn ký gửi -->
       <ReturnOrder
         v-model="giaHan"
         :orderId="id"
@@ -4423,7 +4481,9 @@ const openDetailOrder = (id, type) => {
 
                     <span class="triangle-right right_1"> </span>
                   </span>
-                  <i v-if="item?.approvedAt">{{
+                  <i
+                    :class="item.isActive ? 'text-gray-500' : 'text-gray-300'"
+                    v-if="item?.approvedAt">{{
                     item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
                   <p v-else class="text-transparent">s</p>
@@ -4444,7 +4504,9 @@ const openDetailOrder = (id, type) => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
-                  <i v-if="item?.approvedAt">{{
+                  <i
+                    :class="item.isActive ? 'text-gray-500' : 'text-gray-300'"
+                    v-if="item?.approvedAt">{{
                     item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
                   <p v-else class="text-transparent">s</p>
@@ -4460,7 +4522,9 @@ const openDetailOrder = (id, type) => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
-                  <i v-if="item?.approvedAt">{{
+                  <i
+                    :class="item.isActive ? 'text-gray-500' : 'text-gray-300'"
+                    v-if="item?.approvedAt">{{
                     item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
                   <p v-else class="text-transparent">s</p>
@@ -4481,7 +4545,9 @@ const openDetailOrder = (id, type) => {
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
-                  <i v-if="item?.approvedAt">{{
+                  <i
+                    :class="item.isActive ? 'text-gray-500' : 'text-gray-300'"
+                    v-if="item?.approvedAt">{{
                     item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</i>
                   <p v-else class="text-transparent">s</p>
@@ -4584,8 +4650,8 @@ const openDetailOrder = (id, type) => {
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus"
               @click="
                 () => {
-                  truocHan = true
                   setDataForReturnOrder()
+                  truocHan = true
                 }
               "
               type="warning"
@@ -4596,8 +4662,8 @@ const openDetailOrder = (id, type) => {
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus"
               @click="
                 () => {
-                  truocHan = true
                   setDataForReturnOrder()
+                  truocHan = true
                 }
               "
               type="warning"
@@ -4612,9 +4678,8 @@ const openDetailOrder = (id, type) => {
                   addStatusOrder(4)
                 }
               "
-              type="info"
               class="min-w-42 min-h-11"
-              >Hủy trả hàng</el-button
+              >{{ t('formDemo.cancelReturn') }}</el-button
             >
 
             <el-button
@@ -4624,8 +4689,8 @@ const openDetailOrder = (id, type) => {
               "
               @click="
                 () => {
-                  hetHan = true
                   setDataForReturnOrder()
+                  hetHan = true
                 }
               "
               type="warning"
@@ -4637,24 +4702,22 @@ const openDetailOrder = (id, type) => {
                 v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
                 @click="
                   () => {
-                    // addStatusOrder(5)
-                    completePayment = true
-                    setDataForReturnOrder()
+                    openCompletePayment()
                   }
                 "
                 type="warning"
                 class="min-w-42 min-h-11"
-                >Hoàn thành trả hàng</el-button
+                >{{ t('formDemo.completeReturn') }}</el-button
               >
               <el-button
                 v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
                 @click="
                   () => {
-                    addStatusOrder(4)
+                    openCancelPayment()
                   }
                 "
                 class="min-w-42 min-h-11"
-                >Hủy trả hàng</el-button
+                >{{ t('formDemo.cancelReturn') }}</el-button
               >
             </div>
             <div v-if="completeThePayment && statusOrder != STATUS_ORDER_DEPOSIT[2].orderStatus">
@@ -4672,7 +4735,7 @@ const openDetailOrder = (id, type) => {
                 "
                 type="info"
                 class="min-w-42 min-h-11"
-                >Đối soát & kết thúc</el-button
+                >{{ t('formDemo.checkFinish') }}</el-button
               >
             </div>
             <el-button
@@ -4689,7 +4752,7 @@ const openDetailOrder = (id, type) => {
               "
               type="info"
               class="min-w-42 min-h-11"
-              >Đối soát & kết thúc</el-button
+              >{{ t('formDemo.checkFinish') }}</el-button
             >
             <el-button
               v-if="
@@ -4698,8 +4761,8 @@ const openDetailOrder = (id, type) => {
               "
               @click="
                 () => {
-                  giaHan = true
                   setDataForReturnOrder()
+                  giaHan = true
                 }
               "
               class="min-w-42 min-h-11 !border-red-500"
@@ -4854,7 +4917,7 @@ const openDetailOrder = (id, type) => {
           <div v-if="data.row.orderIdBTSpa">
             <span>Mã đơn hàng:</span>
             <span
-@click="openDetailOrder(data.row.orderIdBTSpa, data.row.orderTypeBTSpa)" 
+            @click="openDetailOrder(data.row.orderIdBTSpa, data.row.orderTypeBTSpa)" 
             class="cursor-pointer text-blue-500 pl-2">{{ data.row.orderCodeBTSpa }}</span>
           </div>
         </template>
@@ -5016,7 +5079,7 @@ const openDetailOrder = (id, type) => {
               </template>
             </el-table-column>
             <el-table-column
-              prop="productPropertyId"
+              prop="productPropertyCode"
               :label="t('formDemo.productManagementCode')"
               width="150"
             />
@@ -5057,7 +5120,6 @@ const openDetailOrder = (id, type) => {
               width="200"
             />
           </el-table>
-          <button class="bg-none border-1 pt-2 pb-2 pl-4 pr-4 mt-2 text-[#cccccc]">+ Thêm</button>
         </div>
       </el-collapse-item>
     </el-collapse>

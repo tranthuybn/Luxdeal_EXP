@@ -580,6 +580,8 @@ export default {
     checkFinish: 'Đối soát & kết thúc',
     cancellationReturn: 'Hủy đổi/Trả hàng',
     completeExchangeReturn: 'Hoàn thành đổi/Trả hàng',
+    completeReturn: 'Hoàn thành trả hàng',
+    cancelReturn: 'Hủy trả hàng',
     pleaseInputOrderCode: 'Vui lòng nhập mã đơn hàng',
     pleaseSelectCollaboratorCode: 'Vui lòng chọn hoặc nhập mã công tác viên',
     pleaseInputDiscount: 'Vui lòng nhập chiết khấu',

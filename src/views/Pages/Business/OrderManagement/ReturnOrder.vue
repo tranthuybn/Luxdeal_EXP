@@ -18,7 +18,7 @@ import { dateTimeFormat } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
-import { STATUS_ORDER_RENTAL } from '@/utils/API.Variables'
+import { STATUS_ORDER_RENTAL, STATUS_ORDER_DEPOSIT } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -238,7 +238,10 @@ const statusApprovalExpand = ref()
 watch(
   () => statusApprovalExpand,
   () => {
-    if (statusApprovalExpand.value == STATUS_ORDER_RENTAL[4].orderStatus) approvalAtStatus.value = props?.dateApproval
+    if (statusApprovalExpand.value == STATUS_ORDER_RENTAL[4].orderStatus || 
+      statusApprovalExpand.value == STATUS_ORDER_DEPOSIT[5].orderStatus) {
+        approvalAtStatus.value = props?.dateApproval
+      }
   },
   {
     deep: true
@@ -265,8 +268,9 @@ const approvalAtStatus = ref()
 onBeforeMount(()=>{
   statusApprovalExpand.value = props?.statusApproval
   if (!props?.doneExpand) addRowTable()
-
 })
+console.log('statusApprovalExpand: ', statusApprovalExpand.value)
+console.log('statusApproval: ', props?.statusApproval)
 
 </script>
 <template>
@@ -456,8 +460,10 @@ onBeforeMount(()=>{
       <div class="flex gap-4">
           <label class="w-[30%]"></label>
           <div class="w-[100%] flex gap-22">
-            <div class="">{{ dateTimeFormat(createAtStatus) }}</div>
-            <div v-if="statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus">{{ dateTimeFormat(approvalAtStatus) }}</div>
+            <i class="">{{ dateTimeFormat(createAtStatus) }}</i>
+            <i
+              v-if="statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus || 
+              statusApprovalExpand == STATUS_ORDER_DEPOSIT[5].orderStatus">{{ dateTimeFormat(approvalAtStatus) }}</i>
           </div>
       </div>
       
@@ -465,21 +471,28 @@ onBeforeMount(()=>{
 
     <template #footer>
       <div class="flex justify-end">
-        <div v-if="statusApprovalExpand != STATUS_ORDER_RENTAL[4].orderStatus">
+        <div v-if="props?.doneExpand">
+          <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(120)">{{ t('formDemo.completeReturn') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+        </div>
+        <div v-else-if="props?.cancelExpend">
+          <el-button class="min-w-42 min-h-11" @click="cancelPaymentRequest(STATUS_ORDER_RENTAL[5].orderStatus)">{{
+            t('formDemo.cancelReturn') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+        </div>
+        <div
+          v-else-if="statusApprovalExpand != STATUS_ORDER_RENTAL[4].orderStatus ||
+          statusApproval != STATUS_ORDER_DEPOSIT[5].orderStatus">
           <el-button class="min-w-36 min-h-11" type="primary" @click="postReturnRequest(3)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
           <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
-        <div v-if="statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus && !props?.cancelExpend">
+        <div
+          v-else-if="(statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus || 
+          statusApproval == STATUS_ORDER_DEPOSIT[5].orderStatus) && !props?.cancelExpend">
           <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(120)"
-            >Hoàn thành trả hàng</el-button
-          >
-          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
-        </div>
-        <div v-if="props?.cancelExpend">
-          <el-button class="min-w-42 min-h-11" @click="cancelPaymentRequest(STATUS_ORDER_RENTAL[5].orderStatus)"
-            >Hủy trả hàng</el-button
+            >{{ t('formDemo.completeReturn') }}</el-button
           >
           <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>

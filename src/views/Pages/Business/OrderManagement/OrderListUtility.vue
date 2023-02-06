@@ -73,7 +73,8 @@ import {
   cancelOrder,
   createTicketFromReturnOrder,
   GetWarehouseTransaction,
-  getAllStaffList
+  getAllStaffList,
+  cancelReturnOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -1169,7 +1170,7 @@ const postData = async (pushBack: boolean) => {
     WardId: formAddress.wardCommune ?? 1,
     Address: customerAddress.value,
     OrderDetail: productPayment,
-    CampaignId: 2,
+    CampaignId: campaignId.value ?? '',
     VAT: 1,
     Status: 2,
     WarehouseId: ruleForm.warehouse
@@ -1588,6 +1589,7 @@ if (tableProductInformationExportChange.value?.length == 0) addProductInformatio
 watch(
   () => tableReturnFullyIntegrated.value,
   () => {
+    if (checkCreate.value) {
     if (
       tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1]
         ?.productPropertyId &&
@@ -1596,6 +1598,7 @@ watch(
       tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].totalPrice
     )
       addRowReturnFullyIntegrated()
+    }
   },
   {
     deep: true
@@ -1605,6 +1608,7 @@ watch(
 watch(
   () => tableProductInformationExportChange.value,
   () => {
+    if (checkCreate.value) {
     if (
       tableProductInformationExportChange.value[
         tableProductInformationExportChange.value.length - 1
@@ -1620,6 +1624,7 @@ watch(
       ].totalPrice
     )
       addProductInformationExportChange()
+    }
   },
   {
     deep: true
@@ -2525,6 +2530,60 @@ const editOrder = () => {
   } else {
     buttonDuplicate.value = !buttonDuplicate.value
   }
+}
+
+// Api hủy đổi trả
+const cancelExpendReturn = async() => {
+  const payload = {
+    OrderId: id
+  }
+  await cancelReturnOrder(FORM_IMAGES(payload))
+  reloadStatusOrder()
+}
+
+// call api chi tiết đổi trả
+const objReturnRequestInfo = ref()
+const callApiReturnRequestForOrder = async() => {
+  const res = await getReturnRequestForOrder({CustomerOrderId: id})
+  objReturnRequestInfo.value = res?.data[res?.data.length-1].returnRequestInfo
+  await getDetailReturnRequest()
+}
+const getDetailReturnRequest = async() => {
+  const res = await getReturnRequest({ CustomerOrderId: id, ReturnRequestId: objReturnRequestInfo.value.id})
+  inputReasonReturn.value = res.data[0].description
+  tableReturnFullyIntegrated.value = res.data[0]?.nhapDetails
+  tableProductInformationExportChange.value = res.data[0]?.xuatDetails
+  // alreadyPaidForTt.value =
+}
+
+// check created hoặc finish/cancel đổi trả
+const checkCreate = ref(true)
+const checkCancel = ref(false)
+
+// Hủy đổi trả
+const openCancelExpendReturn = () => {
+  checkCreate.value = false
+  checkCancel.value = true
+  changeReturnGoods.value = true
+  callApiReturnRequestForOrder()
+  // statusOrder == STATUS_ORDER_SELL[3].orderStatus
+}
+
+// Hoàn thành đổi trả
+const openFinishedExpendReturn = () => {
+  checkCreate.value = false
+  checkCancel.value = false
+  changeReturnGoods.value = true
+  // statusOrder.value = 150
+  callApiReturnRequestForOrder()
+  getReturnRequestTable()
+}
+
+// create đổi trả hàng
+const createdExpendReturn = () => {
+  checkCreate.value = true
+  getReturnOrder()
+  changeReturnGoods.value = true
 }
 
 // disabled button type detail
@@ -4195,7 +4254,7 @@ onBeforeMount(async () => {
               </div>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="checkDisabled"
+                  :disabled="true"
                   style="width: 100%"
                   v-model="ruleForm.orderCode"
                 />
@@ -4618,7 +4677,8 @@ onBeforeMount(async () => {
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
-              <el-input v-model="inputReasonReturn" class="w-[100%]" />
+              <el-input v-if="checkCreate" v-model="inputReasonReturn" class="w-[100%]" />
+              <div v-else>{{ inputReasonReturn }}</div>
             </div>
           </div>
         </div>
@@ -4649,6 +4709,7 @@ onBeforeMount(async () => {
                     t('reuse.managementCode'),
                     t('formDemo.productInformation')
                   ]"
+                  v-if="checkCreate"
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
@@ -4660,24 +4721,29 @@ onBeforeMount(async () => {
                   :clearable="false"
                   @update-value="(value, obj) => updatePrice(value, obj, props)"
                 />
+                <div v-else>{{ props.row.productCode }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="150">
               <template #default="props">
-                <el-input v-model="props.row.accessory" />
+                <el-input v-if="checkCreate" v-model="props.row.accessory" />
+                <div v-else>{{ props.row.accessory }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
               <template #default="props">
                 <el-input
+                  v-if="checkCreate"
                   @change="() => checkMaximunQuantity(props)"
                   v-model="props.row.quantity"
                 />
+                <div v-else>{{ props.row.quantity }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="unitPrice" :label="t('reuse.returnOrderPrice')">
               <template #default="props">
-                <CurrencyInputComponent v-model="props.row.unitPrice" class="text-right" />
+                <CurrencyInputComponent v-if="checkCreate" v-model="props.row.unitPrice" class="text-right" />
+                <div v-else>{{ props.row.unitPrice }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')">
@@ -4716,6 +4782,7 @@ onBeforeMount(async () => {
                     t('reuse.managementCode'),
                     t('formDemo.productInformation')
                   ]"
+                  v-if="checkCreate"
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
@@ -4727,24 +4794,29 @@ onBeforeMount(async () => {
                   :clearable="false"
                   @update-value="(value, obj) => updateExchangePrice(value, obj, props)"
                 />
+                <div v-else>{{ props.row.productCode }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="150">
               <template #default="props">
-                <el-input v-model="props.row.accessory" />
+                <el-input v-if="checkCreate" v-model="props.row.accessory" />
+                <div v-else>{{ props.row.accessory }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90">
               <template #default="props">
                 <el-input
+                  v-if="checkCreate"
                   @change="() => checkMaximunQuantity(props)"
                   v-model="props.row.quantity"
                 />
+                <div v-else>{{ props.row.quantity }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="unitPrice" :label="t('reuse.unitPrices')">
               <template #default="props">
-                <CurrencyInputComponent v-model="props.row.unitPrice" class="text-right" />
+                <CurrencyInputComponent v-if="checkCreate" v-model="props.row.unitPrice" class="text-right" />
+                <div v-else>{{ props.row.unitPrice }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')">
@@ -4818,6 +4890,7 @@ onBeforeMount(async () => {
             <div>
               <span class="dialog-footer">
                 <el-button
+                v-if="!checkCancel && !checkCreate"
                   type="primary"
                   @click="
                     () => {
@@ -4826,6 +4899,28 @@ onBeforeMount(async () => {
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
+                >
+                <el-button
+                  v-else-if="checkCreate && !checkCancel"
+                  type="primary"
+                  @click="
+                    () => {
+                      cancelExpendReturn()
+                      changeReturnGoods = false
+                    }
+                  "
+                  >Hoàn thành đổi trả</el-button
+                >
+                <el-button
+                v-else-if="!checkCreate && checkCancel"
+                  type="primary"
+                  @click="
+                    () => {
+                      cancelExpendReturn()
+                      changeReturnGoods = false
+                    }
+                  "
+                  >Hủy đổi/Trả hàng</el-button
                 >
                 <el-button @click="changeReturnGoods = false">{{ t('reuse.exit') }}</el-button>
               </span>
@@ -5380,12 +5475,7 @@ onBeforeMount(async () => {
             >
             <button
               :disabled="statusButtonDetail"
-              @click="
-                () => {
-                  getReturnOrder()
-                  changeReturnGoods = true
-                }
-              "
+              @click="createdExpendReturn"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.exchangeReturnGoods') }}</button
             >
@@ -5405,12 +5495,7 @@ onBeforeMount(async () => {
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
-              @click="
-                () => {
-                  changeReturnGoods = true
-                  statusOrder == STATUS_ORDER_SELL[3].orderStatus
-                }
-              "
+              @click="openCancelExpendReturn"
               :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancellationReturn') }}</el-button
@@ -5422,17 +5507,12 @@ onBeforeMount(async () => {
           >
             <button
               :disabled="statusButtonDetail"
-              @click="
-                () => {
-                  statusOrder = 150
-                  getReturnRequestTable()
-                }
-              "
+              @click="openFinishedExpendReturn"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.completeExchangeReturn') }}</button
             >
             <el-button
-              @click="statusOrder = STATUS_ORDER_SELL[3].orderStatus"
+              @click="openCancelExpendReturn"
               :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.cancellationReturn') }}</el-button

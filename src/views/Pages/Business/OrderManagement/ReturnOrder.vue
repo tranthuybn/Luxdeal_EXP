@@ -632,7 +632,7 @@ onBeforeMount(()=>{
   <!-- 4:chuộc hàng trước thời hạn -->
   <el-dialog
     :model-Value="modelValue"
-    v-if="orderStatusType == 4"
+    v-if="orderStatusType == 5"
     @open="open"
     @close="close"
     class="font-bold"

@@ -260,13 +260,6 @@ const changeMoney = new Intl.NumberFormat('vi', {
   minimumFractionDigits: 0
 })
 
-// interface tableOrderDetailType {
-//   productPropertyId: number
-//   quantity: number | undefined
-//   accessory: string | undefined
-//   spaServiceIds: string
-// }
-// let tableOrderDetail = ref<Array<tableOrderDetailType>>([])
 let totalPriceOrder = ref(0)
 let totalFinalOrder = ref(0)
 // Total order
@@ -378,7 +371,6 @@ const getValueOfCustomerSelected = (value, obj) => {
 //call api kho
 const warehouseOptions = ref()
 const loadingWarehouse = ref(true)
-// const locationOptions = ref()
 let callAPIWarehouseTimes = 0
 const callAPIWarehouse = async () => {
   if (callAPIWarehouseTimes == 0) {
@@ -1208,16 +1200,6 @@ const postData = async (pushBack: boolean) => {
 
 const clickStarSpa = ref(false)
 
-// nhập kho auto
-// const warehouseTranferAuto = async (type) => {
-//   const payload = {
-//     OrderId: resIdPostOrder.value,
-//     Type: type
-//   }
-
-//   await postAutomaticWarehouse(JSON.stringify(payload))
-// }
-
 const form = reactive({
   name: '',
   typea: '',
@@ -1352,7 +1334,6 @@ const submitForm = async (
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
       postData(pushBack)
-      // doubleDisabled.value = false
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
       checkValidateForm.value = false
@@ -2323,7 +2304,6 @@ const openAcountingEntryDialog = async (index, num) => {
   })
   inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
   remainingMoney.value = formAccountingId.value.accountingEntry?.deibt
-  // paidMoney.value = formAccountingId.value?.paidMoney
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
   if (num == 1) {
     dialogBillSpaInfomation.value = true
@@ -2433,7 +2413,6 @@ const changeEditInDetail = () => {
         type: 'edit',
         tab: tab,
         id: id
-        // approvalId: data.id
       }
     })
   }

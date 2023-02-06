@@ -367,11 +367,13 @@ interface ListOfProductsForSaleType {
   accessory: string | undefined
   unitName: string
   unitPrice: string | number | undefined
+  originalPrice?: number
   totalPrice: string
   paymentType: string
   warehouseId: number | undefined
   warehouseTotal?: number | any
   warehouseName: string
+  priceChange?: boolean
 }
 const productForSale = reactive<ListOfProductsForSaleType>({
   name: '',
@@ -383,7 +385,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyId: undefined,
   quantity: '1',
   accessory: '',
-  unitName: 'Cái',
+  unitName: '',
   unitPrice: 0,
   totalPrice: '',
   paymentType: '',
@@ -478,6 +480,10 @@ const handleSelectionChange = (val: tableDataType[]) => {
       }
     }
   })
+  // moneyReceipts.value = val.reduce((total, value) => {
+  //   total += parseInt(value.receiveMoney)
+  //   return total
+  // }, 0)
 }
 
 // Dialog change address
@@ -651,30 +657,16 @@ const getValueOfSelected = async (_value, obj, scope) => {
   if (duplicateProduct.value) {
     duplicateProductMessage()
   } else {
+    data.priceChange = false
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
-    totalPriceOrder.value = 0
-    totalFinalOrder.value = 0
     getTotalWarehouse()
     //TODO
     data.unitPrice = await getProductPropertyPrice(data?.productPropertyId, 1, data.quantity)
+    data.originalPrice = data.unitPrice
     data.totalPrice = data.unitPrice * parseInt(data.quantity)
-    ListOfProductsForSale.value.map((val) => {
-      if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
-    })
-    promoCash.value != 0
-      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
-      : (totalFinalOrder.value =
-          totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
-
-    if (radioVAT.value.length < 4) {
-      VAT.value = true
-      valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
-      if (totalFinalOrder.value) {
-        totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
-      }
-    }
+    changePriceRowTable(scope, true)
     // add new row
     if (scope.$index == ListOfProductsForSale.value.length - 1) {
       ListOfProductsForSale.value.push({ ...productForSale })
@@ -1155,7 +1147,7 @@ const postData = async (pushBack: boolean) => {
   const payload = {
     ServiceType: 1,
     OrderCode: ruleForm.orderCode,
-    PromotionCode: 'AA12',
+    PromotionCode: promoCode.value ?? '',
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: ruleForm.discount,
     Description: ruleForm.orderNotes,
@@ -1185,6 +1177,9 @@ const postData = async (pushBack: boolean) => {
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
+    id = res
+    // updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
+    // reloadStatusOrder()
     ElNotification({
       message: t('reuse.addSuccess'),
       type: 'success'
@@ -1196,7 +1191,6 @@ const postData = async (pushBack: boolean) => {
       })
     }
   } else {
-    reloadStatusOrder()
     ElNotification({
       message: t('reuse.addFail'),
       type: 'warning'
@@ -1217,15 +1211,23 @@ const automaticCouponWareHouse = async (index) => {
   await postAutomaticWarehouse(payload)
 }
 
+// Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
+const backToListOrder = () => {
+  router.push({
+    name: 'business.order-management.order-list',
+    params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+  })
+}
+
 // total order
 let totalOrder = ref(0)
 
 //lay du lieu tu router
 const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
+let id: any = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const tab = String(route.params.tab)
-const type = String(route.params.type)
+let type = String(route.params.type)
 const approvalId = String(route.params.approvalId)
 
 let dataEdit = ref()
@@ -1279,6 +1281,11 @@ const editData = async () => {
         promoCash.value = orderObj.discountMoney
       }
       ListOfProductsForSale.value = orderObj.orderDetails
+
+      if (orderObj.promotionCode) {
+        showPromo.value = true
+        promoActive.value = orderObj.promotionCode + ' | ' + orderObj.promotionCodeInfo
+      }
       getTotalWarehouse()
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOption
@@ -1303,7 +1310,7 @@ const editData = async () => {
         name: element?.fileId
       })
     })
-  } else if (type == 'add' || !type) {
+  } else if (type == 'add' || type == ':type') {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
 }
@@ -1373,9 +1380,9 @@ const openAcountingEntryDialog = async (index, num) => {
 }
 
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 
 // Call api danh sách mã giảm giá
 let promoTable = ref()
@@ -1490,25 +1497,23 @@ const dialogPaymentVoucher = ref(false)
 
 // Thông tin phiếu nhập kho hoàn hàng đổi/trả
 const informationWarehouseReceipt = ref(false)
-const tableFullyIntegrated = [
-  {
-    commodityName:
-      'LV Flourine red X monogam bag da sần - Lage(35.5-40.5)-Gently used / Đỏ; không quai',
-    accessory: '',
-    quantity: '2',
-    unitPriceWarehouse: '5,000,000 đ',
-    intoMoneyWarehouse: '5,000,000 đ'
-  }
-]
+const tableFullyIntegrated = ref()
+const totalPriceWarehouse = ref(0)
 
 const warehouseTicketCode = ref()
 const staffId = ref()
 const openDetailFullyIntegrated = async (props) => {
-  console.log('props: ', props)
+  totalPriceWarehouse.value = 0
   const res = await GetWarehouseTransaction({ Id: parseInt(props.row.warehouseTicketId) })
   warehouseTicketCode.value = res.data[0].transactionCode
-  console.log('res: ', res)
   staffId.value = res.data[0].staffId
+  tableFullyIntegrated.value = res.data[0].transactionDetails
+  tableFullyIntegrated.value.forEach((el) => {
+    if (el.importPrice) {
+      el.intoMoneyWarehouse = el.importPrice * el.quantity
+      totalPriceWarehouse.value += el.intoMoneyWarehouse
+    }
+  })
 
   informationWarehouseReceipt.value = true
 }
@@ -1627,6 +1632,7 @@ const getReturnRequestTable = async () => {
     historyTable.value = optionsReturnRequest?.map((e) => ({
       createdAt: e.returnRequestInfo?.createdAt ?? '',
       productPropertyId: e?.productPropertyId,
+      productPropertyCode: e?.productPropertyCode,
       productPropertyName: e?.productPropertyName,
       accessory: e?.accessory,
       quantity: e?.quantity,
@@ -1692,21 +1698,44 @@ let statusOrder = ref(2)
 
 // fake trạng thái đơn hàng
 // bắt thay đổi đơn hàng
+let countProductChangePrice = ref(0)
 const priceChangeOrders = ref(false)
-const changePriceRowTable = (props) => {
+const changePriceRowTable = (props, checkRechangeProduct) => {
   const data = props.row
-  priceChangeOrders.value = true
-  if (type == 'add') {
-    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-    arrayStatusOrder.value.push({
-      orderStatusName: 'Duyệt giá thay đổi',
-      orderStatus: STATUS_ORDER_SELL[1].orderStatus,
-      isActive: true
-    })
-  }
-  doubleDisabled.value = true
-  statusOrder.value = STATUS_ORDER_SELL[1].orderStatus
-  data.totalPrice = data.unitPrice * data.quantity
+  data.totalPrice = data.unitPrice * parseInt(data.quantity)
+  if (checkRechangeProduct) data.priceChange = true
+  if (data.originalPrice != data.unitPrice && !data.priceChange) {
+    priceChangeOrders.value = true
+    data.priceChange = true
+    countProductChangePrice.value++
+    if (type == 'add' || type == ':type') {
+      arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+      arrayStatusOrder.value.push({
+        orderStatusName: 'Duyệt giá thay đổi',
+        orderStatus: STATUS_ORDER_SELL[1].orderStatus,
+        isActive: true
+      })
+    }
+    doubleDisabled.value = true
+    statusOrder.value = STATUS_ORDER_SELL[1].orderStatus
+  } else if (data.originalPrice == data.unitPrice && data.priceChange) {    
+    if (!checkRechangeProduct || (checkRechangeProduct && countProductChangePrice.value == 1)) countProductChangePrice.value--
+    if (countProductChangePrice.value == 0 ) {
+      priceChangeOrders.value = false
+      data.priceChange = false
+      if (type == 'add' || type == ':type') {
+        arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+        arrayStatusOrder.value.push({
+          orderStatusName: 'Chốt đơn hàng',
+          orderStatus: STATUS_ORDER_SELL[2].orderStatus,
+          isActive: true
+        })
+      }
+      doubleDisabled.value = !doubleDisabled.value
+      statusOrder.value = STATUS_ORDER_SELL[2].orderStatus
+    }    
+  }  
+  autoCalculateOrder()
 }
 
 interface statusOrderType {
@@ -1718,7 +1747,7 @@ interface statusOrderType {
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
-if (type == 'add' && priceChangeOrders.value == false)
+if (type == 'add' && priceChangeOrders.value == false || type == ':type' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
     orderStatusName: 'Chốt đơn hàng',
     orderStatus: 2,
@@ -2440,7 +2469,6 @@ const updateOrderInfomation = async () => {
 const { push } = useRouter()
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
-  // 13 hoàn thành đơn hàng
   if (typeState == STATUS_ORDER_SELL[0].orderStatus) {
     let payload = {
       OrderId: id
@@ -2454,7 +2482,7 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
+    if (type == 'add' || type == ':type') {
       let payload = {
         OrderId: idOrderPost.value,
         ServiceType: 1,
@@ -2471,8 +2499,9 @@ const updateStatusOrders = async (typeState) => {
   }
 }
 
-const approvalFunction = async () => {
-  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+// Duyệt đơn hàng
+const approvalFunction = async (checkApproved) => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
   push({
     name: `approve.orders-approval.orders-new`
@@ -3672,7 +3701,7 @@ onBeforeMount(async () => {
       <el-dialog
         v-model="informationWarehouseReceipt"
         :title="t('formDemo.infoCouponExportExchange')"
-        width="40%"
+        width="50%"
         align-center
       >
         <div>
@@ -3723,20 +3752,20 @@ onBeforeMount(async () => {
           <el-table ref="singleTableRef" :data="tableFullyIntegrated" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column
-              prop="commodityName"
+              prop="productPropertyName"
               :label="t('formDemo.commodityName')"
               width="280"
             />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="90" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-            <el-table-column prop="unitPriceWarehouse" :label="t('formDemo.unitPriceWarehouse')">
+            <el-table-column prop="importPrice" :label="t('formDemo.unitPriceWarehouse')">
               <template #default="props">
-                <div class="text-right">{{ props.row.unitPriceWarehouse }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.importPrice) }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="intoMoneyWarehouse" :label="t('formDemo.intoMoneyWarehouse')">
               <template #default="props">
-                <div class="text-right">{{ props.row.intoMoneyWarehouse }}</div>
+                <div class="text-right">{{ changeMoney.format(props.row.intoMoneyWarehouse) }}</div>
               </template>
             </el-table-column>
           </el-table>
@@ -3745,7 +3774,9 @@ onBeforeMount(async () => {
               <p class="text-black font-bold dark:text-white">Tổng tiền nhập kho</p>
             </div>
             <div class="w-[100px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">5,000,000 đ</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{
+                changeMoney.format(totalPriceWarehouse)
+              }}</p>
             </div>
           </div>
         </div>
@@ -4901,7 +4932,7 @@ onBeforeMount(async () => {
                 v-if="type != 'detail'"
                 @change="
                   () => {
-                    changePriceRowTable(props)
+                    changePriceRowTable(props, false)
                     autoCalculateOrder()
                   }
                 "
@@ -4960,7 +4991,7 @@ onBeforeMount(async () => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" v-if="type == 'add'" @click="addLastIndexSellTable"
+        <el-button class="ml-4 mt-4" v-if="type == 'add' || type == ':type'" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="flex justify-end pt-4">
@@ -5178,7 +5209,7 @@ onBeforeMount(async () => {
           <!-- Không thay đổi giá -->
           <div
             v-if="
-              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add'
+              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add' || STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5209,12 +5240,7 @@ onBeforeMount(async () => {
               >{{ t('formDemo.completeOrder') }}</el-button
             >
             <el-button
-              @click="
-                () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)
-                  checkDisabled = !checkDisabled
-                }
-              "
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5225,7 +5251,7 @@ onBeforeMount(async () => {
           <!-- Có thay đổi giá -->
           <div
             v-else-if="
-              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add'
+              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add' || STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5249,7 +5275,7 @@ onBeforeMount(async () => {
               >{{ t('button.saveAndWaitApproval') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)"
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5425,10 +5451,10 @@ onBeforeMount(async () => {
             >
           </div>
           <div v-else-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
-            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+            <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>
-            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+            <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
               t('router.notApproval')
             }}</el-button>
           </div>
@@ -5612,7 +5638,7 @@ onBeforeMount(async () => {
               </template>
             </el-table-column>
             <el-table-column
-              prop="productPropertyId"
+              prop="productPropertyCode"
               :label="t('formDemo.productManagementCode')"
               width="150"
             />

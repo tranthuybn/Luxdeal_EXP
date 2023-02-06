@@ -376,6 +376,7 @@ onBeforeMount(()=>{
                 v-model="scope.row.quantity" 
                 type="number" 
                 controls-position="right"
+                :min="0"
                 :max="scope.row.maximumQuantity" 
             />
           </template>

@@ -30,6 +30,7 @@ import { defineComponent } from 'vue'
     FollowAuth: '/dashboard' which routing is followed by permissions filtering
 
     CANTO: True is set to true, even if Hidden is true, it can still perform routing jumps (default False)
+    add/edit/delete: action decentralization  
   }
 **/
 declare module 'vue-router' {
@@ -45,6 +46,9 @@ declare module 'vue-router' {
     noTagsView?: boolean
     followAuth?: string
     canTo?: boolean
+    add:boolean
+    edit:boolean
+    delete:boolean
   }
 }
 

@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    approvedReturnAHeadOfTime: 'Duyệt trả hàng trước hạn',
     informationProductExtend: 'Thông tin sản phẩm gia hạn',
     reasonRevenueExpenditure: 'Lý do thu/chi',
     formCode: 'Mã phiếu',
@@ -1019,6 +1020,8 @@ export default {
     productInformation: 'Thông tin sản phẩm',
     characteristic: 'Đặc tính',
     accessory: 'Phụ kiện',
+    quantity: 'Số lượng',
+    unitNamePawn: 'Đơn vị',
     firstEntryDate: 'Ngày nhập',
     singleEntryCode: 'Mã đơn nhập',
     typeOfFirstEntry: 'Loại hình nhập lần đầu',
@@ -1409,7 +1412,6 @@ export default {
     pauseOperation: 'Tạm dừng hoạt động',
     informationSeo: 'Thông tin SEO',
     path: 'Đường dẫn',
-    quantity: 'Số lượng',
     quantityTo: 'Số lượng đến',
     unitPrices: 'Đơn giá bán',
     purchaseUnitPrices: 'Đơn giá mua',
@@ -1817,6 +1819,7 @@ export default {
     exporting: 'Đang xuất kho',
     importing: 'Đang chờ nhập kho',
     initializeAndWrite: 'Khởi tạo & ghi số',
+    approvalReturnRequest: 'Duyệt đổi/trả hàng',
     // exchange order
     returnOrderPrice: 'Đơn giá hoàn',
     totalReturnMoney: 'Thành tiền hoàn',

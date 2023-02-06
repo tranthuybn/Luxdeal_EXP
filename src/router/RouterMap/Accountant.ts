@@ -28,7 +28,10 @@ export default {
             import('@/views/Pages/Accountant/PaymentProposal/PaymentProposalList.vue'),
           name: 'accountant.payment-proposal.payment-proposal-list',
           meta: {
-            title: t('router.paymentProposalList')
+            title: t('router.paymentProposalList'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -55,7 +58,10 @@ export default {
             import('@/views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAndExpenditures.vue'),
           name: 'accountant.receipts-expenditures.receipts-expenditures-list',
           meta: {
-            title: t('router.receiptsAndExpendituresList')
+            title: t('router.receiptsAndExpendituresList'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {
@@ -83,7 +89,10 @@ export default {
       name: 'accountant.balanceSheet',
       component: () => import('@/views/Pages/Accountant/BalanceSheet.vue'),
       meta: {
-        title: t('router.balanceSheet')
+        title: t('router.balanceSheet'),
+        add: true,
+        edit: true,
+        delete:true,
       }
     },
     {

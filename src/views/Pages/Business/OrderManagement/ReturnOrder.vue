@@ -176,7 +176,6 @@ const removeRow = (scope) => {
   }
   emit('remove-row', scope.$index)
 }
-// const tableListReturnAheadOfTime = ref(props.listProductsTable)
 
 interface tableReturnType {
   productPropertyId: number | undefined
@@ -263,11 +262,8 @@ watch(
 const createAtStatus = ref(new Date())
 const approvalAtStatus = ref()
 
-console.log('props.detailExpand: ', props.detailExpand)
-
 onBeforeMount(()=>{
   statusApprovalExpand.value = props?.statusApproval
-  console.log('doneExpand: ', props.doneExpand)
   if (!props?.doneExpand) addRowTable()
 
 })
@@ -327,7 +323,7 @@ onBeforeMount(()=>{
 
         <div class="flex-1 flex items-start gap-4">
           <span>
-            <div>Mã QR đơn hàng</div>
+            <div class="text-right">Mã QR đơn hàng</div>
             <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
           </span>
 
@@ -416,6 +412,7 @@ onBeforeMount(()=>{
             v-if="!props?.doneExpand && !props?.detailExpand"
               v-model="scope.row.quantity"
               type="number"
+              :min="0"
               :max="scope.row.maximumQuantity"
             />
             <div v-else>{{ scope.row.quantity }}</div>
@@ -449,7 +446,7 @@ onBeforeMount(()=>{
               <span
                 class="box box_1 text-yellow-500 dark:text-black active"
               >
-              {{ t('reuse.initializeAndWrite') }}
+              {{ t('formDemo.approvedReturnAHeadOfTime') }}
                 <span class="triangle-right right_1"> </span>
               </span>
             </div>
@@ -469,22 +466,22 @@ onBeforeMount(()=>{
     <template #footer>
       <div class="flex justify-end">
         <div v-if="statusApprovalExpand != STATUS_ORDER_RENTAL[4].orderStatus">
-          <el-button type="primary" @click="postReturnRequest(3)">{{
+          <el-button class="min-w-36 min-h-11" type="primary" @click="postReturnRequest(3)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
-          <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
         <div v-if="statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus && !props?.cancelExpend">
           <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(120)"
             >Hoàn thành trả hàng</el-button
           >
-          <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
         <div v-if="props?.cancelExpend">
           <el-button class="min-w-42 min-h-11" @click="cancelPaymentRequest(STATUS_ORDER_RENTAL[5].orderStatus)"
             >Hủy trả hàng</el-button
           >
-          <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
       </div>
     </template>
@@ -720,7 +717,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -851,7 +848,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -977,7 +974,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1119,7 +1116,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input-number v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input-number v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1290,7 +1287,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">

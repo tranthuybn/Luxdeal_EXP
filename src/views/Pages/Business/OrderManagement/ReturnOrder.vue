@@ -115,10 +115,11 @@ const postReturnRequest = async (orderStatusType) => {
 const postReturnRequestSpa = async (orderStatusType) => {
   let chooseSpa = true
   props.orderData.tableData.forEach((row)=>{
-    if(!row.isSpa){
+    if(row.isSpa == undefined){
       chooseSpa = false
     }
   })
+  console.log('props.orderData.tableData', props.orderData.tableData)
   if(chooseSpa){
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)}

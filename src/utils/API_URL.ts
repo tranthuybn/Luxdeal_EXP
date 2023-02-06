@@ -117,7 +117,8 @@ export const ORDER_API = {
   APPROVAL_ORDER: '/api/v1/Approve/ApproveItem',
   APPROVAL_API_PAYMENT_LIST: '/api/v1/Approve/GetPaymentApprove',
   GET_ORDER_BY_COLLABOLATOR: '/api/v1/Order/GetOrderByCollabolatorId',
-  UPDATE_SPA_SERVICE: '/api/v1/Order/UpdateSpaService'
+  UPDATE_SPA_SERVICE: '/api/v1/Order/UpdateSpaService',
+  CANCEL_UPDATE_SPA_SERVICE: '/api/v1/Order/CancelUpdateSpaService'
 }
 export const ADDRESS_API = {
   CITY: '/api/v1/Address/getAllCity',

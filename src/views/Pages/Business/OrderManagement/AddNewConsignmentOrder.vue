@@ -1296,7 +1296,7 @@ const postData = async () => {
         type: 'warning'
       })
     }
-    idOrderPost.value = res
+    idOrderPost.value = res.data
     automaticCouponWareHouse(1)
   }
 }

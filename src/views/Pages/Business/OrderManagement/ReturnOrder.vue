@@ -6,16 +6,19 @@ import {
   ElTableColumn,
   ElButton,
   ElInput,
+  ElInputNumber,
   ElDatePicker,
   ElSelect,
   ElOption,
-ElNotification
+ElNotification,
+  ElMessage
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { dateTimeFormat } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { STATUS_ORDER_RENTAL, STATUS_ORDER_DEPOSIT } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -63,6 +66,26 @@ const props = defineProps({
   statusActive: {
     type: Number,
     default: 0
+  },
+  statusApproval: {
+    type: Number,
+    default: 0
+  },
+  dateApproval: {
+    type: String,
+    default: ''
+  },
+  detailExpand: {
+    type: Object,
+    default: () => {}
+  },
+  doneExpand: {
+    type: Boolean,
+    default: false
+  },
+  cancelExpend: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -83,7 +106,8 @@ const emit = defineEmits([
   'post-return-request',
   'extend-date',
   'remove-row',
-  'update-status'
+  'update-status',
+  'cancel-expend'
 ])
 type Product = {
   productCode: string
@@ -132,9 +156,14 @@ const postReturnRequestSpa = async (orderStatusType) => {
 }
 
 const donePaymentRequest = async (orderStatusType) => {
-  emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)
-  emit('update-status')
+  emit('update-status', orderStatusType)
+}
+
+const cancelPaymentRequest = async (orderStatusType) => {
+  emit('update:modelValue', false)
+  emit('cancel-expend')
+  emit('update-status', orderStatusType)
 }
 
 const disableCheck = ref(false)
@@ -148,8 +177,6 @@ const removeRow = (scope) => {
   }
   emit('remove-row', scope.$index)
 }
-const tableListReturnAheadOfTime = ref(props.listProductsTable)
-console.log('tableListReturnAheadOfTime: ', tableListReturnAheadOfTime.value)
 
 interface tableReturnType {
   productPropertyId: number | undefined
@@ -171,11 +198,24 @@ const addRowTable = () => {
   tableAheadOfTime.value.push({ ...productForSale })
 }
 
+const duplicateProduct = ref()
+const duplicateProductMessage = () => {
+  ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
+}
 // update value table
 const updateValueTable = (_value, obj, scope) => {
   const data = scope.row
-  data.productPropertyId = obj.productPropertyId
-  data.productPropertyName = obj.name
+  duplicateProduct.value = undefined
+  duplicateProduct.value = tableAheadOfTime.value?.find(
+    (val) => val?.productPropertyId == _value
+  )
+  if (duplicateProduct.value) {
+    duplicateProductMessage()
+  } else if(!data?.selected) {
+      data.productPropertyId = obj?.productPropertyId
+      data.productPropertyName = obj?.name
+      data.maximumQuantity = obj?.maximumQuantity
+  }
 }
 
 // Trả hàng trước hạn
@@ -183,8 +223,9 @@ watch(
   () => tableAheadOfTime.value[tableAheadOfTime.value.length - 1],
   () => {
     if (
-      tableAheadOfTime.value[tableAheadOfTime.value.length - 1].productPropertyName &&
-      tableAheadOfTime.value[tableAheadOfTime.value.length - 1].quantity 
+      tableAheadOfTime.value[tableAheadOfTime.value.length - 1]?.productPropertyName &&
+      tableAheadOfTime.value[tableAheadOfTime.value.length - 1]?.quantity 
+      && !props?.doneExpand && !props?.cancelExpend
     )
     addRowTable()
   },
@@ -192,17 +233,52 @@ watch(
     deep: true
   }
 )
+const statusApprovalExpand = ref()
+
+// Trạng thái duyệt trả hàng trước hạn được duyệt
+watch(
+  () => statusApprovalExpand,
+  () => {
+    if (statusApprovalExpand.value == STATUS_ORDER_RENTAL[4].orderStatus || 
+      statusApprovalExpand.value == STATUS_ORDER_DEPOSIT[5].orderStatus) {
+        approvalAtStatus.value = props?.dateApproval
+      }
+  },
+  {
+    deep: true
+  }
+)
+
+watch(
+  () => props?.detailExpand,
+  () => {
+    if (props?.doneExpand && props?.detailExpand || props?.cancelExpend && props?.detailExpand) tableAheadOfTime.value = props?.detailExpand.map((val) => ({
+    productPropertyId: val?.productPropertyId,
+    productPropertyName: val?.productPropertyName,
+    accessory: val?.accessory,
+    quantity: val?.quantity,
+    conditionProducts: val?.description
+  }))
+  }
+)
+
+// trạng thái trả hàng trước hạn
+const createAtStatus = ref(new Date())
+const approvalAtStatus = ref()
 
 onBeforeMount(()=>{
-  addRowTable()
+  statusApprovalExpand.value = props?.statusApproval
+  if (!props?.doneExpand) addRowTable()
 })
+console.log('statusApprovalExpand: ', statusApprovalExpand.value)
+console.log('statusApproval: ', props?.statusApproval)
 
 </script>
 <template>
   <!-- 2:Trả hàng trước hạn -->
   <el-dialog
     :model-Value="modelValue"
-    v-if="orderStatusType == 2"
+    v-if="orderStatusType == 3"
     @open="open"
     @close="close"
     class="font-bold"
@@ -252,7 +328,7 @@ onBeforeMount(()=>{
 
         <div class="flex-1 flex items-start gap-4">
           <span>
-            <div>Mã QR đơn hàng</div>
+            <div class="text-right">Mã QR đơn hàng</div>
             <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
           </span>
 
@@ -299,7 +375,8 @@ onBeforeMount(()=>{
         <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" width="300">
           <template #default="scope">
             <MultipleOptionsBox
-              :defaultValue="scope.row.productPropertyId"
+              :defaultValue="scope.row?.productPropertyId"
+              v-if="!props?.doneExpand && !props?.detailExpand"
               :fields="[
                 t('reuse.productCode'),
                 t('reuse.managementCode'),
@@ -315,6 +392,7 @@ onBeforeMount(()=>{
               :clearable="false"
               @update-value="(value, obj) => updateValueTable(value, obj, scope)"
             />
+            <div v-else>{{scope.row?.productPropertyName}}</div>
           </template>
         </el-table-column>
         <el-table-column
@@ -324,29 +402,31 @@ onBeforeMount(()=>{
           width="350"
         >
           <template #default="scope">
-            {{ scope.row.productPropertyName }}
+            {{ scope.row?.productPropertyName }}
           </template>
         </el-table-column>
         <el-table-column prop="accessory" :label="t('reuse.accessory')">
           <template #default="scope">
-            <el-input v-if="statusActive == 2" v-model="scope.row.accessory" />
-            <p v-else>{{ scope.row.accessory }}</p>
+            <el-input v-if="!props?.doneExpand && !props?.detailExpand" v-model="scope.row.accessory" />
+            <p v-else>{{ scope.row?.accessory }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
             <el-input
-              v-if="statusActive == 2"
+            v-if="!props?.doneExpand && !props?.detailExpand"
               v-model="scope.row.quantity"
               type="number"
-              :max="scope.row.quantity"
+              :min="0"
+              :max="scope.row.maximumQuantity"
             />
-            <p v-else>{{ scope.row.quantity }}</p>
+            <div v-else>{{ scope.row.quantity }}</div>
           </template>
         </el-table-column>
         <el-table-column prop="conditionProducts" :label="t('reuse.conditionProducts')">
           <template #default="scope">
-            <el-input v-model="scope.row.conditionProducts" />
+            <el-input v-if="!props?.doneExpand && !props?.detailExpand" v-model="scope.row.conditionProducts" />
+            <div v-else>{{ scope.row.conditionProducts }}</div>
           </template>
         </el-table-column>
       </el-table>
@@ -357,44 +437,74 @@ onBeforeMount(()=>{
       <div class="flex gap-4 pb-2 items-center">
         <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
         <div class="flex items-center w-[100%]">
-          <div v-if="statusActive == 2" class="flex items-center gap-2 flex-wrap w-[100%]">
-            <span class="box dark:text-black">
-              {{ t('reuse.initializeAndWrite') }}
-              <span class="triangle-right"> </span>
-            </span>
-            <span
-              class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-            ></span>
-            <span class="box ml-2 text-yellow-500">
-              Duyệt trả hàng trước hạn
-              <span class="triangle-right"> </span>
-            </span>
-          </div>
+          <div class="flex items-center gap-2 flex-wrap w-[100%]">
+            <div class="flex gap-4">  
+              <span class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+              <span class="box dark:text-black">
+                {{ t('reuse.initializeAndWrite') }}
+                <span class="triangle-right"> </span>
+              </span>     
+
+              <span
+                class="triangle-left ml-[155px] border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+              ></span>
+              <span
+                class="box box_1 text-yellow-500 dark:text-black active"
+              >
+              {{ t('formDemo.approvedReturnAHeadOfTime') }}
+                <span class="triangle-right right_1"> </span>
+              </span>
+            </div>
+          </div>          
         </div>
       </div>
+      <div class="flex gap-4">
+          <label class="w-[30%]"></label>
+          <div class="w-[100%] flex gap-22">
+            <i class="">{{ dateTimeFormat(createAtStatus) }}</i>
+            <i
+              v-if="statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus || 
+              statusApprovalExpand == STATUS_ORDER_DEPOSIT[5].orderStatus">{{ dateTimeFormat(approvalAtStatus) }}</i>
+          </div>
+      </div>
+      
     </div>
 
     <template #footer>
       <div class="flex justify-end">
-        <div>
-          <el-button type="primary" @click="postReturnRequest(3)">{{
+        <div v-if="props?.doneExpand">
+          <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(120)">{{ t('formDemo.completeReturn') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+        </div>
+        <div v-else-if="props?.cancelExpend">
+          <el-button class="min-w-42 min-h-11" @click="cancelPaymentRequest(STATUS_ORDER_RENTAL[5].orderStatus)">{{
+            t('formDemo.cancelReturn') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+        </div>
+        <div
+          v-else-if="statusApprovalExpand != STATUS_ORDER_RENTAL[4].orderStatus ||
+          statusApproval != STATUS_ORDER_DEPOSIT[5].orderStatus">
+          <el-button class="min-w-36 min-h-11" type="primary" @click="postReturnRequest(3)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
-          <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
-        <div v-if="statusActive == 3">
-          <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(2)"
-            >Hoàn thành trả hàng</el-button
+        <div
+          v-else-if="(statusApprovalExpand == STATUS_ORDER_RENTAL[4].orderStatus || 
+          statusApproval == STATUS_ORDER_DEPOSIT[5].orderStatus) && !props?.cancelExpend">
+          <el-button class="min-w-42 min-h-11" type="warning" @click="donePaymentRequest(120)"
+            >{{ t('formDemo.completeReturn') }}</el-button
           >
-          <el-button class="min-w-32 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
+          <el-button class="min-w-36 min-h-11" @click="close">{{ t('reuse.exit') }}</el-button>
         </div>
       </div>
     </template>
   </el-dialog>
+
   <!-- 3.Trả hàng hết hạn -->
   <el-dialog
     :model-Value="modelValue"
-    v-if="orderStatusType == 3"
+    v-if="orderStatusType == 4"
     @open="open"
     @close="close"
     :title="t('reuse.informationReturnAfterDueDate')"
@@ -499,8 +609,8 @@ onBeforeMount(()=>{
         </el-table-column>
       </el-table>
       <div class="flex items-center">
-        <span class="w-[25%] text-base font-bold">{{ t('reuse.status') }}</span>
-        <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+        <span class="w-[15%] text-base font-bold">{{ t('reuse.status') }}</span>
+        <span class="block h-1 w-[85%] border-t-1 dark:border-[#4c4d4f]"></span>
       </div>
       <div class="flex gap-4 pb-2 items-center">
         <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
@@ -508,10 +618,16 @@ onBeforeMount(()=>{
           <span
             class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
           ></span>
-          <span class="box dark:text-black">
+          <span class="box dark:text-black active">
             {{ t('reuse.initializeAndWrite') }}
             <span class="triangle-right"> </span>
           </span>
+        </div>
+      </div>
+      <div class="flex gap-4 pb-2 items-center">
+        <label class="w-[30%] text-right !text-transparent">sss</label>
+        <div class="flex items-center w-[100%]">
+          <div >{{ dateTimeFormat(new Date()) }}</div>          
         </div>
       </div>
     </div>
@@ -615,7 +731,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -639,7 +755,7 @@ onBeforeMount(()=>{
           <span
             class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
           ></span>
-          <span class="box dark:text-black">
+          <span class="box dark:text-black active">
             {{ t('reuse.initializeAndWrite') }}
             <span class="triangle-right"> </span>
           </span>
@@ -746,7 +862,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -872,7 +988,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1014,7 +1130,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input-number v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1185,7 +1301,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -1361,6 +1477,19 @@ onBeforeMount(()=>{
 </template>
 
 <style scope>
+.limit-text {
+  display: -webkit-box;
+  max-height: 3.2rem;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  -webkit-line-clamp: 2;
+  line-height: 1.6rem;
+}
+.active {
+  opacity: 1 !important;
+}
 .box {
   padding: 0 10px 0 20px;
   position: relative;
@@ -1370,6 +1499,40 @@ onBeforeMount(()=>{
   border: 1px solid #ccc;
   background-color: #ccc;
   opacity: 0.6;
+}
+.box_1 {
+  border: 1px solid #fff0d9!important;
+  background-color: #fff0d9!important;
+}
+
+.box_2 {
+  border: 1px solid #f4f8fd;
+  background-color: #f4f8fd;
+}
+
+.box_3 {
+  border: 1px solid #d9d9d9;
+  background-color: #d9d9d9;
+}
+
+.box_4 {
+  border: 1px solid #fce5e1;
+  background-color: #fce5e1;
+}
+
+.right_1 {
+  border-left: 11px solid #fff0d9 !important;
+}
+.right_2 {
+  border-left: 11px solid #f4f8fd !important;
+}
+
+.right_3 {
+  border-left: 11px solid #d9d9d9 !important;
+}
+
+.right_4 {
+  border-left: 11px solid #fce5e1 !important;
 }
 
 .triangle-left {
@@ -1386,15 +1549,5 @@ onBeforeMount(()=>{
   border-top: 13px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
-}
-.limit-text {
-  display: -webkit-box;
-  max-height: 3.2rem;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-  -webkit-line-clamp: 2;
-  line-height: 1.6rem;
 }
 </style>

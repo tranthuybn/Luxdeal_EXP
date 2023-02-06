@@ -108,7 +108,7 @@ export default {
       children: [
         {
           path: 'user-account',
-          component: () => import('@/views/Pages/Approval/Accounts/index.vue'),
+          component: () => import('@/views/Pages/Approval/Accounts/ApprovalUserAccount.vue'),
           name: 'approve.accounts-approval.user-account',
           meta: {
             title: t('router.userAccount')
@@ -116,18 +116,10 @@ export default {
         },
         {
           path: 'collaborator-account',
-          component: () => import('@/views/Pages/Approval/Accounts/index.vue'),
+          component: () => import('@/views/Pages/Approval/Accounts/ApprovalCollaborators.vue'),
           name: 'approve.accounts-approval.collaborator-account',
           meta: {
             title: t('router.collaboratorAccount')
-          }
-        },
-        {
-          path: 'internal-account',
-          component: () => import('@/views/Pages/Approval/Accounts/index.vue'),
-          name: 'approve.accounts-approval.internal-account',
-          meta: {
-            title: t('router.internalAccount')
           }
         }
       ]

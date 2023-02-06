@@ -147,7 +147,6 @@ const duplicateProductMessage = () => {
 // update value table
 const updateValueTable = (_value, obj, scope) => {
   const data = scope.row
-  console.log('obj:', obj)
   duplicateProduct.value = undefined
   duplicateProduct.value = tableAheadOfTime.value?.find(
     (val) => val?.productPropertyId == _value
@@ -377,6 +376,7 @@ onBeforeMount(()=>{
                 v-model="scope.row.quantity" 
                 type="number" 
                 controls-position="right"
+                :min="0"
                 :max="scope.row.maximumQuantity" 
             />
           </template>
@@ -402,6 +402,12 @@ onBeforeMount(()=>{
             <span class="triangle-right"> </span>
           </span>
         </div>
+      </div>
+      <div class="flex gap-4">
+          <label class="w-[30%]"></label>
+          <div class="w-[100%] flex gap-22">
+            <div class="">{{ dateTimeFormat(new Date()) }}</div>
+          </div>
       </div>
     </div>
 

@@ -21,6 +21,8 @@ import {
 // import moment from 'moment'
 import { ElNotification } from 'element-plus'
 import moment from 'moment'
+import { useValidator } from '@/hooks/web/useValidator'
+import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 const router = useRouter()
 const currentRoute = String(router.currentRoute.value.params.backRoute)
@@ -30,6 +32,8 @@ let disableCheckBox = ref(false)
 
 const tab = router.currentRoute.value.params.tab
 const type = String(router.currentRoute.value.params.type)
+const { required } = useValidator()
+
 const schema = reactive<FormSchema[]>([
   {
     field: 'field1',
@@ -276,6 +280,15 @@ const schema4 = reactive<FormSchema[]>([
   }
 ])
 
+const rules = reactive({
+  name: [
+    required()
+  ],
+  code: [
+    required()
+  ]
+})
+
 watch(
   () => type,
   () => {
@@ -293,17 +306,7 @@ watch(
   }
 )
 const { push } = useRouter()
-// custom api form post
-type FormDataPost = {
-  Name: string
-  Code: string
-  IsActive?: boolean
-  isDelete: boolean
-  CreateAt?: any
-  CreateBy?: string
-  Image?: any
-  ImageID?: any
-}
+const checkTrungCode = ref(false)
 // custom api form edit
 type FormDataEdit = {
   Id: number
@@ -329,23 +332,7 @@ const customizeData = async (data) => {
   }else{
     formDataCustomize.value['status'] = 2
   }
-
-}
-
-const customPostDataDerpartment = (data) => {
-  const customData = {} as FormDataPost
-  
-  customData.Code = data.code
-  customData.Name = data.name
-  if (data.status == 1) {
-    customData.IsActive = true
-  } else if (data.status == 2) {
-    customData.IsActive = false
-    customData.isDelete = false
-  }
-  customData.CreateAt = moment().format('YYYY / MM / DD')
-
-  return customData
+  formDataCustomize.value.imageurl = `${API_URL}${data.path}`
 }
 
 const customEditDataDepartment = (data) => {
@@ -359,28 +346,39 @@ const customEditDataDepartment = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   return getData
 }
 
 const postDataDepartment = async (data) => {
-  data = customPostDataDerpartment(data)
+    if (data.status == 1) {
+    data.IsActive = true
+  } else if (data.status == 2) {
+    data.IsActive = false
+    data.isDelete = false
+  }
+  data.CreateAt = moment().format('YYYY / MM / DD')
+  data.Image = data.Image
+  
   await addNewDepartment(data)
-    .then(() => {
+    .then(() => 
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      }),
-        push({
-          name: 'human-resource-management.department-directory',
-          params: { backRoute: 'human-resource-management.department-directory' }
-        })
-    })
+      })        
+    )
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
         type: 'warning'
       })
     )
+    if (data.backRouter == true && checkTrungCode.value === true) {
+    push({
+          name: 'human-resource-management.department-directory',
+          params: { backRoute: 'human-resource-management.department-directory' }
+        })
+  }
 }
 const editDataDepartment = async (data) => {
   data = customEditDataDepartment(data)
@@ -405,41 +403,36 @@ const editDataDepartment = async (data) => {
 }
 
 // BRANCH
-const customPostDataBranch = (data) => {
-  const customData = {} as FormDataPost
-
-  customData.Code = data.code
-  customData.Name = data.name
-  if (data.status == 1) {
-    customData.IsActive = true
-  } else if (data.status == 2) {
-    customData.IsActive = false
-    customData.isDelete = false
-  }
-  customData.CreateAt = moment().format('YYYY / MM / DD')
-
-  return customData
-}
-
 const postDataBranch = async (data) => {
-  data = customPostDataBranch(data)
+  if (data.status == 1) {
+    data.IsActive = true
+  } else if (data.status == 2) {
+    data.IsActive = false
+    data.isDelete = false
+  }
+  data.CreateAt = moment().format('YYYY / MM / DD')
+  data.Image = data.Image
+  
   await addNewBranch(data)
     .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       }),
-        push({
-          name: 'human-resource-management.department-directory',
-          params: { backRoute: 'human-resource-management.department-directory' }
-        })
-    })
+      checkTrungCode.value = true        
+})
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
         type: 'warning'
       })
     )
+  if (data.backRouter == true && checkTrungCode.value === true) {
+    push({
+          name: 'human-resource-management.department-directory',
+          params: { backRoute: 'human-resource-management.department-directory' }
+        })
+  }
 }
 const customEditBranch = (data) => {
   const getData = {} as FormDataEdit
@@ -451,6 +444,7 @@ const customEditBranch = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   getData.Name = data.name
   return getData
 }
@@ -477,42 +471,35 @@ const editDataBranch = async (data) => {
 }
 
 // POSITION
-const customPostDataPosition = (data) => {
-  const customData = {} as FormDataPost
-
-  customData.Code = data.code
-  customData.Name = data.name
-  if (data.status == 1) {
-    customData.IsActive = true
-  } else if (data.status == 2) {
-    customData.IsActive = false
-    customData.isDelete = false
-  }
-  customData.CreateAt = moment().format('YYYY / MM / DD')
-  customData.Image = data.Image
-
-  return customData
-}
-
 const postDataPositon = async (data) => {
-  data = customPostDataPosition(data)
+    if (data.status == 1) {
+    data.IsActive = true
+  } else if (data.status == 2) {
+    data.IsActive = false
+    data.isDelete = false
+  }
+  data.CreateAt = moment().format('YYYY / MM / DD')
+  data.Image = data.Image
+  
   await addNewPosition(data)
-    .then(() => {
+    .then(() => 
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      }),
-        push({
-          name: 'human-resource-management.department-directory',
-          params: { backRoute: 'human-resource-management.department-directory' }
-        })
-    })
+      })        
+    )
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
         type: 'warning'
       })
     )
+    if (data.backRouter == true && checkTrungCode.value === true) {
+    push({
+          name: 'human-resource-management.department-directory',
+          params: { backRoute: 'human-resource-management.department-directory' }
+        })
+  }
 }
 const customEditPosition = (data) => {
   const getData = {} as FormDataEdit
@@ -523,9 +510,9 @@ const customEditPosition = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   getData.Code = data.code
   getData.Name = data.name
-  console.log('data2', getData)
   return getData
 }
 const editDataPosition = async (data) => {
@@ -551,41 +538,35 @@ const editDataPosition = async (data) => {
 }
 
 // TYPE OF STAFF
-const customPostDataStaff = (data) => {
-  const customData = {} as FormDataPost
-
-  customData.Code = data.code
-  customData.Name = data.name
-  if (data.status == 1) {
-    customData.IsActive = true
-  } else if (data.status == 2) {
-    customData.IsActive = false
-    customData.isDelete = false
-  }
-  customData.CreateAt = moment().format('YYYY / MM / DD')
-
-  return customData
-}
-
 const postDataStaff = async (data) => {
-  data = customPostDataStaff(data)
+    if (data.status == 1) {
+    data.IsActive = true
+  } else if (data.status == 2) {
+    data.IsActive = false
+    data.isDelete = false
+  }
+  data.CreateAt = moment().format('YYYY / MM / DD')
+  data.Image = data.Image
+  
   await addNewTypeOfStaff(data)
-    .then(() => {
+    .then(() => 
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      }),
-        push({
-          name: 'human-resource-management.department-directory',
-          params: { backRoute: 'human-resource-management.department-directory' }
-        })
-    })
+      })        
+    )
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail'),
+        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
         type: 'warning'
       })
     )
+    if (data.backRouter == true && checkTrungCode.value === true) {
+    push({
+          name: 'human-resource-management.department-directory',
+          params: { backRoute: 'human-resource-management.department-directory' }
+        })
+  }
 }
 const customEditStaff = (data) => {
   const getData = {} as FormDataEdit
@@ -597,7 +578,9 @@ const customEditStaff = (data) => {
     getData.IsActive = false
     getData.isDelete = false
   }
+  getData.Image = data.Image
   getData.Name = data.name
+
   return getData
 }
 const editDataStaff = async (data) => {
@@ -625,7 +608,7 @@ const editDataStaff = async (data) => {
 
 <template>
   <TableOperator
-    v-if="tab == 'branch'"
+    v-if="tab == 'Branch'"
     :schema="schema"
     :nameBack="currentRoute"
     :title="t('reuse.addNewBranch')"
@@ -635,53 +618,61 @@ const editDataStaff = async (data) => {
     :type="type"
     @customize-form-data="customizeData"
     :multipleImages="false"
+    :rules="rules"
     @post-data="postDataBranch"
     @edit-data="editDataBranch"
     :delApi="deleteBranch"
+    :formDataCustomize="formDataCustomize"
   />
   <TableOperator
-    v-if="tab == 'department'"
+    v-if="tab == 'Department'"
     :schema="schema2"
     :id="id"
     :tab="tab"
     :type="type"
     :nameBack="currentRoute"
     :title="t('reuse.addNewDepartment')"
+    :rules="rules"
     @post-data="postDataDepartment"
     @edit-data="editDataDepartment"
     @customize-form-data="customizeData"
     :multipleImages="false"
     :apiId="getDepartmentByID"
     :delApi="deleteDepartment"
+    :formDataCustomize="formDataCustomize"
   />
   <TableOperator
-    v-if="tab == 'rank'"
+    v-if="tab == 'Position'"
     :schema="schema3"
     :type="type"
     :id="id"
     :tab="tab"
     :nameBack="currentRoute"
     :title="t('reuse.addNewRank')"
+    :rules="rules"
     @post-data="postDataPositon"
     @edit-data="editDataPosition"
     @customize-form-data="customizeData"
     :apiId="getPositionByID"
     :multipleImages="false"
     :delApi="deletePosition"
+    :formDataCustomize="formDataCustomize"
   />
   <TableOperator
-    v-if="tab == 'tyOfPersonel'"
+    v-if="tab == 'TypeOfStaff'"
     :schema="schema4"
     :type="type"
     :id="id"
     :tab="tab"
     :nameBack="currentRoute"
     :title="t('reuse.addNewTypePersonnel')"
+    :rules="rules"
     @post-data="postDataStaff"
     @edit-data="editDataStaff"
     @customize-form-data="customizeData"
     :multipleImages="false"
     :apiId="getTypeOfStaffByID"
     :delApi="deleteTypeOfStaff"
+    :formDataCustomize="formDataCustomize"
   />
 </template>

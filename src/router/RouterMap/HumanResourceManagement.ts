@@ -19,7 +19,10 @@ export default {
       name: 'human-resource-management.personnel-accounts',
       component: () => import('@/views/Pages/HumanResourceManagement/PersonnelAccounts/index.vue'),
       meta: {
-        title: t('router.personnelAccounts')
+        title: t('router.personnelAccounts'),
+        add: true,
+        edit: true,
+        delete:true,
       }
     },
     {
@@ -41,7 +44,10 @@ export default {
       name: 'human-resource-management.department-directory',
       component: () => import('@/views/Pages/HumanResourceManagement/DepartmentDirectory.vue'),
       meta: {
-        title: t('router.departmentDirectory')
+        title: t('router.departmentDirectory'),
+        add: true,
+        edit: true,
+        delete:true,
       }
     },
     {
@@ -63,7 +69,10 @@ export default {
       name: 'human-resource-management.set-role',
       component: () => import('@/views/Pages/HumanResourceManagement/Roles/index.vue'),
       meta: {
-        title: t('reuse.setRole')
+        title: t('reuse.setRole'),
+        add: true,
+        edit: true,
+        delete:true,
       }
     },
     {

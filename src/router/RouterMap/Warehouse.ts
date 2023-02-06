@@ -20,7 +20,10 @@ export default {
       name: 'Inventorymanagement.ListWarehouse',
       redirect: { name: 'Inventorymanagement.ListWarehouse.inventory-tracking' },
       meta: {
-        title: t('router.createRepositoryDirectoryProductStorage')
+        title: t('router.createRepositoryDirectoryProductStorage'),
+        add: true,
+        edit: true,
+        delete:true,
       },
       children: [
         {
@@ -28,7 +31,10 @@ export default {
           component: () => import('@/views/Pages/Warehouse/BusinessProductWarehouse/index.vue'),
           name: 'Inventorymanagement.ListWarehouse.inventory-tracking',
           meta: {
-            title: t('router.inventoryTracking')
+            title: t('router.inventoryTracking'),
+            add: true,
+            edit: true,
+            delete:true,
           }
         },
         {

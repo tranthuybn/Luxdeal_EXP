@@ -1504,11 +1504,9 @@ const totalPriceWarehouse = ref(0)
 const warehouseTicketCode = ref()
 const staffId = ref()
 const openDetailFullyIntegrated = async (props) => {
-  console.log('props: ', props)
   totalPriceWarehouse.value = 0
   const res = await GetWarehouseTransaction({ Id: parseInt(props.row.warehouseTicketId) })
   warehouseTicketCode.value = res.data[0].transactionCode
-  console.log('res: ', res)
   staffId.value = res.data[0].staffId
   tableFullyIntegrated.value = res.data[0].transactionDetails
   tableFullyIntegrated.value.forEach((el) => {

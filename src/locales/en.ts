@@ -1337,6 +1337,7 @@ export default {
     //them sua xoa
     addSuccess: 'Add success',
     updateSuccess: 'Update success',
+    updateStatusSuccess: 'Update status success',
     deleteSuccess: 'Delete success',
     deleteCancel: 'Delete cancel',
     deleteFail: 'Delete fail',
@@ -1380,6 +1381,7 @@ export default {
     selectRankOrigin: 'Select rank of origin',
     inputOrigin: 'Input name of origin',
     updateFail: 'Update Fail',
+    updateStatusFail: 'update status fail',
     //CSKH
     potentialCustomerHistory: 'Potential customer service history',
     deleteUnit: 'Are you sure want to delete ?',

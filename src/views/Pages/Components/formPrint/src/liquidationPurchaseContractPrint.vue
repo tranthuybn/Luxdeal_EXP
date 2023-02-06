@@ -106,7 +106,7 @@ function getArraySum(arr) {
             <el-table-column prop="code" label="Code" align="center" />
             <el-table-column prop="accessory" label="Phụ kiện đi kèm" align="center" />
             <el-table-column prop="unitPrice" label="Giá nhập" align="center" />
-            <el-table-column prop="businessSetup" label="Loại hàng" align="center" />
+            <el-table-column prop="businessSetupName" label="Loại hàng" align="center" />
             <el-table-column prop="note" label="Ghi chú" align="center" />
           </el-table>
           <div class="total-money text-end pr-[115px]" v-if="dataEdit">

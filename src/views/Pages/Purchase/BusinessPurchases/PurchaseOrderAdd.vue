@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, unref, onBeforeMount } from 'vue'
+import { reactive, ref, watch, unref, onBeforeMount, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
@@ -373,7 +373,7 @@ interface ListOfProductsForSaleType {
   productPropertyId: string
   quantity: number
   businessSetup: string
-  businessManagement: string
+  businessSetupName: string
   accessory: string | undefined
   code: string | undefined
   description: string | undefined
@@ -396,7 +396,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyId: '',
   quantity: 0,
   businessSetup: '',
-  businessManagement: '',
+  businessSetupName: '',
   code: '',
   description: '',
   accessory: '',
@@ -592,7 +592,7 @@ const callApiProductList = async () => {
       name: product.name ?? '',
       unitPrice: product.unitPrice,
       unitName: product.unitName,
-      productPropertyId: product.id,
+      productPropertyId: product?.id,
       productPropertyCode: product.productPropertyCode
     }))
   }
@@ -622,7 +622,7 @@ const ScrollProductBottom = () => {
                   value: product.productCode,
                   name: product.name ?? '',
                   unitPrice: product.unitPrice.toString(),
-                  productPropertyId: product.id,
+                  productPropertyId: product?.id,
                   productPropertyCode: product.productPropertyCode
                 })
               )
@@ -646,14 +646,14 @@ const getValueOfSelected = async (_value, obj, scope) => {
   const data = scope.row
   duplicateProduct.value = undefined
   duplicateProduct.value = ListOfProductsForSale.value.find(
-    (val) => val.productPropertyId == _value
+    (val) => val?.productPropertyId == _value
   )
   if (duplicateProduct.value) {
     duplicateProductMessage()
   } else {
     totalPriceOrder.value = 0
     totalFinalOrder.value = 0
-    data.productPropertyId = obj.productPropertyId
+    data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
     data.unitName = obj.unitName
@@ -676,33 +676,53 @@ const getValueOfSelected = async (_value, obj, scope) => {
   }
 }
 
+const duplicateProductChildren = ref()
 const updatePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.unitPrice = Number(obj.unitPrice)
-  scope.row.accessory = obj.accessory
-  scope.row.quantity = Number(obj.quantity)
-  scope.row.totalPrice = Number(obj.totalPrice)
-  getRefundPrice()
+  const data = scope.row
+  duplicateProductChildren.value = undefined
+  duplicateProductChildren.value = tableReturnFullyIntegrated.value?.find(
+    (val) => val?.productPropertyId == _value
+  )
+  if (duplicateProductChildren.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj?.productPropertyId
+    data.productCode = obj.productCode
+    data.productPropertyName = obj.productPropertyName
+    data.unitPrice = Number(obj.unitPrice)
+    data.totalPrice = Number(obj.unitPrice) * data.quantity
+    data.maximumQuantity = obj.maximumQuantity
+    data.quantity = obj.quantity
+  }
 }
 const updateExchangePrice = (_value, obj, scope) => {
-  scope.row.productPropertyId = obj.productPropertyId
-  scope.row.unitPrice = Number(obj.unitPrice)
-  scope.row.accessory = obj.accessory
-  scope.row.quantity = Number(obj.quantity)
-  scope.row.totalPrice = Number(obj.totalPrice)
-  getExportPrice()
+  const data = scope.row
+  duplicateProductChildren.value = undefined
+  duplicateProductChildren.value = tableProductInformationExportChange.value?.find(
+    (val) => val?.productPropertyId == _value
+  )
+  if (duplicateProductChildren.value) {
+    duplicateProductMessage()
+  } else {
+    data.productPropertyId = obj?.productPropertyId
+    data.productCode = obj.productCode
+    data.productPropertyName = obj.productPropertyName
+    data.unitPrice = Number(obj.unitPrice)
+    data.totalPrice = Number(obj.unitPrice) * data.quantity
+    data.maximumQuantity = obj.maximumQuantity
+    data.quantity = obj.quantity
+  }
 }
 let customerID = ref()
 
 const getValueOfCustomerSelected = (value, obj) => {
   changeAddressCustomer(value)
   customerID.value = value
-  formAddress.province = obj.provinceId ?? ''
-  formAddress.district = obj.districtId ?? ''
-  formAddress.wardCommune = obj.wardId ?? ''
-  formAddress.detailedAddress = obj.address ?? ''
+  formAddress.province = obj.provinceId != null ? obj.provinceId : ''
+  formAddress.district = obj.districtId != null ? obj.districtId : ''
+  formAddress.wardCommune = obj.wardId != null ? obj.wardId : ''
+  formAddress.detailedAddress = obj.address != null ? obj.address : ''
   ruleForm.customerName = obj.label
-  console.log('address: ', formAddress, obj)
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
@@ -817,10 +837,25 @@ const reloadStatusOrder = async () => {
   arrayStatusOrder.value = orderObj?.statusHistory
   if (arrayStatusOrder.value?.length) {
     arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt) {
+      checkApprovalAt.value = true
+      hiddenEditButton.value = true
+    } else {
+      checkApprovalAt.value = false
+      hiddenEditButton.value = false
+    }
     statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
     if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
       duplicateStatusButton.value = true
     else duplicateStatusButton.value = false
+  }
+}
+
+const checkQuantity = (value) => {
+  if (isNaN(value)) {
+    ElMessage.error(t('reuse.numberFormat'))
+  } else if (value < 0) {
+    ElMessage.error(t('reuse.positiveNumber'))
   }
 }
 
@@ -1122,11 +1157,11 @@ const checkValidatorProduct = ref(false)
 // Tạo đơn hàng
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
-    ProductPropertyId: parseInt(val.productPropertyId),
+    ProductPropertyId: parseInt(val?.productPropertyId),
     Quantity: val.quantity,
     UnitPrice: val.unitPrice,
     TotalPrice: val.totalPrice,
-    BusinessSetup: val.businessManagement,
+    BusinessSetup: val.businessSetup,
     DepositePrice: 0,
     DiscountMoney: 0,
     InterestMoney: 0,
@@ -1139,8 +1174,9 @@ const postData = async () => {
   orderDetailsTable.pop()
   if (orderDetailsTable?.length > 0) {
     orderDetailsTable.forEach((el) => {
-      if (el.Quantity == 0) {
+      if (el.Quantity == 0 || el.Quantity < 0) {
         checkValidatorProduct.value = true
+        ElMessage.error(t('reuse.positiveNumber'))
       }
     })
     if (!checkValidatorProduct.value) {
@@ -1255,9 +1291,21 @@ const getCustomerInfo = async (id: string) => {
   customerData.address = orderObj.address
 }
 
+watch(
+  () => arrayStatusOrder?.value,
+  () => {
+    if (arrayStatusOrder.value[0].orderStatus == STATUS_ORDER_PURCHASE[1].orderStatus
+    && arrayStatusOrder.value[0].approvedAt != null) {
+      checkButtonPrint.value = true
+    }
+  }
+)
+
 const duplicateStatusButton = ref(false)
 const checkDisabledEditButton = ref(false)
 const hiddenEditButton = ref(false)
+const checkApprovalAt = ref(false)
+const checkButtonPrint = ref(false)
 const editData = async () => {
   if (type == 'detail') {
     checkDisabled.value = true
@@ -1287,12 +1335,25 @@ const editData = async () => {
     arrayStatusOrder.value = orderObj?.statusHistory
     if (arrayStatusOrder.value?.length) {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+      if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt) {
+        hiddenEditButton.value = true
+        checkApprovalAt.value = true
+      } else {
+        hiddenEditButton.value = false
+        checkApprovalAt.value = false
+      }
+
       if (type != 'approval-order')
         statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
       else statusOrder.value = 200
       statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
-    }
 
+      if (statusOrder.value == STATUS_ORDER_PURCHASE[0].orderStatus) {
+        editButton.value = false
+        checkDisabled.value = true
+      }
+    }
+    
     if (
       arrayStatusOrder.value.find((e) => e.orderStatus == STATUS_ORDER_PURCHASE[3].orderStatus) ||
       arrayStatusOrder.value.find((e) => e.orderStatus == 0)
@@ -1330,7 +1391,7 @@ const editData = async () => {
       ruleForm.orderNotes = orderObj.description
       totalPriceOrder.value = orderObj.totalPrice
       totalFinalOrder.value = orderObj.totalPrice
-      if (orderObj.status !== null) statusTracking.value = orderObj?.status.toString()
+      if (orderObj.status != null) statusTracking.value = orderObj?.status.toString()
       if (orderObj.vat) {
         VAT.value = true
         moneyVAT.value = orderObj.vatMoney
@@ -1367,14 +1428,19 @@ const editData = async () => {
   }
 }
 
+const typeEdit = ref(false)
+const idAccounting = ref()
 // Call api chi tiết bút toán theo id
 let formAccountingId = ref()
 const getAccountingEntry = (_index, scope) => {
+  typeEdit.value = true
   const data = scope.row
   if (data.content == 'Phiếu thanh toán') {
     openAcountingEntryDialog(data.id, 1)
+    idAccounting.value = data.id
   } else if (data.content == 'Phiếu thanh toán đổi/trả hàng') {
     openAcountingEntryDialog(data.id, 3)
+    typeButtonReturn.value = 1
   } else {
     openAcountingEntryDialog(data.id, 4)
   }
@@ -1392,6 +1458,7 @@ const openAcountingEntryDialog = async (index, num) => {
   moneyDeposit.value = formAccountingId.value?.accountingEntry.deibt
   alreadyPaidForTt.value = formAccountingId.value?.accountingEntry.isReceiptedMoney
   payment.value = formAccountingId.value?.accountingEntry.typeOfPayment
+  getReturnOrder()
   if (num == 1) {
     getSaleSlipInfo()
   } else if (num == 4) {
@@ -1416,21 +1483,32 @@ const getSaleSlipInfo = async () => {
 
 //lấy chi tiết đổi/trả hàng
 const getReturnRequestOrder = async () => {
+  if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.approvedAt != null
+    && (statusOrder.value == STATUS_ORDER_PURCHASE[5].orderStatus || 
+    statusOrder.value == STATUS_ORDER_PURCHASE[7].orderStatus)
+  ) {
+    disableReturn.value = true
+  } else if (typeButtonReturn.value == 2 || typeButtonReturn.value == 3) {
+    disableReturn.value = true
+  } else {
+    disableReturn.value = false
+  }
   const res = await getReturnRequest({ CustomerOrderId: id })
   listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
     productCode: row.productCode,
     productPropertyCode: row.productPropertyCode,
     productPropertyName: row.productPropertyName,
-    productPropertyId: row.productPropertyId,
+    productPropertyId: row?.productPropertyId,
     accessory: row.accessory,
     quantity: row.quantity,
     unitPrice: row.unitPrice,
     totalPrice: row.totalPrice
   }))
   const objDetail = res?.data[0]
-  refundPrice.value = objDetail.tienHoan
-  exportPrice.value = objDetail.tienBan
-  exchangePrice.value = objDetail.totalPrice
+  createAtStatus.value = objDetail?.statusHistory[0]?.approveAt
+  if (objDetail?.statusHistory.length > 1) {
+    approvalAtStatus.value = objDetail?.statusHistory[1]?.approveAt
+  }
   inputReasonReturn.value = objDetail.description
   if (objDetail.nhapDetails[0]?.productPropertyId)
     tableReturnFullyIntegrated.value = objDetail.nhapDetails
@@ -1539,7 +1617,7 @@ const getReturnRequestTable = async () => {
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
       createdAt: e.returnRequestInfo?.createdAt ?? '',
-      productPropertyId: e.productPropertyId,
+      productPropertyId: e?.productPropertyId,
       productPropertyCode: e.productPropertyCode,
       productPropertyName: e.productPropertyName,
       accessory: e.accessory,
@@ -1605,7 +1683,7 @@ watch(
     if (
       tableProductInformationExportChange.value[
         tableProductInformationExportChange.value.length - 1
-      ].productPropertyId
+      ]?.productPropertyId
     )
       addRowTableExportChange()
   },
@@ -1619,7 +1697,7 @@ watch(
   () => {
     if (
       tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1]
-        .productPropertyId
+        ?.productPropertyId
     )
       addRowTableReturnFullyIntegrated()
   },
@@ -1662,12 +1740,12 @@ const listApplyExport = [
     applyExport: 'Bán'
   },
   {
-    id: 2,
+    id: 3,
     check: true,
     applyExport: 'Cho thuê'
   },
   {
-    id: 3,
+    id: 5,
     check: true,
     applyExport: 'Spa'
   }
@@ -1684,6 +1762,7 @@ const nameDialog = ref('')
 let tableSalesSlip = ref()
 
 function openBillDialog() {
+  typeEdit.value = false
   moneyDeposit.value = 0
   alreadyPaidForTt.value = true
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
@@ -1963,6 +2042,31 @@ let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
 
+//cập nhật phiếu thanh toán
+const updateOrderStransaction = async () => {
+  const payload = {
+    accountingEntryId: idAccounting.value,
+    paymentRequestId: 0,
+    receiptOrPaymentVoucherId: 0,
+    isReceiptedMoney: true,
+    status: 0,
+    paymentMethods: 1,
+    paidMoney: inputDeposit.value,
+    deibt: moneyDeibt.value
+  }
+  updateOrderTransaction(payload).then(() => {
+    getOrderStransactionList()
+  })
+}
+
+const saveOrderStransaction = () => {
+  if (typeEdit.value == true) {
+    updateOrderStransaction()
+  } else {
+    postOrderStransaction(1)
+  }
+}
+
 // Thêm bút toán cho đơn hàng
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
@@ -2007,41 +2111,68 @@ const checkMaximunQuantity = (scope) => {
   if (data.quantity > data.maximumQuantity) showErrorMessage(data.maximumQuantity)
 }
 
+const getReturnOrder = () => {
+  listOfOrderProduct.value = ListOfProductsForSale.value?.map((el) => ({
+    productCode: el?.productCode,
+    productPropertyCode: el?.productPropertyCode,
+    productPropertyName: el?.productPropertyName,
+    productPropertyId: el?.productPropertyId,
+    unitPrice: el?.unitPrice,
+    totalPrice: el?.totalPrice,
+    maximumQuantity: el?.quantity,
+    quantity: el?.quantity
+  }))
+}
+
+const typeButtonReturn = ref(1)
+const createAtStatus = ref(new Date())
+const approvalAtStatus = ref()
 const returnRequestId = ref()
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async () => {
-  changeReturnGoods.value = false
+  codeReturnRequest.value = autoCodeReturnRequest
+  const tableImportPost = ref()
+  const tableExportPost = ref()
   if (
-    !tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1].productPropertyId
-  ) {
+    !tableReturnFullyIntegrated.value[tableReturnFullyIntegrated.value.length - 1]
+      ?.productPropertyId
+  )
     tableReturnFullyIntegrated.value.pop()
-  }
-
   if (
     !tableProductInformationExportChange.value[tableProductInformationExportChange.value.length - 1]
-      .productPropertyId
-  ) {
+      ?.productPropertyId
+  )
     tableProductInformationExportChange.value.pop()
-  }
-  codeReturnRequest.value = autoCodeReturnRequest
+  if (tableReturnFullyIntegrated.value?.length)
+    tableImportPost.value = tableReturnFullyIntegrated.value?.map((el) => ({
+      productPropertyId: el?.productPropertyId,
+      quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
+      accessory: '',
+      returnDetailType: 1,
+      unitPrice: el.unitPrice,
+      totalPrice: el.totalPrice
+    }))
+  if (tableProductInformationExportChange.value?.length)
+    tableExportPost.value = tableProductInformationExportChange.value?.map((el) => ({
+      productPropertyId: el?.productPropertyId,
+      quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
+      accessory: '',
+      returnDetailType: 2,
+      unitPrice: el.unitPrice,
+      totalPrice: el.totalPrice
+    }))
   const payload = {
     customerOrderId: id,
     code: codeReturnRequest.value,
-    name: 'Đổi trả đơn hàng',
-    description: inputReasonReturn.value,
+    name: 'Đổi trả đơn hàng ',
+    description: inputReasonReturn.value ?? '',
     returnRequestType: 1,
+    tienBan: refundPrice.value ?? 0,
+    tienHoan: exportPrice.value ?? 0,
+    totalPrice: exchangePrice.value ?? 0,
+    nhapDetails: tableImportPost.value ?? [],
+    xuatDetails: tableExportPost.value ?? [],
     giaHanDetails: [],
-    nhapDetails:
-      tableReturnFullyIntegrated?.value[0]?.productPropertyId !== ''
-        ? tableReturnFullyIntegrated.value
-        : [],
-    xuatDetails:
-      tableProductInformationExportChange?.value[0]?.productPropertyId !== ''
-        ? tableProductInformationExportChange.value
-        : [],
-    totalPrice: exchangePrice.value,
-    tienBan: refundPrice.value,
-    tienHoan: exportPrice.value,
     isPaid: alreadyPaidForTt.value
   }
   const res = await createReturnRequest(JSON.stringify(payload))
@@ -2051,8 +2182,22 @@ const postReturnRequest = async () => {
     else tableAccountingEntry.value[0].receiveMoney = exchangePrice.value
     await postOrderStransaction(3)
     createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
+      .then((res) => {
+        if(res.statusCode == 400) {
+          ElNotification({
+            message: 'Đơn hàng chưa được nhập kho',
+            type: 'warning'
+          })
+        }
+       }).catch(() => {
+      ElNotification({
+      message: 'Đơn hàng chưa được nhập kho',
+      type: 'warning'
+    })
+    })
   }
   getReturnRequestTable()
+  reloadStatusOrder()
 }
 
 const getReceiptCode = async () => {
@@ -2111,7 +2256,7 @@ const callApiWarehouse = async (scope) => {
   indexRowWarehouse.value = scope.$index
 
   const res = await GetProductPropertyInventory({
-    ProductPropertyId: data.productPropertyId
+    ProductPropertyId: data?.productPropertyId
   })
   tableWarehouse.value = res?.inventoryDetails.map((val) => ({
     warehouseCheckbox: val.id,
@@ -2136,17 +2281,19 @@ const callApiWarehouseTotal = async (productPropertyId = 0) => {
 
 const getTotalWarehouse = () => {
   ListOfProductsForSale.value.forEach(async (el) => {
-    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el.productPropertyId))
+    el.warehouseTotal = await callApiWarehouseTotal(parseInt(el?.productPropertyId))
   })
 }
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
   const label = val.map((e) => e.applyExport)
-  ListOfProductsForSale.value[indexRow.value].businessSetup = label.join(', ')
+  const x = val.map((e) => e.id)
+  ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(', ')
+  ListOfProductsForSale.value[indexRow.value].businessSetupName = label.join(', ')
 }
 
 const ckeckChooseProduct = (scope) => {
-  if (!scope.row.productPropertyId) {
+  if (!scope.row?.productPropertyId) {
     ElNotification({
       message: 'Bạn phải chọn sản phẩm trước',
       type: 'info'
@@ -2156,62 +2303,36 @@ const ckeckChooseProduct = (scope) => {
   }
 }
 //TruongNgo
-const refundPrice = ref(0)
-const exportPrice = ref(0)
-const exchangePrice = ref(0)
-
-watch(
-  () => refundPrice.value,
-  () => {
-    exchangePrice.value = Math.abs(refundPrice.value - exportPrice.value)
-  },
-  {
-    deep: true
-  }
-)
-
-watch(
-  () => exportPrice.value,
-  () => {
-    exchangePrice.value = Math.abs(refundPrice.value - exportPrice.value)
-  },
-  {
-    deep: true
-  }
-)
+const refundPrice = computed(() => {
+  return getRefundPrice()
+})
+const exportPrice = computed(() => {
+  return getExportPrice()
+})
+const exchangePrice = computed(() => {
+  return refundPrice.value - exportPrice.value
+})
 
 const getRefundPrice = () => {
-  refundPrice.value = 0
-  if (tableReturnFullyIntegrated.value?.length) {
-    tableReturnFullyIntegrated?.value.map((item) => {
-      refundPrice.value += item.totalPrice
-    })
-  }
+  let price = 0
+  tableReturnFullyIntegrated.value.map((item) => {
+    item.totalPrice !== undefined ? (price += item.totalPrice) : ''
+  })
+  return price
 }
 const getExportPrice = () => {
-  exportPrice.value = 0
-  if (tableReturnFullyIntegrated.value?.length) {
-    tableProductInformationExportChange?.value?.map((item) => {
-      if (item.totalPrice) exportPrice.value += item.totalPrice
-    })
-  }
+  let money = 0
+  tableProductInformationExportChange.value.map((item) => {
+    item.totalPrice !== undefined ? (money += item.totalPrice) : ''
+  })
+  return money
 }
 
 const listOfOrderProduct = ref()
 const openDialogReturnOrder = () => {
-  console.log('ListOfProductsForSale.value', ListOfProductsForSale.value)
-  listOfOrderProduct.value = ListOfProductsForSale.value.map((row) => ({
-    productCode: row.productCode,
-    productPropertyCode: row.productPropertyCode,
-    productPropertyName: row.productPropertyName,
-    productPropertyId: row.productPropertyId,
-    accessory: row.accessory,
-    quantity: row.quantity,
-    unitPrice: row.unitPrice,
-    totalPrice: row.totalPrice
-  }))
   changeReturnGoods.value = true
   alreadyPaidForTt.value = false
+  typeButtonReturn.value = 1
 }
 
 // disabled in hợp đồng thanh lý và phiếu thanh toán / đặt cọc / tạm ứng
@@ -2250,6 +2371,7 @@ const cancelOrderPurchase = async () => {
   const formPayload = FORM_IMAGES(payload)
 
   await cancelOrder(formPayload)
+  reloadStatusOrder()
 }
 
 const editOrderInfo = async () => {
@@ -2259,7 +2381,6 @@ const editOrderInfo = async () => {
     CollaboratorCommission: parseFloat(ruleForm.discount),
     CustomerId: customerID.value,
     Description: ruleForm.orderNotes,
-    WarehouseId: ruleForm.warehouse,
     Files: Files,
     DeleteFileIds: '',
     DeliveryOptionId: ruleForm.delivery ? ruleForm.delivery : dataEdit.value?.deliveryOption,
@@ -2269,14 +2390,22 @@ const editOrderInfo = async () => {
     Address: customerAddress.value ? customerAddress.value : dataEdit.value?.address,
     Status: statusTracking.value
   }
-  console.log('payload', payload)
   const formDataPayLoad = FORM_IMAGES(payload)
   await updateOrderInfo(formDataPayLoad)
     .then(() => {
+      router.push({
+      name: `purchase.business-purchases.purchase-order-list.${utility}`,
+      params: {
+        backRoute: String(router.currentRoute.value.name),
+        type: 'detail',
+        id: id
+      }
+      }),
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      })
+      }),
+      editButton.value = false
     })
     .catch(() => {
       ElNotification({
@@ -2292,6 +2421,7 @@ const finishOrderPurchase = async () => {
   }
   const formPayload = FORM_IMAGES(payload)
   await finishOrder(formPayload)
+  reloadStatusOrder()
 }
 
 // infinity scroll CTV
@@ -2422,14 +2552,37 @@ const callApiWarehouseList = async () => {
   }
 }
 
+const disableReturn = ref(false)
+const openFinishReturnRequest = () => {
+  typeButtonReturn.value = 2
+  getReturnRequestOrder()
+}
+
+const openCancelReturnRequest = () => {
+  typeButtonReturn.value = 3
+  getReturnRequestOrder()
+}
+
 //Hoàn thành yêu cầu đổi trả
 const finishReturnRequest = async () => {
-  await finishReturnOrder({ OrderId: id })
+  const payload = {
+    OrderId: id
+  }
+  const formCustomerPayLoad = FORM_IMAGES(payload)
+  await finishReturnOrder(formCustomerPayLoad)
+  reloadStatusOrder()
+  changeReturnGoods.value = false
 }
 
 //hủy yêu cầu đổi trả
 const cancelReturnRequest = async () => {
-  await cancelReturnOrder({ OrderId: id })
+  const payload = {
+    OrderId: id
+  }
+  const formCustomerPayLoad = FORM_IMAGES(payload)
+  await cancelReturnOrder(formCustomerPayLoad)
+  reloadStatusOrder()
+  changeReturnGoods.value = false
 }
 
 //duyệt đơn mua hàng
@@ -2441,28 +2594,17 @@ const approvalFunction = async () => {
   })
 }
 
-//lấy chi tiết phiếu nhập đổi
-const getInvoiceForGoodsEntering = () => {
-  tableInvoice.value = historyTable?.value?.map((e) => ({
-    productPropertyName: e?.productPropertyName,
-    accessory: e?.accessory,
-    quantity: e?.quantity,
-    warehouseTicketCode: e?.warehouseTicketCode
-  }))
-}
-
-//lấy chi tiết phiếu xuất trả
-const getInformationWarehouseReceipt = () => {
-  tableFullyIntegrated.value = historyTable?.value?.map((e) => ({
-    productPropertyName: e?.productPropertyName,
-    accessory: e?.accessory,
-    quantity: e?.quantity,
-    warehouseTicketCode: e?.warehouseTicketCode
-  }))
+//không duyệt đơn mua hàng
+const cancelApproval = async () => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: false }
+  await approvalOrder(FORM_IMAGES(payload))
+  router.push({
+    name: `approve.orders-approval.orders-new`
+  })
 }
 
 const ticketCode = ref()
-
+//lấy chi tiết phiếu nhập đổi/ xuất trả
 const showWarehouseTicket = async (scope) => {
   const data = scope.row
   const res_return = await getWareHouseTransactionList({ Id: data.warehouseTicketId })
@@ -2470,11 +2612,11 @@ const showWarehouseTicket = async (scope) => {
   inputRecharger.value = res_return?.data[0].staffName
   inputReasonReturn.value = res_return?.data[0].description
   if (data.returnDetailType == 1) {
+    tableInvoice.value = res_return?.data[0].transactionDetails
     invoiceForGoodsEntering.value = true
-    getInvoiceForGoodsEntering()
   } else {
+    tableFullyIntegrated.value = res_return?.data[0].transactionDetails
     informationWarehouseReceipt.value = true
-    getInformationWarehouseReceipt()
   }
 }
 
@@ -2499,6 +2641,8 @@ onBeforeMount(async () => {
     arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[1])
     arrayStatusOrder.value[0].createdAt = ''
     arrayStatusOrder.value[0].isActive = true
+    checkButtonPrint.value = true
+    hiddenEditButton.value = false
   }
 
   if (type === 'approval-order') {
@@ -2816,9 +2960,9 @@ onBeforeMount(async () => {
             >
               <el-option
                 v-for="item in listProductsTable"
-                :key="item.productPropertyId"
+                :key="item?.productPropertyId"
                 :label="item.productCode"
-                :value="item.productPropertyId"
+                :value="item?.productPropertyId"
               />
             </el-select>
           </div>
@@ -3215,6 +3359,7 @@ onBeforeMount(async () => {
                   <el-input
                     @change="
                       () => {
+                        checkQuantity(data.row.quantity)
                         data.row.totalPrice = data.row.unitPrice * data.row.quantity
                         autoCalculateOrder()
                       }
@@ -3544,7 +3689,7 @@ onBeforeMount(async () => {
                   type="primary"
                   @click="
                     () => {
-                      postOrderStransaction(1)
+                      saveOrderStransaction()
                       dialogSalesSlipInfomation = false
                     }
                   "
@@ -3613,14 +3758,15 @@ onBeforeMount(async () => {
         </div>
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableFullyIntegrated" border style="width: 100%">
-            <el-table-column label="STT" type="index" align="center" />
+            <el-table-column label="STT" type="index" align="center" width="60" />
             <el-table-column
               prop="productPropertyName"
               :label="t('formDemo.commodityName')"
-              width="280"
+              min-width="280"
             />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="100" />
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="100" />
+            <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" min-width="100" />
           </el-table>
         </div>
         <div class="flex items-center">
@@ -3711,14 +3857,15 @@ onBeforeMount(async () => {
         </div>
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tableInvoice" border style="width: 100%">
-            <el-table-column label="STT" type="index" align="center" />
+            <el-table-column label="STT" type="index" align="center" width="60" />
             <el-table-column
               prop="productPropertyName"
               :label="t('formDemo.commodityName')"
-              width="280"
+              min-width="280"
             />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" />
-            <el-table-column prop="quantity" :label="t('reuse.quantity')" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="100" />
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="100" />
+            <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" min-width="100" />
           </el-table>
         </div>
         <div class="flex items-center">
@@ -4194,7 +4341,7 @@ onBeforeMount(async () => {
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
                         <el-select
-                          :disabled="checkDisabled"
+                          :disabled="type == 'edit' || type == 'detail' || type == 'approval-order' ? true : false"
                           v-model="ruleForm.warehouse"
                           class="fix-full-width"
                           :placeholder="t('reuse.chooseImportWarehouse')"
@@ -4383,7 +4530,7 @@ onBeforeMount(async () => {
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
-              <el-input v-model="inputReasonReturn" class="w-[100%]" />
+              <el-input :disabled="disableReturn" v-model="inputReasonReturn" class="w-[100%]" />
             </div>
           </div>
         </div>
@@ -4408,7 +4555,7 @@ onBeforeMount(async () => {
             >
               <template #default="props">
                 <MultipleOptionsBox
-                  :defaultValue="props.row.productPropertyId"
+                  :defaultValue="props.row?.productPropertyId"
                   :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
@@ -4423,6 +4570,7 @@ onBeforeMount(async () => {
                   @scroll-top="ScrollProductTop"
                   @scroll-bottom="ScrollProductBottom"
                   :clearable="false"
+                  :disabled="disableReturn"
                   @update-value="(value, obj) => updateExchangePrice(value, obj, props)"
                 />
               </template>
@@ -4430,6 +4578,7 @@ onBeforeMount(async () => {
             <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="180">
               <template #default="props">
                 <el-input
+                  :disabled="disableReturn"
                   :v-model="props.row.accessory"
                   :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
                 />
@@ -4438,10 +4587,12 @@ onBeforeMount(async () => {
             <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="90">
               <template #default="props">
                 <el-input
+                  :disabled="disableReturn"
                   :modelValue="props.row.quantity"
                   @input="(event) => (props.row.quantity = Number(event))"
                   @change="
                     () => {
+                      checkQuantity(props.row.quantity)
                       checkMaximunQuantity(props)
                       getExportPrice()
                     }
@@ -4453,6 +4604,7 @@ onBeforeMount(async () => {
               <template #default="props">
                 <CurrencyInputComponent
                   @change="getExportPrice"
+                  :disabled="disableReturn"
                   v-model="props.row.unitPrice"
                   class="text-right"
                 />
@@ -4488,7 +4640,7 @@ onBeforeMount(async () => {
             >
               <template #default="props">
                 <MultipleOptionsBox
-                  :defaultValue="props.row.productPropertyId"
+                  :defaultValue="props.row?.productPropertyId"
                   :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
@@ -4503,6 +4655,7 @@ onBeforeMount(async () => {
                   @scroll-top="ScrollProductTop"
                   @scroll-bottom="ScrollProductBottom"
                   :clearable="false"
+                  :disabled="disableReturn"
                   @update-value="(value, obj) => updatePrice(value, obj, props)"
                 />
               </template>
@@ -4511,6 +4664,7 @@ onBeforeMount(async () => {
               <template #default="props">
                 <el-input
                   :v-model="props.row.accessory"
+                  :disabled="disableReturn"
                   :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
                 />
               </template>
@@ -4519,9 +4673,11 @@ onBeforeMount(async () => {
               <template #default="props">
                 <el-input
                   :modelValue="props.row.quantity"
+                  :disabled="disableReturn"
                   @input="(event) => (props.row.quantity = Number(event))"
                   @change="
                     () => {
+                      checkQuantity(props.row.quantity)
                       checkMaximunQuantity(props)
                       getRefundPrice()
                     }
@@ -4533,6 +4689,7 @@ onBeforeMount(async () => {
               <template #default="props">
                 <CurrencyInputComponent
                   @change="getRefundPrice"
+                  :disabled="disableReturn"
                   v-model="props.row.unitPrice"
                   class="text-right"
                 />
@@ -4558,7 +4715,7 @@ onBeforeMount(async () => {
             <p class="pr-2">{{ changeMoney.format(refundPrice) }}</p>
             <p class="pr-2">{{ changeMoney.format(exportPrice) }}</p>
             <p class="pr-2 text-black font-bold dark:text-white">{{
-              changeMoney.format(exchangePrice)
+              moneyFormat(Math.abs(exchangePrice))
             }}</p>
             <p class="pr-2" v-if="refundPrice < exportPrice">{{ t('reuse.haveToCollect') }}</p>
             <p class="pr-2" v-else>{{ t('reuse.havetoPay') }}</p>
@@ -4574,6 +4731,7 @@ onBeforeMount(async () => {
             <div class="w-[100%]">
               <el-checkbox
                 v-model="alreadyPaidForTt"
+                :disabled="disableReturn"
                 :label="t('formDemo.alreadyPaidForTt')"
                 size="large"
               />
@@ -4581,7 +4739,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="disableReturn" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -4593,11 +4751,33 @@ onBeforeMount(async () => {
           <div class="flex gap-4 pb-2 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
             <div class="flex items-center w-[100%]">
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
+              <div class="flex items-center gap-2 flex-wrap w-[100%]">
+                <div class="flex gap-4">  
+                  <span class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                  <span class="box dark:text-black">
+                    {{ t('reuse.initializeAndWrite') }}
+                    <span class="triangle-right"> </span>
+                  </span>     
+
+                  <span
+                    class="triangle-left ml-[155px] border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_1 text-yellow-500 dark:text-black active"
+                  >
+                  {{ t('reuse.approvalReturnRequest') }}
+                    <span class="triangle-right right_1"> </span>
+                  </span>
+                </div>
+              </div>          
             </div>
+          </div>
+          <div class="flex gap-4">
+              <label class="w-[30%]"></label>
+              <div class="w-[100%] flex gap-22">
+                <i style="font-size: 12px">{{ dateTimeFormat(createAtStatus) }}</i>
+                <i style="font-size: 12px">{{ dateTimeFormat(approvalAtStatus) }}</i>
+              </div>
           </div>
         </div>
         <template #footer>
@@ -4605,15 +4785,34 @@ onBeforeMount(async () => {
             <div>
               <span class="dialog-footer">
                 <el-button
+                  v-if="typeButtonReturn == 1"
                   type="primary"
+                  class="min-w-42 min-h-11"
                   @click="
                     () => {
+                      changeReturnGoods = false
                       postReturnRequest()
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
                 >
-                <el-button @click="changeReturnGoods = false">{{ t('reuse.exit') }}</el-button>
+                <button 
+                v-else-if="typeButtonReturn == 2"
+                @click="finishReturnRequest" 
+                style="font-size: 14px;"
+                class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold">
+                Hoàn thành trả hàng</button>
+                <el-button 
+                  v-else 
+                  class="min-w-42 min-h-11 pl-2"
+                  @click="cancelReturnRequest">
+                  Hủy trả hàng
+                </el-button>
+                <el-button 
+                  class="min-w-42 min-h-11"
+                  @click="changeReturnGoods = false">
+                  {{ t('reuse.exit') }}
+                </el-button>
               </span>
             </div>
           </div>
@@ -4655,7 +4854,7 @@ onBeforeMount(async () => {
                 labelKey="code"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
-                :defaultValue="props.row.productPropertyId"
+                :defaultValue="props.row?.productPropertyId"
                 @scroll-top="ScrollProductTop"
                 @scroll-bottom="ScrollProductBottom"
                 :clearable="false"
@@ -4740,9 +4939,10 @@ onBeforeMount(async () => {
               <el-input
                 v-else
                 :disabled="type == 'edit' || type == 'approval-order' ? true : false"
-                type="number"
+                type="text"
                 @change="
                   () => {
+                    checkQuantity(data.row.quantity)
                     data.row.totalPrice = data.row.unitPrice * data.row.quantity
                     autoCalculateOrder()
                   }
@@ -4793,12 +4993,12 @@ onBeforeMount(async () => {
           <el-table-column
             :label="t('formDemo.businessManagement')"
             width="200"
-            prop="businessSetup"
+            prop="businessSetupName"
           >
             <template #default="data">
               <div class="flex w-[100%]">
                 <div class="flex-1 limit-text">
-                  <span>{{ data.row.businessSetup }}</span>
+                  <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
@@ -4961,7 +5161,7 @@ onBeforeMount(async () => {
         <div class="flex gap-2 pb-8">
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[84%] pl-1">
-            <div class="flex items-center w-[100%]">
+            <div class="flex items-center w-[100%] flex-wrap">
               <div
                 class="duplicate-status"
                 v-for="item in arrayStatusOrder"
@@ -5058,7 +5258,6 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   editOrderInfo()
-                  editButton = false
                 }
               "
               type="primary"
@@ -5080,12 +5279,12 @@ onBeforeMount(async () => {
           <div class="flex ml-1 gap-4" v-if="type != 'approval-order' && !editButton">
             <el-button
               v-if="
-                hiddenEditButton &&
+                !hiddenEditButton && checkButtonPrint &&
                 (statusOrder == STATUS_ORDER_PURCHASE[1].orderStatus ||
                   statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
                   statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
                   statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus ||
-                  statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus)
+                  statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus)
               "
               :disabled="doubleDisabled"
               @click="dialogBillLiquidation = true"
@@ -5093,9 +5292,29 @@ onBeforeMount(async () => {
               >{{ t('formDemo.printLiquidationContract') }}</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
+              statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
+              statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus ||
+              statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus"
+              :disabled="doubleDisabled"
+              @click="dialogBillLiquidation = true"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.printLiquidationContract') }}</el-button
+            >
+            <el-button
+              @click="openBillDialog"
+              v-if="statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
+              statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
+              statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus ||
+              statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus"
+              :disabled="doubleDisabled"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.paymentDepositSlipAdvance') }}</el-button
+            >
+            <el-button
               @click="openBillDialog"
               v-if="
-                hiddenEditButton &&
+                !hiddenEditButton && checkButtonPrint &&
                 (statusOrder == STATUS_ORDER_PURCHASE[1].orderStatus ||
                   statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus ||
                   statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus ||
@@ -5142,6 +5361,7 @@ onBeforeMount(async () => {
             <button
               @click="
                 () => {
+                  getReturnOrder()
                   openDialogReturnOrder()
                 }
               "
@@ -5150,13 +5370,8 @@ onBeforeMount(async () => {
               >{{ t('formDemo.exchangeReturnGoods') }}</button
             >
             <button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  finishReturnRequest()
-                }
-              "
-              v-if="statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus && !duplicateStatusButton"
+              @click="openFinishReturnRequest"
+              v-if="checkApprovalAt && statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus"
               class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold"
               >{{ t('formDemo.completeExchangeReturn') }}</button
             >
@@ -5164,7 +5379,6 @@ onBeforeMount(async () => {
             <button
               @click="
                 () => {
-                  addStatusOrder(5)
                   finishOrderPurchase()
                 }
               "
@@ -5177,11 +5391,11 @@ onBeforeMount(async () => {
               >{{ t('formDemo.checkFinish') }}</button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus"
+              v-if="checkApprovalAt && statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus"
               class="min-w-42 min-h-11"
               @click="
                 () => {
-                  cancelReturnRequest()
+                  openCancelReturnRequest()
                 }
               "
               >{{ t('formDemo.cancellationReturn') }}</el-button
@@ -5207,7 +5421,6 @@ onBeforeMount(async () => {
               "
               @click="
                 () => {
-                  addStatusOrder(8)
                   cancelOrderPurchase()
                 }
               "
@@ -5220,7 +5433,7 @@ onBeforeMount(async () => {
             <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>
-            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+            <el-button @click="cancelApproval" class="min-w-42 min-h-11 rounded font-bold">{{
               t('router.notApproval')
             }}</el-button>
           </div>
@@ -5712,6 +5925,7 @@ onBeforeMount(async () => {
 
 ::v-deep(.el-overlay-dialog) {
   overflow-y: initial;
+  overflow: hidden;
 }
 
 ::v-deep(.el-dialog__body) {

@@ -331,7 +331,7 @@ const adminList = [
             }
           },
           {
-            path: `${utility}/:type?/:id?`,
+            path: `customer-add/:type?/:id?/:approvalId?`,
             component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
             name: `business.customer-management.customerList.${utility}`,
             meta: {
@@ -1418,7 +1418,7 @@ const testList: string[] = [
 
   '/business/customer-management',
   '/business/customer-management/customerList',
-  '/business/customer-management/customer-add/:type?/:id?',
+  '/business/customer-management/customer-add/:type?/:id?/:approvalId?',
   '/business/customer-management/customerRatings/:tab?',
   `/business/customer-management/customerRatings-utility/:type?/:tab?/:id?`,
 

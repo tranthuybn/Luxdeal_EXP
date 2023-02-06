@@ -4907,7 +4907,7 @@ onBeforeMount(async () => {
                 >
                 <el-button
                   v-else-if="!checkCreate && !checkCancel"
-                  type="primary"
+                  type="warning"
                   @click="
                     () => {
                       cancelExpendReturn()
@@ -4918,7 +4918,6 @@ onBeforeMount(async () => {
                 >
                 <el-button
                 v-else-if="!checkCreate && checkCancel"
-                  type="primary"
                   @click="
                     () => {
                       cancelExpendReturn()

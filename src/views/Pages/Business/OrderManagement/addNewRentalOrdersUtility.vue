@@ -4340,7 +4340,7 @@ onBeforeMount(() => {
                       }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
-                          :disabled="checkDisabled"
+                          :disabled="disabledEdit"
                           v-model="ruleForm.warehouse"
                           class="fix-full-width"
                           :placeholder="t('formDemo.choseDeliveryMethod')"

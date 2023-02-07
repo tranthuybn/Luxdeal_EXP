@@ -1873,12 +1873,13 @@ const updateAccount = async () => {
     status: 0,
     paymentMethods: 1,
     paidMoney: typeDialog.value == 1 || typeDialog.value == 3 ? negotiablePrice.value : 0,
-    deibt: 0,
+    deibt: negotiablePrice.value,
     receiveMoney: typeDialog.value == 5 ? negotiablePrice.value : 0,
     negotiatePrice: negotiablePrice.value
   }
   await updateOrderTransaction(payload).then(() => {
     getOrderStransactionList()
+    dialogDepositSlip.value = false
   })
 }
 

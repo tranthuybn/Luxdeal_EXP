@@ -326,7 +326,6 @@ const updateInventoryOrder = async () => {
       }))
     }))
   }
-  console.log('consig', payload.warehouseProductJson)
   await UpdateInventoryOrder(JSON.stringify(payload))
     .then(() => {
       ElNotification({

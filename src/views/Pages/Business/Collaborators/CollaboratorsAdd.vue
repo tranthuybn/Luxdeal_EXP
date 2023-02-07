@@ -332,7 +332,6 @@ const setFormValue = async () => {
         duplicateStatusButton.value = true
       else duplicateStatusButton.value = false
     }
-    console.log('statusCollab.value', statusCollab.value);
     
 
     FormData.Discount = formValue.value.discount

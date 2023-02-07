@@ -73,7 +73,8 @@ import {
   updateSpaService,
   cancelReturnOrder,
   CancelUpdateSpaService,
-  finishReturnOrder
+  finishReturnOrder,
+  FinishUpdateSpaService
 } from '@/api/Business'
 import ChooseWarehousePR from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -579,7 +580,6 @@ const getPriceSpaService = () => {
     index: currentRow2.value,
     value: spaTableRef.value!.getSelectionRows()
   })
-  ListOfProductsForSale.value[currentRow2.value].totalPrice = totalSettingSpa.value
   if (checkInputPriceChange.value) {
     priceChangeSpa.value = true
     ListOfProductsForSale.value[currentRow2.value].priceChange = true
@@ -598,7 +598,10 @@ const getPriceSpaService = () => {
   }
   doubleDisabled.value = true
 
+  //Tính toán j đó khi bấm nút lưu
+  handleSelectionChange2(spaTableRef.value!.getSelectionRows())
   autoCalculateOrder()
+  ListOfProductsForSale.value[currentRow2.value].totalPrice = totalSettingSpa.value
   dialogFormSettingServiceSpa.value = false
 }
 let promoValue = ref(0)
@@ -2066,9 +2069,9 @@ const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
   updateOrderStatus(STATUS_ORDER_SPA[index].orderStatus, id)
 }
-const addStatusOrderByStatusValue = (statusValue) => {
-  addStatusOrder(STATUS_ORDER_SPA.findIndex(status=>status.orderStatus == statusValue))
-}
+// const addStatusOrderByStatusValue = (statusValue) => {
+//   addStatusOrder(STATUS_ORDER_SPA.findIndex(status=>status.orderStatus == statusValue))
+// }
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
   // 13 hoàn thành đơn hàng
@@ -2104,9 +2107,16 @@ const reloadStatusOrder = async () => {
     if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
       duplicateStatusButton.value = true
     else duplicateStatusButton.value = false
+
+    if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].createdAt)
+    isLastStatusFinish.value = true
+    else isLastStatusFinish.value = false
+
+    console.log('isLastStatusFinish',isLastStatusFinish.value)
   }
 }
 
+const isLastStatusFinish = ref(false)
 const showPromo = ref(false)
 const disabledEdit = ref(false)
 const duplicateStatusButton = ref(false) //check trạng thái cuối đã duyệt hay chưa
@@ -2138,6 +2148,10 @@ const editData = async () => {
       if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
         duplicateStatusButton.value = true
       else duplicateStatusButton.value = false
+      
+      if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].createdAt)
+      isLastStatusFinish.value = true
+      else isLastStatusFinish.value = false
     }
 
     if (statusOrder.value == 2 && type == 'edit') {
@@ -2660,7 +2674,10 @@ const postReturnRequest = async (reason) => {
         type: 'warning'
       })
     )
-    if(res) await reloadStatusOrder()
+    if(res) {
+      await reloadStatusOrder()
+      await getReturnRequestTable()
+    }
   }
   const cancelReturnRequest = async () =>{
     const res = await cancelReturnOrder(FORM_IMAGES({OrderId:id}))
@@ -2692,8 +2709,22 @@ const postReturnRequest = async (reason) => {
       })
     )
     if(res) await reloadStatusOrder()
-  } 
-  const returnAll = ref(false)
+  }
+  const finishUpdateSpaService = async () =>{
+    const res = await FinishUpdateSpaService(FORM_IMAGES({orderId:id})).then(() =>
+      ElNotification({
+        message: t('reuse.success'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.fail'),
+        type: 'warning'
+      })
+    )
+    if(res) await reloadStatusOrder()
+  }  
 </script>
 
 <template>
@@ -3592,6 +3623,7 @@ const postReturnRequest = async (reason) => {
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-divider content-position="left">{{ t('formDemo.listProductSpa') }}</el-divider>
+        {{ListOfProductsForSale}}
         <el-table
           :data="ListOfProductsForSale"
           border
@@ -3747,7 +3779,7 @@ const postReturnRequest = async (reason) => {
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
                   <el-button
                     :disabled="statusOrder !== STATUS_ORDER_SPA[5].orderStatus &&
-                  statusOrder !== STATUS_ORDER_SPA[7].orderStatus"
+                  statusOrder !== STATUS_ORDER_SPA[7].orderStatus && historyTable.length > 0"
                     text
                     border
                     @click="
@@ -4152,6 +4184,7 @@ const postReturnRequest = async (reason) => {
                   () => {
                     submitForm(ruleFormRef, ruleFormRef2, false)
                     clickStarSpa = true
+                    spaChange = false
                   }
                 "
                 type="primary"
@@ -4164,6 +4197,7 @@ const postReturnRequest = async (reason) => {
                 @click="
                   () => {
                     addStatusOrder(5)
+                    spaChange = false
                   }
                 "
                 type="primary"
@@ -4286,16 +4320,12 @@ const postReturnRequest = async (reason) => {
                 Hủy thay đổi dịch vụ Spa
               </el-button>
               <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
+                v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus && duplicateStatusButton"
                 type="warning"
-                @click="
-                  () => {
-                    addStatusOrderByStatusValue(arrayStatusOrder[arrayStatusOrder.length - 2].orderStatus)
-                  }
-                "
+                @click="finishUpdateSpaService"
                 class="min-w-42 min-h-11"
               >
-                Hoàn thành thay đổi dịch vụ Spa
+                Hoàn thành thay đổi dịch vụ Spa 
               </el-button>
             </div>
             <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
@@ -4310,7 +4340,7 @@ const postReturnRequest = async (reason) => {
           <!-- Nút không thuộc về đâu =)) -->
           {{statusOrder}}
           <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[6].orderStatus && duplicateStatusButton"
+                v-if="statusOrder == STATUS_ORDER_SPA[6].orderStatus && !isLastStatusFinish"
                 type="primary"
                 @click="
                   () => {
@@ -4318,10 +4348,10 @@ const postReturnRequest = async (reason) => {
                   }
                 "
                 class="min-w-42 min-h-11"
-                >Hoàn thành trả hàng</el-button
+                >Hoàn thành trả hàng {{isLastStatusFinish}}</el-button
               >
           <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[10].orderStatus || STATUS_ORDER_SPA[6].orderStatus"
+                v-if="statusOrder == STATUS_ORDER_SPA[10].orderStatus || (statusOrder == STATUS_ORDER_SPA[6].orderStatus && !isLastStatusFinish)"
                 @click="
                   () => {
                     cancelReturnRequest()
@@ -4331,7 +4361,7 @@ const postReturnRequest = async (reason) => {
                 >Hủy trả hàng</el-button
               >
             <el-button
-                v-if="returnAll"
+                v-if="statusOrder == STATUS_ORDER_SPA[6].orderStatus && isLastStatusFinish"
                 type="info"
                 @click="
                   () => {
@@ -4649,7 +4679,6 @@ const postReturnRequest = async (reason) => {
             ref="spaTableRef"
             border
             :data="listServicesSpa"
-            @selection-change="handleSelectionChange2"
           >
             <el-table-column type="selection" width="55" />
             <el-table-column prop="spaServiceName" label="Thông tin dịch vụ Spa" width="320" />

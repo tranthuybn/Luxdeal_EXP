@@ -932,7 +932,7 @@ const postData = async (pushBack: boolean) => {
     WardId: formAddress.wardCommune ?? 1,
     Address: customerAddress.value,
     OrderDetail: productPayment,
-    CampaignId: 2,
+    CampaignId: campaignId.value ?? '',
     VAT: 1,
     Status: 2,
     Days: ruleForm.leaseTerm,
@@ -4116,7 +4116,7 @@ onBeforeMount(() => {
                 }}</el-divider>
               </div>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
-                <el-input style="width: 100%" v-model="ruleForm.orderCode" />
+                <el-input :disabled="true" style="width: 100%" v-model="ruleForm.orderCode" />
               </el-form-item>
               <el-form-item :label="t('formDemo.leaseTerm')">
                 <el-select
@@ -4340,7 +4340,7 @@ onBeforeMount(() => {
                       }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
-                          :disabled="checkDisabled"
+                          :disabled="disabledEdit"
                           v-model="ruleForm.warehouse"
                           class="fix-full-width"
                           :placeholder="t('formDemo.choseDeliveryMethod')"

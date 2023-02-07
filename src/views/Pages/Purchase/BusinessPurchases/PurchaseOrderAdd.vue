@@ -1500,6 +1500,8 @@ const getReturnRequestOrder = async () => {
     productPropertyName: row.productPropertyName,
     productPropertyId: row?.productPropertyId,
     accessory: row.accessory,
+    code: row.code,
+    description: row.description,
     quantity: row.quantity,
     unitPrice: row.unitPrice,
     totalPrice: row.totalPrice
@@ -2119,6 +2121,8 @@ const getReturnOrder = () => {
     productPropertyId: el?.productPropertyId,
     unitPrice: el?.unitPrice,
     totalPrice: el?.totalPrice,
+    code: el?.code,
+    description: el?.description,
     maximumQuantity: el?.quantity,
     quantity: el?.quantity
   }))
@@ -2178,8 +2182,8 @@ const postReturnRequest = async () => {
   const res = await createReturnRequest(JSON.stringify(payload))
   if (res) {
     returnRequestId.value = res
-    if (exchangePrice.value > 0) tableAccountingEntry.value[0].paidMoney = exchangePrice.value
-    else tableAccountingEntry.value[0].receiveMoney = exchangePrice.value
+    if (exchangePrice.value > 0) tableAccountingEntry.value[0].paidMoney = Math.abs(exchangePrice.value)
+    else tableAccountingEntry.value[0].receiveMoney = Math.abs(exchangePrice.value)
     await postOrderStransaction(3)
     createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
       .then((res) => {
@@ -2333,6 +2337,27 @@ const openDialogReturnOrder = () => {
   changeReturnGoods.value = true
   alreadyPaidForTt.value = false
   typeButtonReturn.value = 1
+  inputReasonReturn.value = ''
+  tableProductInformationExportChange.value = [
+    {
+      productPropertyId: '' as any,
+      accessory: '',
+      quantity: 0,
+      unitPrice: 0,
+      totalPrice: 0,
+      returnDetailType: 2
+    }
+  ]
+  tableReturnFullyIntegrated.value = [
+    {
+      productPropertyId: '' as any,
+      accessory: '',
+      quantity: 0,
+      unitPrice: 0,
+      totalPrice: 0,
+      returnDetailType: 2
+    }
+  ]
 }
 
 // disabled in hợp đồng thanh lý và phiếu thanh toán / đặt cọc / tạm ứng
@@ -4801,12 +4826,12 @@ onBeforeMount(async () => {
                 @click="finishReturnRequest" 
                 style="font-size: 14px;"
                 class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold">
-                Hoàn thành trả hàng</button>
+                {{ t('formDemo.completeReturn') }}</button>
                 <el-button 
                   v-else 
                   class="min-w-42 min-h-11 pl-2"
                   @click="cancelReturnRequest">
-                  Hủy trả hàng
+                  {{ t('formDemo.cancelReturn') }}
                 </el-button>
                 <el-button 
                   class="min-w-42 min-h-11"

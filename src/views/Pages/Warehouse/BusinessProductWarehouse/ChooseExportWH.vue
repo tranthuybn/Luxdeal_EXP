@@ -136,7 +136,9 @@ const changeWarehouseData = async (warehouseId) => {
         unit: item?.unitName,
         createdAt: item.createdAt,
         exportQuantity: 0,
-        orderId: item.orderId
+        orderId: item.orderId,
+        consignmentHirePrice: item.consignmentHirePrice,
+        consignmentSellPrice: item.consignmentSellPrice
       }))
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))

@@ -262,17 +262,6 @@ const callButToan = async (data) => {
           quantity: lot.quantity
         }
 
-        const resOrderBTSPa = await getOrderList({ Id: ticketData.value.orderId, ServiceType: serviceType.value })
-        const resOrderKGCD = await getOrderList({ Id: lot.consignmentOrderId, ServiceType: lot.serviceType })
-        // const productItem = ref()
-        const orderObj = { ...resOrderBTSPa?.data[0] }
-        // orderObj.orderDetails.map((val) => {
-        //   productItem.value = val.find(e => e.productPropertyId == product.productPropertyId)
-        // })
-        console.log('res: ', orderObj.orderDetails)
-        console.log('resCDKG: ', resOrderKGCD)
-        // console.log('productItem.value: ', productItem.value)
-
         const payload = {
           orderId: lot.consignmentOrderId,
           content: product.productName,
@@ -295,11 +284,11 @@ const callButToan = async (data) => {
           productCode: product.productCode,
           productName: product.productName,
           unitPrice: 0,
-          consignmentPrice: 0,
+          consignmentPrice: lot.consignmentSellPrice,
           negotiatePrice: 0,
           totatlPriceSale: 0,
           totatlPriceRental: 0,
-          rentalPriceByDay: 0,
+          rentalPriceByDay: lot.consignmentHirePrice,
           totalPriceSpa: 0,
           spaService: 0
         }

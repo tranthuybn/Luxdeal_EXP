@@ -43,6 +43,7 @@ import {
 } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
+import moment from 'moment'
 const { required } = useValidator()
 
 const { t } = useI18n()
@@ -451,6 +452,13 @@ watch(
     immediate: true
   }
 )
+
+if (type == 'add')
+  arrayStatusCollab.value.push({
+    name: 'Khởi tạo mới',
+    isActive: true,
+    approveAt: moment().format('DD/MM/YYYY')
+  })
 
 const approvalFunction = async (checkApproved) => {
   const payload = { ItemType: 4, Id: parseInt(approvalId), IsApprove: checkApproved }

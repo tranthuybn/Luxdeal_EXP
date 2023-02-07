@@ -14,7 +14,7 @@ import {
   UpdateInventoryOrder,
   updateTicketManually
 } from '@/api/Warehouse'
-import { getWareHouseTransactionList, addOrderStransaction, getOrderList } from '@/api/Business'
+import { getWareHouseTransactionList, addOrderStransaction } from '@/api/Business'
 import { dateTimeFormat } from '@/utils/format'
 import moment from 'moment'
 
@@ -169,6 +169,7 @@ type ExportPW = {
   imageUrl?: string
 }
 const productData = ref<ExportPW[]>([{} as ExportPW])
+const orderData = ref()
 const serviceType = ref(6)
 const returnRequestId = ref(0)
 const callApiForData = async () => {
@@ -207,6 +208,8 @@ const callApiForData = async () => {
         imageUrl: item?.imageUrl,
         quantity: item.quantity
       }))
+
+      orderData.value = res.data[0].orderDetails
 
       status.value = res.data[0]?.status
     }
@@ -262,6 +265,8 @@ const callButToan = async (data) => {
           quantity: lot.quantity
         }
 
+        const orderDetail = orderData.value.find((row) => row.productPropertyId == product.productPropertyId)
+
         const payload = {
           orderId: lot.consignmentOrderId,
           content: product.productName,
@@ -283,14 +288,14 @@ const callButToan = async (data) => {
           orderTypeBTSpa: serviceType.value,
           productCode: product.productCode,
           productName: product.productName,
-          unitPrice: 0,
-          consignmentPrice: lot.consignmentSellPrice,
+          unitPrice: serviceType.value == 3 ? orderDetail.hirePrice : orderDetail.unitPrice,
+          consignmentPrice: serviceType.value == 1 ? lot.consignmentSellPrice : serviceType.value == 3 ? lot.consignmentHirePrice : 0,
           negotiatePrice: 0,
-          totatlPriceSale: 0,
-          totatlPriceRental: 0,
+          totatlPriceSale: serviceType.value == 1 ? lot.quantity * orderDetail.unitPrice : 0,
+          totatlPriceRental: serviceType.value == 3 ? lot.quantity * orderDetail.hirePrice : 0,
           rentalPriceByDay: lot.consignmentHirePrice,
-          totalPriceSpa: 0,
-          spaService: 0
+          totalPriceSpa: serviceType.value == 5 ?  lot.quantity * orderDetail.unitPrice : 0,
+          spaService: serviceType.value == 5 ? orderDetail.spaServices : 0
         }
         await addOrderStransaction(payload)
       }
@@ -315,7 +320,9 @@ const updateInventoryOrder = async () => {
         fromLotId: val.value,
         quantity: val.quantity,
         serviceType: val.serviceType,
-        consignmentOrderId: val.consignmentOrderId
+        consignmentOrderId: val.consignmentOrderId,
+        consignmentHirePrice: val.consignmentHirePrice,
+        consignmentSellPrice: val.consignmentSellPrice
       }))
     }))
   }

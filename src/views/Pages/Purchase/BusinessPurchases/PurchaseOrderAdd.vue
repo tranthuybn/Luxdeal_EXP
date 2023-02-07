@@ -844,7 +844,7 @@ const reloadStatusOrder = async () => {
       checkApprovalAt.value = false
       hiddenEditButton.value = false
     }
-    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
     if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
       duplicateStatusButton.value = true
     else duplicateStatusButton.value = false
@@ -1294,8 +1294,8 @@ const getCustomerInfo = async (id: string) => {
 watch(
   () => arrayStatusOrder?.value,
   () => {
-    if (arrayStatusOrder.value[0].orderStatus == STATUS_ORDER_PURCHASE[1].orderStatus
-    && arrayStatusOrder.value[0].approvedAt != null) {
+    if (arrayStatusOrder.value[0]?.orderStatus == STATUS_ORDER_PURCHASE[1].orderStatus
+    && arrayStatusOrder.value[0]?.approvedAt != null) {
       checkButtonPrint.value = true
     }
   }
@@ -1346,7 +1346,7 @@ const editData = async () => {
       if (type != 'approval-order')
         statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
       else statusOrder.value = 200
-      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
 
       if (statusOrder.value == STATUS_ORDER_PURCHASE[0].orderStatus) {
         editButton.value = false

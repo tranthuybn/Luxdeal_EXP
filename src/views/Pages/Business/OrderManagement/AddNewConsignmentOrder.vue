@@ -1827,10 +1827,13 @@ const changeReturnGoods = ref(false)
 // Thông tin phiếu để nghị thanh toán spa
 const dialogDepositFeeInformation = ref(false)
 const typeDialog = ref(1)
+const idAccounting = ref()
+const negotiablePrice = ref(0)
 
 // Chi tiết bút toán
 const openDialogAcountingEntry = (scope) => {
   const data = scope.row
+  idAccounting.value = data.id
   switch (data.typeOfAccountingEntry) {
     case 4:
       openAcountingEntryDialog(data.id, 4)
@@ -1846,41 +1849,76 @@ const openDialogAcountingEntry = (scope) => {
   }
 }
 
+
+const changePriceNegotiable = (scope) => {
+  const data = scope.row
+  if (typeDialog.value == 3) {
+    data.totatlPricesRental = data.negotiablePrice
+    negotiablePrice.value = parseInt(data.totatlPricesRental)
+  } 
+  else if (typeDialog.value == 1) {
+    data.totatlPriceSale = data.negotiablePrice
+    negotiablePrice.value = parseInt(data.totatlPriceSale)
+  } else {
+    negotiablePrice.value = parseInt(data.totalPriceSpa)
+  }
+}
+
+const updateAccount = async () => {
+  const payload = {
+    accountingEntryId: idAccounting.value,
+    paymentRequestId: 0,
+    receiptOrPaymentVoucherId: 0,
+    isReceiptedMoney: alreadyPaidForTt.value,
+    status: 0,
+    paymentMethods: 1,
+    paidMoney: typeDialog.value == 1 || typeDialog.value == 3 ? negotiablePrice.value : 0,
+    deibt: 0,
+    receiveMoney: typeDialog.value == 5 ? negotiablePrice.value : 0,
+    negotiatePrice: negotiablePrice.value
+  }
+  await updateOrderTransaction(payload).then(() => {
+    getOrderStransactionList()
+  })
+}
+
+const typeTable = ref<Array<any>>([])
 const tablePaymentSlip = ref()
 const openAccountingEntry = async (id, type) => {
   typeDialog.value = type
   const res = await getDetailAccountingEntryById({ id: id })
-  const objDetail = res?.data?.accountingEntry
-  
+  typeTable.value[0] = res?.data?.accountingEntry
+
   if(type == 1) {
-    tablePaymentSlip.value = objDetail?.map((val) => ({
-      productCode: val.productCode,
-      productName: val.ProductName,
-      createdAt: val.createdAt,
-      unitPrice: val.unitPrice,
-      consignmentPrice: val.consignmentPrice,
-      negotiablePrice: 0,
-      totatlPriceSale: val.totatlPriceSale
+    tablePaymentSlip.value = typeTable?.value.map((val) => ({
+      productCode: val?.productCode,
+      productName: val?.productName,
+      createdAt: val?.createdAt,
+      unitPrice: val?.unitPrice ?? 0,
+      consignmentPrice: val?.consignmentPrice ?? 0,
+      negotiablePrice: val?.negotiablePrice ?? 0,
+      totatlPriceSale: val?.totatlPriceSale ?? 0
     }))
   } else if (type == 3) {
-    tablePaymentSlip.value = objDetail?.map((val) => ({
-      productCode: val.productCode,
-      productName: val.ProductName,
-      createdAt: val.createdAt,
-      unitPrice: val.unitPrice,
-      consignmentPrice: val.consignmentPrice,
-      negotiablePrice: 0,
-      totatlPriceRental: val.totatlPriceRental,
-      totatlPricesRental: val.totatlPriceRental
+    tablePaymentSlip.value = typeTable?.value.map((val) => ({
+      productCode: val?.productCode,
+      productName: val?.productName,
+      createdAt: val?.createdAt,
+      unitPrice: val?.unitPrice ?? 0,
+      consignmentPrice: val?.consignmentPrice ?? 0,
+      negotiablePrice: val?.negotiablePrice ?? 0,
+      totatlPriceRental: val?.totatlPriceRental ?? 0,
+      totatlPricesRental: val?.totatlPriceRental ?? 0
     }))
   } else if (type == 5) {
-    tablePaymentSlip.value = objDetail?.map((val) => ({
-      productCode: val.productCode,
-      productName: val.ProductName,
-      createdAt: val.createdAt,
-      unitPrice: val.unitPrice,
-      spaService: val.spaService,
-      totalPriceSpa: val.totalPriceSpa
+    tablePaymentSlip.value = typeTable?.value.map((val) => ({
+      productCode: val?.productCode,
+      productName: val?.productName,
+      createdAt: val?.createdAt,
+      unitPrice: val?.unitPrice ?? 0,
+      spaService: val?.spaService,
+      negotiablePrice: val?.totalPriceSpa ?? 0,
+      totalPriceSpa: val?.totalPriceSpa ?? 0
     }))
   }
   dialogDepositSlip.value = true
@@ -2330,6 +2368,7 @@ const openDetailOrder = (id, type) => {
       }
     })
 }
+
 </script>
 
 <template>
@@ -3715,14 +3754,34 @@ const openDetailOrder = (id, type) => {
                 <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="unitPrice" label="Giá bán" min-width="100" />
-            <el-table-column prop="consignmentPrice" :label="t('formDemo.consignmentPriceForSale')" min-width="150" />
-            <el-table-column prop="negotiablePrice" :label="t('formDemo.negotiablePrice')" min-width="150">
-              <template #default="data">
-                <el-input v-model="data.row.negotiablePrice" />
+            <el-table-column prop="unitPrice" label="Giá bán" min-width="100">
+              <template #default="props">
+                {{ changeMoney.format(props.row.unitPrice) }}
               </template>
             </el-table-column>
-            <el-table-column prop="totatlPriceSale" :label="t('formDemo.payment')" min-width="150"/>
+            <el-table-column prop="consignmentPrice" :label="t('formDemo.consignmentPriceForSale')" min-width="150">
+              <template #default="props">
+                {{ changeMoney.format(props.row.consignmentPrice) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="negotiablePrice" :label="t('formDemo.negotiablePrice')" min-width="150">
+              <template #default="data">
+                <CurrencyInputComponent
+                  v-model="data.row.negotiablePrice"
+                  @change="changePriceNegotiable(data)" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="totatlPriceSale" :label="t('formDemo.payment')" min-width="150">
+              <template #default="props">
+                {{ changeMoney.format(props.row.totatlPriceSale) }}
+              </template>
+            </el-table-column>
+            <div>
+              <div>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
           </el-table>
 
           <el-table v-else-if="typeDialog == 3" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
@@ -3735,14 +3794,29 @@ const openDetailOrder = (id, type) => {
                 <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="totatlPriceRental" :label="t('formDemo.rentalPayment')" min-width="100" />
-            <el-table-column prop="consignmentPrice" :label="t('formDemo.depositpriceForRental')" min-width="150" />
-            <el-table-column prop="negotiablePrice" :label="t('formDemo.negotiablePrice')" min-width="150">
-              <template #default="data">
-                <el-input v-model="data.row.negotiablePrice" />
+            <el-table-column prop="totatlPriceRental" :label="t('formDemo.rentalPayment')" min-width="100">
+              <template #default="props">
+                {{ changeMoney.format(props.row.totatlPriceRental) }}
               </template>
             </el-table-column>
-            <el-table-column prop="totatlPricesRental" :label="t('formDemo.payment')" min-width="150"/>
+            <el-table-column prop="consignmentPrice" :label="t('formDemo.depositpriceForRental')" min-width="150" >
+              <template #default="props">
+                {{ changeMoney.format(props.row.consignmentPrice) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="negotiablePrice" :label="t('formDemo.negotiablePrice')" min-width="150">
+              <template #default="data">
+                <CurrencyInputComponent
+                  v-model="data.row.negotiablePrice"
+                  @change="changePriceNegotiable(data)"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column prop="totatlPricesRental" :label="t('formDemo.payment')" min-width="150">
+              <template #default="props">
+                {{ changeMoney.format(props.row.totatlPricesRental) }}
+              </template>
+            </el-table-column>
           </el-table>
 
           <el-table v-else ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
@@ -3756,7 +3830,11 @@ const openDetailOrder = (id, type) => {
               </template>
             </el-table-column>
             <el-table-column prop="spaService" :label="t('formDemo.spaService')" min-width="150" />
-            <el-table-column prop="totalPriceSpa" :label="t('formDemo.spaFeePayment')" min-width="150"/>
+            <el-table-column prop="totalPriceSpa" :label="t('formDemo.spaFeePayment')" min-width="150">
+              <template #default="props">
+                {{ changeMoney.format(props.row.totalPriceSpa) }}
+              </template>
+            </el-table-column>
           </el-table>
         </div>
         <div>
@@ -3798,7 +3876,10 @@ const openDetailOrder = (id, type) => {
           <div class="flex justify-end">
             <div>
               <span class="dialog-footer">
-                <el-button class="min-w-42 min-h-11" @click="dialogDepositSlip = false">{{
+                <el-button class="min-w-42 min-h-11" type="primary" @click="updateAccount">
+                  {{ t('formDemo.saveRecordDebts') }}
+                </el-button>
+                <el-button class="min-w-42 min-h-11 pl-2" @click="dialogDepositSlip = false">{{
                   t('reuse.exit')
                 }}</el-button>
               </span>
@@ -4508,8 +4589,8 @@ const openDetailOrder = (id, type) => {
                   <i
                     :class="item.isActive ? 'text-gray-500' : 'text-gray-300'"
                     v-if="item?.approvedAt">{{
-                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
-                  }}</i>
+                      item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                    }}</i>
                   <p v-else class="text-transparent">s</p>
                 </div>
                 <div
@@ -4531,8 +4612,8 @@ const openDetailOrder = (id, type) => {
                   <i
                     :class="item.isActive ? 'text-gray-500' : 'text-gray-300'"
                     v-if="item?.approvedAt">{{
-                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
-                  }}</i>
+                      item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                    }}</i>
                   <p v-else class="text-transparent">s</p>
                 </div>
                 <div v-else-if="item.orderStatus == STATUS_ORDER_DEPOSIT[2].orderStatus">
@@ -4549,8 +4630,8 @@ const openDetailOrder = (id, type) => {
                   <i
                     :class="item.isActive ? 'text-gray-500' : 'text-gray-300'"
                     v-if="item?.approvedAt">{{
-                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
-                  }}</i>
+                      item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                    }}</i>
                   <p v-else class="text-transparent">s</p>
                 </div>
                 <div
@@ -4572,8 +4653,8 @@ const openDetailOrder = (id, type) => {
                   <i
                     :class="item.isActive ? 'text-gray-500' : 'text-gray-300'"
                     v-if="item?.approvedAt">{{
-                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
-                  }}</i>
+                      item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                    }}</i>
                   <p v-else class="text-transparent">s</p>
                 </div>
               </div>

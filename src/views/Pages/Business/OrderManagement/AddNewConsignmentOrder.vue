@@ -1166,6 +1166,11 @@ const addRowDetailedListExpoenses = () => {
 
 function openReceiptDialog() {
   getReceiptCode()
+  if (newTable.value?.length) {
+    newTable.value.forEach((e) => {
+      moneyReceipts.value += e.receiveMoney
+    })
+  }
   clearData()
   dialogInformationReceipts.value = true
   nameDialog.value = 'Phiếu thu'
@@ -1173,6 +1178,11 @@ function openReceiptDialog() {
 
 function openPaymentDialog() {
   getcodeExpenditures()
+  if (newTable.value?.length) {
+    newTable.value.forEach((e) => {
+      moneyReceipts.value += e.paidMoney
+    })
+  }
   clearData()
   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
   nameDialog.value = 'Phiếu chi'
@@ -1897,7 +1907,7 @@ const openAccountingEntry = async (id, type) => {
       createdAt: val?.createdAt,
       unitPrice: val?.unitPrice ?? 0,
       consignmentPrice: val?.consignmentPrice ?? 0,
-      negotiablePrice: val?.negotiablePrice ?? 0,
+      negotiablePrice: val?.negotiatePrice ?? 0,
       totatlPriceSale: val?.totatlPriceSale ?? 0
     }))
   } else if (type == 3) {
@@ -1907,7 +1917,7 @@ const openAccountingEntry = async (id, type) => {
       createdAt: val?.createdAt,
       unitPrice: val?.unitPrice ?? 0,
       consignmentPrice: val?.consignmentPrice ?? 0,
-      negotiablePrice: val?.negotiablePrice ?? 0,
+      negotiablePrice: val?.negotiatePrice ?? 0,
       totatlPriceRental: val?.totatlPriceRental ?? 0,
       totatlPricesRental: val?.totatlPriceRental ?? 0
     }))
@@ -4984,7 +4994,7 @@ const openDetailOrder = (id, type) => {
         <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog" text
           >+ Thêm phiếu chi</el-button
         >
-        <el-buttondebtTable
+        <el-button
           :disabled="disabledDNTTAccountingEntry"
           @click="
             () => {
@@ -4994,7 +5004,7 @@ const openDetailOrder = (id, type) => {
             }
           "
           text
-          >+ Thêm đề nghị thanh toán</el-buttondebtTable
+          >+ Thêm đề nghị thanh toán</el-button
         >
         <el-table
           ref="multipleTableRef"
@@ -5066,7 +5076,7 @@ const openDetailOrder = (id, type) => {
           >
             <template #default="props">
               <div
-                >{{ props.row.negotiatePrice }}</div
+                >{{ changeMoney.format(props.row.negotiatePrice) ?? '0 đ' }}</div
               >
             </template>
           </el-table-column>
@@ -5083,7 +5093,7 @@ const openDetailOrder = (id, type) => {
                 v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
-              <div v-else>{{ data.row.receiveMoney }}</div>
+              <div v-else>{{ changeMoney.format(data.row.receiveMoney) ?? '0 đ' }}</div>
             </template>
           </el-table-column>
 
@@ -5094,7 +5104,7 @@ const openDetailOrder = (id, type) => {
                 v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
-              <div v-else>{{ data.row.paidMoney }}</div>
+              <div v-else>{{ changeMoney.format(data.row.paidMoney) ?? '0 đ' }}</div>
             </template>
           </el-table-column>
 

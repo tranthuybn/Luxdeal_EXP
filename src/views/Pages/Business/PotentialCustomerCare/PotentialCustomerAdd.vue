@@ -374,7 +374,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     colProps: {
       span: 20
     },
-    // hidden: true
+    hidden: true
   },
 
   {
@@ -671,7 +671,6 @@ const collapse: Array<Collapse> = [
 ]
 
 const changeValueClassify = (data) => {
-  console.log('value Select:', data);
     if(data == true){
       columnProfileCustomer[3].hidden = false
       columnProfileCustomer[4].hidden = true
@@ -681,11 +680,11 @@ const changeValueClassify = (data) => {
       columnProfileCustomer[3].hidden = true
       columnProfileCustomer[4].hidden = false
       columnProfileCustomer[5].hidden = false
-      columnProfileCustomer[5].hidden = false
+      columnProfileCustomer[6].hidden = false
     }
-  
-  
 }
+
+
 
 // get list company
 let cutomerOptions = ref<Array<ComponentOptions>>([])
@@ -797,6 +796,8 @@ const emptyFormCustom = {} as setFormCustomData
 const formDataCustomize = ref(emptyFormCustom)
 //set form value
 const customizeData = (formData) => {
+  console.log('formData', formData)
+  
   formDataCustomize.value.email = formData.email
   formDataCustomize.value.phonenumber = formData.phonenumber
   formDataCustomize.value.link = formData.link
@@ -818,11 +819,11 @@ const customizeData = (formData) => {
   if (formData.statusId == 3) {
     formDataCustomize.value['status'].push(3)
   }
-  formDataCustomize.value.service = formData.service
-  tableData.value[0] = formData.potentialCustomerHistorys[0]
-  tableData.value[0].family = [{}]
-  tableData.value[0].family[0].customerCareContent = formData.potentialCustomerHistorys[0].content
-  tableData.value[0].family[0].date = formData.potentialCustomerHistorys[0].createdAt
+  // formDataCustomize.value.service = formData.service
+  // tableData.value[0] = formData.potentialCustomerHistorys[0]
+  // // tableData.value[0].family = [{}]
+  // tableData.value[0].family[0].customerCareContent = formData.potentialCustomerHistorys[0].content
+  // tableData.value[0].family[0].date = formData.potentialCustomerHistorys[0].createdAt
 }
 // data update api
 const customPostData = (data) => {

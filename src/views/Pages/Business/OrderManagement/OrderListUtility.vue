@@ -1659,7 +1659,25 @@ const createTicketFromReturnOrders = async () => {
     returnRequestId: idReturnRequest.value
   }
 
-  await createTicketFromReturnOrder(payload)
+  const res = await GetWarehouseTransaction({OrderId: id})
+  if (res.data[0].status == 4) {
+    await createTicketFromReturnOrder(payload).then(() => {
+      ElNotification({
+        message: 'Tạo phiếu đổi trả thành công',
+        type: 'success'
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: 'Tạo phiếu đổi trả thất bại',
+        type: 'warning'
+      })
+    )
+  } else ElNotification({
+        message: 'Đơn hàng chưa được xuất kho',
+        type: 'warning'
+      })
+  
 }
 
 const alreadyPaidForTt = ref(false)

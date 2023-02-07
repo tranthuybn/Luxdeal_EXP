@@ -1121,7 +1121,7 @@ export default {
     warningMoney: 'Vui lòng nhập số tiền',
     warningNumber: 'Vui lòng nhập số lượng',
     saleCode: 'Mã CTV',
-    saleName: 'Tên người bán',
+    saleName: 'Tên Sale',
     companyInformation: 'Thông tin công ty',
     numberInput: 'Số lượng nhập',
     totalMoneyInput: 'Tổng tiền nhập',

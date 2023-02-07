@@ -107,6 +107,7 @@ const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
 var curDate = 'DHB' + moment().format('hhmmss')
+var autoCustomerCode = 'KH' + moment().format('hhmmss')
 var autoCodeSellOrder = 'BH' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
@@ -525,11 +526,16 @@ let infoCompany = reactive({
 
 let customerAddress = ref('')
 // Call api danh sách khách hàng
+// infinity scroll KH
+const pageIndexCustomer = ref(1)
 const optionsCustomerApi = ref<Array<any>>([])
 const callCustomersApi = async () => {
-  const res = await getAllCustomer({ PageIndex: 1, PageSize: 30 })
+  const res = await getAllCustomer({
+    PageIndex: pageIndexCustomer.value,
+    PageSize: 20
+  })
   const getCustomerResult = res.data
-  if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
+  if (res.data && res.data?.length > 0) {
     optionsCustomerApi.value = getCustomerResult.map((customer) => ({
       code: customer.code,
       label: customer.isOrganization
@@ -544,6 +550,58 @@ const callCustomersApi = async () => {
       email: customer.email,
       id: customer.id
     }))
+  }  
+}
+
+const ScrollCustomerTop = () => {
+  scrollCustomerTop.value = true
+}
+
+const scrollCustomerTop = ref(false)
+const scrollCustomerBottom = ref(false)
+
+const noMoreCustomerData = ref(false)
+
+const ScrollCustomerBottom = () => {
+  scrollCustomerBottom.value = true
+  pageIndexCollaborator.value++
+  noMoreCustomerData.value
+    ? ''
+    : getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCustomerData.value = true)
+            : res.data.map((customer) =>
+              optionsCustomerApi.value.push({
+                code: customer.code,
+                label: customer.isOrganization
+                  ? customer.name + ' | MST ' + customer.taxCode
+                  : customer.name + ' | ' + customer.phonenumber,
+                address: customer.address,
+                name: customer.name,
+                value: customer.id,
+                isOrganization: customer.isOrganization,
+                taxCode: customer.taxCode,
+                phone: customer.phonenumber,
+                email: customer.email,
+                id: customer.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCustomerData.value = true
+        })
+}
+
+const scrollingCustomer = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    scrollCustomerTop.value = true
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    ScrollCustomerBottom()
   }
 }
 
@@ -771,31 +829,30 @@ const quickEmail = ref()
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
+    Code: autoCustomerCode,
     IsOrganization: valueClassify.value,
     Name: addQuickCustomerName.value,
     TaxCode: quickTaxCode.value,
     Representative: quickRepresentative.value,
     Phonenumber: quickPhoneNumber.value,
     Email: quickEmail.value,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 1,
     CustomerType: valueSelectCustomer.value
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
-  await addQuickCustomer(formCustomerPayLoad)
-    .then(() =>
-      ElNotification({
+  const res = await addQuickCustomer(formCustomerPayLoad)
+  if (res) {
+    ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-    )
-    .catch(() =>
-      ElNotification({
+    callCustomersApi()
+
+  } else {
+    ElNotification({
         message: t('reuse.addFail'),
         type: 'warning'
       })
-    )
+  }  
 }
 
 // select khách hàng
@@ -2847,9 +2904,8 @@ onBeforeMount(async () => {
               class="w-[150px]"
               @click.stop.prevent="
                 () => {
-                  dialogAddQuick = false
                   createQuickCustomer()
-                  callCustomersApi()
+                  dialogAddQuick = false
                 }
               "
               >{{ t('reuse.save') }}</el-button
@@ -3035,12 +3091,14 @@ onBeforeMount(async () => {
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Select">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <div @scroll="scrollingCustomer" id="content">
+                  <el-option
+                    v-for="item in optionsCustomerApi"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
@@ -3156,12 +3214,14 @@ onBeforeMount(async () => {
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Select">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <div @scroll="scrollingCustomer" id="content">
+                  <el-option
+                    v-for="item in optionsCustomerApi"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
@@ -3276,12 +3336,14 @@ onBeforeMount(async () => {
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <div @scroll="scrollingCustomer" id="content">
+                  <el-option
+                    v-for="item in optionsCustomerApi"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
@@ -4429,6 +4491,8 @@ onBeforeMount(async () => {
                             :hiddenKey="['id']"
                             :placeHolder="'Chọn khách hàng'"
                             :defaultValue="ruleForm.customerName"
+                            @scroll-top="ScrollCustomerTop"
+                            @scroll-bottom="ScrollCustomerBottom"
                             :clearable="false"
                             @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
                           />

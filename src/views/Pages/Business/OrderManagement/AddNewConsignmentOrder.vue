@@ -96,6 +96,8 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
+var autoCustomerCode = 'KH' + moment().format('hhmmss')
+
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
@@ -218,24 +220,27 @@ const quickEmail = ref()
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
+    Code: autoCustomerCode,
     IsOrganization: valueClassify.value,
     Name: addQuickCustomerName.value,
     TaxCode: quickTaxCode.value,
     Representative: quickRepresentative.value,
     Phonenumber: quickPhoneNumber.value,
     Email: quickEmail.value,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 1,
+    DistrictId: null,
+    WardId: null,
+    Address: null,
     CustomerType: valueSelectCustomer.value
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
   await addQuickCustomer(formCustomerPayLoad)
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
+      callCustomersApi()
+    }
     )
     .catch(() =>
       ElNotification({
@@ -1309,7 +1314,7 @@ const postData = async () => {
         type: 'warning'
       })
     }
-    idOrderPost.value = res
+    idOrderPost.value = res.data
     automaticCouponWareHouse(1)
   }
 }

@@ -18,7 +18,9 @@ import {
   ElImage,
   ElTreeSelect,
   ElSelect,
-  ElOption
+  ElOption,
+  ElRadioGroup,
+  ElRadio
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -37,8 +39,7 @@ import {
   getUnitSelectOptions
 } from './ProductLibraryManagement'
 import { approvalProducts } from '@/api/Approval'
-import { isEqual } from 'lodash-es'
-import { formatProductStatus, FORM_IMAGES } from '@/utils/format'
+import { FORM_IMAGES } from '@/utils/format'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -258,7 +259,7 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
-        data.disabledTabOpen = false
+        data.disabledTabOpen = true
         emit('post-data', data)
         //emit a callback function to check if Promise success or fail
         //use this to get the statusResult of emit event
@@ -272,7 +273,7 @@ const save = async (type) => {
         setValues({ ProductStatus: 0, ProductTypeId: ProductTypeId })
       }
       if (type == 'saveAndAdd') {
-        data.disabledTabOpen = true
+        data.disabledTabOpen = false
         emit('post-data', data)
         if (props.apiStatus) {
           unref(elFormRef)!.resetFields()
@@ -388,37 +389,37 @@ const edit = () => {
     params: { id: props.id, type: 'edit' }
   })
 }
-const delAction = async () => {
-  {
-    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
-      confirmButtonText: t('reuse.delete'),
-      cancelButtonText: t('reuse.exit'),
-      type: 'warning',
-      confirmButtonClass: 'el-button--danger'
-    })
-      .then(() => {
-        const res = props.delApi({ Id: props.id })
-        if (res) {
-          ElNotification({
-            message: t('reuse.deleteSuccess'),
-            type: 'success'
-          }),
-            go(-1)
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
-          })
-        }
-      })
-      .catch(() => {
-        ElNotification({
-          type: 'info',
-          message: t('reuse.deleteCancel')
-        })
-      })
-  }
-}
+// const delAction = async () => {
+//   {
+//     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
+//       confirmButtonText: t('reuse.delete'),
+//       cancelButtonText: t('reuse.exit'),
+//       type: 'warning',
+//       confirmButtonClass: 'el-button--danger'
+//     })
+//       .then(() => {
+//         const res = props.delApi({ Id: props.id })
+//         if (res) {
+//           ElNotification({
+//             message: t('reuse.deleteSuccess'),
+//             type: 'success'
+//           }),
+//             go(-1)
+//         } else {
+//           ElNotification({
+//             message: t('reuse.deleteFail'),
+//             type: 'warning'
+//           })
+//         }
+//       })
+//       .catch(() => {
+//         ElNotification({
+//           type: 'info',
+//           message: t('reuse.deleteCancel')
+//         })
+//       })
+//   }
+// }
 const cancel = () => {
   go(-1)
 }
@@ -516,59 +517,8 @@ const remoteProductName = async (query: string) => {
   }
 }
 const sameProductCode = ref(false)
-const lastCodeObj = ref()
 const fillAllInformation = async (data) => {
-  const codeObj = CodeOptions.value.find((code) => code.value == data)
-  //for fix bug purpose
-  if (isEqual(codeObj, lastCodeObj.value) && codeObj !== undefined) {
-    ElMessageBox.confirm(t('reuse.fillProductInformationAgain'), t('reuse.notification'), {
-      confirmButtonText: t('reuse.confirm'),
-      cancelButtonText: t('reuse.cancel'),
-      type: 'info'
-    })
-      .then(() => {
-        getBusinessProductLibrary({ Id: codeObj?.id })
-          .then((res) => {
-            if (res.data.length == 0) {
-              ElNotification({
-                message: t('reuse.cantFindData'),
-                type: 'warning'
-              })
-            } else {
-              const fillValue = res.data[0]
-              const BrandId = fillValue.categories[0].id
-              const UnitId = fillValue.categories[2].id
-              const OriginId = fillValue.categories[3].id
-              setValues({
-                ProductCode: null,
-                Name: fillValue.name,
-                ShortDescription: fillValue.shortDescription,
-                VerificationInfo: fillValue.verificationInfo,
-                ProductTypeId: fillValue.categories[1].value,
-                BrandId: BrandId,
-                UnitId: UnitId,
-                OriginId: OriginId,
-                Description: fillValue.description
-              })
-              const checkData = { BrandId: BrandId, UnitId: UnitId, OriginId: OriginId }
-              customPostData(checkData)
-            }
-            sameProductCode.value = true
-          })
-          .catch(() =>
-            ElNotification({
-              message: t('reuse.cantFindData'),
-              type: 'warning'
-            })
-          )
-      })
-      .catch(() => {})
-      .finally(() => {
-        setValues({ ProductCode: null })
-      })
-    return
-  } else {
-    lastCodeObj.value = codeObj
+  const codeObj = CodeOptions.value.find((code) => code.value.toLowerCase() == data.toLowerCase())
     //if find code in api
     codeObj
       ? //ask if they want to change value of product type, brand ..
@@ -621,7 +571,6 @@ const fillAllInformation = async (data) => {
     // .finally(() => {
     //   setValues({ ProductCode: '' })
     // })
-  }
 }
 
 const callApiAttribute = async () => {
@@ -678,7 +627,7 @@ const productName = ref('')
 
 const setProductCode = () => {
   setValues({ ProductCode: productCode.value })
-  fillAllInformation(productCode)
+  fillAllInformation(productCode.value)
 }
 const setProductName = () => {
   setValues({ ProductName: productName.value })
@@ -770,7 +719,7 @@ const approvalProduct = async () => {
               remote
               :remote-method="remoteProductCode"
               default-first-option
-              @change="(data) => fillAllInformation(data)"
+              @change="data=>fillAllInformation(data)"
               @input="(event) => (productCode = event.target.value)"
               @blur="setProductCode"
               @keyup.enter="setProductCode"
@@ -836,8 +785,14 @@ const approvalProduct = async () => {
           </template>
           <template #ProductStatus="form">
             <!-- formatProductStatus cái này chưa chính xác trạng thái nên sửa lại -->
-            <div class="bg-gray-300">{{ formatProductStatus(form['ProductStatus']) }}</div>
+            <el-radio-group v-model="form['ProductStatus']">
+              <el-radio :label="2" size="large">{{ t('reuse.active') }}</el-radio>
+            </el-radio-group>
             <span class="text-[#FECB80]">({{ t('reuse.allBusinessRelatedActivities') }})</span>
+
+            <div class="break" v-if="form['ProductStatus'] == 1">
+              <span class="bg-orange-100 text-orange-300 px-2">{{ t('reuse.pendings') }}</span>
+              </div>
           </template>
         </Form>
       </ElCol>
@@ -985,5 +940,10 @@ const approvalProduct = async () => {
   height: 200px;
   overflow: auto;
   padding: 0 10px;
+}
+
+.break {
+  flex-basis: 100%;
+  height: 0;
 }
 </style>

@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    rentalRenewalInformation: 'Thông tin gia hạn thuê',
     approvedReturnAHeadOfTime: 'Duyệt trả hàng trước hạn',
     informationProductExtend: 'Thông tin sản phẩm gia hạn',
     reasonRevenueExpenditure: 'Lý do thu/chi',
@@ -1120,7 +1121,7 @@ export default {
     warningMoney: 'Vui lòng nhập số tiền',
     warningNumber: 'Vui lòng nhập số lượng',
     saleCode: 'Mã CTV',
-    saleName: 'Tên người bán',
+    saleName: 'Tên Sale',
     companyInformation: 'Thông tin công ty',
     numberInput: 'Số lượng nhập',
     totalMoneyInput: 'Tổng tiền nhập',

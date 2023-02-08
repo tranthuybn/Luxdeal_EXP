@@ -71,7 +71,9 @@ const getSelection = () => {
       value: item.id,
       quantity: item.exportQuantity,
       serviceType: item.orderType,
-      consignmentOrderId: item.orderId
+      consignmentOrderId: item.orderId,
+      consignmentHirePrice: item.consignmentHirePrice,
+      consignmentSellPrice: item.consignmentSellPrice
     }))
     warehouseData.value.location = rowSelected.map((item) => item.location).toString()
     warehouseData.value.lot = rowSelected.map((item) => item.lotCode).toString()
@@ -136,7 +138,9 @@ const changeWarehouseData = async (warehouseId) => {
         unit: item?.unitName,
         createdAt: item.createdAt,
         exportQuantity: 0,
-        orderId: item.orderId
+        orderId: item.orderId,
+        consignmentHirePrice: item.consignmentHirePrice,
+        consignmentSellPrice: item.consignmentSellPrice
       }))
     })
     .finally(() => ((loadingLot.value = false), (radioSelected.value = -1), calculateInventory()))

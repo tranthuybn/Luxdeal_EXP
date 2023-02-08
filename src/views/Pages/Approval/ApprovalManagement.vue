@@ -26,7 +26,7 @@ const ApprovalTable = [
   {
     field: 'isActive',
     label: t('reuse.approveOrNot'),
-    minWidth: '100',
+    minWidth: '150',
     fixed: false,
     align: 'center',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) => {

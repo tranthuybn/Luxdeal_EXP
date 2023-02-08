@@ -114,6 +114,7 @@ var curDate = 'MH' + moment().format('hhmmss')
 var autoCodeSellOrder = 'MH' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
+var autoCustomerCode = 'KH' + moment().format('hhmmss')
 const codeReturnRequest = ref()
 const sellOrderCode = ref()
 const codeReceipts = ref()
@@ -748,6 +749,7 @@ const quickEmail = ref()
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
+    Code: autoCustomerCode,
     IsOrganization: valueClassify.value,
     Name: addQuickCustomerName.value,
     TaxCode: quickTaxCode.value,
@@ -1096,6 +1098,7 @@ const handleChangeQuickAddProduct = async (data) => {
 
 let Files = reactive({})
 const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
 const beforeAvatarUpload = (rawFile, type: string) => {
   if (rawFile) {
     //nếu là 1 ảnh
@@ -1109,10 +1112,11 @@ const beforeAvatarUpload = (rawFile, type: string) => {
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
       }
+      // else if (rawFile.name?.split('.')[0].length > 100) {
+      //   ElMessage.error(t('reuse.checkNameImageLength'))
+      //   return false
+      // }
     }
     //nếu là 1 list ảnh
     if (type === 'list') {
@@ -1138,15 +1142,26 @@ const beforeAvatarUpload = (rawFile, type: string) => {
     }
     return true
   }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
 }
-
 const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
   uploadFiles.map((file) => {
     beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
   })
-  Files = ListFileUpload.value.map((el) => el?.raw)
+  Files = [...ListFileUpload.value.map((el) => el?.raw)]
 }
 const fileList = ref<UploadUserFile[]>([])
 

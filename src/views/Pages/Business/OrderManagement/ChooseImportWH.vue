@@ -108,9 +108,6 @@ watch(
   }
 )
 
-const closeDialog = () => {
-  emit('close-dialog-warehouse', warehouseData.value)
-}
 const close = () => {
   emit('close-dialog-warehouse', null)
 }
@@ -154,9 +151,7 @@ const calculateQuantity = (scope) => {
 }
 const radioSelected = ref(-1)
 const rowClick = (row, __column, _event) => {
-  const index = props.listLotWH.findIndex((lot) => lot == row)
-  index == radioSelected.value ? (radioSelected.value = -1) : (radioSelected.value = index)
-  warehouseData.value.lot = row
+    warehouseData.value.lot = row
 }
 const warehouseData = ref({
   quantity: 0,
@@ -174,7 +169,7 @@ const ruleFormRef = ref<FormInstance>()
     width="65%"
     align-center
     class="z-50"
-    @close="closeDialog"
+    @close="close"
   >
     <template #header>
       <h1>{{ t('reuse.chooseWarehouse') }}</h1>

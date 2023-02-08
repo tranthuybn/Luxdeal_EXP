@@ -607,7 +607,7 @@ export const addNewSpaOrders = async (params: any): Promise<IResponse> => {
     },
     fixedBaseURL
   )
-  return res.data && res.data.data
+  return res && res.data
 }
 
 // Lấy danh sách đơn hàng
@@ -1062,6 +1062,26 @@ export const updateSpaService = async (params: any): Promise<IResponse> => {
   const res = await request.put(
     {
       url: ORDER_API.UPDATE_SPA_SERVICE,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const CancelUpdateSpaService = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.CANCEL_UPDATE_SPA_SERVICE,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const FinishUpdateSpaService = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.FINISH_UPDATE_SPA_SERVICE,
       data: params
     },
     fixedBaseURL

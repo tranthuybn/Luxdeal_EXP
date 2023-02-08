@@ -1911,6 +1911,7 @@ export default {
     transferCanOnlyChoose1Lot: 'Chuyển kho chỉ có thể chọn 1 lot',
     //Collaborator
     orderCodepaymentCode: 'Mã đơn hàng/mã yêu cầu rút tiền',
-    percentDiscount: '% chiết khấu'
+    percentDiscount: '% chiết khấu',
+    pendings: 'Đang chờ duyệt'
   }
 }

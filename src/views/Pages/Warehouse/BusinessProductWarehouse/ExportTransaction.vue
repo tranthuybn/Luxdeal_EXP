@@ -197,7 +197,10 @@ const callApiForData = async () => {
         productPropertyId: item.productPropertyId,
         productPropertyQuality: item.productPropertyQuality,
         accessory: item.accessory,
-        productName: item.productPropertyName,
+        productPropertyName: item.productPropertyName,
+        productPropertyCode: item.productPropertyCode,
+        productName: item.productName,
+        productCode: item.productCode,
         unitName: item.unitName,
         exportLots: item?.detail.map((detail) => ({
           value: detail.fromLotId,
@@ -286,7 +289,7 @@ const callButToan = async (data) => {
           OrderIdBTSpa: ticketData.value.orderId,
           OrderCodeBTSpa: ticketData.value.orderCode,
           orderTypeBTSpa: serviceType.value,
-          productCode: product.productCode,
+          productCode: product.productPropertyCode,
           productName: product.productName,
           unitPrice: serviceType.value == 3 ? orderDetail.hirePrice : orderDetail.unitPrice,
           consignmentPrice: serviceType.value == 1 ? lot.consignmentSellPrice : serviceType.value == 3 ? lot.consignmentHirePrice : 0,
@@ -326,7 +329,6 @@ const updateInventoryOrder = async () => {
       }))
     }))
   }
-  console.log('consig', payload.warehouseProductJson)
   await UpdateInventoryOrder(JSON.stringify(payload))
     .then(() => {
       ElNotification({

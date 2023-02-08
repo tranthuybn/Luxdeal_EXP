@@ -96,6 +96,8 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
+var autoCustomerCode = 'KH' + moment().format('hhmmss')
+
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
@@ -218,24 +220,27 @@ const quickEmail = ref()
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
+    Code: autoCustomerCode,
     IsOrganization: valueClassify.value,
     Name: addQuickCustomerName.value,
     TaxCode: quickTaxCode.value,
     Representative: quickRepresentative.value,
     Phonenumber: quickPhoneNumber.value,
     Email: quickEmail.value,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 1,
+    DistrictId: null,
+    WardId: null,
+    Address: null,
     CustomerType: valueSelectCustomer.value
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
   await addQuickCustomer(formCustomerPayLoad)
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
+      callCustomersApi()
+    }
     )
     .catch(() =>
       ElNotification({
@@ -1166,6 +1171,11 @@ const addRowDetailedListExpoenses = () => {
 
 function openReceiptDialog() {
   getReceiptCode()
+  if (newTable.value?.length) {
+    newTable.value.forEach((e) => {
+      moneyReceipts.value += e.receiveMoney
+    })
+  }
   clearData()
   dialogInformationReceipts.value = true
   nameDialog.value = 'Phiếu thu'
@@ -1173,6 +1183,11 @@ function openReceiptDialog() {
 
 function openPaymentDialog() {
   getcodeExpenditures()
+  if (newTable.value?.length) {
+    newTable.value.forEach((e) => {
+      moneyReceipts.value += e.paidMoney
+    })
+  }
   clearData()
   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
   nameDialog.value = 'Phiếu chi'
@@ -1299,7 +1314,7 @@ const postData = async () => {
         type: 'warning'
       })
     }
-    idOrderPost.value = res
+    idOrderPost.value = res.data
     automaticCouponWareHouse(1)
   }
 }
@@ -1873,12 +1888,13 @@ const updateAccount = async () => {
     status: 0,
     paymentMethods: 1,
     paidMoney: typeDialog.value == 1 || typeDialog.value == 3 ? negotiablePrice.value : 0,
-    deibt: 0,
+    deibt: negotiablePrice.value,
     receiveMoney: typeDialog.value == 5 ? negotiablePrice.value : 0,
     negotiatePrice: negotiablePrice.value
   }
   await updateOrderTransaction(payload).then(() => {
     getOrderStransactionList()
+    dialogDepositSlip.value = false
   })
 }
 
@@ -1896,7 +1912,7 @@ const openAccountingEntry = async (id, type) => {
       createdAt: val?.createdAt,
       unitPrice: val?.unitPrice ?? 0,
       consignmentPrice: val?.consignmentPrice ?? 0,
-      negotiablePrice: val?.negotiablePrice ?? 0,
+      negotiablePrice: val?.negotiatePrice ?? 0,
       totatlPriceSale: val?.totatlPriceSale ?? 0
     }))
   } else if (type == 3) {
@@ -1906,7 +1922,7 @@ const openAccountingEntry = async (id, type) => {
       createdAt: val?.createdAt,
       unitPrice: val?.unitPrice ?? 0,
       consignmentPrice: val?.consignmentPrice ?? 0,
-      negotiablePrice: val?.negotiablePrice ?? 0,
+      negotiablePrice: val?.negotiatePrice ?? 0,
       totatlPriceRental: val?.totatlPriceRental ?? 0,
       totatlPricesRental: val?.totatlPriceRental ?? 0
     }))
@@ -4983,7 +4999,7 @@ const openDetailOrder = (id, type) => {
         <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog" text
           >+ Thêm phiếu chi</el-button
         >
-        <el-buttondebtTable
+        <el-button
           :disabled="disabledDNTTAccountingEntry"
           @click="
             () => {
@@ -4993,7 +5009,7 @@ const openDetailOrder = (id, type) => {
             }
           "
           text
-          >+ Thêm đề nghị thanh toán</el-buttondebtTable
+          >+ Thêm đề nghị thanh toán</el-button
         >
         <el-table
           ref="multipleTableRef"
@@ -5065,7 +5081,7 @@ const openDetailOrder = (id, type) => {
           >
             <template #default="props">
               <div
-                >{{ props.row.negotiatePrice }}</div
+                >{{ changeMoney.format(props.row.negotiatePrice) ?? '0 đ' }}</div
               >
             </template>
           </el-table-column>
@@ -5082,7 +5098,7 @@ const openDetailOrder = (id, type) => {
                 v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
-              <div v-else>{{ data.row.receiveMoney }}</div>
+              <div v-else>{{ changeMoney.format(data.row.receiveMoney) ?? '0 đ' }}</div>
             </template>
           </el-table-column>
 
@@ -5093,7 +5109,7 @@ const openDetailOrder = (id, type) => {
                 v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none"
               />
-              <div v-else>{{ data.row.paidMoney }}</div>
+              <div v-else>{{ changeMoney.format(data.row.paidMoney) ?? '0 đ' }}</div>
             </template>
           </el-table-column>
 

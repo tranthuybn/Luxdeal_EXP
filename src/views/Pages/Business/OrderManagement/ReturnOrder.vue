@@ -139,10 +139,11 @@ const postReturnRequest = async (orderStatusType) => {
 const postReturnRequestSpa = async (orderStatusType) => {
   let chooseSpa = true
   props.orderData.tableData.forEach((row)=>{
-    if(!row.isSpa){
+    if(row.isSpa == undefined){
       chooseSpa = false
     }
   })
+  console.log('props.orderData.tableData', props.orderData.tableData)
   if(chooseSpa){
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)}
@@ -1382,7 +1383,6 @@ console.log('statusApproval: ', props?.statusApproval)
       <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
     </div>
     <div class="pt-2 pb-2">
-      {{ orderData?.tableData }}
       <el-table ref="singleTableRef" :data="orderData?.tableData" border style="width: 100%">
         <el-table-column label="STT" type="index" width="60" align="center" />
         <el-table-column prop="productPropertyId" :label="t('formDemo.commodityName')" width="280">

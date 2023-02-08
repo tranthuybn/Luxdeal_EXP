@@ -40,7 +40,8 @@ import {
   addNewAuthRegister,
   updatedCustomer,
   cancelCustomerAccount,
-approvalOrder
+approvalOrder,
+getCustomerList
 } from '@/api/Business'
 import { updatePasswordApi } from '@/api/login/index'
 import { useRouter } from 'vue-router'
@@ -623,6 +624,63 @@ const formatDate = () => {
   console.log(ruleForm.doB)
 }
 
+interface typeCustomer {
+  value: any
+  label: any
+}
+const chooseCustomer = reactive<Array<typeCustomer>>([])
+
+// call api customer
+const pageIndexCustomer = ref(1)
+const scrollCustomerTop = ref(false)
+const scrollCustomerBottom = ref(false)
+
+const noMoreCustomerData = ref(false)
+const callAPICustomer = async () => {
+ const res =  await getCustomerList({pageSize:10,pageIndex:pageIndexCustomer.value})
+  if(res?.data && res.data?.length > 0){
+    res?.data.map((el) => {
+        chooseCustomer.push({
+          value: el.id,
+          label: el.code
+        })
+    })
+  }
+}
+
+const ScrollCustomerBottom = () => {
+  scrollCustomerBottom.value = true
+  pageIndexCustomer.value++
+  noMoreCustomerData.value
+    ? ''
+    : getCustomerList({ PageIndex: pageIndexCustomer.value, PageSize: 10 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCustomerData.value = true)
+            : res.data.map((el) =>
+               chooseCustomer.push({
+                value: el.id,
+                label: el.code
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCustomerData.value = true
+        })
+}
+
+const scrolling = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    scrollCustomerTop.value = true
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    ScrollCustomerBottom()
+  }
+}
+
 const ListFileUpload = ref<UploadUserFile[]>([])
 const disabledForm = ref(false)
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
@@ -684,9 +742,12 @@ const updatePassword = async () => {
 }
 
 onBeforeMount(() => {
+  callAPICustomer()
   change()
   callApiCity()
-  getGenCodeCustomer()
+  if(type === 'add' || type === ':type'){
+    getGenCodeCustomer()
+  }
   if (type === 'detail') {
     disabledForm.value = true
   }
@@ -746,7 +807,7 @@ onBeforeMount(() => {
                 <div class="flex">
                   <label class="min-w-[170px] pr-2 text-right">{{ t('reuse.referralCode') }}</label>
                   <div class="w-[84%]">
-                    <el-input
+                    <!-- <el-input
                       v-model="ruleForm.referralCode"
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
@@ -760,7 +821,24 @@ onBeforeMount(() => {
                             .replace(/Đ/g, 'D')
                             .trim()
                       "
-                    />
+                    /> -->
+                    
+                    <el-select
+                      class="w-full"
+                      v-model="ruleForm.referralCode"
+                      :placeholder="t('reuse.enterReferralCode')"
+                      filterable
+                      >
+                      <div @scroll="scrolling" id="content">
+                        <el-option
+                            v-for="item in chooseCustomer"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </div>
+                    </el-select>
+                    
                   </div>
                 </div>
               </ElFormItem>
@@ -1586,5 +1664,11 @@ onBeforeMount(() => {
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
   border-left: 12px solid white;
+}
+
+#content {
+  height: 200px;
+  overflow: auto;
+  padding: 0 10px;
 }
 </style>

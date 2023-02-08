@@ -1738,7 +1738,7 @@ export default {
     useToReferralCode: '(Sử dụng làm mã giới thiệu)',
     cancelAccountCheck: 'Không thể khôi phục tài khoản! Bạn có muốn hủy tài khoản?',
     failCreateAccount: 'Tạo tài khoản thất bại, Vui lòng thử lại',
-    enterReferralCode: 'Nhập mã người giới thiệu',
+    enterReferralCode: 'Chọn hoặc nhập mã người giới thiệu',
     selectProvinceCity: 'Chọn tỉnh/thành phố',
     selectCountyOrDistrict: 'Chọn quận/huyện',
     selectWardOrCommune: 'Chọn phường/xã',

@@ -197,7 +197,9 @@ const callApiForData = async () => {
         productPropertyId: item.productPropertyId,
         productPropertyQuality: item.productPropertyQuality,
         accessory: item.accessory,
-        productName: item.productPropertyName,
+        productPropertyName: item.productPropertyName,
+        productName: item.productName,
+        productCode: item.productCode,
         unitName: item.unitName,
         exportLots: item?.detail.map((detail) => ({
           value: detail.fromLotId,

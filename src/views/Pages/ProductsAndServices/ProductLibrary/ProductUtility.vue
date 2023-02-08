@@ -210,7 +210,6 @@ const collapseChangeEvent = async (val) => {
   }
 }
 const addLastRowAttribute = () => {
-  console.log('asd', collapse[1].tableList)
   if (
     collapse[1].tableList.length > 0 &&
     (collapse[1].tableList[collapse[1].tableList.length - 1].categories == undefined ||
@@ -223,7 +222,6 @@ const addLastRowAttribute = () => {
   //have id when in edit mode
   //newId: when click save and add return id
   const findId = (id==0||isNaN(id)) ? newId.value : id
-  console.log('id', id, newId.value)
   collapse[1].tableList.push({
     categoriesValue: [],
     code: randomCode,
@@ -572,7 +570,6 @@ const postData = async (data) => {
         message: t('reuse.saveSuccess'),
         type: 'success'
       })
-      console.log('disabledTabOpen', data.disabledTabOpen, newId.value)
       //disabledTabOpen = false when click button Add
       //disabledTabOpen = true when click button SaveAndAdd
       if (data.disabledTabOpen) {
@@ -855,7 +852,6 @@ const openWarehouseTable = async (scope) => {
       stack.value[i] = stack.value[i - 1] - collapse[6].tableList[i].quantity
     }
   }
-  console.log('stack', stack.value)
 }
 //same logic
 let pawnDialogTitle = ref('')

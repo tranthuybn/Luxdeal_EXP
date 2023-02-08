@@ -519,7 +519,6 @@ const remoteProductName = async (query: string) => {
 const sameProductCode = ref(false)
 const fillAllInformation = async (data) => {
   const codeObj = CodeOptions.value.find((code) => code.value.toLowerCase() == data.toLowerCase())
-  console.log('code', codeObj, data)
     //if find code in api
     codeObj
       ? //ask if they want to change value of product type, brand ..
@@ -627,7 +626,6 @@ const productCode = ref('')
 const productName = ref('')
 
 const setProductCode = () => {
-  console.log('blur')
   setValues({ ProductCode: productCode.value })
   fillAllInformation(productCode.value)
 }

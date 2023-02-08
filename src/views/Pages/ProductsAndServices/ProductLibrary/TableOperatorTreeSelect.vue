@@ -18,7 +18,9 @@ import {
   ElImage,
   ElTreeSelect,
   ElSelect,
-  ElOption
+  ElOption,
+  ElRadioGroup,
+  ElRadio
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -37,7 +39,7 @@ import {
   getUnitSelectOptions
 } from './ProductLibraryManagement'
 import { approvalProducts } from '@/api/Approval'
-import { formatProductStatus, FORM_IMAGES } from '@/utils/format'
+import { FORM_IMAGES } from '@/utils/format'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -257,7 +259,7 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
-        data.disabledTabOpen = false
+        data.disabledTabOpen = true
         emit('post-data', data)
         //emit a callback function to check if Promise success or fail
         //use this to get the statusResult of emit event
@@ -271,7 +273,7 @@ const save = async (type) => {
         setValues({ ProductStatus: 0, ProductTypeId: ProductTypeId })
       }
       if (type == 'saveAndAdd') {
-        data.disabledTabOpen = true
+        data.disabledTabOpen = false
         emit('post-data', data)
         if (props.apiStatus) {
           unref(elFormRef)!.resetFields()
@@ -516,7 +518,8 @@ const remoteProductName = async (query: string) => {
 }
 const sameProductCode = ref(false)
 const fillAllInformation = async (data) => {
-  const codeObj = CodeOptions.value.find((code) => code.value == data)
+  const codeObj = CodeOptions.value.find((code) => code.value.toLowerCase() == data.toLowerCase())
+  console.log('code', codeObj, data)
     //if find code in api
     codeObj
       ? //ask if they want to change value of product type, brand ..
@@ -718,6 +721,7 @@ const approvalProduct = async () => {
               remote
               :remote-method="remoteProductCode"
               default-first-option
+              @change="data=>fillAllInformation(data)"
               @input="(event) => (productCode = event.target.value)"
               @blur="setProductCode"
               @keyup.enter="setProductCode"
@@ -783,8 +787,14 @@ const approvalProduct = async () => {
           </template>
           <template #ProductStatus="form">
             <!-- formatProductStatus cái này chưa chính xác trạng thái nên sửa lại -->
-            <div class="bg-gray-300">{{ formatProductStatus(form['ProductStatus']) }}</div>
+            <el-radio-group v-model="form['ProductStatus']">
+              <el-radio :label="2" size="large">{{ t('reuse.active') }}</el-radio>
+            </el-radio-group>
             <span class="text-[#FECB80]">({{ t('reuse.allBusinessRelatedActivities') }})</span>
+
+            <div class="break" v-if="form['ProductStatus'] == 1">
+              <span class="bg-orange-100 text-orange-300 px-2">{{ t('reuse.pendings') }}</span>
+              </div>
           </template>
         </Form>
       </ElCol>
@@ -932,5 +942,10 @@ const approvalProduct = async () => {
   height: 200px;
   overflow: auto;
   padding: 0 10px;
+}
+
+.break {
+  flex-basis: 100%;
+  height: 0;
 }
 </style>

@@ -222,7 +222,8 @@ const addLastRowAttribute = () => {
   let randomCode = `SP${Date.now()}`
   //have id when in edit mode
   //newId: when click save and add return id
-  const findId = isNaN(id) ? newId.value : id
+  const findId = (id==0||isNaN(id)) ? newId.value : id
+  console.log('id', id, newId.value)
   collapse[1].tableList.push({
     categoriesValue: [],
     code: randomCode,
@@ -571,7 +572,7 @@ const postData = async (data) => {
         message: t('reuse.saveSuccess'),
         type: 'success'
       })
-
+      console.log('disabledTabOpen', data.disabledTabOpen, newId.value)
       //disabledTabOpen = false when click button Add
       //disabledTabOpen = true when click button SaveAndAdd
       if (data.disabledTabOpen) {
@@ -654,11 +655,14 @@ const customizeData = async (formData) => {
   setFormData.VerificationInfo = formData.verificationInfo
   setFormData.HireInventoryStatus = formData.hireInventoryStatus
   setFormData.SellInventoryStatus = formData.sellInventoryStatus
-  formData.productStatus == 1 ? (setFormData.ProductStatus = 1) : (setFormData.ProductStatus = 0)
+  setFormData.ProductStatus =  formData.productStatus
+  // formData.productStatus == 2 ? (setFormData.ProductStatus = 2) : (setFormData.ProductStatus = 0)
   unitData.value = formData.categories[2].value
   customSeoData(formData)
 }
 const editData = async (data) => {
+  //fixxbug 
+  data.ProductTypeId = data.ProductType
   await updateProductLibrary(FORM_IMAGES(data))
     .then(() =>
       ElNotification({

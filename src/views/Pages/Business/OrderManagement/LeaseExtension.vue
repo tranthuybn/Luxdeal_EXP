@@ -221,7 +221,7 @@ onBeforeMount(()=>{
     @open="open"
     @close="close"
     class="font-bold"
-    :title="t('formDemo.infoReturnAheadOfTime')"
+    :title="t('formDemo.rentalRenewalInformation')"
     width="50%"
     align-center
   >
@@ -269,10 +269,9 @@ onBeforeMount(()=>{
           </div>
         </div>
 
-        <div class="flex-1 flex items-start gap-4">
+        <div class="flex-1 flex items-start justify-center gap-4">
           <span>
-            <div>Mã QR đơn hàng</div>
-            <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+            <div class="text-right">Mã QR đơn hàng</div>
           </span>
 
           <span class="border"><Qrcode :width="100" :text="orderData?.orderCode" /></span>
@@ -295,12 +294,6 @@ onBeforeMount(()=>{
           <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
           <div class="w-[100%] text-black dark:text-light-50">{{ orderData?.phone }}</div>
         </div>
-        <div class="flex gap-4 pb-4 items-center">
-          <label class="w-[30%] text-right">{{ t('formDemo.returnReason') }}</label>
-          <div class="w-[100%] text-black dark:text-light-50">{{
-            t('formDemo.aheadTimeReturns')
-          }}</div>
-        </div>
       </div>
     </div>
     <div class="flex items-center">
@@ -316,7 +309,7 @@ onBeforeMount(()=>{
         <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" width="300"/>
         <el-table-column prop="accessory" :label="t('reuse.accessory')"/>
         <el-table-column prop="quantity" :label="t('reuse.quantity')"/>
-        <el-table-column prop="hirePrice" :label="t('formDemo.rentalUnitPrice')">
+        <el-table-column prop="hirePrice" :label="t('reuse.unitPrice')">
             <template #default="data">
                 <div class="text-right">
                     {{ changeMoney.format(data.row.hirePrice) }}
@@ -376,6 +369,7 @@ onBeforeMount(()=>{
                 v-model="scope.row.quantity" 
                 type="number" 
                 controls-position="right"
+                :min="0"
                 :max="scope.row.maximumQuantity" 
             />
           </template>

@@ -50,3 +50,16 @@ const columns = reactive<TableColumn[]>([
     :delApi="deleteProductStorage"
   />
 </template>
+
+<style scoped>
+::v-deep(.custom-empty > .el-empty) {
+  padding: 5px 0;
+}
+::v-deep(.custom-empty .el-empty > .el-empty__description) {
+  margin-top: 5px;
+}
+
+::v-deep(.el-table__row--level-1 > td > .cell > .custom-empty) {
+  padding-left: 5rem;
+}
+</style>

@@ -39,7 +39,8 @@ import {
   getGenCodeCustomers,
   addNewAuthRegister,
   updatedCustomer,
-  cancelCustomerAccount
+  cancelCustomerAccount,
+approvalOrder
 } from '@/api/Business'
 import { updatePasswordApi } from '@/api/login/index'
 import { useRouter } from 'vue-router'
@@ -54,6 +55,8 @@ const disabledDate = (time: Date) => {
 }
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const approvalId = Number(router.currentRoute.value.params.approvalId)
+
 const customerClassification = ref('Khách hàng')
 
 const escape = useIcon({ icon: 'quill:escape' })
@@ -268,7 +271,7 @@ const getTableValue = async () => {
       })
     }
   }
-  if (type == 'detail' || type == 'edit') {
+  if (type == 'detail' || type == 'edit' || type === 'approval-collab') {
     ruleForm.isActive = formValue.value?.isActive
     ruleForm.customerCode = formValue.value?.code
     ruleForm.referralCode = formValue.value?.referralCode
@@ -602,7 +605,7 @@ watch(
     if (type === 'detail') {
       disableData.value = true
     }
-    if (type === 'detail' || type === 'edit') {
+    if (type === 'detail' || type === 'edit' || type === 'approval-collab') {
       getTableValue()
     }
   },
@@ -650,6 +653,14 @@ const beforeRemove = (uploadFile) => {
     })
 }
 
+const approvalFunction = async () => {
+  const payload = { ItemType: 3, Id: approvalId, IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  push({
+    name: `approve.accounts-approval.user-account`
+  })
+}
+
 const updatePassword = async () => {
   centerDialogVisible.value = false
   const payload = {
@@ -680,7 +691,7 @@ onBeforeMount(() => {
   if (type === 'detail') {
     disabledForm.value = true
   }
-  if (type === 'detail' || type === 'edit') {
+  if (type === 'detail' || type === 'edit' || type === 'approval-collab') {
     getTableValue()
   }
 })
@@ -1204,6 +1215,14 @@ onBeforeMount(() => {
                   t('reuse.cancel')
                 }}</el-button>
               </div>
+              <div v-else-if="type === 'approval-collab'" class="w-[100%] flex ml-50 gap-4">
+            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+              t('router.approve')
+            }}</el-button>
+            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+              t('router.notApproval')
+            }}</el-button>
+          </div>
               <div v-else class="flex justify-center">
                 <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')

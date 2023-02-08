@@ -33,7 +33,8 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_PROMOTIONS: 'api/v1/Campaign/GetCampaignForOrder',
   GET_ALL_CUSTOMER: 'api/v1/Customer/GetCustomers',
   POST_SPA_ORDER: '/api/v1/Order/CreateOrder',
-  APPROVAL_PRODUCTS: '/api/v1/Approve/ApproveItem'
+  APPROVAL_PRODUCTS: '/api/v1/Approve/ApproveItem',
+  APPROVAL_SETTINGS: '/api/v1/Approve/UpdateApproveSetting'
 }
 export const CUSTOMER_API = {
   GET_POTENTIAL_CUSTOMERS: '/api/v1/Customer/GetPotentialCustomers',

@@ -215,6 +215,7 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
 let statusOrder = ref(2)
 
 var curDate = 'DCT' + moment().format('hhmmss')
+var autoCustomerCode = 'KH' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
@@ -388,6 +389,8 @@ interface tableRentalProduct {
   unitName: string
   intoARentalDeposit: string
   warehouseTotal?: number
+  originalPrice?: number
+  priceChange?: boolean
   id: string
 }
 
@@ -436,9 +439,9 @@ interface tableDataType {
 
 let debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 let countExisted = ref(0)
 let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
@@ -506,11 +509,19 @@ const optionsClassify = [
 ]
 
 // select khách hàng
-const valueSelectCustomer = ref(t('formDemo.customer'))
+const valueSelectCustomer = ref(1)
 const optionsCustomer = [
   {
-    value: 'customer',
+    value: 1,
     label: t('formDemo.customer')
+  },
+  {
+    value: 2,
+    label: t('reuse.supplier')
+  },
+  {
+    value: 3,
+    label: t('formDemo.joint')
   }
 ]
 
@@ -587,31 +598,83 @@ const getValueOfCustomerSelected = (value, obj) => {
   ruleForm.customerName = obj.label
 }
 
-// Call api danh sách khách hàng
+// infinity scroll KH
+const pageIndexCustomer = ref(1)
 const optionsCustomerApi = ref<Array<any>>([])
-let optionCallCustomerAPi = 0
 const callCustomersApi = async () => {
-  if (optionCallCustomerAPi == 0) {
-    const res = await getAllCustomer({ PageIndex: 1, PageSize: 20 })
-    const getCustomerResult = res.data
-    if (Array.isArray(unref(getCustomerResult)) && getCustomerResult?.length > 0) {
-      optionsCustomerApi.value = getCustomerResult.map((customer) => ({
-        code: customer.code,
-        label: customer.isOrganization
-          ? customer.name + ' | MST ' + customer.taxCode
-          : customer.name + ' | ' + customer.phonenumber,
-        address: customer.address,
-        name: customer.name,
-        value: customer.id,
-        isOrganization: customer.isOrganization,
-        taxCode: customer.taxCode,
-        phone: customer.phonenumber,
-        email: customer.email,
-        id: customer.id
-      }))
-    }
+  const res = await getAllCustomer({
+    PageIndex: pageIndexCustomer.value,
+    PageSize: 20
+  })
+  const getCustomerResult = res.data
+  if (res.data && res.data?.length > 0) {
+    optionsCustomerApi.value = getCustomerResult.map((customer) => ({
+      code: customer.code,
+      label: customer.isOrganization
+        ? customer.name + ' | MST ' + customer.taxCode
+        : customer.name + ' | ' + customer.phonenumber,
+      address: customer.address,
+      name: customer.name,
+      value: customer.id,
+      isOrganization: customer.isOrganization,
+      taxCode: customer.taxCode,
+      phone: customer.phonenumber,
+      email: customer.email,
+      id: customer.id
+    }))
+  }  
+}
+
+const ScrollCustomerTop = () => {
+  scrollCustomerTop.value = true
+}
+
+const scrollCustomerTop = ref(false)
+const scrollCustomerBottom = ref(false)
+
+const noMoreCustomerData = ref(false)
+
+const ScrollCustomerBottom = () => {
+  scrollCustomerBottom.value = true
+  pageIndexCollaborator.value++
+  noMoreCustomerData.value
+    ? ''
+    : getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCustomerData.value = true)
+            : res.data.map((customer) =>
+              optionsCustomerApi.value.push({
+                code: customer.code,
+                label: customer.isOrganization
+                  ? customer.name + ' | MST ' + customer.taxCode
+                  : customer.name + ' | ' + customer.phonenumber,
+                address: customer.address,
+                name: customer.name,
+                value: customer.id,
+                isOrganization: customer.isOrganization,
+                taxCode: customer.taxCode,
+                phone: customer.phonenumber,
+                email: customer.email,
+                id: customer.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCustomerData.value = true
+        })
+}
+
+const scrollingCustomer = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    scrollCustomerTop.value = true
   }
-  optionCallCustomerAPi++
+  if (scrollTop + clientHeight >= scrollHeight) {
+    ScrollCustomerBottom()
+  }
 }
 
 // Call api danh sách mã giảm giá
@@ -906,7 +969,7 @@ const postData = async (pushBack: boolean) => {
   const payload = {
     ServiceType: 3,
     OrderCode: ruleForm.orderCode,
-    PromotionCode: 'TEST',
+    PromotionCode: promoCode.value ?? '',
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: ruleForm.discount,
     Description: ruleForm.orderNotes,
@@ -930,7 +993,7 @@ const postData = async (pushBack: boolean) => {
     WardId: formAddress.wardCommune ?? 1,
     Address: customerAddress.value,
     OrderDetail: productPayment,
-    CampaignId: 2,
+    CampaignId: campaignId.value ?? '',
     VAT: 1,
     Status: 2,
     Days: ruleForm.leaseTerm,
@@ -1275,6 +1338,11 @@ const editData = async () => {
       }
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
+
+      if (orderObj.promotionCode) {
+        showPromo.value = true
+        promoActive.value = orderObj.promotionCode + ' | ' + orderObj.promotionCodeInfo
+      }
       getTotalWarehouse()
       changeDateRange(ruleForm.rentalPeriod)
       customerAddress.value = orderObj.address
@@ -1298,7 +1366,7 @@ const editData = async () => {
         name: element?.fileId
       })
     })
-  } else if (type == 'add' || !type) {
+  } else if (type == 'add' || type == ':type') {
     tableData.value.push({ ...productForSale })
   }
 }
@@ -1312,25 +1380,19 @@ const getValueOfSelected = async (value, obj, scope) => {
   const data = scope.row
   duplicateProduct.value = undefined
   duplicateProduct.value = tableData.value.find((val) => val.productPropertyId == value)
-
-  if (duplicateProduct.value) {
+  if (duplicateProduct.value ) {    
     duplicateProductMessage()
-  } else {
+  } else if (!dateRangePrice.value) ElMessage.error('Vui lòng chọn thời gian thuê trước')
+   else if (!duplicateProduct.value && dateRangePrice.value) {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
     data.productName = obj.name
+    data.priceChange = false
     getTotalWarehouse()
     if (data.fromDate && data.toDate) {
       totalPriceOrder.value = 0
       totalFinalOrder.value = 0
       totalDeposit.value = 0
-
-      let start = moment(data.fromDate, 'YYYY-MM-DD')
-      let end = moment(data.toDate, 'YYYY-MM-DD')
-
-      //Difference in number of days
-      let day = moment.duration(start.diff(end)).asDays() * -1
-      let days = Math.ceil(day / ruleForm.leaseTerm)
 
       let objPrice = await getProductPropertyPrice(
         data.productPropertyId,
@@ -1339,26 +1401,11 @@ const getValueOfSelected = async (value, obj, scope) => {
         ruleForm.leaseTerm
       )
       data.hirePrice = objPrice.price
+      data.originalPrice = objPrice.price
       data.depositePrice = objPrice.deposite * data.quantity
-      data.totalPrice = data.hirePrice * parseInt(data.quantity) * days
-      tableData.value.map((val) => {
-        if (val.totalPrice) totalPriceOrder.value += val.totalPrice
-        if (val.depositePrice) totalDeposit.value += val.depositePrice
-      })
-      promoCash.value != 0
-        ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
-        : (totalFinalOrder.value =
-            totalPriceOrder.value -
-            (totalPriceOrder.value * promoValue.value) / 100 +
-            totalDeposit.value)
-
-      if (radioVAT.value.length < 4) {
-        VAT.value = true
-        valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
-        if (totalFinalOrder.value) {
-          totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
-        }
-      }
+      data.totalPrice = data.hirePrice * parseInt(data.quantity) * dateRangePrice.value
+      
+      changePriceRowTable(scope, true)
       // add new row
       if (scope.$index == tableData.value.length - 1) {
         tableData.value.push({ ...productForSale })
@@ -1380,12 +1427,6 @@ const handleGetTotal = async (_value, props) => {
     totalPriceOrder.value = 0
     totalFinalOrder.value = 0
     totalDeposit.value = 0
-    let start = moment(data.fromDate, 'YYYY-MM-DD')
-    let end = moment(data.toDate, 'YYYY-MM-DD')
-
-    //Difference in number of days
-    let day = moment.duration(start.diff(end)).asDays() * -1
-    let days = Math.ceil(day / ruleForm.leaseTerm)
 
     let objPrice = await getProductPropertyPrice(
       data.productPropertyId,
@@ -1394,8 +1435,10 @@ const handleGetTotal = async (_value, props) => {
       ruleForm.leaseTerm
     )
     data.hirePrice = objPrice.price
+    data.originalPrice = objPrice.price
+    data.priceChange = false
     data.depositePrice = objPrice.deposite * data.quantity
-    data.totalPrice = data.hirePrice * data.quantity * days
+    data.totalPrice = data.hirePrice * data.quantity * dateRangePrice.value
     tableData.value.map((val) => {
       if (val.totalPrice) totalPriceOrder.value += val.totalPrice
       if (val.depositePrice) totalDeposit.value += val.depositePrice
@@ -1603,31 +1646,30 @@ const quickEmail = ref()
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
+    Code: autoCustomerCode,
     IsOrganization: valueClassify.value,
     Name: addQuickCustomerName.value,
     TaxCode: quickTaxCode.value,
     Representative: quickRepresentative.value,
     Phonenumber: quickPhoneNumber.value,
     Email: quickEmail.value,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 1,
     CustomerType: valueSelectCustomer.value
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
-  await addQuickCustomer(formCustomerPayLoad)
-    .then(() =>
-      ElNotification({
+  const res = await addQuickCustomer(formCustomerPayLoad)
+  if (res) {
+    ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-    )
-    .catch(() =>
-      ElNotification({
+    callCustomersApi()
+
+  } else {
+    ElNotification({
         message: t('reuse.addFail'),
         type: 'warning'
       })
-    )
+  }  
 }
 
 const choosePayment = [
@@ -1692,26 +1734,50 @@ const autoChangeAddress = () => {
 }
 
 // Trạng thái đơn hàng cho thuê
+let countProductChangePrice = ref(0)
 const priceChangeOrders = ref(false)
-const changePriceRowTable = (props) => {
+const changePriceRowTable = (props, checkRechangeProduct) => {
   const data = props.row
-  if (type == 'add') {
+  data.totalPrice = data.hirePrice * data.quantity * dateRangePrice.value
+  if (checkRechangeProduct) data.priceChange = true
+
+  if (data.originalPrice != data.hirePrice && !data.priceChange ) {
     priceChangeOrders.value = true
-    arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
-    arrayStatusOrder.value.push({
-      orderStatusName: 'Duyệt giá thay đổi',
-      orderStatus: STATUS_ORDER_RENTAL[1].orderStatus,
-      isActive: true
-    })
+    data.priceChange = true
+    countProductChangePrice.value++
+    if (type == 'add' || type == ':type') {
+      arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+      arrayStatusOrder.value.push({
+        orderStatusName: 'Duyệt giá thay đổi',
+        orderStatus: STATUS_ORDER_RENTAL[1].orderStatus,
+        isActive: true
+      })
+    }
+    doubleDisabled.value = true
+    statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
+  } else if (data.originalPrice == data.hirePrice && data.priceChange ) {    
+    if (!checkRechangeProduct || (checkRechangeProduct && countProductChangePrice.value == 1)) countProductChangePrice.value--
+    if (countProductChangePrice.value == 0 ) {
+      priceChangeOrders.value = false
+      data.priceChange = false
+      if (type == 'add' || type == ':type') {
+        arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
+        arrayStatusOrder.value.push({
+          orderStatusName: 'Chốt đơn hàng',
+          orderStatus: STATUS_ORDER_RENTAL[2].orderStatus,
+          isActive: true
+        })
+      }
+      doubleDisabled.value = !doubleDisabled.value
+      statusOrder.value = STATUS_ORDER_RENTAL[2].orderStatus
+    }    
   }
-  doubleDisabled.value = true
-  statusOrder.value = STATUS_ORDER_RENTAL[1].orderStatus
-  data.totalPrice = data.hirePrice * data.quantity
+  
   autoCalculateOrder()
 }
 
 arrayStatusOrder.value.pop()
-if (type == 'add' && priceChangeOrders.value == false)
+if (type == 'add' && priceChangeOrders.value == false || type == ':type' && priceChangeOrders.value == false)
   arrayStatusOrder.value.push({
     orderStatusName: 'Chốt đơn hàng',
     orderStatus: 2,
@@ -2192,6 +2258,9 @@ const callApiDetailReturnExpand = async() => {
 
 // Hủy trả hàng trước hạn
 const cancelExpendReturn = async() => {
+  cancelExpend.value = false
+  detailExpand.value = false
+  doneExpand.value = false
   const payload = {
     OrderId: id
   }
@@ -2254,7 +2323,7 @@ const setDataForReturnOrder = () => {
     maximumQuantity: el.quantity,
     value: el?.productCode
   }))
-  rentReturnOrder.value.orderCode = curDate
+  rentReturnOrder.value.orderCode = ruleForm.orderCode
   rentReturnOrder.value.leaseTerm = ruleForm?.leaseTerm
   rentReturnOrder.value.period = ruleForm?.rentalPeriod
   rentReturnOrder.value.name = infoCompany?.name
@@ -2431,13 +2500,13 @@ const autoCollaboratorCommission = (index) => {
   })
 }
 
+const dateRangePrice = ref()
 const changeDateRange = (data) => {
   tableData.value.forEach((el) => {
     el.fromDate = data[0]
     el.toDate = data[1]
   })
   if (tableData.value?.length) {
-    if (tableData.value[0].productPropertyId) {
       let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
       let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
 
@@ -2445,11 +2514,11 @@ const changeDateRange = (data) => {
       let day = moment.duration(start.diff(end)).asDays() * -1
       let days = Math.ceil(day / ruleForm.leaseTerm)
 
+      dateRangePrice.value = days
       tableData.value.map((val) => {
         val.totalPrice = val.hirePrice * parseInt(val.quantity) * days
       })
       autoCalculateOrder()
-    }
   }
 }
 
@@ -2553,7 +2622,7 @@ const updateStatusOrders = async (typeState) => {
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
-    if (type == 'add') {
+    if (type == 'add' || type == ':type') {
       let payload = {
         OrderId: idOrderPost.value,
         ServiceType: 3,
@@ -2575,8 +2644,8 @@ const { push } = useRouter()
 const approvalId = String(route.params.approvalId)
 const tab = String(route.params.tab)
 
-const approvalFunction = async () => {
-  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+const approvalFunction = async (checkApproved) => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
   push({
     name: `approve.orders-approval.orders-new`
@@ -2644,13 +2713,21 @@ const editOrder = () => {
 // Gia hạn thuê
 const dialogLeaseExtension = ref(false)
 
+// Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
+const backToListOrder = () => {
+  router.push({
+    name: 'business.order-management.order-list',
+    params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+  })
+}
+
 onBeforeMount(() => {
   callApiCollaborators()
   callCustomersApi()
   callApiProductList()
   editData()
   callApiWarehouseList()
-  if (type == 'add') {
+  if (type == 'add' || type == ':type') {
     ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
@@ -2842,8 +2919,8 @@ onBeforeMount(() => {
               class="w-[150px]"
               @click.stop.prevent="
                 () => {
-                  dialogAddQuick = false
                   createQuickCustomer()
+                  dialogAddQuick = false
                 }
               "
               >{{ t('reuse.save') }}</el-button
@@ -3039,12 +3116,14 @@ onBeforeMount(() => {
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Select">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <div @scroll="scrollingCustomer" id="content">
+                  <el-option
+                    v-for="item in optionsCustomerApi"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
@@ -3161,12 +3240,14 @@ onBeforeMount(() => {
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Select">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <div @scroll="scrollingCustomer" id="content">
+                  <el-option
+                    v-for="item in optionsCustomerApi"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
@@ -3278,12 +3359,14 @@ onBeforeMount(() => {
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <el-option
-                  v-for="item in optionsCustomerApi"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <div @scroll="scrollingCustomer" id="content">
+                  <el-option
+                    v-for="item in optionsCustomerApi"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
@@ -4099,12 +4182,12 @@ onBeforeMount(() => {
                 }}</el-divider>
               </div>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
-                <el-input style="width: 100%" v-model="ruleForm.orderCode" />
+                <el-input :disabled="true" style="width: 100%" v-model="ruleForm.orderCode" />
               </el-form-item>
               <el-form-item :label="t('formDemo.leaseTerm')">
                 <el-select
                   v-model="ruleForm.leaseTerm"
-                  :disabled="checkDisabled"
+                  :disabled="disabledEdit"
                   @change="recalculatePrice"
                   placeholder="Select"
                   clearable
@@ -4120,7 +4203,7 @@ onBeforeMount(() => {
               <el-form-item :label="t('formDemo.rentalPeriod')" prop="rentalPeriod">
                 <el-date-picker
                   v-model="ruleForm.rentalPeriod"
-                  :disabled="checkDisabled"
+                  :disabled="disabledEdit"
                   type="daterange"
                   unlink-panels
                   @change="changeDateRange"
@@ -4304,6 +4387,8 @@ onBeforeMount(() => {
                             :hiddenKey="['id']"
                             :placeHolder="'Chọn khách hàng'"
                             :defaultValue="ruleForm.customerName"
+                            @scroll-top="ScrollCustomerTop"
+                            @scroll-bottom="ScrollCustomerBottom"
                             :clearable="false"
                             @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
                           />
@@ -4323,7 +4408,7 @@ onBeforeMount(() => {
                       }}</label>
                       <div class="flex w-[80%] gap-4">
                         <el-select
-                          :disabled="checkDisabled"
+                          :disabled="disabledEdit"
                           v-model="ruleForm.warehouse"
                           class="fix-full-width"
                           :placeholder="t('formDemo.choseDeliveryMethod')"
@@ -4814,7 +4899,7 @@ onBeforeMount(() => {
                 v-model="props.row.hirePrice"
                 :disabled="disabledEdit"
                 v-if="type != 'detail'"
-                @change="() => changePriceRowTable(props)"
+                @change="() => changePriceRowTable(props, false)"
               />
               <div v-else>{{
                 props.row.hirePrice != ''
@@ -4844,7 +4929,7 @@ onBeforeMount(() => {
                 v-model="props.row.depositePrice"
                 :disabled="disabledEdit"
                 v-if="type != 'detail'"
-                @change="() => changePriceRowTable(props)"
+                @change="() => changePriceRowTable(props, false)"
               />
               <div v-else>{{
                 props.row.depositePrice != ''
@@ -4885,7 +4970,7 @@ onBeforeMount(() => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button v-if="type == 'add'" class="ml-4 mt-4" @click="addLastIndexSellTable"
+        <el-button v-if="type == 'add' || type == ':type'" class="ml-4 mt-4" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
         <div class="flex justify-end pt-4">
@@ -5020,7 +5105,7 @@ onBeforeMount(() => {
               >
                 <div
                   v-if="
-                    item.orderStatus == STATUS_ORDER_RENTAL[4].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_RENTAL[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_RENTAL[7].orderStatus ||
                     item.orderStatus == STATUS_ORDER_RENTAL[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_RENTAL[4].orderStatus
@@ -5112,7 +5197,10 @@ onBeforeMount(() => {
             v-if="
               statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
               !priceChangeOrders &&
-              type == 'add'
+              type == 'add' ||
+              statusOrder == STATUS_ORDER_RENTAL[2].orderStatus &&
+              !priceChangeOrders &&
+              type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5143,7 +5231,7 @@ onBeforeMount(() => {
               >{{ t('formDemo.startRentingTerm') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5155,7 +5243,10 @@ onBeforeMount(() => {
             v-if="
               statusOrder == STATUS_ORDER_RENTAL[1].orderStatus &&
               priceChangeOrders &&
-              type == 'add'
+              type == 'add' || 
+              statusOrder == STATUS_ORDER_RENTAL[1].orderStatus &&
+              priceChangeOrders &&
+              type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5183,7 +5274,7 @@ onBeforeMount(() => {
               >{{ t('button.saveAndWaitApproval') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5420,12 +5511,12 @@ onBeforeMount(() => {
           <div v-else-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
             <button
               :disabled="statusButtonDetail"
-              @click="approvalFunction"
+              @click="approvalFunction(true)"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >Duyệt</button
             >
             <el-button
-              @click="openDepositDialog"
+              @click="approvalFunction(false)"
               :disabled="statusButtonDetail"
               class="min-w-42 min-h-11"
               >Không duyệt</el-button

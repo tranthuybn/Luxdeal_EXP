@@ -338,10 +338,8 @@ const activeName = ref([collapse[0].name, collapse[1].name])
 const warehouseTicketCode = ref()
 const staffId = ref()
 const openDetailFullyIntegrated = async (props) => {
-  console.log('props: ', props)
   const res = await GetWarehouseTransaction({ Id: parseInt(props.row.warehouseTicketId) })
   warehouseTicketCode.value = res.data[0].transactionCode
-  console.log('res: ', res)
   staffId.value = res.data[0].staffId
 
   informationWarehouseReceipt.value = true
@@ -1094,7 +1092,6 @@ const closeDialogWarehouse = (warehouseData) => {
 }
 
 const postData = async (pushBack: boolean) => {
-  console.log('ListOfProductsForSale', ListOfProductsForSale.value)
   let checkSpaLength = true 
   ListOfProductsForSale.value.forEach((row)=>{
   if(!row.spaServices || row.spaServices.length < 1){
@@ -2119,8 +2116,6 @@ const reloadStatusOrder = async () => {
     if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].createdAt)
     isLastStatusFinish.value = true
     else isLastStatusFinish.value = false
-
-    console.log('isLastStatusFinish',isLastStatusFinish.value)
   }
 }
 

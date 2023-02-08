@@ -96,8 +96,8 @@ const collapseChangeEvent = (val) => {
 }
 const activeName = ref([collapse[0].name, collapse[1].name])
 const ishow= ref(false)
+const ishide = ref(true)
 const changeshow = () =>{ return ishow.value=true, ishide.value=false}
-const ishide = ref(false)
 const hide = () =>{ return ishide.value=true,ishow.value=false}
 const form = reactive({
   code: 'MH123',
@@ -166,7 +166,7 @@ const depositPrice = ref(0)
 v-model="activeName" @change="collapseChangeEvent" :class="['bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)']">
 
  
-      <el-collapse-item :name="collapse[0].name">
+      <el-collapse-item :name="collapse[0].name" >
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ collapse[0].title }}</span>

@@ -458,23 +458,44 @@ interface tableDataType {
   statusAccountingEntry: string
 }
 
-const checkReceiptOrPayment = ref(false)
 const checkAccountEntry = ref(false)
-const checkPaymentRequest = ref(false)
+const checkReceiptOrPayment = ref(true)
+const checkPaymentRequest = ref(true)
+let countExisted = ref(0)
+let countExistedDNTT = ref(0)
 
 let debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  checkReceiptOrPayment.value = false
-  checkPaymentRequest.value = false
+  countExisted.value = 0
+  countExistedDNTT.value = 0
   newTable.value = val
-  if (newTable.value[0].paymentRequestCode) {
-    checkPaymentRequest.value = true
-  } else if (newTable.value[0].receiptOrPaymentVoucherCode) {
-    checkReceiptOrPayment.value = true
-  }
+  newTable.value.map((el) => {
+    if (el.receiptOrPaymentVoucherId) {
+      countExisted.value++
+      checkReceiptOrPayment.value = true
+    } else {
+      if (countExisted.value == 0) {
+        checkReceiptOrPayment.value = false
+      }
+    }
+
+    if (el.paymentRequestId) {
+      countExistedDNTT.value++
+      checkPaymentRequest.value = true
+    } else {
+      if (countExistedDNTT.value == 0) {
+        checkPaymentRequest.value = false
+      }
+    }
+  })
+  // if (newTable.value[0].paymentRequestCode) {
+  //   checkPaymentRequest.value = true
+  // } else if (newTable.value[0].receiptOrPaymentVoucherCode) {
+  //   checkReceiptOrPayment.value = true
+  // }
 }
 
 // Dialog change address
@@ -2661,6 +2682,12 @@ const showWarehouseTicket = async (scope) => {
 }
 
 const hiddenButton = ref(false)
+
+const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''
+const staffInfo = JSON.parse(staff) || ''
+const staffItem = JSON.parse(staffInfo?.v) || ''
+console.log('staff:', staffItem)
+inputRecharger.value = staffItem?.id
 
 onBeforeMount(async () => {
   await editData()

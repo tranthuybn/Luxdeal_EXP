@@ -773,14 +773,14 @@ const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 
 const ruleForm = reactive({
-  orderCode: 'DHB039423',
+  orderCode: '',
   collaborators: '',
   pawnTerm: '',
   paymentPeriod: 10,
   collaboratorCommission: '',
   orderNotes: '',
   customerName: '',
-  delivery: '',
+  delivery: 1,
   warehouse: '',
   orderFiles: []
 })
@@ -1409,17 +1409,17 @@ const listApplyExport = [
   {
     id: 1,
     check: true,
-    applyExport: 'Ký gửi bán'
-  },
-  {
-    id: 2,
-    check: true,
-    applyExport: 'Ký gửi cho thuê'
+    applyExport: 'Bán'
   },
   {
     id: 3,
     check: true,
-    applyExport: 'spa'
+    applyExport: 'Cho thuê'
+  },
+  {
+    id: 5,
+    check: true,
+    applyExport: 'Spa'
   }
 ]
 const indexRow = ref()
@@ -2634,7 +2634,7 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
+          <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
               <el-input
@@ -2645,23 +2645,32 @@ const removeRow = (index) => {
             </template>
           </el-table-column>
 
-          <el-table-column
-            :disabled="disabledEdit"
-            prop="quantity"
-            :label="t('reuse.pawnNumber')"
-            width="90"
-          >
+          <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
+
+          <el-table-column prop="priceintoMoneyByday" :label="t('reuse.intoMoneyByday')" width="150">
             <template #default="data">
+              <div v-if="type === 'detail'">{{ changeMoney.format(data.row.priceintoMoneyByday) }}</div>
               <el-input
-                v-model="data.row.quantity"
+                v-else 
+                v-model="data.row.priceintoMoneyByday" 
+                :disabled="disabledEdit" 
                 @change="handleTotal(data)"
-                v-if="data.row.edited"
-                style="width: 100%"
-              />
+                style="width: 100%" />
             </template>
           </el-table-column>
 
-          <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
+          <el-table-column prop="priceintoMoneyPawnGOC" :label="t('formDemo.moneyPawnGOC')" width="150">
+            <template #default="data">
+              <div v-if="type === 'detail'">{{ changeMoney.format(data.row.priceintoMoneyPawnGOC) }}</div>
+              <el-input 
+                v-else 
+                v-model="data.row.priceintoMoneyPawnGOC" 
+                :disabled="disabledEdit" 
+                @change="handleTotal(data)"
+                style="width: 100%" />
+            </template>
+          </el-table-column>
+
           <el-table-column
             :label="t('formDemo.businessManagement')"
             width="200"
@@ -2737,30 +2746,7 @@ const removeRow = (index) => {
               >{{ t('formDemo.intoMoneyPawnGOC') }} <span class="text-red-500">*</span></div
             >
           </div>
-
-          <div v-if="type == 'add'" class="w-30">
-            <CurrencyInputComponent v-model="priceintoMoneyPawnGOC" />
-          </div>
-          <div v-else class="w-30"> {{ priceintoMoneyPawnGOC }} </div>
-
-          <div class="w-60 pl-2">
-            <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-
-            <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-          </div>
-        </div>
-
-        <div class="flex justify-end pt-4">
-          <div class="w-50">
-            <div class="text-black font-bold dark:text-[#fff]"
-              >{{ t('reuse.intoMoneyByday') }} <span class="text-red-500">*</span></div
-            >
-          </div>
-
-          <div v-if="type == 'add'" class="w-30">
-            <CurrencyInputComponent v-model="priceintoMoneyByday" />
-          </div>
-          <div v-else class="w-30"> {{ priceintoMoneyByday }} </div>
+          <div class="w-30"> {{ changeMoney.format(priceintoMoneyPawnGOC) }} </div>
 
           <div class="w-60 pl-2">
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
@@ -2931,7 +2917,7 @@ const removeRow = (index) => {
               "
               class="min-w-42 min-h-11"
               @click="openDepositDialog"
-              >{{ t('formDemo.feePaymentSlip') }}</el-button
+              >{{ t('formDemo.bill') }}</el-button
             >
 
             <el-button

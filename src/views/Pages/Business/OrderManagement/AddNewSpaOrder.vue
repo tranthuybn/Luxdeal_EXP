@@ -74,7 +74,8 @@ import {
   cancelReturnOrder,
   CancelUpdateSpaService,
   finishReturnOrder,
-  FinishUpdateSpaService
+  FinishUpdateSpaService,
+postAutomaticWarehouse
 } from '@/api/Business'
 import ChooseWarehousePR from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -1194,13 +1195,20 @@ const postData = async (pushBack: boolean) => {
   // get data
   id = res.data
   
-  // valueTypeSpa.value === 0 ? warehouseTranferAuto(1) : warehouseTranferAuto(3)
+  valueTypeSpa.value === 0 ? warehouseTranferAuto(1) : warehouseTranferAuto(3)
 
   if (clickStarSpa.value == true) {
     addStatusOrder(5)
   }}
 }
+const warehouseTranferAuto = async (index) => {
+  const payload = {
+    OrderId: id,
+    Type: index
+  }
 
+  await postAutomaticWarehouse(JSON.stringify(payload))
+}
 const clickStarSpa = ref(false)
 
 const form = reactive({
@@ -3623,7 +3631,6 @@ const postReturnRequest = async (reason) => {
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-divider content-position="left">{{ t('formDemo.listProductSpa') }}</el-divider>
-        {{ListOfProductsForSale}}
         <el-table
           :data="ListOfProductsForSale"
           border
@@ -4338,7 +4345,6 @@ const postReturnRequest = async (reason) => {
             </div>
           </div>
           <!-- Nút không thuộc về đâu =)) -->
-          {{statusOrder}}
           <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[6].orderStatus && !isLastStatusFinish"
                 type="primary"

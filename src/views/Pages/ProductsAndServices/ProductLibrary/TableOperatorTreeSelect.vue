@@ -37,7 +37,6 @@ import {
   getUnitSelectOptions
 } from './ProductLibraryManagement'
 import { approvalProducts } from '@/api/Approval'
-import { isEqual } from 'lodash-es'
 import { formatProductStatus, FORM_IMAGES } from '@/utils/format'
 const { t } = useI18n()
 
@@ -388,37 +387,37 @@ const edit = () => {
     params: { id: props.id, type: 'edit' }
   })
 }
-const delAction = async () => {
-  {
-    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
-      confirmButtonText: t('reuse.delete'),
-      cancelButtonText: t('reuse.exit'),
-      type: 'warning',
-      confirmButtonClass: 'el-button--danger'
-    })
-      .then(() => {
-        const res = props.delApi({ Id: props.id })
-        if (res) {
-          ElNotification({
-            message: t('reuse.deleteSuccess'),
-            type: 'success'
-          }),
-            go(-1)
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
-          })
-        }
-      })
-      .catch(() => {
-        ElNotification({
-          type: 'info',
-          message: t('reuse.deleteCancel')
-        })
-      })
-  }
-}
+// const delAction = async () => {
+//   {
+//     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
+//       confirmButtonText: t('reuse.delete'),
+//       cancelButtonText: t('reuse.exit'),
+//       type: 'warning',
+//       confirmButtonClass: 'el-button--danger'
+//     })
+//       .then(() => {
+//         const res = props.delApi({ Id: props.id })
+//         if (res) {
+//           ElNotification({
+//             message: t('reuse.deleteSuccess'),
+//             type: 'success'
+//           }),
+//             go(-1)
+//         } else {
+//           ElNotification({
+//             message: t('reuse.deleteFail'),
+//             type: 'warning'
+//           })
+//         }
+//       })
+//       .catch(() => {
+//         ElNotification({
+//           type: 'info',
+//           message: t('reuse.deleteCancel')
+//         })
+//       })
+//   }
+// }
 const cancel = () => {
   go(-1)
 }
@@ -516,59 +515,8 @@ const remoteProductName = async (query: string) => {
   }
 }
 const sameProductCode = ref(false)
-const lastCodeObj = ref()
 const fillAllInformation = async (data) => {
   const codeObj = CodeOptions.value.find((code) => code.value == data)
-  //for fix bug purpose
-  if (isEqual(codeObj, lastCodeObj.value) && codeObj !== undefined) {
-    ElMessageBox.confirm(t('reuse.fillProductInformationAgain'), t('reuse.notification'), {
-      confirmButtonText: t('reuse.confirm'),
-      cancelButtonText: t('reuse.cancel'),
-      type: 'info'
-    })
-      .then(() => {
-        getBusinessProductLibrary({ Id: codeObj?.id })
-          .then((res) => {
-            if (res.data.length == 0) {
-              ElNotification({
-                message: t('reuse.cantFindData'),
-                type: 'warning'
-              })
-            } else {
-              const fillValue = res.data[0]
-              const BrandId = fillValue.categories[0].id
-              const UnitId = fillValue.categories[2].id
-              const OriginId = fillValue.categories[3].id
-              setValues({
-                ProductCode: null,
-                Name: fillValue.name,
-                ShortDescription: fillValue.shortDescription,
-                VerificationInfo: fillValue.verificationInfo,
-                ProductTypeId: fillValue.categories[1].value,
-                BrandId: BrandId,
-                UnitId: UnitId,
-                OriginId: OriginId,
-                Description: fillValue.description
-              })
-              const checkData = { BrandId: BrandId, UnitId: UnitId, OriginId: OriginId }
-              customPostData(checkData)
-            }
-            sameProductCode.value = true
-          })
-          .catch(() =>
-            ElNotification({
-              message: t('reuse.cantFindData'),
-              type: 'warning'
-            })
-          )
-      })
-      .catch(() => {})
-      .finally(() => {
-        setValues({ ProductCode: null })
-      })
-    return
-  } else {
-    lastCodeObj.value = codeObj
     //if find code in api
     codeObj
       ? //ask if they want to change value of product type, brand ..
@@ -621,7 +569,6 @@ const fillAllInformation = async (data) => {
     // .finally(() => {
     //   setValues({ ProductCode: '' })
     // })
-  }
 }
 
 const callApiAttribute = async () => {
@@ -677,8 +624,9 @@ const productCode = ref('')
 const productName = ref('')
 
 const setProductCode = () => {
+  console.log('blur')
   setValues({ ProductCode: productCode.value })
-  fillAllInformation(productCode)
+  fillAllInformation(productCode.value)
 }
 const setProductName = () => {
   setValues({ ProductName: productName.value })
@@ -770,7 +718,6 @@ const approvalProduct = async () => {
               remote
               :remote-method="remoteProductCode"
               default-first-option
-              @change="(data) => fillAllInformation(data)"
               @input="(event) => (productCode = event.target.value)"
               @blur="setProductCode"
               @keyup.enter="setProductCode"

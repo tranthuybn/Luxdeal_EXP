@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    consignmentproductinformation: ' Thông tin sản phẩm ký gửi bán',
     rentalRenewalInformation: 'Thông tin gia hạn thuê',
     approvedReturnAHeadOfTime: 'Duyệt trả hàng trước hạn',
     detailedlistofexpenses: 'Bảng kê chi tiết các khoản chi (Nếu có)',

@@ -1,4 +1,4 @@
-span<script setup lang="ts">
+<script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -62,6 +62,23 @@ const collapse: Array<Collapse> = [
     removeDrawer: true,
     selection: false,
     customOperator: 3
+  },{
+    icon: plusIcon,
+    name: 'productAndPayment',
+    title: t('formDemo.consignmentproductinformation'),
+    columns: [],
+    api: undefined,
+    buttonAdd: '',
+    typeForm: 'form',
+    typeButton: 'form01',
+    expand: false,
+    apiTableChild: undefined,
+    columnsTableChild: undefined,
+    pagination: false,
+    removeHeaderFilter: true,
+    removeDrawer: true,
+    selection: false,
+    customOperator: 3
   }
 ]
 
@@ -78,7 +95,10 @@ const collapseChangeEvent = (val) => {
   }
 }
 const activeName = ref([collapse[0].name, collapse[1].name])
-
+const ishow= ref(false)
+const changeshow = () =>{ return ishow.value=true, ishide.value=false}
+const ishide = ref(false)
+const hide = () =>{ return ishide.value=true,ishow.value=false}
 const form = reactive({
   code: 'MH123',
   date: new Date(),
@@ -137,6 +157,9 @@ watch(
 )
 
 const depositPrice = ref(0)
+
+// const choice = ()=>{ishow=false}
+
 </script>
 <template>
   <el-collapse
@@ -163,9 +186,9 @@ v-model="activeName" @change="collapseChangeEvent" :class="['bg-[var(--el-color-
                     { required: true, message: 'Chọn dữ liệu' },
                     { type: 'string', message: 'Chọn giá trị' },
                     ]">
-                      <el-select class="w-[100%]" v-model="form.region" placeholder="Lấy tk đang tạo phiếu">
-                        <el-option label="Zone one" value="shanghai" />
-                        <el-option label="Zone two" value="beijing" />
+                      <el-select class="w-[100%]" v-model="form.region" placeholder="Lấy tk đang tạo phiếu" >
+                        <el-option label="Zone one" value="shanghai" @click="hide()"/>
+                        <el-option label="Thanh toán tiền đàm phán ký gửi" value="thanhtoan" @click="changeshow()" />
                       </el-select>
                     </el-form-item>
                     <el-form-item
@@ -194,14 +217,14 @@ v-model="activeName" @change="collapseChangeEvent" :class="['bg-[var(--el-color-
         </div>
       </el-collapse-item>
 
-      <el-collapse-item :name="collapse[1].name" >
+      <el-collapse-item :name="collapse[1].name"  v-if="ishide">
               <template #title >
                 <el-button class="header-icon" :icon="collapse[1].icon" link/>
                 <span class="text-center text-xl">{{ collapse[1].title }}</span>
               </template>
               <el-table :data="tableData" border style="width: 100%">
-                <el-table-column type="index" label="STT" width="180" />
-                <el-table-column prop="sct" label="Số chứng từ" width="180" >
+                <el-table-column type="index" label="STT" width="80" />
+                <el-table-column prop="sct" label="Số chứng từ" width="100" >
                       <template #default="props">
                           <el-input  v-model="props.row.sct"/>
                       </template>
@@ -313,9 +336,108 @@ v-model="activeName" @change="collapseChangeEvent" :class="['bg-[var(--el-color-
                 </div>
 
       </el-collapse-item>
-
-
-</el-collapse>
+      <el-collapse-item :name="collapse[2].name" v-if="ishow">
+              <template #title >
+                <el-button class="header-icon" :icon="collapse[2].icon" link/>
+                <span class="text-center text-xl">{{ collapse[2].title }}</span>
+              </template>
+              <el-table :data="tableData" border style="width: 100%">
+                <el-table-column type="index" label="STT" width="80" />
+                <el-table-column prop="sct" label="Số chứng từ" width="100" >
+                      <template #default="props">
+                          <el-input  v-model="props.row.sct"/>
+                      </template>
+                </el-table-column>
+                <el-table-column prop="date" label="Ngày chứng từ" >
+                    <template #default="props">
+                        <el-date-picker
+                          v-model="props.row.date"
+                          type="date"
+                          placeholder="Pick a day"
+                          format="DD/MM/YYYY"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column prop="content" label="Nội dung chi" >
+                      <template #default="props">
+                            <el-input v-model="props.row.content" />
+                      </template>
+                </el-table-column>
+                <el-table-column prop="quanti" label="Số lượng" >
+                      <template #default="props">
+                          <el-input v-model="props.row.quanti" />
+                    </template>
+                </el-table-column>
+                <el-table-column prop="price" label="Đơn giá" >
+                      <template #default="props">
+                          <el-input v-model="props.row.price" />
+                      </template>
+                </el-table-column>
+                <el-table-column prop="total" label="Thành tiền" >
+                      <template #default="props">
+                          <el-input v-model="props.row.total" />
+                      </template>
+                </el-table-column>
+                <el-table-column prop="note" label="Ghi chú" >
+                      <template #default="props">
+                        <el-input v-model="props.row.note" />
+                      </template>            
+                </el-table-column>
+                <el-table-column label="Thao Tác" >
+                      <template #default="scope">
+                          <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)" >Xóa</el-button>
+                      </template>
+                </el-table-column>
+              </el-table>
+              
+            <el-divider content-position="left" >Thông tin thanh toán</el-divider>
+                <div class="flex flex-row">
+                        <el-form :model="form" label-width="160px" class="basis-1/2" >
+                                    <el-form-item 
+                                            label="Số tiền chi" prop="name" :rules="[
+                                          { required: true, message: 'Nhập số tiền' },
+                                          { type: 'number', message: 'Nhập số tiền' },
+                                    
+                                          ]">
+                                              <el-input v-model="form.text" placeholder="Nhập số tiền" />
+                                    </el-form-item>
+                                    <el-form-item
+                                          label="Viết bằng chữ" prop="name" :rules="[
+                                        { required: true, message: 'Nhập chữ' },
+                                        { type: 'string', message: 'Nhập chữ' },
+                                  
+                                        ]">
+                                              <el-input v-model="form.text" placeholder="Viết bằng chữ" />
+                                    </el-form-item>
+                                    <el-form-item
+                                          label="Hình thức thanh toán" :rules="[
+                                          { required: true, message: 'Viết bằng chữ' },
+                                          { type: 'string', message: 'Viết bằng chữ' },
+                                          ]">
+                                              <el-select class="w-[100%]" v-model="form.region" placeholder="Thanh toán tiền mặt">
+                                                <el-option label="Zone one" value="shanghai" />
+                                                <el-option label="Zone two" value="beijing" />
+                                              </el-select>
+                                    </el-form-item>
+                                    <el-form-item label="Trạng thái ">
+                                          <span class="day-updated">
+                                            Khởi tạo & ghi số
+                                          </span>
+                                    </el-form-item>
+                                    <el-form-item>
+                                          <div>
+                                            <label style= "font-style:italic"> {{ dateTimeFormat(moment()) }} </label>
+                                          </div>
+                                    </el-form-item>
+                                    <el-form-item >
+                                          <el-button>In phiếu</el-button>
+                                          <el-button type="primary">Lưu và chờ duyệt</el-button>
+                                          <el-button type="danger">Hủy</el-button>
+                                    </el-form-item>
+                        </el-form>
+                </div>
+      </el-collapse-item>
+      </el-collapse>
 </template>  
 <style scoped>
 .requied{

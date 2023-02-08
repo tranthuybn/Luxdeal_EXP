@@ -566,6 +566,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'service',
     label: t('reuse.service'),
     component: 'Select',
+    
     componentProps: {
       allowCreate: true,
       filterable: true,

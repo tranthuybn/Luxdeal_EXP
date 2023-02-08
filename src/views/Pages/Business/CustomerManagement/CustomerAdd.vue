@@ -534,13 +534,17 @@ const postCustomer = async (typebtn) => {
           params: { backRoute: 'business.customer-management.customerList' }
         })
       }
+      if (typebtn == 'saveAndAdd') {
+          unref(ruleFormRef)!.resetFields()
+          unref(ruleFormRef2)!.resetFields()
+        }
     })
-    .catch((error) => {
-      ElMessage({
-        message: error?.response?.data?.message,
+    .catch(() => 
+       ElNotification({
+        message: 'Trùng thông tin, vui lòng kiểm tra tên/mã/email/sđt ...',
         type: 'error'
       })
-    })
+     )
   clear()
 }
 
@@ -557,17 +561,13 @@ const postData = async (typebtn) => {
     })
       .then(() => {
         postCustomer(typebtn)
-        if (typebtn == 'saveAndAdd') {
-          unref(ruleFormRef)!.resetFields()
-          unref(ruleFormRef2)!.resetFields()
-        }
       })
-      .catch((res) =>
-        ElMessage({
-          message: res.response.data.message,
-          type: 'error'
-        })
-      )
+      .catch((res) =>{
+        ElNotification({
+        message: res.response.data.message,
+        type: 'error'
+      })
+     } )
   }
 }
 const centerDialogVisible = ref(false)

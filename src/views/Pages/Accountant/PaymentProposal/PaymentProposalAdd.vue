@@ -207,6 +207,21 @@ v-model="activeName" @change="collapseChangeEvent" :class="['bg-[var(--el-color-
                         <el-option label="Nguyễn Phong Linh" value="two" />
                       </el-select>
                   </el-form-item>
+                  <el-form-item>
+                      <div>
+                        <label style= "font-style:italic"> Nguyễn Phương Linh </label>
+                      </div>
+                    </el-form-item>
+                    <el-form-item>
+                        <label>
+                          Số điện thoại: 0983255567
+                        </label>
+                    </el-form-item>
+                    <el-form-item >
+                        <label>
+                          Email: linhnguyen@gmail.com
+                        </label>
+                      </el-form-item>
               </el-form>
                 </div>
                 <div class="flex-1">

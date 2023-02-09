@@ -324,7 +324,7 @@ const adminList = [
         children: [
           {
             path: 'customerList',
-            name: 'business.customer-management.customerList',
+            name: 'business.customer-management.customerAdd',
             component: 'views/Pages/Business/CustomerManagement/CustomerList',
             meta: {
               title: 'router.customerList'
@@ -333,7 +333,7 @@ const adminList = [
           {
             path: `customer-add/:type?/:id?/:approvalId?`,
             component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
-            name: `business.customer-management.customerList.${utility}`,
+            name: `business.customer-management.customerAdd.${utility}`,
             meta: {
               title: 'reuse.createANewCustomer',
               noTagsView: true,

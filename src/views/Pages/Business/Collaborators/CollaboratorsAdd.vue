@@ -326,7 +326,7 @@ const setFormValue = async () => {
     
     if (arrayStatusCollab.value?.length) {
       arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].isActive = true
-      if (type != 'approval-order')
+      if (type != 'approval-collab')
       statusCollab.value = arrayStatusCollab.value[arrayStatusCollab.value?.length - 1]?.name
       else statusCollab.value = 'Duyệt khởi tạo tài khoản'
       if (arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].approveAt)
@@ -950,7 +950,7 @@ provide('parameters', {
           </el-dialog>
         </div>
        
-        <div v-else-if="type === 'approval-collab' && statusCollab =='Duyệt khởi tạo tài khoản'" class="w-[100%] flex ml-50 gap-4">
+        <div v-else-if="type === 'approval-collab' && statusCollab    =='Duyệt khởi tạo tài khoản'" class="w-[100%] flex ml-50 gap-4">
             <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>

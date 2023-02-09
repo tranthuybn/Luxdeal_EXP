@@ -251,6 +251,7 @@ const bankList = [
     label: 'Ngân hàng quốc tế'
   }
 ]
+const duplicateStatusButton = ref(false)
 
 const formValue = ref()
 //get data from table
@@ -270,7 +271,7 @@ const getTableValue = async () => {
       })
     }
   }
-  if (type == 'detail' || type == 'edit' || type === 'approval-collab') {
+  if (type == 'detail' || type == 'edit' || type === 'approval-cus') {
     ruleForm.isActive = formValue.value?.isActive
     ruleForm.customerCode = formValue.value?.code
     ruleForm.referralCode = formValue.value?.referralCode
@@ -311,6 +312,18 @@ const getTableValue = async () => {
     ruleForm.ProvinceId = formValue.value.provinceId
     ruleForm.DistrictId = formValue.value.districtId
     ruleForm.WardId = formValue.value.wardId
+
+    arrayStatusCollab.value = formValue.value.statusHistory
+    
+    if (arrayStatusCollab.value?.length) {
+      arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].isActive = true
+      if (type != 'approval-cus')
+      statusCollab.value = arrayStatusCollab.value[arrayStatusCollab.value?.length - 1]?.name
+      else statusCollab.value = 'Duyệt khởi tạo tài khoản'
+      if (arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].approveAt)
+        duplicateStatusButton.value = true
+      else duplicateStatusButton.value = false
+    }
 
     await callApiCity()
     await CityChange(formValue.value.provinceId)
@@ -578,7 +591,7 @@ interface statusCollabType {
 }
 
 let arrayStatusCollab = ref(Array<statusCollabType>())
-// let statusCollab = ref('Khởi tạo mới')
+let statusCollab = ref('Khởi tạo mới')
 
 //hủy tài khoản khách hàng
 const cancelAccountCustomer = async () => {
@@ -612,7 +625,7 @@ watch(
     if (type === 'detail') {
       disableData.value = true
     }
-    if (type === 'detail' || type === 'edit' || type === 'approval-collab') {
+    if (type === 'detail' || type === 'edit' || type === 'approval-cus') {
       getTableValue()
     }
   },
@@ -717,12 +730,32 @@ const beforeRemove = (uploadFile) => {
     })
 }
 
-const approvalFunction = async () => {
-  const payload = { ItemType: 3, Id: approvalId, IsApprove: true }
+const approvalFunction = async (checkApproved) => {
+  const payload = { ItemType: 3, Id: approvalId, IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
   push({
     name: `approve.accounts-approval.user-account`
   })
+}
+
+const approvalFunctionCancel = async (checkApproved) => {
+  const payload = { ItemType: 4, Id: approvalId, IsApprove: checkApproved }
+  await approvalOrder(FORM_IMAGES(payload))
+  .then(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thành công!',
+        type: 'success'
+      }),
+      push({
+    name: `approve.accounts-approval.user-account`
+  })
+    })
+    .catch(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thất bại',
+        type: 'warning'
+      })
+    })
 }
 
 const updatePassword = async () => {
@@ -763,7 +796,7 @@ onBeforeMount(() => {
   if (type === 'detail') {
     disabledForm.value = true
   }
-  if (type === 'detail' || type === 'edit' || type === 'approval-collab') {
+  if (type === 'detail' || type === 'edit' || type === 'approval-cus') {
     getTableValue()
   }
 })
@@ -1352,11 +1385,20 @@ onBeforeMount(() => {
                   t('reuse.cancel')
                 }}</el-button>
               </div>
-              <div v-else-if="type === 'approval-collab'" class="w-[100%] flex ml-50 gap-4">
-            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+              <div v-else-if="type === 'approval-cus' && statusCollab    =='Duyệt khởi tạo tài khoản'" class="w-[100%] flex ml-50 gap-4">
+            <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>
-            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+            <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
+              t('router.notApproval')
+            }}</el-button>
+          </div>
+
+          <div v-else-if="type === 'approval-collab' && statusCollab =='Duyệt hủy tài khoản'" class="w-[100%] flex ml-50 gap-4">
+            <el-button @click="approvalFunctionCancel(true)" type="warning" class="min-w-42 min-h-11">{{
+              t('router.approve')
+            }}</el-button>
+            <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
               t('router.notApproval')
             }}</el-button>
           </div>

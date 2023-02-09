@@ -1732,7 +1732,7 @@ export default {
     //Collaborator
     orderCodepaymentCode: 'Order code/withdrawal code',
     percentDiscount: '% discount',
-    pendings: 'Pending'
+    pendings: 'Pending',
     accessCategoriesPermission: "directory access",
     actionPermission:"Action permission",
   }

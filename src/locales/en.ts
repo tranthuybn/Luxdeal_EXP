@@ -124,6 +124,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    detailsOfPaymentRequest: 'Details of payment request',
     rentalRenewalInformation: 'Rental renewal information',
     approvedReturnAHeadOfTime: 'Approved return a head of time',
     informationProductExtend: 'Information product extend',
@@ -1731,6 +1732,9 @@ export default {
     //Collaborator
     orderCodepaymentCode: 'Order code/withdrawal code',
     percentDiscount: '% discount',
-    pendings: 'Pending'
+    pendings: 'Pending',
+    accessCategoriesPermission: "directory access",
+    actionPermission:"Action permission",
   }
 }
+  

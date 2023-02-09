@@ -124,6 +124,7 @@ export default {
   },
   formDemo: {
     consignmentproductinformation: ' Thông tin sản phẩm ký gửi bán',
+    detailsOfPaymentRequest: 'Thông tin chi tiết đề nghị thanh toán',
     rentalRenewalInformation: 'Thông tin gia hạn thuê',
     approvedReturnAHeadOfTime: 'Duyệt trả hàng trước hạn',
     detailedlistofexpenses: 'Bảng kê chi tiết các khoản chi (Nếu có)',
@@ -1914,6 +1915,8 @@ export default {
     //Collaborator
     orderCodepaymentCode: 'Mã đơn hàng/mã yêu cầu rút tiền',
     percentDiscount: '% chiết khấu',
-    pendings: 'Đang chờ duyệt'
+    pendings: 'Đang chờ duyệt',
+    accessCategoriesPermission: "Quyền truy cập xem danh mục",
+    actionPermision: "Quyển thao tác"
   }
 }

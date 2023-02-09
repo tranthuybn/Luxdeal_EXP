@@ -1,0 +1,65 @@
+@import "./variables.scss";
+$_item_margin: 10px;
+$_height: 20px;
+
+
+.arrow-box{
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+  padding: 3px;
+  text-align: center;
+  overflow: hidden;
+  font-family: roboto;
+  font-family: 1rem;
+
+}
+
+.arrow-box-item{
+  display: block;
+  position: relative;
+  float: left;
+  width: calc(100% / 3 - 7px);
+  height: $_height;
+  line-height: $_height;
+  margin-right: $_item_margin;
+  padding: 0 10px;
+  background-color: $main-color-opacity;
+  color: $main-color;
+  border-radius: 4px;
+  &:before{
+    content: '';
+    position: absolute;
+    right: -9px;
+    height: 0;
+    width: 0;
+    border-top: calc($_height/2) solid transparent;
+    border-bottom: calc($_height/2) solid transparent;
+    border-left: $_item_margin solid $main-color-opacity;
+    border-radius: 4px
+  }
+    
+  &:after{
+    content: '';
+    position: absolute;
+    left: -1px;
+    height: 0;
+    width: 0;
+    border-top: calc($_height/2) solid transparent;
+    border-bottom: calc($_height/2) solid transparent;
+    border-left: $_item_margin solid $white;
+    border-radius: 4px;
+  }
+  &:first-child
+    &:after{
+      display: none;
+    }
+  &:last-child{
+
+    margin-right: 0;
+    &:before{
+      display: none;
+    }
+  }
+}
+  

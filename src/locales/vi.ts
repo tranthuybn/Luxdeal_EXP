@@ -294,7 +294,8 @@ export default {
     chooseWarehouse: 'Chọn kho',
     intoMoney: 'Thành tiền',
     intoMoneyPawn: 'Thành tiền phí cầm đồ',
-    intoMoneyPawnGOC: 'Thành tiền gốc cầm đồ',
+    intoMoneyPawnGOC: 'Tổng tiền gốc cầm đồ',
+    moneyPawnGOC: 'Tiền gốc cầm đồ',
     doesNotIncludeVAT: 'Không bao gồm VAT',
     choosePromotion: 'Chọn khuyến mại',
     statusAndManipulation: 'Trạng thái & thao tác',
@@ -1122,7 +1123,7 @@ export default {
     warningMoney: 'Vui lòng nhập số tiền',
     warningNumber: 'Vui lòng nhập số lượng',
     saleCode: 'Mã CTV',
-    saleName: 'Tên người bán',
+    saleName: 'Tên Sale',
     companyInformation: 'Thông tin công ty',
     numberInput: 'Số lượng nhập',
     totalMoneyInput: 'Tổng tiền nhập',
@@ -1739,7 +1740,7 @@ export default {
     useToReferralCode: '(Sử dụng làm mã giới thiệu)',
     cancelAccountCheck: 'Không thể khôi phục tài khoản! Bạn có muốn hủy tài khoản?',
     failCreateAccount: 'Tạo tài khoản thất bại, Vui lòng thử lại',
-    enterReferralCode: 'Nhập mã người giới thiệu',
+    enterReferralCode: 'Chọn hoặc nhập mã người giới thiệu',
     selectProvinceCity: 'Chọn tỉnh/thành phố',
     selectCountyOrDistrict: 'Chọn quận/huyện',
     selectWardOrCommune: 'Chọn phường/xã',
@@ -1911,6 +1912,7 @@ export default {
     transferCanOnlyChoose1Lot: 'Chuyển kho chỉ có thể chọn 1 lot',
     //Collaborator
     orderCodepaymentCode: 'Mã đơn hàng/mã yêu cầu rút tiền',
-    percentDiscount: '% chiết khấu'
+    percentDiscount: '% chiết khấu',
+    pendings: 'Đang chờ duyệt'
   }
 }

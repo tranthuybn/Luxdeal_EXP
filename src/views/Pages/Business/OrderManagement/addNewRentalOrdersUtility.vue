@@ -1006,9 +1006,6 @@ const postData = async (pushBack: boolean) => {
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
-    // console.log('res: ', res)
-    // idOrderPost.value = res
-
     await automaticCouponWareHouse(2, res)
 
     ElNotification({
@@ -1334,14 +1331,11 @@ const editData = async () => {
       let days = Math.ceil(day / ruleForm.leaseTerm)
 
       dateRangePrice.value = days
-      console.log('dateRangePrice: ', dateRangePrice.value)
       const dateAfter = transaction.data.findLast((el) => el.typeOfAccountingEntry == 1)
 
-      // console.log('dateAfter: ', dateTimeFormat(dateAfter.createdAt))
       let lastPaymentDate = moment(dateAfter.createdAt, 'YYYY-MM-DD')
       let countPostPayment = moment.duration(lastPaymentDate.diff(end)).asDays() * -1
-      let postPayment = Math.ceil(countPostPayment / ruleForm.leaseTerm)
-      console.log('postPayment: ', postPayment)      
+      let postPayment = Math.ceil(countPostPayment / ruleForm.leaseTerm)   
 
       ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
       ruleForm.customerName = orderObj.customer.id
@@ -1362,9 +1356,6 @@ const editData = async () => {
 
       if (postPayment > 0) {
         feePaymentPeriod.value = `Kỳ thanh toán phí thuê theo tháng/ Ngày 22/10/2022/ Tháng thứ ${dateRangePrice.value-postPayment}`
-        console.log('tableData: ', tableData.value)
-        console.log('childrenTable: ', childrenTable.value)
-        console.log('feePaymentPeriod: ', feePaymentPeriod.value)
         // postOrderStransaction(1)
       }
       if (orderObj.promotionCode) {
@@ -2249,9 +2240,6 @@ const openAcountingEntryDialog = async (index, num) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
-  // inputReasonReturn.value =
-  console.log('formAccountingId: ', formAccountingId.value)
-  // getReturnOrder()
   if (num == 1) {
     dialogRentalPaymentInformation.value = true
   } else if (num == 2) {

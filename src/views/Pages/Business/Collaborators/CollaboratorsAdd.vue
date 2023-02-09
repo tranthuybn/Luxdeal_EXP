@@ -43,6 +43,7 @@ import {
 } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
+import moment from 'moment'
 const { required } = useValidator()
 
 const { t } = useI18n()
@@ -207,6 +208,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     }
   })
 }
+
 // get data from router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
@@ -226,13 +228,13 @@ const cancelAccountCollabolator = async () => {
   await cancelCustomerCollabolator(formDataPayLoad)
     .then(() => {
       ElNotification({
-        message: 'Hủy tài khoản thành công',
+        message: 'Gửi yêu cầu hủy tài khoản thành công, đợi duyệt!',
         type: 'success'
       }),
-        push({
+      push({
           name: 'business.collaborators.collaboratorsList',
           params: { backRoute: 'business.collaborators.collaboratorsList' }
-        })
+         })
     })
     .catch(() => {
       ElNotification({
@@ -296,6 +298,15 @@ const cancel = async () => {
     params: { backRoute: 'business.collaborators.collaboratorsList' }
   })
 }
+interface statusCollabType {
+  name: string
+  isActive?: boolean
+  approveAt?: string
+}
+
+let arrayStatusCollab = ref(Array<statusCollabType>())
+let statusCollab = ref('Khởi tạo mới')
+const duplicateStatusButton = ref(false)
 
 const ListFileUpload = ref<UploadUserFile[]>([])
 
@@ -310,6 +321,20 @@ const setFormValue = async () => {
         })
       }
     })
+
+    arrayStatusCollab.value = formValue.value.statusHistory
+    
+    if (arrayStatusCollab.value?.length) {
+      arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].isActive = true
+      if (type != 'approval-order')
+      statusCollab.value = arrayStatusCollab.value[arrayStatusCollab.value?.length - 1]?.name
+      else statusCollab.value = 'Duyệt khởi tạo tài khoản'
+      if (arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].approveAt)
+        duplicateStatusButton.value = true
+      else duplicateStatusButton.value = false
+    }
+    
+
     FormData.Discount = formValue.value.discount
     FormData.isActive = formValue.value.isActive
     FormData.status = formValue.value.status
@@ -428,12 +453,39 @@ watch(
   }
 )
 
-const approvalFunction = async () => {
-  const payload = { ItemType: 4, Id: parseInt(approvalId), IsApprove: true }
+if (type == 'add')
+  arrayStatusCollab.value.push({
+    name: 'Khởi tạo mới',
+    isActive: true,
+    approveAt: moment().format('DD/MM/YYYY')
+  })
+
+const approvalFunction = async (checkApproved) => {
+  const payload = { ItemType: 4, Id: parseInt(approvalId), IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
   push({
     name: `approve.accounts-approval.collaborator-account`
   })
+}
+
+const approvalFunctionCancel = async (checkApproved) => {
+  const payload = { ItemType: 4, Id: parseInt(approvalId), IsApprove: checkApproved }
+  await approvalOrder(FORM_IMAGES(payload))
+  .then(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thành công!',
+        type: 'success'
+      }),
+      push({
+      name: `approve.accounts-approval.collaborator-account`
+  })
+    })
+    .catch(() => {
+      ElNotification({
+        message: 'Hủy tài khoản thất bại',
+        type: 'warning'
+      })
+    })
 }
 
 const save = async () => {
@@ -737,37 +789,9 @@ provide('parameters', {
                   <div class="ml-5">{{ infoCompany.bankName }}</div>
                 </div>
               </ElFormItem>
-              <el-divider content-position="left">{{ t('reuse.statusAndAccount') }}</el-divider>
-
-              <ElFormItem :label="t('reuse.status')" style="align-items: flex-start">
-                <div class="flex items-center w-[80%] gap-4">
-                  <ElCheckbox
-                    class="ml-5"
-                    v-model="FormData.CollaboratorStatus"
-                    :label="t('formDemo.isActive')"
-                    size="large"
-                    :disabled="type === 'add' || type == ':type'"
-                  />
-                </div>
-                <div class="flex gap-2 pb-8">
-                  <div
-                    v-if="type === 'add' || type === ':type' || FormData.isActive == false"
-                    class="w-[80%]"
-                    ><span
-                      class="pl-4 ml-5 pr-6 bg-[#FFF0D9] text-[#FEB951] leading-5 dark:bg-transparent"
-                      >{{ t('reuse.approval') }}</span
-                    >
-                  </div>
-                  <div v-else class="w-[80%]"
-                    ><span
-                      class="bg-[#1C6DD0] pl-4 pr-6 text-[#FFFFFF] leading-5 dark:bg-transparent"
-                      >{{ t('reuse.confirmed') }}</span
-                    >
-                  </div>
-                </div>
-              </ElFormItem>
             </ElForm>
           </div>
+          
           <div class="w-[50%]">
             <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
               <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
@@ -799,8 +823,97 @@ provide('parameters', {
           </div>
         </div>
 
-        <div v-if="type === 'edit'" class="flex btn-type">
+        <el-divider content-position="left">{{ t('reuse.statusAndAccount') }}</el-divider>
+
+<div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
+<label class="ml-10">{{ t('formDemo.statusActive') }}</label>
+<div class="w-[75%] pl-1">
+<ElCheckbox
+        class="ml-5"
+        v-model="FormData.CollaboratorStatus"
+        :label="t('formDemo.isActive')"
+        size="large"
+        :disabled="type === 'add' || type == ':type'"
+      />
+</div>
+</div>
+
+<div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
+<label class="ml-10">{{ t('formDemo.statusAccount') }}</label>
+<div class="w-[75%]">
+<div class="flex items-center w-[100%]">
+  <div
+    class="duplicate-status"
+    v-for="item in arrayStatusCollab"
+    :key="item.name"
+  >
+    <div
+      v-if="
+        item.name == 'Duyệt khởi tạo tài khoản' || item.name == 'Duyệt hủy tài khoản'
+      "
+    >
+      
+      <span
+        class="box box_1 custom-after text-yellow-500 dark:text-divck"
+        :class="{ active: item.isActive }"
+      >
+        {{ item.name }}
+
+        <span class="triangle-right right_1"> </span>
+      </span>
+      <p v-if="item?.approveAt">{{
+        item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+      }}</p>
+      <p v-else class="text-transparent">s</p>
+    </div>
+    <div
+      v-else-if="item.name == 'Khởi tạo mới'"
+    >
+      
+      <span
+        class="box box_2 custom-after text-blue-500 dark:text-black"
+        :class="{ active: item.isActive }"
+      >
+        {{ item.name }}
+        <span class="triangle-right right_2"> </span>
+      </span>
+      <p v-if="item?.approveAt">{{
+        item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+      }}</p>
+      <p v-else class="text-transparent">s</p>
+    </div>
+    <div v-else-if="item.name == 'Hủy tài khoản'">
+      
+      <span
+        class="box box_4 custom-after text-rose-500 dark:text-black"
+        :class="{ active: item.isActive }"
+      >
+        {{ item.name }}
+        <span class="triangle-right right_4"> </span>
+      </span>
+      <p v-if="item?.approveAt">{{
+        item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+      }}</p>
+      <p v-else class="text-transparent">s</p>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+        <div class="edit-collab btn-type" v-if="type === 'edit'">
           <ElButton class="min-w-42" type="primary" plain @click="save()">
+            {{ t('reuse.save') }}
+          </ElButton>
+
+          <ElButton class="min-w-42" plain @click="router.go(-1)">
+            {{ t('reuse.cancel') }}
+          </ElButton>
+        </div>
+
+        <div v-if="type === 'detail' && statusCollab =='Duyệt khởi tạo tài khoản' && duplicateStatusButton" class="flex btn-type">
+          
+          <ElButton class="min-w-42" type="primary" plain @click="fix()">
             {{ t('reuse.fix') }}
           </ElButton>
           <ElButton @click="centerDialogCancelAccount = true" type="danger" class="min-w-42">
@@ -836,25 +949,32 @@ provide('parameters', {
             </template>
           </el-dialog>
         </div>
-        <div v-else-if="type === 'detail'" class="flex btn-type">
-          <ElButton class="min-w-42" type="primary" plain @click="fix()">
-            {{ t('reuse.fix') }}
-          </ElButton>
-        </div>
-        <div v-else-if="type === 'approval-collab'" class="w-[100%] flex ml-50 gap-4">
-            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+       
+        <div v-else-if="type === 'approval-collab' && statusCollab =='Duyệt khởi tạo tài khoản'" class="w-[100%] flex ml-50 gap-4">
+            <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>
-            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+            <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
               t('router.notApproval')
             }}</el-button>
           </div>
-        <div v-else class="flex btn-type">
+
+          <div v-else-if="type === 'approval-collab' && statusCollab =='Duyệt hủy tài khoản'" class="w-[100%] flex ml-50 gap-4">
+            <el-button @click="approvalFunctionCancel(true)" type="warning" class="min-w-42 min-h-11">{{
+              t('router.approve')
+            }}</el-button>
+            <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
+              t('router.notApproval')
+            }}</el-button>
+          </div>
+
+          <div v-else-if="type === 'add'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" @click="save()">
             {{ t('reuse.saveAndPending') }}
           </ElButton>
           <ElButton class="min-w-42" @click="cancel()"> {{ t('reuse.cancel') }} </ElButton>
         </div>
+        
       </el-collapse-item>
       <el-collapse-item :name="collapse[1].title">
         <template #title>
@@ -918,6 +1038,90 @@ provide('parameters', {
 <style scoped>
 ::v-deep(.el-select) {
   width: 100%;
+}
+
+.box {
+  padding: 0 10px 0 20px;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid #ccc;
+  background-color: #ccc;
+  opacity: 0.6;
+}
+
+.box_1 {
+  border: 1px solid #fff0d9;
+  background-color: #fff0d9;
+}
+
+.box_2 {
+  border: 1px solid #f4f8fd;
+  background-color: #f4f8fd;
+}
+
+.box_3 {
+  border: 1px solid #d9d9d9;
+  background-color: #d9d9d9;
+}
+
+.box_4 {
+  border: 1px solid #fce5e1;
+  background-color: #fce5e1;
+}
+.duplicate-status + .duplicate-status {
+  margin-left: 10px;
+}
+.active {
+  opacity: 1 !important;
+}
+.right_1 {
+  border-left: 11px solid #fff0d9 !important;
+}
+.right_2 {
+  border-left: 11px solid #f4f8fd !important;
+}
+
+.right_3 {
+  border-left: 11px solid #d9d9d9 !important;
+}
+
+.right_4 {
+  border-left: 11px solid #fce5e1 !important;
+}
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
+}
+
+.custom-after::after {
+  content: '';
+  position: absolute;
+  z-index: 1998;
+  width: 11px;
+  border-style: solid;
+  height: 100%;
+  left: -1px;
+  border-bottom-width: 12px;
+  border-left-width: 10px;
+  border-top-width: 12px;
+  border-bottom-color: transparent;border-top-color: transparent;
+  --tw-border-opacity: 1;
+  border-left-color: rgba(255, 255, 255, var(--tw-border-opacity));
+}
+.dark .dark\:border-l-black {
+  --tw-border-opacity: 1;
+  border-left-color: rgba(0, 0, 0, var(--tw-border-opacity));
+}
+
+.dark .dark\:bg-transparent {
+  background-color: transparent;
 }
 
 ::v-deep(.el-textarea__inner) {

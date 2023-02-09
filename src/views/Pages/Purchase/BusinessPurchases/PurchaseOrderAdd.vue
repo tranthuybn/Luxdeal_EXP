@@ -114,6 +114,7 @@ var curDate = 'MH' + moment().format('hhmmss')
 var autoCodeSellOrder = 'MH' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
+var autoCustomerCode = 'KH' + moment().format('hhmmss')
 const codeReturnRequest = ref()
 const sellOrderCode = ref()
 const codeReceipts = ref()
@@ -457,23 +458,44 @@ interface tableDataType {
   statusAccountingEntry: string
 }
 
-const checkReceiptOrPayment = ref(false)
 const checkAccountEntry = ref(false)
-const checkPaymentRequest = ref(false)
+const checkReceiptOrPayment = ref(true)
+const checkPaymentRequest = ref(true)
+let countExisted = ref(0)
+let countExistedDNTT = ref(0)
 
 let debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  checkReceiptOrPayment.value = false
-  checkPaymentRequest.value = false
+  countExisted.value = 0
+  countExistedDNTT.value = 0
   newTable.value = val
-  if (newTable.value[0].paymentRequestCode) {
-    checkPaymentRequest.value = true
-  } else if (newTable.value[0].receiptOrPaymentVoucherCode) {
-    checkReceiptOrPayment.value = true
-  }
+  newTable.value.map((el) => {
+    if (el.receiptOrPaymentVoucherId) {
+      countExisted.value++
+      checkReceiptOrPayment.value = true
+    } else {
+      if (countExisted.value == 0) {
+        checkReceiptOrPayment.value = false
+      }
+    }
+
+    if (el.paymentRequestId) {
+      countExistedDNTT.value++
+      checkPaymentRequest.value = true
+    } else {
+      if (countExistedDNTT.value == 0) {
+        checkPaymentRequest.value = false
+      }
+    }
+  })
+  // if (newTable.value[0].paymentRequestCode) {
+  //   checkPaymentRequest.value = true
+  // } else if (newTable.value[0].receiptOrPaymentVoucherCode) {
+  //   checkReceiptOrPayment.value = true
+  // }
 }
 
 // Dialog change address
@@ -748,6 +770,7 @@ const quickEmail = ref()
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
+    Code: autoCustomerCode,
     IsOrganization: valueClassify.value,
     Name: addQuickCustomerName.value,
     TaxCode: quickTaxCode.value,
@@ -844,7 +867,7 @@ const reloadStatusOrder = async () => {
       checkApprovalAt.value = false
       hiddenEditButton.value = false
     }
-    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
     if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
       duplicateStatusButton.value = true
     else duplicateStatusButton.value = false
@@ -1096,6 +1119,7 @@ const handleChangeQuickAddProduct = async (data) => {
 
 let Files = reactive({})
 const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
 const beforeAvatarUpload = (rawFile, type: string) => {
   if (rawFile) {
     //nếu là 1 ảnh
@@ -1109,10 +1133,11 @@ const beforeAvatarUpload = (rawFile, type: string) => {
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
       }
+      // else if (rawFile.name?.split('.')[0].length > 100) {
+      //   ElMessage.error(t('reuse.checkNameImageLength'))
+      //   return false
+      // }
     }
     //nếu là 1 list ảnh
     if (type === 'list') {
@@ -1138,15 +1163,26 @@ const beforeAvatarUpload = (rawFile, type: string) => {
     }
     return true
   }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
 }
-
 const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
   uploadFiles.map((file) => {
     beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
   })
-  Files = ListFileUpload.value.map((el) => el?.raw)
+  Files = [...ListFileUpload.value.map((el) => el?.raw)]
 }
 const fileList = ref<UploadUserFile[]>([])
 
@@ -1294,8 +1330,8 @@ const getCustomerInfo = async (id: string) => {
 watch(
   () => arrayStatusOrder?.value,
   () => {
-    if (arrayStatusOrder.value[0].orderStatus == STATUS_ORDER_PURCHASE[1].orderStatus
-    && arrayStatusOrder.value[0].approvedAt != null) {
+    if (arrayStatusOrder.value[0]?.orderStatus == STATUS_ORDER_PURCHASE[1].orderStatus
+    && arrayStatusOrder.value[0]?.approvedAt != null) {
       checkButtonPrint.value = true
     }
   }
@@ -1346,7 +1382,7 @@ const editData = async () => {
       if (type != 'approval-order')
         statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
       else statusOrder.value = 200
-      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].orderStatus
+      statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
 
       if (statusOrder.value == STATUS_ORDER_PURCHASE[0].orderStatus) {
         editButton.value = false
@@ -1500,6 +1536,8 @@ const getReturnRequestOrder = async () => {
     productPropertyName: row.productPropertyName,
     productPropertyId: row?.productPropertyId,
     accessory: row.accessory,
+    code: row.code,
+    description: row.description,
     quantity: row.quantity,
     unitPrice: row.unitPrice,
     totalPrice: row.totalPrice
@@ -2119,6 +2157,8 @@ const getReturnOrder = () => {
     productPropertyId: el?.productPropertyId,
     unitPrice: el?.unitPrice,
     totalPrice: el?.totalPrice,
+    code: el?.code,
+    description: el?.description,
     maximumQuantity: el?.quantity,
     quantity: el?.quantity
   }))
@@ -2178,8 +2218,8 @@ const postReturnRequest = async () => {
   const res = await createReturnRequest(JSON.stringify(payload))
   if (res) {
     returnRequestId.value = res
-    if (exchangePrice.value > 0) tableAccountingEntry.value[0].paidMoney = exchangePrice.value
-    else tableAccountingEntry.value[0].receiveMoney = exchangePrice.value
+    if (exchangePrice.value > 0) tableAccountingEntry.value[0].paidMoney = Math.abs(exchangePrice.value)
+    else tableAccountingEntry.value[0].receiveMoney = Math.abs(exchangePrice.value)
     await postOrderStransaction(3)
     createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
       .then((res) => {
@@ -2333,6 +2373,27 @@ const openDialogReturnOrder = () => {
   changeReturnGoods.value = true
   alreadyPaidForTt.value = false
   typeButtonReturn.value = 1
+  inputReasonReturn.value = ''
+  tableProductInformationExportChange.value = [
+    {
+      productPropertyId: '' as any,
+      accessory: '',
+      quantity: 0,
+      unitPrice: 0,
+      totalPrice: 0,
+      returnDetailType: 2
+    }
+  ]
+  tableReturnFullyIntegrated.value = [
+    {
+      productPropertyId: '' as any,
+      accessory: '',
+      quantity: 0,
+      unitPrice: 0,
+      totalPrice: 0,
+      returnDetailType: 2
+    }
+  ]
 }
 
 // disabled in hợp đồng thanh lý và phiếu thanh toán / đặt cọc / tạm ứng
@@ -2621,6 +2682,12 @@ const showWarehouseTicket = async (scope) => {
 }
 
 const hiddenButton = ref(false)
+
+const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''
+const staffInfo = JSON.parse(staff) || ''
+const staffItem = JSON.parse(staffInfo?.v) || ''
+console.log('staff:', staffItem)
+inputRecharger.value = staffItem?.id
 
 onBeforeMount(async () => {
   await editData()
@@ -4801,12 +4868,12 @@ onBeforeMount(async () => {
                 @click="finishReturnRequest" 
                 style="font-size: 14px;"
                 class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold">
-                Hoàn thành trả hàng</button>
+                {{ t('formDemo.completeReturn') }}</button>
                 <el-button 
                   v-else 
                   class="min-w-42 min-h-11 pl-2"
                   @click="cancelReturnRequest">
-                  Hủy trả hàng
+                  {{ t('formDemo.cancelReturn') }}
                 </el-button>
                 <el-button 
                   class="min-w-42 min-h-11"

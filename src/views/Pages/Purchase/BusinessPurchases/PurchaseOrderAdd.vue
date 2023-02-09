@@ -1815,7 +1815,7 @@ function openBillDialog() {
 function openReceiptDialog() {
   moneyReceipts.value = 0
   getReceiptCode()
-  inputRecharger.value = ''
+  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyReceipts.value += e.receiveMoney
@@ -1828,7 +1828,7 @@ function openReceiptDialog() {
 function openPaymentDialog() {
   moneyPaid.value = 0
   getcodeExpenditures()
-  inputRecharger.value = ''
+  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyPaid.value += e.paidMoney
@@ -1846,7 +1846,7 @@ function openPaymentRequestDialog() {
       moneyDeibt.value += e.paidMoney
     })
   }
-  inputRecharger.value = ''
+  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
   inputDeposit.value = 0
   inputReasonCollectMoney.value = ''
   dialogIPRForm.value = !dialogIPRForm.value
@@ -1956,7 +1956,7 @@ const postPT = async () => {
     TypeOfPayment: payment.value,
     status: 1,
     PeopleType: 1,
-    PeopleId: inputRecharger.value,
+    PeopleId: staffItem?.id,
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
@@ -1979,7 +1979,7 @@ const postPC = async () => {
     TypeOfPayment: payment.value,
     status: 1,
     PeopleType: 1,
-    PeopleId: inputRecharger.value,
+    PeopleId: staffItem?.id,
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
@@ -2040,7 +2040,7 @@ const postPaymentRequest = async () => {
     Code: codePaymentRequest.value,
     TotalMoney: moneyDepositPayment.value ?? moneyDeibt.value,
     PaymentType: payment.value,
-    PeopleId: inputRecharger.value,
+    PeopleId: staffItem?.id,
     status: 0,
     PeopleType: 1,
     OrderId: id,
@@ -2686,7 +2686,6 @@ const hiddenButton = ref(false)
 const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''
 const staffInfo = JSON.parse(staff) || ''
 const staffItem = JSON.parse(staffInfo?.v) || ''
-console.log('staff:', staffItem)
 inputRecharger.value = staffItem?.id
 
 onBeforeMount(async () => {

@@ -133,10 +133,11 @@ const signIn = () => {
             wsCache.clear() 
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           const accountId = res.data['userInformation']?.id ?? null
+          console.log('accountId',accountId)
           if (accountId) {
             getUserInfoByAccountId(accountId)
             setPermissionForUser(res.data)
-            getRole(accountId)
+            getRole('FD83C99A-44A4-4756-BAAA-A5A9D26F7BDA')
           } else
             ElNotification({
               message: t('reuse.accountInfo'),

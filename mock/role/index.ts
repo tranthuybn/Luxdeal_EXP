@@ -1099,7 +1099,7 @@ const adminList = [
             name: 'approve.payment-approval.proposal',
             meta: {
               title: 'router.paymentProposal'
-            }
+            }           
           },
           {
             path: 'receipts-and-expenditures',

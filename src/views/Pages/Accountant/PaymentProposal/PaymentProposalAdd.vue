@@ -155,6 +155,18 @@ watch(
     deep: true
   }
 )
+const currentCreator = ref()
+var data:any = localStorage.getItem('STAFF_INFO');
+  const datas = JSON.parse(data)
+  currentCreator.value = JSON.parse(datas.v)
+  if ( typeof(Storage) !== "undefined") {
+
+  } 
+  else 
+{
+  alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
+}
+
 
 const depositPrice = ref(0)
 

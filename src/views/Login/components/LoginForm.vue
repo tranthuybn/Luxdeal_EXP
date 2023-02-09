@@ -5,7 +5,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton, ElCheckbox, ElLink, ElNotification } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
 import { loginApi, GetRouterByStaffAccountId } from '@/api/login'
-import { getRoutesAsRolesApi } from '@/api/login'
+// import { getRoutesAsRolesApi } from '@/api/login'
 import { getStaffInfoByAccountId } from '@/api/HumanResourceManagement'
 import { useCache } from '@/hooks/web/useCache'
 import { usePermissionStore } from '@/store/modules/permission'
@@ -133,10 +133,11 @@ const signIn = () => {
             wsCache.clear() 
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           const accountId = res.data['userInformation']?.id ?? null
+          console.log('accountId',accountId)
           if (accountId) {
             getUserInfoByAccountId(accountId)
             setPermissionForUser(res.data)
-            getRole(accountId)
+            getRole('FD83C99A-44A4-4756-BAAA-A5A9D26F7BDA')
           } else
             ElNotification({
               message: t('reuse.accountInfo'),

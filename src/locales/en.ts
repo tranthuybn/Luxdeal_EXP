@@ -124,6 +124,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    detailsOfPaymentRequest: 'Details of payment request',
     rentalRenewalInformation: 'Rental renewal information',
     approvedReturnAHeadOfTime: 'Approved return a head of time',
     informationProductExtend: 'Information product extend',

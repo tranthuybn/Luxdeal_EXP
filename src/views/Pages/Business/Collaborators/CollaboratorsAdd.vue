@@ -453,7 +453,7 @@ watch(
   }
 )
 
-if (type == 'add')
+if (type == 'add' || type == ':type')
   arrayStatusCollab.value.push({
     name: 'Khởi tạo mới',
     isActive: true,
@@ -825,81 +825,81 @@ provide('parameters', {
 
         <el-divider content-position="left">{{ t('reuse.statusAndAccount') }}</el-divider>
 
-<div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-<label class="ml-10">{{ t('formDemo.statusActive') }}</label>
-<div class="w-[75%] pl-1">
-<ElCheckbox
-        class="ml-5"
-        v-model="FormData.CollaboratorStatus"
-        :label="t('formDemo.isActive')"
-        size="large"
-        :disabled="type === 'add' || type == ':type'"
-      />
-</div>
-</div>
+        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
+          <label class="ml-10">{{ t('formDemo.statusActive') }}</label>
+          <div class="w-[75%] pl-1">
+          <ElCheckbox
+                  class="ml-5"
+                  v-model="FormData.CollaboratorStatus"
+                  :label="t('formDemo.isActive')"
+                  size="large"
+                  :disabled="type === 'add' || type == ':type'"
+                />
+          </div>
+        </div>
 
-<div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
-<label class="ml-10">{{ t('formDemo.statusAccount') }}</label>
-<div class="w-[75%]">
-<div class="flex items-center w-[100%]">
-  <div
-    class="duplicate-status"
-    v-for="item in arrayStatusCollab"
-    :key="item.name"
-  >
-    <div
-      v-if="
-        item.name == 'Duyệt khởi tạo tài khoản' || item.name == 'Duyệt hủy tài khoản'
-      "
-    >
-      
-      <span
-        class="box box_1 custom-after text-yellow-500 dark:text-divck"
-        :class="{ active: item.isActive }"
-      >
-        {{ item.name }}
+        <div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
+          <label class="ml-10">{{ t('formDemo.statusAccount') }}</label>
+          <div class="w-[75%]">
+          <div class="flex items-center w-[100%]">
+            <div
+              class="duplicate-status"
+              v-for="item in arrayStatusCollab"
+              :key="item.name"
+            >
+              <div
+                v-if="
+                  item.name == 'Duyệt khởi tạo tài khoản' || item.name == 'Duyệt hủy tài khoản'
+                "
+              >
+                
+                <span
+                  class="box box_1 custom-after text-yellow-500 dark:text-divck"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
 
-        <span class="triangle-right right_1"> </span>
-      </span>
-      <p v-if="item?.approveAt">{{
-        item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-      }}</p>
-      <p v-else class="text-transparent">s</p>
-    </div>
-    <div
-      v-else-if="item.name == 'Khởi tạo mới'"
-    >
-      
-      <span
-        class="box box_2 custom-after text-blue-500 dark:text-black"
-        :class="{ active: item.isActive }"
-      >
-        {{ item.name }}
-        <span class="triangle-right right_2"> </span>
-      </span>
-      <p v-if="item?.approveAt">{{
-        item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-      }}</p>
-      <p v-else class="text-transparent">s</p>
-    </div>
-    <div v-else-if="item.name == 'Hủy tài khoản'">
-      
-      <span
-        class="box box_4 custom-after text-rose-500 dark:text-black"
-        :class="{ active: item.isActive }"
-      >
-        {{ item.name }}
-        <span class="triangle-right right_4"> </span>
-      </span>
-      <p v-if="item?.approveAt">{{
-        item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-      }}</p>
-      <p v-else class="text-transparent">s</p>
-    </div>
-  </div>
-</div>
-</div>
-</div>
+                  <span class="triangle-right right_1"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div
+                v-else-if="item.name == 'Khởi tạo mới'"
+              >
+                
+                <span
+                  class="box box_2 custom-after text-blue-500 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_2"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div v-else-if="item.name == 'Hủy tài khoản'">
+                
+                <span
+                  class="box box_4 custom-after text-rose-500 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_4"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
 
         <div class="edit-collab btn-type" v-if="type === 'edit'">
           <ElButton class="min-w-42" type="primary" plain @click="save()">

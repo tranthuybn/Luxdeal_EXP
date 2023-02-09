@@ -69,7 +69,8 @@ import {
   approvalOrder,
   cancelOrder,
   getReturnRequestForOrder,
-  cancelReturnOrder
+  cancelReturnOrder,
+  getAllStaffList
 } from '@/api/Business'
 import { getCategories } from '@/api/LibraryAndSetting'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -110,7 +111,7 @@ const ruleForm = reactive({
   orderCode: 'DHB039423',
   leaseTerm: 30,
   rentalPeriod: '',
-  rentalPaymentPeriod: 5,
+  rentalPaymentPeriod: 4,
   collaborators: '',
   discount: 0,
   orderNotes: '',
@@ -665,17 +666,17 @@ const ScrollCustomerBottom = () => {
         })
 }
 
-const scrollingCustomer = (e) => {
-  const clientHeight = e.target.clientHeight
-  const scrollHeight = e.target.scrollHeight
-  const scrollTop = e.target.scrollTop
-  if (scrollTop == 0) {
-    scrollCustomerTop.value = true
-  }
-  if (scrollTop + clientHeight >= scrollHeight) {
-    ScrollCustomerBottom()
-  }
-}
+// const scrollingCustomer = (e) => {
+//   const clientHeight = e.target.clientHeight
+//   const scrollHeight = e.target.scrollHeight
+//   const scrollTop = e.target.scrollTop
+//   if (scrollTop == 0) {
+//     scrollCustomerTop.value = true
+//   }
+//   if (scrollTop + clientHeight >= scrollHeight) {
+//     ScrollCustomerBottom()
+//   }
+// }
 
 // Call api danh sách mã giảm giá
 let promoTable = ref()
@@ -997,13 +998,19 @@ const postData = async (pushBack: boolean) => {
     VAT: 1,
     Status: 2,
     Days: ruleForm.leaseTerm,
-    PaymentPeriod: 1,
+    PaymentPeriod: ruleForm.rentalPaymentPeriod,
+    HirePeriodDay: ruleForm.rentalPaymentPeriod == 3 ? week.value : ruleForm.rentalPaymentPeriod == 4 ? month.value : '',
     warehouseId: ruleForm.warehouse
   }
 
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
+    // console.log('res: ', res)
+    // idOrderPost.value = res
+
+    await automaticCouponWareHouse(2, res)
+
     ElNotification({
       message: t('reuse.addSuccess'),
       type: 'success'
@@ -1015,25 +1022,21 @@ const postData = async (pushBack: boolean) => {
       })
     }
   } else {
-    reloadStatusOrder()
     ElNotification({
       message: t('reuse.addFail'),
       type: 'warning'
     })
-  }
-
-  idOrderPost.value = res
-  automaticCouponWareHouse(2)
+  }  
 }
 
 // Phiếu xuất kho tự động
-const automaticCouponWareHouse = async (index) => {
+const automaticCouponWareHouse = async (index, idPost) => {
   const payload = {
-    OrderId: idOrderPost.value,
+    OrderId: idPost,
     Type: index
   }
 
-  if (!payload?.OrderId) await postAutomaticWarehouse(payload)
+  await postAutomaticWarehouse(payload)
 }
 
 const hirePeriod = [
@@ -1233,14 +1236,10 @@ const optionsRentalPaymentPeriod = [
   },
   {
     value: 3,
-    label: t('reuse.byDay')
-  },
-  {
-    value: 4,
     label: t('reuse.byWeek')
   },
   {
-    value: 5,
+    value: 4,
     label: t('reuse.byMonth')
   }
 ]
@@ -1324,6 +1323,27 @@ const editData = async () => {
       // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
       ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
+      if (ruleForm.rentalPaymentPeriod == 3) week.value = orderObj.hirePeriodDay
+      else if (ruleForm.rentalPaymentPeriod == 4) month.value = orderObj.hirePeriodDay
+
+      let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
+      let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
+
+      //Difference in number of days
+      let day = moment.duration(start.diff(end)).asDays() * -1
+      let days = Math.ceil(day / ruleForm.leaseTerm)
+
+      dateRangePrice.value = days
+      console.log('dateRangePrice: ', dateRangePrice.value)
+      const dateAfter = transaction.data.findLast((el) => el.typeOfAccountingEntry == 1)
+
+      // console.log('dateAfter: ', dateTimeFormat(dateAfter.createdAt))
+      let lastPaymentDate = moment(dateAfter.createdAt, 'YYYY-MM-DD')
+      let countPostPayment = moment.duration(lastPaymentDate.diff(end)).asDays() * -1
+      let postPayment = Math.ceil(countPostPayment / ruleForm.leaseTerm)
+      console.log('postPayment: ', postPayment)      
+
+      ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
       ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj.warehouseId
@@ -1339,6 +1359,14 @@ const editData = async () => {
       if (tableData.value.length > 0) tableData.value.splice(0, tableData.value.length - 1)
       tableData.value = orderObj.orderDetails
 
+
+      if (postPayment > 0) {
+        feePaymentPeriod.value = `Kỳ thanh toán phí thuê theo tháng/ Ngày 22/10/2022/ Tháng thứ ${dateRangePrice.value-postPayment}`
+        console.log('tableData: ', tableData.value)
+        console.log('childrenTable: ', childrenTable.value)
+        console.log('feePaymentPeriod: ', feePaymentPeriod.value)
+        // postOrderStransaction(1)
+      }
       if (orderObj.promotionCode) {
         showPromo.value = true
         promoActive.value = orderObj.promotionCode + ' | ' + orderObj.promotionCodeInfo
@@ -2142,9 +2170,9 @@ const postOrderStransaction = async (index: number) => {
     orderId: id,
     content:
       index == 1
-        ? t('formDemo.rentalFeePaymentSlip')
+        ?feePaymentPeriod.value
         : index == 2
-        ? feePaymentPeriod.value
+        ? 'Thu tiền cọc thuê'
         : index == 3
         ? 'Trả hàng trước hạn'
         : tableAccountingEntry.value[0].content,
@@ -2165,10 +2193,11 @@ const postOrderStransaction = async (index: number) => {
         ? tableAccountingEntry.value[0].paidMoney
         : 0,
     deibt: 0,
-    typeOfPayment: 0,
+    typeOfPayment: index == 1 ? 1 : index == 2 ? 1 : 0,
+    typeOfAccountingEntry: index,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
+    isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value
   }
@@ -2424,7 +2453,7 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
   uploadFiles.map((file) => {
     beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
   })
-  Files = ListFileUpload.value.map((el) => el?.raw)
+  Files = [...ListFileUpload.value.map((el) => el?.raw)]
 }
 const validImageType = ['jpeg', 'png']
 //cái này validate file chỉ cho ảnh tí a sửa lại nhé
@@ -2441,10 +2470,11 @@ const beforeAvatarUpload = (rawFile, type: string) => {
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
-      }
+      } 
+      // else if (rawFile.name?.split('.')[0].length > 100) {
+      //   ElMessage.error(t('reuse.checkNameImageLength'))
+      //   return false
+      // }
     }
     //nếu là 1 list ảnh
     if (type === 'list') {
@@ -2540,7 +2570,8 @@ const clearData = () => {
   debtPayment.value = 0
   inputReasonCollectMoney.value = ''
   enterMoney.value = ''
-  inputRecharger.value = undefined
+  inputRecharger.value = currentCreator.value.id
+
 
   detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
   addRowDetailedListExpoenses()
@@ -2721,7 +2752,24 @@ const backToListOrder = () => {
   })
 }
 
-onBeforeMount(() => {
+// Danh sách nhân viên
+const currentCreator = ref()
+const getStaffList = ref()
+const callApiStaffList = async () => {
+  const res = await getAllStaffList({ PageIndex: 1, PageSize: 40 })
+  getStaffList.value = res.data.map((el) => ({
+    value: el.id,
+    label: el.name + ' | ' + el.contact
+  }))
+  getStaffList.value.push(
+    {
+      value: currentCreator.value.id,
+      label: currentCreator.value.name + ' | ' + currentCreator.value.contact
+    }
+  )
+}
+
+onBeforeMount(async() => {
   callApiCollaborators()
   callCustomersApi()
   callApiProductList()
@@ -2733,6 +2781,16 @@ onBeforeMount(() => {
     codeExpenditures.value = autoCodeExpenditures
   }
   if (type == 'detail') buttonDuplicate.value = true
+
+  if ( typeof(Storage) !== "undefined") {
+
+  var data:any = localStorage.getItem('STAFF_INFO');
+  const datas = JSON.parse(data)
+  currentCreator.value = JSON.parse(datas.v)
+  } else {
+    alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
+  }
+  await callApiStaffList()
 })
 </script>
 
@@ -3116,9 +3174,10 @@ onBeforeMount(() => {
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Select">
-                <div @scroll="scrollingCustomer" id="content">
+                <div >
+                  <!-- @scroll="scrollingCustomer" id="content" -->
                   <el-option
-                    v-for="item in optionsCustomerApi"
+                    v-for="item in getStaffList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -3240,9 +3299,10 @@ onBeforeMount(() => {
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Select">
-                <div @scroll="scrollingCustomer" id="content">
+                <div >
+                  <!-- @scroll="scrollingCustomer" id="content" -->
                   <el-option
-                    v-for="item in optionsCustomerApi"
+                    v-for="item in getStaffList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -3358,10 +3418,11 @@ onBeforeMount(() => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <div @scroll="scrollingCustomer" id="content">
+              <el-select v-model="inputRecharger" placeholder="Select">
+                <div >
+                  <!-- @scroll="scrollingCustomer" id="content" -->
                   <el-option
-                    v-for="item in optionsCustomerApi"
+                    v-for="item in getStaffList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -4223,7 +4284,7 @@ onBeforeMount(() => {
                     />
                   </el-select>
                   <el-select
-                    v-if="ruleForm.rentalPaymentPeriod == 4"
+                    v-if="ruleForm.rentalPaymentPeriod == 3"
                     :disabled="checkDisabled"
                     v-model="week"
                     :placeholder="t('formDemo.ChooseADayWeek')"
@@ -4236,7 +4297,7 @@ onBeforeMount(() => {
                     />
                   </el-select>
                   <el-select
-                    v-if="ruleForm.rentalPaymentPeriod == 5"
+                    v-if="ruleForm.rentalPaymentPeriod == 4"
                     :disabled="checkDisabled"
                     v-model="month"
                     :placeholder="t('formDemo.selectRecurringDayMonth')"
@@ -4277,7 +4338,7 @@ onBeforeMount(() => {
                       <el-input
                         :disabled="checkDisabled"
                         v-model="ruleForm.discount"
-                        class="w-[100%] border-none outline-none pl-2 bg-transparent"
+                        class="w-[100%] border-none outline-none bg-transparent"
                         :placeholder="t('formDemo.enterDiscount')"
                         :suffix-icon="percentageIcon"
                       />

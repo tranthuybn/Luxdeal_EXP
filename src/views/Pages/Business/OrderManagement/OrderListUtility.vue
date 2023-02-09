@@ -593,17 +593,17 @@ const ScrollCustomerBottom = () => {
         })
 }
 
-const scrollingCustomer = (e) => {
-  const clientHeight = e.target.clientHeight
-  const scrollHeight = e.target.scrollHeight
-  const scrollTop = e.target.scrollTop
-  if (scrollTop == 0) {
-    scrollCustomerTop.value = true
-  }
-  if (scrollTop + clientHeight >= scrollHeight) {
-    ScrollCustomerBottom()
-  }
-}
+// const scrollingCustomer = (e) => {
+//   const clientHeight = e.target.clientHeight
+//   const scrollHeight = e.target.scrollHeight
+//   const scrollTop = e.target.scrollTop
+//   if (scrollTop == 0) {
+//     scrollCustomerTop.value = true
+//   }
+//   if (scrollTop + clientHeight >= scrollHeight) {
+//     ScrollCustomerBottom()
+//   }
+// }
 
 // Call api danh sách sản phẩm
 const listProductsTable = ref()
@@ -1765,6 +1765,8 @@ const choosePayment = [
 ]
 let payment = ref(choosePayment[1].value)
 
+// Danh sách nhân viên
+const currentCreator = ref()
 const getStaffList = ref()
 const callApiStaffList = async () => {
   const res = await getAllStaffList({ PageIndex: 1, PageSize: 40 })
@@ -1772,6 +1774,12 @@ const callApiStaffList = async () => {
     value: el.id,
     label: el.name + ' | ' + el.contact
   }))
+  getStaffList.value.push(
+    {
+      value: currentCreator.value.id,
+      label: currentCreator.value.name + ' | ' + currentCreator.value.contact
+    }
+  )
 }
 
 let statusOrder = ref(2)
@@ -2168,7 +2176,7 @@ const clearData = () => {
   debtPayment.value = 0
   inputReasonCollectMoney.value = ''
   enterMoney.value = ''
-  inputRecharger.value = undefined
+  inputRecharger.value = currentCreator.value.id
 
   detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
   addRowDetailedListExpoenses()
@@ -2373,10 +2381,11 @@ const beforeAvatarUpload = (rawFile, type: string) => {
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
-      }
+      } 
+      // else if (rawFile.name?.split('.')[0].length > 100) {
+      //   ElMessage.error(t('reuse.checkNameImageLength'))
+      //   return false
+      // }
     }
     //nếu là 1 list ảnh
     if (type === 'list') {
@@ -2421,7 +2430,7 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
   uploadFiles.map((file) => {
     beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
   })
-  Files = ListFileUpload.value.map((el) => el?.raw)
+  Files = [...ListFileUpload.value.map((el) => el?.raw)]
 }
 const fileList = ref<UploadUserFile[]>([])
 
@@ -2675,7 +2684,6 @@ onBeforeMount(async () => {
   await callApiWarehouseList()
   callCustomersApi()
   callApiCollaborators()
-  callApiStaffList()
   await callApiProductList()
   callApiCity()
 
@@ -2685,6 +2693,16 @@ onBeforeMount(async () => {
     codePaymentRequest.value = autoCodePaymentRequest
   }
   if (type == 'detail') buttonDuplicate.value = true
+
+  if ( typeof(Storage) !== "undefined") {
+
+  var data:any = localStorage.getItem('STAFF_INFO');
+  const datas = JSON.parse(data)
+  currentCreator.value = JSON.parse(datas.v)
+  } else {
+    alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
+  }
+  await callApiStaffList()
 })
 </script>
 
@@ -3091,9 +3109,10 @@ onBeforeMount(async () => {
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Select">
-                <div @scroll="scrollingCustomer" id="content">
+                <div >
+                  <!-- @scroll="scrollingCustomer" id="content" -->
                   <el-option
-                    v-for="item in optionsCustomerApi"
+                    v-for="item in getStaffList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -3214,9 +3233,10 @@ onBeforeMount(async () => {
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Select">
-                <div @scroll="scrollingCustomer" id="content">
+                <div >
+                  <!-- @scroll="scrollingCustomer" id="content" -->
                   <el-option
-                    v-for="item in optionsCustomerApi"
+                    v-for="item in getStaffList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -3335,10 +3355,11 @@ onBeforeMount(async () => {
               <label class="w-[30%] text-right"
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
-              <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <div @scroll="scrollingCustomer" id="content">
+              <el-select v-model="inputRecharger" placeholder="Select">
+                <div >
+                  <!-- @scroll="scrollingCustomer" id="content" -->
                   <el-option
-                    v-for="item in optionsCustomerApi"
+                    v-for="item in getStaffList"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"

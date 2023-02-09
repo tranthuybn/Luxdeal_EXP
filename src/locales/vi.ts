@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    detailsOfPaymentRequest: 'Thông tin chi tiết đề nghị thanh toán',
     rentalRenewalInformation: 'Thông tin gia hạn thuê',
     approvedReturnAHeadOfTime: 'Duyệt trả hàng trước hạn',
     informationProductExtend: 'Thông tin sản phẩm gia hạn',

@@ -118,11 +118,29 @@ const tableData = ref([
     total: '',
     note: '',
   }
+  ])
+  const tableProduction = ref([
+    {
+       stt:'',
+       masp:'',
+       tenhh:'',
+       ngayban:'',
+       giaban:'',
+       giakygui:'',
+       giadamphan:'',
+       phaitt:'',
+       thaotac:''
+    }
+  ])
  
-])
+
 
 const deleteRow = (index: number) => {
   tableData.value.splice(index, 1)
+}
+
+const deleteRowProduction = (index: number) => {
+  tableProduction.value.splice(index, 1)
 }
 // const input = ref('')
 
@@ -368,51 +386,51 @@ v-model="activeName" @change="collapseChangeEvent" :class="['bg-[var(--el-color-
                 <el-button class="header-icon" :icon="collapse[2].icon" link/>
                 <span class="text-center text-xl">{{ collapse[2].title }}</span>
               </template>
-              <el-table :data="tableData" border style="width: 100%">
+              <el-table :data="tableProduction" border style="width: 100%">
                 <el-table-column type="index" label="STT" width="80" />
-                <el-table-column prop="sct" label="Số chứng từ" width="100" >
-                      <template #default="props">
-                          <el-input  v-model="props.row.sct"/>
-                      </template>
+                <el-table-column prop="msp" label="Mã sản phẩm" width="100" >
+                      <!-- <template #default="props">
+                          <el-input  v-model="props.row.masp"/>
+                      </template> -->
                 </el-table-column>
-                <el-table-column prop="date" label="Ngày chứng từ" >
-                    <template #default="props">
+                <el-table-column prop="tenhh" label="Tên hàng hóa" >
+                    <!-- <template #default="props">
                         <el-date-picker
                           v-model="props.row.date"
                           type="date"
                           placeholder="Pick a day"
                           format="DD/MM/YYYY"
                         />
-                    </template>
+                    </template> -->
                 </el-table-column>
-                <el-table-column prop="content" label="Nội dung chi" >
-                      <template #default="props">
+                <el-table-column prop="ngayban" label="Ngày bán" >
+                      <!-- <template #default="props">
                             <el-input v-model="props.row.content" />
-                      </template>
+                      </template> -->
                 </el-table-column>
-                <el-table-column prop="quanti" label="Số lượng" >
-                      <template #default="props">
+                <el-table-column prop="giaban" label="Gía bán" >
+                      <!-- <template #default="props">
                           <el-input v-model="props.row.quanti" />
-                    </template>
+                    </template> -->
                 </el-table-column>
-                <el-table-column prop="price" label="Đơn giá" >
-                      <template #default="props">
+                <el-table-column prop="giakygui" label="Gía ký gửi" >
+                      <!-- <template #default="props">
                           <el-input v-model="props.row.price" />
-                      </template>
+                      </template> -->
                 </el-table-column>
-                <el-table-column prop="total" label="Thành tiền" >
-                      <template #default="props">
+                <el-table-column prop="giadamphan" label="Gía đàm phám" >
+                      <!-- <template #default="props">
                           <el-input v-model="props.row.total" />
-                      </template>
+                      </template> -->
                 </el-table-column>
-                <el-table-column prop="note" label="Ghi chú" >
-                      <template #default="props">
+                <el-table-column prop="phaitt" label="Phải thanh toán trước" >
+                      <!-- <template #default="props">
                         <el-input v-model="props.row.note" />
-                      </template>            
+                      </template>             -->
                 </el-table-column>
                 <el-table-column label="Thao Tác" >
                       <template #default="scope">
-                          <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)" >Xóa</el-button>
+                          <el-button size="small" type="danger" @click.prevent="deleteRowProduction(scope.$index)" >Xóa</el-button>
                       </template>
                 </el-table-column>
               </el-table>

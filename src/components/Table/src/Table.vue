@@ -356,7 +356,7 @@ export default defineComponent({
   border: solid white;
   border-width: 0 3px 3px 0;
   display: inline-block;
-  padding: 3px;
+  padding: 3px; 
   transform: rotate(-45deg);
   -webkit-transform: rotate(-45deg);
 }

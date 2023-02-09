@@ -1914,5 +1914,7 @@ export default {
     orderCodepaymentCode: 'Mã đơn hàng/mã yêu cầu rút tiền',
     percentDiscount: '% chiết khấu',
     pendings: 'Đang chờ duyệt'
+    accessCategoriesPermission: "Quyền truy cập xem danh mục",
+    actionPermision: "Quyển thao tác"
   }
 }

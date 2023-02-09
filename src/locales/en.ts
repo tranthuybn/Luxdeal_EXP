@@ -1733,5 +1733,8 @@ export default {
     orderCodepaymentCode: 'Order code/withdrawal code',
     percentDiscount: '% discount',
     pendings: 'Pending'
+    accessCategoriesPermission: "directory access",
+    actionPermission:"Action permission",
   }
 }
+  

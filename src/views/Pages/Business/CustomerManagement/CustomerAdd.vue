@@ -39,9 +39,7 @@ import {
   getGenCodeCustomers,
   addNewAuthRegister,
   updatedCustomer,
-  cancelCustomerAccount,
-approvalOrder,
-getCustomerList
+  cancelCustomerAccount
 } from '@/api/Business'
 import { updatePasswordApi } from '@/api/login/index'
 import { useRouter } from 'vue-router'
@@ -56,8 +54,6 @@ const disabledDate = (time: Date) => {
 }
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const approvalId = Number(router.currentRoute.value.params.approvalId)
-
 const customerClassification = ref('Khách hàng')
 
 const escape = useIcon({ icon: 'quill:escape' })
@@ -272,7 +268,7 @@ const getTableValue = async () => {
       })
     }
   }
-  if (type == 'detail' || type == 'edit' || type === 'approval-collab') {
+  if (type == 'detail' || type == 'edit') {
     ruleForm.isActive = formValue.value?.isActive
     ruleForm.customerCode = formValue.value?.code
     ruleForm.referralCode = formValue.value?.referralCode
@@ -569,6 +565,7 @@ const postData = async (typebtn) => {
         })
       )
   }
+
 }
 const centerDialogVisible = ref(false)
 const centerDialogCancelAccount = ref(false)
@@ -605,7 +602,7 @@ watch(
     if (type === 'detail') {
       disableData.value = true
     }
-    if (type === 'detail' || type === 'edit' || type === 'approval-collab') {
+    if (type === 'detail' || type === 'edit') {
       getTableValue()
     }
   },
@@ -622,63 +619,6 @@ const change = () => {
 
 const formatDate = () => {
   console.log(ruleForm.doB)
-}
-
-interface typeCustomer {
-  value: any
-  label: any
-}
-const chooseCustomer = reactive<Array<typeCustomer>>([])
-
-// call api customer
-const pageIndexCustomer = ref(1)
-const scrollCustomerTop = ref(false)
-const scrollCustomerBottom = ref(false)
-
-const noMoreCustomerData = ref(false)
-const callAPICustomer = async () => {
- const res =  await getCustomerList({pageSize:10,pageIndex:pageIndexCustomer.value})
-  if(res?.data && res.data?.length > 0){
-    res?.data.map((el) => {
-        chooseCustomer.push({
-          value: el.id,
-          label: el.code
-        })
-    })
-  }
-}
-
-const ScrollCustomerBottom = () => {
-  scrollCustomerBottom.value = true
-  pageIndexCustomer.value++
-  noMoreCustomerData.value
-    ? ''
-    : getCustomerList({ PageIndex: pageIndexCustomer.value, PageSize: 10 })
-        .then((res) => {
-          res.data.length == 0
-            ? (noMoreCustomerData.value = true)
-            : res.data.map((el) =>
-               chooseCustomer.push({
-                value: el.id,
-                label: el.code
-                })
-              )
-        })
-        .catch(() => {
-          noMoreCustomerData.value = true
-        })
-}
-
-const scrolling = (e) => {
-  const clientHeight = e.target.clientHeight
-  const scrollHeight = e.target.scrollHeight
-  const scrollTop = e.target.scrollTop
-  if (scrollTop == 0) {
-    scrollCustomerTop.value = true
-  }
-  if (scrollTop + clientHeight >= scrollHeight) {
-    ScrollCustomerBottom()
-  }
 }
 
 const ListFileUpload = ref<UploadUserFile[]>([])
@@ -710,14 +650,6 @@ const beforeRemove = (uploadFile) => {
     })
 }
 
-const approvalFunction = async () => {
-  const payload = { ItemType: 3, Id: approvalId, IsApprove: true }
-  await approvalOrder(FORM_IMAGES(payload))
-  push({
-    name: `approve.accounts-approval.user-account`
-  })
-}
-
 const updatePassword = async () => {
   centerDialogVisible.value = false
   const payload = {
@@ -742,16 +674,13 @@ const updatePassword = async () => {
 }
 
 onBeforeMount(() => {
-  callAPICustomer()
   change()
   callApiCity()
-  if(type === 'add' || type === ':type'){
-    getGenCodeCustomer()
-  }
+  getGenCodeCustomer()
   if (type === 'detail') {
     disabledForm.value = true
   }
-  if (type === 'detail' || type === 'edit' || type === 'approval-collab') {
+  if (type === 'detail' || type === 'edit') {
     getTableValue()
   }
 })
@@ -807,7 +736,7 @@ onBeforeMount(() => {
                 <div class="flex">
                   <label class="min-w-[170px] pr-2 text-right">{{ t('reuse.referralCode') }}</label>
                   <div class="w-[84%]">
-                    <!-- <el-input
+                    <el-input
                       v-model="ruleForm.referralCode"
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
@@ -821,24 +750,7 @@ onBeforeMount(() => {
                             .replace(/Đ/g, 'D')
                             .trim()
                       "
-                    /> -->
-                    
-                    <el-select
-                      class="w-full"
-                      v-model="ruleForm.referralCode"
-                      :placeholder="t('reuse.enterReferralCode')"
-                      filterable
-                      >
-                      <div @scroll="scrolling" id="content">
-                        <el-option
-                            v-for="item in chooseCustomer"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                          />
-                        </div>
-                    </el-select>
-                    
+                    />
                   </div>
                 </div>
               </ElFormItem>
@@ -1292,14 +1204,6 @@ onBeforeMount(() => {
                   t('reuse.cancel')
                 }}</el-button>
               </div>
-              <div v-else-if="type === 'approval-collab'" class="w-[100%] flex ml-50 gap-4">
-            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
-              t('router.approve')
-            }}</el-button>
-            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
-              t('router.notApproval')
-            }}</el-button>
-          </div>
               <div v-else class="flex justify-center">
                 <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
@@ -1664,11 +1568,5 @@ onBeforeMount(() => {
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
   border-left: 12px solid white;
-}
-
-#content {
-  height: 200px;
-  overflow: auto;
-  padding: 0 10px;
 }
 </style>

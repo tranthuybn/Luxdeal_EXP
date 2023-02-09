@@ -123,10 +123,11 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    consignmentproductinformation: ' Thông tin sản phẩm ký gửi bán',
     detailsOfPaymentRequest: 'Thông tin chi tiết đề nghị thanh toán',
     rentalRenewalInformation: 'Thông tin gia hạn thuê',
     approvedReturnAHeadOfTime: 'Duyệt trả hàng trước hạn',
-    informationProductExtend: 'Thông tin sản phẩm gia hạn',
+    detailedlistofexpenses: 'Bảng kê chi tiết các khoản chi (Nếu có)',
     reasonRevenueExpenditure: 'Lý do thu/chi',
     formCode: 'Mã phiếu',
     pleaseSelectWarehouse: 'Vui lòng chọn kho',
@@ -203,6 +204,7 @@ export default {
     standardManagementMaterialsUsed: 'Quản lý tiêu chuẩn vật tư sử dụng',
     orderInformation: 'Thông tin đơn hàng',
     generalInformation: 'Thông tin chung',
+    paymentrequestinformation: ' Thông tin chi tiết đề nghị thanh toán',
     orderCode: 'Mã đơn hàng',
     withdrawalRequestCode: 'Mã yêu cầu rút tiền',
     enterOrderCode: 'Nhập mã đơn hàng',
@@ -782,7 +784,7 @@ export default {
     productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)',
     businessPurchases: 'Mua hàng kinh doanh',
     purchaseOrderList: 'Danh sách đơn mua hàng',
-    purchaseOrderAdd: 'đơn mua hàng',
+    purchaseOrderAdd: 'Đơn mua hàng',
     personnelAccounts: 'Nhân sự & Tài khoản',
     potentialCustomerAdd: 'Thêm mới khách hàng tiềm năng',
     potentialCustomerList: 'Danh sách khách hàng tiềm năng',
@@ -1913,6 +1915,8 @@ export default {
     //Collaborator
     orderCodepaymentCode: 'Mã đơn hàng/mã yêu cầu rút tiền',
     percentDiscount: '% chiết khấu',
-    pendings: 'Đang chờ duyệt'
+    pendings: 'Đang chờ duyệt',
+    accessCategoriesPermission: "Quyền truy cập xem danh mục",
+    actionPermision: "Quyển thao tác"
   }
 }

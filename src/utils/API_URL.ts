@@ -179,6 +179,7 @@ export const DEPARTMENT_DIRECTORY = {
   ADD_BRANCH: '/api/v1/Branch/CreatBranch',
   UPDATE_BRANCH: '/api/v1/Branch/UpdateBranch',
   DELETE_BRANCH: '/api/v1/Branch/DeleteBranch',
+  BRANCH_BY_ID: '/api/v1/Branch/GetId',
   //Department
   DEPARTMENT_LIST: '/api/v1/Department/GetDeparment',
   POST_NEW_DEPARTMENT: '/api/v1/Department/creatDepartment',

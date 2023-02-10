@@ -99,8 +99,10 @@ const ishow= ref(false)
 const ishide = ref(true)
 const changeshow = () =>{ return ishow.value=true, ishide.value=false}
 const hide = () =>{ return ishide.value=true,ishow.value=false}
+var curDate = 'DNTT' + moment().format('hhmmss')
+
 const form = reactive({
-  code: 'MH123',
+  code: curDate,
   date: new Date(),
   region: '',
   text: '',
@@ -185,6 +187,27 @@ var data:any = localStorage.getItem('STAFF_INFO');
   alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
 }
 
+const postData= ()=>{
+   const payload = {
+    Code:form.code,
+    TotalMoney:0,
+    PaymentType:1,
+    PeopleId:1,
+    status:0,
+    PeopleType:0,
+    OrderId:0,
+    Description:'a',
+    Document:[],
+    AccountingEntryId:[],
+    ReasonCollectMoney:'',
+    EnterMoney:'',
+    ExpensesDetail:'',
+    DepositeMoney:0,
+    DebtMoney:0,
+    TotalPrice:0
+   }
+   console.log('payload:', payload);
+}
 
 const depositPrice = ref(0)
 
@@ -291,17 +314,31 @@ v-model="activeName" @change="collapseChangeEvent" :class="['bg-[var(--el-color-
                 </el-table-column>
                 <el-table-column prop="quanti" label="Số lượng" >
                       <template #default="props">
-                          <el-input v-model="props.row.quanti" />
+                          <el-input
+                          v-model="props.row.quanti"
+                          @change="
+                            () => {
+                              props.row.total = props.row.price * props.row.quanti
+                            }
+                          "
+                 />
                     </template>
                 </el-table-column>
                 <el-table-column prop="price" label="Đơn giá" >
                       <template #default="props">
-                          <el-input v-model="props.row.price" />
+                          <el-input
+v-model="props.row.price" 
+                          @change="
+                            () => {
+                              props.row.total = props.row.price * props.row.quanti
+                            }
+                          "/>
                       </template>
                 </el-table-column>
                 <el-table-column prop="total" label="Thành tiền" >
                       <template #default="props">
-                          <el-input v-model="props.row.total" />
+                          <!-- <el-input v-model="props.row.total" /> -->
+                          {{ props.row.total }}
                       </template>
                 </el-table-column>
                 <el-table-column prop="note" label="Ghi chú" >
@@ -476,7 +513,7 @@ v-model="activeName" @change="collapseChangeEvent" :class="['bg-[var(--el-color-
                                     </el-form-item>
                                     <el-form-item >
                                           <el-button>In phiếu</el-button>
-                                          <el-button type="primary">Lưu và chờ duyệt</el-button>
+                                          <el-button type="primary" @click="postData">Lưu và chờ duyệt</el-button>
                                           <el-button type="danger">Hủy</el-button>
                                     </el-form-item>
                         </el-form>

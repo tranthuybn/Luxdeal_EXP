@@ -82,6 +82,7 @@ import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { appModules } from '@/config/app'
 
 import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.vue'
+import billSpaRepair from '../../Components/formPrint/src/billSpaRepair.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
@@ -2345,6 +2346,27 @@ const getcodeExpenditures = async () => {
 }
 const dialogPrinBillSpa = ref(false)
 
+const dialogPrinRepairSpa = ref(false)
+const billRepairData = ref()
+const openRepairBill = () =>{
+  var curDate = 'SPLND' + moment().format('hhmmss')
+  const store = warehouseOptions.value.find((warehouse)=>warehouse.value == dataEdit.value.warehouseId)
+  dialogPrinRepairSpa.value = true
+  billRepairData.value =dataEdit.value.orderDetails.map((orderDetail)=>({
+    storeName: store.label,
+    importTicket: curDate,//Tự sinh
+    productPropertyCode: orderDetail.productPropertyCode,
+    productName: orderDetail.productName,
+    accessory: orderDetail.accessory,
+    description: orderDetail.description,
+    codeSP: orderDetail.code,
+    fromDate: dataEdit.value.fromDate,
+    toDate: dataEdit.value.toDate,
+    spaService: orderDetail?.spaServices,
+    customerName: dataEdit.value.customer.name
+  }))
+}
+
 const dialogInformationReceipts = ref(false)
 const spaOrderCode = ref()
 // input nhập tiền viết bằng chữ
@@ -2751,7 +2773,14 @@ const postReturnRequest = async (reason) => {
           />
         </slot>
       </div>
-
+      <div v-for="(item,index) in billRepairData" :key="index">
+          <div id="repairSpa">
+            <slot>
+                <billSpaRepair :billRepairData="item" />
+            </slot>
+        </div>
+      </div>
+      
       <ChooseWarehousePR
         :showDialog="dialogWarehouse"
         @close-dialog-warehouse="closeDialogWarehouse"
@@ -4116,6 +4145,7 @@ const postReturnRequest = async (reason) => {
               <el-button class="min-w-42 min-h-11" @click="dialogPrinBillSpa = true">{{
                 t('formDemo.printSpaBill')
               }}</el-button>
+              <el-button class="min-w-42 min-h-11" @click="openRepairBill">In phiếu sửa chữa</el-button>
               <el-button class="min-w-42 min-h-11" @click="openBillSpaDialog">{{
                 t('formDemo.bill')
               }}</el-button>
@@ -4159,6 +4189,15 @@ const postReturnRequest = async (reason) => {
                 @click="dialogPrinBillSpa = true"
                 >{{ t('formDemo.printSpaBill') }}</el-button
               >
+              <el-button 
+              v-if="
+                  statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
+                  (statusOrder == STATUS_ORDER_SPA[6].orderStatus && duplicateStatusButton) ||
+                  statusOrder == STATUS_ORDER_SPA[7].orderStatus ||
+                  statusOrder == STATUS_ORDER_SPA[1].orderStatus
+                "
+                :disabled="startSpa"
+              class="min-w-42 min-h-11" @click="openRepairBill">In phiếu sửa chữa</el-button>
               <el-button
                 v-if="
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
@@ -4627,6 +4666,39 @@ const postReturnRequest = async (reason) => {
             <slot>
               <billSpaInspection :dataEditor="editor" />
             </slot>
+          </div>
+        </div>
+      </el-dialog>
+
+<!-- dialog In Phiếu sửa chữa" -->
+<el-dialog
+        v-model="dialogPrinRepairSpa"
+        width="40%"
+        align-center
+        :show-close="false"
+      >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button
+              @click="
+                printPage('repairSpa', {
+                  url: '',
+                  title: 'In vé',
+                  w: 800,
+                  h: 920
+                })
+              "
+              >{{ t('button.print') }}</el-button
+            >
+
+            <el-button class="btn" @click="dialogPrinRepairSpa = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </div>
+          <div class="dialog-content" v-for="(item,index) in billRepairData" :key="index">
+              <slot>
+            <billSpaRepair :billRepairData="item" />
+              </slot>
           </div>
         </div>
       </el-dialog>
@@ -5717,6 +5789,9 @@ const postReturnRequest = async (reason) => {
     display: none;
   }
   #recpPaymentPrint {
+    display: none;
+  }
+  #repairSpa{
     display: none;
   }
   .dialog-content {

@@ -154,6 +154,8 @@ const warehouseData = ref<ChooseWarehouse>({} as ChooseWarehouse)
 //dialog warehouse chuyen kho
 const currentRow = ref(0)
 const curPPID = ref(0)
+const curServiceType = ref(0)
+
 const openDialogWarehouseImport = (props) => {
   if (!prop.ticketData.toWarehouse) {
     ElMessage({
@@ -165,6 +167,7 @@ const openDialogWarehouseImport = (props) => {
   if (props.row.productPropertyId) {
     dialogWarehouseImport.value = true
     curPPID.value = props.row.productPropertyId
+    curServiceType.value = props.row.serviceType
     currentRow.value = props.$index
     warehouseData.value.quantity = props.row.quantity
   } else {
@@ -353,7 +356,7 @@ const totalMoney = () => {
     :warehouseFormData="warehouseData"
     :orderId="ticketData.orderId"
     :warehouse="ticketData.toWarehouse"
-    :serviceType="ticketData.serviceType"
+    :serviceType="curServiceType"
   />
   <ChooseExportWarehouse
     v-if="dialogWarehouseExport"

@@ -42,6 +42,7 @@ import {
   getProductsList,
   getCollaboratorsInOrderList,
   getAllCustomer,
+  getCustomerById,
   addNewOrderList,
   getOrderList,
   getOrderTransaction,
@@ -221,6 +222,8 @@ interface ListOfProductsForSaleType {
   description: string | undefined
   warehouseInfo: {}
   unitName: string
+  unitPrice: string | number | undefined
+  interestMoney: string | number | undefined
   TotalPrice: number
   price: string | number | undefined
   finalPrice: string
@@ -247,7 +250,9 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   businessSetup: '',
   businessSetupName: '',
   warehouseInfo: {},
-  unitName: 'Cái',
+  unitName: '',
+  unitPrice: 0,
+  interestMoney: 0,
   TotalPrice: 0,
   price: '',
   finalPrice: '',
@@ -853,9 +858,10 @@ const postData = async () => {
     ProductPropertyId: parseInt(val.productPropertyId),
     Quantity: parseInt(val.quantity),
     ProductPrice: 0,
-    UnitPrice: 0,
+    UnitPrice: val.unitPrice,
     HirePrice: 0,
     DepositePrice: 0,
+    InterestMoney: val.interestMoney,
     TotalPrice: 0,
     BusinessSetup: val.businessSetup,
     ConsignmentSellPrice: 0,
@@ -1074,6 +1080,26 @@ const handleChangeQuickAddProduct = async (data) => {
 }
 const handleTotal = (scope) => {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
+}
+
+const customerData = reactive({
+  customerId: '',
+  userName: '',
+  code: '',
+  address: '',
+  cccd: '',
+  phoneNumber: '',
+  bank: ''
+})
+const getCustomerInfo = async (id: string) => {
+  const res = await getCustomerById({ Id: id })
+  const orderObj = { ...res?.data }
+  customerData.userName = orderObj.name
+  customerData.code = orderObj.code
+  customerData.cccd = orderObj.cccd
+  customerData.phoneNumber = orderObj.phonenumber
+  customerData.bank = orderObj.bank
+  customerData.address = orderObj.address
 }
 
 const productAttributeValue = (data) => {
@@ -1567,15 +1593,6 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 }
 const fileList = ref<UploadUserFile[]>([])
 
-let formData = reactive({})
-const handle = () => {
-  formData = {
-    customerName: ruleForm.customerName,
-    date: new Date(),
-    priceBillPawn: priceintoMoneyPawnGOC.value,
-    phone: 1212321
-  }
-}
 const disableCreateOrder = ref(false)
 const disabledDate = (time: Date) => {
   return time.getTime() <= Date.now()
@@ -1617,11 +1634,14 @@ const editData = async () => {
     Files = orderObj.orderFiles
 
     if (res.data) {
+      customerData.customerId = orderObj.customerId
+      await getCustomerInfo(customerData.customerId)
       ruleForm.orderCode = orderObj.code
       // @ts-ignore
       ruleForm.pawnTerm = [orderObj.fromDate, orderObj.toDate]
       pawnOrderCode.value = ruleForm.orderCode
       priceintoMoneyPawnGOC.value = orderObj.totalPrice
+      ruleForm.paymentPeriod = orderObj.days
       priceintoMoneyByday.value = orderObj.interestMoney
       customerID.value = orderObj.customer.id
       ruleForm.collaborators = orderObj?.collaborator?.id
@@ -2748,26 +2768,24 @@ const removeRow = (index) => {
 
           <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
 
-          <el-table-column prop="priceintoMoneyByday" :label="t('reuse.intoMoneyByday')" width="150">
+          <el-table-column prop="interestMoney" :label="t('reuse.intoMoneyByday')" width="150">
             <template #default="data">
-              <div v-if="type === 'detail'">{{ changeMoney.format(data.row.priceintoMoneyByday) }}</div>
+              <div v-if="type === 'detail'">{{ changeMoney.format(data.row.interestMoney) }}</div>
               <el-input
                 v-else 
-                v-model="data.row.priceintoMoneyByday" 
-                :disabled="disabledEdit" 
-                @change="handleTotal(data)"
+                v-model="data.row.interestMoney" 
+                :disabled="disabledEdit"
                 style="width: 100%" />
             </template>
           </el-table-column>
 
-          <el-table-column prop="priceintoMoneyPawnGOC" :label="t('formDemo.moneyPawnGOC')" width="150">
+          <el-table-column prop="unitPrice" :label="t('formDemo.moneyPawnGOC')" width="150">
             <template #default="data">
-              <div v-if="type === 'detail'">{{ changeMoney.format(data.row.priceintoMoneyPawnGOC) }}</div>
+              <div v-if="type === 'detail'">{{ changeMoney.format(data.row.unitPrice) }}</div>
               <el-input 
                 v-else 
-                v-model="data.row.priceintoMoneyPawnGOC" 
-                :disabled="disabledEdit" 
-                @change="handleTotal(data)"
+                v-model="data.row.unitPrice" 
+                :disabled="disabledEdit"
                 style="width: 100%" />
             </template>
           </el-table-column>
@@ -3193,10 +3211,11 @@ const removeRow = (index) => {
       <div id="billPawn">
         <slot>
           <billLoanConfirmation
-            v-if="ruleForm.customerName"
-            :formData="formData"
+            v-if="dataEdit"
+            :dataCustomer="customerData"
+            :dataEdit="dataEdit"
             :priceBillPawn="priceintoMoneyPawnGOC"
-            :dataEdit="tablePawnSlip"
+            :dayPayment="ruleForm.paymentPeriod"
           />
         </slot>
       </div>
@@ -3229,9 +3248,11 @@ const removeRow = (index) => {
           <div class="dialog-content">
             <slot>
               <billLoanConfirmation
-                v-if="formData"
-                :formData="formData"
+                v-if="dataEdit"
+                :dataCustomer="customerData"
+                :dataEdit="dataEdit"
                 :priceBillPawn="priceintoMoneyPawnGOC"
+                :dayPayment="ruleForm.paymentPeriod"
               />
             </slot>
           </div>
@@ -3550,10 +3571,10 @@ const removeRow = (index) => {
             </div>
           </div>
           <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold break-w">{{
+            <span class="w-[35%] text-base font-bold break-w">{{
               t('formDemo.productInformationPawn')
             }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+            <span class="block h-1 w-[65%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
         </div>
         <div class="pt-2 pb-2">
@@ -3567,24 +3588,17 @@ const removeRow = (index) => {
 
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
             <el-table-column prop="unitName" :label="t('reuse.unit')" />
+            <el-table-column prop="priceintoMoneyByday" :label="t('reuse.intoMoneyByday')" min-width="150">
+              <template #default="data">
+                {{ changeMoney.format(data.row.priceintoMoneyByday) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="priceintoMoneyPawnGOC" min-width="150" :label="t('formDemo.moneyPawnGOC')">
+              <template #default="data">
+                {{ changeMoney.format(data.row.priceintoMoneyPawnGOC) }}
+              </template>
+            </el-table-column>
           </el-table>
-          <div class="flex justify-end">
-            <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">{{ t('reuse.totalPawnMoney') }} </p>
-            </div>
-            <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{ priceintoMoneyPawnGOC }} đ</p>
-            </div>
-          </div>
-
-          <div class="flex justify-end mt-2">
-            <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">{{ t('reuse.intoMoneyByday') }} </p>
-            </div>
-            <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{ priceintoMoneyByday }} đ</p>
-            </div>
-          </div>
         </div>
         <div class="flex items-center">
           <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
@@ -3592,11 +3606,17 @@ const removeRow = (index) => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.paymentOfPawnPrincipal') }}</label>
+            <label class="w-[30%] text-right">{{ t('formDemo.intoMoneyPawnGOC') }}</label>
+            <div class="w-[100%]">
+              {{ changeMoney.format(0) }}
+            </div>
+          </div>
+          <div class="flex gap-4 pt-2 items-center">
+            <label class="w-[30%] text-right">{{ t('formDemo.paymentSpa') }}</label>
             <div class="w-[100%]">
               <el-checkbox
                 v-model="alreadyPaidForTt"
-                :label="t('formDemo.paymentOfPawnPrincipal')"
+                :label="t('formDemo.alreadyPaidForTt')"
                 size="large"
               />
             </div>
@@ -3631,7 +3651,6 @@ const removeRow = (index) => {
               class="min-w-42 min-h-11"
               @click="
                 () => {
-                  handle()
                   dialogBillLiquidation = true
                 }
               "

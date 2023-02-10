@@ -927,6 +927,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    duplicateInformation:'Trùng thông tin, vui lòng kiểm tra tên/mã/email/sđt ...',
     addNewBranch: 'Thêm mới chi nhánh',
     addNewDepartment: 'Thêm mới phòng ban',
     addNewTypePersonnel: 'Thêm mới loại hình nhân sự',

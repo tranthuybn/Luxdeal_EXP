@@ -431,6 +431,8 @@ const buttonApproval = ref(false)
 watch(
   () => type,
   () => {
+    console.log('type:', type);
+    
     if (type === 'detail') {
       disabledForm.value = true
       disabledTable.value = true
@@ -440,7 +442,7 @@ watch(
       getTableValue()
       buttonApproval.value = true
     }
-    if (type === 'add' || type == ':type') {
+    if (type === 'add' || type === ':type') {
       getGenCodeCollaborator()
       buttonApproval.value = false
       disabledTable.value = true
@@ -968,7 +970,7 @@ provide('parameters', {
             }}</el-button>
           </div>
 
-          <div v-else-if="type === 'add'" class="flex btn-type">
+          <div v-else-if="type === 'add' || type === ':type'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" @click="save()">
             {{ t('reuse.saveAndPending') }}
           </ElButton>

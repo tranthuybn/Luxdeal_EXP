@@ -363,25 +363,25 @@ const adminList = [
                 }
               }
             ]
-          },
-          {
-            path: 'customerAdd',
-            name: 'business.customer-management.customerAdd',
-            component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
-            meta: {
-              title: 'router.customerAdd'
-            }
-          },
-          {
-            path: `${utility}/:type?/:id?`,
-            component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
-            name: `business.customer-management.customerList.${utility}`,
-            meta: {
-              title: 'router.customerAdd',
-              hidden: true,
-              canto: true
-            }
           }
+          // {
+          //   path: 'customerAdd',
+          //   name: 'business.customer-management.customerAdd',
+          //   component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
+          //   meta: {
+          //     title: 'router.customerAdd'
+          //   }
+          // },
+          // {
+          //   path: `${utility}/:type?/:id?`,
+          //   component: 'views/Pages/Business/CustomerManagement/CustomerAdd',
+          //   name: `business.customer-management.customerList.${utility}`,
+          //   meta: {
+          //     title: 'router.customerAdd',
+          //     hidden: true,
+          //     canto: true
+          //   }
+          // }
         ]
       },
       {

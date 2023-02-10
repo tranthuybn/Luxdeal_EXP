@@ -348,8 +348,8 @@ const editPage = async () => {
 
 const cancel = async () => {
   push({
-    name: 'business.customer-management.customerList',
-    params: { backRoute: 'business.customer-management.customerList' }
+    name: 'business.customer-management.customerAdd',
+    params: { backRoute: 'business.customer-management.customerAdd' }
   })
 }
 const { register } = useForm()
@@ -416,8 +416,8 @@ const updateCustomer = async () => {
         type: 'success'
       })
       push({
-        name: 'business.customer-management.customerList',
-        params: { backRoute: 'business.customer-management.customerList' }
+        name: 'business.customer-management.customerAdd',
+        params: { backRoute: 'business.customer-management.customerAdd' }
       })
     })
     .catch((error) => {
@@ -541,8 +541,8 @@ const postCustomer = async (typebtn) => {
       })
       if (typebtn === 'save') {
         push({
-          name: 'business.customer-management.customerList',
-          params: { backRoute: 'business.customer-management.customerList' }
+          name: 'business.customer-management.customerAdd',
+          params: { backRoute: 'business.customer-management.customerAdd' }
         })
       }
       if (typebtn == 'saveAndAdd') {
@@ -606,8 +606,8 @@ const cancelAccountCustomer = async () => {
         type: 'success'
       }),
         push({
-          name: 'business.customer-management.customerList',
-          params: { backRoute: 'business.customer-management.customerList' }
+          name: 'business.customer-management.customerAdd',
+          params: { backRoute: 'business.customer-management.customerAdd' }
         })
     })
     .catch(() => {
@@ -733,29 +733,23 @@ const beforeRemove = (uploadFile) => {
 const approvalFunction = async (checkApproved) => {
   const payload = { ItemType: 3, Id: approvalId, IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
-  push({
-    name: `approve.accounts-approval.user-account`
-  })
-}
-
-const approvalFunctionCancel = async (checkApproved) => {
-  const payload = { ItemType: 4, Id: approvalId, IsApprove: checkApproved }
-  await approvalOrder(FORM_IMAGES(payload))
-  .then(() => {
+   if(checkApproved) {
       ElNotification({
         message: 'Hủy tài khoản thành công!',
         type: 'success'
+        }),
+          push({
+           name: `approve.accounts-approval.user-account`
+         })
+    }else{
+      ElNotification({
+        message: 'Không duyệt hủy tài khoản!',
+        type: 'info'
       }),
       push({
-    name: `approve.accounts-approval.user-account`
-  })
-    })
-    .catch(() => {
-      ElNotification({
-        message: 'Hủy tài khoản thất bại',
-        type: 'warning'
-      })
-    })
+       name: `approve.accounts-approval.user-account`
+        })
+    }
 }
 
 const updatePassword = async () => {
@@ -1335,7 +1329,7 @@ onBeforeMount(() => {
 
 
             <div class="option-page mt-5">
-              <div v-if="type === 'detail'" class="flex" style="margin-left: 11rem">
+              <div v-if="type === 'detail' && statusCollab =='Khởi tạo mới' && duplicateStatusButton" class="flex" style="margin-left: 11rem">
                 <el-button @click="editPage()" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.fix')
                 }}</el-button>
@@ -1377,7 +1371,7 @@ onBeforeMount(() => {
                   </template>
                 </el-dialog>
               </div>
-              <div v-else-if="type === 'edit'" class="flex" style="margin-left: 11rem">
+              <div v-else-if="type === 'edit' && statusCollab =='Khởi tạo mới'" class="flex" style="margin-left: 11rem">
                 <el-button @click="updateCustomer" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>
@@ -1385,7 +1379,7 @@ onBeforeMount(() => {
                   t('reuse.cancel')
                 }}</el-button>
               </div>
-              <div v-else-if="type === 'approval-cus' && statusCollab    =='Duyệt khởi tạo tài khoản'" class="w-[100%] flex ml-50 gap-4">
+              <div v-else-if="type == 'approval-cus'" class="w-[100%] flex ml-50 gap-4">
             <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>
@@ -1393,16 +1387,7 @@ onBeforeMount(() => {
               t('router.notApproval')
             }}</el-button>
           </div>
-
-          <div v-else-if="type === 'approval-collab' && statusCollab =='Duyệt hủy tài khoản'" class="w-[100%] flex ml-50 gap-4">
-            <el-button @click="approvalFunctionCancel(true)" type="warning" class="min-w-42 min-h-11">{{
-              t('router.approve')
-            }}</el-button>
-            <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
-              t('router.notApproval')
-            }}</el-button>
-          </div>
-              <div v-else class="flex justify-center">
+              <div v-else-if="type === 'add'" class="flex justify-center">
                 <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>

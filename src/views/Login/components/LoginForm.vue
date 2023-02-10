@@ -1,4 +1,3 @@
-Thất, 5:27 CH
 <script setup lang="ts">
 import { reactive, ref, unref, watch } from 'vue'
 import { Form } from '@/components/Form'
@@ -6,7 +5,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton, ElCheckbox, ElLink, ElNotification } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm'
 import { loginApi, GetRouterByStaffAccountId } from '@/api/login'
-import { getRoutesAsRolesApi } from '@/api/login'
+// import { getRoutesAsRolesApi } from '@/api/login'
 import { getStaffInfoByAccountId } from '@/api/HumanResourceManagement'
 import { useCache } from '@/hooks/web/useCache'
 import { usePermissionStore } from '@/store/modules/permission'
@@ -134,10 +133,11 @@ const signIn = () => {
             wsCache.clear() 
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           const accountId = res.data['userInformation']?.id ?? null
+          console.log('accountId',accountId)
           if (accountId) {
             getUserInfoByAccountId(accountId)
             setPermissionForUser(res.data)
-            getRole(accountId)
+            getRole('FD83C99A-44A4-4756-BAAA-A5A9D26F7BDA')
           } else
             ElNotification({
               message: t('reuse.accountInfo'),
@@ -157,13 +157,13 @@ const getRole = async (accountId) => {
   // get role list
   try {
     const routers = await GetRouterByStaffAccountId({ id: accountId })
-    var tempUrl = await getRoutesAsRolesApi({ roleName: 'admin' })
+    // var tempUrl = await getRoutesAsRolesApi({ roleName: 'admin' })
 
     if (routers?.data && routers.data.length > 0) {
       const urlList = routers.data.map((el) => el.url)
-      console.log(urlList)
+      // console.log(urlList)
 
-      generateRouter(tempUrl.data)
+      generateRouter(urlList)
     } else {
       ElNotification({
         message: t('reuse.accountInfo'),

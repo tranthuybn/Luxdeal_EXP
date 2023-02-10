@@ -1751,6 +1751,7 @@ export default {
     enterPercentOrMoney: 'Nhập số % hoặc số tiền',
     maxPercent: 'Không thể nhập quá 100%',
     customerCodeExist: 'Mã khách hàng đã tồn tại',
+    codeExist: 'mã này đã tồn tại',
     productCodeExist: 'Mã sản phẩm đã tồn tại',
     waitingForProcessing: 'Chờ xử lí',
     inUse: 'Đang xử lí',

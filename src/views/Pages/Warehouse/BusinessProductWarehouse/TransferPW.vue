@@ -44,6 +44,7 @@ type Options = {
 
 type ProductWarehouse = {
   productPropertyId?: number
+  productCode?: string
   quantity: number
   price: number
   productPropertyQuality?: string

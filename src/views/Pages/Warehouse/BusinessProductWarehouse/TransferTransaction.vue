@@ -159,6 +159,7 @@ type Options = {
 
 type ProductWarehouse = {
   productPropertyId?: number
+  productCode?: string
   quantity: number
   price: number
   productPropertyQuality?: string
@@ -207,14 +208,14 @@ const callApiForData = async () => {
 
       orderData.value = res.data[0].orderDetails
     
-      serviceType.value = res.data[0]?.serviceType
+      serviceType.value = res.data[0]?.orderType
+      
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
         quantity: item.detail[0]?.quantity,
         price: item.importPrice,
         productPropertyQuality: item.productPropertyQuality,
         accessory: item.accessory,
-        productName: item.productPropertyName,
         unitName: item.unitName,
         toLocation: { value: item.detail[0]?.toLocationId, label: item.detail[0].toLocationName },
         fromLocation: {
@@ -225,7 +226,10 @@ const callApiForData = async () => {
         toLot: { value: item.detail[0]?.toLotId, label: item.detail[0]?.toLotCode },
         orderId: item.detail[0]?.orderId,
         imageUrl: item?.imageUrl,
-        serviceType: item.detail[0]?.serviceType
+        serviceType: item.detail[0]?.serviceType,
+        productName: item.productName,
+        productCode: item.productPropertyCode
+
       }))
     }
   } else {
@@ -312,9 +316,9 @@ const callButToan = async (data) => {
           totatlPriceRental: 0,
           rentalPriceByDay: 0,
           totalPriceSpa: serviceType.value == 5 ? orderDetail.totalPrice : 0,
-          spaService: serviceType.value == 5 ? orderDetail.spaServices.map((val) => {
+          spaService: serviceType.value == 5 ? orderDetail.spaServices.map(val => 
             val.name
-          }).toString() : ''
+          ).toString() : ''
         }
         await addOrderStransaction(payload)
       }
@@ -329,6 +333,8 @@ const updateInventoryOrder = async () => {
     type: 1,
     warehouseProductJson: productWarehouseRef.value?.ListOfProductsForSale.map((row) => ({
       productPropertyId: row.productPropertyId,
+      productPropertyCode: row.productCode,
+      productName: row.productName,
       quantity: row.quantity,
       price: row.price,
       accessory: row.accessory,
@@ -339,6 +345,7 @@ const updateInventoryOrder = async () => {
       serviceType: row.serviceType
     }))
   }
+
   await UpdateInventoryOrder(JSON.stringify(payload))
     .then(() => {
       ElNotification({

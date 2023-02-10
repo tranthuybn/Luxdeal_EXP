@@ -1731,6 +1731,8 @@ export default {
     //Collaborator
     orderCodepaymentCode: 'Order code/withdrawal code',
     percentDiscount: '% discount',
-    pendings: 'Pending'
+    pendings: 'Pending',
+    transferWarehouseNow: 'Transfer warehouse now',
+    printTransferTicket: 'Print transfer ticket'
   }
 }

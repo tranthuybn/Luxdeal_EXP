@@ -1911,6 +1911,8 @@ export default {
     //Collaborator
     orderCodepaymentCode: 'Mã đơn hàng/mã yêu cầu rút tiền',
     percentDiscount: '% chiết khấu',
-    pendings: 'Đang chờ duyệt'
+    pendings: 'Đang chờ duyệt',
+    transferWarehouseNow: 'Chuyển kho ngay',
+    printTransferTicket: 'In phiếu chuyển kho'
   }
 }

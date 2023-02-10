@@ -234,7 +234,6 @@ const chooseExportWarehouse = (warehouseId) => {
     class="w-full flex"
     ref="ruleFormRef"
     :model="FormData"
-    :disabled="props.type == 'detail'"
     :rules="rules"
     label-width="170px"
     status-icon
@@ -263,7 +262,9 @@ const chooseExportWarehouse = (warehouseId) => {
           v-if="typeTransaction !== 1"
           prop="fromWarehouseId"
         >
-          <el-select v-model="FormData.fromWarehouseId" @change="chooseExportWarehouse">
+          <el-select
+v-model="FormData.fromWarehouseId" @change="chooseExportWarehouse"
+    :disabled="props.type == 'detail'">
             <el-option
               v-for="item in warehouseOptions"
               :key="item.value"
@@ -277,7 +278,9 @@ const chooseExportWarehouse = (warehouseId) => {
           v-if="typeTransaction !== 2"
           prop="toWarehouseId"
         >
-          <el-select v-model="FormData.toWarehouseId" @change="chooseImportWarehouse">
+          <el-select
+v-model="FormData.toWarehouseId" @change="chooseImportWarehouse"
+    :disabled="props.type == 'detail' && typeTransaction !== 3">
             <el-option
               v-for="item in warehouseOptions"
               :key="item.value"
@@ -289,6 +292,7 @@ const chooseExportWarehouse = (warehouseId) => {
       </div>
       <ElFormItem class="mt-5" :label="t('reuse.petitioner')" prop="staffId">
         <MultipleOptionsBox
+    :disabled="props.type == 'detail'"
           :fields="[t('reuse.employeeCode'), t('reuse.phoneNumber'), t('reuse.employeeName')]"
           filterable
           width="700px"
@@ -305,6 +309,7 @@ const chooseExportWarehouse = (warehouseId) => {
       </ElFormItem>
       <ElFormItem class="mb-7" :label="t('reuse.note')" prop="description">
         <ElInput
+    :disabled="props.type == 'detail'"
           v-model="FormData.description"
           size="default"
           :placeholder="t('reuse.enterNote')"
@@ -314,6 +319,7 @@ const chooseExportWarehouse = (warehouseId) => {
       <div class="flex justify-between">
         <ElFormItem :label="t('reuse.selectObject')" class="w-4/5" prop="customerId">
           <MultipleOptionsBox
+    :disabled="props.type == 'detail'"
             :fields="[t('reuse.customerCode'), t('reuse.phoneNumber'), t('reuse.customerName')]"
             filterable
             class="w-full"
@@ -331,10 +337,10 @@ const chooseExportWarehouse = (warehouseId) => {
         </ElFormItem>
         <ElFormItem label-width="0px">
           <el-button
+    :disabled="props.type == 'detail'"
             @click="openQuickAddDialog"
             :icon="plusIcon"
             class="pl-8"
-            :disabled="props.type == 'detail'"
             >{{ t('button.add') }}</el-button
           >
         </ElFormItem>

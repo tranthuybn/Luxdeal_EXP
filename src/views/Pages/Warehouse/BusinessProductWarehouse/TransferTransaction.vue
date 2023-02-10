@@ -145,7 +145,8 @@ const ticketData = ref({
   toWarehouseId: '',
   fromWarehouseId: '',
   orderId: 0,
-  returnRequestId: 0
+  returnRequestId: 0,
+  serviceType: 6
 })
 type ExportLots = {
   fromLotId: number
@@ -199,6 +200,8 @@ const callApiForData = async () => {
         label: res.data[0]?.toWarehouseName,
         value: res.data[0]?.toWarehouseId
       }
+      ticketData.value.serviceType = res.data[0]?.orderType
+      ticketData.value.orderId = res.data[0]?.orderId
 
       serviceType.value = res.data[0]?.serviceType
       productData.value = res.data[0].transactionDetails.map((item) => ({
@@ -216,7 +219,8 @@ const callApiForData = async () => {
         },
         fromLot: { value: item.detail[0]?.fromLotId, label: item.detail[0]?.fromLotCode },
         toLot: { value: item.detail[0]?.toLotId, label: item.detail[0]?.toLotCode },
-        imageUrl: item?.imageUrl
+        imageUrl: item?.imageUrl,
+        serviceType: item.detail[0]?.serviceType
       }))
       console.log('ticketData', ticketData.value)
       console.log('productData', productData.value)
@@ -329,6 +333,7 @@ const updateTicket = (warehouse, type) => {
             ref="detailTicketRef"
             :type="type"
             :ticketData="ticketData"
+            :transactionType="transactionType"
             @update-ticket="updateTicket"
           />
         </div>
@@ -376,7 +381,7 @@ const updateTicket = (warehouse, type) => {
         </div>
         <div class="ml-[170px] flex">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
-            t('reuse.printImportTicket')
+            t('reuse.printTransferTicket')
           }}</ElButton>
           <div v-if="status !== 4 && status !== 3" class="ml-[20px] flex">
             <ElButton
@@ -385,7 +390,7 @@ const updateTicket = (warehouse, type) => {
               v-if="Number(ticketData.orderId) !== 0"
               :disabled="type == 'add' || type == 'edit'"
               @click="updateInventoryOrder"
-              >{{ t('reuse.importWarehouseNow') }}</ElButton
+              >{{ t('reuse.transferWarehouseNow') }}</ElButton
             >
             <ElButton
               v-else
@@ -393,7 +398,7 @@ const updateTicket = (warehouse, type) => {
               type="primary"
               :disabled="type == 'add' || type == 'edit'"
               @click="updateInventory"
-              >{{ t('reuse.importWarehouseNow') }}</ElButton
+              >{{ t('reuse.transferWarehouseNow') }}</ElButton
             >
             <ElButton
               class="w-[150px]"

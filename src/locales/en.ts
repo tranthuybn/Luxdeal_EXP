@@ -853,6 +853,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    duplicateInformation: 'Duplicate information, data already exists',
     addNewBranch: 'Add new branch',
     addNewDepartment: 'Add new department',
     addNewTypePersonnel: 'Add new type of personnel',

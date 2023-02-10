@@ -817,7 +817,6 @@ const emptyFormCustom = {} as setFormCustomData
 const formDataCustomize = ref(emptyFormCustom)
 //set form value
 const customizeData = (formData) => {
-  console.log('formData', formData)
   
   formDataCustomize.value.email = formData.email
   formDataCustomize.value.phonenumber = formData.phonenumber
@@ -932,10 +931,15 @@ const editData = async (data) => {
       })
     )
 }
+
+const disabelForm = ref(false)
+const btnAddSale = ref(false)
 watch(
   () => type,
   () => {
-    if (type === 'detail') {
+    if ( type === 'add' || type === ':type') {
+      disabelForm.value = true
+      btnAddSale.value = true
     }
 
     if(type == 'edit'){
@@ -977,7 +981,7 @@ watch(
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ t('reuse.saleHistoryCustomerCare') }}</span>
         </template>
-        <el-form ref="form" label-width="20px">
+        <el-form ref="form" :disabled="disabelForm" label-width="20px">
           <div>
             <div>
               <el-table
@@ -1167,12 +1171,12 @@ watch(
                   </template>
                 </el-table-column>
               </el-table>
-              <el-button class="mt-4" style="width: 7%" @click="addNewSale"
-                >+ {{ t('reuse.addSale') }} </el-button
-              >
             </div>
           </div>
         </el-form>
+        <el-button class="mt-4" style="width: 7%" @click="addNewSale" :disabled="btnAddSale"
+                >+ {{ t('reuse.addSale') }} </el-button
+              >
       </el-collapse-item>
     </el-collapse>
   </div>

@@ -74,7 +74,7 @@ service.interceptors.response.use(
     }
   },
   (error: AxiosError) => {
-    ElMessage.error(error.message)
+    // ElMessage.error(error.message)
     return Promise.reject(error)
   }
 )

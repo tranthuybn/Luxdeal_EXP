@@ -114,6 +114,7 @@ var curDate = 'MH' + moment().format('hhmmss')
 var autoCodeSellOrder = 'MH' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
+var autoCustomerCode = 'KH' + moment().format('hhmmss')
 const codeReturnRequest = ref()
 const sellOrderCode = ref()
 const codeReceipts = ref()
@@ -457,23 +458,44 @@ interface tableDataType {
   statusAccountingEntry: string
 }
 
-const checkReceiptOrPayment = ref(false)
 const checkAccountEntry = ref(false)
-const checkPaymentRequest = ref(false)
+const checkReceiptOrPayment = ref(true)
+const checkPaymentRequest = ref(true)
+let countExisted = ref(0)
+let countExistedDNTT = ref(0)
 
 let debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  checkReceiptOrPayment.value = false
-  checkPaymentRequest.value = false
+  countExisted.value = 0
+  countExistedDNTT.value = 0
   newTable.value = val
-  if (newTable.value[0].paymentRequestCode) {
-    checkPaymentRequest.value = true
-  } else if (newTable.value[0].receiptOrPaymentVoucherCode) {
-    checkReceiptOrPayment.value = true
-  }
+  newTable.value.map((el) => {
+    if (el.receiptOrPaymentVoucherId) {
+      countExisted.value++
+      checkReceiptOrPayment.value = true
+    } else {
+      if (countExisted.value == 0) {
+        checkReceiptOrPayment.value = false
+      }
+    }
+
+    if (el.paymentRequestId) {
+      countExistedDNTT.value++
+      checkPaymentRequest.value = true
+    } else {
+      if (countExistedDNTT.value == 0) {
+        checkPaymentRequest.value = false
+      }
+    }
+  })
+  // if (newTable.value[0].paymentRequestCode) {
+  //   checkPaymentRequest.value = true
+  // } else if (newTable.value[0].receiptOrPaymentVoucherCode) {
+  //   checkReceiptOrPayment.value = true
+  // }
 }
 
 // Dialog change address
@@ -748,6 +770,7 @@ const quickEmail = ref()
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
+    Code: autoCustomerCode,
     IsOrganization: valueClassify.value,
     Name: addQuickCustomerName.value,
     TaxCode: quickTaxCode.value,
@@ -1096,6 +1119,7 @@ const handleChangeQuickAddProduct = async (data) => {
 
 let Files = reactive({})
 const validImageType = ['jpeg', 'png']
+//cái này validate file chỉ cho ảnh tí a sửa lại nhé
 const beforeAvatarUpload = (rawFile, type: string) => {
   if (rawFile) {
     //nếu là 1 ảnh
@@ -1109,10 +1133,11 @@ const beforeAvatarUpload = (rawFile, type: string) => {
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
         ElMessage.error(t('reuse.imageOver4MB'))
         return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
       }
+      // else if (rawFile.name?.split('.')[0].length > 100) {
+      //   ElMessage.error(t('reuse.checkNameImageLength'))
+      //   return false
+      // }
     }
     //nếu là 1 list ảnh
     if (type === 'list') {
@@ -1138,15 +1163,26 @@ const beforeAvatarUpload = (rawFile, type: string) => {
     }
     return true
   }
+  // else {
+  //   //báo lỗi nếu ko có ảnh
+  //   if (type === 'list' && fileList.value.length > 0) {
+  //     return true
+  //   }
+  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
+  //     return true
+  //   } else {
+  //     ElMessage.warning(t('reuse.notHaveImage'))
+  //     return false
+  //   }
+  // }
 }
-
 const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
   uploadFiles.map((file) => {
     beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
   })
-  Files = ListFileUpload.value.map((el) => el?.raw)
+  Files = [...ListFileUpload.value.map((el) => el?.raw)]
 }
 const fileList = ref<UploadUserFile[]>([])
 
@@ -1779,7 +1815,7 @@ function openBillDialog() {
 function openReceiptDialog() {
   moneyReceipts.value = 0
   getReceiptCode()
-  inputRecharger.value = ''
+  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyReceipts.value += e.receiveMoney
@@ -1792,7 +1828,7 @@ function openReceiptDialog() {
 function openPaymentDialog() {
   moneyPaid.value = 0
   getcodeExpenditures()
-  inputRecharger.value = ''
+  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyPaid.value += e.paidMoney
@@ -1810,7 +1846,7 @@ function openPaymentRequestDialog() {
       moneyDeibt.value += e.paidMoney
     })
   }
-  inputRecharger.value = ''
+  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
   inputDeposit.value = 0
   inputReasonCollectMoney.value = ''
   dialogIPRForm.value = !dialogIPRForm.value
@@ -1920,7 +1956,7 @@ const postPT = async () => {
     TypeOfPayment: payment.value,
     status: 1,
     PeopleType: 1,
-    PeopleId: inputRecharger.value,
+    PeopleId: staffItem?.id,
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
@@ -1943,7 +1979,7 @@ const postPC = async () => {
     TypeOfPayment: payment.value,
     status: 1,
     PeopleType: 1,
-    PeopleId: inputRecharger.value,
+    PeopleId: staffItem?.id,
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
@@ -2004,7 +2040,7 @@ const postPaymentRequest = async () => {
     Code: codePaymentRequest.value,
     TotalMoney: moneyDepositPayment.value ?? moneyDeibt.value,
     PaymentType: payment.value,
-    PeopleId: inputRecharger.value,
+    PeopleId: staffItem?.id,
     status: 0,
     PeopleType: 1,
     OrderId: id,
@@ -2646,6 +2682,11 @@ const showWarehouseTicket = async (scope) => {
 }
 
 const hiddenButton = ref(false)
+
+const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''
+const staffInfo = JSON.parse(staff) || ''
+const staffItem = JSON.parse(staffInfo?.v) || ''
+inputRecharger.value = staffItem?.id
 
 onBeforeMount(async () => {
   await editData()

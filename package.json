@@ -1,6 +1,6 @@
 {
   "name": "111",
-  "version": "1.10.18",
+  "version": "1.10.24",
   "description": "CFT.ERP",
   "author": "Noah Khalifa",
   "private": true,
@@ -26,7 +26,7 @@
     "p": "plop"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.0.9",
+    "@element-plus/icons-vue": "^2.0.10",
     "@iconify/iconify": "^2.2.1",
     "@vueuse/core": "^8.9.4",
     "@wangeditor/editor": "^5.1.10",

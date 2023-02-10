@@ -124,6 +124,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    detailsOfPaymentRequest: 'Details of payment request',
     rentalRenewalInformation: 'Rental renewal information',
     approvedReturnAHeadOfTime: 'Approved return a head of time',
     informationProductExtend: 'Information product extend',
@@ -1733,6 +1734,9 @@ export default {
     percentDiscount: '% discount',
     pendings: 'Pending',
     transferWarehouseNow: 'Transfer warehouse now',
-    printTransferTicket: 'Print transfer ticket'
+    printTransferTicket: 'Print transfer ticket',
+    accessCategoriesPermission: "directory access",
+    actionPermission:"Action permission"
   }
 }
+  

@@ -486,17 +486,16 @@ let checkValidate = ref(false)
 let checkValidateForm = ref(false)
 
 const postData = async (typebtn) => {
-  console.log('typebtn: ', typebtn)
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
     const payload = {
       Code: ruleForm.staffCode,
       Name: ruleForm.name,
       Email: ruleForm.email,
-      Phone: ruleForm.phoneNumber,
+      PhoneNumber: ruleForm.phoneNumber,
       CCCD: ruleForm.cccd,
-      NgayCap: ruleForm.cccdCreateAt,
-      NoiCap: ruleForm.cccdPlaceOfGrant,
+      LicenseDate: ruleForm.cccdCreateAt,
+      LicensePlace: ruleForm.cccdPlaceOfGrant,
       Gender: ruleForm.sex,
       BirthDay: ruleForm.doB,
       Contact: ruleForm.link,
@@ -511,9 +510,12 @@ const postData = async (typebtn) => {
       WardId: valueCommune.value,
       BankAccountNumber: ruleForm.accountNumber,
       BankId: ruleForm.bankName,
-      IsActive: true
+      IsActive: true,
+      User: ruleForm.userName,
+      Password: ruleForm.password,
+      ConfirmPassword: ruleForm.confirmPassword,
+      RoleId: ruleForm.roleAcces
     }
-    console.log(payload)
 
     const formDataPayLoad = FORM_IMAGES(payload)
     await addNewStaff(formDataPayLoad)
@@ -535,9 +537,7 @@ const postData = async (typebtn) => {
           type: 'warning'
         })
       )
-    // clear()
   }
-  // resetForm(ruleFormRef)
 }
 
 const formValue = ref()
@@ -613,7 +613,7 @@ const getTableValue = async () => {
 }
 
 onBeforeMount(() => {
-  getTableValue()
+  if(type != 'add') getTableValue()
 
   callApiCity()
   CallApiBranch()

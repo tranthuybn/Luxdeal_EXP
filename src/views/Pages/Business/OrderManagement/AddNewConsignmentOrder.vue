@@ -96,6 +96,8 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
 
+var autoCustomerCode = 'KH' + moment().format('hhmmss')
+
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
@@ -218,24 +220,27 @@ const quickEmail = ref()
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
+    Code: autoCustomerCode,
     IsOrganization: valueClassify.value,
     Name: addQuickCustomerName.value,
     TaxCode: quickTaxCode.value,
     Representative: quickRepresentative.value,
     Phonenumber: quickPhoneNumber.value,
     Email: quickEmail.value,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 1,
+    DistrictId: null,
+    WardId: null,
+    Address: null,
     CustomerType: valueSelectCustomer.value
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
   await addQuickCustomer(formCustomerPayLoad)
-    .then(() =>
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
+      callCustomersApi()
+    }
     )
     .catch(() =>
       ElNotification({
@@ -1134,7 +1139,7 @@ const clearData = () => {
   debtPayment.value = 0
   inputReasonCollectMoney.value = ''
   enterMoney.value = ''
-  inputRecharger.value = undefined
+  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
 
   detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
   addRowDetailedListExpoenses()
@@ -1507,7 +1512,7 @@ const postPT = async () => {
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: inputRecharger.value,
+    PeopleId: staffItem?.id,
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
@@ -1529,7 +1534,7 @@ const postPC = async () => {
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: inputRecharger.value,
+    PeopleId: staffItem?.id,
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
@@ -2333,6 +2338,12 @@ const disabledDate = (time: Date) => {
   return time.getTime() <= Date.now()
 }
 const billLiquidationDis = ref(false)
+
+const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''
+const staffInfo = JSON.parse(staff) || ''
+const staffItem = JSON.parse(staffInfo?.v) || ''
+inputRecharger.value = staffItem?.id
+
 onBeforeMount(async () => {
   await editData()
   callCustomersApi()
@@ -5206,12 +5217,7 @@ const openDetailOrder = (id, type) => {
             />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
               <template #default="data">
-                <el-input
-                  :v-model="data.row.accessory"
-                  v-if="type != 'detail'"
-                  :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
-                />
-                <div v-else>{{ data.row.accessory }}</div>
+                <div>{{ data.row.accessory }}</div>
               </template>
             </el-table-column>
 

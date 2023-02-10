@@ -2060,12 +2060,26 @@ const updateOrderStatus = async (status: number, idOrder: any) => {
   statusOrder.value = status
   reloadStatusOrder()
 }
-const approvalFunction = async () => {
-  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+const approvalFunction = async (checkApproved) => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
-  push({
-    name: `approve.orders-approval.orders-new`
-  })
+   if(checkApproved) {
+      ElNotification({
+        message: 'Guyệt thành công!',
+        type: 'success'
+        }),
+        push({
+         name: `approve.orders-approval.orders-new`
+        })
+    }else{
+      ElNotification({
+        message: 'Không duyệt!',
+        type: 'info'
+      }),
+      push({
+       name: `approve.orders-approval.orders-new`
+      })
+    }
 }
 const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
@@ -2160,17 +2174,6 @@ const editData = async () => {
     if (statusOrder.value == 2 && type == 'edit') {
       editButton.value = true
     }
-
-    if (arrayStatusOrder.value?.length) {
-      arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
-      if (type != 'approval-order')
-        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
-      else statusOrder.value = 200
-      if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
-        duplicateStatusButton.value = true
-      else duplicateStatusButton.value = false
-    }
-
     Files = orderObj.orderFiles
 
     if (orderObj.vat == null) radioVAT.value = t('formDemo.VATNotIncluded')
@@ -4331,12 +4334,12 @@ const postReturnRequest = async (reason) => {
               </el-button>
             </div>
             <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
-              <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
-                t('router.approve')
-              }}</el-button>
-              <el-button class="min-w-42 min-h-11 rounded font-bold">{{
-                t('router.notApproval')
-              }}</el-button>
+              <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
+              t('router.approve')
+            }}</el-button>
+            <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
+              t('router.notApproval')
+            }}</el-button>
             </div>
           </div>
           <!-- Nút không thuộc về đâu =)) -->

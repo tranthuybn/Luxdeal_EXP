@@ -94,7 +94,7 @@ export default {
       children: [
         {
           path: 'customerList',
-          name: 'business.customer-management.customerList',
+          name: 'business.customer-management.customerAdd',
           component: () => import('@/views/Pages/Business/CustomerManagement/CustomerList.vue'),
           meta: {
             title: t('router.customerList'),
@@ -103,19 +103,17 @@ export default {
             delete:true,
           }
         },
-
-        {
-          path: 'customer-add/:type?/:id?/:approvalId?',
-          component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
-          name: `business.customer-management.customerList.${utility}`,
-          meta: {
-            title: t('router.customerAdd'),
-            noCache: true,
-            canTo: true,
-            showMainRoute: true
-          }
-        },
-
+        // {
+        //   path: 'customer-add/:type?/:id?/:approvalId?',
+        //   component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
+        //   name: `business.customer-management.customerAdd.${utility}`,
+        //   meta: {
+        //     title: t('router.customerAdd'),
+        //     noCache: true,
+        //     canTo: true,
+        //     showMainRoute: true
+        //   }
+        // },
         {
           path: 'customerRatings/:tab?',
           name: 'business.customer-management.customerRatings',
@@ -142,13 +140,24 @@ export default {
           }
         },
         {
-          path: 'customer-add/:type?/:id?',
+          path: 'customer-add/:type?/:id?/:approvalId?',
           component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
-          name: `business.customer-management.customerList.${utility}`,
+          name: `business.customer-management.customerAdd.${utility}`,
           meta: {
-            title: t('router.customerAdd')
+            title: t('router.customerAdd'),
+            noCache: true,
+            canTo: true,
+            showMainRoute: true
           }
         }
+        // {
+        //   path: 'customer-add/:type?/:id?',
+        //   component: () => import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
+        //   name: `business.customer-management.customerList.${utility}`,
+        //   meta: {
+        //     title: t('router.customerAdd')
+        //   }
+        // }
       ]
     },
     {

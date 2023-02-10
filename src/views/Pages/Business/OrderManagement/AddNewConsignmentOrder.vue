@@ -1139,7 +1139,7 @@ const clearData = () => {
   debtPayment.value = 0
   inputReasonCollectMoney.value = ''
   enterMoney.value = ''
-  inputRecharger.value = undefined
+  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
 
   detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
   addRowDetailedListExpoenses()
@@ -1512,7 +1512,7 @@ const postPT = async () => {
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: inputRecharger.value,
+    PeopleId: staffItem?.id,
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
@@ -1534,7 +1534,7 @@ const postPC = async () => {
     TypeOfPayment: 1,
     status: 1,
     PeopleType: 1,
-    PeopleId: inputRecharger.value,
+    PeopleId: staffItem?.id,
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
@@ -1736,7 +1736,6 @@ const editData = async () => {
       disableEditData.value = true
       editButton.value = true
     }
-
     dataEdit.value = orderObj
     if (res.data) {
       customerData.customerId = orderObj.customerId
@@ -2188,13 +2187,6 @@ const returnGoodsAheadOfTime = async (status, data) => {
 
   data?.pop()
   tableReturnPost = data.map((e) => ({
-    // productPropertyId: Number(e.productPropertyId),
-    // quantity: parseInt(data.quantity),
-    // accessory: e.accessory,
-    // returnDetailType: 3,
-    // unitPrice: 0,
-    // totalPrice: 0,
-    // isSpa: true
     productPropertyId: parseInt(e?.productPropertyId),
     quantity: parseInt(e?.quantity),
     accessory: e?.accessory
@@ -2338,6 +2330,12 @@ const disabledDate = (time: Date) => {
   return time.getTime() <= Date.now()
 }
 const billLiquidationDis = ref(false)
+
+const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''
+const staffInfo = JSON.parse(staff) || ''
+const staffItem = JSON.parse(staffInfo?.v) || ''
+inputRecharger.value = staffItem?.id
+
 onBeforeMount(async () => {
   await editData()
   callCustomersApi()
@@ -2714,7 +2712,12 @@ const openDetailOrder = (id, type) => {
       <!-- phieu in -->
       <div id="billLiquidationContract">
         <slot>
-          <liquidationContractPrint :data-customer="customerData" />
+          <liquidationContractPrint
+            v-if="dataEdit"
+            :dataCustomer="customerData" 
+            :dataUser="staffItem"
+            :dataEdit="dataEdit"
+          />
         </slot>
       </div>
 
@@ -2746,17 +2749,15 @@ const openDetailOrder = (id, type) => {
           </div>
           <div class="dialog-content">
             <slot>
-              <liquidationContractPrint />
+              <liquidationContractPrint
+                v-if="dataEdit"
+                :dataCustomer="customerData" 
+                :dataUser="staffItem"
+                :dataEdit="dataEdit"
+              />
             </slot>
           </div>
         </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button class="btn" @click="dialogBillLiquidation = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
-        </template>
       </el-dialog>
 
       <!-- Dialog Thêm nhanh sản phẩm -->
@@ -3320,47 +3321,6 @@ const openDetailOrder = (id, type) => {
               </span>
             </div>
           </div>
-        </template>
-      </el-dialog>
-
-      <!-- Dialog thông tin hợp đồng thanh lý-->
-      <el-dialog
-        v-model="dialogBillLiquidation"
-        title="Thông tin hợp đồng thanh lý"
-        class="font-bold"
-        width="40%"
-        align-center
-      >
-        <div class="section-bill">
-          <div class="flex gap-3 justify-end">
-            <el-button
-              @click="
-                printPage('billLiquidationContract', {
-                  url: '',
-                  title: 'In vé',
-                  w: 800,
-                  h: 920
-                })
-              "
-              >{{ t('button.print') }}</el-button
-            >
-
-            <el-button class="btn" @click="dialogBillLiquidation = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </div>
-          <div class="dialog-content">
-            <slot>
-              <liquidationContractPrint :data-customer="customerData" />
-            </slot>
-          </div>
-        </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button class="btn" @click="dialogBillLiquidation = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
         </template>
       </el-dialog>
 
@@ -4480,7 +4440,7 @@ const openDetailOrder = (id, type) => {
                 <CurrencyInputComponent v-model="props.row.consignmentSellPrice" />
               </div>
               <div v-else>
-                {{ props.row.consignmentSellPrice }}
+                {{ changeMoney.format(props.row.consignmentSellPrice) }}
               </div>
             </template>
           </el-table-column>
@@ -4494,7 +4454,7 @@ const openDetailOrder = (id, type) => {
                 <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
               </div>
               <div v-else>
-                {{ props.row.consignmentHirePrice }}
+                {{ changeMoney.format(props.row.consignmentHirePrice) }}
               </div>
             </template>
           </el-table-column>
@@ -5211,12 +5171,7 @@ const openDetailOrder = (id, type) => {
             />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
               <template #default="data">
-                <el-input
-                  :v-model="data.row.accessory"
-                  v-if="type != 'detail'"
-                  :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
-                />
-                <div v-else>{{ data.row.accessory }}</div>
+                <div>{{ data.row.accessory }}</div>
               </template>
             </el-table-column>
 

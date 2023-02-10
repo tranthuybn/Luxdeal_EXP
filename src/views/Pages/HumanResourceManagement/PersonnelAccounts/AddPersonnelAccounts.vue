@@ -45,7 +45,7 @@ import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 
 //random mã
-const curDate = 'DXDI' + moment().format('hhmmss')
+const curDate = 'NV' + moment().format('hhmmss')
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const escape = useIcon({ icon: 'quill:escape' })
@@ -486,19 +486,19 @@ let checkValidate = ref(false)
 let checkValidateForm = ref(false)
 
 const postData = async (typebtn) => {
-  console.log('typebtn: ', typebtn)
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
     const payload = {
       Code: ruleForm.staffCode,
       Name: ruleForm.name,
+      PhoneNumber: ruleForm.phoneNumber,
       Email: ruleForm.email,
-      Phone: ruleForm.phoneNumber,
       CCCD: ruleForm.cccd,
-      NgayCap: ruleForm.cccdCreateAt,
-      NoiCap: ruleForm.cccdPlaceOfGrant,
+      LicenseDate: ruleForm.cccdCreateAt,
+      LicensePlace: ruleForm.cccdPlaceOfGrant,
+      Birthday: ruleForm.doB,
+      IsActive: true,
       Gender: ruleForm.sex,
-      BirthDay: ruleForm.doB,
       Contact: ruleForm.link,
       BranchId: ruleForm.branch,
       DepartmentId: ruleForm.department,
@@ -506,14 +506,16 @@ const postData = async (typebtn) => {
       TypeOfStaff: ruleForm.typeOfEmployee,
       AddressProvinceId: valueProvince.value,
       AddressDistrictId: valueDistrict.value,
+      WardId: valueCommune.value,
       Address: ruleForm.Address,
       BankAccountName: ruleForm.accountName,
-      WardId: valueCommune.value,
       BankAccountNumber: ruleForm.accountNumber,
       BankId: ruleForm.bankName,
-      IsActive: true
+      User: ruleForm.userName,
+      Password: ruleForm.password,
+      ConfirmPassword: ruleForm.confirmPassword,
+      RoleId: ruleForm.roleAcces
     }
-    console.log(payload)
 
     const formDataPayLoad = FORM_IMAGES(payload)
     await addNewStaff(formDataPayLoad)
@@ -535,9 +537,7 @@ const postData = async (typebtn) => {
           type: 'warning'
         })
       )
-    // clear()
   }
-  // resetForm(ruleFormRef)
 }
 
 const formValue = ref()
@@ -613,7 +613,7 @@ const getTableValue = async () => {
 }
 
 onBeforeMount(() => {
-  getTableValue()
+  if(type != 'add') getTableValue()
 
   callApiCity()
   CallApiBranch()

@@ -1577,6 +1577,7 @@ export default {
     enterPercentOrMoney: 'Enter percent or money',
     maxPercent: 'Cant be over 100%',
     customerCodeExist: 'Customer code already exist',
+    codeExist: 'Code already exist',
     productCodeExist: 'Product code already exist',
     cancelAccountCheck: 'Unable to recover account! Do you want to cancel your account?',
     failCreateAccount: 'Fail to create account, please retry',
@@ -1732,6 +1733,11 @@ export default {
     //Collaborator
     orderCodepaymentCode: 'Order code/withdrawal code',
     percentDiscount: '% discount',
-    pendings: 'Pending'
+    pendings: 'Pending',
+    transferWarehouseNow: 'Transfer warehouse now',
+    printTransferTicket: 'Print transfer ticket',
+    accessCategoriesPermission: "directory access",
+    actionPermission:"Action permission"
   }
 }
+  

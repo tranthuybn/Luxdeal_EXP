@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
+import { ElTable, ElTableColumn } from 'element-plus'
+import { dateTimeFormat } from '@/utils/format'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -10,8 +12,7 @@ const props = defineProps({
   },
   formData: {
     type: Object,
-    // eslint-disable-next-line vue/require-valid-default-prop
-    default: {}
+    default: () => {}
   },
   dataCustomer: {
     type: Object,
@@ -20,24 +21,19 @@ const props = defineProps({
   dataEdit: {
     type: Object,
     default: () => { }
+  },
+  dayPayment: {
+    type: Number,
+    default: 0
   }
 })
 const tradingCode = ref('CDSG0273')
 
-let selected = computed(() => {
-  return props.formData
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
 })
-
-const infomation = [
-  {
-    email: 'aoiugwjana@gmail.com',
-    phoneNumber: '01521515-059215215',
-    date: '07/11/2022',
-    name: 'NGUYỄN ĐAN TRƯỜNG',
-    pricePawn: 200000000,
-    priceText: 'Hai trăm triệu đồng'
-  }
-]
 </script>
 
 <template>
@@ -67,12 +63,12 @@ const infomation = [
 
       <div class="flex gap-3">
         <p class="font-bold w-[80px]">Email:</p>
-        <p>{{ infomation[0].email }}</p>
+        <p>{{  }}</p>
       </div>
 
       <div class="flex gap-3">
         <p class="font-bold w-[80px]">Website:</p>
-        <p> {{ infomation[0].phoneNumber }}</p>
+        <p> {{  }}</p>
       </div>
     </div>
 
@@ -81,124 +77,82 @@ const infomation = [
     <div class="flex justify-between">
       <div class="flex-left">
         <div class="flex gap-3">
-          <p class="font-bold w-[160px]">Ngày:</p>
-          <p>{{ infomation[0].date }}</p>
+          <p class="w-[160px]">Ngày:</p>
+          <p>{{ dateTimeFormat(new Date()) }}</p>
         </div>
 
         <div class="flex gap-3">
-          <p class="font-bold w-[160px]">Họ và tên khách hàng:</p>
+          <p class="w-[160px]">Họ và tên khách hàng:</p>
           <p>{{ dataCustomer?.userName }}</p>
         </div>
 
         <div class="flex gap-3">
-          <p class="font-bold w-[160px]">Giá trị hàng cầm đồ:</p>
+          <p class="w-[160px]">Giá trị hàng cầm đồ:</p>
           <p>{{ props.priceBillPawn }}</p>
         </div>
 
         <div class="flex gap-3">
           <div class="">
-            <p class="font-bold w-[160px]">Bằng chữ:</p>
-            <p class="w-[150px]">Chi phí gồm: chi phí lãi + phí lưu kho + phí thẩm định</p>
+            <p class="w-[160px]">Bằng chữ:</p>
+            <p class="">Chi phí gồm: chi phí lãi + phí lưu kho + phí thẩm định</p>
           </div>
           <div class="flex gap-3">
-            <p>{{ infomation[0].priceText }}</p>
-            <p>2500</p>
+            <p>{{  }}</p>
           </div>
         </div>
       </div>
 
       <div class="flex-right">
         <div class="phone flex gap-3">
-          <p>Số điện thoại:</p>
+          <p>Số điện thoại: </p>
           <p class="mb-6 phone-number"> {{ dataCustomer?.phoneNumber }} </p>
         </div>
 
         <div class="flex gap-3">
           <p>Số ngày trả lãi một đợt:</p>
-          <p class="day-return"> 10 ngày </p>
+          <p class="day-return">{{ dayPayment }} ngày </p>
         </div>
       </div>
     </div>
 
     <div class="pawn-property">
-      <p class="title-table">Tài sản cầm đồ</p>
-      <el-table :data="dataEdit ? dataEdit : []" border class="mt-2">
-        <el-table-column prop="stt" type="index" min-width="80" label="STT" align="center" />
-        <el-table-column prop="productCode" :label="t('reuse.productCode')" align="center" />
+      <p class="title-table mt-3">Tài sản cầm đồ: </p>
+      <el-table :data="dataEdit ? dataEdit?.orderDetails : []" border class="mt-2">
+        <el-table-column prop="stt" type="index" width="80" label="STT" align="center" />
+        <el-table-column prop="productCode" min-width="150" :label="t('reuse.productCode')" align="center" />
         <el-table-column prop="productName" min-width="150" :label="t('formDemo.commodityName')" align="center" />
-        <el-table-column prop="accessory" :label="t('reuse.accessory')" align="center" />
-        <el-table-column prop="quantity" :label="t('reuse.quantity')" align="center" />
-        <el-table-column prop="unitName" :label="t('reuse.unitNamePawn')" align="center" />
+        <el-table-column prop="accessory" min-width="150" label="Phụ kiện đi kèm" align="center" />
+        <el-table-column prop="quantity" min-width="150" :label="t('reuse.quantity')" align="center" />
+        <el-table-column prop="unitName" min-width="150" :label="t('reuse.unitNamePawn')" align="center" />
+        <el-table-column prop="interestMoney" :label="t('reuse.intoMoneyByday')" width="150" align="center" >
+          <template #default="data">
+            {{ changeMoney.format(data.row.interestMoney) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="unitPrice" :label="t('formDemo.moneyPawnGOC')" width="150" align="center" >
+          <template #default="data">
+            {{ changeMoney.format(data.row.unitPrice) }}
+          </template>
+        </el-table-column>
       </el-table>
     </div>
 
     <p class="assure mt-3">
-      Tôi xin cam doan tài san the chap trên thuôc quyen só huu, su dung hop pháp cua minh. Tôi sē
-      thanh toán no goc, lài cho Authonly day dù, dung han Khi só du no lài den 30 ngay mà tôi không
-      thanh toán, Authonly có toàn quyên xÙ ly tài san the châp de thu hoi no vay. Neu vi pham các
-      cam ket trên, tôi xin hoàn toàn chiu trách nhiêm. Hop dong cam do bên Authonly chi giai quyêt
-      voi chinh chù theo tên và chung minh cua khách hàng dã ki tur lúc dàu hoãc
+      Tôi xin cam đoan tài sản thế chấp trên thuộc quyền sở hữu, sử dụng hợp pháp của mình. Tôi sẽ thanh toán nợ gốc, lãi cho Authonly đầy đủ, đúng hạn. Khi số dư nợ lãi đến 30 ngày mà tôi không thanh toán, Authonly có toàn quyền xử lý tài sản thế chấp để thu hồi nợ vay. Nếu vi phạm các cam kết trên, tôi xin hoàn toàn chịu trách nhiệm.
     </p>
+
+    <p>Hợp đồng cầm đồ bên Authonly chỉ giải quyết với chính chủ theo tên và chứng minh của khách hàng đã kí từ lúc đầu hoặc có giấy ủy quyền, sang nhượng của chủ hợp đồng.</p>
 
     <div class="money-receipt text-center font-bold py-3 text-xl">BIÊN NHẬN TIỀN</div>
 
     <table>
       <tr>
-        <th>Ngày</th>
-        <th>Nội dung</th>
-        <th>Số tiền</th>
-        <th>khách hàng ký</th>
+        <th class="text-center">Ngày</th>
+        <th class="text-center">Nội dung</th>
+        <th class="text-center">Số tiền</th>
+        <th class="text-center">Khách hàng ký</th>
       </tr>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
+      <tr v-for="index in 20" :key="index">
         <td></td>
         <td></td>
         <td></td>
@@ -233,10 +187,9 @@ table {
   width: 100%;
 }
 
-td,
-th {
+th,
+td {
   border: 1px solid #dddddd;
-  text-align: left;
   padding: 8px;
 }
 </style>

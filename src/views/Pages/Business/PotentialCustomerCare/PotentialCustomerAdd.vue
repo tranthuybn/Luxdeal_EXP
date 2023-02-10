@@ -87,13 +87,13 @@ interface potentialCustomerInfo {
   email: String
   link: String
   taxCode: String
-  isOrganization: Boolean
+  isOrganization: boolean
   historyTransaction: Number
   isOnline: Boolean
   accessChannel: Number
   source: Number
   note: String
-  service: Number
+  service: any
   serviceDetail: string
   orderCode: string
   statusId: Number
@@ -134,20 +134,24 @@ const postData = (data) => {
         })
     })
   }
+
   const payload = {
-    name: data.name,
+    name: 
+      data.classify == true ? data.companyName : data.customerName,
     userName: 'string',
     code: 'string',
-    taxCode: data.taxCode.toString(),
+    isOrganization: data.classify,
+    taxCode: data.taxCode,
     phonenumber: data.phonenumber,
     email: data.email,
     link: data.link,
+    representative: data.representative,
     historyTransaction: data.transactionHistory,
     isOnline: data.isOnline,
     accessChannel: data.customerContactChannel,
     source: data.newCustomerSource,
     note: data.Note,
-    service: data.service[0],
+    service: data.service,
     serviceDetail: data.serviceDetails,
     orderId: 1,
     statusId: 1,
@@ -289,7 +293,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'classify',
     label: t('reuse.classify'),
     component: 'Select',
-    value: true,
+    value: false,
     componentProps: {
       allowCreate: true,
       filterable: true,
@@ -301,11 +305,11 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.personal'),
-          value: true
+          value: false
         },
         {
           label: t('reuse.enterPrise'),
-          value: false
+          value: true
         }
       ]
     },
@@ -354,7 +358,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       allowCreate: true,
       filterable: true,
       placeholder: t('formDemo.enterCustomerName'),
-      options: []
     },
     colProps: {
       span: 20
@@ -364,6 +367,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'companyName',
     label: t('reuse.companyName'),
     component: 'Select',
+
     componentProps: {
       style: 'width: 100%',
       allowCreate: true,
@@ -398,7 +402,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
   },
 
   {
-    field: 'name',
+    field: 'representative',
     label: t('reuse.representative'),
     hidden: true,
     component: 'Input',
@@ -454,6 +458,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'transactionHistory',
     label: t('reuse.transactionHistory'),
     component: 'Select',
+    value: 219,
     componentProps: {
       allowCreate: true,
       filterable: true,
@@ -478,7 +483,8 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'isOnline',
     label: t('reuse.online') + '/' + t('reuse.offline'),
     component: 'Select',
-    title: 'àcasfa',
+    title: 'katsuke',
+    value: false,
     componentProps: {
       placeholder: t('reuse.offline'),
       style: 'width: 100%',
@@ -501,6 +507,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'customerContactChannel',
     label: t('reuse.approachingChannel'),
     component: 'Select',
+    value: 222,
     componentProps: {
       allowCreate: true,
       filterable: true,
@@ -525,6 +532,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'newCustomerSource',
     label: t('reuse.originated'),
     component: 'Select',
+    value: 223,
     componentProps: {
       allowCreate: true,
       filterable: true,
@@ -568,6 +576,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     component: 'Select',
     componentProps: {
       allowCreate: true,
+      // multiple: true,
       filterable: true,
       placeholder: t('reuse.selectService'),
       style: 'width: 100%',
@@ -676,15 +685,16 @@ const collapse: Array<Collapse> = [
 
 const changeValueClassify = (data) => {
     if(data == true){
-      columnProfileCustomer[3].hidden = false
-      columnProfileCustomer[4].hidden = true
-      columnProfileCustomer[5].hidden = true
-    }else{ 
       getCustomerOptions()
       columnProfileCustomer[3].hidden = true
       columnProfileCustomer[4].hidden = false
       columnProfileCustomer[5].hidden = false
       columnProfileCustomer[6].hidden = false
+    }else{ 
+      columnProfileCustomer[3].hidden = false
+      columnProfileCustomer[4].hidden = true
+      columnProfileCustomer[5].hidden = true
+      columnProfileCustomer[6].hidden = true
     }
 }
 
@@ -706,7 +716,6 @@ const getCustomerOptions = async () => {
     }
   }
   if (cutomerOptions.value!.length > 0) {
-    console.log("run here");
     if (columnProfileCustomer[4].componentProps?.options !== undefined) {
       columnProfileCustomer[4].componentProps.options = cutomerOptions.value
     }
@@ -718,15 +727,14 @@ const fillTaxCode = (data) => {
   const list = cutomerOptions.value.find((el) => el.value == data)
   formRef.value?.setValues({
     taxCode: list!['tax'],
-    name: list!['label'],
+    companyName: list!['label'],
     phonenumber: list!['phonenumber'],
     email: list!['email'],
     link: list!['link']
   })
+  
 }
 const form = ref<FormInstance>()
-
-
 
 //get orderlist
 let callOrderAPI = 0
@@ -790,9 +798,12 @@ const addNewSale = () => {
 type setFormCustomData = {
   email: string
   link: string
+  customerName: string
   phonenumber: string
   name: string
+  companyName: string
   taxCode: string
+  representative: string
   serviceDetails: string
   customerContactChannel: number
   transactionHistory: string
@@ -800,6 +811,7 @@ type setFormCustomData = {
   Note: string
   newCustomerSource: number
   service: number
+  classify: boolean
 }
 const emptyFormCustom = {} as setFormCustomData
 const formDataCustomize = ref(emptyFormCustom)
@@ -810,7 +822,7 @@ const customizeData = (formData) => {
   formDataCustomize.value.email = formData.email
   formDataCustomize.value.phonenumber = formData.phonenumber
   formDataCustomize.value.link = formData.link
-  formDataCustomize.value.name = formData.name
+  formDataCustomize.value.representative = formData.representative
   formDataCustomize.value.isOnline = formData.isOnline
   formDataCustomize.value.taxCode = formData.taxCode
   formDataCustomize.value.serviceDetails = formData.serviceDetail
@@ -818,6 +830,15 @@ const customizeData = (formData) => {
   formDataCustomize.value.transactionHistory = formData.historyTransaction
   formDataCustomize.value.Note = formData.note
   formDataCustomize.value.newCustomerSource = formData.source
+  
+  formDataCustomize.value.customerName = formData.name
+  formDataCustomize.value.companyName = formData.name
+  formDataCustomize.value.classify = formData.isOrganization
+  
+  changeValueClassify(formDataCustomize.value.classify)
+
+  formDataCustomize.value.service = formData.service
+
   if (formData.statusId == 1) {
     formDataCustomize.value['status'] = 1
   }
@@ -827,34 +848,43 @@ const customizeData = (formData) => {
   if (formData.statusId == 3) {
     formDataCustomize.value['status'] = 3
   }
-  // formDataCustomize.value.service = formData.service
-  // tableData.value[0] = formData.potentialCustomerHistorys[0]
-  // // tableData.value[0].family = [{}]
-  // tableData.value[0].family[0].customerCareContent = formData.potentialCustomerHistorys[0].content
-  // tableData.value[0].family[0].date = formData.potentialCustomerHistorys[0].createdAt
+
+  // tableData.value[0].family = [{}]
+  // tableData.value[0] = formData?.potentialCustomerHistorys[0]
+  // tableData.value[0].family[0].customerCareContent = formData.potentialCustomerHistorys[0]?.content?
+  // tableData.value[0].family[0].date = formData.potentialCustomerHistorys[0].createdAt?
+
 }
+
 // data update api
 const customPostData = (data) => {
   const customData = {} as potentialCustomerInfo
   customData.id = id
-  customData.name = data.name
+  
+  customData.isOrganization = data.classify
+
+ if (data.classify == true) customData.name = data.companyName
+  else customData.name = data.customerName
+
   customData.userName = data.userName
   customData.code = data.code
   customData.phonenumber = data.phonenumber
   customData.email = data.email
   customData.link = data.link
   customData.taxCode = data.taxCode
-  // customData.isOrganization = true
-  // customData.historyTransaction = data.transactionHistory
   customData.isOnline = data.isOnline
   customData.accessChannel = data.customerContactChannel
   customData.source = data.newCustomerSource
   customData.note = data.Note
+  // customData.service = []
   customData.service = data.service
+  
   customData.serviceDetail = data.serviceDetails
   customData.orderCode = ''
   customData.statusId = 1
   customData.total = 0
+  customData.historyTransaction = data.transactionHistory
+
   return customData
 }
 
@@ -902,12 +932,10 @@ const editData = async (data) => {
       })
     )
 }
-let disableData = false
 watch(
   () => type,
   () => {
     if (type === 'detail') {
-      disableData = true
     }
 
     if(type == 'edit'){
@@ -949,7 +977,7 @@ watch(
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ t('reuse.saleHistoryCustomerCare') }}</span>
         </template>
-        <el-form :disabled="disableData" ref="form" label-width="20px">
+        <el-form ref="form" label-width="20px">
           <div>
             <div>
               <el-table
@@ -1140,7 +1168,7 @@ watch(
                 </el-table-column>
               </el-table>
               <el-button class="mt-4" style="width: 7%" @click="addNewSale"
-                >+ {{ t('reuse.addSale') }}</el-button
+                >+ {{ t('reuse.addSale') }} </el-button
               >
             </div>
           </div>

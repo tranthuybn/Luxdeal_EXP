@@ -19,8 +19,6 @@ import {
   ElMessageBox,
   UploadUserFile,
   ElCheckbox,
-  ElRow,
-  ElCol
 } from 'element-plus'
 import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
@@ -253,6 +251,7 @@ const bankList = [
     label: 'Ngân hàng quốc tế'
   }
 ]
+const duplicateStatusButton = ref(false)
 
 const formValue = ref()
 //get data from table
@@ -272,7 +271,7 @@ const getTableValue = async () => {
       })
     }
   }
-  if (type == 'detail' || type == 'edit' || type === 'approval-collab') {
+  if (type == 'detail' || type == 'edit' || type === 'approval-cus') {
     ruleForm.isActive = formValue.value?.isActive
     ruleForm.customerCode = formValue.value?.code
     ruleForm.referralCode = formValue.value?.referralCode
@@ -314,6 +313,18 @@ const getTableValue = async () => {
     ruleForm.DistrictId = formValue.value.districtId
     ruleForm.WardId = formValue.value.wardId
 
+    arrayStatusCollab.value = formValue.value.statusHistory
+    
+    if (arrayStatusCollab.value?.length) {
+      arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].isActive = true
+      if (type != 'approval-cus')
+      statusCollab.value = arrayStatusCollab.value[arrayStatusCollab.value?.length - 1]?.name
+      else statusCollab.value = 'Duyệt khởi tạo tài khoản'
+      if (arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].approveAt)
+        duplicateStatusButton.value = true
+      else duplicateStatusButton.value = false
+    }
+
     await callApiCity()
     await CityChange(formValue.value.provinceId)
     await districtChange(formValue.value.districtId)
@@ -337,8 +348,8 @@ const editPage = async () => {
 
 const cancel = async () => {
   push({
-    name: 'business.customer-management.customerList',
-    params: { backRoute: 'business.customer-management.customerList' }
+    name: 'business.customer-management.customerAdd',
+    params: { backRoute: 'business.customer-management.customerAdd' }
   })
 }
 const { register } = useForm()
@@ -405,8 +416,8 @@ const updateCustomer = async () => {
         type: 'success'
       })
       push({
-        name: 'business.customer-management.customerList',
-        params: { backRoute: 'business.customer-management.customerList' }
+        name: 'business.customer-management.customerAdd',
+        params: { backRoute: 'business.customer-management.customerAdd' }
       })
     })
     .catch((error) => {
@@ -530,17 +541,21 @@ const postCustomer = async (typebtn) => {
       })
       if (typebtn === 'save') {
         push({
-          name: 'business.customer-management.customerList',
-          params: { backRoute: 'business.customer-management.customerList' }
+          name: 'business.customer-management.customerAdd',
+          params: { backRoute: 'business.customer-management.customerAdd' }
         })
       }
+      if (typebtn == 'saveAndAdd') {
+          unref(ruleFormRef)!.resetFields()
+          unref(ruleFormRef2)!.resetFields()
+        }
     })
-    .catch((error) => {
-      ElMessage({
-        message: error?.response?.data?.message,
+    .catch(() => 
+       ElNotification({
+        message: 'Trùng thông tin, vui lòng kiểm tra tên/mã/email/sđt ...',
         type: 'error'
       })
-    })
+     )
   clear()
 }
 
@@ -557,21 +572,26 @@ const postData = async (typebtn) => {
     })
       .then(() => {
         postCustomer(typebtn)
-        if (typebtn == 'saveAndAdd') {
-          unref(ruleFormRef)!.resetFields()
-          unref(ruleFormRef2)!.resetFields()
-        }
       })
-      .catch((res) =>
-        ElMessage({
-          message: res.response.data.message,
-          type: 'error'
-        })
-      )
+      .catch((res) =>{
+        ElNotification({
+        message: res.response.data.message,
+        type: 'error'
+      })
+     } )
   }
 }
 const centerDialogVisible = ref(false)
 const centerDialogCancelAccount = ref(false)
+
+interface statusCollabType {
+  name: string
+  isActive?: boolean
+  approveAt?: any
+}
+
+let arrayStatusCollab = ref(Array<statusCollabType>())
+let statusCollab = ref('Khởi tạo mới')
 
 //hủy tài khoản khách hàng
 const cancelAccountCustomer = async () => {
@@ -586,8 +606,8 @@ const cancelAccountCustomer = async () => {
         type: 'success'
       }),
         push({
-          name: 'business.customer-management.customerList',
-          params: { backRoute: 'business.customer-management.customerList' }
+          name: 'business.customer-management.customerAdd',
+          params: { backRoute: 'business.customer-management.customerAdd' }
         })
     })
     .catch(() => {
@@ -605,7 +625,7 @@ watch(
     if (type === 'detail') {
       disableData.value = true
     }
-    if (type === 'detail' || type === 'edit' || type === 'approval-collab') {
+    if (type === 'detail' || type === 'edit' || type === 'approval-cus') {
       getTableValue()
     }
   },
@@ -710,12 +730,26 @@ const beforeRemove = (uploadFile) => {
     })
 }
 
-const approvalFunction = async () => {
-  const payload = { ItemType: 3, Id: approvalId, IsApprove: true }
+const approvalFunction = async (checkApproved) => {
+  const payload = { ItemType: 3, Id: approvalId, IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
-  push({
-    name: `approve.accounts-approval.user-account`
-  })
+   if(checkApproved) {
+      ElNotification({
+        message: 'Hủy tài khoản thành công!',
+        type: 'success'
+        }),
+          push({
+           name: `approve.accounts-approval.user-account`
+         })
+    }else{
+      ElNotification({
+        message: 'Không duyệt hủy tài khoản!',
+        type: 'info'
+      }),
+      push({
+       name: `approve.accounts-approval.user-account`
+        })
+    }
 }
 
 const updatePassword = async () => {
@@ -747,11 +781,16 @@ onBeforeMount(() => {
   callApiCity()
   if(type === 'add' || type === ':type'){
     getGenCodeCustomer()
+    arrayStatusCollab.value.push({
+    name: 'Khởi tạo mới',
+    isActive: true,
+    approveAt: moment()
+  })
   }
   if (type === 'detail') {
     disabledForm.value = true
   }
-  if (type === 'detail' || type === 'edit' || type === 'approval-collab') {
+  if (type === 'detail' || type === 'edit' || type === 'approval-cus') {
     getTableValue()
   }
 })
@@ -1225,24 +1264,72 @@ onBeforeMount(() => {
                   t('formDemo.isActive')
                 }}</el-checkbox>
               </ElFormItem>
-              <ElFormItem
-                class="flex align-items-start items-center w-[100%]"
-                :label="t('formDemo.statusAccount')"
-              >
-                <ElRow class="ml-2">
-                  <ElCol>
-                    <span class="day-updated">
-                      {{ t('formDemo.isNewAccount') }}
-                    </span>
-                  </ElCol>
-                  <ElCol
-                    ><label style="font-style: italic"> {{ dateTimeFormat(moment()) }}</label>
-                  </ElCol>
-                </ElRow>
-              </ElFormItem>
             </ElForm>
+
+            <div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
+          <label class="ml-10">{{ t('formDemo.statusAccount') }}</label>
+          <div class="w-[75%]">
+          <div class="flex items-center w-[100%]">
+            <div
+              class="duplicate-status"
+              v-for="item in arrayStatusCollab"
+              :key="item.name"
+            >
+              <div
+                v-if="
+                  item.name == 'Duyệt khởi tạo tài khoản' || item.name == 'Duyệt hủy tài khoản'">
+                
+                <span
+                  class="box box_1 custom-after text-yellow-500 dark:text-divck"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+
+                  <span class="triangle-right right_1"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div
+                v-else-if="item.name == 'Khởi tạo mới'"
+              >
+                
+                <span
+                  class="box box_2 custom-after text-blue-500 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_2"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div v-else-if="item.name == 'Hủy tài khoản'">
+                
+                <span
+                  class="box box_4 custom-after text-rose-500 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_4"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+
+
             <div class="option-page mt-5">
-              <div v-if="type === 'detail'" class="flex" style="margin-left: 11rem">
+              <div v-if="type === 'detail' && statusCollab =='Khởi tạo mới' && duplicateStatusButton" class="flex" style="margin-left: 11rem">
                 <el-button @click="editPage()" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.fix')
                 }}</el-button>
@@ -1284,7 +1371,7 @@ onBeforeMount(() => {
                   </template>
                 </el-dialog>
               </div>
-              <div v-else-if="type === 'edit'" class="flex" style="margin-left: 11rem">
+              <div v-else-if="type === 'edit' && statusCollab =='Khởi tạo mới'" class="flex" style="margin-left: 11rem">
                 <el-button @click="updateCustomer" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>
@@ -1292,15 +1379,15 @@ onBeforeMount(() => {
                   t('reuse.cancel')
                 }}</el-button>
               </div>
-              <div v-else-if="type === 'approval-collab'" class="w-[100%] flex ml-50 gap-4">
-            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+              <div v-else-if="type == 'approval-cus'" class="w-[100%] flex ml-50 gap-4">
+            <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>
-            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+            <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
               t('router.notApproval')
             }}</el-button>
           </div>
-              <div v-else class="flex justify-center">
+              <div v-else-if="type === 'add'" class="flex justify-center">
                 <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>
@@ -1519,6 +1606,90 @@ onBeforeMount(() => {
   width: 38%;
 }
 
+.box {
+  padding: 0 10px 0 20px;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid #ccc;
+  background-color: #ccc;
+  opacity: 0.6;
+}
+
+.box_1 {
+  border: 1px solid #fff0d9;
+  background-color: #fff0d9;
+}
+
+.box_2 {
+  border: 1px solid #f4f8fd;
+  background-color: #f4f8fd;
+}
+
+.box_3 {
+  border: 1px solid #d9d9d9;
+  background-color: #d9d9d9;
+}
+
+.box_4 {
+  border: 1px solid #fce5e1;
+  background-color: #fce5e1;
+}
+.duplicate-status + .duplicate-status {
+  margin-left: 10px;
+}
+.active {
+  opacity: 1 !important;
+}
+.right_1 {
+  border-left: 11px solid #fff0d9 !important;
+}
+.right_2 {
+  border-left: 11px solid #f4f8fd !important;
+}
+
+.right_3 {
+  border-left: 11px solid #d9d9d9 !important;
+}
+
+.right_4 {
+  border-left: 11px solid #fce5e1 !important;
+}
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
+}
+
+.custom-after::after {
+  content: '';
+  position: absolute;
+  z-index: 1998;
+  width: 11px;
+  border-style: solid;
+  height: 100%;
+  left: -1px;
+  border-bottom-width: 12px;
+  border-left-width: 10px;
+  border-top-width: 12px;
+  border-bottom-color: transparent;border-top-color: transparent;
+  --tw-border-opacity: 1;
+  border-left-color: rgba(255, 255, 255, var(--tw-border-opacity));
+}
+.dark .dark\:border-l-black {
+  --tw-border-opacity: 1;
+  border-left-color: rgba(0, 0, 0, var(--tw-border-opacity));
+}
+
+.dark .dark\:bg-transparent {
+  background-color: transparent;
+}
+
 .el-icon.avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -1632,38 +1803,6 @@ onBeforeMount(() => {
 
 ::v-deep(.cccd-format .fix-width .el-form-item__content > .el-input) {
   width: 100% !important;
-}
-
-.day-updated {
-  position: relative;
-  padding-left: 20px;
-  width: fit-content;
-  color: var(--el-color-primary);
-  background: rgba(44, 109, 218, 0.05);
-}
-
-.day-updated::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -12px;
-  width: 0;
-  height: 0;
-  border-top: 8px solid transparent;
-  border-bottom: 12px solid transparent;
-  border-left: 12px solid rgba(44, 109, 218, 0.05);
-}
-
-.day-updated::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-  border-left: 12px solid white;
 }
 
 #content {

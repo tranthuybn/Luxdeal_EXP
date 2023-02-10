@@ -11,6 +11,7 @@ import {
   ElDivider,
   ElTree,
   ElCheckbox,
+  ElButton
 } from 'element-plus'
 import { onBeforeMount, reactive, ref } from 'vue'
 import { appModules } from '@/config/app'
@@ -41,13 +42,14 @@ onBeforeMount(async () => {
 
   
     })
+    // remove not found 404 page
   if (filterRouter[filterRouter.length - 1] && filterRouter[filterRouter.length - 1].name == 'NotFound')
-      filterRouter.splice(filterRouter.length - 1,1)
+    filterRouter.splice(filterRouter.length - 1, 1)
 // mapping recursive
-  ElTreeData.value = mappingRouterTree(filterRouter)
+  ElTreeData.value = mappingRouterTree(filterRouter,null)
 })
 
-function mappingRouterTree(tree) {
+function mappingRouterTree(tree,parentPath) {
 if(Array.isArray(tree) && tree.length > 0)
   return cloneDeepWith(tree, node => {
     if (node?.name && !node?.name.includes(utility)) {
@@ -55,9 +57,10 @@ if(Array.isArray(tree) && tree.length > 0)
        * Be careful not to mutate `node` unless you want also
        * want the original tree to be affected.
        */
+      const currentNodePath = parentPath !== null ? parentPath + '/'+ node.path: node.path
       if (node.children)
         return {
-          id: node.path,
+          id: currentNodePath,
           label: node.meta?.title ? t(`${node.meta.title}`) : '',
           addable: node.meta?.add,
           editable: node.meta?.edit,
@@ -65,11 +68,11 @@ if(Array.isArray(tree) && tree.length > 0)
           add: false,
           edit: false,
           delete:false,
-          children: mappingRouterTree(node.children)
+          children: mappingRouterTree(node.children,currentNodePath)
         };
       else
         return {
-          id: node.path,
+          id: currentNodePath,
           label: node.meta?.title ? t(`${node.meta.title}`) : '',
           addable: node.meta?.add,
           editable: node.meta?.edit,
@@ -94,13 +97,20 @@ const decentralizationModule = reactive({
 const decentralizationRule = {
   roleName: [required(), { validator: notSpecialCharacters, trigger: 'blur' }],
 }
+const roleStatus = ref(true)
+const createNewRoleEvent = () => { 
 
+}
+const getCheckedKeysEvent = (...params) => { 
+  console.log(params)
+}
 </script>
 <template>
   <ContentWrap :title="t('reuse.decentralization')" :back-button="true">
+    <section style="width: 60%;">
     <ElRow>
       <ElCol>
-        <ElDivider content-position="left" class="text-lg font-semibold">{{ t('reuse.addNewRole') }}</ElDivider>
+        <ElDivider content-position="left" >{{ t('reuse.addNewRole') }}</ElDivider>
         <ElForm
           ref="decentralizationRef"
           :rules="decentralizationRule"
@@ -113,8 +123,12 @@ const decentralizationRule = {
         </ElForm>
       </ElCol>
     </ElRow>
-    <ElDivider class="text-lg font-semibold "  content-position="left">{{ t('reuse.choosePermission') }}</ElDivider>
-    <ElRow class="max-h-500px overflow-y-scroll">
+    <ElDivider  content-position="left">{{ t('reuse.choosePermission') }}</ElDivider>
+      <ElRow class="row-bg" justify="space-between" >
+        <ElCol :span="12" ><span class="grid-content bg-gray-500 bg-opacity-50 pl-4">{{t('reuse.accessCategoriesPermission')}}</span></ElCol>
+        <ElCol :span="12"><span class="grid-content bg-gray-500 bg-opacity-50 text-right pr-4 "> {{t('reuse.actionPermision')}}</span></ElCol>
+      </ElRow>
+    <ElRow class="max-h-500px overflow-y-scroll overflow-x-hidden box-shadow-inset">
       <ElCol>
         <ElForm ref="RouterListRef" status-icon>
           <ElFormItem class="w-screen-lg">
@@ -123,7 +137,8 @@ const decentralizationRule = {
               show-checkbox
               node-key="id"
               default-expand-all 
-              class="w-[100%]"                      
+              class="w-[100%]"   
+              :getCheckedKeys ="getCheckedKeysEvent"                  
             >
               <template #default="{ node }">
                 <div class="flex justify-between w-[100%]" >                  
@@ -146,21 +161,47 @@ const decentralizationRule = {
         </ElForm>
       </ElCol>
     </ElRow>
+    <ElRow justify="space-between">
+      <ElCol :span="4" >
+          <p class="mr-5">{{t('formDemo.statusActive')}}</p>          
+        </ElCol>
+        <ElCol :span="20" >
+         <ElCheckbox v-model = "roleStatus">{{ t('formDemo.isActive') }}</ElCheckbox>
+      </ElCol>
+    </ElRow >
+    <ElRow justify="space-between">
+      <ElCol :span="4">
+          <p class="mr-5">{{t('formDemo.statusAccount')}}</p>
+        </ElCol>
+        <ElCol :span="20">
+        <ul class="arrow-box">
+          <li class="arrow-box-item"> {{t('formDemo.isNewAccount')}}</li>    
+        </ul>
+      </ElCol>
+    </ElRow>
+  
+          <ElButton type="primary" @click="createNewRoleEvent" >
+          {{ t('reuse.save') }}
+        </ElButton>
+        <ElButton type="primary">
+          {{ t('reuse.saveAndAdd') }}
+        </ElButton>
+  
+      
+  </section>
   </ContentWrap>
 </template>
 <style lang="scss" scoped>
-
-@mixin d-flex {
+@import '@/styles/reusable.scss';
+.extension-function {
   display: flex;
   align-items: center;
-}
-.extension-function {
-  @include d-flex;
   justify-content: space-around;
 
   p {
     border-bottom: 2px solid var(--app-contnet-bg-color);
-    @include d-flex;
+    display: flex;
+    align-items: center;
     justify-content: center;
     box-sizing: border-box;
     cursor: pointer;
@@ -175,4 +216,27 @@ const decentralizationRule = {
     }
   }
 }
+:deep(.el-divider__text)
+{
+    font-size: 17px; 
+    font-weight: 700;
+}
+.el-row {
+  margin-bottom: 20px;
+}
+.el-row:last-child {
+  margin-bottom: 0;
+}
+.el-col {
+  border-radius: 4px;
+}
+
+.grid-content {
+ display: block;
+ height: 100%;
+}
+.box-shadow-inset{
+  box-shadow: inset 0 0 10px var(--el-color-info);
+}
+
 </style>

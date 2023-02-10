@@ -82,6 +82,7 @@ import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { appModules } from '@/config/app'
 
 import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.vue'
+import billSpaRepair from '../../Components/formPrint/src/billSpaRepair.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getCategories } from '@/api/LibraryAndSetting'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
@@ -2060,12 +2061,26 @@ const updateOrderStatus = async (status: number, idOrder: any) => {
   statusOrder.value = status
   reloadStatusOrder()
 }
-const approvalFunction = async () => {
-  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+const approvalFunction = async (checkApproved) => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
-  push({
-    name: `approve.orders-approval.orders-new`
-  })
+   if(checkApproved) {
+      ElNotification({
+        message: 'Guyệt thành công!',
+        type: 'success'
+        }),
+        push({
+         name: `approve.orders-approval.orders-new`
+        })
+    }else{
+      ElNotification({
+        message: 'Không duyệt!',
+        type: 'info'
+      }),
+      push({
+       name: `approve.orders-approval.orders-new`
+      })
+    }
 }
 const addStatusOrder = (index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
@@ -2160,17 +2175,6 @@ const editData = async () => {
     if (statusOrder.value == 2 && type == 'edit') {
       editButton.value = true
     }
-
-    if (arrayStatusOrder.value?.length) {
-      arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
-      if (type != 'approval-order')
-        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 1]?.orderStatus
-      else statusOrder.value = 200
-      if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
-        duplicateStatusButton.value = true
-      else duplicateStatusButton.value = false
-    }
-
     Files = orderObj.orderFiles
 
     if (orderObj.vat == null) radioVAT.value = t('formDemo.VATNotIncluded')
@@ -2341,6 +2345,27 @@ const getcodeExpenditures = async () => {
   codeExpenditures.value = await getReceiptPaymentVoucher()
 }
 const dialogPrinBillSpa = ref(false)
+
+const dialogPrinRepairSpa = ref(false)
+const billRepairData = ref()
+const openRepairBill = () =>{
+  var curDate = 'SPLND' + moment().format('hhmmss')
+  const store = warehouseOptions.value.find((warehouse)=>warehouse.value == dataEdit.value.warehouseId)
+  dialogPrinRepairSpa.value = true
+  billRepairData.value =dataEdit.value.orderDetails.map((orderDetail)=>({
+    storeName: store.label,
+    importTicket: curDate,//Tự sinh
+    productPropertyCode: orderDetail.productPropertyCode,
+    productName: orderDetail.productName,
+    accessory: orderDetail.accessory,
+    description: orderDetail.description,
+    codeSP: orderDetail.code,
+    fromDate: dataEdit.value.fromDate,
+    toDate: dataEdit.value.toDate,
+    spaService: orderDetail?.spaServices,
+    customerName: dataEdit.value.customer.name
+  }))
+}
 
 const dialogInformationReceipts = ref(false)
 const spaOrderCode = ref()
@@ -2748,7 +2773,14 @@ const postReturnRequest = async (reason) => {
           />
         </slot>
       </div>
-
+      <div v-for="(item,index) in billRepairData" :key="index">
+          <div id="repairSpa">
+            <slot>
+                <billSpaRepair :billRepairData="item" />
+            </slot>
+        </div>
+      </div>
+      
       <ChooseWarehousePR
         :showDialog="dialogWarehouse"
         @close-dialog-warehouse="closeDialogWarehouse"
@@ -4113,6 +4145,7 @@ const postReturnRequest = async (reason) => {
               <el-button class="min-w-42 min-h-11" @click="dialogPrinBillSpa = true">{{
                 t('formDemo.printSpaBill')
               }}</el-button>
+              <el-button class="min-w-42 min-h-11" @click="openRepairBill">In phiếu sửa chữa</el-button>
               <el-button class="min-w-42 min-h-11" @click="openBillSpaDialog">{{
                 t('formDemo.bill')
               }}</el-button>
@@ -4156,6 +4189,15 @@ const postReturnRequest = async (reason) => {
                 @click="dialogPrinBillSpa = true"
                 >{{ t('formDemo.printSpaBill') }}</el-button
               >
+              <el-button 
+              v-if="
+                  statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
+                  (statusOrder == STATUS_ORDER_SPA[6].orderStatus && duplicateStatusButton) ||
+                  statusOrder == STATUS_ORDER_SPA[7].orderStatus ||
+                  statusOrder == STATUS_ORDER_SPA[1].orderStatus
+                "
+                :disabled="startSpa"
+              class="min-w-42 min-h-11" @click="openRepairBill">In phiếu sửa chữa</el-button>
               <el-button
                 v-if="
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
@@ -4331,12 +4373,12 @@ const postReturnRequest = async (reason) => {
               </el-button>
             </div>
             <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
-              <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
-                t('router.approve')
-              }}</el-button>
-              <el-button class="min-w-42 min-h-11 rounded font-bold">{{
-                t('router.notApproval')
-              }}</el-button>
+              <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
+              t('router.approve')
+            }}</el-button>
+            <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
+              t('router.notApproval')
+            }}</el-button>
             </div>
           </div>
           <!-- Nút không thuộc về đâu =)) -->
@@ -4624,6 +4666,39 @@ const postReturnRequest = async (reason) => {
             <slot>
               <billSpaInspection :dataEditor="editor" />
             </slot>
+          </div>
+        </div>
+      </el-dialog>
+
+<!-- dialog In Phiếu sửa chữa" -->
+<el-dialog
+        v-model="dialogPrinRepairSpa"
+        width="40%"
+        align-center
+        :show-close="false"
+      >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button
+              @click="
+                printPage('repairSpa', {
+                  url: '',
+                  title: 'In vé',
+                  w: 800,
+                  h: 920
+                })
+              "
+              >{{ t('button.print') }}</el-button
+            >
+
+            <el-button class="btn" @click="dialogPrinRepairSpa = false">{{
+              t('reuse.exit')
+            }}</el-button>
+          </div>
+          <div class="dialog-content" v-for="(item,index) in billRepairData" :key="index">
+              <slot>
+            <billSpaRepair :billRepairData="item" />
+              </slot>
           </div>
         </div>
       </el-dialog>
@@ -5714,6 +5789,9 @@ const postReturnRequest = async (reason) => {
     display: none;
   }
   #recpPaymentPrint {
+    display: none;
+  }
+  #repairSpa{
     display: none;
   }
   .dialog-content {

@@ -98,6 +98,7 @@ export const ORDER_API = {
   ADD_NEW_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
   EDIT_STATUS_RECEIPT_PAYMENTVOUCHER: '/api/v1/Accountant/EditStatusAReceiptOrPaymentVoucher',
   UPDATE_ORDER_TRANSACTION: '/api/v1/Accountant/UpdateOrderTransaction',
+  UPDATE_STATUS_TRANSACTION: '/api/v1/Accountant/UpdateStatusOrderTransaction',
   CREATE_RETURN_REQUEST: '/api/v1/Order/CreateReturnRequest',
   GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequest',
   GET_RETURN_REQUEST_FOR_ORDER: '/api/v1/Order/GetReturnRequestForOrder',

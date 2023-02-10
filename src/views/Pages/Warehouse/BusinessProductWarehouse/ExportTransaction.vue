@@ -275,9 +275,9 @@ const callButToan = async (data) => {
           content: product.productName,
           paymentRequestId: null,
           receiptOrPaymentVoucherId: null,
-          receiveMoney: serviceType.value == 5 ? lot.quantity * orderDetail.unitPrice : 0,
+          receiveMoney: 0,
           paidMoney: serviceType.value == 1 ? lot.quantity * orderDetail.unitPrice : serviceType.value == 3 ? lot.quantity * orderDetail.hirePrice : 0,
-          deibt: serviceType.value == 1 ? lot.quantity * orderDetail.unitPrice : serviceType.value == 3 ? lot.quantity * orderDetail.hirePrice : serviceType.value == 5 ? lot.quantity * orderDetail.unitPrice : 0,
+          deibt: serviceType.value == 1 ? lot.quantity * orderDetail.unitPrice : serviceType.value == 3 ? lot.quantity * orderDetail.hirePrice : 0,
           typeOfPayment: 1,
           paymentMethods: 1,
           status: 0,
@@ -293,12 +293,12 @@ const callButToan = async (data) => {
           productName: product.productName,
           unitPrice: serviceType.value == 3 ? orderDetail.hirePrice : orderDetail.unitPrice,
           consignmentPrice: serviceType.value == 1 ? lot.consignmentSellPrice : serviceType.value == 3 ? lot.consignmentHirePrice : 0,
-          negotiatePrice: serviceType.value == 5 ? lot.quantity * orderDetail.unitPrice : 0,
+          negotiatePrice: 0,
           totatlPriceSale: serviceType.value == 1 ? lot.quantity * orderDetail.unitPrice : 0,
           totatlPriceRental: serviceType.value == 3 ? lot.quantity * orderDetail.hirePrice : 0,
           rentalPriceByDay: lot.consignmentHirePrice,
-          totalPriceSpa: serviceType.value == 5 ?  lot.quantity * orderDetail.unitPrice : 0,
-          spaService: serviceType.value == 5 ? orderDetail.spaServices : 0
+          totalPriceSpa: 0,
+          spaService: ''
         }
         await addOrderStransaction(payload)
       }

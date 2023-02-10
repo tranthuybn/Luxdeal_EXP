@@ -19,8 +19,6 @@ import {
   ElMessageBox,
   UploadUserFile,
   ElCheckbox,
-  ElRow,
-  ElCol
 } from 'element-plus'
 import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
@@ -39,7 +37,9 @@ import {
   getGenCodeCustomers,
   addNewAuthRegister,
   updatedCustomer,
-  cancelCustomerAccount
+  cancelCustomerAccount,
+approvalOrder,
+getCustomerList
 } from '@/api/Business'
 import { updatePasswordApi } from '@/api/login/index'
 import { useRouter } from 'vue-router'
@@ -54,6 +54,8 @@ const disabledDate = (time: Date) => {
 }
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const approvalId = Number(router.currentRoute.value.params.approvalId)
+
 const customerClassification = ref('Khách hàng')
 
 const escape = useIcon({ icon: 'quill:escape' })
@@ -268,7 +270,7 @@ const getTableValue = async () => {
       })
     }
   }
-  if (type == 'detail' || type == 'edit') {
+  if (type == 'detail' || type == 'edit' || type === 'approval-collab') {
     ruleForm.isActive = formValue.value?.isActive
     ruleForm.customerCode = formValue.value?.code
     ruleForm.referralCode = formValue.value?.referralCode
@@ -530,13 +532,17 @@ const postCustomer = async (typebtn) => {
           params: { backRoute: 'business.customer-management.customerList' }
         })
       }
+      if (typebtn == 'saveAndAdd') {
+          unref(ruleFormRef)!.resetFields()
+          unref(ruleFormRef2)!.resetFields()
+        }
     })
-    .catch((error) => {
-      ElMessage({
-        message: error?.response?.data?.message,
+    .catch(() => 
+       ElNotification({
+        message: 'Trùng thông tin, vui lòng kiểm tra tên/mã/email/sđt ...',
         type: 'error'
       })
-    })
+     )
   clear()
 }
 
@@ -553,22 +559,26 @@ const postData = async (typebtn) => {
     })
       .then(() => {
         postCustomer(typebtn)
-        if (typebtn == 'saveAndAdd') {
-          unref(ruleFormRef)!.resetFields()
-          unref(ruleFormRef2)!.resetFields()
-        }
       })
-      .catch((res) =>
-        ElMessage({
-          message: res.response.data.message,
-          type: 'error'
-        })
-      )
+      .catch((res) =>{
+        ElNotification({
+        message: res.response.data.message,
+        type: 'error'
+      })
+     } )
   }
-
 }
 const centerDialogVisible = ref(false)
 const centerDialogCancelAccount = ref(false)
+
+interface statusCollabType {
+  name: string
+  isActive?: boolean
+  approveAt?: any
+}
+
+let arrayStatusCollab = ref(Array<statusCollabType>())
+// let statusCollab = ref('Khởi tạo mới')
 
 //hủy tài khoản khách hàng
 const cancelAccountCustomer = async () => {
@@ -602,7 +612,7 @@ watch(
     if (type === 'detail') {
       disableData.value = true
     }
-    if (type === 'detail' || type === 'edit') {
+    if (type === 'detail' || type === 'edit' || type === 'approval-collab') {
       getTableValue()
     }
   },
@@ -619,6 +629,63 @@ const change = () => {
 
 const formatDate = () => {
   console.log(ruleForm.doB)
+}
+
+interface typeCustomer {
+  value: any
+  label: any
+}
+const chooseCustomer = reactive<Array<typeCustomer>>([])
+
+// call api customer
+const pageIndexCustomer = ref(1)
+const scrollCustomerTop = ref(false)
+const scrollCustomerBottom = ref(false)
+
+const noMoreCustomerData = ref(false)
+const callAPICustomer = async () => {
+ const res =  await getCustomerList({pageSize:10,pageIndex:pageIndexCustomer.value})
+  if(res?.data && res.data?.length > 0){
+    res?.data.map((el) => {
+        chooseCustomer.push({
+          value: el.id,
+          label: el.code
+        })
+    })
+  }
+}
+
+const ScrollCustomerBottom = () => {
+  scrollCustomerBottom.value = true
+  pageIndexCustomer.value++
+  noMoreCustomerData.value
+    ? ''
+    : getCustomerList({ PageIndex: pageIndexCustomer.value, PageSize: 10 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCustomerData.value = true)
+            : res.data.map((el) =>
+               chooseCustomer.push({
+                value: el.id,
+                label: el.code
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCustomerData.value = true
+        })
+}
+
+const scrolling = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    scrollCustomerTop.value = true
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    ScrollCustomerBottom()
+  }
 }
 
 const ListFileUpload = ref<UploadUserFile[]>([])
@@ -650,6 +717,14 @@ const beforeRemove = (uploadFile) => {
     })
 }
 
+const approvalFunction = async () => {
+  const payload = { ItemType: 3, Id: approvalId, IsApprove: true }
+  await approvalOrder(FORM_IMAGES(payload))
+  push({
+    name: `approve.accounts-approval.user-account`
+  })
+}
+
 const updatePassword = async () => {
   centerDialogVisible.value = false
   const payload = {
@@ -674,13 +749,21 @@ const updatePassword = async () => {
 }
 
 onBeforeMount(() => {
+  callAPICustomer()
   change()
   callApiCity()
-  getGenCodeCustomer()
+  if(type === 'add' || type === ':type'){
+    getGenCodeCustomer()
+    arrayStatusCollab.value.push({
+    name: 'Khởi tạo mới',
+    isActive: true,
+    approveAt: moment()
+  })
+  }
   if (type === 'detail') {
     disabledForm.value = true
   }
-  if (type === 'detail' || type === 'edit') {
+  if (type === 'detail' || type === 'edit' || type === 'approval-collab') {
     getTableValue()
   }
 })
@@ -736,7 +819,7 @@ onBeforeMount(() => {
                 <div class="flex">
                   <label class="min-w-[170px] pr-2 text-right">{{ t('reuse.referralCode') }}</label>
                   <div class="w-[84%]">
-                    <el-input
+                    <!-- <el-input
                       v-model="ruleForm.referralCode"
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
@@ -750,7 +833,24 @@ onBeforeMount(() => {
                             .replace(/Đ/g, 'D')
                             .trim()
                       "
-                    />
+                    /> -->
+                    
+                    <el-select
+                      class="w-full"
+                      v-model="ruleForm.referralCode"
+                      :placeholder="t('reuse.enterReferralCode')"
+                      filterable
+                      >
+                      <div @scroll="scrolling" id="content">
+                        <el-option
+                            v-for="item in chooseCustomer"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </div>
+                    </el-select>
+                    
                   </div>
                 </div>
               </ElFormItem>
@@ -1137,22 +1237,70 @@ onBeforeMount(() => {
                   t('formDemo.isActive')
                 }}</el-checkbox>
               </ElFormItem>
-              <ElFormItem
-                class="flex align-items-start items-center w-[100%]"
-                :label="t('formDemo.statusAccount')"
-              >
-                <ElRow class="ml-2">
-                  <ElCol>
-                    <span class="day-updated">
-                      {{ t('formDemo.isNewAccount') }}
-                    </span>
-                  </ElCol>
-                  <ElCol
-                    ><label style="font-style: italic"> {{ dateTimeFormat(moment()) }}</label>
-                  </ElCol>
-                </ElRow>
-              </ElFormItem>
             </ElForm>
+
+            <div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
+          <label class="ml-10">{{ t('formDemo.statusAccount') }}</label>
+          <div class="w-[75%]">
+          <div class="flex items-center w-[100%]">
+            <div
+              class="duplicate-status"
+              v-for="item in arrayStatusCollab"
+              :key="item.name"
+            >
+              <div
+                v-if="
+                  item.name == 'Duyệt khởi tạo tài khoản' || item.name == 'Duyệt hủy tài khoản'">
+                
+                <span
+                  class="box box_1 custom-after text-yellow-500 dark:text-divck"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+
+                  <span class="triangle-right right_1"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div
+                v-else-if="item.name == 'Khởi tạo mới'"
+              >
+                
+                <span
+                  class="box box_2 custom-after text-blue-500 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_2"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div v-else-if="item.name == 'Hủy tài khoản'">
+                
+                <span
+                  class="box box_4 custom-after text-rose-500 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_4"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+
+
             <div class="option-page mt-5">
               <div v-if="type === 'detail'" class="flex" style="margin-left: 11rem">
                 <el-button @click="editPage()" type="primary" class="min-w-42 min-h-11">{{
@@ -1204,6 +1352,14 @@ onBeforeMount(() => {
                   t('reuse.cancel')
                 }}</el-button>
               </div>
+              <div v-else-if="type === 'approval-collab'" class="w-[100%] flex ml-50 gap-4">
+            <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+              t('router.approve')
+            }}</el-button>
+            <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+              t('router.notApproval')
+            }}</el-button>
+          </div>
               <div v-else class="flex justify-center">
                 <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
@@ -1423,6 +1579,90 @@ onBeforeMount(() => {
   width: 38%;
 }
 
+.box {
+  padding: 0 10px 0 20px;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid #ccc;
+  background-color: #ccc;
+  opacity: 0.6;
+}
+
+.box_1 {
+  border: 1px solid #fff0d9;
+  background-color: #fff0d9;
+}
+
+.box_2 {
+  border: 1px solid #f4f8fd;
+  background-color: #f4f8fd;
+}
+
+.box_3 {
+  border: 1px solid #d9d9d9;
+  background-color: #d9d9d9;
+}
+
+.box_4 {
+  border: 1px solid #fce5e1;
+  background-color: #fce5e1;
+}
+.duplicate-status + .duplicate-status {
+  margin-left: 10px;
+}
+.active {
+  opacity: 1 !important;
+}
+.right_1 {
+  border-left: 11px solid #fff0d9 !important;
+}
+.right_2 {
+  border-left: 11px solid #f4f8fd !important;
+}
+
+.right_3 {
+  border-left: 11px solid #d9d9d9 !important;
+}
+
+.right_4 {
+  border-left: 11px solid #fce5e1 !important;
+}
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
+}
+
+.custom-after::after {
+  content: '';
+  position: absolute;
+  z-index: 1998;
+  width: 11px;
+  border-style: solid;
+  height: 100%;
+  left: -1px;
+  border-bottom-width: 12px;
+  border-left-width: 10px;
+  border-top-width: 12px;
+  border-bottom-color: transparent;border-top-color: transparent;
+  --tw-border-opacity: 1;
+  border-left-color: rgba(255, 255, 255, var(--tw-border-opacity));
+}
+.dark .dark\:border-l-black {
+  --tw-border-opacity: 1;
+  border-left-color: rgba(0, 0, 0, var(--tw-border-opacity));
+}
+
+.dark .dark\:bg-transparent {
+  background-color: transparent;
+}
+
 .el-icon.avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -1538,35 +1778,9 @@ onBeforeMount(() => {
   width: 100% !important;
 }
 
-.day-updated {
-  position: relative;
-  padding-left: 20px;
-  width: fit-content;
-  color: var(--el-color-primary);
-  background: rgba(44, 109, 218, 0.05);
-}
-
-.day-updated::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -12px;
-  width: 0;
-  height: 0;
-  border-top: 8px solid transparent;
-  border-bottom: 12px solid transparent;
-  border-left: 12px solid rgba(44, 109, 218, 0.05);
-}
-
-.day-updated::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-  border-left: 12px solid white;
+#content {
+  height: 200px;
+  overflow: auto;
+  padding: 0 10px;
 }
 </style>

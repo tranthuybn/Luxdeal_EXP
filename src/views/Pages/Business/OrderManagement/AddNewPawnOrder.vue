@@ -1243,9 +1243,9 @@ const postOrderStransaction = async (index: number) => {
     orderId: id,
     content:
       index == 1
-        ? t('formDemo.billPawn')
-        : index == 2
         ? t('formDemo.feePaymentSlip')
+        : index == 2
+        ? t('formDemo.billPawn')
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
@@ -1787,9 +1787,108 @@ const getDetailPayment = async (_index, scope) => {
 }
 
 const dialogAccountingEntryAdditional = ref(false)
+const idAccounting = ref()
 
 // xem chi tiết lịch sử công nợ theo id
 let formAccountingId = ref()
+const openDialogAcountingEntry = (scope) => {
+  const data = scope.row
+  idAccounting.value = data.id
+  switch (data.typeOfAccountingEntry) {
+    case 1:
+      getAccountingEntry(data.id, 1)
+      break
+    case 2:
+      getAccountingEntry(data.id, 2)
+      break
+    case 3:
+      getAccountingEntry(data.id, 3)
+      break
+    case 4:
+      getAccountingEntry(data.id, 4)
+      break
+    case 5:
+      openAccountingEntry(data.id, data.orderTypeBTSpa)
+      break
+  }
+}
+const negotiablePrice = ref(0)
+const changePriceNegotiable = (scope) => {
+  const data = scope.row
+  if (typeDialog.value == 3) {
+    data.totatlPricesRental = data.negotiablePrice
+    negotiablePrice.value = parseInt(data.totatlPricesRental)
+  }
+  else if (typeDialog.value == 1) {
+    data.totatlPriceSale = data.negotiablePrice
+    negotiablePrice.value = parseInt(data.totatlPriceSale)
+  } else {
+    negotiablePrice.value = parseInt(data.totalPriceSpa)
+  }
+}
+
+const updateAccount = async () => {
+  const payload = {
+    accountingEntryId: idAccounting.value,
+    paymentRequestId: 0,
+    receiptOrPaymentVoucherId: 0,
+    isReceiptedMoney: alreadyPaidForTt.value,
+    status: 0,
+    paymentMethods: 1,
+    paidMoney: typeDialog.value == 1 || typeDialog.value == 3 ? negotiablePrice.value : 0,
+    deibt: negotiablePrice.value,
+    receiveMoney: typeDialog.value == 5 ? negotiablePrice.value : 0,
+    negotiatePrice: negotiablePrice.value
+  }
+  await updateOrderTransaction(payload).then(() => {
+    getOrderStransactionList()
+    dialogDepositSlip.value = false
+  })
+}
+
+const dialogDepositSlip = ref(false)
+const typeDialog = ref(1)
+const typeTable = ref<Array<any>>([])
+const tablePaymentSlip = ref()
+const openAccountingEntry = async (id, type) => {
+  typeDialog.value = type
+  const res = await getDetailAccountingEntryById({ id: id })
+  typeTable.value[0] = res?.data?.accountingEntry
+
+  if (type == 1) {
+    tablePaymentSlip.value = typeTable?.value.map((val) => ({
+      productCode: val?.productCode,
+      productName: val?.productName,
+      createdAt: val?.createdAt,
+      unitPrice: val?.unitPrice ?? 0,
+      consignmentPrice: val?.consignmentPrice ?? 0,
+      negotiablePrice: val?.negotiatePrice ?? 0,
+      totatlPriceSale: val?.totatlPriceSale ?? 0
+    }))
+  } else if (type == 3) {
+    tablePaymentSlip.value = typeTable?.value.map((val) => ({
+      productCode: val?.productCode,
+      productName: val?.productName,
+      createdAt: val?.createdAt,
+      unitPrice: val?.unitPrice ?? 0,
+      consignmentPrice: val?.consignmentPrice ?? 0,
+      negotiablePrice: val?.negotiatePrice ?? 0,
+      totatlPriceRental: val?.totatlPriceRental ?? 0,
+      totatlPricesRental: val?.totatlPriceRental ?? 0
+    }))
+  } else if (type == 5) {
+    tablePaymentSlip.value = typeTable?.value.map((val) => ({
+      productCode: val?.productCode,
+      productName: val?.productName,
+      createdAt: val?.createdAt,
+      unitPrice: val?.unitPrice ?? 0,
+      spaService: val?.spaService,
+      negotiablePrice: val?.totalPriceSpa ?? 0,
+      totalPriceSpa: val?.totalPriceSpa ?? 0
+    }))
+  }
+}
+
 const getAccountingEntry = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
@@ -1797,10 +1896,12 @@ const getAccountingEntry = async (index, num) => {
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
 
   if (num == 1) {
-    dialogPawnCouponInfomation.value = true
-  } else if (num == 2) {
     dialogFeePaymentSlip.value = true
-  } else {
+  } else if (num == 2) {
+    dialogPawnCouponInfomation.value = true
+  } else if (num == 3) {
+
+  } else if (num == 4) {
     dialogAccountingEntryAdditional.value = true
   }
 }
@@ -3374,21 +3475,11 @@ const removeRow = (index) => {
             <template #default="data">
               <div class="flex">
                 <button
-                  @click="
-                    data.row.content.includes('Phiếu cầm đồ')
-                      ? getAccountingEntry(data.row.id, 1)
-                      : data.row.content.includes('Phiếu thanh toán phí')
-                      ? getAccountingEntry(data.row.id, 2)
-                      : data.row.content.includes('Thu tiền gốc cầm đồ')
-                      ? getAccountingEntry(data.row.id, 3)
-                      : (changeReturnGoods = true)
-                  "
-                  v-if="type != 'detail'"
+                  @click="() => openDialogAcountingEntry(data)"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}
                 </button>
-                <div v-else>{{ t('reuse.detail') }}</div>
               </div>
             </template>
           </el-table-column>
@@ -3554,7 +3645,7 @@ const removeRow = (index) => {
                   @click="
                     () => {
                       dialogPawnCouponInfomation = false
-                      postOrderStransaction(1)
+                      postOrderStransaction(2)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3735,7 +3826,7 @@ const removeRow = (index) => {
               @click="
                 () => {
                   dialogFeePaymentSlip = false
-                  postOrderStransaction(2)
+                  postOrderStransaction(1)
                 }
               "
               >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3744,6 +3835,203 @@ const removeRow = (index) => {
               t('reuse.exit')
             }}</el-button>
           </span>
+        </template>
+      </el-dialog>
+
+      <!-- Thông tin phiếu thanh toán tiền đàm phán -->
+      <el-dialog v-model="dialogDepositSlip" :title="t('formDemo.negotiatedPaymentInformation')" width="40%" align-center>
+        <div>
+          <el-divider />
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div class="flex gap-2 justify-around">
+            <div class="flex-left">
+              <div class="flex gap-4 pt-4 pb-4 items-center">
+                <label class="text-right">{{ t('formDemo.orderCode') }}</label>
+                <p class="font-bold text-xl">{{ pawnOrderCode }}</p>
+              </div>
+              <div class="flex gap-4 pb-4 items-center">
+                <label class="text-right w-[170px]"
+                  >{{ t('formDemo.pawnTime') }}<span class="text-red-500">*</span></label
+                >
+                <div class="w-[60%] text-black dark:text-light-50">
+                  {{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
+                  {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}
+                </div>
+              </div>
+            </div>
+            <div class="flex-right">
+              <div class="flex-1 flex items-start gap-4">
+                <span>
+                  <div>Mã QR đơn hàng</div>
+                </span>
+      
+                <span class="border">
+                  <Qrcode :width="100" :text="'QR'" />
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
+              <div class="w-[100%]">{{ infoCompany.name }}</div>
+            </div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
+              <div class="w-[100%]">{{ customerAddress }}</div>
+            </div>
+            <div class="flex gap-4 pt-4 pb-4 items-center">
+              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }}</label>
+              <div class="w-[100%]">{{ infoCompany.phone }}</div>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <span v-if="typeDialog == 1" class="w-[35%] text-base font-bold break-w">{{
+            t('formDemo.productInformationSaleConsign')
+            }}</span>
+            <span v-else-if="typeDialog == 3" class="w-[35%] text-base font-bold break-w">{{
+            t('formDemo.productInformationSaleRental')
+            }}</span>
+            <span v-else class="w-[35%] text-base font-bold break-w">{{
+            t('formDemo.productInformationSaleSpa')
+            }}</span>
+            <span class="block h-1 w-[60%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+        </div>
+        <div class="pt-2 pb-2">
+          <el-table v-if="typeDialog == 1" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
+      
+            <el-table-column prop="createdAt" :label="t('formDemo.saleDate')" min-width="150">
+              <template #default="data">
+                <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="unitPrice" label="Giá bán" min-width="100">
+              <template #default="props">
+                {{ changeMoney.format(props.row.unitPrice) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="consignmentPrice" :label="t('formDemo.consignmentPriceForSale')" min-width="150">
+              <template #default="props">
+                {{ changeMoney.format(props.row.consignmentPrice) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="negotiablePrice" :label="t('formDemo.negotiablePrice')" min-width="150">
+              <template #default="data">
+                <CurrencyInputComponent v-model="data.row.negotiablePrice" @change="changePriceNegotiable(data)" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="totatlPriceSale" :label="t('formDemo.payment')" min-width="150">
+              <template #default="props">
+                {{ changeMoney.format(props.row.totatlPriceSale) }}
+              </template>
+            </el-table-column>
+            <div>
+              <div>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </el-table>
+      
+          <el-table v-else-if="typeDialog == 3" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
+      
+            <el-table-column prop="createdAt" :label="t('formDemo.rentalDate')" min-width="150">
+              <template #default="data">
+                <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="totatlPriceRental" :label="t('formDemo.rentalPayment')" min-width="100">
+              <template #default="props">
+                {{ changeMoney.format(props.row.totatlPriceRental) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="consignmentPrice" :label="t('formDemo.depositpriceForRental')" min-width="150">
+              <template #default="props">
+                {{ changeMoney.format(props.row.consignmentPrice) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="negotiablePrice" :label="t('formDemo.negotiablePrice')" min-width="150">
+              <template #default="data">
+                <CurrencyInputComponent v-model="data.row.negotiablePrice" @change="changePriceNegotiable(data)" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="totatlPricesRental" :label="t('formDemo.payment')" min-width="150">
+              <template #default="props">
+                {{ changeMoney.format(props.row.totatlPricesRental) }}
+              </template>
+            </el-table-column>
+          </el-table>
+      
+          <el-table v-else ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
+            <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
+      
+            <el-table-column prop="createdAt" :label="t('formDemo.spaDate')" min-width="150">
+              <template #default="data">
+                <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="spaService" :label="t('formDemo.spaService')" min-width="150" />
+            <el-table-column prop="totalPriceSpa" :label="t('formDemo.spaFeePayment')" min-width="150">
+              <template #default="props">
+                {{ changeMoney.format(props.row.totalPriceSpa) }}
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div>
+          <div class="flex gap-4 pt-2 items-center">
+            <label class="w-[30%] text-right">Thanh toán</label>
+            <div class="w-[100%]">
+              <el-checkbox v-model="alreadyPaidForTt" :label="t('formDemo.alreadyPaidForTt')" size="large" />
+            </div>
+          </div>
+          <div class="flex gap-4 pt-2 pb-4 items-center">
+            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
+            <el-select v-model="payment" placeholder="Select">
+              <el-option v-for="item in choosePayment" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </div>
+          <div class="flex gap-4 pb-2 items-center">
+            <label class="w-[30%] text-right">Trạng thái</label>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <template #footer>
+          <div class="flex justify-end">
+            <div>
+              <span class="dialog-footer">
+                <el-button class="min-w-42 min-h-11" type="primary" @click="updateAccount">
+                  {{ t('formDemo.saveRecordDebts') }}
+                </el-button>
+                <el-button class="min-w-42 min-h-11 pl-2" @click="dialogDepositSlip = false">{{
+                t('reuse.exit')
+                }}</el-button>
+              </span>
+            </div>
+          </div>
         </template>
       </el-dialog>
 
@@ -3911,7 +4199,7 @@ const removeRow = (index) => {
                 type="primary"
                 @click="
                   () => {
-                    postOrderStransaction(3)
+                    postOrderStransaction(4)
                     dialogAccountingEntryAdditional = false
                   }
                 "
@@ -4399,12 +4687,7 @@ const removeRow = (index) => {
             />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
               <template #default="data">
-                <el-input
-                  :v-model="data.row.accessory"
-                  v-if="type != 'detail'"
-                  :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
-                />
-                <div v-else>{{ data.row.accessory }}</div>
+                <div>{{ data.row.accessory }}</div>
               </template>
             </el-table-column>
 
@@ -4418,17 +4701,12 @@ const removeRow = (index) => {
               width="200"
             >
               <template #default="props">
-                <div v-if="props.row.invoiceGoodsEnteringWarehouse == 0" class="text-blue-500">
-                  <!-- @click="informationWarehouseReceipt = true" -->
-                  NK3424
-                </div>
-                <div v-else class="text-blue-500">
-                  <!-- @click="invoiceForGoodsEntering = true" -->
-                  NK3424
+                <div class="text-blue-500">
+                  {{ props.row.warehouseTicketCode }}
                 </div>
               </template>
             </el-table-column>
-            <el-table-column prop="inventoryStatus" :label="t('formDemo.status')" />
+            <el-table-column prop="returnDetailStatusName" :label="t('formDemo.status')" />
           </el-table>
         </div>
       </el-collapse-item>

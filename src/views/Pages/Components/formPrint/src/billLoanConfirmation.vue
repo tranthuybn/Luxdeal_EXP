@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeMount } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElTable, ElTableColumn } from 'element-plus'
 import { dateTimeFormat } from '@/utils/format'
@@ -33,11 +33,6 @@ const changeMoney = new Intl.NumberFormat('vi', {
   style: 'currency',
   currency: 'vnd',
   minimumFractionDigits: 0
-})
-
-onBeforeMount(() => {
-  console.log('formData', props.formData)
-  console.log('dataCustomer', props.dataCustomer)
 })
 </script>
 

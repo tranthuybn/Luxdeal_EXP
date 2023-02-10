@@ -1918,6 +1918,8 @@ export default {
     percentDiscount: '% chiết khấu',
     pendings: 'Đang chờ duyệt',
     accessCategoriesPermission: "Quyền truy cập xem danh mục",
-    actionPermision: "Quyển thao tác"
+    actionPermision: "Quyển thao tác",
+    transferWarehouseNow: 'Chuyển kho ngay',
+    printTransferTicket: 'In phiếu chuyển kho'
   }
 }

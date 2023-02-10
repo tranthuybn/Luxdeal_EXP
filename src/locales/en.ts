@@ -1734,8 +1734,10 @@ export default {
     orderCodepaymentCode: 'Order code/withdrawal code',
     percentDiscount: '% discount',
     pendings: 'Pending',
+    transferWarehouseNow: 'Transfer warehouse now',
+    printTransferTicket: 'Print transfer ticket',
     accessCategoriesPermission: "directory access",
-    actionPermission:"Action permission",
+    actionPermission:"Action permission"
   }
 }
   

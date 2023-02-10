@@ -65,7 +65,8 @@ const createNewLot = async () => {
       Code: Code,
       WarehouseId: props.warehouse?.value,
       LocationId: warehouseData.value.location.value,
-      ProductPropertyId: props.productPropertyId
+      ProductPropertyId: props.productPropertyId,
+      ServiceType: props.transactionType == 3 ? props.serviceType : null
     })
   )
   if (res) {

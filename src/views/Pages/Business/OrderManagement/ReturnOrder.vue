@@ -143,7 +143,6 @@ const postReturnRequestSpa = async (orderStatusType) => {
       chooseSpa = false
     }
   })
-  console.log('props.orderData.tableData', props.orderData.tableData)
   if(chooseSpa){
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)}
@@ -262,8 +261,6 @@ watch(
   }
 )
 
-console.log('running')
-
 // trạng thái trả hàng trước hạn
 const createAtStatus = ref(new Date())
 const approvalAtStatus = ref()
@@ -272,8 +269,6 @@ onBeforeMount(()=>{
   statusApprovalExpand.value = props?.statusApproval
   if (!props?.doneExpand) addRowTable()
 })
-console.log('statusApprovalExpand: ', statusApprovalExpand.value)
-console.log('statusApproval: ', props?.statusApproval)
 
 </script>
 <template>

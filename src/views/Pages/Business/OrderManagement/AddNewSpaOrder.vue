@@ -2339,7 +2339,6 @@ const dialogPrinRepairSpa = ref(false)
 const billRepairData = ref()
 const openRepairBill = () =>{
   var curDate = 'SPLND' + moment().format('hhmmss')
-  console.log('dataEdit', dataEdit.value)
   const store = warehouseOptions.value.find((warehouse)=>warehouse.value == dataEdit.value.warehouseId)
   dialogPrinRepairSpa.value = true
   billRepairData.value =dataEdit.value.orderDetails.map((orderDetail)=>({
@@ -2355,7 +2354,6 @@ const openRepairBill = () =>{
     spaService: orderDetail?.spaServices,
     customerName: dataEdit.value.customer.name
   }))
-  console.log('billRepairData', billRepairData.value)
 }
 
 const dialogInformationReceipts = ref(false)

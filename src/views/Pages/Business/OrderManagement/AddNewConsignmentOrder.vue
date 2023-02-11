@@ -316,7 +316,7 @@ const optionsCharacteristic = [
 ]
 
 const ruleForm = reactive({
-  orderCode: 'DHB039423',
+  orderCode: '',
   collaborators: '',
   rentalPeriod: '',
   pawnTerm: '',
@@ -324,7 +324,7 @@ const ruleForm = reactive({
   collaboratorCommission: '',
   orderNotes: '',
   customerName: '',
-  delivery: '',
+  delivery: 0,
   warehouse: ''
 })
 const ruleFormRef = ref<FormInstance>()
@@ -877,6 +877,8 @@ const reloadStatusOrder = async () => {
   const res = await getOrderList({ Id: id, ServiceType: 2 })
 
   const orderObj = { ...res?.data[0] }
+  isPartialReturn.value = orderObj?.isPartialReturn
+  ListOfProductsForSale.value = orderObj.orderDetails
   arrayStatusOrder.value = orderObj?.statusHistory
   if (arrayStatusOrder.value?.length) {
     arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
@@ -1688,7 +1690,7 @@ const editData = async () => {
     getReturnRequestTable()
 
     const orderObj = { ...res?.data[0] }
-    isPartialReturn.value = orderObj?.IsPartialReturn
+    isPartialReturn.value = orderObj?.isPartialReturn
     arrayStatusOrder.value = orderObj?.statusHistory
 
     if (arrayStatusOrder.value?.length) {
@@ -2050,6 +2052,10 @@ const openCancelPayment = () => {
   callApiDetail()
   cancelExpend.value = true
   completePayment.value = true
+}
+
+const deleteTable = () => {
+  detailOfOrderProduct.value = undefined
 }
 
 // Hoàn thành trả hàng trước hạn
@@ -4672,8 +4678,7 @@ const openDetailOrder = (id, type) => {
             >
 
             <el-button 
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
-              isPartialReturn"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus"
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"
               @click="dialogBillLiquidation = true">
@@ -4740,6 +4745,7 @@ const openDetailOrder = (id, type) => {
               isPartialReturn)"
               @click="
                 () => {
+                  deleteTable()
                   setDataForReturnOrder()
                   truocHan = true
                 }
@@ -4796,13 +4802,6 @@ const openDetailOrder = (id, type) => {
                 "
                 class="min-w-42 min-h-11"
                 >{{ t('formDemo.cancelReturn') }}</el-button
-              >
-              <el-button
-                v-if="statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus"
-                class="min-w-42 min-h-11"
-                :disabled="billLiquidationDis"
-                @click="dialogBillLiquidation = true"
-                >{{ t('formDemo.printConsignmentContract') }}</el-button
               >
               <el-button
                 v-if="statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 

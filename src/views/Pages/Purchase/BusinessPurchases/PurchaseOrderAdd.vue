@@ -4662,7 +4662,7 @@ onBeforeMount(async () => {
               <template #default="props">
                 <el-input
                   :disabled="disableReturn"
-                  :v-model="props.row.accessory"
+                  v-model="props.row.accessory"
                   :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
                 />
               </template>
@@ -4746,7 +4746,7 @@ onBeforeMount(async () => {
             <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="180">
               <template #default="props">
                 <el-input
-                  :v-model="props.row.accessory"
+                  v-model="props.row.accessory"
                   :disabled="disableReturn"
                   :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
                 />

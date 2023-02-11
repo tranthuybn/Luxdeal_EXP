@@ -107,7 +107,8 @@ const emit = defineEmits([
   'extend-date',
   'remove-row',
   'update-status',
-  'cancel-expend'
+  'cancel-expend',
+  'done-payment-request'
 ])
 type Product = {
   productCode: string
@@ -155,9 +156,9 @@ const postReturnRequestSpa = async (orderStatusType) => {
       })}
 }
 
-const donePaymentRequest = async (orderStatusType) => {
+const donePaymentRequest = async (_orderStatusType) => {
   emit('update:modelValue', false)
-  emit('update-status', orderStatusType)
+  emit('done-payment-request')
 }
 
 const cancelPaymentRequest = async (orderStatusType) => {

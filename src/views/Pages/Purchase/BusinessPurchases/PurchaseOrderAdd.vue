@@ -1812,13 +1812,16 @@ function openBillDialog() {
   typeEdit.value = false
   moneyDeposit.value = 0
   alreadyPaidForTt.value = true
-  dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
+  if (debtTable.value?.length == 0) {
+    moneyDeposit.value = totalFinalOrder.value
+  }
   debtTable.value.forEach((e) => {
     moneyDeposit.value += e.deibt
   })
   inputDeposit.value = moneyDeposit.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
+  dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
 }
 
 function openReceiptDialog() {

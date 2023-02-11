@@ -157,6 +157,7 @@ const postReturnRequestSpa = async (orderStatusType) => {
 const donePaymentRequest = async (orderStatusType) => {
   emit('update:modelValue', false)
   emit('update-status', orderStatusType)
+  emit('done-payment-request')
 }
 
 const cancelPaymentRequest = async (orderStatusType) => {

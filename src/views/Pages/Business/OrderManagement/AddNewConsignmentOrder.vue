@@ -2703,10 +2703,10 @@ const openDetailOrder = (id, type) => {
         </slot>
       </div>
 
-      <!-- Dialog thông tin hợp đồng thanh lý-->
+      <!-- Dialog thông tin hợp đồng ký gửi-->
       <el-dialog
         v-model="dialogBillLiquidation"
-        title="Thông tin hợp đồng thanh lý"
+        title="Thông tin hợp đồng ký gửi"
         class="font-bold"
         width="40%"
         align-center
@@ -4736,8 +4736,8 @@ const openDetailOrder = (id, type) => {
             >
             <el-button
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
-                    (statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
-                    isPartialReturn)"
+              (statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
+              isPartialReturn)"
               @click="
                 () => {
                   setDataForReturnOrder()
@@ -4802,7 +4802,7 @@ const openDetailOrder = (id, type) => {
                 class="min-w-42 min-h-11"
                 :disabled="billLiquidationDis"
                 @click="dialogBillLiquidation = true"
-                >{{ t('formDemo.printLiquidationContract') }}</el-button
+                >{{ t('formDemo.printConsignmentContract') }}</el-button
               >
               <el-button
                 v-if="statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
@@ -4822,7 +4822,7 @@ const openDetailOrder = (id, type) => {
                 class="min-w-42 min-h-11"
                 :disabled="billLiquidationDis"
                 @click="dialogBillLiquidation = true"
-                >{{ t('formDemo.printLiquidationContract') }}</el-button
+                >{{ t('formDemo.printConsignmentContract') }}</el-button
               >
               <el-button
                 @click="

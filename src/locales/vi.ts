@@ -1919,6 +1919,11 @@ export default {
     accessCategoriesPermission: "Quyền truy cập xem danh mục",
     actionPermision: "Quyển thao tác",
     transferWarehouseNow: 'Chuyển kho ngay',
-    printTransferTicket: 'In phiếu chuyển kho'
+    printTransferTicket: 'In phiếu chuyển kho',
+    informationExportReturnSpaTicket: 'Thông tin phiếu xuất kho trả hàng Spa',
+    informationTransferReturnSpaTicket: 'Thông tin phiếu chuyển kho trả hàng Spa',
+    informationProductTransferReturn: 'Thông tin sản phẩm chuyển trả',
+    hasSpa: 'Đã Spa',
+    hasNotSpa: 'Chưa Spa'
   }
 }

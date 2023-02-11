@@ -1736,7 +1736,12 @@ export default {
     transferWarehouseNow: 'Transfer warehouse now',
     printTransferTicket: 'Print transfer ticket',
     accessCategoriesPermission: "directory access",
-    actionPermission:"Action permission"
+    actionPermission:"Action permission",
+    informationExportReturnSpaTicket: 'Information export return spa ticket',
+    informationTransferReturnSpaTicket: 'Information transfer return spa ticket',
+    informationProductTransferReturn: 'Information product transfer return',
+    hasSpa: 'Has Spa',
+    hasNotSpa: 'Has not Spa'
   }
 }
   

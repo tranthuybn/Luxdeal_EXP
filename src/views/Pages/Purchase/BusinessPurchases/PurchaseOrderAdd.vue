@@ -1674,7 +1674,8 @@ const getReturnRequestTable = async () => {
       warehouseTicketId: e.warehouseTicketId,
       returnDetailType: e.returnDetailType,
       returnDetailTypeName: e.returnDetailTypeName,
-      returnDetailStatusName: e.returnDetailStatusName
+      returnDetailStatusName: e.returnDetailStatusName,
+      warehouseTicketStatusName: e?.warehouseTicketStatusName
     }))
   }
 }
@@ -5731,13 +5732,13 @@ onBeforeMount(async () => {
               width="200"
             >
               <template #default="props">
-                <div @click="showWarehouseTicket(props)" class="text-blue-500">
+                <div @click="showWarehouseTicket(props)" class="cursor-pointer text-blue-500">
                   {{ props.row.warehouseTicketCode }}
                 </div>
               </template>
             </el-table-column>
             <el-table-column
-              prop="returnDetailStatusName"
+              prop="warehouseTicketStatusName"
               :label="t('formDemo.status')"
               align="left"
               width="200"

@@ -326,7 +326,7 @@ const setFormValue = async () => {
     
     if (arrayStatusCollab.value?.length) {
       arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].isActive = true
-      if (type != 'approval-order')
+      if (type != 'approval-collab')
       statusCollab.value = arrayStatusCollab.value[arrayStatusCollab.value?.length - 1]?.name
       else statusCollab.value = 'Duyệt khởi tạo tài khoản'
       if (arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].approveAt)
@@ -431,6 +431,8 @@ const buttonApproval = ref(false)
 watch(
   () => type,
   () => {
+    console.log('type:', type);
+    
     if (type === 'detail') {
       disabledForm.value = true
       disabledTable.value = true
@@ -440,7 +442,7 @@ watch(
       getTableValue()
       buttonApproval.value = true
     }
-    if (type === 'add' || type == ':type') {
+    if (type === 'add' || type === ':type') {
       getGenCodeCollaborator()
       buttonApproval.value = false
       disabledTable.value = true
@@ -950,7 +952,7 @@ provide('parameters', {
           </el-dialog>
         </div>
        
-        <div v-else-if="type === 'approval-collab' && statusCollab =='Duyệt khởi tạo tài khoản'" class="w-[100%] flex ml-50 gap-4">
+        <div v-else-if="type === 'approval-collab' && statusCollab    =='Duyệt khởi tạo tài khoản'" class="w-[100%] flex ml-50 gap-4">
             <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
               t('router.approve')
             }}</el-button>
@@ -968,7 +970,7 @@ provide('parameters', {
             }}</el-button>
           </div>
 
-          <div v-else-if="type === 'add'" class="flex btn-type">
+          <div v-else-if="type === 'add' || type === ':type'" class="flex btn-type">
           <ElButton class="min-w-42" type="primary" @click="save()">
             {{ t('reuse.saveAndPending') }}
           </ElButton>

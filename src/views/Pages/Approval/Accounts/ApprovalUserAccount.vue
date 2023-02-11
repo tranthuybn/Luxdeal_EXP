@@ -17,13 +17,14 @@ const detailedBrowsing = (scope: any) => {
   const data = scope.row
 
     push({
-      name: `business.customer-management.customerList.${utility}`,
+      name: `business.customer-management.customerAdd.${utility}`,
       params: {
-        type: 'approval-collab',
+        type: 'approval-cus',
         id: data.targetId,
         approvalId: data.id
       }
     })
+  console.log(' data.id',  data.id);
   
 }
 

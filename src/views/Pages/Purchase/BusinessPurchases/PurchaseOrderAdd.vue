@@ -767,6 +767,14 @@ const quickRepresentative = ref()
 const quickPhoneNumber = ref()
 const quickEmail = ref()
 
+const clearFormAddCustomer = () => {
+  addQuickCustomerName.value = ''
+  quickTaxCode.value = ''
+  quickRepresentative.value = ''
+  quickPhoneNumber.value = ''
+  quickEmail.value = ''
+}
+
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
@@ -790,6 +798,7 @@ const createQuickCustomer = async () => {
         type: 'success'
       })
       callCustomersApi()
+      clearFormAddCustomer()
     })
     .catch(() =>
       ElNotification({
@@ -1803,13 +1812,16 @@ function openBillDialog() {
   typeEdit.value = false
   moneyDeposit.value = 0
   alreadyPaidForTt.value = true
-  dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
+  if (debtTable.value?.length == 0) {
+    moneyDeposit.value = totalFinalOrder.value
+  }
   debtTable.value.forEach((e) => {
     moneyDeposit.value += e.deibt
   })
   inputDeposit.value = moneyDeposit.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
+  dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
 }
 
 function openReceiptDialog() {
@@ -2943,9 +2955,14 @@ onBeforeMount(async () => {
               "
               >{{ t('reuse.save') }}</el-button
             >
-            <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
-              t('reuse.exit')
-            }}</el-button>
+            <el-button
+              class="w-[150px]" 
+              @click.stop.prevent="() => {
+                  dialogAddQuick = false
+                  clearFormAddCustomer()
+              }">
+              {{ t('reuse.exit') }}
+            </el-button>
           </span>
         </template>
       </el-dialog>

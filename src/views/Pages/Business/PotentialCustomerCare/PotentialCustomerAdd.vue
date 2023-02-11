@@ -402,7 +402,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
   },
 
   {
-    field: 'name',
+    field: 'representative',
     label: t('reuse.representative'),
     hidden: true,
     component: 'Input',
@@ -803,6 +803,7 @@ type setFormCustomData = {
   name: string
   companyName: string
   taxCode: string
+  representative: string
   serviceDetails: string
   customerContactChannel: number
   transactionHistory: string
@@ -816,12 +817,11 @@ const emptyFormCustom = {} as setFormCustomData
 const formDataCustomize = ref(emptyFormCustom)
 //set form value
 const customizeData = (formData) => {
-  console.log('formData', formData)
   
   formDataCustomize.value.email = formData.email
   formDataCustomize.value.phonenumber = formData.phonenumber
   formDataCustomize.value.link = formData.link
-  formDataCustomize.value.name = formData.representative
+  formDataCustomize.value.representative = formData.representative
   formDataCustomize.value.isOnline = formData.isOnline
   formDataCustomize.value.taxCode = formData.taxCode
   formDataCustomize.value.serviceDetails = formData.serviceDetail
@@ -931,12 +931,15 @@ const editData = async (data) => {
       })
     )
 }
-let disableData = false
+
+const disabelForm = ref(false)
+const btnAddSale = ref(false)
 watch(
   () => type,
   () => {
-    if (type === 'detail') {
-      disableData = true
+    if ( type === 'add' || type === ':type') {
+      disabelForm.value = true
+      btnAddSale.value = true
     }
 
     if(type == 'edit'){
@@ -978,7 +981,7 @@ watch(
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ t('reuse.saleHistoryCustomerCare') }}</span>
         </template>
-        <el-form :disabled="disableData" ref="form" label-width="20px">
+        <el-form ref="form" :disabled="disabelForm" label-width="20px">
           <div>
             <div>
               <el-table
@@ -1168,12 +1171,12 @@ watch(
                   </template>
                 </el-table-column>
               </el-table>
-              <el-button class="mt-4" style="width: 7%" @click="addNewSale"
-                >+ {{ t('reuse.addSale') }}</el-button
-              >
             </div>
           </div>
         </el-form>
+        <el-button class="mt-4" style="width: 7%" @click="addNewSale" :disabled="btnAddSale"
+                >+ {{ t('reuse.addSale') }} </el-button
+              >
       </el-collapse-item>
     </el-collapse>
   </div>

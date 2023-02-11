@@ -21,7 +21,7 @@ export const getBranchList = async (_params?: Params2): Promise<IResponse> => {
       url: `${DEPARTMENT_DIRECTORY.BRANCH_LIST}`,
       params: {
         pageindex: 1,
-        pagesize: 20
+        pagesize: 1000
       }
     },
     fixedBaseURL
@@ -63,7 +63,7 @@ export const getDepartmentList = async (_params?: Params): Promise<IResponse> =>
       url: `${DEPARTMENT_DIRECTORY.DEPARTMENT_LIST}`,
       params: {
         PageIndex: 1,
-        PageSize: 20
+        pagesize: 1000
       }
     },
     fixedBaseURL
@@ -152,7 +152,7 @@ export const getRankList = async (_params?: Params): Promise<IResponse> => {
       url: `${DEPARTMENT_DIRECTORY.GET_LIST_POSITION}`,
       params: {
         PageIndex: 1,
-        PageSize: 20
+        pagesize: 1000
       }
     },
     fixedBaseURL
@@ -206,7 +206,7 @@ export const getTypePersonnelList = async (_params?: Params): Promise<IResponse>
       url: `${DEPARTMENT_DIRECTORY.GET_LIST_TYPEOFSTAFF}`,
       params: {
         PageIndex: 1,
-        PageSize: 20
+        pagesize: 1000
       }
     },
     fixedBaseURL

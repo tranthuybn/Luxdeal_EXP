@@ -318,6 +318,15 @@ export const updateOrderTransaction = async (data): Promise<IResponse> => {
   return res.data && res.data.data
 }
 
+// Cập nhật trạng thái bút toán
+export const updateStatusTransaction = async (data): Promise<IResponse> => {
+  const res = await request.put(
+    { url: `${ORDER_API.UPDATE_STATUS_TRANSACTION}`, data },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 // Thêm đề nghị thanh toán
 export const addDNTT = async (params: any): Promise<IResponse> => {
   const res = await request.post(

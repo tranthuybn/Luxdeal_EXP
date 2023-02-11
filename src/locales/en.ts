@@ -853,6 +853,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    duplicateInformation: 'Duplicate information, data already exists',
     addNewBranch: 'Add new branch',
     addNewDepartment: 'Add new department',
     addNewTypePersonnel: 'Add new type of personnel',
@@ -1577,6 +1578,7 @@ export default {
     enterPercentOrMoney: 'Enter percent or money',
     maxPercent: 'Cant be over 100%',
     customerCodeExist: 'Customer code already exist',
+    codeExist: 'Code already exist',
     productCodeExist: 'Product code already exist',
     cancelAccountCheck: 'Unable to recover account! Do you want to cancel your account?',
     failCreateAccount: 'Fail to create account, please retry',

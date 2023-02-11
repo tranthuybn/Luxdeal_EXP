@@ -369,7 +369,7 @@ const postDataDepartment = async (data) => {
     )
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
+        message: t('reuse.addFail') + ', ' + t('reuse.codeExist'),
         type: 'warning'
       })
     )
@@ -396,7 +396,7 @@ const editDataDepartment = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.updateFail'),
+        message: t('reuse.updateFail') + ', ' + t('reuse.codeExist'),
         type: 'warning'
       })
     )
@@ -423,7 +423,7 @@ const postDataBranch = async (data) => {
 })
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
+        message: t('reuse.addFail') + ', ' + t('reuse.codeExist'),
         type: 'warning'
       })
     )
@@ -464,7 +464,7 @@ const editDataBranch = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.updateFail'),
+        message: t('reuse.updateFail')+ ', ' + t('reuse.codeExist'),
         type: 'warning'
       })
     )
@@ -490,7 +490,7 @@ const postDataPositon = async (data) => {
     )
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
+        message: t('reuse.addFail') + ', ' + t('reuse.codeExist'),
         type: 'warning'
       })
     )
@@ -531,7 +531,7 @@ const editDataPosition = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.updateFail'),
+        message: t('reuse.updateFail')+ ', ' + t('reuse.codeExist'),
         type: 'warning'
       })
     )
@@ -557,7 +557,7 @@ const postDataStaff = async (data) => {
     )
     .catch(() =>
       ElNotification({
-        message: t('reuse.addFail') + ', mã quản lý trùng nhau',
+        message: t('reuse.addFail') + ', ' + t('reuse.codeExist'),
         type: 'warning'
       })
     )
@@ -599,7 +599,7 @@ const editDataStaff = async (data) => {
     })
     .catch(() =>
       ElNotification({
-        message: t('reuse.updateFail'),
+        message: t('reuse.updateFail')+ ', ' + t('reuse.codeExist'),
         type: 'warning'
       })
     )

@@ -61,6 +61,7 @@ import {
   updateStatusOrder,
   updateOrderInfo,
   cancelOrder,
+  finishOrder,
   getListWareHouse,
   approvalOrder,
   updateOrderTransaction,
@@ -315,7 +316,7 @@ const optionsCharacteristic = [
 ]
 
 const ruleForm = reactive({
-  orderCode: 'DHB039423',
+  orderCode: '',
   collaborators: '',
   rentalPeriod: '',
   pawnTerm: '',
@@ -323,7 +324,7 @@ const ruleForm = reactive({
   collaboratorCommission: '',
   orderNotes: '',
   customerName: '',
-  delivery: '',
+  delivery: 0,
   warehouse: ''
 })
 const ruleFormRef = ref<FormInstance>()
@@ -511,64 +512,6 @@ interface tableDataType {
   alreadyPaidForTt: boolean
   idPTC?: number
   statusAccountingEntry: string
-}
-
-const arrFakeDebt1 = reactive<tableDataType>({
-  id: 1,
-  typeEntry: 1,
-  createdAt: '2023-02-17T17:03:25.083',
-  content: 'Sản phẩm 1, đơn: Bán hàng',
-  receiptOrPaymentVoucherId: 0,
-  paymentRequestId: '',
-  moneyType: 1,
-  receiveMoney: '350000',
-  paidMoney: '250000',
-  debt: '100000',
-  typeOfPayment: '2',
-  paymentMethods: 2,
-  status: 1,
-  alreadyPaidForTt: false,
-  statusAccountingEntry: '0'
-})
-
-const arrFakeDebt2 = reactive<tableDataType>({
-  id: 2,
-  typeEntry: 2,
-  createdAt: '2022-06-19T17:03:25.083',
-  content: 'Sản phẩm 2, đơn: Cho thuê',
-  receiptOrPaymentVoucherId: 0,
-  paymentRequestId: '',
-  moneyType: 1,
-  receiveMoney: '8000000',
-  paidMoney: '210000',
-  debt: '100000',
-  typeOfPayment: '2',
-  paymentMethods: 2,
-  status: 1,
-  alreadyPaidForTt: false,
-  statusAccountingEntry: '0'
-})
-
-const arrFakeDebt3 = reactive<tableDataType>({
-  id: 3,
-  typeEntry: 3,
-  createdAt: '2023-01-17T17:03:25.083',
-  content: 'Sản phẩm 3, đơn: Spa',
-  receiptOrPaymentVoucherId: 0,
-  paymentRequestId: '',
-  moneyType: 1,
-  receiveMoney: '350000',
-  paidMoney: '250000',
-  debt: '0',
-  typeOfPayment: '2',
-  paymentMethods: 2,
-  status: 1,
-  alreadyPaidForTt: false,
-  statusAccountingEntry: '0'
-})
-
-const addLastIndexSellTableDetb = () => {
-  debtTable.value.push(arrFakeDebt1, arrFakeDebt2, arrFakeDebt3)
 }
 
 let countExisted = ref(0)
@@ -934,6 +877,8 @@ const reloadStatusOrder = async () => {
   const res = await getOrderList({ Id: id, ServiceType: 2 })
 
   const orderObj = { ...res?.data[0] }
+  isPartialReturn.value = orderObj?.isPartialReturn
+  ListOfProductsForSale.value = orderObj.orderDetails
   arrayStatusOrder.value = orderObj?.statusHistory
   if (arrayStatusOrder.value?.length) {
     arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
@@ -1450,6 +1395,21 @@ const newCodePaymentRequest = async () => {
   codePaymentRequest.value = await getCodePaymentRequest()
 }
 
+const totalFinalSpa = ref(0)
+const totalFinalNego = ref(0)
+
+const getTotalPriceDeibt = () => {
+  totalFinalSpa.value = 0
+  totalFinalNego.value = 0
+  debtTable.value.forEach((val) => {
+    if (val?.orderTypeBTSpa === 5) {
+      totalFinalSpa.value += val?.negotiatePrice
+    } else {
+      totalFinalNego.value += val?.negotiatePrice
+    }
+  })
+}
+
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
@@ -1672,6 +1632,15 @@ interface historyTableType {
   totalPrice?: number
 }
 
+const finishOrderDeposit = async () => {
+  const payload = {
+    OrderId: id
+  }
+  const formPayload = FORM_IMAGES(payload)
+  await finishOrder(formPayload)
+  reloadStatusOrder()
+}
+
 const historyTable = ref<Array<any>>([])
 
 // Lấy bảng lịch sử nhập xuất đổi trả
@@ -1698,6 +1667,7 @@ const getReturnRequestTable = async () => {
   }
 }
 const consignOrderCode = ref()
+const isPartialReturn = ref(false)
 const editButton = ref(false)
 let changeButtonEdit = ref(false)
 const disableEditData = ref(false)
@@ -1715,9 +1685,12 @@ const editData = async () => {
     const res = await getOrderList({ Id: id, ServiceType: 2 })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
+    getTotalPriceDeibt()
+
     getReturnRequestTable()
 
     const orderObj = { ...res?.data[0] }
+    isPartialReturn.value = orderObj?.isPartialReturn
     arrayStatusOrder.value = orderObj?.statusHistory
 
     if (arrayStatusOrder.value?.length) {
@@ -1736,7 +1709,6 @@ const editData = async () => {
       disableEditData.value = true
       editButton.value = true
     }
-
     dataEdit.value = orderObj
     if (res.data) {
       customerData.customerId = orderObj.customerId
@@ -2037,6 +2009,7 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
 
 const updateStatusReturnAheadOfTime = (index) => {
   statusOrder.value = index
+  doneExpendReturn()
 }
 
 // Hủy trả hàng trước hạn
@@ -2047,6 +2020,16 @@ const cancelExpendReturn = async() => {
     OrderId: id
   }
   await cancelReturnOrder(FORM_IMAGES(payload))
+  reloadStatusOrder()
+}
+// Hoàn thành trả hàng trước hạn
+const doneExpendReturn = async() => {
+  cancelExpend.value = false
+  doneExpand.value = false
+  const payload = {
+    OrderId: id
+  }
+  await finishReturnOrder(FORM_IMAGES(payload))
   reloadStatusOrder()
 }
 
@@ -2069,6 +2052,10 @@ const openCancelPayment = () => {
   callApiDetail()
   cancelExpend.value = true
   completePayment.value = true
+}
+
+const deleteTable = () => {
+  detailOfOrderProduct.value = undefined
 }
 
 // Hoàn thành trả hàng trước hạn
@@ -2188,13 +2175,6 @@ const returnGoodsAheadOfTime = async (status, data) => {
 
   data?.pop()
   tableReturnPost = data.map((e) => ({
-    // productPropertyId: Number(e.productPropertyId),
-    // quantity: parseInt(data.quantity),
-    // accessory: e.accessory,
-    // returnDetailType: 3,
-    // unitPrice: 0,
-    // totalPrice: 0,
-    // isSpa: true
     productPropertyId: parseInt(e?.productPropertyId),
     quantity: parseInt(e?.quantity),
     accessory: e?.accessory
@@ -2720,14 +2700,19 @@ const openDetailOrder = (id, type) => {
       <!-- phieu in -->
       <div id="billLiquidationContract">
         <slot>
-          <liquidationContractPrint :data-customer="customerData" />
+          <liquidationContractPrint
+            v-if="dataEdit"
+            :dataCustomer="customerData" 
+            :dataUser="staffItem"
+            :dataEdit="dataEdit"
+          />
         </slot>
       </div>
 
-      <!-- Dialog thông tin hợp đồng thanh lý-->
+      <!-- Dialog thông tin hợp đồng ký gửi-->
       <el-dialog
         v-model="dialogBillLiquidation"
-        title="Thông tin hợp đồng thanh lý"
+        title="Thông tin hợp đồng ký gửi"
         class="font-bold"
         width="40%"
         align-center
@@ -2752,17 +2737,15 @@ const openDetailOrder = (id, type) => {
           </div>
           <div class="dialog-content">
             <slot>
-              <liquidationContractPrint />
+              <liquidationContractPrint
+                v-if="dataEdit"
+                :dataCustomer="customerData" 
+                :dataUser="staffItem"
+                :dataEdit="dataEdit"
+              />
             </slot>
           </div>
         </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button class="btn" @click="dialogBillLiquidation = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
-        </template>
       </el-dialog>
 
       <!-- Dialog Thêm nhanh sản phẩm -->
@@ -3326,47 +3309,6 @@ const openDetailOrder = (id, type) => {
               </span>
             </div>
           </div>
-        </template>
-      </el-dialog>
-
-      <!-- Dialog thông tin hợp đồng thanh lý-->
-      <el-dialog
-        v-model="dialogBillLiquidation"
-        title="Thông tin hợp đồng thanh lý"
-        class="font-bold"
-        width="40%"
-        align-center
-      >
-        <div class="section-bill">
-          <div class="flex gap-3 justify-end">
-            <el-button
-              @click="
-                printPage('billLiquidationContract', {
-                  url: '',
-                  title: 'In vé',
-                  w: 800,
-                  h: 920
-                })
-              "
-              >{{ t('button.print') }}</el-button
-            >
-
-            <el-button class="btn" @click="dialogBillLiquidation = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </div>
-          <div class="dialog-content">
-            <slot>
-              <liquidationContractPrint :data-customer="customerData" />
-            </slot>
-          </div>
-        </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button class="btn" @click="dialogBillLiquidation = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
         </template>
       </el-dialog>
 
@@ -4044,12 +3986,14 @@ const openDetailOrder = (id, type) => {
         :orderId="id"
         :orderData="rentReturnOrder"
         :listProductsTable="listOfOrderProduct"
+        :detailExpand="detailOfOrderProduct"
+        :doneExpand="doneExpand"
+        :cancelExpend="cancelExpend"
         @add-row="addRow"
         @remove-row="removeRow"
         @post-return-request="returnGoodsAheadOfTime"
-        :orderStatusType="2"
+        :orderStatusType="3"
         :type="3"
-        :statusActive="2"
       />
       <!-- Hoàn thành trả hàng -->
       <ReturnOrder
@@ -4085,6 +4029,7 @@ const openDetailOrder = (id, type) => {
       />
       <!-- Gia hạn ký gửi -->
       <ReturnOrder
+        v-if="giaHan"
         v-model="giaHan"
         :orderId="id"
         :orderData="rentReturnOrder"
@@ -4486,7 +4431,7 @@ const openDetailOrder = (id, type) => {
                 <CurrencyInputComponent v-model="props.row.consignmentSellPrice" />
               </div>
               <div v-else>
-                {{ props.row.consignmentSellPrice }}
+                {{ changeMoney.format(props.row.consignmentSellPrice) }}
               </div>
             </template>
           </el-table-column>
@@ -4500,7 +4445,7 @@ const openDetailOrder = (id, type) => {
                 <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
               </div>
               <div v-else>
-                {{ props.row.consignmentHirePrice }}
+                {{ changeMoney.format(props.row.consignmentHirePrice) }}
               </div>
             </template>
           </el-table-column>
@@ -4594,7 +4539,8 @@ const openDetailOrder = (id, type) => {
                     item.orderStatus == STATUS_ORDER_DEPOSIT[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[5].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[11].orderStatus
                   "
                 >
                   <span
@@ -4730,6 +4676,14 @@ const openDetailOrder = (id, type) => {
               @click="dialogBillLiquidation = true"
               >{{ t('formDemo.printConsignmentContract') }}</el-button
             >
+
+            <el-button 
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus"
+              class="min-w-42 min-h-11"
+              :disabled="billLiquidationDis"
+              @click="dialogBillLiquidation = true">
+              {{ t('formDemo.printConsignmentContract') }}
+            </el-button>
             <el-button
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus"
               type="primary"
@@ -4739,7 +4693,7 @@ const openDetailOrder = (id, type) => {
                 }
               "
               class="min-w-42 min-h-11"
-              >Bắt đầu ký gửi theo kỳ hạn</el-button
+              >{{ t('formDemo.startRentingTermDeposit') }}</el-button
             >
             <el-button
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add'"
@@ -4783,19 +4737,22 @@ const openDetailOrder = (id, type) => {
               "
               type="warning"
               class="min-w-42 min-h-11"
-              >Trả hàng trước hạn</el-button
+              >{{ t('formDemo.aheadTimeReturns') }}</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
+              (statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
+              isPartialReturn)"
               @click="
                 () => {
+                  deleteTable()
                   setDataForReturnOrder()
                   truocHan = true
                 }
               "
               type="warning"
               class="min-w-42 min-h-11"
-              >Trả hàng trước thời hạn</el-button
+              >{{ t('formDemo.durationPrepayment') }}</el-button
             >
 
             <el-button
@@ -4822,7 +4779,7 @@ const openDetailOrder = (id, type) => {
               "
               type="warning"
               class="min-w-42 min-h-11"
-              >Trả hàng hết hạn</el-button
+              >{{ t('formDemo.infoReturnExpired') }}</el-button
             >
             <div v-if="!completeThePayment">
               <el-button
@@ -4846,18 +4803,30 @@ const openDetailOrder = (id, type) => {
                 class="min-w-42 min-h-11"
                 >{{ t('formDemo.cancelReturn') }}</el-button
               >
+              <el-button
+                v-if="statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
+                !isPartialReturn"
+                @click="
+                  () => {
+                    finishOrderDeposit()
+                  }
+                "
+                type="info"
+                class="min-w-42 min-h-11"
+                >{{ t('formDemo.checkFinish') }}</el-button
+              >
             </div>
             <div v-if="completeThePayment && statusOrder != STATUS_ORDER_DEPOSIT[2].orderStatus">
               <el-button
                 class="min-w-42 min-h-11"
                 :disabled="billLiquidationDis"
                 @click="dialogBillLiquidation = true"
-                >{{ t('formDemo.printLiquidationContract') }}</el-button
+                >{{ t('formDemo.printConsignmentContract') }}</el-button
               >
               <el-button
                 @click="
                   () => {
-                    updateStatusOrders(STATUS_ORDER_DEPOSIT[2].orderStatus)
+                    finishOrderDeposit()
                   }
                 "
                 type="info"
@@ -4874,7 +4843,7 @@ const openDetailOrder = (id, type) => {
               "
               @click="
                 () => {
-                  updateStatusOrders(STATUS_ORDER_DEPOSIT[2].orderStatus)
+                  finishOrderDeposit()
                 }
               "
               type="info"
@@ -5183,9 +5152,16 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="addLastIndexSellTableDetb"
-          >+ {{ t('formDemo.add') }}</el-button
-        >
+        <div class="text-center">
+          <div class="font-bold">
+            <span>{{ t('formDemo.spaFeePayment') + ': ' }}</span>
+            <span class="pl-2">{{ changeMoney.format(totalFinalSpa) }}</span>
+          </div>
+          <div class="font-bold">
+            <span>{{ t('formDemo.negoFeePayment') + ': ' }}</span>
+            <span class="pl-2">{{ changeMoney.format(totalFinalNego) }}</span>
+          </div>
+        </div>
       </el-collapse-item>
 
       <el-collapse-item :name="collapse[3].name">

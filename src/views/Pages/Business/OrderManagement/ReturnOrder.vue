@@ -107,7 +107,8 @@ const emit = defineEmits([
   'extend-date',
   'remove-row',
   'update-status',
-  'cancel-expend'
+  'cancel-expend',
+  'done-payment-request'
 ])
 type Product = {
   productCode: string

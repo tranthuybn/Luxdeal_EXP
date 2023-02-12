@@ -1912,6 +1912,9 @@ const inputReasonCollectMoney = ref()
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
+
+  // Cập nhật lại bảng lịch sử công nợ
+  getOrderStransactionList()
 }
 
 // Thêm mã phiếu thu/chi vào debtTable

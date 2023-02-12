@@ -1417,8 +1417,6 @@ statusAccountingEntry.value.push({
   isActive: true
 })
 
-const checkUpdateRentalPayment = ref(false)
-
 const createStatusAcountingEntry = () => {
   statusAccountingEntry.value = []
   statusAccountingEntry.value.push({
@@ -1430,9 +1428,29 @@ const createStatusAcountingEntry = () => {
 })
 }
 
-const noButton = ref(false)
+const updateDetailAcountingEntry = ref(false)
+const updateInfoAcountingEntry = (index) => {
+  if (updateDetailAcountingEntry.value) {
+    updateOrderStransaction()
+  }else {
+    postOrderStransaction(index)
+  }
+}
+
+// cập nhật bút toán
+const updateOrderStransaction = async() => {
+  const payload = {
+    accountingEntryId: idAcountingEntry.value,
+    isReceiptedMoney: alreadyPaidForTt.value,
+    paymentMethods: 1
+  }
+  await updateOrderTransaction(payload)
+}
+
+
 const openAcountingEntryDialog = async (index, num) => {
   idAcountingEntry.value = index
+  updateDetailAcountingEntry.value = true
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value?.paidMerchandises
@@ -1451,13 +1469,17 @@ const openAcountingEntryDialog = async (index, num) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
-
-  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) noButton.value = true
-    else {
-      noButton.value = true
-    }
   statusAccountingEntry.value = formAccountingId.value.statusHistorys
   statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
+  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
+    showCancelAcountingEntry.value = false
+    showCreatedOrUpdateButton.value = false
+
+  } else {
+    showCancelAcountingEntry.value = true
+    showCreatedOrUpdateButton.value = true
+
+  }
   getReturnOrder()
   if (num == 1) {
     dialogSalesSlipInfomation.value = true
@@ -1886,8 +1908,15 @@ if (type == 'add' && priceChangeOrders.value == false || type == ':type' && pric
 const nameDialog = ref('')
 // const testDialog = ref(false)
 
+// Đúng thì hiển thị button Lưu và ghi sổ và Hủy bút toán
+const showCreatedOrUpdateButton = ref (false)
+const showCancelAcountingEntry = ref(true)
+
+// Tạo mới phiếu thanh toán
 function openBillDialog() {
-  checkUpdateRentalPayment.value = true
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
   createStatusAcountingEntry()
   alreadyPaidForTt.value = true
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
@@ -1895,13 +1924,26 @@ function openBillDialog() {
   nameDialog.value = 'bill'
 }
 
+// Tạo mới phiếu đặt cọc
 function openDepositDialog() {
-  checkUpdateRentalPayment.value = true
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
   createStatusAcountingEntry()
   alreadyPaidForTt.value = true
   dialogDepositSlipAdvance.value = !dialogDepositSlipAdvance.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'deposit'
+}
+
+// Thêm mới bút toán bổ sung
+const openAdditionalDialog = () => {
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
+  createStatusAcountingEntry()
+
+  dialogAccountingEntryAdditional.value = true
 }
 
 function openReceiptDialog() {
@@ -3775,19 +3817,20 @@ onBeforeMount(async () => {
               <span class="dialog-footer">
                 <el-button
                   type="primary"
+                  v-if="showCreatedOrUpdateButton"
                   @click="
                     () => {
                       dialogSalesSlipInfomation = false
-                      postOrderStransaction(1)
+                      updateInfoAcountingEntry(1)
                     }
                   "
                   >
-                  <!-- v-if="checkUpdateRentalPayment && !noButton" -->
                   {{ t('formDemo.saveRecordDebts') }}
                   </el-button
                 >
                 <el-button
                   type="danger"
+                  v-if="showCancelAcountingEntry"
                   @click="
                     () => {
                       UpdateStatusTransaction()
@@ -3795,7 +3838,6 @@ onBeforeMount(async () => {
                     }
                   "
                 > 
-                  <!-- v-else-if="!checkUpdateRentalPayment && !noButton" -->
                   Hủy bút toán
                 </el-button>
                 <el-button @click="dialogSalesSlipInfomation = false">{{
@@ -3999,19 +4041,20 @@ onBeforeMount(async () => {
               <span class="dialog-footer">
                 <el-button
                   type="primary"
+                  v-if="showCreatedOrUpdateButton"
                   @click="
                     () => {
                       dialogDepositSlipAdvance = false
-                      postOrderStransaction(2)
+                      updateInfoAcountingEntry(2)
                     }
                   "
                   >
-                  <!-- v-if="checkUpdateRentalPayment && !noButton" -->
                   {{ t('formDemo.saveRecordDebts') }}
                   </el-button
                 >
                 <el-button
                   type="danger"
+                  v-if="showCancelAcountingEntry"
                   @click="
                     () => {
                       UpdateStatusTransaction()
@@ -4019,7 +4062,6 @@ onBeforeMount(async () => {
                     }
                   "
                 > 
-                  <!-- v-else-if="!checkUpdateRentalPayment && !noButton" -->
                   Hủy bút toán
                 </el-button>
                 <el-button @click="dialogDepositSlipAdvance = false">{{
@@ -4441,18 +4483,19 @@ onBeforeMount(async () => {
             <el-button
               size="large"
               type="primary"
+              v-if="showCreatedOrUpdateButton"
               @click="
                 () => {
-                  postOrderStransaction(4)
+                  updateInfoAcountingEntry(4)
                   dialogAccountingEntryAdditional = false
                 }
               "
               >
-               <!-- v-if="checkUpdateRentalPayment && !noButton" -->
               {{ t('formDemo.saveRecordDebts') }}
             </el-button>
             <el-button
               type="danger"
+              v-if="showCancelAcountingEntry"
               @click="
                 () => {
                   UpdateStatusTransaction()
@@ -4460,7 +4503,6 @@ onBeforeMount(async () => {
                 }
               "
                 > 
-                 <!-- v-else-if="!checkUpdateRentalPayment && !noButton" -->
                  Hủy bút toán
               </el-button>
             <el-button size="large" @click="dialogAccountingEntryAdditional = false">{{
@@ -5253,7 +5295,7 @@ onBeforeMount(async () => {
             <div>
               <span class="dialog-footer">
                 <el-button
-                v-if="!checkCancel && checkCreate"
+                  v-if="!checkCancel && checkCreate"
                   type="primary"
                   @click="
                     () => {
@@ -5911,7 +5953,7 @@ onBeforeMount(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button text @click="dialogAccountingEntryAdditional = true">+ Thêm bút toán</el-button>
+        <el-button text @click="openAdditionalDialog">+ Thêm bút toán</el-button>
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ Thêm phiếu thu</el-button
         >

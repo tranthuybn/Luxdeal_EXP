@@ -1863,7 +1863,9 @@ const totalRentalProduct = ref(0)
 
 function openDepositDialog() {
   createStatusAcountingEntry()
-
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
   dialogDepositSlip.value = !dialogDepositSlip.value
   nameDialog.value = 'deposit'
 }
@@ -2244,6 +2246,7 @@ const postOrderStransaction = async (index: number) => {
 let tableSalesSlip = ref()
 let formAccountingId = ref()
 const openDialogAcountingEntry = (scope) => {
+  updateDetailAcountingEntry.value = true
   const data = scope.row
   switch (data.typeOfAccountingEntry) {
     case 1:
@@ -2264,6 +2267,17 @@ const openDialogAcountingEntry = (scope) => {
 }
 
 const idAcountingEntry = ref()
+const showCreatedOrUpdateButton = ref(false)
+const showCancelAcountingEntry = ref(true)
+
+const updateDetailAcountingEntry = ref(false)
+const updateInfoAcountingEntry = (index) => {
+  if (updateDetailAcountingEntry.value) {
+    updateOrderStransaction()
+  }else {
+    postOrderStransaction(index)
+  }
+}
 const openAcountingEntryDialog = async (index, num) => {
   idAcountingEntry.value = index
   const res = await getDetailAccountingEntryById({ id: index })
@@ -2286,19 +2300,15 @@ const openAcountingEntryDialog = async (index, num) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
-  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) noButton.value = true
-    else {
-      noButton.value = true
-    }
+  
   statusAccountingEntry.value = formAccountingId.value.statusHistorys
   statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
-  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 1) {
-      checkUpdateRentalPayment.value = true
-      noButton.value = false
-    }
-  else {
-    checkUpdateRentalPayment.value = false
-    noButton.value = false
+  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
+    showCreatedOrUpdateButton.value = false
+    showCancelAcountingEntry.value = false
+  } else {
+    showCreatedOrUpdateButton.value = true
+    showCancelAcountingEntry.value = true
   }
 
   if (num == 1) {    
@@ -2316,7 +2326,6 @@ const openAcountingEntryDialog = async (index, num) => {
 
 // Lấy chi tiết bút toán theo id bút toán
 const optionAcountingEntry = ref<Array<typeOptionAcountingEntry>>([])
-const noButton = ref(false)
 const callApiDetailAccountingEntry = async(index) => {
   idAcountingEntry.value = index
   const res = await getDetailAccountingEntryById({ id: index })
@@ -2333,9 +2342,12 @@ const callApiDetailAccountingEntry = async(index) => {
     if (el.productName) totalRentalProduct.value += el.totalPrice
   })
   statusAccountingEntry.value = formAccountingId.value.statusHistorys
-  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) noButton.value = true
-  else {
-    noButton.value = true
+  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
+    showCreatedOrUpdateButton.value = false
+    showCancelAcountingEntry.value = false
+  } else {
+    showCreatedOrUpdateButton.value = true
+    showCancelAcountingEntry.value = true
   }
 }
 
@@ -2371,7 +2383,6 @@ statusAccountingEntry.value.push({
   isActive: true
 })
 
-const checkUpdateRentalPayment = ref(false)
 // Xem chi tiết phiếu thanh toán tiền phí thuê
 const openDetailRentalPaymentBill = () => {
   nameDialog.value = 'bill'
@@ -2394,9 +2405,8 @@ const openDetailRentalPaymentBill = () => {
 // cập nhật bút toán
 const updateOrderStransaction = async() => {
   const payload = {
-    accountingEntryId: feePaymentPeriod.value,
+    accountingEntryId: idAcountingEntry.value,
     isReceiptedMoney: alreadyPaidForTt.value,
-    status: 1,
     paymentMethods: 1
   }
   await updateOrderTransaction(payload)
@@ -2561,6 +2571,16 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
   if (res) {
     reloadStatusOrder()
   }
+}
+
+// open dialog bút toán bổ sung
+const openDialogAdditional = () => {
+  createStatusAcountingEntry()
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
+
+  dialogAccountingEntryAdditional.value = true
 }
 
 const radioWarehouseId = ref()
@@ -3972,7 +3992,7 @@ onBeforeMount(async() => {
               <span class="dialog-footer">
                 <el-button
                   type="primary"
-                  v-if="!noButton"
+                  v-if="showCreatedOrUpdateButton"
                   @click="
                     () => {
                       dialogRentalPaymentInformation = false
@@ -3984,7 +4004,7 @@ onBeforeMount(async() => {
                   </el-button
                 >
                 <el-button
-                  v-if="checkUpdateRentalPayment && !noButton"
+                  v-if="showCancelAcountingEntry"
                   type="danger"
                   @click="
                     () => {
@@ -4145,7 +4165,7 @@ onBeforeMount(async() => {
                   ></span>
                   <span
                     class="box box_2 text-blue-500 dark:text-black"
-                    :class="{ active: item.createdAt }"
+                    :class="{ active: item.isActive }"
                   >
                     {{ item.transactionStatusName }}
                     <span class="triangle-right right_2"> </span>
@@ -4163,7 +4183,7 @@ onBeforeMount(async() => {
                   ></span>
                   <span
                   class="box box_4 text-rose-500 dark:text-black"
-                    :class="{ active: item.createdAt }"
+                    :class="{ active: item.isActive }"
                   >
                     {{ item.transactionStatusName }}
                     <span class="triangle-right right_4"> </span>
@@ -4184,17 +4204,17 @@ onBeforeMount(async() => {
             <div>
               <span class="dialog-footer">
                 <el-button
-                v-if="checkUpdateRentalPayment && !noButton"
+                  v-if="showCreatedOrUpdateButton"
                   type="primary"
                   @click="
                     () => {
+                      updateInfoAcountingEntry(2)
                       dialogDepositSlip = false
-                      postOrderStransaction(2)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button>
                 <el-button
-                  v-else-if="!checkUpdateRentalPayment && !noButton"
+                  v-if="showCancelAcountingEntry"
                   type="danger"
                   @click="
                     () => {
@@ -4377,7 +4397,6 @@ onBeforeMount(async() => {
         :orderStatusType="3"
         :type="2"
       />
-      <!-- :statusApprovalDialog="arrayStatusOrder[arrayStatusOrder.length-1].orderStatus" -->
 
       <!-- Thông tin trả hàng hết hạn -->
       <ReturnOrder
@@ -5155,14 +5174,27 @@ onBeforeMount(async() => {
               <el-button
                 size="large"
                 type="primary"
+                v-if="showCreatedOrUpdateButton"
                 @click="
                   () => {
-                    postOrderStransaction(4)
+                    updateInfoAcountingEntry(4)
                     dialogAccountingEntryAdditional = false
                   }
                 "
-                >{{ t('formDemo.saveRecordDebts') }}</el-button
-              >
+                >{{ t('formDemo.saveRecordDebts') }}</el-button>
+                <el-button
+                  type="danger"
+                  size="large"
+                  v-if="showCancelAcountingEntry"
+                  @click="
+                    () => {
+                      UpdateStatusTransaction()
+                      dialogAccountingEntryAdditional = false
+                    }
+                  "
+                > 
+                  Hủy bút toán
+                </el-button>
               <el-button size="large" @click="dialogAccountingEntryAdditional = false">{{
                 t('reuse.exit')
               }}</el-button>
@@ -5897,7 +5929,7 @@ onBeforeMount(async() => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button @click="dialogAccountingEntryAdditional = true" text>+ Thêm bút toán</el-button>
+        <el-button @click="openDialogAdditional" text>+ Thêm bút toán</el-button>
         <el-button
           @click="
             () => {

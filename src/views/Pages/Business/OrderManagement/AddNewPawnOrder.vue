@@ -1729,6 +1729,7 @@ const clearData = () => {
 function openReceiptDialog() {
   getReceiptCode()
   clearData()
+  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
   dialogInformationReceipts.value = true
   nameDialog.value = 'Phiếu thu'
 }
@@ -1736,6 +1737,7 @@ function openReceiptDialog() {
 function openPaymentDialog() {
   getcodeExpenditures()
   clearData()
+  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
   dialogPaymentVoucher.value = !dialogPaymentVoucher.value
   nameDialog.value = 'Phiếu chi'
 }
@@ -2000,6 +2002,11 @@ var autoCodeReceipts = 'PT' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 const dialogBillLiquidation = ref(false)
+
+const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''
+const staffInfo = JSON.parse(staff) || ''
+const staffItem = JSON.parse(staffInfo?.v) || ''
+inputRecharger.value = staffItem?.id
 
 onBeforeMount(async () => {
   await editData()

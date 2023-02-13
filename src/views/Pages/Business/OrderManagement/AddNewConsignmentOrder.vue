@@ -4771,7 +4771,7 @@ const openDetailOrder = (id, type) => {
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && !duplicateStatusButton"
               @click="
                 () => {
-                  addStatusOrder(4)
+                  openCancelPayment()
                 }
               "
               class="min-w-42 min-h-11"

@@ -2743,6 +2743,7 @@ const openFinishedExpendReturn = () => {
   checkCreate.value = false
   checkCancel.value = false
   changeReturnGoods.value = true
+  // statusOrder.value = 150
   callApiReturnRequestForOrder()
   getReturnRequestTable()
 }
@@ -3608,17 +3609,54 @@ onBeforeMount(async () => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
+          <div class="flex gap-4 pt-2 pb-4">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
+            <div class="w-[100%]">
+              <div class="flex items-center w-[100%] flex-wrap">
+                <div
+                  class="duplicate-status"
+                  v-for="item in statusAccountingEntry"
+                  :key="item.transactionStatus"
+                >
+                  <div
+                    v-if="item.transactionStatus == 1"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                      class="box box_2 text-blue-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_2"> </span>
+                    </span>
+                    <p v-if="item.createdAt">{{
+                      item.createdAt ? dateTimeFormat(item.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                  <div
+                    v-else-if="item.transactionStatus == 0"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_4"> </span>
+                    </span>
+                    <p v-if="item?.createdAt">{{
+                      item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                </div>
+              </div>
+          </div>
           </div>
         </div>
         <template #footer>
@@ -3987,54 +4025,17 @@ onBeforeMount(async () => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pt-2 pb-4">
+          <div class="flex gap-4 pb-2 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="w-[100%]">
-              <div class="flex items-center w-[100%] flex-wrap">
-                <div
-                  class="duplicate-status"
-                  v-for="item in statusAccountingEntry"
-                  :key="item.transactionStatus"
-                >
-                  <div
-                    v-if="item.transactionStatus == 1"
-                  >
-                    <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span
-                      class="box box_2 text-blue-500 dark:text-black"
-                      :class="{ active: item.isActive }"
-                    >
-                      {{ item.transactionStatusName }}
-                      <span class="triangle-right right_2"> </span>
-                    </span>
-                    <p v-if="item.createdAt">{{
-                      item.createdAt ? dateTimeFormat(item.createdAt) : ''
-                    }}</p>
-                    <p v-else class="text-transparent">s</p>
-                  </div>
-                  <div
-                    v-else-if="item.transactionStatus == 0"
-                  >
-                    <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span
-                    class="box box_4 text-rose-500 dark:text-black"
-                      :class="{ active: item.isActive }"
-                    >
-                      {{ item.transactionStatusName }}
-                      <span class="triangle-right right_4"> </span>
-                    </span>
-                    <p v-if="item?.createdAt">{{
-                      item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
-                    }}</p>
-                    <p v-else class="text-transparent">s</p>
-                  </div>
-                </div>
-              </div>
-          </div>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
+            </div>
           </div>
         </div>
         <template #footer>
@@ -5627,7 +5628,7 @@ onBeforeMount(async () => {
                 v-for="item in arrayStatusOrder"
                 :key="item.orderStatus"
               >
-                <div
+              <div
                   v-if="
                     item.orderStatus == STATUS_ORDER_SELL[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SELL[5].orderStatus ||

@@ -2316,7 +2316,7 @@ const openAcountingEntryDialog = async (index, num) => {
 
   if (num == 1) {    
     dialogRentalPaymentInformation.value = true
-  } else if (num == 2) {    
+  } else if (num == 2) {
     dialogDepositSlip.value = true
   } else if (num == 4) {
     dialogAccountingEntryAdditional.value = true
@@ -2325,6 +2325,17 @@ const openAcountingEntryDialog = async (index, num) => {
     // tableProductInformationExportChange.value = formAccountingId.value?.paidMerchandises
     // changeReturnGoods.value = true
   }
+}
+
+const createStatusAcountingEntry = () => {
+  statusAccountingEntry.value = []
+  statusAccountingEntry.value.push({
+  transactionStatus: 1,
+  transactionStatusName: 'Khởi tạo & ghi sổ',
+  approvedAt: '',
+  createdAt: '',
+  isActive: true
+})
 }
 
 // Lấy chi tiết bút toán theo id bút toán
@@ -2354,17 +2365,6 @@ const callApiDetailAccountingEntry = async(index) => {
   }
 }
 
-const createStatusAcountingEntry = () => {
-  statusAccountingEntry.value = []
-  statusAccountingEntry.value.push({
-  transactionStatus: 1,
-  transactionStatusName: 'Khởi tạo & ghi sổ',
-  approvedAt: '',
-  createdAt: '',
-  isActive: true
-})
-}
-
 interface typeOptionAcountingEntry {
   value: any
   label: string
@@ -2379,11 +2379,11 @@ interface typeStatusAccountingEntry {
 }
 const statusAccountingEntry = ref<Array<typeStatusAccountingEntry>>([])
 statusAccountingEntry.value.push({
-  transactionStatus: 1,
-  transactionStatusName: 'Khởi tạo & ghi sổ',
-  approvedAt: '',
-  createdAt: '',
-  isActive: true
+    transactionStatus: 1,
+    transactionStatusName: 'Khởi tạo & ghi sổ',
+    approvedAt: '',
+    createdAt: '',
+    isActive: true
 })
 
 // Xem chi tiết phiếu thanh toán tiền phí thuê
@@ -2777,7 +2777,6 @@ const reloadStatusOrder = async () => {
       duplicateStatusButton.value = true
     else duplicateStatusButton.value = false
   }
-  
 }
 
 // Sửa thông tin đơn hàng
@@ -3940,54 +3939,54 @@ onBeforeMount(async() => {
             </el-select>
           </div>
           <div class="flex gap-4 pt-2 pb-4">
-            <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="w-[100%]">
-              <div class="flex items-center w-[100%] flex-wrap">
+          <label class="w-[30%] text-right">Trạng thái</label>
+          <div class="w-[100%]">
+            <div class="flex items-center w-[100%] flex-wrap">
+              <div
+                class="duplicate-status"
+                v-for="item in statusAccountingEntry"
+                :key="item.transactionStatus"
+              >
                 <div
-                  class="duplicate-status"
-                  v-for="item in statusAccountingEntry"
-                  :key="item.transactionStatus"
+                  v-if="item.transactionStatus == 1"
                 >
-                  <div
-                    v-if="item.transactionStatus == 1"
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_2 text-blue-500 dark:text-black"
+                    :class="{ active: item.createdAt }"
                   >
-                    <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span
-                      class="box box_2 text-blue-500 dark:text-black"
-                      :class="{ active: item.createdAt }"
-                    >
-                      {{ item.transactionStatusName }}
-                      <span class="triangle-right right_2"> </span>
-                    </span>
-                    <p v-if="item.createdAt">{{
-                      item.createdAt ? dateTimeFormat(item.createdAt) : ''
-                    }}</p>
-                    <p v-else class="text-transparent">s</p>
-                  </div>
-                  <div
-                    v-else-if="item.transactionStatus == 0"
+                    {{ item.transactionStatusName }}
+                    <span class="triangle-right right_2"> </span>
+                  </span>
+                  <p v-if="item.createdAt">{{
+                    item.createdAt ? dateTimeFormat(item.createdAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
+                </div>
+                <div
+                  v-else-if="item.transactionStatus == 0"
+                >
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                  class="box box_4 text-rose-500 dark:text-black"
+                    :class="{ active: item.createdAt }"
                   >
-                    <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span
-                    class="box box_4 text-rose-500 dark:text-black"
-                      :class="{ active: item.createdAt }"
-                    >
-                      {{ item.transactionStatusName }}
-                      <span class="triangle-right right_4"> </span>
-                    </span>
-                    <p v-if="item?.createdAt">{{
-                      item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
-                    }}</p>
-                    <p v-else class="text-transparent">s</p>
-                  </div>
+                    {{ item.transactionStatusName }}
+                    <span class="triangle-right right_4"> </span>
+                  </span>
+                  <p v-if="item?.createdAt">{{
+                    item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
               </div>
+            </div>
           </div>
-          </div>
+        </div>
         </div>
         <template #footer>
           <div class="flex justify-between">
@@ -4016,7 +4015,7 @@ onBeforeMount(async() => {
                       dialogRentalPaymentInformation = false
                     }
                   "
-                >                   
+                > 
                   Hủy bút toán
                 </el-button>
                 <el-button @click="dialogRentalPaymentInformation = false">{{
@@ -5169,8 +5168,8 @@ onBeforeMount(async() => {
                   </div>
                 </div>
               </div>
+            </div>
           </div>
-        </div>
         </div>
         <template #footer>
           <div class="float-right pb-10">
@@ -5505,7 +5504,7 @@ onBeforeMount(async() => {
                 v-for="item in arrayStatusOrder"
                 :key="item.orderStatus"
               >
-                <div
+              <div
                   v-if="
                     item.orderStatus == STATUS_ORDER_RENTAL[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_RENTAL[7].orderStatus ||
@@ -5770,7 +5769,7 @@ onBeforeMount(async() => {
           </div>
 
           <div
-            v-else-if="statusOrder == STATUS_ORDER_RENTAL[5].orderStatus || (statusOrder == STATUS_ORDER_RENTAL[4].orderStatus && isPartialReturn && duplicateStatusButton)"
+          v-else-if="statusOrder == STATUS_ORDER_RENTAL[5].orderStatus || (statusOrder == STATUS_ORDER_RENTAL[4].orderStatus && isPartialReturn && duplicateStatusButton)"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button

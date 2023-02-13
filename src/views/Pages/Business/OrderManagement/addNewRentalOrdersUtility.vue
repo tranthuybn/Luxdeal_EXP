@@ -2748,6 +2748,23 @@ const clearData = () => {
   addRowDetailedListExpoenses()
 }
 
+// Bật dialog thêm nhanh khách hàng
+const openDialogAddQuickCustomer = () => {
+  clearFormPostCustomer()
+
+  dialogAddQuick.value = true
+}
+
+// clear form thêm nhanh khách hàng
+const clearFormPostCustomer = () => {
+  addQuickCustomerName.value = ''
+  quickTaxCode.value = ''
+  quickTaxCode.value = ''
+  quickRepresentative.value = ''
+  quickPhoneNumber.value = ''
+  quickEmail.value = ''
+}
+
 // Lấy danh sách kho
 const callApiWarehouseList = async () => {
   const res = await getListWareHouse('')
@@ -3165,7 +3182,7 @@ onBeforeMount(async() => {
               "
               >{{ t('reuse.save') }}</el-button
             >
-            <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
+            <el-button class="w-[150px]" @click.stop.prevent="openDialogAddQuickCustomer">{{
               t('reuse.exit')
             }}</el-button>
           </span>
@@ -3955,7 +3972,7 @@ onBeforeMount(async() => {
                   ></span>
                   <span
                     class="box box_2 text-blue-500 dark:text-black"
-                    :class="{ active: item.createdAt }"
+                    :class="{ active: item.isActive }"
                   >
                     {{ item.transactionStatusName }}
                     <span class="triangle-right right_2"> </span>
@@ -3973,7 +3990,7 @@ onBeforeMount(async() => {
                   ></span>
                   <span
                   class="box box_4 text-rose-500 dark:text-black"
-                    :class="{ active: item.createdAt }"
+                    :class="{ active: item.isActive }"
                   >
                     {{ item.transactionStatusName }}
                     <span class="triangle-right right_4"> </span>

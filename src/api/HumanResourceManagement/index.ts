@@ -1,5 +1,5 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { DEPARTMENT_DIRECTORY, API_URL } from '@/utils/API_URL'
+import { DEPARTMENT_DIRECTORY, API_URL,ROLE_API } from '@/utils/API_URL'
 import { FORM_DATA, objectToQueryParams } from '@/utils/format'
 
 const fixedBaseURL = API_URL
@@ -258,3 +258,13 @@ export const getRoleList = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const posCreateNewStaffRole = async (params): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: ROLE_API.CREATE_NEW_STAFF_ROLE,
+      data:params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+ }

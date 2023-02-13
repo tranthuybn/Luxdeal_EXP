@@ -507,7 +507,7 @@ onBeforeMount(()=>{
     @open="open"
     @close="close"
     :title="t('reuse.informationReturnAfterDueDate')"
-    width="40%"
+    width="50%"
     align-center
   >
     <div>

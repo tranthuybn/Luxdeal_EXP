@@ -257,7 +257,7 @@ onBeforeMount(()=>{
             </div>
           </div>
           <div class="flex gap-4 pt-2 items-center" >
-            <label class="w-[40%] text-right">{{ t('formDemo.leaseExtensionTo') }}</label>
+            <label class="w-[40%] text-right">{{ t('formDemo.leaseExtensionTo') }} <span class="text-red-600">*</span></label>
             <div class="w-[60%] text-black dark:text-light-50">
                 <el-date-picker
                     v-model="rentExtensionValue"

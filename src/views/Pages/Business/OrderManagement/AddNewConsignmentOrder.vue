@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref, unref } from 'vue'
+import { onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -1414,6 +1414,16 @@ const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
 }
+
+watch(
+  () => debtTable.value,
+  () => {
+    if (debtTable.value.length > 0) {
+      getTotalPriceDeibt()
+    }
+  }
+)
+
 const radioTracking = ref('2')
 
 const inputRecharger = ref()

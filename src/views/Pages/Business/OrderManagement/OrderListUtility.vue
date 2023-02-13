@@ -566,33 +566,33 @@ const noMoreCustomerData = ref(false)
 
 const ScrollCustomerBottom = () => {
   scrollCustomerBottom.value = true
-  pageIndexCollaborator.value++
+  pageIndexCustomer.value++
   noMoreCustomerData.value
     ? ''
     : getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
-        .then((res) => {
-          res.data.length == 0
-            ? (noMoreCustomerData.value = true)
-            : res.data.map((customer) =>
-              optionsCustomerApi.value.push({
-                code: customer.code,
-                label: customer.isOrganization
-                  ? customer.name + ' | MST ' + customer.taxCode
-                  : customer.name + ' | ' + customer.phonenumber,
-                address: customer.address,
-                name: customer.name,
-                value: customer.id,
-                isOrganization: customer.isOrganization,
-                taxCode: customer.taxCode,
-                phone: customer.phonenumber,
-                email: customer.email,
-                id: customer.id
-                })
-              )
+    .then((res) => {
+      res.data.length == 0
+      ? (noMoreCustomerData.value = true)
+      : res.data.map((customer) =>
+      optionsCustomerApi.value.push({
+        code: customer.code,
+        label: customer.isOrganization
+          ? customer.name + ' | MST ' + customer.taxCode
+          : customer.name + ' | ' + customer.phonenumber,
+        address: customer.address,
+        name: customer.name,
+        value: customer.id,
+        isOrganization: customer.isOrganization,
+        taxCode: customer.taxCode,
+        phone: customer.phonenumber,
+        email: customer.email,
+        id: customer.id
         })
-        .catch(() => {
-          noMoreCustomerData.value = true
-        })
+      )
+    })
+    .catch(() => {
+      noMoreCustomerData.value = true
+    })
 }
 
 // const scrollingCustomer = (e) => {

@@ -37,18 +37,17 @@ const getListOrder = async () => {
   }
 }
 
-const detailedBrowsing = (_scope: any) => {
+const detailedBrowsing = (scope: any) => {
   if (type != 'proposal') {
     push({
       name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
-      params: { type: 'detail', id: 147 }
+      params: { type: 'detail', id: scope.row.targetId }
     })
   } else {
-    // push({
-    //   name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
-    //   params: { type: 'detail', id: 147 }
-    // })
-    alert('Chưa có màn chi tiết đề nghị thanh toán :))))))')
+    push({
+      name: `accountant.payment-proposal.payment-proposal-add.${utility}`,
+      params: { type: 'approval-payments', id: scope.row.targetId, approvalId: scope.row.id }
+    })
   }
 }
 

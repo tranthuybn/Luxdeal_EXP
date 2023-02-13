@@ -945,16 +945,21 @@ const adminList = [
             name: 'accountant.payment-proposal.payment-proposal-list',
             meta: {
               title: 'router.paymentProposalList'
-            }
-          },
-          {
-            path: 'payment-proposal-add',
-            component: 'views/Pages/Accountant/PaymentProposal/PaymentProposalAdd',
-            name: 'accountant.payment-proposal.payment-proposal-add',
-            meta: {
-              title: 'router.paymentProposalAdd'
-            }
-          }
+            },
+            children: [
+              {
+                path: 'payment-proposal-add/:type?/:id?/:approvalId?',
+                component: 'views/Pages/Accountant/PaymentProposal/PaymentProposalAdd',
+                name: `accountant.payment-proposal.payment-proposal-add.${utility}`,
+                meta: {
+                  title: 'router.paymentProposalAdd',
+                  noTagsView: true,
+                  noCache: true,
+                  hidden: true
+                }
+              }
+            ]       
+          },             
         ]
       },
       {
@@ -1486,7 +1491,7 @@ const testList: string[] = [
   '/accountant',
   '/accountant/payment-proposal',
   '/accountant/payment-proposal/payment-proposal-list',
-  '/accountant/payment-proposal/payment-proposal-list/:type?/:tab?/:id?',
+  '/accountant/payment-proposal/payment-proposal-add/:type?/:id?/:approvalId?',
 
   '/accountant/receipts-expenditures',
   '/accountant/receipts-expenditures/receipts-expenditures-list',

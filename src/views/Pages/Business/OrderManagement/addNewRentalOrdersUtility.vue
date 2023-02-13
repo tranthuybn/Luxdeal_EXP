@@ -2413,6 +2413,7 @@ const updateOrderStransaction = async() => {
     paymentMethods: 1
   }
   await updateOrderTransaction(payload)
+  getOrderStransactionList()
 }
 
 // Cập nhật trạng thái bút toán

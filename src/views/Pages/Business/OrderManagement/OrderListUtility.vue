@@ -1445,6 +1445,7 @@ const updateOrderStransaction = async() => {
     paymentMethods: 1
   }
   await updateOrderTransaction(payload)
+  getOrderStransactionList()
 }
 
 

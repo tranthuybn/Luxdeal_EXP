@@ -20,7 +20,7 @@ const fixedBaseURL = API_URL
 export const CreateANewPaymentRequest = async (params): Promise<IResponse>=>{
   const res = await request.post(
     {
-    url: `${ACCOUNTANT_API.POST_ACCOUNTANT_CreateANewPaymentRequest}`,
+    url: `${ACCOUNTANT_API.POST_ACCOUNTANT_CREATEANEWPAYMENTREQUEST}`,
     data: params,
   },
   fixedBaseURL

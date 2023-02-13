@@ -1,7 +1,6 @@
 import { ERP_DOMAIN, ERP_DOMAIN_LOGIN } from '../../public/config'
 export const API_URL = ERP_DOMAIN
 export const LOGIN_API_URL = ERP_DOMAIN_LOGIN
-export const 
 export const PRODUCTS_AND_SERVICES_API = {
   GET_CATEGORY: '/api/v1/Category/GetCategory',
   ADD_CATEGORY: '/api/v1/Category/AddCategory',

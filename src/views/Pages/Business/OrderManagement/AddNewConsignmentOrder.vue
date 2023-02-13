@@ -1116,6 +1116,7 @@ const addRowDetailedListExpoenses = () => {
 
 function openReceiptDialog() {
   getReceiptCode()
+  moneyReceipts.value = 0
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyReceipts.value += e.receiveMoney
@@ -1127,6 +1128,7 @@ function openReceiptDialog() {
 }
 
 function openPaymentDialog() {
+  moneyReceipts.value = 0
   getcodeExpenditures()
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {

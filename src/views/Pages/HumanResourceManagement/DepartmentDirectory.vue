@@ -43,7 +43,7 @@ const columnsBranch = reactive<TableColumn[]>([
     sortable: true
   },
   {
-    field: 'staffNumber',
+    field: 'counts',
     label: t('formDemo.numberPersonnel'),
     minWidth: '200'
   },
@@ -90,7 +90,7 @@ const columnsDepartment = reactive<TableColumn[]>([
     sortable: true
   },
   {
-    field: 'staffNumber',
+    field: 'counts',
     label: t('formDemo.numberPersonnel'),
     minWidth: '200'
   },
@@ -137,7 +137,7 @@ const columnsRank = reactive<TableColumn[]>([
     sortable: true
   },
   {
-    field: 'numbers',
+    field: 'counts',
     label: t('formDemo.numberPersonnel'),
     minWidth: '200'
   },
@@ -184,7 +184,7 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     sortable: true
   },
   {
-    field: 'numbers',
+    field: 'counts',
     label: t('formDemo.numberPersonnel'),
     minWidth: '200'
   },

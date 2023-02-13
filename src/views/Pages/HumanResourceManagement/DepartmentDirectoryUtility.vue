@@ -332,7 +332,9 @@ const customizeData = async (data) => {
   }else{
     formDataCustomize.value['status'] = 2
   }
-  formDataCustomize.value.imageurl = `${API_URL}${data.path}`
+
+  data.path == null ? ' ' : formDataCustomize.value.imageurl = `${API_URL}${data.path}`
+  
 }
 
 const customEditDataDepartment = (data) => {
@@ -411,7 +413,7 @@ const postDataBranch = async (data) => {
     data.isDelete = false
   }
   data.CreateAt = moment().format('YYYY / MM / DD')
-  data.Image = data.Image
+  data.Image = data.Image ? data.Image : ''
   
   await addNewBranch(data)
     .then(() => {
@@ -549,12 +551,13 @@ const postDataStaff = async (data) => {
   data.Image = data.Image
   
   await addNewTypeOfStaff(data)
-    .then(() => 
+  .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      })        
-    )
+      }),
+      checkTrungCode.value = true        
+  })
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail') + ', ' + t('reuse.codeExist'),

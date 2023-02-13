@@ -141,7 +141,7 @@ export const ACCOUNTANT_API = {
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
   PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment',
   BALANCE_SHEET_LIST: '/api/v1/Accountant/GetListOfAccountingAccounts',
-  POST_ACCOUNTANT_CreateANewPaymentRequest:'/api/v1/Accountant/CreateANewPaymentRequest'
+  POST_ACCOUNTANT_CREATEANEWPAYMENTREQUEST:'/api/v1/Accountant/CreateANewPaymentRequest'
 }
 
 export const WAREHOUSE_API = {

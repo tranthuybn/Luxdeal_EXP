@@ -1,6 +1,7 @@
 import { ERP_DOMAIN, ERP_DOMAIN_LOGIN } from '../../public/config'
 export const API_URL = ERP_DOMAIN
 export const LOGIN_API_URL = ERP_DOMAIN_LOGIN
+export const 
 export const PRODUCTS_AND_SERVICES_API = {
   GET_CATEGORY: '/api/v1/Category/GetCategory',
   ADD_CATEGORY: '/api/v1/Category/AddCategory',
@@ -132,13 +133,15 @@ export const ADDRESS_API = {
   WARD: '/api/v1/Address/getWardByDistrictId',
   STREET: '/api/addr/getStreet'
 }
+// kế toán
 export const ACCOUNTANT_API = {
   PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
   GET_RECEIPT_EXPENDITURES_LIST: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   GET_RECEIPT_PAYMENT_BY_ID_API: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
   PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment',
-  BALANCE_SHEET_LIST: '/api/v1/Accountant/GetListOfAccountingAccounts'
+  BALANCE_SHEET_LIST: '/api/v1/Accountant/GetListOfAccountingAccounts',
+  POST_ACCOUNTANT_CreateANewPaymentRequest:'/api/v1/Accountant/CreateANewPaymentRequest'
 }
 
 export const WAREHOUSE_API = {

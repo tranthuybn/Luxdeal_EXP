@@ -11,13 +11,15 @@ import {
   ElDivider,
   ElTree,
   ElCheckbox,
-  ElButton
+  ElButton,
+  // ElNotificationk
 } from 'element-plus'
 import { onBeforeMount, reactive, ref } from 'vue'
 import { appModules } from '@/config/app'
 import { useValidator } from '@/hooks/web/useValidator'
 import { asyncRouterMap } from '@/router'
-import { cloneDeep,cloneDeepWith } from 'lodash-es'
+import { cloneDeep, cloneDeepWith } from 'lodash-es'
+// import { posCreateNewStaffRole} from '@/api/HumanResourceManagement'
 const { utility } = appModules
 const { required, notSpecialCharacters } = useValidator()
 interface Tree {
@@ -29,7 +31,7 @@ const routerMap = cloneDeep(asyncRouterMap)
 
 
 onBeforeMount(async () => {
-  // filter recursive
+  // filter recursive, eliminate the utilities screen
   var filterRouter = await routerMap.
     filter(function filterFunction(o) {
       if (o.children) {
@@ -60,7 +62,7 @@ if(Array.isArray(tree) && tree.length > 0)
       const currentNodePath = parentPath !== null ? parentPath + '/'+ node.path: node.path
       if (node.children)
         return {
-          id: currentNodePath,
+          url: currentNodePath,
           label: node.meta?.title ? t(`${node.meta.title}`) : '',
           addable: node.meta?.add,
           editable: node.meta?.edit,
@@ -68,23 +70,43 @@ if(Array.isArray(tree) && tree.length > 0)
           add: false,
           edit: false,
           delete:false,
-          children: mappingRouterTree(node.children,currentNodePath)
+          children: mappingRouterTree(node.children, currentNodePath),
+          isParents:true
         };
       else
         return {
-          id: currentNodePath,
+          url: currentNodePath,
           label: node.meta?.title ? t(`${node.meta.title}`) : '',
           addable: node.meta?.add,
           editable: node.meta?.edit,
           deletable: node.meta?.delete,
           add: false,
           edit: false,
-          delete:false
+          delete: false,
+          isParents:false
         };
     }
     
   });
   return []
+}
+function flatObject(r, a) {
+    var b = {};
+  Object.keys(a).forEach(function (k) {
+    // just return the last children in nested object
+    if (k === 'isParents' && b[k] == false)
+      return
+      else if (k !== 'children') {
+        b[k] = a[k];
+      }
+      else if (Array.isArray(a.children) && a.children.length > 0)      
+        return a.children.reduce(flatObject, r);
+      else 
+      return 
+      
+    });
+    r.push(b);
+    return r;
 }
 
 const { t } = useI18n()
@@ -92,18 +114,54 @@ const { t } = useI18n()
 const decentralizationRef = ref<FormInstance>()
 const RouterListRef = ref<FormInstance>()
 const decentralizationModule = reactive({
-  roleName: ''
+  roleName: '',
+  description:''
 })
 const decentralizationRule = {
   roleName: [required(), { validator: notSpecialCharacters, trigger: 'blur' }],
 }
 const roleStatus = ref(true)
-const createNewRoleEvent = () => { 
+const treeRef = ref<InstanceType<typeof ElTree>>()
+const loading = ref(false)
+
+const createNewRoleEvent = (formEl: FormInstance | undefined) => {  
+   if(!formEl) return   
+  // formEl.validate(async (valid) => {
+  //   if (valid) {
+  // loading.value = true
+    
+    const params = {
+    roleName: decentralizationModule.roleName,  
+    description: decentralizationModule.description,
+    isActive:roleStatus.value,
+    router: treeRef.value?.getCheckedNodes()
+  } 
+  const routes = treeRef.value?.getCheckedNodes()
+  console.log(routes?.reduce(flatObject, []))
+  console.log(params)
+
+
+  // posCreateNewStaffRole(params).then(res => {
+  //   console.log(res);
+    
+  //   ElNotification({
+  //       message: t('reuse.addSuccess'),
+  //       type: 'success'
+  //     })
+  // }).catch(() => { 
+  //   ElNotification({
+  //       message: t('reuse.addFail'),
+  //       type: 'error'
+  //   })
+  // }).finally(() => {
+  //     loading.value = false
+  //    })
+  // }else ElMessage.error(t('reuse.notFillAllInformation'))
+  // })
 
 }
-const getCheckedKeysEvent = (...params) => { 
-  console.log(params)
-}
+
+
 </script>
 <template>
   <ContentWrap :title="t('reuse.decentralization')" :back-button="true">
@@ -112,13 +170,17 @@ const getCheckedKeysEvent = (...params) => {
       <ElCol>
         <ElDivider content-position="left" >{{ t('reuse.addNewRole') }}</ElDivider>
         <ElForm
+          label-position="top"
           ref="decentralizationRef"
           :rules="decentralizationRule"
           :module="decentralizationModule"
           status-icon
         >
           <ElFormItem :label="t('reuse.roleName')" prop="roleName">
-            <ElInput v-model="decentralizationModule.roleName" class="w-[40]" />
+            <ElInput v-model="decentralizationModule.roleName" :placeholder="t('reuse.inputName')" class="w-[40]" />
+          </ElFormItem>
+          <ElFormItem :label="t('reuse.description')">
+            <ElInput v-model="decentralizationModule.description" :placeholder="t('formDemo.enterDescription')" class="w-[40]" />
           </ElFormItem>
         </ElForm>
       </ElCol>
@@ -132,13 +194,13 @@ const getCheckedKeysEvent = (...params) => {
       <ElCol>
         <ElForm ref="RouterListRef" status-icon>
           <ElFormItem class="w-screen-lg">
-            <ElTree                
+            <ElTree 
+              ref="treeRef"               
               :data="ElTreeData"
               show-checkbox
-              node-key="id"
+              node-key="url"
               default-expand-all 
-              class="w-[100%]"   
-              :getCheckedKeys ="getCheckedKeysEvent"                  
+              class="w-[100%]"                   
             >
               <template #default="{ node }">
                 <div class="flex justify-between w-[100%]" >                  
@@ -180,10 +242,10 @@ const getCheckedKeysEvent = (...params) => {
       </ElCol>
     </ElRow>
   
-          <ElButton type="primary" @click="createNewRoleEvent" >
+          <ElButton type="primary" @click="createNewRoleEvent(decentralizationRef)" v-loading.fullscreen.lock="loading" >
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton type="primary">
+        <ElButton type="primary" v-loading.fullscreen.lock="loading">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
   
@@ -236,7 +298,7 @@ const getCheckedKeysEvent = (...params) => {
  height: 100%;
 }
 .box-shadow-inset{
-  box-shadow: inset 0 0 10px var(--el-color-info);
+  border: 1px solid var(--el-color-info);
 }
 
 </style>

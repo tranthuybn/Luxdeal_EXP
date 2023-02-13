@@ -552,7 +552,7 @@ const postCustomer = async (typebtn) => {
     })
     .catch(() => 
        ElNotification({
-        message: 'Trùng thông tin, vui lòng kiểm tra tên/mã/email/sđt ...',
+        message: t('reuse.duplicateInformation'),
         type: 'error'
       })
      )
@@ -573,9 +573,9 @@ const postData = async (typebtn) => {
       .then(() => {
         postCustomer(typebtn)
       })
-      .catch((res) =>{
+      .catch(() =>{
         ElNotification({
-        message: res.response.data.message,
+          message: t('reuse.duplicateInformation'),
         type: 'error'
       })
      } )
@@ -1387,7 +1387,7 @@ onBeforeMount(() => {
               t('router.notApproval')
             }}</el-button>
           </div>
-              <div v-else-if="type === 'add'" class="flex justify-center">
+              <div v-else-if="type === 'add' || type === ':type'" class="flex justify-center">
                 <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
                   t('reuse.save')
                 }}</el-button>

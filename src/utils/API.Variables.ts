@@ -300,56 +300,72 @@ export const STATUS_ORDER_DEPOSIT = [
     orderStatusName: 'Hủy đơn hàng',
     createdAt: ''
   },
+  //1
   {
     orderStatus: 2,
     orderStatusName: 'Chốt đơn hàng',
     createdAt: ''
   },
+  //2
   {
     orderStatus: 3,
     orderStatusName: 'Đối soát & kết thúc',
     createdAt: ''
   },
+  //3
   {
     orderStatus: 0,
     orderStatusName: 'Duyệt hủy đơn hàng',
     createdAt: ''
   },
+  //4
   {
     orderStatus: 21,
     orderStatusName: 'Bắt đầu ký gửi',
     createdAt: ''
   },
+  //5
   {
     orderStatus: 22,
     orderStatusName: 'Duyệt trả hàng trước hạn',
     createdAt: ''
   },
+  //6
   {
     orderStatus: 23,
     orderStatusName: 'Hết hạn ký gửi',
     createdAt: ''
   },
+  //7
   {
     orderStatus: 24,
     orderStatusName: 'Trả hàng hết hạn',
     createdAt: ''
   },
+  //8
   {
     orderStatus: 25,
     orderStatusName: 'Bắt đầu gia ký gửi',
     createdAt: ''
   },
+  //9
   {
     orderStatus: 26,
     orderStatusName: 'Kết thúc gia ký gửi',
     createdAt: ''
   },
+  //10
   {
     orderStatus: 4,
     orderStatusName: 'Duyệt đơn hàng',
     createdAt: ''
-  }
+  },
+  //11
+  {
+    orderStatus: 27,
+    orderStatusName: 'Hoàn thành trả hàng',
+    createdAt: ''
+  },
 ]
 
 export const STATUS_ORDER_PAWN = [
@@ -510,11 +526,6 @@ export const STATUS_ORDER_SELL = [
     orderStatus: 0,
     orderStatusName: 'Duyệt hủy đơn hàng',
     createdAt: ''
-  },
-  {
-    orderStatus: 15,
-    orderStatusName: 'Hoàn thành đổi trả',
-    createdAt: ''
   }
 ]
 
@@ -572,11 +583,6 @@ export const STATUS_ORDER_RENTAL = [
   {
     orderStatus: 3,
     orderStatusName: 'Đối soát & kết thúc',
-    createdAt: ''
-  },
-  {
-    orderStatus: 37,
-    orderStatusName: 'Hoàn thành trả hàng trước hạn thuê',
     createdAt: ''
   }
 ]

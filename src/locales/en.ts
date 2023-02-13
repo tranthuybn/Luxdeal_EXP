@@ -853,6 +853,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    duplicateInformation: 'Duplicate information, data already exists',
     addNewBranch: 'Add new branch',
     addNewDepartment: 'Add new department',
     addNewTypePersonnel: 'Add new type of personnel',
@@ -1737,7 +1738,12 @@ export default {
     transferWarehouseNow: 'Transfer warehouse now',
     printTransferTicket: 'Print transfer ticket',
     accessCategoriesPermission: "directory access",
-    actionPermission:"Action permission"
+    actionPermission:"Action permission",
+    informationExportReturnSpaTicket: 'Information export return spa ticket',
+    informationTransferReturnSpaTicket: 'Information transfer return spa ticket',
+    informationProductTransferReturn: 'Information product transfer return',
+    hasSpa: 'Has Spa',
+    hasNotSpa: 'Has not Spa'
   }
 }
   

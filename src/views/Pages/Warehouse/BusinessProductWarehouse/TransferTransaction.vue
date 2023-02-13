@@ -14,7 +14,7 @@ import {
   UpdateInventoryOrder,
   updateTicketManually
 } from '@/api/Warehouse'
-import { getWareHouseTransactionList } from '@/api/Business'
+import { addOrderStransaction, getWareHouseTransactionList } from '@/api/Business'
 import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
 
@@ -159,6 +159,7 @@ type Options = {
 
 type ProductWarehouse = {
   productPropertyId?: number
+  productCode?: string
   quantity: number
   price: number
   productPropertyQuality?: string
@@ -174,6 +175,8 @@ type ProductWarehouse = {
   location?: Options
   lot?: Options
   imageUrl?: string
+  orderId?: number
+  serviceType?: number
 }
 const status = ref(0)
 const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
@@ -203,14 +206,16 @@ const callApiForData = async () => {
       ticketData.value.serviceType = res.data[0]?.orderType
       ticketData.value.orderId = res.data[0]?.orderId
 
-      serviceType.value = res.data[0]?.serviceType
+      orderData.value = res.data[0].orderDetails
+    
+      serviceType.value = res.data[0]?.orderType
+      
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
         quantity: item.detail[0]?.quantity,
         price: item.importPrice,
         productPropertyQuality: item.productPropertyQuality,
         accessory: item.accessory,
-        productName: item.productPropertyName,
         unitName: item.unitName,
         toLocation: { value: item.detail[0]?.toLocationId, label: item.detail[0].toLocationName },
         fromLocation: {
@@ -219,11 +224,13 @@ const callApiForData = async () => {
         },
         fromLot: { value: item.detail[0]?.fromLotId, label: item.detail[0]?.fromLotCode },
         toLot: { value: item.detail[0]?.toLotId, label: item.detail[0]?.toLotCode },
+        orderId: item.detail[0]?.orderId,
         imageUrl: item?.imageUrl,
-        serviceType: item.detail[0]?.serviceType
+        serviceType: item.detail[0]?.serviceType,
+        productName: item.productName,
+        productCode: item.productPropertyCode
+
       }))
-      console.log('ticketData', ticketData.value)
-      console.log('productData', productData.value)
     }
   } else {
     type.value = 'add'
@@ -268,6 +275,55 @@ const updateInventory = async () => {
       })
     )
 }
+let childrenTable: any[] = []
+const orderData = ref()
+
+const callButToan = async (data) => {
+  data.forEach(async (product) => {
+      if (product.serviceType == 2 || product.serviceType == 4) {  
+        childrenTable[0] = {
+          merchadiseTobePayforId: product.productPropertyId,
+          quantity: product.quantity
+        }
+
+        const orderDetail = orderData.value.find((row) => row.productPropertyId == product.productPropertyId)
+
+        const payload = {
+          orderId: product.consignmentOrderId,
+          content: product.productName,
+          paymentRequestId: null,
+          receiptOrPaymentVoucherId: null,
+          receiveMoney: serviceType.value == 5 ? orderDetail.totalPrice : 0,
+          paidMoney: 0,
+          deibt: serviceType.value == 5 ? orderDetail.totalPrice : 0,
+          typeOfPayment: 1,
+          paymentMethods: 1,
+          status: 0,
+          isReceiptedMoney: 0,
+          typeOfMoney: 1,
+          merchadiseTobePayfor: childrenTable,
+          ReturnRequestId: null,
+          TypeOfAccountingEntry: 5,
+          OrderIdBTSpa: ticketData.value.orderId,
+          OrderCodeBTSpa: ticketData.value.orderCode,
+          orderTypeBTSpa: serviceType.value,
+          productCode: product.productPropertyCode,
+          productName: product.productName,
+          unitPrice: serviceType.value == 5 ? orderDetail.unitPrice : 0,
+          consignmentPrice: 0,
+          negotiatePrice: serviceType.value == 5 ? orderDetail.totalPrice : 0,
+          totatlPriceSale: 0,
+          totatlPriceRental: 0,
+          rentalPriceByDay: 0,
+          totalPriceSpa: serviceType.value == 5 ? orderDetail.totalPrice : 0,
+          spaService: serviceType.value == 5 ? orderDetail.spaServices.map(val => 
+            val.name
+          ).toString() : ''
+        }
+        await addOrderStransaction(payload)
+      }
+  })
+}
 const updateInventoryOrder = async () => {
   if (!productWarehouseRef.value?.checkValueOfTable()) {
     return
@@ -277,14 +333,19 @@ const updateInventoryOrder = async () => {
     type: 1,
     warehouseProductJson: productWarehouseRef.value?.ListOfProductsForSale.map((row) => ({
       productPropertyId: row.productPropertyId,
+      productPropertyCode: row.productCode,
+      productName: row.productName,
       quantity: row.quantity,
       price: row.price,
       accessory: row.accessory,
       productPropertyQuality: row.productPropertyQuality,
       toLotId: row.toLot?.value,
-      fromLotId: row.fromLot?.value
+      fromLotId: row.fromLot?.value,
+      consignmentOrderId: row.orderId,
+      serviceType: row.serviceType
     }))
   }
+
   await UpdateInventoryOrder(JSON.stringify(payload))
     .then(() => {
       ElNotification({
@@ -294,6 +355,7 @@ const updateInventoryOrder = async () => {
         push({
           name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
         })
+      callButToan(payload.warehouseProductJson);
     })
     .catch(() =>
       ElNotification({

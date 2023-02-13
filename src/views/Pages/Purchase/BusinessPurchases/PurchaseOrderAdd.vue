@@ -767,6 +767,14 @@ const quickRepresentative = ref()
 const quickPhoneNumber = ref()
 const quickEmail = ref()
 
+const clearFormAddCustomer = () => {
+  addQuickCustomerName.value = ''
+  quickTaxCode.value = ''
+  quickRepresentative.value = ''
+  quickPhoneNumber.value = ''
+  quickEmail.value = ''
+}
+
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
@@ -790,6 +798,7 @@ const createQuickCustomer = async () => {
         type: 'success'
       })
       callCustomersApi()
+      clearFormAddCustomer()
     })
     .catch(() =>
       ElNotification({
@@ -1665,7 +1674,8 @@ const getReturnRequestTable = async () => {
       warehouseTicketId: e.warehouseTicketId,
       returnDetailType: e.returnDetailType,
       returnDetailTypeName: e.returnDetailTypeName,
-      returnDetailStatusName: e.returnDetailStatusName
+      returnDetailStatusName: e.returnDetailStatusName,
+      warehouseTicketStatusName: e?.warehouseTicketStatusName
     }))
   }
 }
@@ -1803,13 +1813,16 @@ function openBillDialog() {
   typeEdit.value = false
   moneyDeposit.value = 0
   alreadyPaidForTt.value = true
-  dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
+  if (debtTable.value?.length == 0) {
+    moneyDeposit.value = totalFinalOrder.value
+  }
   debtTable.value.forEach((e) => {
     moneyDeposit.value += e.deibt
   })
   inputDeposit.value = moneyDeposit.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
+  dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
 }
 
 function openReceiptDialog() {
@@ -2943,9 +2956,14 @@ onBeforeMount(async () => {
               "
               >{{ t('reuse.save') }}</el-button
             >
-            <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
-              t('reuse.exit')
-            }}</el-button>
+            <el-button
+              class="w-[150px]" 
+              @click.stop.prevent="() => {
+                  dialogAddQuick = false
+                  clearFormAddCustomer()
+              }">
+              {{ t('reuse.exit') }}
+            </el-button>
           </span>
         </template>
       </el-dialog>
@@ -4645,7 +4663,7 @@ onBeforeMount(async () => {
               <template #default="props">
                 <el-input
                   :disabled="disableReturn"
-                  :v-model="props.row.accessory"
+                  v-model="props.row.accessory"
                   :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
                 />
               </template>
@@ -4729,7 +4747,7 @@ onBeforeMount(async () => {
             <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="180">
               <template #default="props">
                 <el-input
-                  :v-model="props.row.accessory"
+                  v-model="props.row.accessory"
                   :disabled="disableReturn"
                   :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
                 />
@@ -5714,13 +5732,13 @@ onBeforeMount(async () => {
               width="200"
             >
               <template #default="props">
-                <div @click="showWarehouseTicket(props)" class="text-blue-500">
+                <div @click="showWarehouseTicket(props)" class="cursor-pointer text-blue-500">
                   {{ props.row.warehouseTicketCode }}
                 </div>
               </template>
             </el-table-column>
             <el-table-column
-              prop="returnDetailStatusName"
+              prop="warehouseTicketStatusName"
               :label="t('formDemo.status')"
               align="left"
               width="200"

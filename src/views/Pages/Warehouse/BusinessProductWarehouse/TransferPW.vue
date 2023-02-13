@@ -44,6 +44,7 @@ type Options = {
 
 type ProductWarehouse = {
   productPropertyId?: number
+  productCode?: string
   quantity: number
   price: number
   productPropertyQuality?: string
@@ -55,6 +56,8 @@ type ProductWarehouse = {
   toLocation?: Options
   fromLot?: Options
   toLot?: Options
+  orderId?: number
+  serviceType?: number
 }
 const ListOfProductsForSale = computed(() => {
   return prop.productData

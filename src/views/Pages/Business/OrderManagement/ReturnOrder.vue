@@ -144,7 +144,6 @@ const postReturnRequestSpa = async (orderStatusType) => {
       chooseSpa = false
     }
   })
-  console.log('props.orderData.tableData', props.orderData.tableData)
   if(chooseSpa){
   emit('post-return-request', orderStatusType)
   emit('update:modelValue', false)}
@@ -156,7 +155,7 @@ const postReturnRequestSpa = async (orderStatusType) => {
       })}
 }
 
-const donePaymentRequest = async (_orderStatusType) => {
+const donePaymentRequest = async (orderStatusType) => {
   emit('update:modelValue', false)
   emit('update-status', orderStatusType)
   emit('done-payment-request')
@@ -272,8 +271,6 @@ onBeforeMount(()=>{
   statusApprovalExpand.value = props?.statusApproval
   if (!props?.doneExpand) addRowTable()
 })
-console.log('statusApprovalExpand: ', statusApprovalExpand.value)
-console.log('statusApproval: ', props?.statusApproval)
 
 </script>
 <template>

@@ -152,7 +152,6 @@ function getArraySum(arr) {
         <el-table-column prop="productName" min-width="150" label="Tên hàng" align="center" />
         <el-table-column prop="code" label="Code" min-width="150" align="center" />
         <el-table-column prop="accessory" label="Phụ kiện đi kèm" min-width="150" align="center" />
-        <el-table-column prop="description" label="Tình trạng" min-width="150" align="center" />
         <el-table-column prop="consignmentSellPrice" label="Giá nhập" min-width="150" align="center">
           <template #default="data">
             {{ data.row.consignmentSellPrice }} VND

@@ -395,6 +395,7 @@ export default {
     pawning: 'Đang cầm đồ',
     renewingTheSpa: 'Đang gia hạn Spa',
     spaFeePayment: 'Thành tiền phí Spa',
+    negoFeePayment: 'Thành tiền đàm phán',
     rentalPayment: 'Thành tiền phí cho thuê',
     spaServiceFeePayment: 'Đơn giá phí dịch vụ Spa/1 sản phẩm',
     consignmentPriceForSale: 'Giá ký gửi bán',
@@ -609,6 +610,7 @@ export default {
     conditionProducts: 'Tình trạng sản phẩm',
     rentalVoucher: 'Phiếu cho thuê',
     startRentingTerm: 'Bắt đầu thuê theo kỳ hạn',
+    startRentingTermDeposit: 'Bắt đầu ký gửi theo kỳ hạn',
     durationPrepayment: 'Trả hàng trước thời hạn',
     cancelReturns: 'Hủy trả hàng',
     completePayment: 'Hoàn thành trả hàng',
@@ -927,6 +929,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    duplicateInformation:'Trùng thông tin, vui lòng kiểm tra tên/mã/email/sđt ...',
     addNewBranch: 'Thêm mới chi nhánh',
     addNewDepartment: 'Thêm mới phòng ban',
     addNewTypePersonnel: 'Thêm mới loại hình nhân sự',
@@ -1920,6 +1923,11 @@ export default {
     accessCategoriesPermission: "Quyền truy cập xem danh mục",
     actionPermision: "Quyển thao tác",
     transferWarehouseNow: 'Chuyển kho ngay',
-    printTransferTicket: 'In phiếu chuyển kho'
+    printTransferTicket: 'In phiếu chuyển kho',
+    informationExportReturnSpaTicket: 'Thông tin phiếu xuất kho trả hàng Spa',
+    informationTransferReturnSpaTicket: 'Thông tin phiếu chuyển kho trả hàng Spa',
+    informationProductTransferReturn: 'Thông tin sản phẩm chuyển trả',
+    hasSpa: 'Đã Spa',
+    hasNotSpa: 'Chưa Spa'
   }
 }

@@ -3359,6 +3359,7 @@ const removeRow = (index) => {
             () => {
               newCodePaymentRequest()
               clearData()
+              inputRecharger = staffItem?.name + ' | ' + staffItem?.phone
               dialogIPRForm = true
             }
           "

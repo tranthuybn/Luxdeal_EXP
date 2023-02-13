@@ -564,7 +564,7 @@ const postData = async (data) => {
   const UnitId = data.UnitId
   data.ProductTypeId = data.ProductType
   await postProductLibrary(FORM_IMAGES(data))
-    .then(async (res) => {
+    .then( async (res) => {
       newId.value = res.data
       ElNotification({
         message: t('reuse.saveSuccess'),
@@ -572,8 +572,13 @@ const postData = async (data) => {
       })
       //disabledTabOpen = false when click button Add
       //disabledTabOpen = true when click button SaveAndAdd
+      console.log('data.disabledTabOpen', data.disabledTabOpen);
+      
       if (data.disabledTabOpen) {
         disabledTabOpen.value = data.disabledTabOpen
+        router.push({
+        name: `products-services.productLibrary.Products`
+        })
       } else {
         disabledTabOpen.value = false
         //open collapse 1

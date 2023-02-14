@@ -1205,12 +1205,6 @@ const warehouseTranferAuto = async (index) => {
 }
 const clickStarSpa = ref(false)
 
-const form = reactive({
-  name: '',
-  typea: '',
-  phoneNumber: '',
-  email: ''
-})
 
 const checkPercent = (_rule: any, value: any, callback: any) => {
   if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
@@ -2740,7 +2734,7 @@ const postReturnRequest = async (reason) => {
         type: 'warning'
       })
     )
-    if(res) await reloadStatusOrder()
+    if(res) await editData()
   }
   const cancelUpdateSpaService = async () =>{
     const res = await CancelUpdateSpaService(FORM_IMAGES({orderId:id})).then(() =>

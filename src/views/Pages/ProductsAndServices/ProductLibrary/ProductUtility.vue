@@ -560,12 +560,12 @@ const getUnitValue = async (UnitId) => {
 }
 // if(postSuccess)  api return newId and use this newId to add product property
 const apiStatus = ref(true)
-const { push } = useRouter()
+
 const postData = async (data) => {
   const UnitId = data.UnitId
   data.ProductTypeId = data.ProductType
   await postProductLibrary(FORM_IMAGES(data))
-    .then(async (res) => {
+    .then( async (res) => {
       newId.value = res.data
       ElNotification({
         message: t('reuse.saveSuccess'),
@@ -573,9 +573,11 @@ const postData = async (data) => {
       })
       //disabledTabOpen = false when click button Add
       //disabledTabOpen = true when click button SaveAndAdd
+      
       if (data.disabledTabOpen) {
-        push({
-          name:'products-services.productLibrary.Products'
+        disabledTabOpen.value = data.disabledTabOpen
+        router.push({
+        name: `products-services.productLibrary.Products`
         })
       } else {
         disabledTabOpen.value = false

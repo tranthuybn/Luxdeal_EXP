@@ -1674,7 +1674,8 @@ const getReturnRequestTable = async () => {
       warehouseTicketId: e.warehouseTicketId,
       returnDetailType: e.returnDetailType,
       returnDetailTypeName: e.returnDetailTypeName,
-      returnDetailStatusName: e.returnDetailStatusName
+      returnDetailStatusName: e.returnDetailStatusName,
+      warehouseTicketStatusName: e?.warehouseTicketStatusName
     }))
   }
 }
@@ -4662,7 +4663,7 @@ onBeforeMount(async () => {
               <template #default="props">
                 <el-input
                   :disabled="disableReturn"
-                  :v-model="props.row.accessory"
+                  v-model="props.row.accessory"
                   :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
                 />
               </template>
@@ -4746,7 +4747,7 @@ onBeforeMount(async () => {
             <el-table-column prop="accessory" :label="t('reuse.accessory')" min-width="180">
               <template #default="props">
                 <el-input
-                  :v-model="props.row.accessory"
+                  v-model="props.row.accessory"
                   :disabled="disableReturn"
                   :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
                 />
@@ -5731,13 +5732,13 @@ onBeforeMount(async () => {
               width="200"
             >
               <template #default="props">
-                <div @click="showWarehouseTicket(props)" class="text-blue-500">
+                <div @click="showWarehouseTicket(props)" class="cursor-pointer text-blue-500">
                   {{ props.row.warehouseTicketCode }}
                 </div>
               </template>
             </el-table-column>
             <el-table-column
-              prop="returnDetailStatusName"
+              prop="warehouseTicketStatusName"
               :label="t('formDemo.status')"
               align="left"
               width="200"

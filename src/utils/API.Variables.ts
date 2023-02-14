@@ -526,6 +526,11 @@ export const STATUS_ORDER_SELL = [
     orderStatus: 0,
     orderStatusName: 'Duyệt hủy đơn hàng',
     createdAt: ''
+  },
+  {
+    orderStatus: 15,
+    orderStatusName: 'Hoàn thành đổi trả',
+    createdAt: ''
   }
 ]
 
@@ -583,6 +588,11 @@ export const STATUS_ORDER_RENTAL = [
   {
     orderStatus: 3,
     orderStatusName: 'Đối soát & kết thúc',
+    createdAt: ''
+  },
+  {
+    orderStatus: 37,
+    orderStatusName: 'Hoàn thành trả hàng trước hạn',
     createdAt: ''
   }
 ]

@@ -210,3 +210,7 @@ export const APPROVAL_API = {
   GET_LIST_ACOUNT: '/api/v1/AccountStaff/GetAccount',
   GET_LIST_ACOUNT_BY_ID: '/api/v1/AccountStaff/GetId'
 }
+
+export const ROLE_API = {
+  CREATE_NEW_STAFF_ROLE :'api/v1/Authorization/AddNewStaffRole'
+}

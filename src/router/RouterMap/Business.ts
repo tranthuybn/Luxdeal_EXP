@@ -43,12 +43,15 @@ export default {
             title: t('router.potentialCustomerAdd')
           }
         },
+        // ẩn quản lý chat 
         {
           path: 'manage-chat',
           component: () => import('@/views/Pages/Business/PotentialCustomerCare/ManageChat.vue'),
           name: 'business.potential-customer-care.manage-chat',
           meta: {
-            title: t('router.manageChat')
+            title: t('router.manageChat'),
+            // canTo: true,
+            hidden: true
           }
         }
       ]

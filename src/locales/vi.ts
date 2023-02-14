@@ -123,6 +123,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    informationProductExtend: 'Thông tin sản phẩm gia hạn',
     consignmentproductinformation: ' Thông tin sản phẩm ký gửi bán',
     detailsOfPaymentRequest: 'Thông tin chi tiết đề nghị thanh toán',
     rentalRenewalInformation: 'Thông tin gia hạn thuê',

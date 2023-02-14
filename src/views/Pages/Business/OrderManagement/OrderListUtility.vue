@@ -74,7 +74,9 @@ import {
   createTicketFromReturnOrder,
   GetWarehouseTransaction,
   getAllStaffList,
-  cancelReturnOrder
+  cancelReturnOrder,
+  updateStatusTransaction,
+  finishReturnOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -1376,7 +1378,7 @@ const editData = async () => {
 // Call api chi tiết bút toán theo id
 let tableSalesSlip = ref<any[]>([{}])
 let formAccountingId = ref()
-
+const idAcountingEntry = ref()
 // Chi tiết bút toán
 const openDialogAcountingEntry = (scope) => {
   const data = scope.row
@@ -1398,7 +1400,58 @@ const openDialogAcountingEntry = (scope) => {
   }
 }
 
+// Trạng thái bút toán
+interface typeStatusAccountingEntry {
+  transactionStatus: any
+  transactionStatusName: any
+  approvedAt: any
+  createdAt: any
+  isActive?: boolean
+}
+const statusAccountingEntry = ref<Array<typeStatusAccountingEntry>>([])
+statusAccountingEntry.value.push({
+  transactionStatus: 1,
+  transactionStatusName: 'Khởi tạo & ghi sổ',
+  approvedAt: '',
+  createdAt: '',
+  isActive: true
+})
+
+const createStatusAcountingEntry = () => {
+  statusAccountingEntry.value = []
+  statusAccountingEntry.value.push({
+  transactionStatus: 1,
+  transactionStatusName: 'Khởi tạo & ghi sổ',
+  approvedAt: '',
+  createdAt: '',
+  isActive: true
+})
+}
+
+const updateDetailAcountingEntry = ref(false)
+const updateInfoAcountingEntry = (index) => {
+  if (updateDetailAcountingEntry.value) {
+    updateOrderStransaction()
+  }else {
+    postOrderStransaction(index)
+  }
+}
+
+// cập nhật bút toán
+const updateOrderStransaction = async() => {
+  const payload = {
+    accountingEntryId: idAcountingEntry.value,
+    isReceiptedMoney: alreadyPaidForTt.value,
+    paymentMethods: 1
+  }
+  await updateOrderTransaction(payload)
+  getOrderStransactionList()
+}
+
+
 const openAcountingEntryDialog = async (index, num) => {
+  idAcountingEntry.value = index
+  updateDetailAcountingEntry.value = true
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value?.paidMerchandises
@@ -1417,7 +1470,17 @@ const openAcountingEntryDialog = async (index, num) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
+  statusAccountingEntry.value = formAccountingId.value.statusHistorys
+  statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
+  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
+    showCancelAcountingEntry.value = false
+    showCreatedOrUpdateButton.value = false
 
+  } else {
+    showCancelAcountingEntry.value = true
+    showCreatedOrUpdateButton.value = true
+
+  }
   getReturnOrder()
   if (num == 1) {
     dialogSalesSlipInfomation.value = true
@@ -1846,18 +1909,42 @@ if (type == 'add' && priceChangeOrders.value == false || type == ':type' && pric
 const nameDialog = ref('')
 // const testDialog = ref(false)
 
+// Đúng thì hiển thị button Lưu và ghi sổ và Hủy bút toán
+const showCreatedOrUpdateButton = ref (false)
+const showCancelAcountingEntry = ref(true)
+
+// Tạo mới phiếu thanh toán
 function openBillDialog() {
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
+  createStatusAcountingEntry()
   alreadyPaidForTt.value = true
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
 }
 
+// Tạo mới phiếu đặt cọc
 function openDepositDialog() {
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
+  createStatusAcountingEntry()
   alreadyPaidForTt.value = true
   dialogDepositSlipAdvance.value = !dialogDepositSlipAdvance.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'deposit'
+}
+
+// Thêm mới bút toán bổ sung
+const openAdditionalDialog = () => {
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
+  createStatusAcountingEntry()
+
+  dialogAccountingEntryAdditional.value = true
 }
 
 function openReceiptDialog() {
@@ -1982,6 +2069,7 @@ const postOrderStransaction = async (index: number) => {
     paymentMethods: 1,
     status: 1,
     isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
+    isKeepDeposite: keepGoodsOnDeposit.value,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value,
     typeOfAccountingEntry: index,
@@ -2180,6 +2268,23 @@ const clearData = () => {
 
   detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
   addRowDetailedListExpoenses()
+}
+
+// Bật dialog thêm nhanh khách hàng
+const openDialogAddQuickCustomer = () => {
+  clearFormPostCustomer()
+
+  dialogAddQuick.value = true
+}
+
+// clear form thêm nhanh khách hàng
+const clearFormPostCustomer = () => {
+  addQuickCustomerName.value = ''
+  quickTaxCode.value = ''
+  quickTaxCode.value = ''
+  quickRepresentative.value = ''
+  quickPhoneNumber.value = ''
+  quickEmail.value = ''
 }
 
 // Thêm mới phiếu đề nghị thanh toán
@@ -2661,6 +2766,16 @@ const openFinishedExpendReturn = () => {
   getReturnRequestTable()
 }
 
+// Hoàn thành đổi trả api
+const doneReturnGoods = async () => {
+  const payload = {
+    OrderId: id
+  }
+  const formDataPayLoad = FORM_IMAGES(payload)
+  await finishReturnOrder(formDataPayLoad)
+  reloadStatusOrder()
+}
+
 // create đổi trả hàng
 const createdExpendReturn = () => {
   checkCreate.value = true
@@ -2678,6 +2793,21 @@ const createdExpendReturn = () => {
 // disabled button type detail
 let statusButtonDetail = ref(false)
 let buttonDuplicate = ref(false)
+
+// Cập nhật trạng thái bút toán
+const UpdateStatusTransaction = async() => {
+  const payload = {
+    AccountingEntryId: idAcountingEntry.value,
+    OrderTransactionStatus: 1
+  }
+
+  updateStatusTransaction(FORM_IMAGES(payload))
+  // Cập nhật lại bảng lịch sử công nợ
+  getOrderStransactionList()
+}
+
+// Giữ hàng đang đặt cọc
+const keepGoodsOnDeposit = ref(true)
 
 onBeforeMount(async () => {
   await editData()
@@ -3500,17 +3630,54 @@ onBeforeMount(async () => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
+          <div class="flex gap-4 pt-2 pb-4">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
+            <div class="w-[100%]">
+              <div class="flex items-center w-[100%] flex-wrap">
+                <div
+                  class="duplicate-status"
+                  v-for="item in statusAccountingEntry"
+                  :key="item.transactionStatus"
+                >
+                  <div
+                    v-if="item.transactionStatus == 1"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                      class="box box_2 text-blue-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_2"> </span>
+                    </span>
+                    <p v-if="item.createdAt">{{
+                      item.createdAt ? dateTimeFormat(item.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                  <div
+                    v-else-if="item.transactionStatus == 0"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_4"> </span>
+                    </span>
+                    <p v-if="item?.createdAt">{{
+                      item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                </div>
+              </div>
+          </div>
           </div>
         </div>
         <template #footer>
@@ -3655,17 +3822,54 @@ onBeforeMount(async () => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pb-2 items-center">
+          <div class="flex gap-4 pt-2 pb-4">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
+            <div class="w-[100%]">
+              <div class="flex items-center w-[100%] flex-wrap">
+                <div
+                  class="duplicate-status"
+                  v-for="item in statusAccountingEntry"
+                  :key="item.transactionStatus"
+                >
+                  <div
+                    v-if="item.transactionStatus == 1"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                      class="box box_2 text-blue-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_2"> </span>
+                    </span>
+                    <p v-if="item.createdAt">{{
+                      item.createdAt ? dateTimeFormat(item.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                  <div
+                    v-else-if="item.transactionStatus == 0"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_4"> </span>
+                    </span>
+                    <p v-if="item?.createdAt">{{
+                      item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                </div>
+              </div>
+          </div>
           </div>
         </div>
         <template #footer>
@@ -3675,14 +3879,29 @@ onBeforeMount(async () => {
               <span class="dialog-footer">
                 <el-button
                   type="primary"
+                  v-if="showCreatedOrUpdateButton"
                   @click="
                     () => {
                       dialogSalesSlipInfomation = false
-                      postOrderStransaction(1)
+                      updateInfoAcountingEntry(1)
                     }
                   "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
+                  >
+                  {{ t('formDemo.saveRecordDebts') }}
+                  </el-button
                 >
+                <el-button
+                  type="danger"
+                  v-if="showCancelAcountingEntry"
+                  @click="
+                    () => {
+                      UpdateStatusTransaction()
+                      dialogSalesSlipInfomation = false
+                    }
+                  "
+                > 
+                  Hủy bút toán
+                </el-button>
                 <el-button @click="dialogSalesSlipInfomation = false">{{
                   t('reuse.exit')
                 }}</el-button>
@@ -3807,6 +4026,16 @@ onBeforeMount(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
+            <label class="w-[30%] text-right">Giao hàng</label>
+            <div class="w-[100%]">
+              <el-checkbox
+                v-model="keepGoodsOnDeposit"
+                label="Giữ hàng đang đặt cọc"
+                size="large"
+              />
+            </div>
+          </div>
+          <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">Thanh toán</label>
             <div class="w-[100%]">
               <el-checkbox
@@ -3827,18 +4056,55 @@ onBeforeMount(async () => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pb-2 items-center">
+          <div class="flex gap-4 pt-2 pb-4">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
+            <div class="w-[100%]">
+              <div class="flex items-center w-[100%] flex-wrap">
+                <div
+                  class="duplicate-status"
+                  v-for="item in statusAccountingEntry"
+                  :key="item.transactionStatus"
+                >
+                <div
+                  v-if="item.transactionStatus == 1"
+                >
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box box_2 text-blue-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.transactionStatusName }}
+                    <span class="triangle-right right_2"> </span>
+                  </span>
+                  <p v-if="item.createdAt">{{
+                    item.createdAt ? dateTimeFormat(item.createdAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
+                </div>
+                <div
+                  v-else-if="item.transactionStatus == 0"
+                >
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                  class="box box_4 text-rose-500 dark:text-black"
+                    :class="{ active: item.isActive }"
+                  >
+                    {{ item.transactionStatusName }}
+                    <span class="triangle-right right_4"> </span>
+                  </span>
+                  <p v-if="item?.createdAt">{{
+                    item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
         </div>
         <template #footer>
           <div class="flex justify-between">
@@ -3847,14 +4113,29 @@ onBeforeMount(async () => {
               <span class="dialog-footer">
                 <el-button
                   type="primary"
+                  v-if="showCreatedOrUpdateButton"
                   @click="
                     () => {
                       dialogDepositSlipAdvance = false
-                      postOrderStransaction(2)
+                      updateInfoAcountingEntry(2)
                     }
                   "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
+                  >
+                  {{ t('formDemo.saveRecordDebts') }}
+                  </el-button
                 >
+                <el-button
+                  type="danger"
+                  v-if="showCancelAcountingEntry"
+                  @click="
+                    () => {
+                      UpdateStatusTransaction()
+                      dialogSalesSlipInfomation = false
+                    }
+                  "
+                > 
+                  Hủy bút toán
+                </el-button>
                 <el-button @click="dialogDepositSlipAdvance = false">{{
                   t('reuse.exit')
                 }}</el-button>
@@ -4219,17 +4500,54 @@ onBeforeMount(async () => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pb-2 items-center">
+          <div class="flex gap-4 pt-2 pb-4">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
+            <div class="w-[100%]">
+              <div class="flex items-center w-[100%] flex-wrap">
+                <div
+                  class="duplicate-status"
+                  v-for="item in statusAccountingEntry"
+                  :key="item.transactionStatus"
+                >
+                  <div
+                    v-if="item.transactionStatus == 1"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                      class="box box_2 text-blue-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_2"> </span>
+                    </span>
+                    <p v-if="item.createdAt">{{
+                      item.createdAt ? dateTimeFormat(item.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                  <div
+                    v-else-if="item.transactionStatus == 0"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_4"> </span>
+                    </span>
+                    <p v-if="item?.createdAt">{{
+                      item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                </div>
+              </div>
+          </div>
           </div>
         </div>
         <template #footer>
@@ -4237,14 +4555,28 @@ onBeforeMount(async () => {
             <el-button
               size="large"
               type="primary"
+              v-if="showCreatedOrUpdateButton"
               @click="
                 () => {
-                  postOrderStransaction(4)
+                  updateInfoAcountingEntry(4)
                   dialogAccountingEntryAdditional = false
                 }
               "
-              >{{ t('formDemo.saveRecordDebts') }}</el-button
-            >
+              >
+              {{ t('formDemo.saveRecordDebts') }}
+            </el-button>
+            <el-button
+              type="danger"
+              v-if="showCancelAcountingEntry"
+              @click="
+                () => {
+                  UpdateStatusTransaction()
+                  dialogSalesSlipInfomation = false
+                }
+              "
+                > 
+                 Hủy bút toán
+              </el-button>
             <el-button size="large" @click="dialogAccountingEntryAdditional = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -4517,7 +4849,7 @@ onBeforeMount(async () => {
                             :clearable="false"
                             @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
                           />
-                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
+                          <el-button :disabled="checkDisabled" @click="openDialogAddQuickCustomer"
                             >+ {{ t('button.add') }}</el-button
                           >
                         </div>
@@ -4979,17 +5311,54 @@ onBeforeMount(async () => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pb-2 items-center">
+          <div class="flex gap-4 pt-2 pb-4">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
+            <div class="w-[100%]">
+              <div class="flex items-center w-[100%] flex-wrap">
+                <div
+                  class="duplicate-status"
+                  v-for="item in statusAccountingEntry"
+                  :key="item.transactionStatus"
+                >
+                  <div
+                    v-if="item.transactionStatus == 1"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                      class="box box_2 text-blue-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_2"> </span>
+                    </span>
+                    <p v-if="item.createdAt">{{
+                      item.createdAt ? dateTimeFormat(item.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                  <div
+                    v-else-if="item.transactionStatus == 0"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_4"> </span>
+                    </span>
+                    <p v-if="item?.createdAt">{{
+                      item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                </div>
+              </div>
+          </div>
           </div>
         </div>
         <template #footer>
@@ -4998,7 +5367,7 @@ onBeforeMount(async () => {
             <div>
               <span class="dialog-footer">
                 <el-button
-                v-if="!checkCancel && checkCreate"
+                  v-if="!checkCancel && checkCreate"
                   type="primary"
                   @click="
                     () => {
@@ -5013,7 +5382,7 @@ onBeforeMount(async () => {
                   type="warning"
                   @click="
                     () => {
-                      cancelExpendReturn()
+                      doneReturnGoods()
                       changeReturnGoods = false
                     }
                   "
@@ -5160,7 +5529,7 @@ onBeforeMount(async () => {
           </el-table-column>
           <el-table-column
             prop="warehouseTotal"
-            :label="t('formDemo.exportWarehouse')"
+            :label="t('reuse.iventoryy')"
             min-width="200"
           >
             <template #default="props">
@@ -5327,11 +5696,12 @@ onBeforeMount(async () => {
                 v-for="item in arrayStatusOrder"
                 :key="item.orderStatus"
               >
-                <div
+              <div
                   v-if="
                     item.orderStatus == STATUS_ORDER_SELL[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SELL[5].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SELL[6].orderStatus
+                    item.orderStatus == STATUS_ORDER_SELL[6].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SELL[7].orderStatus
                   "
                 >
                   <span
@@ -5625,7 +5995,7 @@ onBeforeMount(async () => {
               >{{ t('formDemo.cancellationReturn') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == 150" class="w-[100%] flex ml-1 gap-4">
+          <div v-else-if="statusOrder == STATUS_ORDER_SELL[7].orderStatus" class="w-[100%] flex ml-1 gap-4">
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
@@ -5655,7 +6025,7 @@ onBeforeMount(async () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button text @click="dialogAccountingEntryAdditional = true">+ Thêm bút toán</el-button>
+        <el-button text @click="openAdditionalDialog">+ Thêm bút toán</el-button>
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ Thêm phiếu thu</el-button
         >
@@ -5722,26 +6092,8 @@ onBeforeMount(async () => {
             :label="t('formDemo.collected')"
             align="left"
             min-width="150"
-          >
-            <template #default="data">
-              <el-input
-                v-model="data.row.receiveMoney"
-                v-if="type != 'detail'"
-                style="width: 100%; border: none; outline: none"
-              />
-              <div v-else>{{ data.row.receiveMoney }}</div>
-            </template>
-          </el-table-column>
-          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" min-width="150">
-            <template #default="data">
-              <el-input
-                v-model="data.row.paidMoney"
-                v-if="type != 'detail'"
-                style="width: 100%; border: none; outline: none"
-              />
-              <div v-else>{{ data.row.paidMoney }}</div>
-            </template>
-          </el-table-column>
+          />
+          <el-table-column prop="paidMoney" :label="t('formDemo.spent')" min-width="150"/>
           <el-table-column prop="deibt" :label="t('formDemo.salesDebt')" min-width="150">
             <template #default="data">
               {{ changeMoney.format(data.row.deibt) ?? '0 đ' }}
@@ -5798,12 +6150,10 @@ onBeforeMount(async () => {
               <div class="flex">
                 <button
                   @click="() => openDialogAcountingEntry(data)"
-                  v-if="type != 'detail'"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}
                 </button>
-                <div v-else>{{ t('reuse.detail') }}</div>
               </div>
             </template>
           </el-table-column>

@@ -1277,7 +1277,6 @@ const postData = async () => {
       }
       idOrderPost.value = res
 
-      automaticCouponWareHouse(1)
     } else {
       ElNotification({
         message: 'Hãy nhập số lượng mua',
@@ -1308,10 +1307,9 @@ const changeEditInDetail = () => {
 // Phiếu nhập kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value,
+    OrderId: id,
     Type: index
   }
-
   await postAutomaticWarehouse(JSON.stringify(payload))
 }
 
@@ -5442,6 +5440,7 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   addStatusOrder(4)
+                  automaticCouponWareHouse(1)
                 }
               "
               v-if="

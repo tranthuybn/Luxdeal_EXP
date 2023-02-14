@@ -1262,14 +1262,13 @@ const postData = async () => {
       })
     }
     idOrderPost.value = res.data
-    automaticCouponWareHouse(1)
   }
 }
 
 // Phiếu nhap kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value,
+    OrderId: id,
     Type: index
   }
 
@@ -4702,6 +4701,7 @@ const openDetailOrder = (id, type) => {
               @click="
                 () => {
                   addStatusOrder(4)
+                  automaticCouponWareHouse(1)
                 }
               "
               class="min-w-42 min-h-11"

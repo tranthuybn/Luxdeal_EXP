@@ -1277,7 +1277,6 @@ const postData = async () => {
       }
       idOrderPost.value = res
 
-      automaticCouponWareHouse(1)
     } else {
       ElNotification({
         message: 'Hãy nhập số lượng mua',
@@ -1308,10 +1307,9 @@ const changeEditInDetail = () => {
 // Phiếu nhập kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value,
+    OrderId: id,
     Type: index
   }
-
   await postAutomaticWarehouse(JSON.stringify(payload))
 }
 
@@ -1626,8 +1624,8 @@ const getRequestPaymentDetail = async (_index, scope) => {
   formDetailPaymentRequest.value = await GetPaymentRequestDetail({ id: scope.row.paymentRequestId })
   codePaymentRequest.value = formDetailPaymentRequest.value.data?.paymentRequest.code
   inputReasonCollectMoney.value =
-    formDetailPaymentRequest.value.data?.paymentRequest.reasonCollectMoney
-  enterMoney.value = formDetailPaymentRequest.value.data?.paymentRequest.enterMoney
+    formDetailPaymentRequest.value.data?.paymentRequest.description
+  enterMoney.value = formDetailPaymentRequest.value.data?.paymentRequest.reasonCollectMoney
   inputDepositPayment.value = formDetailPaymentRequest.value.data?.paymentRequest.depositeMoney
   moneyDepositPayment.value = formDetailPaymentRequest.value.data?.paymentRequest.debtMoney
   moneyDeibt.value = formDetailPaymentRequest.value.data?.paymentRequest.totalMoney
@@ -2054,12 +2052,16 @@ const postPaymentRequest = async () => {
     TotalMoney: moneyDepositPayment.value ?? moneyDeibt.value,
     PaymentType: payment.value,
     PeopleId: staffItem?.id,
-    status: 0,
+    status: 1,
     PeopleType: 1,
     OrderId: id,
     Description: inputReasonCollectMoney.value,
     Document: undefined,
     AccountingEntryId: undefined,
+    TotalPrice: totalPaymentRequest.value,
+    ReasonCollectMoney: enterMoney.value,
+    DebtMoney: moneyDepositPayment.value,
+    DepositeMoney: inputDepositPayment.value,
     ExpensesDetail: JSON.stringify(detailedListExpenses.value)
   }
   const formDataPayLoad = FORM_IMAGES(payload)
@@ -3961,7 +3963,7 @@ onBeforeMount(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -4012,7 +4014,7 @@ onBeforeMount(async () => {
             </div>
             <div class="flex-1 flex items-start gap-4">
               <span class="text-right">
-                <div>Mã QR đơn hàng</div>
+                <div>{{ t('formDemo.qrCodePurchaseOrder') }}</div>
               </span>
 
               <span class="border">
@@ -4079,7 +4081,9 @@ onBeforeMount(async () => {
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
+              <p class="text-black font-bold dark:text-white">
+                {{ t('reuse.totalPayment') }}
+              </p>
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2 text-black font-bold dark:text-white">{{
@@ -4094,7 +4098,7 @@ onBeforeMount(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Thanh toán</label>
+            <label class="w-[30%] text-right">{{ t('router.payments') }}</label>
             <div class="w-[100%]">
               <el-checkbox
                 v-model="alreadyPaidForTt"
@@ -4115,7 +4119,7 @@ onBeforeMount(async () => {
             </el-select>
           </div>
           <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -5436,6 +5440,7 @@ onBeforeMount(async () => {
               @click="
                 () => {
                   addStatusOrder(4)
+                  automaticCouponWareHouse(1)
                 }
               "
               v-if="

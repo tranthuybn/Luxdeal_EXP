@@ -1262,14 +1262,13 @@ const postData = async () => {
       })
     }
     idOrderPost.value = res.data
-    automaticCouponWareHouse(1)
   }
 }
 
 // Phiếu nhap kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value,
+    OrderId: id,
     Type: index
   }
 
@@ -2971,7 +2970,7 @@ const openDetailOrder = (id, type) => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Số tiền thu</label>
+            <label class="w-[30%] text-right">{{ t('reuse.moneyReceipts') }}</label>
             <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
@@ -2996,7 +2995,7 @@ const openDetailOrder = (id, type) => {
             </el-select>
           </div>
           <div class="flex gap-4 pt-4 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -3091,7 +3090,7 @@ const openDetailOrder = (id, type) => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Số tiền chi</label>
+            <label class="w-[30%] text-right">{{ t('reuse.moneyPaid') }}</label>
             <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
@@ -3116,7 +3115,7 @@ const openDetailOrder = (id, type) => {
             </el-select>
           </div>
           <div class="flex gap-4 pt-4 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -3287,7 +3286,7 @@ const openDetailOrder = (id, type) => {
             </el-select>
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -3620,7 +3619,7 @@ const openDetailOrder = (id, type) => {
             </el-select>
           </div>
           <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -3679,7 +3678,7 @@ const openDetailOrder = (id, type) => {
             <div class="flex-right">
               <div class="flex-1 flex items-start gap-4">
                 <span>
-                  <div>Mã QR đơn hàng</div>
+                  <div>{{ t('formDemo.qrCodePurchaseOrder') }}</div>
                 </span>
           
                 <span class="border">
@@ -3730,7 +3729,7 @@ const openDetailOrder = (id, type) => {
                 <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="unitPrice" label="Giá bán" min-width="100">
+            <el-table-column prop="unitPrice" :label="t('formDemo.priceForSale')" min-width="100">
               <template #default="props">
                 {{ changeMoney.format(props.row.unitPrice) }}
               </template>
@@ -3815,7 +3814,7 @@ const openDetailOrder = (id, type) => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Thanh toán</label>
+            <label class="w-[30%] text-right">{{ t('router.payments') }}</label>
             <div class="w-[100%]">
               <el-checkbox
                 v-model="alreadyPaidForTt"
@@ -3836,7 +3835,7 @@ const openDetailOrder = (id, type) => {
             </el-select>
           </div>
           <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -3966,7 +3965,7 @@ const openDetailOrder = (id, type) => {
             </el-select>
           </div>
           <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -4702,6 +4701,7 @@ const openDetailOrder = (id, type) => {
               @click="
                 () => {
                   addStatusOrder(4)
+                  automaticCouponWareHouse(1)
                 }
               "
               class="min-w-42 min-h-11"
@@ -4978,13 +4978,13 @@ const openDetailOrder = (id, type) => {
               dialogAccountingEntryAdditional = true
             }
           "
-          >+ Thêm bút toán</el-button
+          >+ {{ t('reuse.addAccountingEntry') }}</el-button
         >
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
-          >+ Thêm phiếu thu</el-button
+          >+ {{ t('reuse.addReceiptBill') }}</el-button
         >
         <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog" text
-          >+ Thêm phiếu chi</el-button
+          >+ {{ t('reuse.addPaymentBill') }}</el-button
         >
         <el-button
           :disabled="disabledDNTTAccountingEntry"
@@ -4996,7 +4996,7 @@ const openDetailOrder = (id, type) => {
             }
           "
           text
-          >+ Thêm đề nghị thanh toán</el-button
+          >+ {{ t('reuse.addPaymentRequestBill') }}</el-button
         >
         <el-table
           ref="multipleTableRef"
@@ -5112,8 +5112,10 @@ const openDetailOrder = (id, type) => {
             min-width="120"
           >
             <template #default="props">
-              <div v-if="props.row.receiveMoney > props.row.paidMoney" class="text-blue-500"> Phải thu </div>
-              <div v-else class="text-red-500"> Phải chi </div>
+              <div v-if="props.row.receiveMoney > props.row.paidMoney" class="text-blue-500">
+              {{ t('reuse.haveToCollect') }}
+              </div>
+              <div v-else class="text-red-500">{{ t('reuse.havetoPay') }}</div>
             </template>
           </el-table-column>
           <el-table-column

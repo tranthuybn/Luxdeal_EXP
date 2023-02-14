@@ -125,7 +125,6 @@ const addTransaction = async () => {
     }
   }
 }
-console.log('type:', type.value);
 
 const ticketData = ref({
   ticketCode: '',
@@ -191,7 +190,6 @@ const callApiForData = async () => {
   if (id.value !== 0 && !isNaN(id.value)) {
     type.value = 'detail'
     const res = await getWareHouseTransactionList({ Id: id.value })
-    console.log('ress:', res)
     if (res) {
       ticketData.value.ticketCode = res.data[0].transactionCode
       ticketData.value.createdAt = res.data[0].createdAt

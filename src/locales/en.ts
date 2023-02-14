@@ -590,7 +590,19 @@ export default {
     returnRentalDeposit: 'Return the rental deposit',
     codePayment: 'Code payment',
     infoReturnAheadOfTime: 'Information return ahead of time',
-    infoReturnExpired: 'Information return expired'
+    infoReturnExpired: 'Information return expired',
+    printConsignmentContract: 'Print consignment contract',
+    paymentByApp: 'Payment by app Luxdeal',
+    negoFeePayment: 'Into negotiation money',
+    productInformationSaleConsign: 'Information product sale consignment',
+    productInformationSaleSpa: 'Information product sale spa',
+    productInformationSaleRental: 'Information product sale rental',
+    priceForSale: 'Unit prices',
+    spaDate: 'Spa date',
+    spaService: 'Spa services',
+    rentalDate: 'Rental date',
+    rentalPayment: 'Into rental money',
+    depositpriceForRental: 'Deposit price for rental/day'
   },
   button: {
     add: 'Add quick',
@@ -1783,7 +1795,8 @@ export default {
     addPaymentBill: 'Add new payment bill',
     addPaymentRequestBill: 'Add new payment request bill',
     moneyReceipts: 'Money receipts',
-    moneyPaid: 'Money paid'
+    moneyPaid: 'Money paid',
+    purchaseInfo: 'Information seller'
   }
 }
   

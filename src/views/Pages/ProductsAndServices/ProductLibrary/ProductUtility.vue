@@ -560,6 +560,7 @@ const getUnitValue = async (UnitId) => {
 }
 // if(postSuccess)  api return newId and use this newId to add product property
 const apiStatus = ref(true)
+
 const postData = async (data) => {
   const UnitId = data.UnitId
   data.ProductTypeId = data.ProductType
@@ -1463,7 +1464,7 @@ const categoriesToString = (categories) => {
           <ElTableColumn
             header-align="center"
             align="center"
-            min-width="130"
+            min-width="150"
             :label="t('reuse.quantityTo')"
           >
             <template #default="scope">
@@ -1639,7 +1640,7 @@ const categoriesToString = (categories) => {
               </div>
             </template>
           </ElTableColumn>
-          <ElTableColumn
+          <!-- <ElTableColumn
             header-align="center"
             align="center"
             min-width="200"
@@ -1667,7 +1668,7 @@ const categoriesToString = (categories) => {
                 />
               </div>
             </template>
-          </ElTableColumn>
+          </ElTableColumn> -->
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1813,7 +1814,7 @@ const categoriesToString = (categories) => {
                 :prop="`${scope.$index}.quantity`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.quantity" type="number" autocomplete="off" />
+                <el-input v-model.number="scope.row.quantity" type="number" autocomplete="off" :min="1" />
               </el-form-item>
             </template>
           </ElTableColumn>

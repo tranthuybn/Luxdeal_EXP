@@ -196,8 +196,8 @@ type Options = {
   label: string
 }
 type SpaService = {
-  value: number
-  label: string
+  id: number
+  name: string
   price: number
 }
 interface ListOfProductsForSaleType {
@@ -239,7 +239,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   productPropertyCode: '',
   productPropertyName: '',
   id: '',
-  spaServices: [{ value: 0, label: '',price:0 }],
+  spaServices: [{id:0,name:'',price:0}],
   amountSpa: 2,
   productPropertyId: undefined,
   quantity: 1,
@@ -457,7 +457,7 @@ const listProducts = ref()
 
 const pageIndexProducts = ref(1)
 const callAPIProduct = async () => {
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20, serviceType: 5 })
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
       productCode: product.code,
@@ -546,8 +546,8 @@ const handleSelectionChange = (val: tableDataType[]) => {
 
 const handleSelectionChange2 = (val: tableDataType[]) => {
   ListOfProductsForSale.value[indexSpa.value].spaServices = val.map((e) => ({
-    label: e.spaServiceName,
-    value: e.id,
+    name: e.spaServiceName,
+    id: e.id,
     price: e.price
   }))
 
@@ -577,7 +577,7 @@ const getPriceSpaService = () => {
     index: currentRow2.value,
     value: spaTableRef.value!.getSelectionRows()
   })
-  if (checkInputPriceChange.value) {
+  if (checkInputPriceChange.value && statusOrder.value == STATUS_ORDER_SPA[1].orderStatus) {
     ListOfProductsForSale.value[currentRow2.value].priceChange = true
     arrayStatusOrder.value.splice(0, arrayStatusOrder.value.length)
     arrayStatusOrder.value.push({
@@ -592,11 +592,10 @@ const getPriceSpaService = () => {
     priceChangeSpa.value = false
     editButton.value = false
   }
-  doubleDisabled.value = true
 
   //Tính toán j đó khi bấm nút lưu
   handleSelectionChange2(spaTableRef.value!.getSelectionRows())
-  ListOfProductsForSale.value[currentRow2.value].totalPrice = totalSettingSpa.value
+  ListOfProductsForSale.value[currentRow2.value].totalPrice = totalSettingSpa.value * ListOfProductsForSale.value[currentRow2.value].quantity
   autoCalculateOrder()
   dialogFormSettingServiceSpa.value = false
 }
@@ -902,41 +901,40 @@ const changeNamePromo = () => {
 // api Spa
 
 const listServicesSpa = ref()
-const optionsApiServicesSpa = ref()
 
 const currentRow2 = ref(0)
-const countSpaClick = ref(0)
 const spaNotChange = ref(true)
 const callApiServicesSpa = async (scope) => {
+  dialogFormSettingServiceSpa.value = true
   indexSpa.value = scope.$index
   if (scope.row.productPropertyId) {
-    dialogFormSettingServiceSpa.value = true
-    countSpaClick.value++
-
-    const res = await getSpaListByProduct({
+    await getSpaListByProduct({
       ProductPropertyId: parseInt(scope.row.productPropertyId)
-    })
+    }).then((res)=>{
     listServicesSpa.value = res.data
-    optionsApiServicesSpa.value = listServicesSpa.value.map((product) => ({
-      id: product.id,
-      value: product.price,
-      name: product.spaServiceName,
-      price: product.price
-    }))
-    currentRow2.value = scope.$index
-    if (countSpaClick.value > 1 && res.data.length > 0) {
-      ElNotification({
-        title: 'Info',
-        message: 'Bạn vui lòng chọn dịch vụ nhé!',
-        type: 'info'
-      })
-    } else if (res.data.length === 0) {
-      ElNotification({
-        title: 'Warning',
-        message: 'Không có dịch vụ spa!',
-        type: 'warning'
+    if(scope.row.spaServices.length >0 && scope.row.spaServices[0].id != 0 && scope.row.spaServices){
+      scope.row.spaServices.forEach(spaService=>{
+        const row = listServicesSpa.value.findIndex(spa=>spa.id == spaService?.id)
+        if(row !== -1){
+          spaTableRef.value?.toggleRowSelection(listServicesSpa.value[row],true)
+        }
       })
     }
+    currentRow2.value = scope.$index
+  })
+    // if (countSpaClick.value > 1 && res.data.length > 0) {
+    //   ElNotification({
+    //     title: 'Info',
+    //     message: 'Bạn vui lòng chọn dịch vụ nhé!',
+    //     type: 'info'
+    //   })
+    // } else if (res.data.length === 0) {
+    //   ElNotification({
+    //     title: 'Warning',
+    //     message: 'Không có dịch vụ spa!',
+    //     type: 'warning'
+    //   })
+    // }
   } else {
     ElMessage({
       message: t('reuse.pleaseChooseProduct'),
@@ -1112,7 +1110,8 @@ const postData = async (pushBack: boolean) => {
     ProductPrice: val.price,
     Description: val.description,
     UnitPrice: totalSettingSpa.value,
-    SpaServiceIds: val.spaServices?.map((spa) => spa.value).toString(),
+    SpaServices: val.spaServices,
+    SpaServiceIds: val.spaServices.map(spa=>spa.id).toString(),
     TotalPrice: val.totalPrice,
     IsPaid: true,
     Accessory: val.accessory,
@@ -1174,12 +1173,6 @@ const postData = async (pushBack: boolean) => {
       message: t('reuse.addSuccess'),
       type: 'success'
     })
-    if (pushBack == true) {
-      router.push({
-        name: 'business.order-management.order-list',
-        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-      })
-    }
   } else {
     ElNotification({
       message: t('reuse.addFail'),
@@ -1190,7 +1183,12 @@ const postData = async (pushBack: boolean) => {
   id = res.data
   
   valueTypeSpa.value === 0 ? warehouseTranferAuto(1) : warehouseTranferAuto(3)
-
+  if (pushBack == true) {
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+      })
+    }
   if (clickStarSpa.value == true) {
     addStatusOrder(5)
   }}
@@ -1206,12 +1204,6 @@ const warehouseTranferAuto = async (index) => {
 }
 const clickStarSpa = ref(false)
 
-const form = reactive({
-  name: '',
-  typea: '',
-  phoneNumber: '',
-  email: ''
-})
 
 const checkPercent = (_rule: any, value: any, callback: any) => {
   if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
@@ -1987,7 +1979,6 @@ const disabledDate = (time: Date) => {
 }
 
 // disabled phiếu thanh toán và phiếu đặt cọc tạm ứng
-const doubleDisabled = ref(false)
 const priceChangeSpa = ref(false)
 watch(
   ()=>ListOfProductsForSale.value,
@@ -2080,7 +2071,7 @@ const approvalFunction = async (checkApproved) => {
   await approvalOrder(FORM_IMAGES(payload))
    if(checkApproved) {
       ElNotification({
-        message: 'Guyệt thành công!',
+        message: 'Duyệt thành công!',
         type: 'success'
         }),
         push({
@@ -2689,7 +2680,7 @@ const postReturnRequest = async (reason) => {
       orderDetails: ListOfProductsForSale.value.map((row)=>({
         id: row.id,
         spaServices: row.spaServices.map((spa)=>({
-          id:spa.value,
+          id:spa.id,
           price:spa.price
         })),
         totalPrice: row.totalPrice
@@ -2741,7 +2732,7 @@ const postReturnRequest = async (reason) => {
         type: 'warning'
       })
     )
-    if(res) await reloadStatusOrder()
+    if(res) await editData()
   }
   const cancelUpdateSpaService = async () =>{
     const res = await CancelUpdateSpaService(FORM_IMAGES({orderId:id})).then(() =>
@@ -2771,7 +2762,7 @@ const postReturnRequest = async (reason) => {
         type: 'warning'
       })
     )
-    if(res) await reloadStatusOrder()
+    if(res) await editData()
   }  
 </script>
 
@@ -3788,7 +3779,7 @@ const postReturnRequest = async (reason) => {
           </el-table-column>
 
           <el-table-column
-            v-if="type == 'add'"
+            v-if="type == 'add' || type == ':type'"
             :label="t('router.ServiceLibrarySpaService')"
             prop="spaServices"
             width="220"
@@ -4230,9 +4221,8 @@ const postReturnRequest = async (reason) => {
                 @click="openBillSpaDialog"
                 >{{ t('formDemo.bill') }}</el-button
               >
-
               <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type == 'add'"
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && (type == 'add' || type == ':type')"
                 @click="
                   () => {
                     submitForm(ruleFormRef, ruleFormRef2, true)
@@ -4770,7 +4760,6 @@ const postReturnRequest = async (reason) => {
       >
         <el-divider />
 
-        <el-form :model="form">
           <el-table
             ref="spaTableRef"
             border
@@ -4789,7 +4778,6 @@ const postReturnRequest = async (reason) => {
               </template>
             </el-table-column>
           </el-table>
-        </el-form>
         <div class="flex justify-between px-3 mt-2">
           <strong>{{ t('formDemo.spaServiceFeePayment') }}</strong>
           <p class="price font-medium">{{ totalSettingSpa }}</p>

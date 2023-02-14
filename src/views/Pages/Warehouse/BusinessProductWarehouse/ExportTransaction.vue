@@ -124,6 +124,8 @@ const addTransaction = async () => {
     }
   }
 }
+console.log('type:', type.value);
+
 const ticketData = ref({
   ticketCode: '',
   createdAt: '',
@@ -139,7 +141,8 @@ const ticketData = ref({
   warehouse: {},
   toWarehouseId: '',
   orderId: 0,
-  orderType: 0
+  orderType: 0,
+  statusHistory: {}
 })
 type ExportLots = {
   fromLotId: number
@@ -168,6 +171,17 @@ type ExportPW = {
   lot?: Options
   imageUrl?: string
 }
+
+interface statusWhType {
+  name: string
+  isActive?: boolean
+  approveAt?: string
+}
+
+let arrayStatusWH = ref(Array<statusWhType>())
+// let statusWH = ref('Khởi tạo & ghi số')
+const duplicateStatusButton = ref(false)
+
 const productData = ref<ExportPW[]>([{} as ExportPW])
 const orderData = ref()
 const serviceType = ref(6)
@@ -176,6 +190,7 @@ const callApiForData = async () => {
   if (id.value !== 0 && !isNaN(id.value)) {
     type.value = 'detail'
     const res = await getWareHouseTransactionList({ Id: id.value })
+    console.log('ress:', res)
     if (res) {
       ticketData.value.ticketCode = res.data[0].transactionCode
       ticketData.value.createdAt = res.data[0].createdAt
@@ -184,6 +199,18 @@ const callApiForData = async () => {
       ticketData.value.description = res.data[0]?.description
       ticketData.value.orderCode = res.data[0]?.orderCode
       ticketData.value.updatedAt = res.data[0].updatedAt
+      ticketData.value.status = res.data[0].status
+
+      ticketData.value.statusHistory = res.data[0]?.statusHistory
+      arrayStatusWH.value = res.data[0]?.statusHistory
+
+      if (arrayStatusWH.value?.length) {
+        arrayStatusWH.value[arrayStatusWH.value?.length - 1].isActive = true
+      
+      if (arrayStatusWH.value[arrayStatusWH.value?.length - 1].approveAt)
+        duplicateStatusButton.value = true
+      else duplicateStatusButton.value = false
+    }
 
       ticketData.value.fromWarehouseId = res.data[0]?.fromWarehouseId
       ticketData.value.warehouse = {
@@ -217,7 +244,7 @@ const callApiForData = async () => {
       status.value = res.data[0]?.status
     }
   } else {
-    type.value = 'add'
+    type.value == 'add'
     ticketData.value.updatedAt = moment().format()
     ticketData.value.ticketCode = 'XK' + moment().format('hhmmss')
   }
@@ -304,7 +331,7 @@ const callButToan = async (data) => {
       }
     })
   })
-}
+} 
 
 const updateInventoryOrder = async () => {
   if (!ExportPWRef.value?.checkValueOfTable()) {
@@ -348,6 +375,14 @@ const updateInventoryOrder = async () => {
       })
     )
 }
+
+if (type.value == 'add')
+  arrayStatusWH.value.push({
+    name: 'Khởi tạo & ghi số',
+    isActive: true,
+    approveAt: moment().format('DD/MM/YYYY')
+  })
+
 //tngo fixbug
 const updateTicket = (warehouse) => {
   ticketData.value.warehouse = warehouse
@@ -423,6 +458,69 @@ const updateTicket = (warehouse) => {
             </p>
           </div>
         </div>
+        <!-- <div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
+          <label class="ml-10">{{ t('reuse.importTicketStatus')}}</label>
+          <div class="w-[75%]">
+          <div class="flex items-center w-[100%]">
+            <div
+              class="duplicate-status"
+              v-for="item in arrayStatusWH"
+              :key="item.name"
+            >
+              <div
+                v-if="
+                  item.name == 'Khởi tạo & ghi số'
+                "
+              >
+                
+                <span
+                  class="box box_1 custom-after bg-gray-300 dark:text-gray-300"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+
+                  <span class="triangle-right right_1"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div
+                v-else-if="item.name == 'Xuất kho'"
+              >
+                
+                <span
+                  class="box box_2 custom-after text-blue-500 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_2"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div v-else-if="item.name == 'Hủy xuất kho'">
+                
+                <span
+                  class="box box_4 custom-after text-rose-500 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_4"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div> -->
+
         <div class="ml-[170px] flex">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
             t('reuse.printDeliveryNote')
@@ -444,6 +542,15 @@ const updateTicket = (warehouse) => {
               @click="updateInventory"
               >{{ t('reuse.outStockNow') }}</ElButton
             >
+            <ElButton
+              v-if="status == 1"
+              class="w-[150px]"
+              type="primary"
+              :disabled="type == 'add' || type == 'edit'"
+              @click="updateInventoryOrder"
+              >{{ t('formDemo.depositNow') }}</ElButton
+            >
+
             <ElButton
               class="w-[150px]"
               type="primary"
@@ -515,5 +622,83 @@ const updateTicket = (warehouse) => {
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 12px solid white;
+}
+
+
+.box {
+  padding: 0 10px 0 20px;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid #ccc;
+  background-color: #ccc;
+  opacity: 0.6;
+}
+
+.box_1 {
+  border: 1px solid rgba(209, 213, 219, var(--tw-bg-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgba(209, 213, 219, var(--tw-bg-opacity));
+
+}
+
+.box_2 {
+  border: 1px solid #f4f8fd;
+  background-color: #f4f8fd;
+}
+
+.box_3 {
+  border: 1px solid #d9d9d9;
+  background-color: #d9d9d9;
+}
+
+.box_4 {
+  border: 1px solid #fce5e1;
+  background-color: #fce5e1;
+}
+.duplicate-status + .duplicate-status {
+  margin-left: 10px;
+}
+.active {
+  opacity: 1 !important;
+}
+.right_1 {
+  border-left: 11px solid rgba(209, 213, 219, var(--tw-bg-opacity)) !important;
+}
+.right_2 {
+  border-left: 11px solid #f4f8fd !important;
+}
+
+.right_3 {
+  border-left: 11px solid #d9d9d9 !important;
+}
+
+.right_4 {
+  border-left: 11px solid #fce5e1 !important;
+}
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
+}
+.custom-after::after {
+  content: '';
+  position: absolute;
+  z-index: 1998;
+  width: 11px;
+  border-style: solid;
+  height: 100%;
+  left: -1px;
+  border-bottom-width: 12px;
+  border-left-width: 10px;
+  border-top-width: 12px;
+  border-bottom-color: transparent;border-top-color: transparent;
+  --tw-border-opacity: 1;
+  border-left-color: rgba(255, 255, 255, var(--tw-border-opacity));
 }
 </style>

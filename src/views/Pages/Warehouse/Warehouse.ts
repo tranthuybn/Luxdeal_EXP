@@ -128,6 +128,13 @@ export const wareHouse = [
     align: 'right'
   },
   {
+    field: 'inventory',
+    label: t('reuse.depositing'),
+    minWidth: '100',
+    sortable: true,
+    align: 'right'
+  },
+  {
     field: 'productPropertyAttribute[2].value',
     label: t('reuse.dram'),
     minWidth: '100'
@@ -179,7 +186,7 @@ export const wareHouse = [
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterLotStatus,
-    formatter: (row: Recordable, __: TableColumn, cellValue: boolean) => {
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', row.inventory > 0 ? t('reuse.stocking') : t('reuse.outOfStock'))
     }
   },

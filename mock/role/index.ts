@@ -948,9 +948,9 @@ const adminList = [
             },
             children: [
               {
-                path: 'payment-proposal-add/:type?/:id?/:approvalId?',
+                path: 'payment-proposal-list/:type?/:id?/:approvalId?',
                 component: 'views/Pages/Accountant/PaymentProposal/PaymentProposalAdd',
-                name: `accountant.payment-proposal.payment-proposal-add.${utility}`,
+                name: `accountant.payment-proposal.payment-proposal-list.${utility}`,
                 meta: {
                   title: 'router.paymentProposalAdd',
                   noTagsView: true,
@@ -1491,7 +1491,7 @@ const testList: string[] = [
   '/accountant',
   '/accountant/payment-proposal',
   '/accountant/payment-proposal/payment-proposal-list',
-  '/accountant/payment-proposal/payment-proposal-add/:type?/:id?/:approvalId?',
+  '/accountant/payment-proposal/payment-proposal-list/:type?/:id?/:approvalId?',
 
   '/accountant/receipts-expenditures',
   '/accountant/receipts-expenditures/receipts-expenditures-list',

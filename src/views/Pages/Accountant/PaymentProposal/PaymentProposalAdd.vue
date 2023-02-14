@@ -20,7 +20,8 @@ import {
   GetPaymentRequestDetail,
   getAllStaffList,
   getAllCustomer,
-  approvalOrder
+  approvalOrder,
+  addDNTT
 } from '@/api/Business'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { FORM_IMAGES } from '@/utils/format'
@@ -100,6 +101,7 @@ debtMoney: 0,
 depositeMoney: 0,
 description: null,
 enterMoney: "",
+OrderId: '',
 id: undefined,
 isDelete: false,
 orderId: undefined,
@@ -115,19 +117,19 @@ updatedAt: "",
 updatedBy: ""
 })
 
-const tableData = ref([
-  {
-    stt: '/Nhập tay/',
-    sct: '',
-    createdAt: new Date(),
-    content: '',
-    quanti: '',
-    price: '',
-    total: '',
-    note: '',
-  }
-  ])
-  const tableProduction = ref([
+interface typeOfTableData {
+  dayVouchers: any
+  note: string
+  numberVouchers: string | number
+  paymentRequestId: number | undefined
+  quantity: number
+  spentFor: string
+  totalPrice: number
+  unitPrice: number
+}
+
+const tableData = ref<Array<typeOfTableData>>([])
+const tableProduction = ref([
     {
        stt:'',
        masp:'',
@@ -150,30 +152,29 @@ const deleteRow = (index: number) => {
 const deleteRowProduction = (index: number) => {
   tableProduction.value.splice(index, 1)
 }
-// const input = ref('')
 
 const onAddItem = () => {
   tableData.value.push({    
-    stt: '',
-    sct: '',
-    createdAt: new Date(),
-    content: '',
-    quanti: '',
-    price: '',
-    total: '',
-    note: ''
+    dayVouchers: new Date(),
+    note: "",
+    numberVouchers: "",
+    paymentRequestId: undefined,
+    quantity: 1,
+    spentFor: "",
+    totalPrice: 0,
+    unitPrice: 0
   })
 }
 watch(
   () => tableData.value[tableData.value.length - 1],
   () => {
     if (
-      tableData.value[tableData.value.length - 1].sct &&
-      tableData.value[tableData.value.length - 1].createdAt &&
-      tableData.value[tableData.value.length - 1].content &&
-      tableData.value[tableData.value.length - 1].quanti &&
-      tableData.value[tableData.value.length - 1].price &&
-      tableData.value[tableData.value.length - 1].total
+      tableData.value[tableData.value.length - 1].numberVouchers &&
+      tableData.value[tableData.value.length - 1].dayVouchers &&
+      tableData.value[tableData.value.length - 1].spentFor &&
+      tableData.value[tableData.value.length - 1].quantity &&
+      tableData.value[tableData.value.length - 1].unitPrice &&
+      tableData.value[tableData.value.length - 1].totalPrice
     )
     onAddItem()
   },
@@ -182,26 +183,31 @@ watch(
   }
 )
 
-const postData= ()=>{
-   const payload = {
-    Code:form.value.code,
-    TotalMoney:0,
-    PaymentType:1,
-    PeopleId:1,
-    status:0,
-    PeopleType:0,
-    OrderId:0,
+const postData= () => {
+
+  if (!tableData.value[tableData.value.length - 1].numberVouchers) tableData.value.pop()
+
+  const payload = {
+    Code: form.value.code,
+    TotalMoney: form.value.totalMoney,
+    PaymentType: form.value.paymentType,
+    PeopleId: form.value.peopleId,
+    status: 1,
+    PeopleType: 1,
+    OrderId: form.value.orderId ?? '',
     Description:'a',
-    Document:[],
-    AccountingEntryId:[],
-    ReasonCollectMoney:'',
-    EnterMoney:'',
-    ExpensesDetail:'',
-    DepositeMoney:0,
-    DebtMoney:0,
-    TotalPrice:0
+    Document: [],
+    AccountingEntryId: [],
+    ReasonCollectMoney: form.value.reasonCollectMoney,
+    EnterMoney: form.value.enterMoney,
+    ExpensesDetail: tableData.value,
+    DepositeMoney: form.value.depositeMoney,
+    DebtMoney: form.value.debtMoney,
+    TotalPrice: form.value.totalPrice
    }
    console.log('payload:', payload);
+
+  //  addDNTT(FORM_IMAGES(payload))
 }
 
 const getDetailPayment = async() => {
@@ -338,10 +344,12 @@ const editData = () => {
     getDetailPayment()
   } else {
     form.value.code = curDate
+    onAddItem()
   }
 }
 
 onBeforeMount(() => {
+  if (type == ':type') type = 'add'
   editData()
   callApiStaffList()
   callCustomersApi()
@@ -378,7 +386,7 @@ onBeforeMount(() => {
                 />
               </el-select>
             </el-form-item>
-            <el-form-item label="Lý do chi tiền" prop="name" >
+            <el-form-item label="Lý do chi tiền" prop="reasonCollectMoney" >
               <el-input v-model="form.reasonCollectMoney" placeholder="Nhập mô tả" />
             </el-form-item>
 
@@ -416,7 +424,7 @@ onBeforeMount(() => {
         </div>
         <div class="flex-1">
           <el-divider content-position="left">Chứng từ kèm theo</el-divider>
-          <div class="">Mã đơn hàng {{ form.code }}</div>
+          <div v-if="type !== 'add'" >Mã đơn hàng {{ form?.OrderId }}</div>
         </div>
       </div>
       </el-collapse-item>
@@ -443,9 +451,9 @@ onBeforeMount(() => {
                 />
             </template>
           </el-table-column>
-          <el-table-column prop="note" label="Nội dung chi" >
+          <el-table-column prop="spentFor" label="Nội dung chi" >
             <template #default="props">
-                  <el-input v-model="props.row.note" />
+                  <el-input v-model="props.row.spentFor" />
             </template>
           </el-table-column>
           <el-table-column prop="quantity" label="Số lượng" >
@@ -466,7 +474,7 @@ onBeforeMount(() => {
                 v-model="props.row.unitPrice" 
                 @change="
                   () => {
-                    props.row.total = props.row.unitPrice * props.row.quantity
+                    props.row.totalPrice = props.row.unitPrice * props.row.quantity
                   }
                 "/>
             </template>
@@ -554,7 +562,7 @@ onBeforeMount(() => {
             </el-form-item>
             <el-form-item v-if="type != 'approval-payments'">
               <el-button>In phiếu</el-button>
-              <el-button type="primary">Lưu và chờ duyệt</el-button>
+              <el-button type="primary" @click="postData">Lưu và chờ duyệt</el-button>
               <el-button type="danger">Hủy</el-button>
             </el-form-item>
             <el-form-item v-else>

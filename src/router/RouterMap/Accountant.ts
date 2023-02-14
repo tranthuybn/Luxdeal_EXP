@@ -35,10 +35,10 @@ export default {
           }
         },
         {
-          path: 'payment-proposal-add/:type?/:id?/:approvalId?',
+          path: 'payment-proposal-list/:type?/:id?/:approvalId?',
           component: () =>
             import('@/views/Pages/Accountant/PaymentProposal/PaymentProposalAdd.vue'),
-          name: `accountant.payment-proposal.payment-proposal-add.${utility}`,
+          name: `accountant.payment-proposal.payment-proposal-list.${utility}`,
           meta: {
             title: t('router.paymentProposalAdd')
           }

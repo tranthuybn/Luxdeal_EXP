@@ -45,7 +45,7 @@ const detailedBrowsing = (scope: any) => {
     })
   } else {
     push({
-      name: `accountant.payment-proposal.payment-proposal-add.${utility}`,
+      name: `accountant.payment-proposal.payment-proposal-list.${utility}`,
       params: { type: 'approval-payments', id: scope.row.targetId, approvalId: scope.row.id }
     })
   }

@@ -1256,15 +1256,12 @@ const postData = async (pushBack: boolean) => {
       type: 'warning'
     })
   }
-
-  idOrderPost.value = res
-  automaticCouponWareHouse(2)
 }
 
 // Phiếu xuất kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value,
+    OrderId: id,
     Type: index
   }
 
@@ -2808,6 +2805,12 @@ const UpdateStatusTransaction = async() => {
 
 // Giữ hàng đang đặt cọc
 const keepGoodsOnDeposit = ref(true)
+
+// Hoàn thành đơn hàng -> call api phiếu nhập kho tự động
+const orderCompletion = () => {
+  automaticCouponWareHouse(2)
+  updateStatusOrders(STATUS_ORDER_SELL[5].orderStatus)
+}
 
 onBeforeMount(async () => {
   await editData()
@@ -5892,7 +5895,7 @@ onBeforeMount(async () => {
             }}</el-button>
             <el-button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)"
+              @click="orderCompletion"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button

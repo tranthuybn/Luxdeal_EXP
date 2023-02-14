@@ -1011,8 +1011,6 @@ const postData = async (pushBack: boolean) => {
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
-    await automaticCouponWareHouse(2, res)
-
     ElNotification({
       message: t('reuse.addSuccess'),
       type: 'success'
@@ -1032,9 +1030,9 @@ const postData = async (pushBack: boolean) => {
 }
 
 // Phiếu xuất kho tự động
-const automaticCouponWareHouse = async (index, idPost) => {
+const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idPost,
+    OrderId: id,
     Type: index
   }
 
@@ -1914,7 +1912,6 @@ const getOrderStransactionList = async () => {
   debtTable.value = transaction.data
 
   // Cập nhật lại bảng lịch sử công nợ
-  getOrderStransactionList()
 }
 
 // Thêm mã phiếu thu/chi vào debtTable
@@ -2356,6 +2353,7 @@ const callApiDetailAccountingEntry = async(index) => {
     if (el.productName) totalRentalProduct.value += el.totalPrice
   })
   statusAccountingEntry.value = formAccountingId.value.statusHistorys
+  statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
   if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
     showCreatedOrUpdateButton.value = false
     showCancelAcountingEntry.value = false
@@ -2387,6 +2385,7 @@ statusAccountingEntry.value.push({
 })
 
 // Xem chi tiết phiếu thanh toán tiền phí thuê
+let countApi = ref(0)
 const openDetailRentalPaymentBill = () => {
   nameDialog.value = 'bill'
   debtTable.value?.map((el) => {
@@ -2397,10 +2396,10 @@ const openDetailRentalPaymentBill = () => {
       })
     }
   })
-  let countApi = 0
+  
   feePaymentPeriod.value = optionAcountingEntry.value[0].value
-  if (countApi == 0) callApiDetailAccountingEntry(feePaymentPeriod.value)
-  countApi++
+  if (countApi.value == 0) callApiDetailAccountingEntry(feePaymentPeriod.value)
+  countApi.value++
   
   dialogRentalPaymentInformation.value = true
 }
@@ -2966,6 +2965,12 @@ const doneReturnGoods = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   await finishReturnOrder(formDataPayLoad)
   reloadStatusOrder()
+}
+
+// Bắt đầu thuê theo kỳ hạn -> call api phiếu nhập kho tự động
+const orderCompletion = () => {
+  automaticCouponWareHouse(2)
+  updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)
 }
 
 onBeforeMount(async() => {
@@ -5261,8 +5266,8 @@ onBeforeMount(async() => {
                       >+ {{ t('formDemo.quicklyAddProducts') }}</div
                     >
                   </div>
-                </template></MultipleOptionsBox
-              >
+                </template>
+              </MultipleOptionsBox>
             </template>
           </el-table-column>
           <el-table-column
@@ -5466,21 +5471,20 @@ onBeforeMount(async() => {
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
             <div class="h-[32px] text-right dark:text-[#fff]">
-              <div v-if="showPromo">{{
-                promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %`
-              }}</div>
+              <div v-if="showPromo">
+                {{promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %`}}
+              </div>
               <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
-            <div v-if="VAT" class="text-right dark:text-[#fff]">{{
-              VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''
-            }}</div>
-            <div v-else class="text-transparent :dark:text-transparent">s</div>
-            <div class="text-right dark:text-[#fff]">{{
-              totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
-            }}</div>
-            <div class="text-right dark:text-[#fff]">{{
-              totalDeposit != undefined ? changeMoney.format(totalDeposit) : '0 đ'
-            }}</div>
+            <div v-if="VAT" class="text-right dark:text-[#fff]">
+              {{VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''}}</div>
+              <div v-else class="text-transparent :dark:text-transparent">s</div>
+            <div class="text-right dark:text-[#fff]">
+              {{totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'}}
+            </div>
+            <div class="text-right dark:text-[#fff]">
+              {{totalDeposit != undefined ? changeMoney.format(totalDeposit) : '0 đ'}}
+            </div>
           </div>
 
           <div class="w-60 pl-2">
@@ -5736,7 +5740,7 @@ onBeforeMount(async() => {
             >
             <el-button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)"
+              @click="orderCompletion"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.startRentingTerm') }}</el-button

@@ -518,7 +518,6 @@ const remoteProductName = async (query: string) => {
 }
 const sameProductCode = ref(false)
 const fillAllInformation = async (data) => {
-  console.log('run here', data)
   const codeObj = CodeOptions.value.find((code) => code.value.toLowerCase() == data.toLowerCase())
     //if find code in api
     codeObj

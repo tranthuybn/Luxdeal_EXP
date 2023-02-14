@@ -904,7 +904,11 @@ const listServicesSpa = ref()
 
 const currentRow2 = ref(0)
 const spaNotChange = ref(true)
+const testSelect = (row) =>{
+  spaTableRef.value?.toggleRowSelection(listServicesSpa.value[row],true)
+}
 const callApiServicesSpa = async (scope) => {
+  let row:Number[] = []
   dialogFormSettingServiceSpa.value = true
   indexSpa.value = scope.$index
   if (scope.row.productPropertyId) {
@@ -914,14 +918,14 @@ const callApiServicesSpa = async (scope) => {
     listServicesSpa.value = res.data
     if(scope.row.spaServices.length >0 && scope.row.spaServices[0].id != 0 && scope.row.spaServices){
       scope.row.spaServices.forEach(spaService=>{
-        const row = listServicesSpa.value.findIndex(spa=>spa.id == spaService?.id)
-        if(row !== -1){
-          spaTableRef.value?.toggleRowSelection(listServicesSpa.value[row],true)
+        const rowIndex = listServicesSpa.value.findIndex(spa=>spa.id == spaService?.id)
+        if(rowIndex !== -1){
+          row.push(rowIndex)
         }
       })
     }
     currentRow2.value = scope.$index
-  })
+  }).finally(()=>row.forEach(index=>testSelect(index)))
     // if (countSpaClick.value > 1 && res.data.length > 0) {
     //   ElNotification({
     //     title: 'Info',
@@ -2149,7 +2153,7 @@ const editData = async () => {
     checkDisabled3.value = true
     disableCreateOrder.value = true
     disabledEdit.value = true
-    const res = await getOrderList({ Id: id, ServiceType: 5 })
+    const res = await getOrderList({ Id: id, ServiceType: 5, isApprove: type == 'approval-order'? true : null })
 
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -3779,41 +3783,9 @@ const postReturnRequest = async (reason) => {
           </el-table-column>
 
           <el-table-column
-            v-if="type == 'add' || type == ':type'"
             :label="t('router.ServiceLibrarySpaService')"
             prop="spaServices"
-            width="220"
-          >
-            <template #default="data">
-              <div class="flex w-[100%] items-center text-center">
-                <div class="flex-1 limit-text">
-                  <span v-for="item in data.row.spaServices" :key="item.value"
-                    >{{ item.label }}
-                  </span>
-                </div>
-
-                <div class="flex-1 text-right text-blue-500 cursor-pointer">
-                  <el-button
-                    :disabled="disabledEdit"
-                    text
-                    border
-                    @click="
-                      () => {
-                        callApiServicesSpa(data)
-                      }
-                    "
-                    ><span class="text-blue-500">+ {{ t('reuse.selectService') }}</span>
-                  </el-button>
-                </div>
-              </div>
-            </template>
-          </el-table-column>
-
-          <el-table-column
-            v-if="type == 'edit' || type == 'detail'"
-            :label="t('router.ServiceLibrarySpaService')"
-            prop="spaServices"
-            width="220"
+            width="250"
           >
             <template #default="data">
               <div class="flex w-[100%] items-center text-center">
@@ -3823,8 +3795,6 @@ const postReturnRequest = async (reason) => {
 
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
                   <el-button
-                    :disabled="statusOrder !== STATUS_ORDER_SPA[5].orderStatus &&
-                  statusOrder !== STATUS_ORDER_SPA[7].orderStatus && historyTable.length > 0"
                     text
                     border
                     @click="
@@ -4786,6 +4756,7 @@ const postReturnRequest = async (reason) => {
         <template #footer>
           <span class="dialog-footer">
             <el-button
+              :disabled="type == 'approval-order'"
               type="primary"
               @click="
                 () => {

@@ -124,6 +124,8 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    exportCode: 'Export warehouse code',
+    warehouserExport: 'Exporter warehouse',
     detailsOfPaymentRequest: 'Details of payment request',
     rentalRenewalInformation: 'Rental renewal information',
     approvedReturnAHeadOfTime: 'Approved return a head of time',
@@ -220,6 +222,8 @@ export default {
     billPawn: 'Bill pawn',
     selfDelivery: 'chose delivery method',
     choseDeliveryMethod: 'Chose delivery method',
+    sellDelivery: 'Receive at the seller warehouse address',
+    buyDelivery: 'Delivery to the buyer warehouse address',
     deliveryToYourPlace: 'delivery to your place',
     printSalesSlip: 'Print sales slip',
     deliveryNotes: 'Delivery note',
@@ -280,10 +284,31 @@ export default {
     byMonth: 'By month',
     addNewSalesOrders: 'Add new sales orders',
     addnewRentalOrders: 'Add new rental orders',
+    addNewPurchaseOrders: 'Add new purchase orders',
     addNewConsignmentOrders: 'Add new consignment orders',
     addNewPawnOrders: 'Add new pawn orders',
     addNewFlashSale: 'Add new Flash sale',
     addNewVoucher: 'Add new Voucher',
+    code: 'Code',
+    selfImportCode: 'Enter the code',
+    descriptionProduct: 'Status quo',
+    selfImportDescription: 'Enter product status',
+    amountBuy: 'Quantity',
+
+    approvalPurchaseOrder: 'Approval purchase orders',
+    exchangeReturnGoods: 'Exchange return goods',
+    cancelOrder: 'Cancel orders',
+    closingOrder: 'Closing orders',
+    successOrder: 'Success orders',
+    successfullPurchaseOrder: 'Successful purchase orders',
+    checkAndFinishOrder: 'Check and finish orders',
+    aprrovalExchangeReturn: 'Aprroval exchange/return orders',
+    completeExchangeReturnOrder: 'Complete exchange return orders',
+    approvalCancelOrder: 'Approval cancel orders',
+    buySlipInformation: 'Purchase voucher information',
+    qrCodePurchaseOrder: 'Order QR',
+    productInformationBuy: 'Product information buy',
+    buysDebt: 'Purchase deibt',
 
     addNewSpaOrders: 'Add new Spa Orders',
     startDay: 'Start day',
@@ -527,7 +552,6 @@ export default {
     productInformationExportChange: 'Product information export and change',
     completeOrder: 'Complete order',
     editOrder: 'Edit order',
-    exchangeReturnGoods: 'Exchange or return goods',
     checkFinish: 'Check and finish',
     cancellationReturn: 'Cancellation or return',
     completeExchangeReturn: 'Complete exchange or return',
@@ -576,7 +600,9 @@ export default {
     cancelVoucher: 'Cancel voucher',
     cancelResult: 'Cancel result',
     cancelOrder: 'Cancel order',
-    print: 'Print'
+    print: 'Print',
+    printImport: 'Save and write bill import entry',
+    printExport: 'Save and write bill exchange entry'
   },
   router: {
     notApproval: 'Not approval',
@@ -1745,7 +1771,18 @@ export default {
     informationTransferReturnSpaTicket: 'Information transfer return spa ticket',
     informationProductTransferReturn: 'Information product transfer return',
     hasSpa: 'Has Spa',
-    hasNotSpa: 'Has not Spa'
+    hasNotSpa: 'Has not Spa',
+    purchaseUnitPrices: 'Purchase unit prices',
+    totalPayment: 'Total payment',
+    approvalReturnRequest: 'Approval return request orders',
+    informationReturnImportProduct: 'Information return import products',
+    totalPurchaseMoney: 'Total purchase money',
+    addAccountingEntry: 'Add new accounting entry',
+    addReceiptBill: 'Add new receipt bill',
+    addPaymentBill: 'Add new payment bill',
+    addPaymentRequestBill: 'Add new payment request bill',
+    moneyReceipts: 'Money receipts',
+    moneyPaid: 'Money paid'
   }
 }
   

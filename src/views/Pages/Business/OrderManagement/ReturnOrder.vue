@@ -1423,7 +1423,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantityReturn')" width="90">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max=scope.row.quantity :min="0" />
+            <el-input v-model="scope.row.quantity" type="number" :max=scope.row.returnedQuantity :min="0" />
           </template>
         </el-table-column>
         <el-table-column

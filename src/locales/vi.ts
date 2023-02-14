@@ -629,7 +629,17 @@ export default {
     codePayment: 'Mã phiếu chi',
     infoReturnAheadOfTime: 'Thông tin trả hàng trước hạn',
     infoReturnExpired: 'Trả hàng hết hạn',
-    planningAccount: 'Tài khoản hoạch toán'
+    planningAccount: 'Tài khoản hoạch toán',
+    approvalPurchaseOrder: 'Duyệt đơn mua hàng',
+    cancelOrder: 'Hủy đơn hàng',
+    closingOrder: 'Chốt đơn hàng',
+    successOrder: 'Đặt hàng thành công',
+    successfullPurchaseOrder: 'Mua hàng thành công',
+    checkAndFinishOrder: 'Đối soát & kết thúc',
+    aprrovalExchangeReturn: 'Duyệt đổi/trả hàng',
+    completeExchangeReturnOrder: 'Hoàn thành đổi/trả hàng',
+    approvalCancelOrder: 'Duyệt hủy đơn hàng',
+    qrCodePurchaseOrder: 'Mã QR đơn hàng',
   },
   button: {
     add: 'Thêm nhanh',
@@ -1931,6 +1941,13 @@ export default {
     informationTransferReturnSpaTicket: 'Thông tin phiếu chuyển kho trả hàng Spa',
     informationProductTransferReturn: 'Thông tin sản phẩm chuyển trả',
     hasSpa: 'Đã Spa',
-    hasNotSpa: 'Chưa Spa'
+    hasNotSpa: 'Chưa Spa',
+    totalPayment: 'Tổng thanh toán',
+    addAccountingEntry: 'Thêm bút toán',
+    addReceiptBill: 'Thêm phiếu thu',
+    addPaymentBill: 'Thêm phiếu chi',
+    addPaymentRequestBill: 'Thêm phiếu đề nghị thanh toán',
+    moneyReceipts: 'Số tiền thu',
+    moneyPaid: 'Số tiền chi'
   }
 }

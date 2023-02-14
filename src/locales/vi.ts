@@ -1436,6 +1436,7 @@ export default {
     informationSeo: 'Thông tin SEO',
     path: 'Đường dẫn',
     quantityTo: 'Số lượng đến',
+    quantityFrom: 'Số lượng từ',
     unitPrices: 'Đơn giá bán',
     purchaseUnitPrices: 'Đơn giá mua',
     promotionPrice: 'Giá khuyến mại',

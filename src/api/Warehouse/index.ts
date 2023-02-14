@@ -125,6 +125,18 @@ export const UpdateInventoryOrder = async (params: any): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+export const ExportForDespositingTic = async (params: any): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${WAREHOUSE_API.EXPORT_FOR_DEPOSITING_TICKET}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const updateTicketManually = async (params: any): Promise<IResponse> => {
   const res = await request.put(
     {

@@ -1446,6 +1446,7 @@ export default {
     descriptionParameters: 'Description parameters',
     productStatus: 'Product status',
     quantityTo: 'Quantity Incoming',
+    quantityFrom: 'Quantity from',
     unitPrices: 'Unit prices',
     promotionPrice: 'Promotion prices',
     dateEditCreate: 'Date Create/Edit',

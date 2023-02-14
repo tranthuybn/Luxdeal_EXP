@@ -942,6 +942,10 @@ watch(
       btnAddSale.value = true
     }
 
+    if(type == 'detail'){
+      btnAddSale.value = true
+    }
+
     if(type == 'edit'){
       if (columnProfileCustomer[21].componentProps !== undefined) {
         columnProfileCustomer[21].componentProps.disabled = false

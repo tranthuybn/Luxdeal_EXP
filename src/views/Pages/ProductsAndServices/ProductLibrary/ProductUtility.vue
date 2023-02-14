@@ -572,8 +572,6 @@ const postData = async (data) => {
       })
       //disabledTabOpen = false when click button Add
       //disabledTabOpen = true when click button SaveAndAdd
-      console.log('data.disabledTabOpen', data.disabledTabOpen);
-      
       if (data.disabledTabOpen) {
         disabledTabOpen.value = data.disabledTabOpen
         router.push({

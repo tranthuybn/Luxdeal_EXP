@@ -234,7 +234,7 @@ const save = async (type) => {
       }
       let parentNode = true
       let ProductTypeId = treeSelectData.value.find((tree) => {
-        if (tree.children.length > 0) {
+        if (tree?.children.length > 0) {
           parentNode = false
           return tree?.children.find((child) => child.label == data.ProductTypeId)
         } else {
@@ -244,7 +244,7 @@ const save = async (type) => {
       })
       parentNode
         ? (ProductTypeId = ProductTypeId)
-        : (ProductTypeId = ProductTypeId.children.find(
+        : (ProductTypeId = ProductTypeId?.children.find(
             (options) => options.label === data.ProductTypeId
           ))
       ProductTypeId
@@ -518,11 +518,12 @@ const remoteProductName = async (query: string) => {
 }
 const sameProductCode = ref(false)
 const fillAllInformation = async (data) => {
+  console.log('run here', data)
   const codeObj = CodeOptions.value.find((code) => code.value.toLowerCase() == data.toLowerCase())
     //if find code in api
     codeObj
       ? //ask if they want to change value of product type, brand ..
-        ElMessageBox.confirm(t('reuse.fillProductInformation'), t('reuse.notification'), {
+        ElMessageBox.confirm(t('reuse.fillProductInformation'), t('reuse.productCodeExist'), {
           confirmButtonText: t('reuse.confirm'),
           cancelButtonText: t('reuse.cancel'),
           type: 'info'
@@ -628,6 +629,7 @@ const productName = ref('')
 const setProductCode = () => {
   setValues({ ProductCode: productCode.value })
   fillAllInformation(productCode.value)
+  productCode.value = ''
 }
 const setProductName = () => {
   setValues({ ProductName: productName.value })
@@ -737,7 +739,8 @@ const approvalProduct = async () => {
                 >
                   <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
                   <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                    >{{ t('reuse.productName') }}: {{ item.value }}</span
+                    >{{ t('reuse.productName') }}: {{ item.name
+ }}</span
                   >
                 </el-option>
               </div>

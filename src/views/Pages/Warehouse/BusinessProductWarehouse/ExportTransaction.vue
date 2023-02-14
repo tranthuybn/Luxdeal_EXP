@@ -553,7 +553,7 @@ const updateTicket = (warehouse) => {
               v-if="Number(ticketData.orderId) !== 0"
               :disabled="type == 'add' || type == 'edit'"
               @click="updateInventoryOrder"
-              >{{ t('reuse.outStockNow') }} 1</ElButton
+              >{{ t('reuse.outStockNow') }}</ElButton
             >
             <ElButton
               v-if="status == 2"
@@ -561,7 +561,7 @@ const updateTicket = (warehouse) => {
               type="primary"
               :disabled="type == 'add' || type == 'edit'"
               @click="updateInventory"
-              >{{ t('reuse.outStockNow') }} 2</ElButton
+              >{{ t('reuse.outStockNow') }}</ElButton
             >
             <ElButton
               v-if="status == 5"
@@ -578,7 +578,7 @@ const updateTicket = (warehouse) => {
               type="primary"
               :disabled="type == 'add' || type == 'edit'"
               @click="exportInventoryNow"
-              >{{ t('reuse.outStockNow') }}3</ElButton
+              >{{ t('reuse.outStockNow') }}</ElButton
             >
 
             <ElButton

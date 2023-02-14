@@ -2154,7 +2154,7 @@ const editData = async () => {
     checkDisabled3.value = true
     disableCreateOrder.value = true
     disabledEdit.value = true
-    const res = await getOrderList({ Id: id, ServiceType: 5 })
+    const res = await getOrderList({ Id: id, ServiceType: 5, isApprove: type == 'approval-order'? true : null })
 
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)

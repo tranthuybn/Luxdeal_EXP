@@ -400,6 +400,7 @@ export default {
     rentalPayment: 'Thành tiền phí cho thuê',
     spaServiceFeePayment: 'Đơn giá phí dịch vụ Spa/1 sản phẩm',
     consignmentPriceForSale: 'Giá ký gửi bán',
+    priceForSale: 'Giá bán',
     depositpriceForRentalByDay: 'Giá ký gửi cho thuê theo ngày',
     depositpriceForRental: 'Giá ký gửi cho thuê/ngày',
     testOrSpa: 'Đã Spa/ kiểm tra',
@@ -639,6 +640,7 @@ export default {
     completeExchangeReturnOrder: 'Hoàn thành đổi/trả hàng',
     approvalCancelOrder: 'Duyệt hủy đơn hàng',
     qrCodePurchaseOrder: 'Mã QR đơn hàng',
+    paymentByApp: 'Thanh toán thông qua app Luxdeal',
   },
   button: {
     add: 'Thêm nhanh',

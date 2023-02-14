@@ -3165,7 +3165,7 @@ onBeforeMount(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Số tiền thu</label>
+            <label class="w-[30%] text-right">{{ t('reuse.moneyReceipts') }}</label>
             <div class="w-[100%] text-xl">{{ moneyReceipts }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
@@ -3190,7 +3190,7 @@ onBeforeMount(async () => {
             </el-select>
           </div>
           <div class="flex gap-4 pt-4 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -3285,7 +3285,7 @@ onBeforeMount(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Số tiền chi</label>
+            <label class="w-[30%] text-right">{{ t('reuse.moneyPaid') }}</label>
             <div class="w-[100%] text-xl">{{ changeMoney.format(moneyPaid) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
@@ -3310,7 +3310,7 @@ onBeforeMount(async () => {
             </el-select>
           </div>
           <div class="flex gap-4 pt-4 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -3491,7 +3491,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex justify-end mr-[90px]">
             <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">Tổng tiền</p>
+              <p class="text-black font-bold dark:text-white">{{ t('formDemo.total') }}</p>
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2 text-black font-bold dark:text-white">
@@ -3504,8 +3504,11 @@ onBeforeMount(async () => {
           ></span>
           <div class="flex w-[100%] justify-end">
             <div class="w-[145px] text-right">
-              <p class="text-blue-400 mb-2">Đặt cọc <span class="text-red-500">*</span></p>
-              <p class="text-red-600">Còn lại</p>
+              <p class="text-blue-400 mb-2">
+                {{ t('formDemo.deposit') }}
+                <span class="text-red-500">*</span>
+              </p>
+              <p class="text-red-600">{{ t('reuse.remaining') }}</p>
             </div>
             <div class="w-[145px] text-right">
               <input
@@ -3552,7 +3555,7 @@ onBeforeMount(async () => {
             </el-select>
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -3625,7 +3628,7 @@ onBeforeMount(async () => {
       >
         <div>
           <el-divider />
-          <div class="flex items-center">
+          <div class="flex items-center mt-2">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.orderInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
@@ -3640,7 +3643,7 @@ onBeforeMount(async () => {
             </div>
             <div class="flex-1 flex items-start gap-4">
               <span class="text-right">
-                <div>Mã QR đơn hàng</div>
+                <div>{{ t('formDemo.qrCodePurchaseOrder') }}</div>
               </span>
 
               <span class="border">
@@ -3691,8 +3694,8 @@ onBeforeMount(async () => {
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
-              <p>Thành tiền</p>
-              <p class="text-black font-bold dark:text-white">Tổng thanh toán</p>
+              <p>{{ t('formDemo.intoMoney') }}</p>
+              <p class="text-black font-bold dark:text-white">{{ t('reuse.totalPayment') }}</p>
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2">{{
@@ -3708,10 +3711,10 @@ onBeforeMount(async () => {
           ></span>
           <div class="flex w-[100%] align-middle justify-end">
             <div class="w-[145px] text-right pr-2">
-              <p class="pt-2">Công nợ tồn</p>
-              <p class="text-blue-400 pt-2">Thanh toán <span class="text-red-500">*</span></p>
+              <p class="pt-2">{{ t('reuse.unpaidDebt') }}</p>
+              <p class="text-blue-400 pt-2">{{ t('router.payments') }}<span class="text-red-500">*</span></p>
 
-              <p class="text-red-600 pt-2">Còn lại</p>
+              <p class="text-red-600 pt-2">{{ t('reuse.remaining') }}</p>
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2 pt-2">{{ moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ' }}</p>
@@ -3732,7 +3735,7 @@ onBeforeMount(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Thanh toán</label>
+            <label class="w-[30%] text-right">{{ t('router.payments') }}</label>
             <div class="w-[100%]">
               <el-checkbox
                 v-model="alreadyPaidForTt"
@@ -3753,7 +3756,7 @@ onBeforeMount(async () => {
             </el-select>
           </div>
           <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -3859,7 +3862,7 @@ onBeforeMount(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
@@ -4589,7 +4592,7 @@ onBeforeMount(async () => {
             </div>
             <div class="flex-1 flex items-start gap-4">
               <span>
-                <div>Mã QR đơn hàng</div>
+                <div>{{ t('formDemo.qrCodePurchaseOrder') }}</div>
               </span>
 
               <span class="border"><Qrcode :width="100" :text="sellOrderCode" /></span>
@@ -4650,7 +4653,7 @@ onBeforeMount(async () => {
                   valueKey="productPropertyId"
                   labelKey="productPropertyName"
                   :hiddenKey="['id']"
-                  :placeHolder="'Chọn mã sản phẩm'"
+                  :placeHolder="t('reuse.chooseProductCode')"
                   @scroll-top="ScrollProductTop"
                   @scroll-bottom="ScrollProductBottom"
                   :clearable="false"
@@ -4735,7 +4738,7 @@ onBeforeMount(async () => {
                   valueKey="productPropertyId"
                   labelKey="productPropertyName"
                   :hiddenKey="['id']"
-                  :placeHolder="'Chọn mã sản phẩm'"
+                  :placeHolder="t('reuse.chooseProductCode')"
                   @scroll-top="ScrollProductTop"
                   @scroll-bottom="ScrollProductBottom"
                   :clearable="false"
@@ -4811,7 +4814,7 @@ onBeforeMount(async () => {
         </div>
         <div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">Thanh toán</label>
+            <label class="w-[30%] text-right">{{ t('router.payments') }}</label>
             <div class="w-[100%]">
               <el-checkbox
                 v-model="alreadyPaidForTt"
@@ -4833,7 +4836,7 @@ onBeforeMount(async () => {
             </el-select>
           </div>
           <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
+            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
             <div class="flex items-center w-[100%]">
               <div class="flex items-center gap-2 flex-wrap w-[100%]">
                 <div class="flex gap-4">  
@@ -4937,7 +4940,7 @@ onBeforeMount(async () => {
                 valueKey="productPropertyId"
                 labelKey="code"
                 :hiddenKey="['id']"
-                :placeHolder="'Chọn mã sản phẩm'"
+                :placeHolder="t('reuse.chooseProductCode')"
                 :defaultValue="props.row?.productPropertyId"
                 @scroll-top="ScrollProductTop"
                 @scroll-bottom="ScrollProductBottom"
@@ -5426,7 +5429,7 @@ onBeforeMount(async () => {
               "
               v-if="statusOrder == STATUS_ORDER_PURCHASE[2].orderStatus"
               class="min-w-42 min-h-11"
-              >{{ t('formDemo.orderSuccess') }}</el-button
+              >{{ t('formDemo.successOrder') }}</el-button
             >
             <el-button
               type="primary"
@@ -5440,7 +5443,7 @@ onBeforeMount(async () => {
                 statusOrder == STATUS_ORDER_PURCHASE[3].orderStatus
               "
               class="min-w-42 min-h-11"
-              >{{ t('formDemo.purchaseSuccess') }}</el-button
+              >{{ t('formDemo.successfullPurchaseOrder') }}</el-button
             >
             <button
               @click="
@@ -5538,16 +5541,16 @@ onBeforeMount(async () => {
             }
           "
           :disabled="checkAccountEntry"
-          >+ Thêm bút toán</el-button
+          >+ {{ t('reuse.addAccountingEntry') }}</el-button
         >
         <el-button :disabled="checkReceiptOrPayment" @click="openReceiptDialog" text
-          >+ Thêm phiếu thu</el-button
+          >+ {{ t('reuse.addReceiptBill') }}</el-button
         >
         <el-button :disabled="checkReceiptOrPayment" @click="openPaymentDialog" text
-          >+ Thêm phiếu chi</el-button
+          >+ {{ t('reuse.addPaymentBill') }}</el-button
         >
         <el-button :disabled="checkPaymentRequest" @click="openPaymentRequestDialog" text
-          >+ Thêm đề nghị thanh toán</el-button
+          >+ {{ t('reuse.addPaymentRequestBill') }}</el-button
         >
         <el-table
           ref="multipleTableRef"
@@ -5634,9 +5637,9 @@ onBeforeMount(async () => {
           >
             <template #default="props">
               <div v-if="props.row.receiveMoney > props.row.paidMoney" class="text-blue-500">
-                Phải thu
+                {{ t('reuse.haveToCollect') }}
               </div>
-              <div v-else class="text-red-500"> Phải chi </div>
+              <div v-else class="text-red-500">{{ t('reuse.havetoPay') }}</div>
             </template>
           </el-table-column>
           <el-table-column

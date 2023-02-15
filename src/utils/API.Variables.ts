@@ -1,3 +1,6 @@
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
+
 export const PRODUCTS_AND_SERVICES = [
   {
     value: 0,
@@ -233,55 +236,55 @@ export const ORDER_STATUS = [
 export const STATUS_ORDER_PURCHASE = [
   {
     orderStatus: -1,
-    orderStatusName: 'Hủy đơn hàng',
+    orderStatusName: t('formDemo.cancelOrder'),
     createdAt: '',
     approvedAt: ''
   },
   {
     orderStatus: 61,
-    orderStatusName: 'Duyệt đơn mua hàng',
+    orderStatusName: t('formDemo.approvalPurchaseOrder'),
     createdAt: '',
     approvedAt: ''
   },
   {
     orderStatus: 2,
-    orderStatusName: 'Chốt đơn hàng',
+    orderStatusName: t('formDemo.closingOrder'),
     createdAt: '',
     approvedAt: ''
   },
   {
     orderStatus: 63,
-    orderStatusName: 'Đặt hàng thành công',
+    orderStatusName: t('formDemo.successOrder'),
     createdAt: '',
     approvedAt: ''
   },
   {
     orderStatus: 64,
-    orderStatusName: 'Mua hàng thành công',
+    orderStatusName: t('formDemo.successfullPurchaseOrder'),
     createdAt: '',
     approvedAt: ''
   },
   {
     orderStatus: 3,
-    orderStatusName: 'Đối soát & kết thúc',
+    orderStatusName: t('formDemo.checkAndFinishOrder'),
     createdAt: '',
     approvedAt: ''
   },
   {
     orderStatus: 65,
-    orderStatusName: 'Duyệt đổi/trả hàng',
+    orderStatusName: t('formDemo.aprrovalExchangeReturn'),
     createdAt: '',
     approvedAt: ''
   },
   {
     orderStatus: 66,
-    orderStatusName: 'Hoàn thành đổi/trả hàng',
+    orderStatusName: t('formDemo.completeExchangeReturnOrder'),
     createdAt: '',
     approvedAt: ''
   },
   {
     orderStatus: 0,
-    orderStatusName: 'Duyệt hủy đơn hàng',
+    orderStatusName: t('formDemo.approvalCancelOrder'),
     createdAt: '',
     approvedAt: ''
   },

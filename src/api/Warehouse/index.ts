@@ -129,8 +129,7 @@ export const UpdateInventoryOrder = async (params: any): Promise<IResponse> => {
 export const ExportForDespositingTic = async (params: any): Promise<IResponse> => {
   const res = await request.put(
     {
-      url: `${WAREHOUSE_API.EXPORT_FOR_DEPOSITING_TICKET}`,
-      data: params
+      url: `${WAREHOUSE_API.EXPORT_FOR_DEPOSITING_TICKET}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

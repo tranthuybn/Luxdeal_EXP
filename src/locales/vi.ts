@@ -123,6 +123,10 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    cancelAccountingEntry: 'Hủy bút toán',
+    expired: 'Hết hạn',
+    keepGoodsOnDeposit: 'Giữ hàng đang đặt cọc',
+    initializationBookkeeping: 'Khởi tạo & ghi sổ',
     informationProductExtend: 'Thông tin sản phẩm gia hạn',
     consignmentproductinformation: ' Thông tin sản phẩm ký gửi bán',
     detailsOfPaymentRequest: 'Thông tin chi tiết đề nghị thanh toán',

@@ -10,6 +10,7 @@ import ExportPW from './ExportPW.vue'
 import {
   cancelTicket,
   createTicketManually,
+  ExportForDespositingTic,
   UpdateInventory,
   UpdateInventoryOrder,
   updateTicketManually
@@ -374,6 +375,28 @@ const updateInventoryOrder = async () => {
     )
 }
 
+const exportInventoryNow = async () => {
+  const payload = {
+    TicketId: id.value,
+  }
+  await ExportForDespositingTic({payload})
+    .then(() => {
+      ElNotification({
+        message: t('reuse.success'),
+        type: 'success'
+      }),
+        push({
+          name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.fail'),
+        type: 'warning'
+      })
+    )
+}
+
 if (type.value == 'add')
   arrayStatusWH.value.push({
     name: 'Khởi tạo & ghi số',
@@ -533,7 +556,7 @@ const updateTicket = (warehouse) => {
               >{{ t('reuse.outStockNow') }}</ElButton
             >
             <ElButton
-              v-else
+              v-if="status == 2"
               class="w-[150px]"
               type="primary"
               :disabled="type == 'add' || type == 'edit'"
@@ -541,12 +564,21 @@ const updateTicket = (warehouse) => {
               >{{ t('reuse.outStockNow') }}</ElButton
             >
             <ElButton
-              v-if="status == 1"
+              v-if="status == 5"
               class="w-[150px]"
               type="primary"
               :disabled="type == 'add' || type == 'edit'"
               @click="updateInventoryOrder"
               >{{ t('formDemo.depositNow') }}</ElButton
+            >
+
+            <ElButton
+              v-if="status == 6"
+              class="w-[150px]"
+              type="primary"
+              :disabled="type == 'add' || type == 'edit'"
+              @click="exportInventoryNow"
+              >{{ t('reuse.outStockNow') }}</ElButton
             >
 
             <ElButton

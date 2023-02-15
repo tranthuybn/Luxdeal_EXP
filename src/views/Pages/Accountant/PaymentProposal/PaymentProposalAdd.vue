@@ -12,73 +12,63 @@ import {
   ElInput,
   ElForm,
   ElFormItem,
-  ElDatePicker,
-  // ElRow
+  ElDatePicker  
 } from 'element-plus'
-import { reactive, ref, watch } from 'vue'; 
-import { dateTimeFormat } from '@/utils/format';
+import type {FormRules, FormInstance} from 'element-plus'
+import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import {
+  GetPaymentRequestDetail,
+  getAllStaffList,
+  getAllCustomer,
+  approvalOrder,
+  addDNTT
+} from '@/api/Business'
+import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { FORM_IMAGES } from '@/utils/format'
+import { dateTimeFormat } from '@/utils/format'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment';
-// import { placeholder } from '@babel/types';
-// const { currentRoute } = useRouter()
+import { useRoute, useRouter } from 'vue-router'
+
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
+
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
+
+const ruleFormRef = ref<FormInstance>()
+
+//lay du lieu tu router
+const router = useRouter()
+const route = useRoute()
+
+let id: any = Number(router.currentRoute.value.params.id)
+let type = String(route.params.type)
+const approvalId = String(route.params.approvalId)
+
+// Validate
+const rules = reactive<FormRules>({  
+  peopleId: [
+   { required: true, message: 'Chọn dữ liệu' },
+   { type: 'string', message: 'Chọn giá trị' }   
+  ]                      
+})
 
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.paymentrequestinformation'),
-    columns: [],
-    api: undefined,
-    buttonAdd: '',
-    typeForm: 'form',
-    typeButton: 'form01',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 3
+    title: t('formDemo.paymentrequestinformation')
   },
   {
     icon: plusIcon,
     name: 'productAndPayment',
-    title: t('formDemo.detailedlistofexpenses'),
-    columns: [],
-    api: undefined,
-    buttonAdd: '',
-    typeForm: 'form',
-    typeButton: 'form01',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 3
-  },{
-    icon: plusIcon,
-    name: 'productAndPayment',
-    title: t('formDemo.consignmentproductinformation'),
-    columns: [],
-    api: undefined,
-    buttonAdd: '',
-    typeForm: 'form',
-    typeButton: 'form01',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 3
+    title: t('formDemo.detailedlistofexpenses')
   }
 ]
 
@@ -97,31 +87,49 @@ const collapseChangeEvent = (val) => {
 const activeName = ref([collapse[0].name, collapse[1].name])
 const ishow= ref(false)
 const ishide = ref(true)
-const changeshow = () =>{ return ishow.value=true, ishide.value=false}
-const hide = () =>{ return ishide.value=true,ishow.value=false}
+// const changeshow = () =>{ return ishow.value=true, ishide.value=false}
+// const hide = () =>{ return ishide.value=true,ishow.value=false}
 var curDate = 'DNTT' + moment().format('hhmmss')
 
-const form = reactive({
-  code: curDate,
-  date: new Date(),
-  region: '',
-  text: '',
-  MaDH: 'BH3435',
-  text2:''
+let form = ref({
+attachDocument: false,
+code: "",
+createdAt: new Date(),
+createdBy: "",
+idCustomer: '',
+debtMoney: 0,
+depositeMoney: 0,
+description: null,
+enterMoney: "",
+OrderId: '',
+id: undefined,
+isDelete: false,
+orderId: undefined,
+paymentType: true,
+peopleId: undefined,
+peopleName: null,
+pepopleType: 1,
+reasonCollectMoney: "",
+status: 1,
+totalMoney: 0,
+totalPrice: 0,
+updatedAt: "",
+updatedBy: ""
 })
-const tableData = ref([
-  {
-    stt: '/Nhập tay/',
-    sct: '',
-    date: new Date(),
-    content: '',
-    quanti: '',
-    price: '',
-    total: '',
-    note: '',
-  }
-  ])
-  const tableProduction = ref([
+
+interface typeOfTableData {
+  dayVouchers: any
+  note: string
+  numberVouchers: string | number
+  paymentRequestId: number | undefined
+  quantity: number
+  spentFor: string
+  totalPrice: number
+  unitPrice: number
+}
+
+const tableData = ref<Array<typeOfTableData>>([])
+const tableProduction = ref([
     {
        stt:'',
        masp:'',
@@ -144,30 +152,29 @@ const deleteRow = (index: number) => {
 const deleteRowProduction = (index: number) => {
   tableProduction.value.splice(index, 1)
 }
-// const input = ref('')
 
 const onAddItem = () => {
   tableData.value.push({    
-    stt: '',
-    sct: '',
-    date: new Date(),
-    content: '',
-    quanti: '',
-    price: '',
-    total: '',
-    note: ''
+    dayVouchers: new Date(),
+    note: "",
+    numberVouchers: "",
+    paymentRequestId: undefined,
+    quantity: 1,
+    spentFor: "",
+    totalPrice: 0,
+    unitPrice: 0
   })
 }
 watch(
   () => tableData.value[tableData.value.length - 1],
   () => {
     if (
-      tableData.value[tableData.value.length - 1].sct &&
-      tableData.value[tableData.value.length - 1].date &&
-      tableData.value[tableData.value.length - 1].content &&
-      tableData.value[tableData.value.length - 1].quanti &&
-      tableData.value[tableData.value.length - 1].price &&
-      tableData.value[tableData.value.length - 1].total
+      tableData.value[tableData.value.length - 1].numberVouchers &&
+      tableData.value[tableData.value.length - 1].dayVouchers &&
+      tableData.value[tableData.value.length - 1].spentFor &&
+      tableData.value[tableData.value.length - 1].quantity &&
+      tableData.value[tableData.value.length - 1].unitPrice &&
+      tableData.value[tableData.value.length - 1].totalPrice
     )
     onAddItem()
   },
@@ -175,247 +182,395 @@ watch(
     deep: true
   }
 )
-const currentCreator = ref()
-var data:any = localStorage.getItem('STAFF_INFO');
-  const datas = JSON.parse(data)
-  currentCreator.value = JSON.parse(datas.v)
-  if ( typeof(Storage) !== "undefined") {
 
-  } 
-  else 
-{
-  alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
-}
+const postData= () => {
 
-const postData= ()=>{
-   const payload = {
-    Code:form.code,
-    TotalMoney:0,
-    PaymentType:1,
-    PeopleId:1,
-    status:0,
-    PeopleType:0,
-    OrderId:0,
+  if (!tableData.value[tableData.value.length - 1].numberVouchers) tableData.value.pop()
+
+  const payload = {
+    Code: form.value.code,
+    TotalMoney: form.value.totalMoney,
+    PaymentType: form.value.paymentType,
+    PeopleId: form.value.peopleId,
+    status: 1,
+    PeopleType: 1,
+    OrderId: form.value.orderId ?? '',
     Description:'a',
-    Document:[],
-    AccountingEntryId:[],
-    ReasonCollectMoney:'',
-    EnterMoney:'',
-    ExpensesDetail:'',
-    DepositeMoney:0,
-    DebtMoney:0,
-    TotalPrice:0
+    Document: [],
+    AccountingEntryId: [],
+    ReasonCollectMoney: form.value.reasonCollectMoney,
+    EnterMoney: form.value.enterMoney,
+    ExpensesDetail: tableData.value,
+    DepositeMoney: form.value.depositeMoney,
+    DebtMoney: form.value.debtMoney,
+    TotalPrice: form.value.totalPrice
    }
    console.log('payload:', payload);
+
+  //  addDNTT(FORM_IMAGES(payload))
 }
 
-const depositPrice = ref(0)
+const getDetailPayment = async() => {
+  const res = await GetPaymentRequestDetail({id: id})
 
-// const choice = ()=>{ishow=false}
+  form.value = res.data.paymentRequest
+  tableData.value = res.data.paymentRequestDetail
+  console.log('form:', form.value)
+  console.log('formCode: ', form.value.code)
+}
 
+const optionsPayments = [
+  {
+    value: true,
+    key: 1,
+    label: 'Thanh toán tiền mặt',
+  },
+  {
+    value: false,
+    key: 2,
+    label: 'Thanh toán qua thẻ',
+  }
+]
+
+// Danh sách nhân viên
+// const currentCreator = ref()
+const getStaffList = ref()
+const callApiStaffList = async () => {
+  const res = await getAllStaffList({ PageIndex: 1, PageSize: 40 })
+  getStaffList.value = res.data.map((el) => ({
+    value: el?.id,
+    label: el?.name + ' | ' + el?.contact
+  }))
+  // getStaffList.value.push(
+  //   {
+  //     value: currentCreator.value.id,
+  //     label: currentCreator.value.name + ' | ' + currentCreator.value.contact
+  //   }
+  // )
+}
+
+// Call api danh sách khách hàng
+// infinity scroll KH
+const pageIndexCustomer = ref(1)
+const optionsCustomerApi = ref<Array<any>>([])
+const callCustomersApi = async () => {
+  const res = await getAllCustomer({
+    PageIndex: pageIndexCustomer.value,
+    PageSize: 20
+  })
+  const getCustomerResult = res.data
+  if (res.data && res.data?.length > 0) {
+    optionsCustomerApi.value = getCustomerResult.map((customer) => ({
+      code: customer.code,
+      label: customer.isOrganization
+        ? customer.name + ' | MST ' + customer.taxCode
+        : customer.name + ' | ' + customer.phonenumber,
+      address: customer.address,
+      name: customer.name,
+      value: customer.id,
+      isOrganization: customer.isOrganization,
+      taxCode: customer.taxCode,
+      phone: customer.phonenumber,
+      email: customer.email,
+      id: customer.id
+    }))
+  }  
+}
+
+const ScrollCustomerTop = () => {
+  scrollCustomerTop.value = true
+}
+
+const scrollCustomerTop = ref(false)
+const scrollCustomerBottom = ref(false)
+
+const noMoreCustomerData = ref(false)
+
+const ScrollCustomerBottom = () => {
+  scrollCustomerBottom.value = true
+  pageIndexCustomer.value++
+  noMoreCustomerData.value
+    ? ''
+    : getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCustomerData.value = true)
+            : res.data.map((customer) =>
+              optionsCustomerApi.value.push({
+                code: customer.code,
+                label: customer.isOrganization
+                  ? customer.name + ' | MST ' + customer.taxCode
+                  : customer.name + ' | ' + customer.phonenumber,
+                address: customer.address,
+                name: customer.name,
+                value: customer.id,
+                isOrganization: customer.isOrganization,
+                taxCode: customer.taxCode,
+                phone: customer.phonenumber,
+                email: customer.email,
+                id: customer.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCustomerData.value = true
+        })
+}
+
+const customerName = ref()
+const customerPhone = ref()
+const customerEmail = ref()
+const getValueOfCustomerSelected = (value, obj) => {
+  form.value.idCustomer = value
+  customerName.value = obj.name
+  customerPhone.value = obj.phone
+  customerEmail.value = obj.email
+}
+
+
+const { push } = useRouter()
+// Duyệt đề nghị thanh toán
+const approvalPayments = async (checkApproved) => {
+  const payload = { ItemType: 5, Id: parseInt(approvalId), IsApprove: checkApproved }
+  await approvalOrder(FORM_IMAGES(payload))
+  push({
+    name: `accountant.payment-proposal.payment-proposal-list`
+  })
+}
+
+// Xem detail or edit or approved 
+const editData = () => {
+  if (type == 'approval-payments' || type == 'detail' || type == 'edit') {
+    getDetailPayment()
+  } else {
+    form.value.code = curDate
+    onAddItem()
+  }
+}
+
+onBeforeMount(() => {
+  if (type == ':type') type = 'add'
+  editData()
+  callApiStaffList()
+  callCustomersApi()
+})
 </script>
 <template>
   <el-collapse
-v-model="activeName" @change="collapseChangeEvent" :class="['bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)']">
+    v-model="activeName" 
+    @change="collapseChangeEvent" 
+    :class="['bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)']"
+  > 
+    <el-collapse-item :name="collapse[0].name" >
+      <template #title>
+        <el-button class="header-icon" :icon="collapse[0].icon" link />
+        <span class="text-center text-xl">{{ collapse[0].title }}</span>
+      </template>
+      <div class="flex gap-4 bg-white">
+        <div class="flex-1">
+          <el-divider content-position="left">Thông tin đề nghị thanh toán</el-divider>
+          <el-form ref="ruleFormRef" :model="form" :rules="rules" label-width="160px">
+            <el-form-item prop="code" label="Mã phiếu">
+              <div>{{ form.code }}</div>
+            </el-form-item>
+            <el-form-item prop="createdAt" label="Ngày tạo">
+              <div>{{ dateTimeFormat(form.createdAt) }}</div>
+            </el-form-item>
+            <el-form-item label="Người yêu cầu" >
+              <el-select v-model="form.peopleId" placeholder="Lấy tk đang tạo phiếu" >
+                <el-option
+                  v-for="item in getStaffList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="Lý do chi tiền" prop="reasonCollectMoney" >
+              <el-input v-model="form.reasonCollectMoney" placeholder="Nhập mô tả" />
+            </el-form-item>
 
- 
-      <el-collapse-item :name="collapse[0].name" >
-        <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl">{{ collapse[0].title }}</span>
-        </template>
-        <div class="flex gap-4 bg-white">
-                <div class="flex-1">
-                  <el-divider content-position="left">Thông tin đề nghị thanh toán</el-divider>
-                  <el-form :model="form" label-width="160px">
-                      <el-form-item label="Mã phiếu">
-                        <div>{{ form.code }}</div>
-                      </el-form-item>
-                      <el-form-item label="Ngày tạo">
-                        <div>{{ dateTimeFormat(form.date) }}</div>
-                      </el-form-item>
-                    <el-form-item
-            label="Người yêu cầu" :rules="[
-                    { required: true, message: 'Chọn dữ liệu' },
-                    { type: 'string', message: 'Chọn giá trị' },
-                    ]">
-                      <el-select class="w-[100%]" v-model="form.region" placeholder="Lấy tk đang tạo phiếu" >
-                        <el-option label="Zone one" value="shanghai" @click="hide()"/>
-                        <el-option label="Thanh toán tiền đàm phán ký gửi" value="thanhtoan" @click="changeshow()" />
-                      </el-select>
-                    </el-form-item>
-                    <el-form-item
-                      label="Lý do chi tiền" prop="name" :rules="[
-                    { required: true, message: 'Nhập mô tả' },
-                    { type: 'number', message: 'Chuỗi string' },
-                    ]">
-                      <el-input v-model="form.text" placeholder="Nhập mô tả" />
-                    </el-form-item>
-              </el-form>
-              <el-divider content-position="left">Đối tượng</el-divider>
-              <el-form :model="form" label-width="160px">
-                <el-form-item label="Chọn đối tượng" prop="name">
-                  <el-select class="w-[100%]" v-model="form.text2" placeholder="chọn đối tượng">
-                        <el-option label="Nguyễn Văn Trường" value="one" />
-                        <el-option label="Nguyễn Phong Linh" value="two" />
-                      </el-select>
-                  </el-form-item>
-                  <el-form-item>
-                      <div>
-                        <label style= "font-style:italic"> Nguyễn Phương Linh </label>
-                      </div>
-                    </el-form-item>
-                    <el-form-item>
-                        <label>
-                          Số điện thoại: 0983255567
-                        </label>
-                    </el-form-item>
-                    <el-form-item >
-                        <label>
-                          Email: linhnguyen@gmail.com
-                        </label>
-                      </el-form-item>
-              </el-form>
-                </div>
-                <div class="flex-1">
-                        <el-divider content-position="left">Chứng từ kèm theo</el-divider>
-                        <div class="">Mã đơn hàng {{ form.MaDH }}</div>
-                </div>
-
+            <el-divider content-position="left">Đối tượng</el-divider>
+            <el-form-item label="Chọn đối tượng" prop="idCustomer">
+              <MultipleOptionsBox
+                :fields="[
+                  t('reuse.customerCode'),
+                  t('reuse.customerName'),
+                  t('reuse.customerInfo')
+                ]"
+                filterable
+                width="700px"
+                :items="optionsCustomerApi"
+                valueKey="value"
+                labelKey="label"
+                :hiddenKey="['id']"
+                :placeHolder="'Chọn khách hàng'"
+                :defaultValue="form.idCustomer"
+                @scroll-top="ScrollCustomerTop"
+                @scroll-bottom="ScrollCustomerBottom"
+                @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
+                :clearable="false"
+                />
+                
+              </el-form-item>
+            <el-form-item>
+              <div v-if="form.idCustomer">
+                  <div> {{ customerName ?? '' }} </div>
+                  <div>Số điện thoại: {{ customerPhone ?? '' }}</div>
+                  <div>Email: {{ customerEmail ?? '' }}</div>
+              </div>              
+            </el-form-item>
+          </el-form>
         </div>
+        <div class="flex-1">
+          <el-divider content-position="left">Chứng từ kèm theo</el-divider>
+          <div v-if="type !== 'add'" >Mã đơn hàng {{ form?.OrderId }}</div>
+        </div>
+      </div>
       </el-collapse-item>
 
       <el-collapse-item :name="collapse[1].name"  v-if="ishide">
-              <template #title >
-                <el-button class="header-icon" :icon="collapse[1].icon" link/>
-                <span class="text-center text-xl">{{ collapse[1].title }}</span>
-              </template>
-              <el-table :data="tableData" border style="width: 100%">
-                <el-table-column type="index" label="STT" width="80" />
-                <el-table-column prop="sct" label="Số chứng từ" width="100" >
-                      <template #default="props">
-                          <el-input  v-model="props.row.sct"/>
-                      </template>
-                </el-table-column>
-                <el-table-column prop="date" label="Ngày chứng từ" >
-                    <template #default="props">
-                        <el-date-picker
-                          v-model="props.row.date"
-                          type="date"
-                          placeholder="Pick a day"
-                          format="DD/MM/YYYY"
-                        />
-                    </template>
-                </el-table-column>
-                <el-table-column prop="content" label="Nội dung chi" >
-                      <template #default="props">
-                            <el-input v-model="props.row.content" />
-                      </template>
-                </el-table-column>
-                <el-table-column prop="quanti" label="Số lượng" >
-                      <template #default="props">
-                          <el-input
-                          v-model="props.row.quanti"
-                          @change="
-                            () => {
-                              props.row.total = props.row.price * props.row.quanti
-                            }
-                          "
-                 />
-                    </template>
-                </el-table-column>
-                <el-table-column prop="price" label="Đơn giá" >
-                      <template #default="props">
-                          <el-input
-v-model="props.row.price" 
-                          @change="
-                            () => {
-                              props.row.total = props.row.price * props.row.quanti
-                            }
-                          "/>
-                      </template>
-                </el-table-column>
-                <el-table-column prop="total" label="Thành tiền" >
-                      <template #default="props">
-                          <!-- <el-input v-model="props.row.total" /> -->
-                          {{ props.row.total }}
-                      </template>
-                </el-table-column>
-                <el-table-column prop="note" label="Ghi chú" >
-                      <template #default="props">
-                        <el-input v-model="props.row.note" />
-                      </template>            
-                </el-table-column>
-                <el-table-column label="Thao Tác" >
-                      <template #default="scope">
-                          <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)" >Xóa</el-button>
-                      </template>
-                </el-table-column>
-              </el-table>
-              <div class="flex justify-end">
-                  <div class="total flex flex-col w-[680px]">
-                      <div class="flex gap-4">
-                        <label class="w-[10%] text-right font-bold">Tổng tiền</label>
-                        <span class="w-[170px] text-right">10000 đ</span>
-                      </div>
-                      <div class="flex gap-4">
-                        <label class="w-[10%] text-right">Đặt cọc</label>
-                        <span class="w-[170px] text-right">
-                          <el-input class="poi_text_right" v-model="depositPrice" />
-                        </span>
-                      </div>
-                      <div class="flex gap-4">
-                        <label class="w-[10%] text-right">Còn lại</label>
-                        <span class="w-[170px] text-right">10000 đ</span>
-                      </div>
-                  </div>
-              </div>
-            <el-divider content-position="left" >Thông tin thanh toán</el-divider>
-                <div class="flex flex-row">
-                        <el-form :model="form" label-width="160px" class="basis-1/2" >
-                                    <el-form-item 
-                                            label="Số tiền chi" prop="name" :rules="[
-                                          { required: true, message: 'Nhập số tiền' },
-                                          { type: 'number', message: 'Nhập số tiền' },
-                                    
-                                          ]">
-                                              <el-input v-model="form.text" placeholder="Nhập số tiền" />
-                                    </el-form-item>
-                                    <el-form-item
-                                          label="Viết bằng chữ" prop="name" :rules="[
-                                        { required: true, message: 'Nhập chữ' },
-                                        { type: 'string', message: 'Nhập chữ' },
+        <template #title >
+          <el-button class="header-icon" :icon="collapse[1].icon" link/>
+          <span class="text-center text-xl">{{ collapse[1].title }}</span>
+        </template>
+        <el-table :data="tableData" border style="width: 100%">
+          <el-table-column type="index" label="STT" align="center" width="60" />
+          <el-table-column prop="numberVouchers" label="Số chứng từ" width="150" >
+            <template #default="props">
+              <el-input  v-model="props.row.numberVouchers"/>
+            </template>
+          </el-table-column>
+          <el-table-column prop="dayVouchers" label="Ngày chứng từ" width="150">
+            <template #default="props">
+                <el-date-picker
+                  v-model="props.row.dayVouchers"
+                  type="date"
+                  placeholder="Pick a day"
+                  format="DD/MM/YYYY"
+                />
+            </template>
+          </el-table-column>
+          <el-table-column prop="spentFor" label="Nội dung chi" >
+            <template #default="props">
+                  <el-input v-model="props.row.spentFor" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="quantity" label="Số lượng" >
+            <template #default="props">
+              <el-input
+                v-model="props.row.quantity"
+                @change="
+                  () => {
+                    props.row.totalPrice = props.row.unitPrice * props.row.quantity
+                  }
+                "
+              />
+            </template>
+          </el-table-column>
+            <el-table-column prop="price" label="Đơn giá" >
+              <template #default="props">
+                <el-input
+                v-model="props.row.unitPrice" 
+                @change="
+                  () => {
+                    props.row.totalPrice = props.row.unitPrice * props.row.quantity
+                  }
+                "/>
+            </template>
+          </el-table-column>
+          <el-table-column prop="totalPrice" label="Thành tiền" >
+            <template #default="props">
+                {{ props.row.totalPrice }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="note" label="Ghi chú" >
+            <template #default="props">
+              <el-input v-model="props.row.note" />
+            </template>            
+          </el-table-column>
+          <el-table-column label="Thao Tác" >
+            <template #default="scope">
+              <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)" >Xóa</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="flex justify-end">
+          <div class="total flex flex-col w-[680px]">
+            <div class="flex gap-4">
+              <label class="w-[10%] text-right font-bold">Tổng tiền</label>
+              <span class="w-[170px] text-right">{{ changeMoney.format(form.totalPrice) }}</span>
+            </div>
+            <div class="flex gap-4">
+              <label class="w-[10%] text-right">Đặt cọc</label>
+              <span class="w-[170px] text-right">
+                <el-input class="poi_text_right" v-model="form.depositeMoney" />
+              </span>
+            </div>
+            <div class="flex gap-4">
+              <label class="w-[10%] text-right text-red-500">Còn lại</label>
+              <span class="w-[170px] text-right">{{ changeMoney.format(form.debtMoney) }}</span>
+            </div>
+          </div>
+        </div>
+        <el-divider content-position="left" >Thông tin thanh toán</el-divider>
+        <div class="flex flex-row">
+          <el-form :model="form" label-width="160px" class="basis-1/2" >
+            <el-form-item 
+              label="Số tiền chi" 
+              :rules="[
+                { required: true, message: 'Nhập số tiền' },
+                { type: 'number', message: 'Nhập số tiền' }                                    
+              ]">
+              <el-input v-model="form.totalMoney" placeholder="Nhập số tiền" />
+            </el-form-item>
+            <el-form-item
+              label="Viết bằng chữ"
+              :rules="[
+                { required: true, message: 'Nhập chữ' },
+                { type: 'string', message: 'Nhập chữ' },
                                   
-                                        ]">
-                                              <el-input v-model="form.text" placeholder="Viết bằng chữ" />
-                                    </el-form-item>
-                                    <el-form-item
-                                          label="Hình thức thanh toán" :rules="[
-                                          { required: true, message: 'Viết bằng chữ' },
-                                          { type: 'string', message: 'Viết bằng chữ' },
-                                          ]">
-                                              <el-select class="w-[100%]" v-model="form.region" placeholder="Thanh toán tiền mặt">
-                                                <el-option label="Zone one" value="shanghai" />
-                                                <el-option label="Zone two" value="beijing" />
-                                              </el-select>
-                                    </el-form-item>
-                                    <el-form-item label="Trạng thái ">
-                                          <span class="day-updated">
-                                            Khởi tạo & ghi số
-                                          </span>
-                                    </el-form-item>
-                                    <el-form-item>
-                                          <div>
-                                            <label style= "font-style:italic"> {{ dateTimeFormat(moment()) }} </label>
-                                          </div>
-                                    </el-form-item>
-                                    <el-form-item >
-                                          <el-button>In phiếu</el-button>
-                                          <el-button type="primary">Lưu và chờ duyệt</el-button>
-                                          <el-button type="danger">Hủy</el-button>
-                                    </el-form-item>
-                        </el-form>
-                </div>
+                ]"
+              >
+                <el-input v-model="form.enterMoney" placeholder="Viết bằng chữ" />
+            </el-form-item>
+            <el-form-item
+              label="Hình thức thanh toán" 
+              :rules="[
+                { required: true, message: 'Viết bằng chữ' },
+                { type: 'string', message: 'Viết bằng chữ' },
+              ]"
+            >
+              <el-select v-model="form.paymentType" placeholder="Select">
+                <el-option
+                  v-for="item in optionsPayments"
+                  :key="item.key"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="Trạng thái ">
+              <span class="day-updated">
+                Khởi tạo & ghi số
+              </span>
+            </el-form-item>
+            <el-form-item>
+              <div>
+                <label style= "font-style:italic"> {{ dateTimeFormat(moment()) }} </label>
+              </div>
+            </el-form-item>
+            <el-form-item v-if="type != 'approval-payments'">
+              <el-button>In phiếu</el-button>
+              <el-button type="primary" @click="postData">Lưu và chờ duyệt</el-button>
+              <el-button type="danger">Hủy</el-button>
+            </el-form-item>
+            <el-form-item v-else>
+              <el-button @click="approvalPayments(true)" type="warning">Duyệt</el-button>
+              <el-button @click="approvalPayments(false)">Không duyệt</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
 
       </el-collapse-item>
       <el-collapse-item :name="collapse[2].name" v-if="ishow">
@@ -481,7 +636,7 @@ v-model="props.row.price"
                                           { type: 'number', message: 'Nhập số tiền' },
                                     
                                           ]">
-                                              <el-input v-model="form.text" placeholder="Nhập số tiền" />
+                                              <el-input v-model="form.reasonCollectMoney" placeholder="Nhập số tiền" />
                                     </el-form-item>
                                     <el-form-item
                                           label="Viết bằng chữ" prop="name" :rules="[
@@ -489,14 +644,14 @@ v-model="props.row.price"
                                         { type: 'string', message: 'Nhập chữ' },
                                   
                                         ]">
-                                              <el-input v-model="form.text" placeholder="Viết bằng chữ" />
+                                              <el-input v-model="form.reasonCollectMoney" placeholder="Viết bằng chữ" />
                                     </el-form-item>
                                     <el-form-item
                                           label="Hình thức thanh toán" :rules="[
                                           { required: true, message: 'Viết bằng chữ' },
                                           { type: 'string', message: 'Viết bằng chữ' },
                                           ]">
-                                              <el-select class="w-[100%]" v-model="form.region" placeholder="Thanh toán tiền mặt">
+                                              <el-select class="w-[100%]" v-model="form.peopleId" placeholder="Thanh toán tiền mặt">
                                                 <el-option label="Zone one" value="shanghai" />
                                                 <el-option label="Zone two" value="beijing" />
                                               </el-select>
@@ -564,5 +719,9 @@ v-model="props.row.price"
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
   border-left: 12px solid white;
+}
+
+::v-deep(.el-table td.el-table__cell div) {
+  width: 100%;
 }
 </style>

@@ -79,6 +79,7 @@ import {
   finishReturnOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
+import { UpdateStatusTicketFromOrder } from '@/api/Warehouse'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
@@ -566,33 +567,33 @@ const noMoreCustomerData = ref(false)
 
 const ScrollCustomerBottom = () => {
   scrollCustomerBottom.value = true
-  pageIndexCollaborator.value++
+  pageIndexCustomer.value++
   noMoreCustomerData.value
     ? ''
     : getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
-        .then((res) => {
-          res.data.length == 0
-            ? (noMoreCustomerData.value = true)
-            : res.data.map((customer) =>
-              optionsCustomerApi.value.push({
-                code: customer.code,
-                label: customer.isOrganization
-                  ? customer.name + ' | MST ' + customer.taxCode
-                  : customer.name + ' | ' + customer.phonenumber,
-                address: customer.address,
-                name: customer.name,
-                value: customer.id,
-                isOrganization: customer.isOrganization,
-                taxCode: customer.taxCode,
-                phone: customer.phonenumber,
-                email: customer.email,
-                id: customer.id
-                })
-              )
+    .then((res) => {
+      res.data.length == 0
+      ? (noMoreCustomerData.value = true)
+      : res.data.map((customer) =>
+      optionsCustomerApi.value.push({
+        code: customer.code,
+        label: customer.isOrganization
+          ? customer.name + ' | MST ' + customer.taxCode
+          : customer.name + ' | ' + customer.phonenumber,
+        address: customer.address,
+        name: customer.name,
+        value: customer.id,
+        isOrganization: customer.isOrganization,
+        taxCode: customer.taxCode,
+        phone: customer.phonenumber,
+        email: customer.email,
+        id: customer.id
         })
-        .catch(() => {
-          noMoreCustomerData.value = true
-        })
+      )
+    })
+    .catch(() => {
+      noMoreCustomerData.value = true
+    })
 }
 
 // const scrollingCustomer = (e) => {
@@ -1256,15 +1257,12 @@ const postData = async (pushBack: boolean) => {
       type: 'warning'
     })
   }
-
-  idOrderPost.value = res
-  automaticCouponWareHouse(2)
 }
 
 // Phiếu xuất kho tự động
 const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idOrderPost.value,
+    OrderId: id,
     Type: index
   }
 
@@ -1429,11 +1427,19 @@ const createStatusAcountingEntry = () => {
 }
 
 const updateDetailAcountingEntry = ref(false)
-const updateInfoAcountingEntry = (index) => {
+const updateInfoAcountingEntry = async(index) => {
   if (updateDetailAcountingEntry.value) {
     updateOrderStransaction()
   }else {
     postOrderStransaction(index)
+    if (index == 2 && keepGoodsOnDeposit.value) {
+      const payload = {
+        orderId: id,
+        status: 5
+      }
+
+      await UpdateStatusTicketFromOrder(payload)
+    }
   }
 }
 
@@ -2808,6 +2814,12 @@ const UpdateStatusTransaction = async() => {
 
 // Giữ hàng đang đặt cọc
 const keepGoodsOnDeposit = ref(true)
+
+// Hoàn thành đơn hàng -> call api phiếu nhập kho tự động
+const orderCompletion = () => {
+  automaticCouponWareHouse(2)
+  updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
+}
 
 onBeforeMount(async () => {
   await editData()
@@ -5892,7 +5904,7 @@ onBeforeMount(async () => {
             }}</el-button>
             <el-button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)"
+              @click="orderCompletion"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button

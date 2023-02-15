@@ -158,6 +158,8 @@ export const WAREHOUSE_API = {
   CANCEL_TICKET: '/api/v1/Warehouse/CancelTicket',
   UPDATE_INVENTORY: '/api/v1/Warehouse/UpdateInventory',
   UPDATE_INVENTORY_ORDER: '/api/v1/Warehouse/UpdateInventoryForOrder',
+  EXPORT_FOR_DEPOSITING_TICKET: '/api/v1/Warehouse/ExportForDepositingTicket',
+  UPDATE_STATUS_TICKET_FROM_ORDER: '/api/v1/Warehouse/UpdateStatusTicketFromOrder',
   UPDATE_TICKET_MANUALLY: 'api/v1/Warehouse/UpdateTicketManually',
   GET_LOT_HISTORY: '/api/v1/Warehouse/GetWarehouseLotHistory',
   DETAIL_WAREHOUSE_TRANSACTION: '/api/v1/Warehouse/GetWarehouseTransaction'

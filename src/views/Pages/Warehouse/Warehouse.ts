@@ -128,7 +128,7 @@ export const wareHouse = [
     align: 'right'
   },
   {
-    field: 'inventory',
+    field: 'depositQuantity',
     label: t('reuse.depositing'),
     minWidth: '100',
     sortable: true,

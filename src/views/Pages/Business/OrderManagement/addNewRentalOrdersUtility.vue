@@ -1011,8 +1011,6 @@ const postData = async (pushBack: boolean) => {
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
-    await automaticCouponWareHouse(2, res)
-
     ElNotification({
       message: t('reuse.addSuccess'),
       type: 'success'
@@ -1032,9 +1030,9 @@ const postData = async (pushBack: boolean) => {
 }
 
 // Phiếu xuất kho tự động
-const automaticCouponWareHouse = async (index, idPost) => {
+const automaticCouponWareHouse = async (index) => {
   const payload = {
-    OrderId: idPost,
+    OrderId: id,
     Type: index
   }
 
@@ -1042,10 +1040,6 @@ const automaticCouponWareHouse = async (index, idPost) => {
 }
 
 const hirePeriod = [
-  {
-    value: 1,
-    label: t('reuse.byDay')
-  },
   {
     value: 7,
     label: t('reuse.byWeek')
@@ -1362,24 +1356,29 @@ const editData = async () => {
       if (!dateAfter?.createdAt) lastPaymentDate = start
       else lastPaymentDate = moment(dateAfter?.createdAt, 'YYYY-MM-DD')
       let countPostPayment = moment.duration(lastPaymentDate.diff(end)).asDays()* - 1
+      // Số bút toán tự động cần tạo
       let postPayment = Math.ceil(countPostPayment / ruleForm.leaseTerm)   
       // currentDateTime là thời gian hiện tại
-      const currentDateTime = moment(new Date(), 'YYYY-MM-DD')
+      // const currentDateTime = moment(new Date(), 'YYYY-MM-DD')
       // numPayments để lấy chênh lệch thời gian từ ngày tạo bút toán cuối cùng đến ngày hiện tại
-      const numPayments = moment.duration(lastPaymentDate.diff(currentDateTime)).asDays()* - 1
+      // const numPayments = moment.duration(lastPaymentDate.diff(currentDateTime)).asDays()* - 1
       // numPayment là số bút toán tự động cần tạo
-      let numPayment = Math.ceil(numPayments / ruleForm.leaseTerm)
-      if (numPayments < 1 && debtTable.value.length > 0) numPayment -= 1
+      // let numPayment = Math.ceil(numPayments / ruleForm.leaseTerm)
+      if (postPayment < 1 && debtTable.value.length > 0) postPayment -= 1
 
       const paymentPeriods = moment.duration(start.diff(lastPaymentDate)).asDays()* - 1
       let paymentPeriod = Math.ceil(paymentPeriods / ruleForm.leaseTerm) 
       const curMonth = ruleForm.rentalPeriod[0].slice(5,7)
       if (postPayment > 0) {
         alreadyPaidForTt.value = false
-        for (let i = 0; i < numPayment; i++) {
-          feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tháng/ Ngày ${month.value}/${curMonth}/2022/ Tháng thứ ${paymentPeriod + i + 1}`
+        for (let i = 0; i < postPayment; i++) {
+          if (month.value) {
+            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tháng/ Ngày ${month.value}/${curMonth}/2022/ Tháng thứ ${paymentPeriod + i + 1}`
+          } else if (week.value){
+            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tuần/ Thứ ${week.value}/ Tuần thứ ${paymentPeriod + i + 1}`
+          }
         assignTableRentalProducts()
-        postOrderStransaction(1)
+        await postOrderStransaction(1)
       }
       }
       
@@ -1490,9 +1489,14 @@ const handleGetTotal = async (_value, props) => {
   }
 }
 
-const recalculatePrice = () => {
+const recalculatePrice = (data) => {
   tableData.value = []
   tableData.value.push({...productForSale})
+  if (data == 7) {
+    ruleForm.rentalPaymentPeriod = 3
+  } else if (data == 30) {
+    ruleForm.rentalPaymentPeriod = 4
+  }
 }
 
 // Xóa sản phẩm trong table sản phẩm và thanh toán
@@ -1914,7 +1918,6 @@ const getOrderStransactionList = async () => {
   debtTable.value = transaction.data
 
   // Cập nhật lại bảng lịch sử công nợ
-  getOrderStransactionList()
 }
 
 // Thêm mã phiếu thu/chi vào debtTable
@@ -2356,6 +2359,7 @@ const callApiDetailAccountingEntry = async(index) => {
     if (el.productName) totalRentalProduct.value += el.totalPrice
   })
   statusAccountingEntry.value = formAccountingId.value.statusHistorys
+  statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
   if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
     showCreatedOrUpdateButton.value = false
     showCancelAcountingEntry.value = false
@@ -2387,7 +2391,9 @@ statusAccountingEntry.value.push({
 })
 
 // Xem chi tiết phiếu thanh toán tiền phí thuê
+let countApi = ref(0)
 const openDetailRentalPaymentBill = () => {
+  optionAcountingEntry.value = []
   nameDialog.value = 'bill'
   debtTable.value?.map((el) => {
     if (el?.typeOfAccountingEntry == 1 && !el?.isReceiptedMoney) {
@@ -2397,10 +2403,10 @@ const openDetailRentalPaymentBill = () => {
       })
     }
   })
-  let countApi = 0
+  
   feePaymentPeriod.value = optionAcountingEntry.value[0].value
-  if (countApi == 0) callApiDetailAccountingEntry(feePaymentPeriod.value)
-  countApi++
+  if (countApi.value == 0) callApiDetailAccountingEntry(feePaymentPeriod.value)
+  countApi.value++
   
   dialogRentalPaymentInformation.value = true
 }
@@ -2966,6 +2972,12 @@ const doneReturnGoods = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   await finishReturnOrder(formDataPayLoad)
   reloadStatusOrder()
+}
+
+// Bắt đầu thuê theo kỳ hạn -> call api phiếu nhập kho tự động
+const orderCompletion = () => {
+  automaticCouponWareHouse(2)
+  updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)
 }
 
 onBeforeMount(async() => {
@@ -5261,8 +5273,8 @@ onBeforeMount(async() => {
                       >+ {{ t('formDemo.quicklyAddProducts') }}</div
                     >
                   </div>
-                </template></MultipleOptionsBox
-              >
+                </template>
+              </MultipleOptionsBox>
             </template>
           </el-table-column>
           <el-table-column
@@ -5466,21 +5478,20 @@ onBeforeMount(async() => {
               totalPriceOrder != undefined ? changeMoney.format(totalPriceOrder) : '0 đ'
             }}</div>
             <div class="h-[32px] text-right dark:text-[#fff]">
-              <div v-if="showPromo">{{
-                promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %`
-              }}</div>
+              <div v-if="showPromo">
+                {{promoValue == 0 ? changeMoney.format(promoCash) : `${promoValue} %`}}
+              </div>
               <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
-            <div v-if="VAT" class="text-right dark:text-[#fff]">{{
-              VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''
-            }}</div>
-            <div v-else class="text-transparent :dark:text-transparent">s</div>
-            <div class="text-right dark:text-[#fff]">{{
-              totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
-            }}</div>
-            <div class="text-right dark:text-[#fff]">{{
-              totalDeposit != undefined ? changeMoney.format(totalDeposit) : '0 đ'
-            }}</div>
+            <div v-if="VAT" class="text-right dark:text-[#fff]">
+              {{VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''}}</div>
+              <div v-else class="text-transparent :dark:text-transparent">s</div>
+            <div class="text-right dark:text-[#fff]">
+              {{totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'}}
+            </div>
+            <div class="text-right dark:text-[#fff]">
+              {{totalDeposit != undefined ? changeMoney.format(totalDeposit) : '0 đ'}}
+            </div>
           </div>
 
           <div class="w-60 pl-2">
@@ -5736,7 +5747,7 @@ onBeforeMount(async() => {
             >
             <el-button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)"
+              @click="orderCompletion"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.startRentingTerm') }}</el-button

@@ -1989,8 +1989,9 @@ const getFormReceipts = () => {
 
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
-  const res = await getReturnRequest({ CustomerOrderId: id })
+  const res = await getReturnRequestForOrder({ CustomerOrderId: id })
   const optionsReturnRequest = res.data
+
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
       createdAt: e?.returnRequestInfo?.createdAt ?? '',
@@ -2001,7 +2002,10 @@ const getReturnRequestTable = async () => {
       unitName: e?.unitName,
       returnDetailType: e?.returnDetailType,
       returnDetailTypeName: e?.returnDetailTypeName,
-      returnDetailStatusName: e?.returnDetailStatusName
+      returnDetailStatusName: e?.returnDetailStatusName,
+      warehouseTicketCode: e?.warehouseTicketCode,
+      warehouseTicketId: e?.warehouseTicketId,
+      warehouseTicketStatusName: e?.warehouseTicketStatusName
     }))
   }
 }
@@ -6133,7 +6137,7 @@ onBeforeMount(async() => {
             <el-table-column prop="quantity" :label="t('formDemo.amount')" width="120" />
             <el-table-column prop="unitName" :label="t('reuse.dram')" width="90" />
             <el-table-column
-              prop="invoiceForGoodsEnteringTheWarehouse"
+              prop="warehouseTicketCode"
               :label="t('formDemo.invoiceForGoodsEnteringTheWarehouse')"
               width="180"
             >
@@ -6141,12 +6145,12 @@ onBeforeMount(async() => {
                 <div
                   @click="dialogWarehouseRentalPayment = true"
                   class="text-blue-500 cursor-pointer"
-                  >{{ props.row.invoiceForGoodsEnteringTheWarehouse }}
+                  >{{ props.row.warehouseTicketCode }}
                 </div>
               </template>
             </el-table-column>
             <el-table-column
-              prop="inventoryStatus"
+              prop="warehouseTicketStatusName"
               :label="t('formDemo.inventoryStatus')"
               width="180"
             />

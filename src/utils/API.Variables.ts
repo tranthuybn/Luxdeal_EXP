@@ -488,6 +488,21 @@ export const STATUS_ORDER_SPA = [
     orderStatus: 55,
     orderStatusName: 'Duyệt trả hàng không spa',
     createdAt: ''
+  },
+  {//11
+    orderStatus: 56,
+    orderStatusName: 'Trả hàng đã spa',
+    createdAt: ''
+  },
+  {//12
+    orderStatus: 57,
+    orderStatusName: 'Trả toàn bộ',
+    createdAt: ''
+  },
+  {//13
+    orderStatus: 58,
+    orderStatusName: 'Trả một phần',
+    createdAt: ''
   }
 ]
 

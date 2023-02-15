@@ -859,6 +859,7 @@ const openWarehouseTable = async (scope) => {
   }
 }
 //same logic
+// cài đặt cầm đồ đang đóng
 let pawnDialogTitle = ref('')
 const openPawnTable = async (scope) => {
   pawnDialogTitle.value = categoriesToString(scope.row.categories)
@@ -894,6 +895,7 @@ const openPawnTable = async (scope) => {
   forceRemove.value == false
 }
 let depositDialogTitle = ref('')
+// cài đặt cầm đồ đang đóng
 const openDepositTable = async (scope) => {
   depositDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
@@ -1465,7 +1467,7 @@ const categoriesToString = (categories) => {
             header-align="center"
             align="center"
             min-width="150"
-            :label="t('reuse.quantityTo')"
+            :label="t('reuse.quantityFrom')"
           >
             <template #default="scope">
               <el-form-item
@@ -1669,7 +1671,9 @@ const categoriesToString = (categories) => {
               </div>
             </template>
           </ElTableColumn> -->
-          <ElTableColumn
+
+          <!-- ngày đóng 14/2, truognNguyen đóng, cài đặt cầm đồ -->
+          <!-- <ElTableColumn
             header-align="center"
             align="center"
             min-width="200"
@@ -1697,7 +1701,7 @@ const categoriesToString = (categories) => {
                 />
               </div>
             </template>
-          </ElTableColumn>
+          </ElTableColumn> -->
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1807,7 +1811,7 @@ const categoriesToString = (categories) => {
             align="center"
             min-width="130"
             prop="quantity"
-            :label="t('reuse.quantityTo')"
+            :label="t('reuse.quantityFrom')"
           >
             <template #default="scope">
               <el-form-item
@@ -1934,7 +1938,7 @@ const categoriesToString = (categories) => {
             header-align="center"
             align="center"
             min-width="130"
-            :label="t('reuse.quantityTo')"
+            :label="t('reuse.quantityFrom')"
           >
             <template #default> 1 </template>
           </ElTableColumn>
@@ -2148,7 +2152,7 @@ const categoriesToString = (categories) => {
             header-align="center"
             align="center"
             min-width="130"
-            :label="t('reuse.quantityTo')"
+            :label="t('reuse.quantityFrom')"
           >
             <template #default>
               <div>1</div>

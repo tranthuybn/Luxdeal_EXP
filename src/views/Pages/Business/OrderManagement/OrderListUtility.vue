@@ -2234,12 +2234,12 @@ const getDetailPayment = async (_index, scope) => {
     id: scope.row.receiptOrPaymentVoucherId
   })
   nameDialog.value = 'Phiếu thu'
-  codeReceipts.value = formDetailPaymentReceipt.value.data?.code
-  codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
-  inputReasonCollectMoney.value = formDetailPaymentReceipt.value.data?.description
-  moneyReceipts.value = formDetailPaymentReceipt.value.data?.totalMoney
-  payment.value = formDetailPaymentReceipt.value.data?.typeOfPayment
-  inputRecharger.value = formDetailPaymentReceipt.value.data?.peopleId ?? 1
+  codeReceipts.value = formDetailPaymentReceipt.value?.code
+  codeExpenditures.value = formDetailPaymentReceipt.value?.code
+  inputReasonCollectMoney.value = formDetailPaymentReceipt.value?.description
+  moneyReceipts.value = formDetailPaymentReceipt.value?.totalMoney
+  payment.value = formDetailPaymentReceipt.value?.typeOfPayment
+  inputRecharger.value = formDetailPaymentReceipt.value?.peopleId ?? 1
   dialogInformationReceipts.value = true
 }
 

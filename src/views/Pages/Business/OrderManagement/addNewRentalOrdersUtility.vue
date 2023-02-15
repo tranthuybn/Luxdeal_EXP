@@ -1949,13 +1949,14 @@ const getDetailPayment = async (_index, scope) => {
 
   if (res.data) {
     formDetailPaymentReceipt.value = res.data
+
     nameDialog.value = 'Phiếu thu'
-    codeReceipts.value = formDetailPaymentReceipt.value.data?.code
-    codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
-    inputReasonCollectMoney.value = formDetailPaymentReceipt.value.data?.description
-    moneyReceipts.value = formDetailPaymentReceipt.value.data?.totalMoney
-    payment.value = formDetailPaymentReceipt.value.data?.typeOfPayment
-    inputRecharger.value = formDetailPaymentReceipt.value.data?.peopleId ?? 1
+    codeReceipts.value = formDetailPaymentReceipt.value?.code
+    codeExpenditures.value = formDetailPaymentReceipt.value?.code
+    inputReasonCollectMoney.value = formDetailPaymentReceipt.value?.description
+    moneyReceipts.value = formDetailPaymentReceipt.value?.totalMoney
+    payment.value = formDetailPaymentReceipt.value?.typeOfPayment
+    inputRecharger.value = formDetailPaymentReceipt.value?.peopleId ?? 1
     dialogInformationReceipts.value = true
   }
 }
@@ -2181,14 +2182,15 @@ const getDetailPaymentRequest = async (_index, scope) => {
   })
   if (res.data) {
     formDetailPaymentReceipt.value = res.data
-
+    codeReceipts.value = formDetailPaymentReceipt.value.code
+    // Người nộp tiền
+    inputRecharger.value = formDetailPaymentReceipt.value.paymentRequest.peopleId
     totalPayment.value = formDetailPaymentReceipt.value.paymentRequest.totalPrice
     moneyReceipts.value = formDetailPaymentReceipt.value.paymentRequest.totalMoney
     depositePayment.value = formDetailPaymentReceipt.value.paymentRequest.depositeMoney
     debtPayment.value = formDetailPaymentReceipt.value.paymentRequest.debtMoney
     inputReasonCollectMoney.value = formDetailPaymentReceipt.value.paymentRequest.reasonCollectMoney
     enterMoney.value = formDetailPaymentReceipt.value.paymentRequest.enterMoney
-    inputRecharger.value = formDetailPaymentReceipt.value.paymentRequest.peopleId
 
     detailedListExpenses.value = formDetailPaymentReceipt.value.paymentRequestDetail
     dialogIPRForm.value = true

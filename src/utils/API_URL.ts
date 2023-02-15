@@ -132,13 +132,15 @@ export const ADDRESS_API = {
   WARD: '/api/v1/Address/getWardByDistrictId',
   STREET: '/api/addr/getStreet'
 }
+// kế toán
 export const ACCOUNTANT_API = {
   PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
   GET_RECEIPT_EXPENDITURES_LIST: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   GET_RECEIPT_PAYMENT_BY_ID_API: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
   PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment',
-  BALANCE_SHEET_LIST: '/api/v1/Accountant/GetListOfAccountingAccounts'
+  BALANCE_SHEET_LIST: '/api/v1/Accountant/GetListOfAccountingAccounts',
+  POST_ACCOUNTANT_CREATEANEWPAYMENTREQUEST:'/api/v1/Accountant/CreateANewPaymentRequest'
 }
 
 export const WAREHOUSE_API = {
@@ -156,6 +158,8 @@ export const WAREHOUSE_API = {
   CANCEL_TICKET: '/api/v1/Warehouse/CancelTicket',
   UPDATE_INVENTORY: '/api/v1/Warehouse/UpdateInventory',
   UPDATE_INVENTORY_ORDER: '/api/v1/Warehouse/UpdateInventoryForOrder',
+  EXPORT_FOR_DEPOSITING_TICKET: '/api/v1/Warehouse/ExportForDepositingTicket',
+  UPDATE_STATUS_TICKET_FROM_ORDER: '/api/v1/Warehouse/UpdateStatusTicketFromOrder',
   UPDATE_TICKET_MANUALLY: 'api/v1/Warehouse/UpdateTicketManually',
   GET_LOT_HISTORY: '/api/v1/Warehouse/GetWarehouseLotHistory',
   DETAIL_WAREHOUSE_TRANSACTION: '/api/v1/Warehouse/GetWarehouseTransaction'
@@ -209,4 +213,8 @@ export const APPROVAL_API = {
   GET_LIST_PRODUCT_APPROVAL: '/api/v1/Approve/GetProductApprove',
   GET_LIST_ACOUNT: '/api/v1/AccountStaff/GetAccount',
   GET_LIST_ACOUNT_BY_ID: '/api/v1/AccountStaff/GetId'
+}
+
+export const ROLE_API = {
+  CREATE_NEW_STAFF_ROLE :'api/v1/Authorization/AddNewStaffRole'
 }

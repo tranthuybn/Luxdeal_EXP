@@ -327,8 +327,8 @@ onBeforeMount(()=>{
 
         <div class="flex-1 flex items-start gap-4">
           <span>
-            <div class="text-right">Mã QR đơn hàng</div>
-            <span class="text-yellow-400">Thanh toán thông qua app Luxdeal</span>
+            <div class="text-right">{{ t('formDemo.qrCodePurchaseOrder') }}</div>
+            <span class="text-yellow-400">{{ t('formDemo.paymentByApp') }}</span>
           </span>
 
           <span class="border"><Qrcode :width="100" :text="orderData?.orderCode" /></span>
@@ -1423,7 +1423,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantityReturn')" width="90">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max=scope.row.quantity :min="0" />
+            <el-input v-model="scope.row.quantity" type="number" :max=scope.row.returnedQuantity :min="0" />
           </template>
         </el-table-column>
         <el-table-column

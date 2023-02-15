@@ -79,6 +79,7 @@ import {
   finishReturnOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
+import { UpdateStatusTicketFromOrder } from '@/api/Warehouse'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getCategories } from '@/api/LibraryAndSetting'
@@ -1426,11 +1427,19 @@ const createStatusAcountingEntry = () => {
 }
 
 const updateDetailAcountingEntry = ref(false)
-const updateInfoAcountingEntry = (index) => {
+const updateInfoAcountingEntry = async(index) => {
   if (updateDetailAcountingEntry.value) {
     updateOrderStransaction()
   }else {
     postOrderStransaction(index)
+    if (index == 2 && keepGoodsOnDeposit.value) {
+      const payload = {
+        orderId: id,
+        status: 5
+      }
+
+      await UpdateStatusTicketFromOrder(payload)
+    }
   }
 }
 
@@ -2809,7 +2818,7 @@ const keepGoodsOnDeposit = ref(true)
 // Hoàn thành đơn hàng -> call api phiếu nhập kho tự động
 const orderCompletion = () => {
   automaticCouponWareHouse(2)
-  updateStatusOrders(STATUS_ORDER_SELL[5].orderStatus)
+  updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
 }
 
 onBeforeMount(async () => {

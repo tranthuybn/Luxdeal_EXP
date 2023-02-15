@@ -560,11 +560,12 @@ const getUnitValue = async (UnitId) => {
 }
 // if(postSuccess)  api return newId and use this newId to add product property
 const apiStatus = ref(true)
+
 const postData = async (data) => {
   const UnitId = data.UnitId
   data.ProductTypeId = data.ProductType
   await postProductLibrary(FORM_IMAGES(data))
-    .then(async (res) => {
+    .then( async (res) => {
       newId.value = res.data
       ElNotification({
         message: t('reuse.saveSuccess'),
@@ -572,8 +573,12 @@ const postData = async (data) => {
       })
       //disabledTabOpen = false when click button Add
       //disabledTabOpen = true when click button SaveAndAdd
+      
       if (data.disabledTabOpen) {
         disabledTabOpen.value = data.disabledTabOpen
+        router.push({
+        name: `products-services.productLibrary.Products`
+        })
       } else {
         disabledTabOpen.value = false
         //open collapse 1
@@ -854,6 +859,7 @@ const openWarehouseTable = async (scope) => {
   }
 }
 //same logic
+// cài đặt cầm đồ đang đóng
 let pawnDialogTitle = ref('')
 const openPawnTable = async (scope) => {
   pawnDialogTitle.value = categoriesToString(scope.row.categories)
@@ -889,6 +895,7 @@ const openPawnTable = async (scope) => {
   forceRemove.value == false
 }
 let depositDialogTitle = ref('')
+// cài đặt cầm đồ đang đóng
 const openDepositTable = async (scope) => {
   depositDialogTitle.value = categoriesToString(scope.row.categories)
   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
@@ -1459,8 +1466,8 @@ const categoriesToString = (categories) => {
           <ElTableColumn
             header-align="center"
             align="center"
-            min-width="130"
-            :label="t('reuse.quantityTo')"
+            min-width="150"
+            :label="t('reuse.quantityFrom')"
           >
             <template #default="scope">
               <el-form-item
@@ -1635,7 +1642,7 @@ const categoriesToString = (categories) => {
               </div>
             </template>
           </ElTableColumn>
-          <ElTableColumn
+          <!-- <ElTableColumn
             header-align="center"
             align="center"
             min-width="200"
@@ -1663,8 +1670,10 @@ const categoriesToString = (categories) => {
                 />
               </div>
             </template>
-          </ElTableColumn>
-          <ElTableColumn
+          </ElTableColumn> -->
+
+          <!-- ngày đóng 14/2, truognNguyen đóng, cài đặt cầm đồ -->
+          <!-- <ElTableColumn
             header-align="center"
             align="center"
             min-width="200"
@@ -1692,7 +1701,7 @@ const categoriesToString = (categories) => {
                 />
               </div>
             </template>
-          </ElTableColumn>
+          </ElTableColumn> -->
           <ElTableColumn
             header-align="center"
             align="center"
@@ -1802,14 +1811,14 @@ const categoriesToString = (categories) => {
             align="center"
             min-width="130"
             prop="quantity"
-            :label="t('reuse.quantityTo')"
+            :label="t('reuse.quantityFrom')"
           >
             <template #default="scope">
               <el-form-item
                 :prop="`${scope.$index}.quantity`"
                 :rules="[{ validator: ValidService.checkPositiveNumber.validator }]"
               >
-                <el-input v-model.number="scope.row.quantity" type="number" autocomplete="off" />
+                <el-input v-model.number="scope.row.quantity" type="number" autocomplete="off" :min="1" />
               </el-form-item>
             </template>
           </ElTableColumn>
@@ -1929,7 +1938,7 @@ const categoriesToString = (categories) => {
             header-align="center"
             align="center"
             min-width="130"
-            :label="t('reuse.quantityTo')"
+            :label="t('reuse.quantityFrom')"
           >
             <template #default> 1 </template>
           </ElTableColumn>
@@ -2143,7 +2152,7 @@ const categoriesToString = (categories) => {
             header-align="center"
             align="center"
             min-width="130"
-            :label="t('reuse.quantityTo')"
+            :label="t('reuse.quantityFrom')"
           >
             <template #default>
               <div>1</div>

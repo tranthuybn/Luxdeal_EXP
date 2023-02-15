@@ -154,7 +154,7 @@ export const useValidator = () => {
     checkPositiveNumber: {
       validator: (_rule: any, value: any, callback: any) => {
         if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
-        else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+        else if (value <= 0) callback(new Error(t('reuse.positiveNumber')))
         callback()
       },
       required: false,

@@ -1041,10 +1041,6 @@ const automaticCouponWareHouse = async (index) => {
 
 const hirePeriod = [
   {
-    value: 1,
-    label: t('reuse.byDay')
-  },
-  {
     value: 7,
     label: t('reuse.byWeek')
   },
@@ -1360,24 +1356,29 @@ const editData = async () => {
       if (!dateAfter?.createdAt) lastPaymentDate = start
       else lastPaymentDate = moment(dateAfter?.createdAt, 'YYYY-MM-DD')
       let countPostPayment = moment.duration(lastPaymentDate.diff(end)).asDays()* - 1
+      // Số bút toán tự động cần tạo
       let postPayment = Math.ceil(countPostPayment / ruleForm.leaseTerm)   
       // currentDateTime là thời gian hiện tại
-      const currentDateTime = moment(new Date(), 'YYYY-MM-DD')
+      // const currentDateTime = moment(new Date(), 'YYYY-MM-DD')
       // numPayments để lấy chênh lệch thời gian từ ngày tạo bút toán cuối cùng đến ngày hiện tại
-      const numPayments = moment.duration(lastPaymentDate.diff(currentDateTime)).asDays()* - 1
+      // const numPayments = moment.duration(lastPaymentDate.diff(currentDateTime)).asDays()* - 1
       // numPayment là số bút toán tự động cần tạo
-      let numPayment = Math.ceil(numPayments / ruleForm.leaseTerm)
-      if (numPayments < 1 && debtTable.value.length > 0) numPayment -= 1
+      // let numPayment = Math.ceil(numPayments / ruleForm.leaseTerm)
+      if (postPayment < 1 && debtTable.value.length > 0) postPayment -= 1
 
       const paymentPeriods = moment.duration(start.diff(lastPaymentDate)).asDays()* - 1
       let paymentPeriod = Math.ceil(paymentPeriods / ruleForm.leaseTerm) 
       const curMonth = ruleForm.rentalPeriod[0].slice(5,7)
       if (postPayment > 0) {
         alreadyPaidForTt.value = false
-        for (let i = 0; i < numPayment; i++) {
-          feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tháng/ Ngày ${month.value}/${curMonth}/2022/ Tháng thứ ${paymentPeriod + i + 1}`
+        for (let i = 0; i < postPayment; i++) {
+          if (month.value) {
+            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tháng/ Ngày ${month.value}/${curMonth}/2022/ Tháng thứ ${paymentPeriod + i + 1}`
+          } else if (week.value){
+            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tuần/ Thứ ${week.value}/ Tuần thứ ${paymentPeriod + i + 1}`
+          }
         assignTableRentalProducts()
-        postOrderStransaction(1)
+        await postOrderStransaction(1)
       }
       }
       
@@ -1488,9 +1489,14 @@ const handleGetTotal = async (_value, props) => {
   }
 }
 
-const recalculatePrice = () => {
+const recalculatePrice = (data) => {
   tableData.value = []
   tableData.value.push({...productForSale})
+  if (data == 7) {
+    ruleForm.rentalPaymentPeriod = 3
+  } else if (data == 30) {
+    ruleForm.rentalPaymentPeriod = 4
+  }
 }
 
 // Xóa sản phẩm trong table sản phẩm và thanh toán
@@ -2387,6 +2393,7 @@ statusAccountingEntry.value.push({
 // Xem chi tiết phiếu thanh toán tiền phí thuê
 let countApi = ref(0)
 const openDetailRentalPaymentBill = () => {
+  optionAcountingEntry.value = []
   nameDialog.value = 'bill'
   debtTable.value?.map((el) => {
     if (el?.typeOfAccountingEntry == 1 && !el?.isReceiptedMoney) {

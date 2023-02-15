@@ -230,6 +230,7 @@ interface ListOfProductsForSaleType {
   lot?: Options
   toLotId?: number,
   priceChange : Boolean
+  returnedQuantity: number
 }
 
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -253,10 +254,11 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   description: '',
   paymentType: '',
   edited: true,
-  priceChange: false
+  priceChange: false,
+  returnedQuantity: 0
 })
 
-let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
+const ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
 const changeMoney = new Intl.NumberFormat('vi', {
   style: 'currency',
@@ -558,7 +560,6 @@ const calculateSpaServiceMoney = ()=>{
   newTable.value.map((val) => {
     totalSettingSpa.value += val.price
   })
-  spaNotChange.value = false
 }
 
 // Cập nhật lại giá tiền khi thay đổi VAT
@@ -2137,6 +2138,12 @@ const reloadStatusOrder = async () => {
       duplicateStatusButton.value = true
     else duplicateStatusButton.value = false
 
+    //sửa trạng thái trả hàng
+    let arrayLength = arrayStatusOrder.value?.length
+      while(statusOrder.value == 58 /*Trả 1 phần*/){
+        arrayLength -= 2
+        statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+      }
   }
 }
 
@@ -2153,7 +2160,7 @@ const editData = async () => {
     checkDisabled3.value = true
     disableCreateOrder.value = true
     disabledEdit.value = true
-    const res = await getOrderList({ Id: id, ServiceType: 5, isApprove: type == 'approval-order'? true : null })
+    const res = await getOrderList({ Id: id, ServiceType: 5, approveRequestId: type == 'approval-order'? approvalId : null })
 
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
@@ -2171,6 +2178,15 @@ const editData = async () => {
       if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
         duplicateStatusButton.value = true
       else duplicateStatusButton.value = false
+
+      let arrayLength = arrayStatusOrder.value?.length
+      while(statusOrder.value == 58 /*Trả 1 phần*/){
+        arrayLength -= 2
+        statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+      }
+      if (statusOrder.value == 58 /*Trả 1 phần*/) {
+    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
+    }
     }
 
     if (statusOrder.value == 2 && type == 'edit') {
@@ -2611,7 +2627,15 @@ const setDataForReturnOrder = () => {
   rentReturnOrder.value.name = infoCompany.name
   rentReturnOrder.value.customerAddress = customerAddress
   rentReturnOrder.value.phone = infoCompany.phone
-  rentReturnOrder.value.tableData = ListOfProductsForSale
+  rentReturnOrder.value.tableData = ListOfProductsForSale.value.map((row)=>({
+    productPropertyId:row.productPropertyId,
+    accessory:row.accessory,
+    spaServices:row.spaServices,
+    type:'Spa',
+    quantity:1,
+    maxQuantity: row.quantity - row.returnedQuantity,
+    isSpa:null,
+  }))
 }
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
@@ -2702,7 +2726,7 @@ const postReturnRequest = async (reason) => {
         type: 'warning'
       })
     )
-    if(res) await reloadStatusOrder()
+    if(res) await editData()
   }
   const finishReturnRequest = async () =>{
     await finishReturnOrder(FORM_IMAGES({OrderId:id}))
@@ -2720,8 +2744,8 @@ const postReturnRequest = async (reason) => {
     )
     await reloadStatusOrder()
 
-
   }
+
   const cancelReturnRequest = async () =>{
     const res = await cancelReturnOrder(FORM_IMAGES({OrderId:id}))
     .then(() =>
@@ -3789,8 +3813,8 @@ const postReturnRequest = async (reason) => {
           >
             <template #default="data">
               <div class="flex w-[100%] items-center text-center">
-                <div class="flex-1 limit-text">
-                  <span v-for="item in data.row.spaServices" :key="item.id">{{ item.name }} </span>
+                <div class="flex-1">
+                  <div v-for="item in data.row.spaServices" :key="item.id">{{ item.name }} </div>
                 </div>
 
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
@@ -4038,7 +4062,9 @@ const postReturnRequest = async (reason) => {
                     item.orderStatus == STATUS_ORDER_SPA[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[5].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus
+                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[11].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[12].orderStatus
                   "
                 >
                   <span
@@ -4363,7 +4389,7 @@ const postReturnRequest = async (reason) => {
           </div>
           <!-- Nút không thuộc về đâu =)) -->
           <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[10].orderStatus && duplicateStatusButton"
+                v-if="(statusOrder == STATUS_ORDER_SPA[10].orderStatus || statusOrder == STATUS_ORDER_SPA[11].orderStatus) && duplicateStatusButton"
                 type="primary"
                 @click="
                   () => {
@@ -4374,7 +4400,7 @@ const postReturnRequest = async (reason) => {
                 >Hoàn thành trả hàng</el-button
               >
           <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[10].orderStatus"
+                v-if="statusOrder == STATUS_ORDER_SPA[10].orderStatus || statusOrder == STATUS_ORDER_SPA[11].orderStatus"
                 @click="
                   () => {
                     cancelReturnRequest()
@@ -4727,6 +4753,7 @@ const postReturnRequest = async (reason) => {
         title="Cài đặt phí dịch vụ Spa"
         width="40%"
         align-center
+        :show-close="false"
       >
         <el-divider />
 
@@ -4761,12 +4788,12 @@ const postReturnRequest = async (reason) => {
               @click="
                 () => {
                   getPriceSpaService()
-
+                  spaNotChange = false
                 }
               "
               >{{ t('reuse.save') }}</el-button
             >
-            <el-button @click="dialogFormSettingServiceSpa = false">{{
+            <el-button @click="dialogFormSettingServiceSpa = false, spaNotChange = true">{{
               t('reuse.exit')
             }}</el-button>
           </span>

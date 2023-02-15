@@ -1340,7 +1340,7 @@ onBeforeMount(()=>{
   </el-dialog>
   <!-- 8,Trả hàng Spa -->
   <el-dialog
-    width="45%"
+    width="65%"
     align-center
     :model-Value="modelValue"
     v-if="orderStatusType == 8"
@@ -1384,7 +1384,7 @@ onBeforeMount(()=>{
     <div class="pt-2 pb-2">
       <el-table ref="singleTableRef" :data="orderData?.tableData" border style="width: 100%">
         <el-table-column label="STT" type="index" width="60" align="center" />
-        <el-table-column prop="productPropertyId" :label="t('formDemo.commodityName')" width="280">
+        <el-table-column prop="productPropertyId" :label="t('formDemo.commodityName')" :min-width="4">
           <template #default="scope">
             <MultipleOptionsBox
               :defaultValue="scope.row.productPropertyId"
@@ -1404,32 +1404,32 @@ onBeforeMount(()=>{
             />
           </template>
         </el-table-column>
-        <el-table-column prop="accessory" :label="t('reuse.accessory')" width="150">
+        <el-table-column prop="accessory" :label="t('reuse.accessory')" :min-width="1">
           <template #default="scope">
             <el-input v-model="scope.row.accessory" class="text-right" />
           </template>
         </el-table-column>
-        <el-table-column prop="accessory" :label="t('router.ServiceLibrarySpaService')">
+        <el-table-column prop="accessory" :label="t('router.ServiceLibrarySpaService')" :min-width="2">
           <template #default="scope">
             <div class="limit-text">
-              <span v-for="item in scope.row.spaServices" :key="item.id">{{ item.name }} </span>
+              <div v-for="item in scope.row.spaServices" :key="item.id">{{ item.name }} </div>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="type" :label="t('reuse.type')">
+        <el-table-column prop="type" :label="t('reuse.type')" :min-width="1">
           <template #default="scope">
             {{ scope.row.type }}
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" :label="t('reuse.quantityReturn')" width="90">
+        <el-table-column prop="quantity" :label="t('reuse.quantityReturn')" :min-width="2">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :max=scope.row.returnedQuantity :min="0" />
+            <el-input-number v-model="scope.row.quantity" :max="scope.row.maxQuantity" :min="0" controls-position="right"/>
           </template>
         </el-table-column>
         <el-table-column
           prop="conditionProducts"
           :label="t('formDemo.conditionProducts')"
-          width="130"
+          :min-width="2"
         >
         <template #default="scope">
           <el-select v-model="scope.row.isSpa">

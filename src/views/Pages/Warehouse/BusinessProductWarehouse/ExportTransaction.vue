@@ -61,7 +61,7 @@ const back = async () => {
     name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
   })
 }
-const status = ref(0)
+const status = ref(2)
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const ExportPWRef = ref<InstanceType<typeof ExportPW>>()
@@ -72,7 +72,7 @@ const addTransaction = async () => {
     uploadData.warehouseProductJson = [{}]
     uploadData.warehouseProductJson = ExportPWRef.value?.ListOfProductsForSale.map((row) => ({
       productPropertyId: row.productPropertyId,
-      quantity: row.quantity,
+      quantity: Number(row.quantity),
       accessory: row.accessory,
       fileId: row.fileId,
       exportLots: row.exportLots?.map((val) => ({
@@ -347,7 +347,7 @@ const updateInventoryOrder = async () => {
       fileId: row.fileId,
       exportLots: row.exportLots?.map((val) => ({
         fromLotId: val.value,
-        quantity: val.quantity,
+        quantity: Number(val.quantity),
         serviceType: val.serviceType,
         consignmentOrderId: val.consignmentOrderId,
         consignmentHirePrice: val.consignmentHirePrice,
@@ -546,7 +546,7 @@ const updateTicket = (warehouse) => {
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
             t('reuse.printDeliveryNote')
           }}</ElButton>
-          <div v-if="status !== 4 && status !== 3" class="ml-[20px] flex">
+          <div v-if="status == 1 || status == 2" class="ml-[20px] flex">
             <ElButton
               class="w-[150px]"
               type="primary"
@@ -563,24 +563,6 @@ const updateTicket = (warehouse) => {
               @click="updateInventory"
               >{{ t('reuse.outStockNow') }}</ElButton
             >
-            <ElButton
-              v-if="status == 5"
-              class="w-[150px]"
-              type="primary"
-              :disabled="type == 'add' || type == 'edit'"
-              @click="updateInventoryOrder"
-              >{{ t('formDemo.depositNow') }}</ElButton
-            >
-
-            <ElButton
-              v-if="status == 6"
-              class="w-[150px]"
-              type="primary"
-              :disabled="type == 'add' || type == 'edit'"
-              @click="exportInventoryNow"
-              >{{ t('reuse.outStockNow') }}</ElButton
-            >
-
             <ElButton
               class="w-[150px]"
               type="primary"
@@ -610,6 +592,23 @@ const updateTicket = (warehouse) => {
               >{{ t('reuse.cancelImport') }}</ElButton
             >
           </div>
+          <ElButton
+              v-if="status == 5"
+              class="w-[150px]"
+              type="primary"
+              :disabled="type == 'add' || type == 'edit'"
+              @click="updateInventoryOrder"
+              >{{ t('formDemo.depositNow') }}</ElButton
+            >
+
+            <ElButton
+              v-if="status == 6"
+              class="w-[150px]"
+              type="primary"
+              :disabled="type == 'add' || type == 'edit'"
+              @click="exportInventoryNow"
+              >{{ t('reuse.outStockNow') }}</ElButton
+            >
         </div>
       </el-collapse-item>
     </el-collapse>

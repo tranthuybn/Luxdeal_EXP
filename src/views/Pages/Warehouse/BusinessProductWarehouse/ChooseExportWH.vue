@@ -78,6 +78,7 @@ const getSelection = () => {
     warehouseData.value.location = rowSelected.map((item) => item.location).toString()
     warehouseData.value.lot = rowSelected.map((item) => item.lotCode).toString()
     warehouseData.value.unit = rowSelected[0].unit
+    warehouseData.value.quantity = warehouseForm.value.quantity 
 
     emit('close-dialog-warehouse', warehouseData.value)
   } else {
@@ -171,7 +172,7 @@ const multipleSelection = ref()
 const radioSelected = ref(-1)
 const totalExport = ref(0)
 const selectedRow: number[] = []
-const rowClick = (_selection, curRow) => {
+const rowClick = (selection, curRow) => {
   if (warehouseForm.value.quantity == 0 || warehouseForm.value.quantity == null) {
     ElMessage({
       message: t('reuse.pleaseChooseQuantity'),
@@ -188,7 +189,8 @@ const rowClick = (_selection, curRow) => {
     multipleTableRef.value!.toggleRowSelection(curRow, false)
     return
   }
-  if (totalExport.value == warehouseForm.value.quantity) {
+  const select = selection.find(row=>row == curRow)
+  if (select && totalExport.value == warehouseForm.value.quantity) {
     ElMessage({
       message: t('reuse.moreOrLessQuantity'),
       type: 'warning'
@@ -199,6 +201,7 @@ const rowClick = (_selection, curRow) => {
 
   multipleSelection.value = curRow
   const index: number = lotData.value.findIndex((lot) => lot == curRow)
+
 
   //Kiểm tra xem đã check chưa
   if (!selectedRow.includes(index)) {
@@ -314,7 +317,7 @@ onBeforeMount(async () => {
     >
       <template #append>
         <span class="pl-650px font-bold">{{ totalInventory }}</span>
-        <span class="pl-180px font-bold">{{ warehouseData.quantity }}</span>
+        <span class="pl-180px font-bold">{{ warehouseForm.quantity }}</span>
       </template>
       <el-table-column type="selection" width="55" />
       <el-table-column prop="location" :label="t('reuse.location')" width="180" />

@@ -906,7 +906,6 @@ const listServicesSpa = ref()
 const currentRow2 = ref(0)
 const spaNotChange = ref(true)
 const testSelect = (row) =>{
-  console.log('row', row)
   spaTableRef.value?.toggleRowSelection(listServicesSpa.value[row],true)
 }
 const callApiServicesSpa = async (scope) => {

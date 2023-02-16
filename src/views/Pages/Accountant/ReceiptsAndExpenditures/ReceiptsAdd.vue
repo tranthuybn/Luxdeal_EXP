@@ -679,8 +679,6 @@ const postData = async () => {
         type: 'warning'
       })
     )
-
-  console.log('payload!', payload)
 }
 const { go } = useRouter()
 

@@ -1044,7 +1044,7 @@ const removeListProductsSale = (index) => {
 }
 
 const dialogFormSettingServiceSpa = ref(false)
-var curDate = 'SPA' + moment().format('hhmmss')
+var curDate = 'SPA' + moment().format('YYYY-MM-DD HH:mm:ss')
 
 const optionsTypeSpa = [
   {
@@ -1626,6 +1626,75 @@ function printPage(id: string, { url, title, w, h }) {
   setTimeout(() => {
     newWindow?.print()
     newWindow?.close()
+  }, 500)
+}
+
+const printPages = (className: string, { url, title, w, h })=>{
+  // Get HTML to print from element
+const prtHtml = document.getElementsByClassName(className)!;
+
+// Get all stylesheets HTML
+let stylesHtml = '';
+for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
+  stylesHtml += node.outerHTML;
+}
+
+// Open the print window
+// open new window at the center of screen
+const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
+  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
+
+  const width = window.innerWidth
+    ? window.innerWidth
+    : document.documentElement.clientWidth
+    ? document.documentElement.clientWidth
+    : screen.width
+  const height = window.innerHeight
+    ? window.innerHeight
+    : document.documentElement.clientHeight
+    ? document.documentElement.clientHeight
+    : screen.height
+
+  const systemZoom = width / window.screen.availWidth
+  const left = (width - w) / 2 / systemZoom + dualScreenLeft
+  const top = (height - h) / 2 / systemZoom + dualScreenTop
+
+const WinPrint = window.open(
+    url,
+    title,
+    `
+				scrollbars=yes,
+				width=${w / systemZoom},
+				height=${h / systemZoom},
+				top=${top},
+				left=${left}      `
+  )!
+let html = ''
+for(var i =0;i<prtHtml.length;i++){
+  html += prtHtml[i].innerHTML
+}
+
+WinPrint.document.write(`<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+    body {
+        overflow: visible !important;
+    }
+    .page { page-break-after:always;}
+    ${stylesHtml}
+  </style>
+  </head>
+  <body>
+    ${html}
+  </body>
+</html>`);
+
+WinPrint?.document.close()
+WinPrint?.focus()
+  setTimeout(() => {
+    WinPrint?.print()
+    WinPrint?.close()
   }, 500)
 }
 const choosePayment = [
@@ -2812,12 +2881,12 @@ const postReturnRequest = async (reason) => {
           />
         </slot>
       </div>
-      <div v-for="(item,index) in billRepairData" :key="index">
-          <div id="repairSpa">
-            <slot>
+      <div v-for="(item,index) in billRepairData" :key="index" class="hidden">
+          <div class="repairSpa">
+              <div class="page">
                 <billSpaRepair :billRepairData="item" />
-            </slot>
-        </div>
+              </div>
+          </div>
       </div>
       
       <ChooseWarehousePR
@@ -4686,14 +4755,12 @@ const postReturnRequest = async (reason) => {
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button
-              @click="
-                printPage('repairSpa', {
+              @click="printPages('repairSpa', {
                   url: '',
-                  title: 'In vé',
+                  title: 'In phiếu sửa chữa',
                   w: 800,
                   h: 920
-                })
-              "
+                })"
               >{{ t('button.print') }}</el-button
             >
 
@@ -4701,7 +4768,7 @@ const postReturnRequest = async (reason) => {
               t('reuse.exit')
             }}</el-button>
           </div>
-          <div class="dialog-content" v-for="(item,index) in billRepairData" :key="index">
+          <div v-for="(item,index) in billRepairData" :key="index">
               <slot>
             <billSpaRepair :billRepairData="item" />
               </slot>
@@ -6001,5 +6068,10 @@ const postReturnRequest = async (reason) => {
   height: 200px;
   overflow: auto;
   padding: 0 10px;
+}
+
+@media print {
+  * { overflow: visible !important; } 
+  .page { page-break-after:always; }
 }
 </style>

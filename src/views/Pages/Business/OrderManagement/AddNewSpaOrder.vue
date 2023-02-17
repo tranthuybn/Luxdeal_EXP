@@ -515,7 +515,7 @@ let countExistedDNTT = ref(0)
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  if(val.length >1 || val.length ==0){
+  if(val.length ==0){
     disabledPTAccountingEntry.value = true
       disabledPCAccountingEntry.value = true
       disabledDNTTAccountingEntry.value = true
@@ -1902,10 +1902,10 @@ const postOrderStransaction = async (num: number) => {
 
     paidMoney: num == 1 ? 0 : num == 2 ? tableAccountingEntry.value[0].spent : 0,
     deibt: num == 1 ? remainingMoney.value : 0,
-    typeOfPayment: remainingMoney.value ? 1 : 0,
+    typeOfPayment: tableAccountingEntry.value[0].collected - tableAccountingEntry.value[0].spent >0 ? 1 : 0,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
+    isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value
   }

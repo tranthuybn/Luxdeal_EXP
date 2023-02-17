@@ -76,7 +76,7 @@ const addTransaction = async () => {
     uploadData.warehouseProductJson = productWarehouseRef.value?.ListOfProductsForSale.map(
       (row) => ({
         productPropertyId: row.productPropertyId,
-        quantity: row.quantity,
+        quantity: Number(row.quantity),
         price: row.price,
         accessory: row.accessory,
         productPropertyQuality: row.productPropertyQuality,
@@ -353,7 +353,7 @@ const updateInventoryOrder = async () => {
       productPropertyId: row.productPropertyId,
       productPropertyCode: row.productCode,
       productName: row.productName,
-      quantity: row.quantity,
+      quantity: Number(row.quantity),
       price: row.price,
       accessory: row.accessory,
       productPropertyQuality: row.productPropertyQuality,

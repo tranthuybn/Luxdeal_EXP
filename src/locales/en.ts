@@ -1796,7 +1796,10 @@ export default {
     addPaymentRequestBill: 'Add new payment request bill',
     moneyReceipts: 'Money receipts',
     moneyPaid: 'Money paid',
-    purchaseInfo: 'Information seller'
+    purchaseInfo: 'Information seller',
+        //trạng thái kho
+    exportTicketStatus: 'Export ticket status',
+    transferTicketStatus: 'Transfer ticket status',
   }
 }
   

@@ -17,6 +17,7 @@ import {
 } from '@/api/Warehouse'
 import { getWareHouseTransactionList } from '@/api/Business'
 import { dateTimeFormat } from '@/utils/format'
+import { statusWhType, TicketStatusHistory } from './TicketEnum'
 
 const { t } = useI18n()
 
@@ -175,6 +176,9 @@ const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 const status = ref(0)
 const serviceType = ref(6)
 const returnRequestId = ref(0)
+const duplicateStatusButton = ref(false)
+
+let arrayStatusWH = ref(Array<statusWhType>())
 const callApiForData = async () => {
   if (id.value !== 0 && !isNaN(id.value)) {
     type.value = 'detail'
@@ -196,6 +200,16 @@ const callApiForData = async () => {
       serviceType.value = res.data[0]?.orderType
       returnRequestId.value = res.data[0]?.returnRequestID
       status.value = res.data[0]?.status
+
+      arrayStatusWH.value = res.data[0]?.statusHistory
+
+if (arrayStatusWH.value?.length) {
+  arrayStatusWH.value[arrayStatusWH.value?.length - 1].isActive = true
+
+if (arrayStatusWH.value[arrayStatusWH.value?.length - 1].approveAt)
+  duplicateStatusButton.value = true
+else duplicateStatusButton.value = false
+}
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
         quantity: item.quantity,
@@ -218,6 +232,13 @@ const callApiForData = async () => {
     type.value = 'add'
     ticketData.value.ticketCode = 'NK' + moment().format('hhmmss')
     ticketData.value.updatedAt = moment().format()
+
+    arrayStatusWH.value.push({
+    name: 'Khởi tạo & ghi số',
+    isActive: true,
+    approveAt: String(moment()),
+    value: 1
+    })
   }
 }
 const cancelTicketWarehouse = async () => {
@@ -339,29 +360,71 @@ const updateTicket = (warehouse) => {
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
-        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[12%] text-right">{{ t('reuse.importTicketStatus') }}</label>
-          <div>
-            <p class="status bg-gray-300 day-updated">{{ t('reuse.initializeAndWrite') }}</p>
-            <p class="date text-gray-300">
-              {{
-                ticketData.createdAt
-                  ? dateTimeFormat(ticketData.createdAt)
-                  : dateTimeFormat(moment())
-              }}
-            </p>
+        <div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
+          <label class="ml-10">{{ t('reuse.importTicketStatus')}}</label>
+          <div class="w-[75%]">
+          <div class="flex items-cumter w-[100%]">
+            <div
+              class="duplicate-status"
+              v-for="item in arrayStatusWH"
+              :key="item.value"
+            >
+              <div v-if="item.value == TicketStatusHistory.NewCreate">
+                <span
+                  class="box box_1 custom-after bg-gray-300 dark:text-gray-300"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+
+                  <span class="triangle-right right_1"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div v-else-if="item.value == TicketStatusHistory.Approve">
+                <span
+                  class="box box_3 custom-after text-orange-400 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_2"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div v-else-if="item.value == TicketStatusHistory.Imported || item.value == TicketStatusHistory.Depositing">
+                <span
+                  class="box box_2 custom-after text-blue-500 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_2"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div v-else-if="item.value == TicketStatusHistory.CancelImport">
+                
+                <span
+                  class="box box_4 custom-after text-rose-500 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_4"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+            </div>
           </div>
-          <div v-if="status == 3">
-            <p class="status bg-gray-300 day-updated text-red-500">{{ t('reuse.cancelImport') }}</p>
-            <p class="date text-gray-300">
-              {{ dateTimeFormat(ticketData.updatedAt) }}
-            </p>
-          </div>
-          <div v-if="status == 4">
-            <p class="status bg-gray-300 day-updated text-blue-500">{{ t('reuse.import') }}</p>
-            <p class="date text-gray-300">
-              {{ dateTimeFormat(ticketData.updatedAt) }}
-            </p>
           </div>
         </div>
         <div class="ml-[170px] flex">
@@ -420,41 +483,5 @@ const updateTicket = (warehouse) => {
   </div>
 </template>
 <style scoped>
-::deep(.el-select) {
-  width: 100%;
-}
-
-:deep(.cell) {
-  word-break: break-word;
-}
-
-.day-updated {
-  position: relative;
-  padding-left: 20px;
-  width: fit-content;
-}
-
-.day-updated::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -12px;
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 14px solid transparent;
-  border-left: 12px solid rgba(209, 213, 219, var(--tw-bg-opacity));
-}
-
-.day-updated::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
-  border-top: 12px solid transparent;
-  border-bottom: 12px solid transparent;
-  border-left: 12px solid white;
-}
+@import './StyleStatusHistory.css'
 </style>

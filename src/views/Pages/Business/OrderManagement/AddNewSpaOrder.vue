@@ -506,15 +506,21 @@ const ScrollProductBottom = () => {
         })
 }
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 let totalSettingSpa = ref(0)
 let countExisted = ref(0)
 let countExistedDNTT = ref(0)
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length >1 || val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -1711,7 +1717,9 @@ const choosePayment = [
 let payment = ref(choosePayment[0].value)
 
 let disabledCustomer = ref(false)
+const loadingProductTable = ref(false)
 const checkDisabledCustomer = () => {
+  loadingProductTable.value = true
   if (valueTypeSpa.value == 0) {
     disabledCustomer.value = false
     customerID.value = null
@@ -1719,6 +1727,9 @@ const checkDisabledCustomer = () => {
     ruleForm.customerName = ''
     disabledCustomer.value = true
   }
+  setTimeout(()=>{
+    loadingProductTable.value = false
+  }, 700)
 }
 
 // Lấy chi tiết phiếu thu chi
@@ -3773,6 +3784,7 @@ const postReturnRequest = async (reason) => {
           :class="[
             'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
           ]"
+          v-loading="loadingProductTable"
         >
           <el-table-column
             :label="t('formDemo.productManagementCode')"

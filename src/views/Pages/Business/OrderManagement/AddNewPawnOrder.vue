@@ -518,7 +518,7 @@ const postPaymentRequest = async () => {
 //thêm nahnh sp
 
 const quickProductCode = ref()
-const quickManagementCode = ref()
+const quickManagementCode = `SP${Date.now()}`
 const quickProductName = ref()
 const quickDescription = ref()
 const productCharacteristics = ref()
@@ -533,7 +533,7 @@ const postQuickCustomer = async () => {
   const payload = {
     serviceType: 1,
     productCode: quickProductCode.value,
-    productPropertyCode: quickManagementCode.value,
+    productPropertyCode: quickManagementCode,
     name: quickProductName.value,
     shortDescription: quickDescription.value,
     productTypeId: 9,
@@ -2593,7 +2593,7 @@ const removeRow = (index) => {
               <el-option
                 v-for="item in listProducts"
                 :key="item.productPropertyId"
-                :label="item.productCode"
+                :label="item.value"
                 :value="item.productPropertyId"
               />
             </el-select>
@@ -2603,7 +2603,7 @@ const removeRow = (index) => {
               >{{ t('reuse.managementCode') }} <span class="text-red-500">*</span></label
             >
             <el-input
-              v-model="quickManagementCode"
+              :modelValue="quickManagementCode"
               style="width: 100%"
               :placeholder="t('formDemo.addManagementCode')"
             />

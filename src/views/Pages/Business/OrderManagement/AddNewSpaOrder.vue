@@ -611,7 +611,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
   data.productName = obj.name
   data.unitName = obj.unit
   data.quantity = 1
-  data.spaServices = {}
+  data.spaServices = []
   data.totalPrice = 0
   data.accessory = ''
   data.description = ''
@@ -1397,7 +1397,7 @@ const districtChange = async (value) => {
 //thêm nahnh sp
 
 const quickProductCode = ref()
-const quickManagementCode = ref()
+const quickManagementCode = `SP${Date.now()}`
 const quickProductName = ref()
 const quickDescription = ref()
 const productCharacteristics = ref()
@@ -1497,7 +1497,7 @@ const postQuickCustomer = async () => {
   const payload = {
     serviceType: 1,
     productCode: quickProductCode.value,
-    productPropertyCode: quickManagementCode.value,
+    productPropertyCode: quickManagementCode,
     name: quickProductName.value,
     shortDescription: quickDescription.value,
     productTypeId: 9,
@@ -3191,7 +3191,7 @@ const postReturnRequest = async (reason) => {
               <el-option
                 v-for="item in listProducts"
                 :key="item.productPropertyId"
-                :label="item.productCode"
+                :label="item.value"
                 :value="item.productPropertyId"
               />
             </el-select>
@@ -3201,7 +3201,7 @@ const postReturnRequest = async (reason) => {
               >{{ t('reuse.managementCode') }} <span class="text-red-500">*</span></label
             >
             <el-input
-              v-model="quickManagementCode"
+              :modelValue="quickManagementCode"
               style="width: 100%"
               :placeholder="t('formDemo.addManagementCode')"
             />
@@ -3766,6 +3766,7 @@ const postReturnRequest = async (reason) => {
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-divider content-position="left">{{ t('formDemo.listProductSpa') }}</el-divider>
+        {{ ListOfProductsForSale }}
         <el-table
           :data="ListOfProductsForSale"
           border

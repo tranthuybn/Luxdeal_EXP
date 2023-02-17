@@ -304,10 +304,11 @@ const checkValueOfTable = () => {
       })
       return (result = false)
     }
+    console.log('row.export', row.exportLots)
     if (
       row.exportLots == undefined ||
       row.exportLots.length == 0 ||
-      row?.exportLots[0]?.fromLotId == 0
+      row?.exportLots[0]?.fromLotId == 0 || row?.exportLots[0]?.value == 0
     ) {
       ElMessage({
         message: t('reuse.pleaseChooseLot'),

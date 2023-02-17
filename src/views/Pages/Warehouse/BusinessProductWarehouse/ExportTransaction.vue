@@ -484,7 +484,6 @@ const updateTicket = (warehouse) => {
               v-for="item in arrayStatusWH"
               :key="item.value"
             >
-            {{ arrayStatusWH }}
               <div v-if="item.value == TicketStatusHistory.NewCreate">
                 <span
                   class="box box_1 custom-after bg-gray-300 dark:text-gray-300"

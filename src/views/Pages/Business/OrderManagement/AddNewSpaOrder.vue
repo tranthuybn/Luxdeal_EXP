@@ -640,6 +640,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
 }
 
 const autoCalculateOrder = () => {
+  checkInputPriceChange.value = false
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
   ListOfProductsForSale.value.forEach((val) => {
@@ -3766,7 +3767,6 @@ const postReturnRequest = async (reason) => {
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-divider content-position="left">{{ t('formDemo.listProductSpa') }}</el-divider>
-        {{ ListOfProductsForSale }}
         <el-table
           :data="ListOfProductsForSale"
           border

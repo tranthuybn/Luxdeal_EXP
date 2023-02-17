@@ -13,7 +13,7 @@ const props = defineProps({
 
 <template>
   <div class="header">
-    <img class="h-100px" src="@/assets/imgs/images.png" />
+    <img class="w-240px h-120px" width="240" height="120" src="@/assets/imgs/images.png" />
     <div><span class="font-black">Địa chỉ:</span> 73B Lý Nam Đế, Q.Hoàn Kiếm, Hà Nội</div>
     <div><span class="font-black">Địa chỉ:</span> 116 Nguyễn Cư Trinh, Quận 1, TP.HCM</div>
     <div><span class="font-black">Email:</span> authonolyluxury@gmail.com</div>

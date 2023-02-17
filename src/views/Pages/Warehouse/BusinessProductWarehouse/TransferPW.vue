@@ -397,7 +397,7 @@ const totalMoney = () => {
           width="500px"
           :items="tempListProducts"
           valueKey="productPropertyId"
-          labelKey="productPropertyCode"
+          labelKey="productCode"
           :hiddenKey="['productPropertyId']"
           :placeHolder="t('reuse.chooseProductCode')"
           @scroll-top="ScrollProductTop"

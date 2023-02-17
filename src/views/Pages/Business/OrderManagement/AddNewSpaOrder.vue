@@ -1044,7 +1044,7 @@ const removeListProductsSale = (index) => {
 }
 
 const dialogFormSettingServiceSpa = ref(false)
-var curDate = 'SPA' + moment().format('YYYY-MM-DD HH:mm:ss')
+var curDate = 'SPA' + Date.now()
 
 const optionsTypeSpa = [
   {
@@ -2235,7 +2235,7 @@ const editData = async () => {
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
-    const orderObj = { ...res.data[0] }
+    const orderObj = type == 'approval-order' ? res.data :{ ...res.data[0] } 
 
     dataEdit.value = orderObj
     arrayStatusOrder.value = orderObj?.statusHistory
@@ -2273,9 +2273,9 @@ const editData = async () => {
       ruleForm.collaborators = orderObj?.collaborator?.id
 
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
-      ruleForm.customerName = orderObj.customer.isOrganization
-        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.customerName = orderObj.customer?.isOrganization
+        ? orderObj.customer.representative + ' | ' + orderObj.customer?.taxCode
+        : orderObj.customer?.name + ' | ' + orderObj.customer?.phonenumber
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouseImport = orderObj?.warehouseId
       ruleForm.warehouseParent = orderObj?.warehouseId
@@ -2295,7 +2295,7 @@ const editData = async () => {
       }
       ListOfProductsForSale.value = orderObj.orderDetails
 
-      ListOfProductsForSale.value.forEach((e) => {
+      ListOfProductsForSale.value?.forEach((e) => {
         editor.value = e.description
       })
       if (orderObj.vat) {
@@ -2307,11 +2307,11 @@ const editData = async () => {
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
-      if (orderObj.customer.isOrganization) {
-        infoCompany.name = orderObj.customer.name
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer.email
+      if (orderObj.customer?.isOrganization) {
+        infoCompany.name = orderObj?.customer?.name
+        infoCompany.taxCode = orderObj?.customer?.taxCode
+        infoCompany.phone = orderObj?.customer?.phonenumber
+        infoCompany.email = 'Email: ' + orderObj?.customer?.email
       } else {
         infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
         infoCompany.taxCode = orderObj.customer.taxCode
@@ -4133,7 +4133,8 @@ const postReturnRequest = async (reason) => {
                     item.orderStatus == STATUS_ORDER_SPA[5].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[7].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[11].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SPA[12].orderStatus
+                    item.orderStatus == STATUS_ORDER_SPA[12].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[13].orderStatus
                   "
                 >
                   <span
@@ -4258,7 +4259,8 @@ const postReturnRequest = async (reason) => {
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
                   (statusOrder == STATUS_ORDER_SPA[6].orderStatus && duplicateStatusButton) ||
                   statusOrder == STATUS_ORDER_SPA[7].orderStatus ||
-                  statusOrder == STATUS_ORDER_SPA[1].orderStatus
+                  statusOrder == STATUS_ORDER_SPA[1].orderStatus||
+                  statusOrder == STATUS_ORDER_SPA[12].orderStatus
                 "
                 :disabled="startSpa"
                 class="min-w-42 min-h-11"
@@ -4270,7 +4272,8 @@ const postReturnRequest = async (reason) => {
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
                   (statusOrder == STATUS_ORDER_SPA[6].orderStatus && duplicateStatusButton) ||
                   statusOrder == STATUS_ORDER_SPA[7].orderStatus ||
-                  statusOrder == STATUS_ORDER_SPA[1].orderStatus
+                  statusOrder == STATUS_ORDER_SPA[1].orderStatus||
+                  statusOrder == STATUS_ORDER_SPA[12].orderStatus
                 "
                 :disabled="startSpa"
               class="min-w-42 min-h-11" @click="openRepairBill">In phiếu sửa chữa</el-button>
@@ -4279,7 +4282,8 @@ const postReturnRequest = async (reason) => {
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
                   (statusOrder == STATUS_ORDER_SPA[6].orderStatus && duplicateStatusButton) ||
                   statusOrder == STATUS_ORDER_SPA[7].orderStatus ||
-                  statusOrder == STATUS_ORDER_SPA[1].orderStatus
+                  statusOrder == STATUS_ORDER_SPA[1].orderStatus||
+                  statusOrder == STATUS_ORDER_SPA[12].orderStatus
                 "
                 :disabled="startSpa"
                 class="min-w-42 min-h-11"
@@ -4479,7 +4483,7 @@ const postReturnRequest = async (reason) => {
                 >Hủy trả hàng</el-button
               >
             <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[6].orderStatus"
+                v-if="statusOrder == STATUS_ORDER_SPA[12].orderStatus"
                 type="info"
                 @click="
                   () => {

@@ -360,15 +360,16 @@ const postDataDepartment = async (data) => {
     data.isDelete = false
   }
   data.CreateAt = moment().format('YYYY / MM / DD')
-  data.Image = data.Image
+  data.Image = data.Image ? data.Image : ''
   
   await addNewDepartment(data)
-    .then(() => 
+   .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      })        
-    )
+      }),
+      checkTrungCode.value = true        
+  })
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail') + ', ' + t('reuse.codeExist'),

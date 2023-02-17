@@ -124,6 +124,10 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    cancelAccountingEntry: 'Cancel accounting entry',
+    expired: 'Expired',
+    keepGoodsOnDeposit: 'Keep goods on deposit',
+    initializationBookkeeping: 'Initialization and bookkeeping',
     exportCode: 'Export warehouse code',
     warehouserExport: 'Exporter warehouse',
     detailsOfPaymentRequest: 'Details of payment request',

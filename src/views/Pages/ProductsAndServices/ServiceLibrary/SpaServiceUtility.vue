@@ -243,7 +243,7 @@ const customPostData = (data) => {
     data.status == '' ? (customData.IsActive = false) : (customData.IsActive = true)
     data.status == 'active' ? (customData.IsActive = true) : (customData.IsActive = false)
   }
-  customData.IsApproved = true
+  customData.IsApproved = false
   return customData
 }
 const { push } = useRouter()

@@ -114,7 +114,7 @@ export const CustomerList = [
     minWidth: '150',
     filters: filterStatusCustomer,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return cellValue ? h('div', 'Đang hoạt động') : h('div', 'Đã hủy')
+      return cellValue ? h('div', 'Đang hoạt động') : h('div', 'Tạm dừng')
     }
   }
 ]

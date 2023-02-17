@@ -15,11 +15,12 @@ import {
   ElFormItem,
   ElNotification,
   ElMessage,
-  ElDialog
+  ElDialog,
+  ElTreeSelect
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import moment from 'moment'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
@@ -28,22 +29,22 @@ import {
   getCollaboratorsInOrderList,
   getAllCustomer,
   editStatusReceiptPaymentVoucher,
-  getOrderList
+  getStaffList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
-import { STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
 import { getCity } from '@/utils/Get_Address'
 import type { FormRules } from 'element-plus'
 import { getStaff } from '@/api/Warehouse'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
+import { CreateANewReceiOrPayment, EditAReceiptOrPaymentVoucher } from '@/api/Accountant'
+const utility = 'Utility'
 const { t } = useI18n()
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-const route = useRoute()
-const type = String(route.params.type)
+const type = String(router.currentRoute.value.params.type)
 const optionsStaffApi = ref()
-var curDate = 'MH' + moment().format('hhmmss')
+var curDate = 'PT' + moment().format('hhmmss')
 var autoCodeSellOrder = 'MH' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 const sellOrderCode = ref()
@@ -68,16 +69,9 @@ const getListStaff = async () => {
     id: item.id
   }))
 }
-const getValueOfStaffSelected = (value, _obj) => {
-  petitionerData.value = value
-}
 
 // form phiếu thu
 let formReceipts = ref<any>()
-const scrollStaffBottom = ref(false)
-const pageIndexStaff = ref(1)
-const noMoreStaffData = ref(false)
-const noMoreCustomerData = ref(false)
 const getFormReceipts = () => {
   PrintReceipts.value = true
   if (dataDetail.value) {
@@ -101,29 +95,7 @@ const getFormReceipts = () => {
     })
   }
 }
-const ScrollStaffBottom = () => {
-  scrollStaffBottom.value = true
-  pageIndexStaff.value++
-  noMoreStaffData.value
-    ? ''
-    : getStaff({ PageIndex: pageIndexStaff.value, PageSize: 20 })
-        .then((res) => {
-          res.data.length == 0
-            ? (noMoreCustomerData.value = true)
-            : res.data.map((item) =>
-                optionsStaffApi.value.push({
-                  code: item.code,
-                  phone: item.phonenumber,
-                  name: item.name,
-                  label: item.name + ' | ' + item.phonenumber,
-                  id: item.id
-                })
-              )
-        })
-        .catch(() => {
-          noMoreStaffData.value = true
-        })
-}
+
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
   collaborators: [
@@ -191,42 +163,6 @@ const collapse: Array<Collapse> = [
   }
 ]
 
-interface ListOfProductsForSaleType {
-  name: string
-  productCode: string
-  productName: string
-  productPropertyCode: string
-  productPropertyName: string
-  id: string
-  productPropertyId: string
-  quantity: number
-  businessManagement: {}
-  accessory: string | undefined
-  code: string | undefined
-  unitName: string
-  unitPrice: string | number | undefined
-  totalPrice: string
-  paymentType: string
-  warehouseId: number | undefined
-  warehouseName: string
-}
-
-interface EditReceiptEndearmentVoucher {
-  id: number
-  totalMoney: string | undefined
-  typeOfPayment: number
-  status: number
-  peopleType: number
-  PeopleId: number
-  deletedDocument: string
-  type: string | undefined
-  document: Array<string> | undefined
-  description: string
-}
-let EditReceiptAndPaymentVoucherData = ref<EditReceiptEndearmentVoucher>()
-
-let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
-
 const collapseChangeEvent = (val) => {
   if (val) {
     collapse.forEach((el) => {
@@ -239,7 +175,6 @@ const collapseChangeEvent = (val) => {
     })
   }
 }
-const petitionerData = ref('')
 const parentingStatusData = ref({ title: 'Không xác định', value: false })
 const activeName = ref(collapse[0].name)
 // dataDetail
@@ -300,6 +235,48 @@ const callCustomersApi = async () => {
   }
 }
 
+
+const scrollCustomerTop = ref(false)
+const scrollCustomerBottom = ref(false)
+const pageIndexCustomer = ref(1)
+
+const ScrollCustomerTop = () => {
+  scrollCustomerTop.value = true
+}
+const noMoreCustomerData = ref(false)
+
+const ScrollCustomerBottom = () => {
+  scrollCustomerBottom.value = true
+  pageIndexCustomer.value++
+  noMoreCustomerData.value
+    ? ''
+    : getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCustomerData.value = true)
+            : res.data.map((customer) =>
+                optionsCustomerApi.value.push({
+                  code: customer.code,
+                  label: customer.isOrganization
+                    ? customer.name + ' | MST ' + customer.taxCode
+                    : customer.name + ' | ' + customer.phonenumber,
+                  address: customer.address,
+                  name: customer.name,
+                  value: customer.id,
+                  isOrganization: customer.isOrganization,
+                  taxCode: customer.taxCode,
+                  phone: customer.phonenumber,
+                  email: customer.email,
+                  id: customer.id.toString()
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCustomerData.value = true
+        })
+}
+
+
 // Call api danh sách sản phẩm
 const listProductsTable = ref()
 
@@ -323,12 +300,15 @@ let totalFinalOrder = ref(0)
 let customerID = ref()
 
 const getValueOfCustomerSelected = (value, obj) => {
+  infoCompany.name = obj.label
+  infoCompany.phone = obj.phone
+  infoCompany.email = obj.email
   changeAddressCustomer(value)
   customerID.value = value
-  formAddress.province = obj.provinceId
-  formAddress.district = obj.districtId
-  formAddress.wardCommune = obj.wardId
-  formAddress.detailedAddress = obj.address
+  formAddress.province = obj.provinceId != null ? obj.provinceId : ''
+  formAddress.district = obj.districtId != null ? obj.districtId : ''
+  formAddress.wardCommune = obj.wardId != null ? obj.wardId : ''
+  formAddress.detailedAddress = obj.address != null ? obj.address : ''
   ruleForm.customerName = obj.label
 }
 interface statusOrderType {
@@ -341,12 +321,8 @@ interface statusOrderType {
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
 
-if (type == 'add') {
-  arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[1])
-}
 const printPage = (id: string, { url, title, w, h }) => {
   const printContents = document.getElementById(id)?.innerHTML
-  console.log('printContents', printContents)
 
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
@@ -429,28 +405,146 @@ watch(
     }
   }
 )
+const inputRecharger = ref()
+
+const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''
+const staffInfo = JSON.parse(staff) || ''
+const staffItem = JSON.parse(staffInfo?.v) || ''
+// inputRecharger.value = staffItem?.id
+if(type == ':type') inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
+
+const scrollingRecharger = (e) => {
+  const clientHeight = e.target.clientHeight
+  const scrollHeight = e.target.scrollHeight
+  const scrollTop = e.target.scrollTop
+  if (scrollTop == 0) {
+    scrollRechargerTop.value = true
+  }
+  if (scrollTop + clientHeight >= scrollHeight) {
+    ScrollRechargerBottom()
+  }
+}
+
+//lấy danh sách staff
+const optionsRecharger = ref()
+
+const pageIndexRecharger = ref(1)
+const callApiRecharger = async () => {
+  const res = await getStaffList({
+    PageIndex: pageIndexRecharger.value,
+    PageSize: 20
+  })
+  if (res.data && res.data?.length > 0) {
+    optionsRecharger.value = res.data.map((recharger) => ({
+      label: recharger.name + ' | ' + recharger.phonenumber,
+      value: recharger.id
+    }))
+  }
+}
+
+
+const valueTree = ref()
+
+const dataTree = [
+  {
+    value: 1,
+    label: '111 | Tiền mặt',
+    children: [],
+  },
+  {
+    value: 1,
+    label: '112 | Tiền gửi ngân hàng',
+    children: [
+      {
+        value: 21,
+        label: '1121 | Teckcombank',
+      },
+      {
+         value: 22,
+            label: '1122 | Vietcombank',
+      },
+    ],
+  },
+  {
+    value: 3,
+    label: '113 | Doanh thu bán hàng',
+    children: [
+      {
+        value: '3-1',
+        label: 'Level two 3-1',
+        children: [
+          {
+            value: '3-1-1',
+            label: 'Level three 3-1-1',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    value: 4,
+    label: '114 | Doanh thu cho thuê',
+    children: [
+      {
+        value: '3-1',
+        label: 'Level two 3-1',
+        children: [
+          {
+            value: '3-1-1',
+            label: 'Level three 3-1-1',
+          },
+        ],
+      },
+    ],
+  },
+]
+
+const scrollRechargerTop = ref(false)
+const scrollRechargerBottom = ref(false)
+const noMoreRechargerData = ref(false)
+
+const ScrollRechargerBottom = () => {
+  scrollRechargerBottom.value = true
+  pageIndexCollaborator.value++
+  noMoreRechargerData.value
+    ? ''
+    : getStaffList({ PageIndex: pageIndexRecharger.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreRechargerData.value = true)
+            : res.data.map((el) =>
+                optionsRecharger.value.push({
+                  label: el.name + ' | ' + el.phoneNumber,
+                  value: el.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreRechargerData.value = true
+        })
+}
 
 let listStatus = ref([
   {
     color: 'info',
     text: t('reuse.initializeAndWrite')
-  },
-  {
-    color: 'warning',
-    text: t('reuse.checkReceipts')
-  },
-  {
-    color: 'class="status bg-gray-300 day-updated text-blue-500',
-    text: t('reuse.collectedMoney')
-  },
-  {
-    color: 'class="status bg-gray-300 day-updated text-blue-500',
-    text: t('reuse.planned')
-  },
-  {
-    color: 'status bg-gray-300 day-updated text-red-500',
-    text: t('reuse.cancelled')
   }
+  // {
+  //   color: 'warning',
+  //   text: t('reuse.checkReceipts')
+  // },
+  // {
+  //   color: 'class="status bg-gray-300 day-updated text-blue-500',
+  //   text: t('reuse.collectedMoney')
+  // },
+  // {
+  //   color: 'class="status bg-gray-300 day-updated text-blue-500',
+  //   text: t('reuse.planned')
+  // },
+  // {
+  //   color: 'status bg-gray-300 day-updated text-red-500',
+  //   text: t('reuse.cancelled')
+  // }
 ])
 // total order
 let dataDetail = ref<ReceiptOrPaymentVoucherDetail>({
@@ -458,7 +552,7 @@ let dataDetail = ref<ReceiptOrPaymentVoucherDetail>({
   type: '',
   description: '',
   totalMoney: 0,
-  typeOfPayment: '',
+  typeOfPayment: 1,
   peopleType: 0,
   peopleName: '',
   peopleId: '',
@@ -467,7 +561,7 @@ let dataDetail = ref<ReceiptOrPaymentVoucherDetail>({
   accountName: '',
   accountingDate: '',
   id: 0,
-  createdAt: '',
+  createdAt: moment().format('DD/MM/YYYY'),
   createdBy: '',
   customerId: '',
   updatedAt: '',
@@ -475,61 +569,34 @@ let dataDetail = ref<ReceiptOrPaymentVoucherDetail>({
   orderCode: '',
   enterMoney: ''
 })
-
-let dataEdit = ref()
+const checkDisabelDetail = ref(false)
 
 const editData = async () => {
+  if (type == 'detail') checkDisabelDetail.value = true
+
   if (type == 'edit' || type == 'detail') {
     var su = await getDetailReceiptPaymentVoucher({ id: id })
     console.log('su: ', su)
     if (su.data) dataDetail.value = Object.assign({}, su?.data)
     var cus = optionsCustomerApi.value.find((x) => x.id == dataDetail.value.customerId)
     getValueOfCustomerSelected(dataDetail.value.customerId, cus)
-    const res = await getOrderList({ Id: id, ServiceType: 1 })
-    const orderObj = { ...res?.data[0] }
-    arrayStatusOrder.value = orderObj?.statusHistory
-    if (arrayStatusOrder.value?.length) {
-      arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
-    }
-    dataEdit.value = orderObj
-    if (res.data) {
-      ruleForm.orderCode = orderObj.code
-      sellOrderCode.value = ruleForm.orderCode
-      ruleForm.collaborators = orderObj?.collaborator?.id
-      ruleForm.discount = orderObj.collaboratorCommission
-      ruleForm.customerName =
-        orderObj.customer.isOrganization == 'True'
-          ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-          : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
-      ruleForm.orderNotes = orderObj.description
-      totalFinalOrder.value = orderObj.totalPrice
-      ListOfProductsForSale.value = orderObj.orderDetails
-      customerAddress.value = orderObj.address
-      ruleForm.delivery = orderObj.deliveryOption
 
-      totalFinalOrder.value = orderObj.totalPrice - orderObj.discountMoney
-      // if (orderObj.customer?.isOrganization) {
-      //   infoCompany.name = orderObj.customer?.name
-      //   infoCompany.taxCode = orderObj.customer?.taxCode
-      //   infoCompany.phone = orderObj.customer?.phonenumber
-      //   infoCompany.email = 'Email: ' + orderObj.customer?.email
-      // } else {
-      //   infoCompany.name = orderObj.customer?.name + ' | ' + orderObj.customer?.taxCode
-      //   infoCompany.taxCode = orderObj.customer?.taxCode
-      //   infoCompany.phone = orderObj.customer?.phonenumber
-      //   infoCompany.email = 'Email: ' + orderObj.customer?.email
-      // }
+    inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
+
+    console.log('dataDetail.value:', dataDetail.value)
+
+    // arrayStatusOrder.value = orderObj?.statusHistory
+    // if (arrayStatusOrder.value?.length) {
+    //   arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    // }
+
+
+
     }
-  } else if (type == 'add' || !type) {
-  }
-  //else if (type == 'add' || !type) {
-  //   ListOfProductsForSale.value.push({ ...productForSale })
-  // }
 }
 const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
   infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value.id == data)
-  console.log(infoCustomerId.value)
   if (infoCustomerId.value) {
     customerAddress.value = optionsCustomerApi.value?.find((e) => e.value == data)?.address ?? ''
     infoCompany.name = infoCustomerId.value.name
@@ -578,6 +645,80 @@ const callApiCollaborators = async () => {
     }))
   }
 }
+const { push } = useRouter()
+
+const postData = async () => {
+  const payload = {
+    Code : dataDetail.value.code,
+    TotalMoney : dataDetail.value.totalMoney,
+    TypeOfPayment :dataDetail.value.typeOfPayment ,
+    status : 1,
+    PeopleType: 2,
+    PeopleId  : customerID.value,
+    OrderId : 2123 ,
+    Type : 1,
+    Description: dataDetail.value.description,
+    Document: [],
+    AccountingEntryId: valueTree.value ?? 0
+  }
+
+  await CreateANewReceiOrPayment(FORM_IMAGES(payload))
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'accountant.receipts-expenditures.receipts-expenditures-list',
+          params: { backRoute: 'accountant.receipts-expenditures.receipts-expenditures-list' }
+        })
+    })
+    .catch((res) =>
+      ElNotification({
+        message: res.response.data.message,
+        type: 'warning'
+      })
+    )
+}
+const { go } = useRouter()
+
+const editDataBtn = () => {
+  if(type == 'detail') push({
+          name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
+          params: { type: 'edit', id: id }
+        })
+}
+
+const saveDataEdit = async () => {
+  const payload = {
+    Id: id,
+    TotalMoney : dataDetail.value.totalMoney,
+    TypeOfPayment :dataDetail.value.typeOfPayment ,
+    status : 1,
+    PeopleType: 2,
+    PeopleId  : customerID.value,
+    Type : 1,
+    Description: dataDetail.value.description
+    // AccountingEntryId: valueTree.value ?? 0
+  }
+  await EditAReceiptOrPaymentVoucher(FORM_IMAGES(payload))
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'accountant.receipts-expenditures.receipts-expenditures-list',
+          params: { backRoute: 'accountant.receipts-expenditures.receipts-expenditures-list' }
+        })
+    })
+    .catch((res) =>
+      ElNotification({
+        message: res.response.data.message,
+        type: 'warning'
+      })
+    )
+}
 
 const updateStatus = async (status: number) => {
   const payload = {
@@ -597,6 +738,7 @@ const updateStatus = async (status: number) => {
   })
 }
 onBeforeMount(async () => {
+  callApiRecharger()
   getListStaff()
   callCustomersApi()
   await editData()
@@ -605,7 +747,7 @@ onBeforeMount(async () => {
   callApiCity()
 
   if (type == 'add' || type == ':type') {
-    ruleForm.orderCode = curDate
+    dataDetail.value.code = curDate
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
   }
@@ -657,48 +799,43 @@ onBeforeMount(async () => {
                 <p style="width: 100%">{{ dataDetail.code }}</p>
               </el-form-item>
               <el-form-item :label="t('reuse.createDate')" prop="orderCode">
-                <p style="width: 100%">{{ dateTimeFormat(moment(dataDetail.createdAt)) }}</p>
+                <p style="width: 100%" v-if="type == ':type'">{{ dataDetail.createdAt }}</p>
+                <p style="width: 100%" v-if="type == ('detail' || 'edit') ">{{ dateTimeFormat(dataDetail.createdAt) }}</p>
               </el-form-item>
-              <ElFormItem class="mt-5" :label="t('reuse.petitioner')" prop="staffId" required>
-                <MultipleOptionsBox
-                  :fields="[
-                    t('reuse.employeeCode'),
-                    t('reuse.phoneNumber'),
-                    t('reuse.employeeName')
-                  ]"
-                  filterable
-                  width="700px"
-                  :items="optionsStaffApi"
-                  valueKey="id"
-                  labelKey="label"
-                  :hiddenKey="['id']"
-                  :placeHolder="t('formDemo.chooseASeller')"
-                  :defaultValue="petitionerData"
-                  :clearable="false"
-                  @update-value="(value, obj) => getValueOfStaffSelected(value, obj)"
-                  @scroll-bottom="ScrollStaffBottom"
-                />
-              </ElFormItem>
+
+              <el-form-item class="mt-5" :label="t('reuse.petitioner')" prop="staffId">
+                <el-select v-model="inputRecharger" :disabled="checkDisabelDetail" placeholder="Chọn người đề nghị">
+                <div @scroll="scrollingRecharger" id="content">
+                  <el-option
+                    v-for="item in optionsRecharger"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </div>
+              </el-select>
+
+              </el-form-item> 
+
               <el-form-item
                 :label="t('formDemo.reasonCollectingMoney')"
                 prop="reasonCollectingMoney"
-                required
-              >
+                >
                 <el-input
-                  :disabled="checkDisabled"
+                :disabled="checkDisabelDetail"
                   v-model="dataDetail.description"
-                  :placeholder="t('formDemo.reasonCollectingMoney')"
+                  :placeholder="t('formDemo.enterDescription')"
                 />
               </el-form-item>
               <div class="flex w-[100%] gap-6">
                 <div class="flex-1"
-                  ><el-divider content-position="left">{{ t('reuse.subject') }}</el-divider></div
-                >
+                  ><el-divider content-position="left">{{ t('reuse.subject') }}</el-divider>
+                </div>
               </div>
               <div class="flex justify-between">
                 <ElFormItem
                   :label="t('reuse.selectObject')"
-                  class="w-4/5"
+                  class="w-full"
                   prop="customerId"
                   width="100%"
                 >
@@ -712,10 +849,13 @@ onBeforeMount(async () => {
                     class="w-full"
                     width="700px"
                     :items="optionsCustomerApi"
+                    :disabled="checkDisabelDetail"
                     valueKey="id"
                     labelKey="label"
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.selectObject')"
+                    @scroll-top="ScrollCustomerTop"
+                    @scroll-bottom="ScrollCustomerBottom"
                     :defaultValue="ruleForm.customerName"
                     @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
                   />
@@ -730,7 +870,7 @@ onBeforeMount(async () => {
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
                     <div>Số điện thoại: {{ infoCompany.phone }}</div>
-                    <div>{{ infoCompany.email }}</div>
+                    <div>Email: {{ infoCompany.email }}</div>
                   </div>
                 </div>
               </el-form-item>
@@ -739,40 +879,43 @@ onBeforeMount(async () => {
                   t('formDemo.billingInformation')
                 }}</el-divider>
               </div>
-              <ElFormItem :label="t('formDemo.amountCollect')" prop="Price" required>
+              <ElFormItem :label="t('formDemo.amountCollect')" prop="Price">
                 <el-input
                   size="default"
+                :disabled="checkDisabelDetail"
                   v-model="dataDetail.totalMoney"
                   :placeholder="t('reuse.placeholderMoney')"
                   :suffixIcon="h('div', 'đ')"
                 />
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.writtenWords')" prop="Price" required>
+              <ElFormItem :label="t('formDemo.writtenWords')" prop="Price">
                 <ElInput
                   size="default"
+                :disabled="checkDisabelDetail"
                   v-model="dataDetail.enterMoney"
                   :placeholder="t('formDemo.writtenWords')"
                 />
               </ElFormItem>
-              <ElFormItem :label="t('formDemo.formPayment')" prop="Price" required>
-                <el-select v-model="dataDetail.typeOfPayment" placeholder="Select">
+              <ElFormItem :label="t('formDemo.formPayment')"  prop="Price">
+                <el-select v-model="dataDetail.typeOfPayment" :disabled="checkDisabelDetail" placeholder="Select">
                   <el-option
-                    v-for="item in choosePayment"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
+                      v-for="item in choosePayment"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
                 </el-select>
               </ElFormItem>
+              
               <ElFormItem :label="t('formDemo.planningAccount')" prop="Price">
-                <el-select v-model="payment" placeholder="Select">
-                  <el-option
-                    v-for="item in choosePayment"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
+                  <el-tree-select
+                  v-model="valueTree"
+                  :data="dataTree"
+                  :disabled="checkDisabelDetail"
+                  check-strictly
+                  :render-after-expand="false"
+                  show-checkbox
+                />
               </ElFormItem>
               <ElFormItem :label="t('formDemo.paymentSpa')">
                 <ElCheckbox
@@ -804,22 +947,51 @@ onBeforeMount(async () => {
                   </div>
                 </div>
               </ElFormItem>
+
               <ElFormItem>
-                <el-button @click="getFormReceipts()" type="default" class="min-w-42 min-h-11">
+                <div class="edit-click" v-if="type == 'edit'">
+                  <el-button
+                  @click="saveDataEdit"
+                  type="primary"
+                  class="min-w-42 min-h-11"
+                  >{{ t('reuse.save') }}</el-button
+                >
+                <el-button
+                  
+                  @click="go(-1)"
+                  type="primary"
+                  class="min-w-42 min-h-11"
+                  >{{ t('button.cancel') }}</el-button
+                >
+                </div>
+              
+                <el-button
+                  @click="getFormReceipts()"
+                 v-if="type == 'detail'"
+                 type="default" class="min-w-42 min-h-11">
                   {{ t('button.print') }}
                 </el-button>
                 <el-button
-                  @click="updateStatus(1)"
+                  @click="postData"
                   type="primary"
                   class="min-w-42 min-h-11"
-                  v-if="dataDetail.status == 0"
+                  v-if="dataDetail.status == 0 && type !== 'edit'"
                   >{{ t('button.saveAndWaitApproval') }}</el-button
                 >
+
                 <el-button
+                  v-if="type == 'detail'"
+                  @click="editDataBtn"
+                  type="primary"
+                  class="min-w-42 min-h-11"
+                  >{{ t('button.edit') }}</el-button
+                >
+
+                <!-- <el-button
                   @click="updateStatus(2)"
                   type="default"
                   class="min-w-42 min-h-11"
-                  v-if="dataDetail.status == 1"
+                  v-if="dataDetail.status == 1 && type !== 'edit'"
                 >
                   {{ t('button.carrying') }}</el-button
                 >
@@ -827,17 +999,17 @@ onBeforeMount(async () => {
                   @click="updateStatus(3)"
                   type="primary"
                   class="min-w-42 min-h-11"
-                  v-if="dataDetail.status == 1"
+                  v-if="dataDetail.status == 1 && type !== 'edit'"
                   >{{ t('button.plan') }}</el-button
                 >
                 <el-button
                   @click="updateStatus(4)"
-                  v-if="dataDetail.status == 1"
+                  v-if="dataDetail.status == 1 && type !== 'edit'"
                   :disabled="checkDisabled"
                   type="danger"
                   class="min-w-42 min-h-11"
                   >{{ t('button.cancel') }}</el-button
-                >
+                > -->
               </ElFormItem>
             </el-form>
           </div>

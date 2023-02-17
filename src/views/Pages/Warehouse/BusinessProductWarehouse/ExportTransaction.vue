@@ -379,7 +379,7 @@ const exportInventoryNow = async () => {
   const payload = {
     TicketId: id.value,
   }
-  await ExportForDespositingTic({payload})
+  await ExportForDespositingTic(payload)
     .then(() => {
       ElNotification({
         message: t('reuse.success'),

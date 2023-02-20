@@ -5629,17 +5629,19 @@ onBeforeMount(async() => {
         </template>
         <el-button @click="openDialogAdditional" text>+ {{ t('reuse.addAccountingEntry') }}</el-button>
         <el-button
+          :disabled="disabledPTAccountingEntry"
           @click="
             () => {
               clearData()
-              dialogInformationReceipts = true
               getReceiptCode()
+              dialogInformationReceipts = true
             }
           "
           text
           >+ {{ t('reuse.addReceiptBill') }}</el-button
         >
         <el-button
+          :disabled="disabledPCAccountingEntry"
           @click="
             () => {
               clearData()
@@ -5651,6 +5653,7 @@ onBeforeMount(async() => {
           >+ {{ t('reuse.addPaymentBill') }}</el-button
         >
         <el-button
+          :disabled="disabledDNTTAccountingEntry"
           @click="
             () => {
               newCodePaymentRequest()

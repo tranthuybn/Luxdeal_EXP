@@ -179,7 +179,7 @@ type ProductWarehouse = {
   orderId?: number
   serviceType?: number
 }
-const status = ref(0)
+const status = ref(1)
 const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 const serviceType = ref(6)
 
@@ -210,12 +210,15 @@ const callApiForData = async () => {
       }
       ticketData.value.serviceType = res.data[0]?.orderType
       ticketData.value.orderId = res.data[0]?.orderId
-        if (arrayStatusWH.value?.length) {
-    arrayStatusWH.value[arrayStatusWH.value?.length - 1].isActive = true
 
-  if (arrayStatusWH.value[arrayStatusWH.value?.length - 1].approveAt)
-    duplicateStatusButton.value = true
-  else duplicateStatusButton.value = false
+      status.value = res.data[0].status
+      arrayStatusWH.value = res.data[0]?.statusHistory
+        if (arrayStatusWH.value?.length) {
+      arrayStatusWH.value[arrayStatusWH.value?.length - 1].isActive = true
+
+    if (arrayStatusWH.value[arrayStatusWH.value?.length - 1].approveAt)
+      duplicateStatusButton.value = true
+    else duplicateStatusButton.value = false
   }
       orderData.value = res.data[0].orderDetails
     
@@ -505,7 +508,7 @@ const updateTicket = (warehouse, type) => {
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
             t('reuse.printTransferTicket')
           }}</ElButton>
-          <div v-if="status !== 4 && status !== 3" class="ml-[20px] flex">
+          <div v-if="status == 1 || status == 2" class="ml-[20px] flex">
             <ElButton
               class="w-[150px]"
               type="primary"

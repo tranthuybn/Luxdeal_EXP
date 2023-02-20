@@ -296,25 +296,6 @@ let infoCompany = reactive({
   email: ''
 })
 
-const optionsCharacteristic = [
-  {
-    value: 'Màu đỏ',
-    label: 'Màu đỏ'
-  },
-  {
-    value: 'Size L',
-    label: 'Size L'
-  },
-  {
-    value: 'Da bò',
-    label: 'Da bò'
-  },
-  {
-    value: 'Like new',
-    label: 'Like new'
-  }
-]
-
 const ruleForm = reactive({
   orderCode: '',
   collaborators: '',
@@ -614,26 +595,47 @@ const addnewproduct = () => {
   dialogAddProduct.value = true
 }
 //end thêm nhanh sp
-const postQuickCustomer = async () => {
+const postQuickProduct = async () => {
+  const codeProduct = listProducts.value.find(product=>product.productPropertyId == quickProductCode.value)
   const payload = {
     serviceType: 2,
-    productCode: quickProductCode.value,
+    productCode: codeProduct ? codeProduct.value :quickProductCode.value,
     productPropertyCode: quickManagementCode,
     name: quickProductName.value,
     shortDescription: quickDescription.value,
     productTypeId: 9,
-    brandId: 49,
-    originId: 123,
-    unitId: 121,
-    categories: [
-      {
-        id: 0
-      }
-    ]
+    brandId: chooseBrand.value,
+    originId: chooseOrigin.value,
+    unitId: chooseUnit.value,
+    categories: productCharacteristics.value.map((e)=>({
+      id: e.value,
+      value: e.label,
+      key: e.label
+    }))
   }
-  await createQuickProduct(payload)
-}
 
+  const res = await createQuickProduct(payload)
+  if (res) {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
+    })
+    listProducts.value.push({
+      productCode: payload.productCode,
+      value: payload.productCode,
+      name: payload.name ?? '',
+      unit: '',
+      price: 0,
+      productPropertyId: res.data,
+      productPropertyCode: payload.productPropertyCode
+    })
+  } else {
+    ElNotification({
+      message: t('reuse.addFail'),
+      type: 'warning'
+    })
+  }
+}
 // Call api danh sách sản phẩm
 const listProducts = ref()
 
@@ -700,6 +702,7 @@ const duplicateProductMessage = () => {
 const duplicateProduct = ref()
 
 const getValueOfSelected = (_value, obj, scope) => {
+  console.log('scope:', scope)
   const data = scope.row
 
   duplicateProduct.value = undefined
@@ -809,6 +812,13 @@ const getOriginSelectOptions = async () => {
     }))
   }
   callOriginAPI++
+}
+
+const attributeChange = (attributeArray) =>{
+  productCharacteristics.value = attributeArray.map(e=>({
+    label: e.label,
+    value: e.value
+  }))
 }
 
 const handleChangeQuickAddProduct = async (data: any) => {
@@ -2685,7 +2695,7 @@ const openDetailOrder = (id, type) => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <ProductAttribute :value="productCharacteristics" />
+            <ProductAttribute :value="productCharacteristics" @change-value="attributeChange" />
           </div>
         </div>
         <template #footer>
@@ -2696,7 +2706,7 @@ const openDetailOrder = (id, type) => {
               @click="
                 () => {
                   dialogAddProduct = false
-                  postQuickCustomer()
+                  postQuickProduct()
                 }
               "
               >{{ t('reuse.save') }}</el-button
@@ -3614,6 +3624,7 @@ const openDetailOrder = (id, type) => {
           </div>
         </div>
         <div class="pt-2 pb-2">
+          
           <el-table ref="singleTableRef" :data="ListOfProductsForSale" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />

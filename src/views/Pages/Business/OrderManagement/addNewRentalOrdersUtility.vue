@@ -1364,12 +1364,11 @@ const editData = async () => {
       // const numPayments = moment.duration(lastPaymentDate.diff(currentDateTime)).asDays()* - 1
       // numPayment là số bút toán tự động cần tạo
       // let numPayment = Math.ceil(numPayments / ruleForm.leaseTerm)
-      if (postPayment < 1 && debtTable.value.length > 0) postPayment -= 1
 
       const paymentPeriods = moment.duration(start.diff(lastPaymentDate)).asDays()* - 1
       let paymentPeriod = Math.ceil(paymentPeriods / ruleForm.leaseTerm) 
       const curMonth = ruleForm.rentalPeriod[0].slice(5,7)
-      if (postPayment > 0) {
+      if (postPayment > 0 && debtTable.value.length == 0) {
         alreadyPaidForTt.value = false
         for (let i = 0; i < postPayment; i++) {
           if (month.value) {
@@ -1916,7 +1915,7 @@ const inputReasonCollectMoney = ref()
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
-
+  console.log('debtTable: ', debtTable.value)
   // Cập nhật lại bảng lịch sử công nợ
 }
 
@@ -6089,9 +6088,13 @@ onBeforeMount(async() => {
           </el-table-column>
           <el-table-column
             :label="t('formDemo.statusAccountingEntry')"
-            prop="statusAccountingEntry"
+            prop="status"
             min-width="120"
-          />
+          >
+            <template #default="props">
+              {{ props.row.status == 1 ? 'Đã ghi sổ' : 'Đã hủy'}}
+            </template>
+          </el-table-column>
           <el-table-column :label="t('formDemo.manipulation')" width="120" align="center">
             <template #default="data">
               <div class="flex">

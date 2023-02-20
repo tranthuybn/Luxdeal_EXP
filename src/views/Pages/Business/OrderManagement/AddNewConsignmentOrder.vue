@@ -603,7 +603,7 @@ const getDetailPaymentRequest = async (_index, scope) => {
 //thêm nahnh sp
 
 const quickProductCode = ref()
-const quickManagementCode = ref()
+const quickManagementCode = `SP${Date.now()}`
 const quickProductName = ref()
 const quickDescription = ref()
 const productCharacteristics = ref()
@@ -618,7 +618,7 @@ const postQuickCustomer = async () => {
   const payload = {
     serviceType: 2,
     productCode: quickProductCode.value,
-    productPropertyCode: quickManagementCode.value,
+    productPropertyCode: quickManagementCode,
     name: quickProductName.value,
     shortDescription: quickDescription.value,
     productTypeId: 9,
@@ -2650,7 +2650,7 @@ const openDetailOrder = (id, type) => {
               <el-option
                 v-for="item in listProducts"
                 :key="item.productPropertyId"
-                :label="item.productCode"
+                :label="item.value"
                 :value="item.productPropertyId"
               />
             </el-select>
@@ -2660,7 +2660,7 @@ const openDetailOrder = (id, type) => {
               >{{ t('reuse.managementCode') }} <span class="text-red-500">*</span></label
             >
             <el-input
-              v-model="quickManagementCode"
+            :modelValue="quickManagementCode"
               style="width: 100%"
               :placeholder="t('formDemo.addManagementCode')"
             />
@@ -2757,158 +2757,6 @@ const openDetailOrder = (id, type) => {
             </slot>
           </div>
         </div>
-      </el-dialog>
-
-      <!-- Dialog Thêm nhanh sản phẩm -->
-      <el-dialog
-        v-model="dialogAddProduct"
-        :title="t('formDemo.quicklyAddProducts')"
-        class="font-bold"
-        width="40%"
-        align-center
-      >
-        <div>
-          <el-divider />
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{
-              t('router.productCategoryProducts')
-            }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.selectCategory') }} <span class="text-red-500">*</span></label
-              >
-              <el-tree-select
-                v-model="chooseCategory"
-                :data="optionsCategory"
-                :placeholder="t('reuse.selectCategory')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('router.productCategoryBrand') }} </label>
-              <el-select v-model="chooseBrand" :placeholder="t('reuse.chooseBrand')">
-                <el-option
-                  v-for="item in optionsBrand"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('router.productCategoryUnit') }} <span class="text-red-500">*</span></label
-              >
-              <el-select v-model="chooseUnit" :placeholder="t('reuse.chooseUnit')">
-                <el-option
-                  v-for="item in optionsUnit"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('router.productCategoryOrigin') }}</label>
-              <el-select v-model="chooseOrigin" :placeholder="t('reuse.chooseOrigin')">
-                <el-option
-                  v-for="item in optionsOrigin"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.productInfomation') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-        </div>
-        <div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.productCode') }} <span class="text-red-500">*</span></label
-            >
-            <el-select
-              filterable
-              allow-create
-              v-model="quickProductCode"
-              :placeholder="t('formDemo.AddSelectProductCode')"
-              @change="(data) => handleChangeQuickAddProduct(data)"
-            >
-              <el-option
-                v-for="item in listProducts"
-                :key="item.productPropertyId"
-                :label="item.productCode"
-                :value="item.productPropertyId"
-              />
-            </el-select>
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.managementCode') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="quickManagementCode"
-              style="width: 100%"
-              :placeholder="t('formDemo.addManagementCode')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.productName') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="quickProductName"
-              style="width: 100%"
-              :placeholder="t('formDemo.EnterNameDescription')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.shortDescription') }}</label>
-            <el-input
-              v-model="quickDescription"
-              style="width: 100%"
-              :placeholder="t('formDemo.EnterNameDescription')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <el-select
-              v-model="productCharacteristics"
-              multiple
-              :placeholder="t('formDemo.selectFeature')"
-            >
-              <el-option
-                v-for="item in optionsCharacteristic"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
-        </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button
-              class="btn"
-              type="primary"
-              @click="
-                () => {
-                  dialogAddProduct = false
-                  postQuickCustomer()
-                }
-              "
-              >{{ t('reuse.save') }}</el-button
-            >
-            <el-button class="btn" @click="dialogAddProduct = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
-        </template>
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu thu -->
@@ -3323,157 +3171,6 @@ const openDetailOrder = (id, type) => {
         </template>
       </el-dialog>
 
-      <!-- Dialog Thêm nhanh sản phẩm -->
-      <el-dialog
-        v-model="dialogAddProduct"
-        :title="t('formDemo.quicklyAddProducts')"
-        class="font-bold"
-        width="40%"
-        align-center
-      >
-        <div>
-          <el-divider />
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{
-              t('router.productCategoryProducts')
-            }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.selectCategory') }} <span class="text-red-500">*</span></label
-              >
-              <el-tree-select
-                v-model="chooseCategory"
-                :data="optionsCategory"
-                :placeholder="t('reuse.selectCategory')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('router.productCategoryBrand') }} </label>
-              <el-select v-model="chooseBrand" :placeholder="t('reuse.chooseBrand')">
-                <el-option
-                  v-for="item in optionsBrand"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('router.productCategoryUnit') }} <span class="text-red-500">*</span></label
-              >
-              <el-select v-model="chooseUnit" :placeholder="t('reuse.chooseUnit')">
-                <el-option
-                  v-for="item in optionsUnit"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('router.productCategoryOrigin') }}</label>
-              <el-select v-model="chooseOrigin" :placeholder="t('reuse.chooseOrigin')">
-                <el-option
-                  v-for="item in optionsOrigin"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.productInfomation') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-        </div>
-        <div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.productCode') }} <span class="text-red-500">*</span></label
-            >
-            <el-select
-              filterable
-              allow-create
-              v-model="quickProductCode"
-              :placeholder="t('formDemo.AddSelectProductCode')"
-              @change="(data) => handleChangeQuickAddProduct(data)"
-            >
-              <el-option
-                v-for="item in listProducts"
-                :key="item.productPropertyId"
-                :label="item.productCode"
-                :value="item.productPropertyId"
-              />
-            </el-select>
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.managementCode') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="quickManagementCode"
-              style="width: 100%"
-              :placeholder="t('formDemo.addManagementCode')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.productName') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="quickProductName"
-              style="width: 100%"
-              :placeholder="t('formDemo.EnterNameDescription')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.shortDescription') }}</label>
-            <el-input
-              v-model="quickDescription"
-              style="width: 100%"
-              :placeholder="t('formDemo.EnterNameDescription')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <el-select
-              v-model="productCharacteristics"
-              multiple
-              :placeholder="t('formDemo.selectFeature')"
-            >
-              <el-option
-                v-for="item in optionsCharacteristic"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
-        </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button
-              class="btn"
-              type="primary"
-              @click="
-                () => {
-                  dialogAddProduct = false
-                  postQuickCustomer()
-                }
-              "
-              >{{ t('reuse.save') }}</el-button
-            >
-            <el-button class="btn" @click="dialogAddProduct = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
-        </template>
-      </el-dialog>
 
       <!-- Bút toán bổ sung -->
       <el-dialog

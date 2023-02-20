@@ -389,7 +389,7 @@ const disabled = computed(() => {
           width="500px"
           :items="tempListProducts"
           valueKey="productPropertyId"
-          labelKey="productPropertyCode"
+          labelKey="productCode"
           :hiddenKey="['productPropertyId']"
           :placeHolder="t('reuse.chooseProductCode')"
           :disabled="disabled"

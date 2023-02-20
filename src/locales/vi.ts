@@ -1955,6 +1955,9 @@ export default {
     addPaymentBill: 'Thêm phiếu chi',
     addPaymentRequestBill: 'Thêm phiếu đề nghị thanh toán',
     moneyReceipts: 'Số tiền thu',
-    moneyPaid: 'Số tiền chi'
+    moneyPaid: 'Số tiền chi',
+    //trạng thái kho
+    exportTicketStatus: 'Trạng thái phiếu xuất kho',
+    transferTicketStatus: 'Trạng thái phiếu chuyển kho',
   }
 }

@@ -378,6 +378,8 @@ const collapse: Array<Collapse> = [
   }
 ]
 
+const alwaysActive = ref(false)
+
 const updateCustomer = async () => {
   const payload = {
     Id: id,
@@ -401,7 +403,7 @@ const updateCustomer = async () => {
     Sex: ruleForm.sex,
     Link: ruleForm.link,
     ImageId: 1,
-    isActive: true,
+    isActive: ruleForm.isActive,
     CustomerType: 1,
     AccountName: ruleForm.accountName,
     AccountNumber: ruleForm.accountNumber,
@@ -780,6 +782,7 @@ onBeforeMount(() => {
   change()
   callApiCity()
   if(type === 'add' || type === ':type'){
+    alwaysActive.value = true
     getGenCodeCustomer()
     arrayStatusCollab.value.push({
     name: 'Khởi tạo mới',
@@ -1260,7 +1263,7 @@ onBeforeMount(() => {
                 </ElFormItem>
               </div>
               <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">
-                <el-checkbox class="ml-4" v-model="ruleForm.isActive">{{
+                <el-checkbox class="ml-4" :disabled="alwaysActive" v-model="ruleForm.isActive">{{
                   t('formDemo.isActive')
                 }}</el-checkbox>
               </ElFormItem>

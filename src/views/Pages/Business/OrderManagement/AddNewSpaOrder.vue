@@ -230,6 +230,7 @@ interface ListOfProductsForSaleType {
   lot?: Options
   toLotId?: number,
   priceChange : Boolean
+  returnedQuantity: number
 }
 
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -253,10 +254,11 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   description: '',
   paymentType: '',
   edited: true,
-  priceChange: false
+  priceChange: false,
+  returnedQuantity: 0
 })
 
-let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
+const ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
 
 const changeMoney = new Intl.NumberFormat('vi', {
   style: 'currency',
@@ -504,15 +506,21 @@ const ScrollProductBottom = () => {
         })
 }
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 let totalSettingSpa = ref(0)
 let countExisted = ref(0)
 let countExistedDNTT = ref(0)
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -558,7 +566,6 @@ const calculateSpaServiceMoney = ()=>{
   newTable.value.map((val) => {
     totalSettingSpa.value += val.price
   })
-  spaNotChange.value = false
 }
 
 // Cập nhật lại giá tiền khi thay đổi VAT
@@ -610,7 +617,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
   data.productName = obj.name
   data.unitName = obj.unit
   data.quantity = 1
-  data.spaServices = {}
+  data.spaServices = []
   data.totalPrice = 0
   data.accessory = ''
   data.description = ''
@@ -639,6 +646,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
 }
 
 const autoCalculateOrder = () => {
+  checkInputPriceChange.value = false
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
   ListOfProductsForSale.value.forEach((val) => {
@@ -1043,7 +1051,7 @@ const removeListProductsSale = (index) => {
 }
 
 const dialogFormSettingServiceSpa = ref(false)
-var curDate = 'SPA' + moment().format('hhmmss')
+var curDate = 'SPA' + Date.now()
 
 const optionsTypeSpa = [
   {
@@ -1396,7 +1404,7 @@ const districtChange = async (value) => {
 //thêm nahnh sp
 
 const quickProductCode = ref()
-const quickManagementCode = ref()
+const quickManagementCode = `SP${Date.now()}`
 const quickProductName = ref()
 const quickDescription = ref()
 const productCharacteristics = ref()
@@ -1496,7 +1504,7 @@ const postQuickCustomer = async () => {
   const payload = {
     serviceType: 1,
     productCode: quickProductCode.value,
-    productPropertyCode: quickManagementCode.value,
+    productPropertyCode: quickManagementCode,
     name: quickProductName.value,
     shortDescription: quickDescription.value,
     productTypeId: 9,
@@ -1627,6 +1635,75 @@ function printPage(id: string, { url, title, w, h }) {
     newWindow?.close()
   }, 500)
 }
+
+const printPages = (className: string, { url, title, w, h })=>{
+  // Get HTML to print from element
+const prtHtml = document.getElementsByClassName(className)!;
+
+// Get all stylesheets HTML
+let stylesHtml = '';
+for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
+  stylesHtml += node.outerHTML;
+}
+
+// Open the print window
+// open new window at the center of screen
+const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
+  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
+
+  const width = window.innerWidth
+    ? window.innerWidth
+    : document.documentElement.clientWidth
+    ? document.documentElement.clientWidth
+    : screen.width
+  const height = window.innerHeight
+    ? window.innerHeight
+    : document.documentElement.clientHeight
+    ? document.documentElement.clientHeight
+    : screen.height
+
+  const systemZoom = width / window.screen.availWidth
+  const left = (width - w) / 2 / systemZoom + dualScreenLeft
+  const top = (height - h) / 2 / systemZoom + dualScreenTop
+
+const WinPrint = window.open(
+    url,
+    title,
+    `
+				scrollbars=yes,
+				width=${w / systemZoom},
+				height=${h / systemZoom},
+				top=${top},
+				left=${left}      `
+  )!
+let html = ''
+for(var i =0;i<prtHtml.length;i++){
+  html += prtHtml[i].innerHTML
+}
+
+WinPrint.document.write(`<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+    body {
+        overflow: visible !important;
+    }
+    .page { page-break-after:always;}
+    ${stylesHtml}
+  </style>
+  </head>
+  <body>
+    ${html}
+  </body>
+</html>`);
+
+WinPrint?.document.close()
+WinPrint?.focus()
+  setTimeout(() => {
+    WinPrint?.print()
+    WinPrint?.close()
+  }, 500)
+}
 const choosePayment = [
   {
     value: 0,
@@ -1640,7 +1717,9 @@ const choosePayment = [
 let payment = ref(choosePayment[0].value)
 
 let disabledCustomer = ref(false)
+const loadingProductTable = ref(false)
 const checkDisabledCustomer = () => {
+  loadingProductTable.value = true
   if (valueTypeSpa.value == 0) {
     disabledCustomer.value = false
     customerID.value = null
@@ -1648,6 +1727,9 @@ const checkDisabledCustomer = () => {
     ruleForm.customerName = ''
     disabledCustomer.value = true
   }
+  setTimeout(()=>{
+    loadingProductTable.value = false
+  }, 700)
 }
 
 // Lấy chi tiết phiếu thu chi
@@ -1820,10 +1902,10 @@ const postOrderStransaction = async (num: number) => {
 
     paidMoney: num == 1 ? 0 : num == 2 ? tableAccountingEntry.value[0].spent : 0,
     deibt: num == 1 ? remainingMoney.value : 0,
-    typeOfPayment: remainingMoney.value ? 1 : 0,
+    typeOfPayment: tableAccountingEntry.value[0].collected - tableAccountingEntry.value[0].spent >0 ? 1 : 0,
     paymentMethods: 1,
     status: 0,
-    isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
+    isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value
   }
@@ -2137,6 +2219,12 @@ const reloadStatusOrder = async () => {
       duplicateStatusButton.value = true
     else duplicateStatusButton.value = false
 
+    //sửa trạng thái trả hàng
+    let arrayLength = arrayStatusOrder.value?.length
+      while(statusOrder.value == 58 /*Trả 1 phần*/){
+        arrayLength -= 2
+        statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+      }
   }
 }
 
@@ -2153,13 +2241,13 @@ const editData = async () => {
     checkDisabled3.value = true
     disableCreateOrder.value = true
     disabledEdit.value = true
-    const res = await getOrderList({ Id: id, ServiceType: 5, isApprove: type == 'approval-order'? true : null })
+    const res = await getOrderList({ Id: id, ServiceType: 5, approveRequestId: type == 'approval-order'? approvalId : null })
 
     const transaction = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
     getReturnRequestTable()
-    const orderObj = { ...res.data[0] }
+    const orderObj = type == 'approval-order' ? res.data :{ ...res.data[0] } 
 
     dataEdit.value = orderObj
     arrayStatusOrder.value = orderObj?.statusHistory
@@ -2171,6 +2259,15 @@ const editData = async () => {
       if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
         duplicateStatusButton.value = true
       else duplicateStatusButton.value = false
+
+      let arrayLength = arrayStatusOrder.value?.length
+      while(statusOrder.value == 58 /*Trả 1 phần*/){
+        arrayLength -= 2
+        statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+      }
+      if (statusOrder.value == 58 /*Trả 1 phần*/) {
+    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
+    }
     }
 
     if (statusOrder.value == 2 && type == 'edit') {
@@ -2188,9 +2285,9 @@ const editData = async () => {
       ruleForm.collaborators = orderObj?.collaborator?.id
 
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
-      ruleForm.customerName = orderObj.customer.isOrganization
-        ? orderObj.customer.representative + ' | ' + orderObj.customer.taxCode
-        : orderObj.customer.name + ' | ' + orderObj.customer.phonenumber
+      ruleForm.customerName = orderObj.customer?.isOrganization
+        ? orderObj.customer.representative + ' | ' + orderObj.customer?.taxCode
+        : orderObj.customer?.name + ' | ' + orderObj.customer?.phonenumber
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouseImport = orderObj?.warehouseId
       ruleForm.warehouseParent = orderObj?.warehouseId
@@ -2210,7 +2307,7 @@ const editData = async () => {
       }
       ListOfProductsForSale.value = orderObj.orderDetails
 
-      ListOfProductsForSale.value.forEach((e) => {
+      ListOfProductsForSale.value?.forEach((e) => {
         editor.value = e.description
       })
       if (orderObj.vat) {
@@ -2222,11 +2319,11 @@ const editData = async () => {
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
-      if (orderObj.customer.isOrganization) {
-        infoCompany.name = orderObj.customer.name
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer.email
+      if (orderObj.customer?.isOrganization) {
+        infoCompany.name = orderObj?.customer?.name
+        infoCompany.taxCode = orderObj?.customer?.taxCode
+        infoCompany.phone = orderObj?.customer?.phonenumber
+        infoCompany.email = 'Email: ' + orderObj?.customer?.email
       } else {
         infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
         infoCompany.taxCode = orderObj.customer.taxCode
@@ -2611,7 +2708,15 @@ const setDataForReturnOrder = () => {
   rentReturnOrder.value.name = infoCompany.name
   rentReturnOrder.value.customerAddress = customerAddress
   rentReturnOrder.value.phone = infoCompany.phone
-  rentReturnOrder.value.tableData = ListOfProductsForSale
+  rentReturnOrder.value.tableData = ListOfProductsForSale.value.map((row)=>({
+    productPropertyId:row.productPropertyId,
+    accessory:row.accessory,
+    spaServices:row.spaServices,
+    type:'Spa',
+    quantity:1,
+    maxQuantity: row.quantity - row.returnedQuantity,
+    isSpa:null,
+  }))
 }
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
@@ -2702,7 +2807,7 @@ const postReturnRequest = async (reason) => {
         type: 'warning'
       })
     )
-    if(res) await reloadStatusOrder()
+    if(res) await editData()
   }
   const finishReturnRequest = async () =>{
     await finishReturnOrder(FORM_IMAGES({OrderId:id}))
@@ -2720,8 +2825,8 @@ const postReturnRequest = async (reason) => {
     )
     await reloadStatusOrder()
 
-
   }
+
   const cancelReturnRequest = async () =>{
     const res = await cancelReturnOrder(FORM_IMAGES({OrderId:id}))
     .then(() =>
@@ -2788,12 +2893,12 @@ const postReturnRequest = async (reason) => {
           />
         </slot>
       </div>
-      <div v-for="(item,index) in billRepairData" :key="index">
-          <div id="repairSpa">
-            <slot>
+      <div v-for="(item,index) in billRepairData" :key="index" class="hidden">
+          <div class="repairSpa">
+              <div class="page">
                 <billSpaRepair :billRepairData="item" />
-            </slot>
-        </div>
+              </div>
+          </div>
       </div>
       
       <ChooseWarehousePR
@@ -3098,7 +3203,7 @@ const postReturnRequest = async (reason) => {
               <el-option
                 v-for="item in listProducts"
                 :key="item.productPropertyId"
-                :label="item.productCode"
+                :label="item.value"
                 :value="item.productPropertyId"
               />
             </el-select>
@@ -3108,7 +3213,7 @@ const postReturnRequest = async (reason) => {
               >{{ t('reuse.managementCode') }} <span class="text-red-500">*</span></label
             >
             <el-input
-              v-model="quickManagementCode"
+              :modelValue="quickManagementCode"
               style="width: 100%"
               :placeholder="t('formDemo.addManagementCode')"
             />
@@ -3679,6 +3784,7 @@ const postReturnRequest = async (reason) => {
           :class="[
             'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
           ]"
+          v-loading="loadingProductTable"
         >
           <el-table-column
             :label="t('formDemo.productManagementCode')"
@@ -3789,8 +3895,8 @@ const postReturnRequest = async (reason) => {
           >
             <template #default="data">
               <div class="flex w-[100%] items-center text-center">
-                <div class="flex-1 limit-text">
-                  <span v-for="item in data.row.spaServices" :key="item.id">{{ item.name }} </span>
+                <div class="flex-1">
+                  <div v-for="item in data.row.spaServices" :key="item.id">{{ item.name }} </div>
                 </div>
 
                 <div class="flex-1 text-right text-blue-500 cursor-pointer">
@@ -4038,7 +4144,10 @@ const postReturnRequest = async (reason) => {
                     item.orderStatus == STATUS_ORDER_SPA[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SPA[5].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus
+                    item.orderStatus == STATUS_ORDER_SPA[7].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[11].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[12].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SPA[13].orderStatus
                   "
                 >
                   <span
@@ -4163,7 +4272,8 @@ const postReturnRequest = async (reason) => {
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
                   (statusOrder == STATUS_ORDER_SPA[6].orderStatus && duplicateStatusButton) ||
                   statusOrder == STATUS_ORDER_SPA[7].orderStatus ||
-                  statusOrder == STATUS_ORDER_SPA[1].orderStatus
+                  statusOrder == STATUS_ORDER_SPA[1].orderStatus||
+                  statusOrder == STATUS_ORDER_SPA[12].orderStatus
                 "
                 :disabled="startSpa"
                 class="min-w-42 min-h-11"
@@ -4175,7 +4285,8 @@ const postReturnRequest = async (reason) => {
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
                   (statusOrder == STATUS_ORDER_SPA[6].orderStatus && duplicateStatusButton) ||
                   statusOrder == STATUS_ORDER_SPA[7].orderStatus ||
-                  statusOrder == STATUS_ORDER_SPA[1].orderStatus
+                  statusOrder == STATUS_ORDER_SPA[1].orderStatus||
+                  statusOrder == STATUS_ORDER_SPA[12].orderStatus
                 "
                 :disabled="startSpa"
               class="min-w-42 min-h-11" @click="openRepairBill">In phiếu sửa chữa</el-button>
@@ -4184,7 +4295,8 @@ const postReturnRequest = async (reason) => {
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
                   (statusOrder == STATUS_ORDER_SPA[6].orderStatus && duplicateStatusButton) ||
                   statusOrder == STATUS_ORDER_SPA[7].orderStatus ||
-                  statusOrder == STATUS_ORDER_SPA[1].orderStatus
+                  statusOrder == STATUS_ORDER_SPA[1].orderStatus||
+                  statusOrder == STATUS_ORDER_SPA[12].orderStatus
                 "
                 :disabled="startSpa"
                 class="min-w-42 min-h-11"
@@ -4363,7 +4475,7 @@ const postReturnRequest = async (reason) => {
           </div>
           <!-- Nút không thuộc về đâu =)) -->
           <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[10].orderStatus && duplicateStatusButton"
+                v-if="(statusOrder == STATUS_ORDER_SPA[10].orderStatus || statusOrder == STATUS_ORDER_SPA[11].orderStatus) && duplicateStatusButton"
                 type="primary"
                 @click="
                   () => {
@@ -4374,7 +4486,7 @@ const postReturnRequest = async (reason) => {
                 >Hoàn thành trả hàng</el-button
               >
           <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[10].orderStatus"
+                v-if="statusOrder == STATUS_ORDER_SPA[10].orderStatus || statusOrder == STATUS_ORDER_SPA[11].orderStatus"
                 @click="
                   () => {
                     cancelReturnRequest()
@@ -4384,7 +4496,7 @@ const postReturnRequest = async (reason) => {
                 >Hủy trả hàng</el-button
               >
             <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[6].orderStatus"
+                v-if="statusOrder == STATUS_ORDER_SPA[12].orderStatus"
                 type="info"
                 @click="
                   () => {
@@ -4660,14 +4772,12 @@ const postReturnRequest = async (reason) => {
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button
-              @click="
-                printPage('repairSpa', {
+              @click="printPages('repairSpa', {
                   url: '',
-                  title: 'In vé',
+                  title: 'In phiếu sửa chữa',
                   w: 800,
                   h: 920
-                })
-              "
+                })"
               >{{ t('button.print') }}</el-button
             >
 
@@ -4675,7 +4785,7 @@ const postReturnRequest = async (reason) => {
               t('reuse.exit')
             }}</el-button>
           </div>
-          <div class="dialog-content" v-for="(item,index) in billRepairData" :key="index">
+          <div v-for="(item,index) in billRepairData" :key="index">
               <slot>
             <billSpaRepair :billRepairData="item" />
               </slot>
@@ -4727,6 +4837,7 @@ const postReturnRequest = async (reason) => {
         title="Cài đặt phí dịch vụ Spa"
         width="40%"
         align-center
+        :show-close="false"
       >
         <el-divider />
 
@@ -4761,12 +4872,12 @@ const postReturnRequest = async (reason) => {
               @click="
                 () => {
                   getPriceSpaService()
-
+                  spaNotChange = false
                 }
               "
               >{{ t('reuse.save') }}</el-button
             >
-            <el-button @click="dialogFormSettingServiceSpa = false">{{
+            <el-button @click="dialogFormSettingServiceSpa = false, spaNotChange = true">{{
               t('reuse.exit')
             }}</el-button>
           </span>
@@ -5974,5 +6085,10 @@ const postReturnRequest = async (reason) => {
   height: 200px;
   overflow: auto;
   padding: 0 10px;
+}
+
+@media print {
+  * { overflow: visible !important; } 
+  .page { page-break-after:always; }
 }
 </style>

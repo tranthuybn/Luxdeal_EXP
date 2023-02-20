@@ -18,6 +18,7 @@ import {
 import { getWareHouseTransactionList, addOrderStransaction } from '@/api/Business'
 import { dateTimeFormat } from '@/utils/format'
 import moment from 'moment'
+import {statusWhType, TicketStatusHistory} from "./TicketEnum"
 
 const { t } = useI18n()
 
@@ -61,7 +62,7 @@ const back = async () => {
     name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
   })
 }
-const status = ref(0)
+const status = ref(2)
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const ExportPWRef = ref<InstanceType<typeof ExportPW>>()
@@ -72,7 +73,7 @@ const addTransaction = async () => {
     uploadData.warehouseProductJson = [{}]
     uploadData.warehouseProductJson = ExportPWRef.value?.ListOfProductsForSale.map((row) => ({
       productPropertyId: row.productPropertyId,
-      quantity: row.quantity,
+      quantity: Number(row.quantity),
       accessory: row.accessory,
       fileId: row.fileId,
       exportLots: row.exportLots?.map((val) => ({
@@ -171,13 +172,6 @@ type ExportPW = {
   lot?: Options
   imageUrl?: string
 }
-
-interface statusWhType {
-  name: string
-  isActive?: boolean
-  approveAt?: string
-}
-
 let arrayStatusWH = ref(Array<statusWhType>())
 // let statusWH = ref('Khởi tạo & ghi số')
 const duplicateStatusButton = ref(false)
@@ -246,6 +240,13 @@ const callApiForData = async () => {
     type.value == 'add'
     ticketData.value.updatedAt = moment().format()
     ticketData.value.ticketCode = 'XK' + moment().format('hhmmss')
+
+    arrayStatusWH.value.push({
+    name: 'Khởi tạo & ghi số',
+    isActive: true,
+    approveAt: String(moment()),
+    value: 1
+    })
   }
 }
 const cancelTicketWarehouse = async () => {
@@ -347,7 +348,7 @@ const updateInventoryOrder = async () => {
       fileId: row.fileId,
       exportLots: row.exportLots?.map((val) => ({
         fromLotId: val.value,
-        quantity: val.quantity,
+        quantity: Number(val.quantity),
         serviceType: val.serviceType,
         consignmentOrderId: val.consignmentOrderId,
         consignmentHirePrice: val.consignmentHirePrice,
@@ -379,7 +380,7 @@ const exportInventoryNow = async () => {
   const payload = {
     TicketId: id.value,
   }
-  await ExportForDespositingTic({payload})
+  await ExportForDespositingTic(payload)
     .then(() => {
       ElNotification({
         message: t('reuse.success'),
@@ -397,12 +398,7 @@ const exportInventoryNow = async () => {
     )
 }
 
-if (type.value == 'add')
-  arrayStatusWH.value.push({
-    name: 'Khởi tạo & ghi số',
-    isActive: true,
-    approveAt: moment().format('DD/MM/YYYY')
-  })
+
 
 //tngo fixbug
 const updateTicket = (warehouse) => {
@@ -454,9 +450,9 @@ const updateTicket = (warehouse) => {
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
-        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[12%] text-right">{{ t('reuse.importTicketStatus') }}</label>
-          <div>
+        <!-- <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
+          <label class="w-[12%] text-right">{{ t('reuse.importTicketStatus') }}</label> -->
+          <!-- <div>
             <p class="status bg-gray-300 day-updated">{{ t('reuse.initializeAndWrite') }}</p>
             <p class="date text-gray-300">
               {{
@@ -478,22 +474,17 @@ const updateTicket = (warehouse) => {
               {{ dateTimeFormat(ticketData.updatedAt) }}
             </p>
           </div>
-        </div>
-        <!-- <div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
-          <label class="ml-10">{{ t('reuse.importTicketStatus')}}</label>
+        </div> -->
+        <div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
+          <label class="ml-10">{{ t('reuse.exportTicketStatus')}}</label>
           <div class="w-[75%]">
-          <div class="flex items-center w-[100%]">
+          <div class="flex items-cumter w-[100%]">
             <div
               class="duplicate-status"
               v-for="item in arrayStatusWH"
-              :key="item.name"
+              :key="item.value"
             >
-              <div
-                v-if="
-                  item.name == 'Khởi tạo & ghi số'
-                "
-              >
-                
+              <div v-if="item.value == TicketStatusHistory.NewCreate">
                 <span
                   class="box box_1 custom-after bg-gray-300 dark:text-gray-300"
                   :class="{ active: item.isActive }"
@@ -507,10 +498,20 @@ const updateTicket = (warehouse) => {
                 }}</p>
                 <p v-else class="text-transparent">s</p>
               </div>
-              <div
-                v-else-if="item.name == 'Xuất kho'"
-              >
-                
+              <div v-else-if="item.value == TicketStatusHistory.Approve">
+                <span
+                  class="box box_3 custom-after text-orange-400 dark:text-black"
+                  :class="{ active: item.isActive }"
+                >
+                  {{ item.name }}
+                  <span class="triangle-right right_2"> </span>
+                </span>
+                <p v-if="item?.approveAt">{{
+                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
+                }}</p>
+                <p v-else class="text-transparent">s</p>
+              </div>
+              <div v-else-if="item.value == TicketStatusHistory.Exported || item.value == TicketStatusHistory.Depositing">
                 <span
                   class="box box_2 custom-after text-blue-500 dark:text-black"
                   :class="{ active: item.isActive }"
@@ -523,7 +524,7 @@ const updateTicket = (warehouse) => {
                 }}</p>
                 <p v-else class="text-transparent">s</p>
               </div>
-              <div v-else-if="item.name == 'Hủy xuất kho'">
+              <div v-else-if="item.value == TicketStatusHistory.CancelExport">
                 
                 <span
                   class="box box_4 custom-after text-rose-500 dark:text-black"
@@ -540,13 +541,13 @@ const updateTicket = (warehouse) => {
             </div>
           </div>
           </div>
-        </div> -->
+        </div>
 
         <div class="ml-[170px] flex">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
             t('reuse.printDeliveryNote')
           }}</ElButton>
-          <div v-if="status !== 4 && status !== 3" class="ml-[20px] flex">
+          <div v-if="status == 1 || status == 2" class="ml-[20px] flex">
             <ElButton
               class="w-[150px]"
               type="primary"
@@ -563,24 +564,6 @@ const updateTicket = (warehouse) => {
               @click="updateInventory"
               >{{ t('reuse.outStockNow') }}</ElButton
             >
-            <ElButton
-              v-if="status == 5"
-              class="w-[150px]"
-              type="primary"
-              :disabled="type == 'add' || type == 'edit'"
-              @click="updateInventoryOrder"
-              >{{ t('formDemo.depositNow') }}</ElButton
-            >
-
-            <ElButton
-              v-if="status == 6"
-              class="w-[150px]"
-              type="primary"
-              :disabled="type == 'add' || type == 'edit'"
-              @click="exportInventoryNow"
-              >{{ t('reuse.outStockNow') }}</ElButton
-            >
-
             <ElButton
               class="w-[150px]"
               type="primary"
@@ -610,125 +593,28 @@ const updateTicket = (warehouse) => {
               >{{ t('reuse.cancelImport') }}</ElButton
             >
           </div>
+          <ElButton
+              v-if="status == 5"
+              class="w-[150px]"
+              type="primary"
+              :disabled="type == 'add' || type == 'edit'"
+              @click="updateInventoryOrder"
+              >{{ t('formDemo.depositNow') }}</ElButton
+            >
+
+            <ElButton
+              v-if="status == 6"
+              class="w-[150px]"
+              type="primary"
+              :disabled="type == 'add' || type == 'edit'"
+              @click="exportInventoryNow"
+              >{{ t('reuse.outStockNow') }}</ElButton
+            >
         </div>
       </el-collapse-item>
     </el-collapse>
   </div>
 </template>
 <style scoped>
-::deep(.el-select) {
-  width: 100%;
-}
-
-:deep(.cell) {
-  word-break: break-word;
-}
-
-.day-updated {
-  position: relative;
-  padding-left: 20px;
-  width: fit-content;
-}
-
-.day-updated::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -12px;
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 14px solid transparent;
-  border-left: 12px solid rgba(209, 213, 219, var(--tw-bg-opacity));
-}
-
-.day-updated::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
-  border-top: 12px solid transparent;
-  border-bottom: 12px solid transparent;
-  border-left: 12px solid white;
-}
-
-
-.box {
-  padding: 0 10px 0 20px;
-  position: relative;
-  display: flex;
-  width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
-  background-color: #ccc;
-  opacity: 0.6;
-}
-
-.box_1 {
-  border: 1px solid rgba(209, 213, 219, var(--tw-bg-opacity));
-  --tw-bg-opacity: 1;
-  background-color: rgba(209, 213, 219, var(--tw-bg-opacity));
-
-}
-
-.box_2 {
-  border: 1px solid #f4f8fd;
-  background-color: #f4f8fd;
-}
-
-.box_3 {
-  border: 1px solid #d9d9d9;
-  background-color: #d9d9d9;
-}
-
-.box_4 {
-  border: 1px solid #fce5e1;
-  background-color: #fce5e1;
-}
-.duplicate-status + .duplicate-status {
-  margin-left: 10px;
-}
-.active {
-  opacity: 1 !important;
-}
-.right_1 {
-  border-left: 11px solid rgba(209, 213, 219, var(--tw-bg-opacity)) !important;
-}
-.right_2 {
-  border-left: 11px solid #f4f8fd !important;
-}
-
-.right_3 {
-  border-left: 11px solid #d9d9d9 !important;
-}
-
-.right_4 {
-  border-left: 11px solid #fce5e1 !important;
-}
-.triangle-right {
-  position: absolute;
-  right: -12px;
-  width: 0;
-  height: 0;
-  border-top: 13px solid transparent;
-  border-bottom: 12px solid transparent;
-  border-left: 11px solid #ccc;
-}
-.custom-after::after {
-  content: '';
-  position: absolute;
-  z-index: 1998;
-  width: 11px;
-  border-style: solid;
-  height: 100%;
-  left: -1px;
-  border-bottom-width: 12px;
-  border-left-width: 10px;
-  border-top-width: 12px;
-  border-bottom-color: transparent;border-top-color: transparent;
-  --tw-border-opacity: 1;
-  border-left-color: rgba(255, 255, 255, var(--tw-border-opacity));
-}
+@import './StyleStatusHistory.css'
 </style>

@@ -1590,6 +1590,7 @@ export default {
     useToReferralCode: '(Use to referral code)',
     //BST
     chooseCustomerCode: 'Choose customer code',
+    customerCodeHasExit: 'Customer code has exit',
     chooseProductCode: 'Choose product code',
     voucherStatusExplain: 'If you are not choosing, Voucher will only get sent when press "Send"',
     chooseAtleast1SpaService: 'Choose atleast 1 spa service',

@@ -1731,6 +1731,7 @@ export default {
     checkDecimal: 'Vui lòng không nhập số thập phân',
     //BST
     chooseCustomerCode: 'Chọn mã khách hàng',
+    customerCodeHasExit: 'Khách hàng đã là CTV',
     chooseProductCode: 'Chọn mã sản phẩm',
     voucherStatusExplain: 'Nếu không lựa chọn, Voucher chỉ được gửi khi bấm nút "Gửi"',
     chooseAtleast1SpaService: 'Chọn ít nhất 1 dịch vụ Spa',

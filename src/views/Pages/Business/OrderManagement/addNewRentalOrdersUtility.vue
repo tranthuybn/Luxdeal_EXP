@@ -2110,6 +2110,8 @@ const updateInfoAcountingEntry = (index) => {
     postOrderStransaction(index)
   }
 }
+
+const checkEditAcountingEntryPaymentType = ref(false)
 const openAcountingEntryDialog = async (index, num) => {
   idAcountingEntry.value = index
   const res = await getDetailAccountingEntryById({ id: index })
@@ -2142,7 +2144,7 @@ const openAcountingEntryDialog = async (index, num) => {
     showCreatedOrUpdateButton.value = true
     showCancelAcountingEntry.value = true
   }
-
+  checkEditAcountingEntryPaymentType.value = true
   if (num == 1) {    
     dialogRentalPaymentInformation.value = true
   } else if (num == 2) {
@@ -3632,7 +3634,7 @@ onBeforeMount(async() => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -3844,7 +3846,7 @@ onBeforeMount(async() => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -4816,7 +4818,7 @@ onBeforeMount(async() => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -5035,7 +5037,7 @@ onBeforeMount(async() => {
               }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="c" :label="t('formDemo.exportWarehouse')" width="200">
+          <el-table-column prop="c" :label="t('reuse.iventoryy')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <el-button

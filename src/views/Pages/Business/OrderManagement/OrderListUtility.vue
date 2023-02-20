@@ -439,7 +439,7 @@ interface tableDataType {
   paymentRequestCode: string
   receiveMoney: string
   paidMoney: string
-  debt: string
+  deibt: number
   typeOfPayment: string | number | undefined
   paymentMethods: number
   status: number
@@ -1295,7 +1295,7 @@ const updateOrderStransaction = async() => {
   getOrderStransactionList()
 }
 
-
+const checkEditAcountingEntryPaymentType = ref(false)
 const openAcountingEntryDialog = async (index, num) => {
   idAcountingEntry.value = index
   updateDetailAcountingEntry.value = true
@@ -1326,12 +1326,14 @@ const openAcountingEntryDialog = async (index, num) => {
   } else {
     showCancelAcountingEntry.value = true
     showCreatedOrUpdateButton.value = true
-
   }
+  checkEditAcountingEntryPaymentType.value = true
+
   getReturnOrder()
   if (num == 1) {
     dialogSalesSlipInfomation.value = true
   } else if (num == 2) {
+    totalOutstandingDebt()
     dialogDepositSlipAdvance.value = true
   } else if (num == 4) {
     dialogAccountingEntryAdditional.value = true
@@ -1767,16 +1769,29 @@ function openBillDialog() {
   updateDetailAcountingEntry.value = false
   createStatusAcountingEntry()
   alreadyPaidForTt.value = true
+  checkEditAcountingEntryPaymentType.value = false
   dialogSalesSlipInfomation.value = !dialogSalesSlipInfomation.value
   tableSalesSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'bill'
 }
 
+const outstandingDebt = ref(0)
+const totalOutstandingDebt = () => {
+  outstandingDebt.value = 0
+  debtTable.value?.forEach((val) =>  {
+    if (val.deibt != 0) {
+      outstandingDebt.value += val?.deibt
+    }
+  })
+  console.log('outstandingDebt: ', outstandingDebt.value)
+  console.log('debtTable: ', debtTable.value)
+}
 // Tạo mới phiếu đặt cọc
 function openDepositDialog() {
   showCreatedOrUpdateButton.value = true
   showCancelAcountingEntry.value = false
   updateDetailAcountingEntry.value = false
+  totalOutstandingDebt()
   createStatusAcountingEntry()
   alreadyPaidForTt.value = true
   dialogDepositSlipAdvance.value = !dialogDepositSlipAdvance.value
@@ -2014,7 +2029,8 @@ const postPT = async () => {
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
@@ -2036,7 +2052,8 @@ const postPC = async () => {
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
@@ -2067,9 +2084,10 @@ const handleChangeReceipts = async () => {
 // Lấy chi tiết phiếu thu chi
 let formDetailPaymentReceipt = ref()
 const getDetailPayment = async (_index, scope) => {
-  formDetailPaymentReceipt.value = await getDetailReceiptPaymentVoucher({
+  const res = await getDetailReceiptPaymentVoucher({
     id: scope.row.receiptOrPaymentVoucherId
   })
+  formDetailPaymentReceipt.value = res.data
   nameDialog.value = 'Phiếu thu'
   codeReceipts.value = formDetailPaymentReceipt.value?.code
   codeExpenditures.value = formDetailPaymentReceipt.value?.code
@@ -2077,6 +2095,7 @@ const getDetailPayment = async (_index, scope) => {
   moneyReceipts.value = formDetailPaymentReceipt.value?.totalMoney
   payment.value = formDetailPaymentReceipt.value?.typeOfPayment
   inputRecharger.value = formDetailPaymentReceipt.value?.peopleId ?? 1
+  enterMoney.value = formDetailPaymentReceipt.value?.enterMoney
   dialogInformationReceipts.value = true
 }
 
@@ -2085,6 +2104,7 @@ const getDetailPaymentRequest = async (_index, scope) => {
   const res = await GetPaymentRequestDetail({
     id: scope.row.paymentRequestId
   })
+  
   if (res.data) {
     formDetailPaymentReceipt.value = res.data
 
@@ -3327,7 +3347,7 @@ onBeforeMount(async () => {
             <label class="w-[30%] text-right"
               >{{ t('formDemo.formPayment') }} <span class="text-red-500">*</span></label
             >
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -3519,7 +3539,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -3714,15 +3734,18 @@ onBeforeMount(async () => {
           ></span>
           <div class="flex w-[100%] justify-end">
             <div class="w-[145px] text-right pr-2">
+              <p>{{ t('formDemo.unpaidDebt') }}</p>
               <p class="text-blue-400 h-[30px]">{{ t('formDemo.deposit') }} <span class="text-red-500">*</span></p>
 
               <p class="text-red-600 pt-2">{{ t('reuse.remaining') }}</p>
             </div>
             <div class="w-[145px] text-right">
+              <p class="pr-2">
+                {{ outstandingDebt ? changeMoney.format(outstandingDebt) : '0 đ' }}
+              </p>
               <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" />
-              <p class="pr-2 text-red-600 pt-2">{{
-                moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ'
-              }}</p>
+              <p class="pr-2 text-red-600 pt-2">
+                {{ moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ' }}</p>
             </div>
           </div>
         </div>
@@ -3753,7 +3776,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -4197,7 +4220,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -4997,7 +5020,7 @@ onBeforeMount(async () => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"

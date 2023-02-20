@@ -2641,7 +2641,7 @@ let buttonDuplicate = ref(false)
 const UpdateStatusTransaction = async() => {
   const payload = {
     AccountingEntryId: idAcountingEntry.value,
-    OrderTransactionStatus: 1
+    OrderTransactionStatus: 0
   }
 
   updateStatusTransaction(FORM_IMAGES(payload))

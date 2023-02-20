@@ -55,7 +55,7 @@ const props = defineProps({
         <td rowspan="3">
           <div><span class="font-black">Tên SP sửa chữa:</span> <span> {{ billRepairData.productName }}</span></div>
           <div><span class="font-black">Phụ kiện đi kèm:</span> <span> {{ billRepairData.accessory }}</span></div>
-          <div><span class="font-black">Ghi chú:</span> <span>{{ billRepairData.description }}</span></div>
+          <div><span class="font-black">Ghi chú:</span> <span v-html="billRepairData.description"></span></div>
         </td>
         <td rowspan="1"><span class="font-black">NVTN:</span></td>
       </tr>
@@ -130,8 +130,7 @@ table {
   width: 100%;
 }
 
-td,
-th {
+::v-deep(td), ::v-deep(th){
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px 0 8px 8px;

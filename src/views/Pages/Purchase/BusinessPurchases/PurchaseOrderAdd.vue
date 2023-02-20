@@ -3724,6 +3724,7 @@ onBeforeMount(async () => {
                 :isReadOnly="false"
                 v-model="inputDeposit"
                 class="handle-fix"
+                :max="moneyDeposit"
               />
               <p class="pr-2 text-red-600 pt-2">{{
                 moneyDeibt ? changeMoney.format(moneyDeibt) : '0 đ'

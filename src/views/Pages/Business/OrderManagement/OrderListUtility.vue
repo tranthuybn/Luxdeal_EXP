@@ -1756,7 +1756,7 @@ if (type == 'add' && priceChangeOrders.value == false || type == ':type' && pric
 const nameDialog = ref('')
 // const testDialog = ref(false)
 
-// Đúng thì hiển thị button Lưu và ghi sổ và Hủy bút toán
+// Đúng thì hiển thị button Lưu và ghi sổ và hủy bút toán
 const showCreatedOrUpdateButton = ref (false)
 const showCancelAcountingEntry = ref(true)
 
@@ -3606,7 +3606,7 @@ onBeforeMount(async () => {
                     }
                   "
                 > 
-                  Hủy bút toán
+                  {{t('formDemo.cancelAccountingEntry')}}
                 </el-button>
                 <el-button @click="dialogSalesSlipInfomation = false">{{
                   t('reuse.exit')
@@ -3840,7 +3840,7 @@ onBeforeMount(async () => {
                     }
                   "
                 > 
-                  Hủy bút toán
+                  {{t('formDemo.cancelAccountingEntry')}}
                 </el-button>
                 <el-button @click="dialogDepositSlipAdvance = false">{{
                   t('reuse.exit')
@@ -4281,7 +4281,7 @@ onBeforeMount(async () => {
                 }
               "
                 > 
-                 Hủy bút toán
+                 {{t('formDemo.cancelAccountingEntry')}}
               </el-button>
             <el-button size="large" @click="dialogAccountingEntryAdditional = false">{{
               t('reuse.exit')

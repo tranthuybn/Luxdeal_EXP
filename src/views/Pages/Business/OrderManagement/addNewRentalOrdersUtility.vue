@@ -1849,7 +1849,8 @@ const postPT = async () => {
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
@@ -1871,7 +1872,8 @@ const postPC = async () => {
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)

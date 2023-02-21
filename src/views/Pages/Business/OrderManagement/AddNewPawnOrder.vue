@@ -647,7 +647,7 @@ const listProducts = ref()
 
 const pageIndexProducts = ref(1)
 const callAPIProduct = async () => {
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20,  ServiceType: 4, IsApprove: true })
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
       productCode: product.code,
@@ -1308,7 +1308,8 @@ const postPT = async () => {
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
@@ -1330,7 +1331,8 @@ const postPC = async () => {
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)

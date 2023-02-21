@@ -18,9 +18,9 @@ import {
   ElRadioGroup,
   ElRadio,
   ElDialog,
-  ElDropdown,
-  ElDropdownMenu,
-  ElDropdownItem,
+  // ElDropdown,
+  // ElDropdownMenu,
+  // ElDropdownItem,
   ElDatePicker,
   ElForm,
   ElFormItem,
@@ -513,7 +513,7 @@ const districtChange = async (value) => {
 
 const tableWarehouse = ref([])
 
-const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
+// const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
 let infoCompany = reactive({
   name: '',
   taxCode: '',
@@ -607,7 +607,7 @@ const listProductsTable = ref()
 
 const pageIndexProducts = ref(1)
 const callApiProductList = async () => {
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20,  ServiceType: 1, IsApprove: true})
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
       productCode: product.code,
@@ -634,7 +634,7 @@ const ScrollProductBottom = () => {
   pageIndexProducts.value++
   noMoreProductData.value
     ? ''
-    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20, ServiceType: 1, IsApprove: true })
         .then((res) => {
           res.data.length == 0
             ? (noMoreProductData.value = true)
@@ -744,6 +744,7 @@ const handleGetTotal = async (_index, props) => {
     : (totalFinalOrder.value =
         totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
 
+  /* Tạm thời bỏ VAT ngày cmt 21/02/2023
   if (radioVAT.value.length < 4) {
     VAT.value = true
     valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
@@ -751,6 +752,7 @@ const handleGetTotal = async (_index, props) => {
       totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
     }
   }
+  */
 }
 
 const duplicateProductChildren = ref()
@@ -976,13 +978,15 @@ const autoCalculateOrder = () => {
     : (totalFinalOrder.value =
         totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
 
-  if (radioVAT.value.length < 4) {
-    VAT.value = true
-    valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
-    if (totalFinalOrder.value) {
-      totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
-    }
-  }
+  /* Tạm thời bỏ VAT ngày cmt 21/02/2023
+  // if (radioVAT.value.length < 4) {
+  //   VAT.value = true
+  //   valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
+  //   if (totalFinalOrder.value) {
+  //     totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
+  //   }
+  // }
+  */
 }
 
 // change address
@@ -1063,7 +1067,8 @@ const postData = async (pushBack: boolean) => {
         ? (totalPriceOrder.value * promoValue.value) / 100
         : 0,
     InterestMoney: 0,
-    VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
+    // VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
+    VATMoney: 0,
     Files: Files,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: formAddress.province ?? 1,
@@ -1072,7 +1077,7 @@ const postData = async (pushBack: boolean) => {
     Address: customerAddress.value,
     OrderDetail: productPayment,
     CampaignId: campaignId.value ?? '',
-    VAT: 1,
+    VAT: 0,
     Status: 2,
     WarehouseId: ruleForm.warehouse
   }
@@ -1783,8 +1788,6 @@ const totalOutstandingDebt = () => {
       outstandingDebt.value += val?.deibt
     }
   })
-  console.log('outstandingDebt: ', outstandingDebt.value)
-  console.log('debtTable: ', debtTable.value)
 }
 // Tạo mới phiếu đặt cọc
 function openDepositDialog() {
@@ -2029,7 +2032,7 @@ const postPT = async () => {
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined,
+    AccountingEntryId: null,
     EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
@@ -2052,7 +2055,7 @@ const postPC = async () => {
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined,
+    AccountingEntryId: null,
     EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
@@ -2165,8 +2168,8 @@ const postPaymentRequest = async () => {
     PeopleType: 1,
     OrderId: id,
     Description: '',
-    Document: undefined,
-    AccountingEntryId: undefined,
+    Document: null,
+    AccountingEntryId: null,
     ReasonCollectMoney: inputReasonCollectMoney.value,
     EnterMoney: enterMoney.value,
     ExpensesDetail: JSON.stringify(detailedListExpenses.value),
@@ -2317,12 +2320,15 @@ const autoChangeMoneyAccountingEntry = (_val, scope) => {
   })
 }
 
+/* Tạm thời bỏ VAT 21/02/2023
 // Cập nhật lại giá tiền khi thay đổi VAT
-const valueVAT = ref()
-const VAT = ref(false)
-const changePriceVAT = () => {
-  autoCalculateOrder()
-}
+  const valueVAT = ref()
+  const VAT = ref(false)
+  const changePriceVAT = (val) => {
+    if (val == 'Không bao gồm VAT') VAT.value = false
+    autoCalculateOrder()
+  }
+*/
 
 // check disabled
 const disabledEdit = ref(false)
@@ -5267,7 +5273,7 @@ onBeforeMount(async () => {
         <el-button class="ml-4 mt-4" v-if="type == 'add' || type == ':type'" @click="addLastIndexSellTable"
           >+ {{ t('formDemo.add') }}</el-button
         >
-        <div class="flex justify-end pt-4">
+        <div class="flex justify-end">
           <div class="w-50">
             <div class="dark:text-[#fff]">{{ t('formDemo.intoMoney') }}</div>
             <div class="text-blue-500 cursor-pointer">
@@ -5286,7 +5292,8 @@ onBeforeMount(async () => {
                 >
               </el-button>
             </div>
-            <div class="text-blue-500 cursor-pointer">
+            <!-- Tạm thời bỏ VAT 21/02/2023 -->
+            <!-- <div class="text-blue-500 cursor-pointer">
               <el-dropdown class="flex justify-end" trigger="click">
                 <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
                   {{ radioVAT }}
@@ -5334,7 +5341,7 @@ onBeforeMount(async () => {
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
-            </div>
+            </div> -->
             <div class="text-black font-bold dark:text-[#fff]">{{
               t('formDemo.totalAmountReceivable')
             }}</div>
@@ -5350,10 +5357,11 @@ onBeforeMount(async () => {
               }}</div>
               <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
-            <div v-if="VAT" class="text-right dark:text-[#fff]">{{
+            <!-- Tạm thời bỏ VAT 21/02/2023 -->
+            <!-- <div v-if="VAT" class="text-right dark:text-[#fff]">{{
               VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''
             }}</div>
-            <div v-else class="text-transparent :dark:text-transparent">s</div>
+            <div v-else class="text-transparent :dark:text-transparent">s</div> -->
             <div class="text-right dark:text-[#fff]">{{
               totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'
             }}</div>

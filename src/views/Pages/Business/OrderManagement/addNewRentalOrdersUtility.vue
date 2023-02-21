@@ -15,9 +15,9 @@ import {
   ElRadioGroup,
   ElRadio,
   ElCheckbox,
-  ElDropdown,
-  ElDropdownMenu,
-  ElDropdownItem,
+  // ElDropdown,
+  // ElDropdownMenu,
+  // ElDropdownItem,
   ElDatePicker,
   ElDialog,
   ElForm,
@@ -526,7 +526,8 @@ const optionsCustomer = [
   }
 ]
 
-const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
+// Tạm thời bỏ VAT 21/02/2023
+// const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
 const dialogFormVisible = ref(false)
 
 const openDialogChoosePromotion = ref(false)
@@ -854,6 +855,7 @@ const autoCalculateOrder = () => {
         (totalPriceOrder.value * promoValue.value) / 100 +
         totalDeposit.value)
 
+  /* Tạm thời bỏ VAT 21/02/2023
   if (radioVAT.value.length < 4) {
     VAT.value = true
     valueVAT.value = radioVAT.value.substring(0, radioVAT.value.length - 1)
@@ -861,6 +863,7 @@ const autoCalculateOrder = () => {
       totalFinalOrder.value += (totalFinalOrder.value * parseInt(valueVAT.value)) / 100
     }
   }
+  */
 }
 
 // Call api danh sách sản phẩm
@@ -871,7 +874,8 @@ const callApiProductList = async () => {
   const res = await getProductsList({
     ServiceType: 3,
     PageIndex: pageIndexProducts.value,
-    PageSize: 20
+    PageSize: 20,
+    IsApprove: true
   })
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data?.map((product) => ({
@@ -901,7 +905,7 @@ const ScrollProductBottom = () => {
   pageIndexProducts.value++
   noMoreProductData.value
     ? ''
-    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20, ServiceType: 3, IsApprove: true })
         .then((res) => {
           res.data.length == 0
             ? (noMoreProductData.value = true)
@@ -986,7 +990,8 @@ const postData = async (pushBack: boolean) => {
         ? (totalPriceOrder.value * promoValue.value) / 100
         : 0,
     InterestMoney: 0,
-    VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
+    // VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
+    VATMoney: 0,
     Files: Files,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: formAddress.province ?? 1,
@@ -995,7 +1000,7 @@ const postData = async (pushBack: boolean) => {
     Address: customerAddress.value,
     OrderDetail: productPayment,
     CampaignId: campaignId.value ?? '',
-    VAT: 1,
+    VAT: 0,
     Status: 2,
     Days: ruleForm.leaseTerm,
     PaymentPeriod: ruleForm.rentalPaymentPeriod,
@@ -1844,7 +1849,8 @@ const postPT = async () => {
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined
+    AccountingEntryId: null,
+    EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPT.value = await addTPV(formDataPayLoad)
@@ -1866,7 +1872,8 @@ const postPC = async () => {
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined
+    AccountingEntryId: null,
+    EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   objidPC.value = await addTPV(formDataPayLoad)
@@ -1944,8 +1951,8 @@ const postPaymentRequest = async () => {
     PeopleType: 1,
     OrderId: id,
     Description: '',
-    Document: undefined,
-    AccountingEntryId: undefined,
+    Document: null,
+    AccountingEntryId: null,
     ReasonCollectMoney: inputReasonCollectMoney.value,
     EnterMoney: enterMoney.value,
     ExpensesDetail: JSON.stringify(detailedListExpenses.value),
@@ -2519,12 +2526,15 @@ const beforeAvatarUpload = (rawFile, type: string) => {
   // }
 }
 
+/* Tạm thời bỏ VAT 21/02/2023
 // Cập nhật lại giá tiền khi thay đổi VAT
 const valueVAT = ref()
 const VAT = ref(false)
-const changePriceVAT = () => {
+const changePriceVAT = (val) => {
+  if (val == 'Không bao gồm VAT') VAT.value = false
   autoCalculateOrder()
 }
+*/
 
 // check disabled
 const disabledEdit = ref(false)
@@ -5085,7 +5095,8 @@ onBeforeMount(async() => {
                 <span class="text-blue-500"> + {{ t('formDemo.choosePromotion') }}</span>
               </el-button>
             </div>
-            <div class="text-blue-500 cursor-pointer">
+            <!-- Tạm thời bỏ VAT 21/02/2023 -->
+            <!-- <div class="text-blue-500 cursor-pointer">
               <el-dropdown class="flex justify-end" trigger="click">
                 <span class="el-dropdown-link text-blue-500 cursor-pointer flex items-center">
                   {{ radioVAT }}
@@ -5133,7 +5144,7 @@ onBeforeMount(async() => {
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
-            </div>
+            </div> -->
             <div class="text-black font-bold dark:text-[#fff]">{{
               t('formDemo.totalFeePayable')
             }}</div>
@@ -5152,9 +5163,11 @@ onBeforeMount(async() => {
               </div>
               <div v-else class="text-transparent :dark:text-transparent">s</div>
             </div>
-            <div v-if="VAT" class="text-right dark:text-[#fff]">
-              {{VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''}}</div>
-              <div v-else class="text-transparent :dark:text-transparent">s</div>
+            <!-- Tạm thời bỏ VAT 21/02/2023 -->
+            <!-- <div v-if="VAT" class="text-right dark:text-[#fff]">
+              {{VAT ? (totalPriceOrder * parseInt(valueVAT)) / 100 : ''}}
+            </div>
+            <div v-else class="text-transparent :dark:text-transparent">s</div> -->
             <div class="text-right dark:text-[#fff]">
               {{totalFinalOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ'}}
             </div>

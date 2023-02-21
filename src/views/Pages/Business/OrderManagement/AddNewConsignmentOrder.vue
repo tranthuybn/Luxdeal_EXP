@@ -620,15 +620,10 @@ const postQuickProduct = async () => {
       message: t('reuse.addSuccess'),
       type: 'success'
     })
-    listProducts.value.push({
-      productCode: payload.productCode,
-      value: payload.productCode,
-      name: payload.name ?? '',
-      unit: '',
-      price: 0,
-      productPropertyId: res.data,
-      productPropertyCode: payload.productPropertyCode
-    })
+    ListOfProductsForSale.value[ListOfProductsForSale.value.length-1].productPropertyId = res.id
+    ListOfProductsForSale.value[ListOfProductsForSale.value.length-1].productName = res.name
+    ListOfProductsForSale.value[ListOfProductsForSale.value.length-1].productCode = payload.productCode
+    ListOfProductsForSale.value[ListOfProductsForSale.value.length-1].productPropertyCode = payload.productPropertyCode
   } else {
     ElNotification({
       message: t('reuse.addFail'),
@@ -641,7 +636,7 @@ const listProducts = ref()
 
 const pageIndexProducts = ref(1)
 const callAPIProduct = async () => {
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20, ServiceType: 2, IsApprove: true })
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
       productCode: product.code,
@@ -1225,7 +1220,7 @@ const postData = async () => {
       Code: val.code,
       Description: val.description
     }))
-    orderDetailsTable.pop()
+    // orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
     const payload = {
       ServiceType: 2,
@@ -2696,6 +2691,7 @@ const openDetailOrder = (id, type) => {
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
             <ProductAttribute :value="productCharacteristics" @change-value="attributeChange" />
+            <ProductAttribute :value="productCharacteristics" @change-value="attributeChange" />
           </div>
         </div>
         <template #footer>
@@ -2706,6 +2702,7 @@ const openDetailOrder = (id, type) => {
               @click="
                 () => {
                   dialogAddProduct = false
+                  postQuickProduct()
                   postQuickProduct()
                 }
               "

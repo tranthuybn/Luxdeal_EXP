@@ -620,15 +620,10 @@ const postQuickProduct = async () => {
       message: t('reuse.addSuccess'),
       type: 'success'
     })
-    listProducts.value.push({
-      productCode: payload.productCode,
-      value: payload.productCode,
-      name: payload.name ?? '',
-      unit: '',
-      price: 0,
-      productPropertyId: res.data,
-      productPropertyCode: payload.productPropertyCode
-    })
+    ListOfProductsForSale.value[ListOfProductsForSale.value.length-1].productPropertyId = res.id
+    ListOfProductsForSale.value[ListOfProductsForSale.value.length-1].productName = res.name
+    ListOfProductsForSale.value[ListOfProductsForSale.value.length-1].productCode = payload.productCode
+    ListOfProductsForSale.value[ListOfProductsForSale.value.length-1].productPropertyCode = payload.productPropertyCode
   } else {
     ElNotification({
       message: t('reuse.addFail'),
@@ -1225,7 +1220,7 @@ const postData = async () => {
       Code: val.code,
       Description: val.description
     }))
-    orderDetailsTable.pop()
+    // orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
     const payload = {
       ServiceType: 2,

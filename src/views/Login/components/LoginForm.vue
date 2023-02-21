@@ -137,12 +137,13 @@ const signIn = () => {
             getUserInfoByAccountId(accountId)
             setPermissionForUser(res.data)
             getRole(accountId)
-          } else
+          } else {
             ElNotification({
               message: t('reuse.accountInfo'),
               type: 'error'
             })
-            wsCache.clear()            
+            wsCache.clear()
+          }          
         }
       } finally {
         loading.value = false
@@ -206,6 +207,7 @@ const getUserInfoByAccountId = (id) => {
 }
 // store user information
 const setPermissionForUser = (data) => {
+  console.log(data)
   wsCache.set(permissionStore.getAccessToken, data['accessToken'] ?? '')
   wsCache.set(permissionStore.getRefreshToken, data['refreshToken'] ?? '')
 }

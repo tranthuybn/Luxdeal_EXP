@@ -2032,7 +2032,7 @@ const postPT = async () => {
     OrderId: id,
     Type: 0,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined,
+    AccountingEntryId: null,
     EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
@@ -2055,7 +2055,7 @@ const postPC = async () => {
     OrderId: id,
     Type: 1,
     Description: inputReasonCollectMoney.value,
-    AccountingEntryId: undefined,
+    AccountingEntryId: null,
     EnterMoney: enterMoney.value
   }
   const formDataPayLoad = FORM_IMAGES(payload)
@@ -2168,8 +2168,8 @@ const postPaymentRequest = async () => {
     PeopleType: 1,
     OrderId: id,
     Description: '',
-    Document: undefined,
-    AccountingEntryId: undefined,
+    Document: null,
+    AccountingEntryId: null,
     ReasonCollectMoney: inputReasonCollectMoney.value,
     EnterMoney: enterMoney.value,
     ExpensesDetail: JSON.stringify(detailedListExpenses.value),

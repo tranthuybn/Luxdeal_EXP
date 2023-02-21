@@ -571,29 +571,6 @@ let dataDetail = ref<ReceiptOrPaymentVoucherDetail>({
 })
 const checkDisabelDetail = ref(false)
 
-const editData = async () => {
-  if (type == 'detail') checkDisabelDetail.value = true
-
-  if (type == 'edit' || type == 'detail') {
-    var su = await getDetailReceiptPaymentVoucher({ id: id })
-    console.log('su: ', su)
-    if (su.data) dataDetail.value = Object.assign({}, su?.data)
-    var cus = optionsCustomerApi.value.find((x) => x.id == dataDetail.value.customerId)
-    getValueOfCustomerSelected(dataDetail.value.customerId, cus)
-
-    inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
-
-    console.log('dataDetail.value:', dataDetail.value)
-
-    // arrayStatusOrder.value = orderObj?.statusHistory
-    // if (arrayStatusOrder.value?.length) {
-    //   arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
-    // }
-
-
-
-    }
-}
 const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
   infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value.id == data)
@@ -629,7 +606,6 @@ let moneyDepositPayment = ref()
 // infinity scroll CTV
 // Call api danh sách cộng tác viên
 const optionsCollaborators = ref()
-const checkDisabled = ref(false)
 const pageIndexCollaborator = ref(1)
 const callApiCollaborators = async () => {
   const res = await getCollaboratorsInOrderList({
@@ -659,6 +635,7 @@ const postData = async () => {
     Type : 1,
     Description: dataDetail.value.description,
     Document: [],
+    EnterMoney: dataDetail.value.enterMoney,
     AccountingEntryId: valueTree.value ?? 0
   }
 
@@ -698,7 +675,8 @@ const saveDataEdit = async () => {
     PeopleType: 2,
     PeopleId  : customerID.value,
     Type : 1,
-    Description: dataDetail.value.description
+    Description: dataDetail.value.description,
+    EnterMoney: dataDetail.value.enterMoney
     // AccountingEntryId: valueTree.value ?? 0
   }
   await EditAReceiptOrPaymentVoucher(FORM_IMAGES(payload))
@@ -737,6 +715,31 @@ const updateStatus = async (status: number) => {
     })
   })
 }
+
+
+const editData = async () => {
+  if (type == 'detail') checkDisabelDetail.value = true
+
+  if (type == 'edit' || type == 'detail') {
+    var su = await getDetailReceiptPaymentVoucher({ id: id })
+    console.log('su: ', su)
+    if (su.data) dataDetail.value = Object.assign({}, su?.data)
+    var cus = optionsCustomerApi.value.find((x) => x.id == dataDetail.value.customerId)
+    getValueOfCustomerSelected(dataDetail.value.customerId, cus)
+
+    inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
+
+
+    // arrayStatusOrder.value = orderObj?.statusHistory
+    // if (arrayStatusOrder.value?.length) {
+    //   arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    // }
+
+
+
+    }
+}
+
 onBeforeMount(async () => {
   callApiRecharger()
   getListStaff()
@@ -991,7 +994,7 @@ onBeforeMount(async () => {
                   @click="updateStatus(2)"
                   type="default"
                   class="min-w-42 min-h-11"
-                  v-if="dataDetail.status == 1 && type !== 'edit'"
+                  v-if="dataDetail.status == 1 && type == 'edit'"
                 >
                   {{ t('button.carrying') }}</el-button
                 >
@@ -999,17 +1002,16 @@ onBeforeMount(async () => {
                   @click="updateStatus(3)"
                   type="primary"
                   class="min-w-42 min-h-11"
-                  v-if="dataDetail.status == 1 && type !== 'edit'"
+                  v-if="dataDetail.status == 1 && type == 'edit'"
                   >{{ t('button.plan') }}</el-button
                 >
                 <el-button
                   @click="updateStatus(4)"
-                  v-if="dataDetail.status == 1 && type !== 'edit'"
-                  :disabled="checkDisabled"
+                  v-if="dataDetail.status == 1 && type == 'edit'"
                   type="danger"
                   class="min-w-42 min-h-11"
                   >{{ t('button.cancel') }}</el-button
-                > -->
+                >  -->
               </ElFormItem>
             </el-form>
           </div>

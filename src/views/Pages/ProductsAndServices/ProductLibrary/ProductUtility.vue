@@ -347,7 +347,7 @@ const warningForSwitch = (rowDisabled: boolean) => {
 }
 const changeDataSwitch = (scope, dataSwitch) => {
   scope.row.bussinessSetups![scope.cellIndex - 2]!.hasPrice
-    ? (scope.row.bussinessSetups![scope.cellIndex - 2]!.value = dataSwitch)
+    ? (scope.row.bussinessSetups![scope.cellIndex == 4 ? 4 : scope.cellIndex - 2]!.value = dataSwitch)
     : ElNotification({
         message: t('reuse.addPricesBeforeTurningOnSetting'),
         type: 'warning'

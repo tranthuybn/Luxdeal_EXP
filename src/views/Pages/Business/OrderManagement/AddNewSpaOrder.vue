@@ -613,6 +613,7 @@ let promoValue = ref(0)
 let promoCash = ref(0)
 
 const getValueOfSelected = async (_value, obj, scope) => {
+  console.log('listProduct:', listProducts.value)
   const data = scope.row
 
   data.productPropertyId = obj?.productPropertyId
@@ -1435,11 +1436,9 @@ const getCategory = async () => {
     optionsCategory.value = categorySelect.value.map((product) => ({
       label: product.name,
       value: product.id,
-      id: product.id,
       children: product.children.map((child) => ({
         value: child.name,
         label: child.name,
-        id: child.id
       }))
     }))
   }
@@ -1504,26 +1503,50 @@ const getOriginSelectOptions = async () => {
   callOriginAPI++
 }
 
-const postQuickCustomer = async () => {
+//end thêm nhanh sp
+const postQuickProduct = async () => {
+  const codeProduct = listProducts.value.find(product=>product.productPropertyId == quickProductCode.value)
   const payload = {
-    serviceType: 1,
-    productCode: quickProductCode.value,
+    serviceType: 2,
+    productCode: codeProduct ? codeProduct.value :quickProductCode.value,
     productPropertyCode: quickManagementCode,
     name: quickProductName.value,
     shortDescription: quickDescription.value,
-    productTypeId: 9,
-    brandId: 49,
-    originId: 123,
-    unitId: 121,
-    categories: [
-      {
-        id: 0
-      }
-    ]
+    productTypeId: chooseCategory.value,
+    brandId: chooseBrand.value,
+    originId: chooseOrigin.value,
+    unitId: chooseUnit.value,
+    categories: productCharacteristics.value
   }
-  await createQuickProduct(payload)
-}
 
+  const res = await createQuickProduct(payload)
+  if (res) {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
+    })
+    console.log('res', res)
+    listProducts.value.unshift({
+      productCode: payload.productCode,
+      value: payload.productCode,
+      name: payload.name ?? '',
+      unit: '',
+      price: 0,
+      productPropertyId: res.id,
+      productPropertyCode: payload.productPropertyCode
+    })
+  } else {
+    ElNotification({
+      message: t('reuse.addFail'),
+      type: 'warning'
+    })
+  }
+}
+const attributeChange = (attributeArray)=>{
+  productCharacteristics.value = attributeArray.map(e=>({
+    id:e.value
+  }))
+}
 const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = listProducts.value.find((product) => product.productPropertyId == data)
 
@@ -1549,7 +1572,7 @@ const handleChangeQuickAddProduct = async (data) => {
   quickProductName.value = formProductData.value.name
   quickDescription.value = formProductData.value.shortDescription
   chooseBrand.value = formProductData.value.categories[0]?.id
-  chooseCategory.value = formProductData.value.categories[1]?.value
+  chooseCategory.value = formProductData.value.categories[1]?.id
   chooseUnit.value = formProductData.value.categories[2]?.id
   chooseOrigin.value = formProductData.value.categories[3]?.id
 }
@@ -1906,7 +1929,9 @@ const postOrderStransaction = async (num: number) => {
 
     paidMoney: num == 1 ? 0 : num == 2 ? tableAccountingEntry.value[0].spent : 0,
     deibt: num == 1 ? remainingMoney.value : 0,
-    typeOfPayment: tableAccountingEntry.value[0].collected - tableAccountingEntry.value[0].spent >0 ? 1 : 0,
+    typeOfPayment: num == 1 
+                  ? 1 
+                  : tableAccountingEntry.value[0].collected - tableAccountingEntry.value[0].spent >0 ? 1 : 0,
     paymentMethods: 1,
     status: 0,
     isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
@@ -3247,7 +3272,7 @@ const postReturnRequest = async (reason) => {
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <ProductAttribute :value="productCharacteristics" />
+            <ProductAttribute :value="productCharacteristics" @change-value="attributeChange"/>
           </div>
         </div>
         <template #footer>
@@ -3258,7 +3283,7 @@ const postReturnRequest = async (reason) => {
               @click="
                 () => {
                   dialogAddProduct = false
-                  postQuickCustomer()
+                  postQuickProduct()
                 }
               "
               >{{ t('reuse.save') }}</el-button
@@ -4653,6 +4678,8 @@ const postReturnRequest = async (reason) => {
                   class="handle-fix"
                   v-model="inputPaymentBill"
                   @change="priceBillPayment"
+                  :max="totalPriceOrder"
+                  :min="0"
                 />
               </div>
             </div>

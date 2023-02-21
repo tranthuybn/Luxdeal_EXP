@@ -530,9 +530,9 @@ const save = async () => {
                 params: { backRoute: 'business.collaborators.collaboratorsList' }
               })
           })
-          .catch((error) =>
+          .catch(() =>
             ElNotification({
-              message: error,
+              message: t('reuse.addFail') + '! ' + t('reuse.customerCodeHasExit') ,
               type: 'warning'
             })
           )

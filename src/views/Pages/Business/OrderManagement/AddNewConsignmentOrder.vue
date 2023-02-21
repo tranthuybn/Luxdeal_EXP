@@ -2691,6 +2691,7 @@ const openDetailOrder = (id, type) => {
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
             <ProductAttribute :value="productCharacteristics" @change-value="attributeChange" />
+            <ProductAttribute :value="productCharacteristics" @change-value="attributeChange" />
           </div>
         </div>
         <template #footer>
@@ -2701,6 +2702,7 @@ const openDetailOrder = (id, type) => {
               @click="
                 () => {
                   dialogAddProduct = false
+                  postQuickProduct()
                   postQuickProduct()
                 }
               "

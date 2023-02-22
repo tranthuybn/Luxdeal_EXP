@@ -606,6 +606,7 @@ let moneyDepositPayment = ref()
 // infinity scroll CTV
 // Call api danh sách cộng tác viên
 const optionsCollaborators = ref()
+// const checkDisabled = ref(false)
 const pageIndexCollaborator = ref(1)
 const callApiCollaborators = async () => {
   const res = await getCollaboratorsInOrderList({
@@ -635,7 +636,6 @@ const postData = async () => {
     Type : 1,
     Description: dataDetail.value.description,
     Document: [],
-    EnterMoney: dataDetail.value.enterMoney,
     AccountingEntryId: valueTree.value ?? 0
   }
 
@@ -675,8 +675,7 @@ const saveDataEdit = async () => {
     PeopleType: 2,
     PeopleId  : customerID.value,
     Type : 1,
-    Description: dataDetail.value.description,
-    EnterMoney: dataDetail.value.enterMoney
+    Description: dataDetail.value.description
     // AccountingEntryId: valueTree.value ?? 0
   }
   await EditAReceiptOrPaymentVoucher(FORM_IMAGES(payload))
@@ -994,7 +993,7 @@ onBeforeMount(async () => {
                   @click="updateStatus(2)"
                   type="default"
                   class="min-w-42 min-h-11"
-                  v-if="dataDetail.status == 1 && type == 'edit'"
+                  v-if="dataDetail.status == 1 && type !== 'edit'"
                 >
                   {{ t('button.carrying') }}</el-button
                 >
@@ -1002,16 +1001,17 @@ onBeforeMount(async () => {
                   @click="updateStatus(3)"
                   type="primary"
                   class="min-w-42 min-h-11"
-                  v-if="dataDetail.status == 1 && type == 'edit'"
+                  v-if="dataDetail.status == 1 && type !== 'edit'"
                   >{{ t('button.plan') }}</el-button
                 >
                 <el-button
                   @click="updateStatus(4)"
-                  v-if="dataDetail.status == 1 && type == 'edit'"
+                  v-if="dataDetail.status == 1 && type !== 'edit'"
+                  :disabled="checkDisabled"
                   type="danger"
                   class="min-w-42 min-h-11"
                   >{{ t('button.cancel') }}</el-button
-                >  -->
+                > -->
               </ElFormItem>
             </el-form>
           </div>

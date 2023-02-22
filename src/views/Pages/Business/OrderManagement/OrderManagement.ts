@@ -70,8 +70,8 @@ export const sellOrder = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        row.orderDetails.map(({ id, productCode }) => {
-          return h('li', { key: id }, productCode)
+        row.orderDetails.map(({ id, productPropertyCode }) => {
+          return h('li', { key: id }, productPropertyCode)
         })
       )
     }
@@ -206,8 +206,8 @@ export const rentalorder = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        row.orderDetails.map(({ id, productCode }) => {
-          return h('li', { key: id }, productCode)
+        row.orderDetails.map(({ id, productPropertyCode }) => {
+          return h('li', { key: id }, productPropertyCode)
         })
       )
     }
@@ -397,8 +397,8 @@ export const depositOrder = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        row.orderDetails.map(({ id, productCode }) => {
-          return h('li', { key: id }, productCode)
+        row.orderDetails.map(({ id, productPropertyCode }) => {
+          return h('li', { key: id }, productPropertyCode)
         })
       )
     }
@@ -592,8 +592,8 @@ export const pawnOrder = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        row.orderDetails.map(({ id, productCode }) => {
-          return h('li', { key: id }, productCode)
+        row.orderDetails.map(({ id, productPropertyCode }) => {
+          return h('li', { key: id }, productPropertyCode)
         })
       )
     }
@@ -796,8 +796,8 @@ export const spaOrder = [
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'ul',
-        row.orderDetails.map(({ id, productCode }) => {
-          return h('li', { key: id }, productCode)
+        row.orderDetails.map(({ id, productPropertyCode }) => {
+          return h('li', { key: id }, productPropertyCode)
         })
       )
     }

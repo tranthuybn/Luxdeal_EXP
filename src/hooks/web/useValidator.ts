@@ -358,6 +358,13 @@ export const useValidator = () => {
     return str
   }
 
+    const requiredCategory = (_, val: any, callback: Callback) => {
+      if (val.length < 5) {
+        callback(new Error(t('reuse.notFillAllInformation')))
+      } else {
+        callback()
+      }
+    }
   return {
     required,
     requiredOption,
@@ -367,6 +374,7 @@ export const useValidator = () => {
     isEqual,
     checkCode,
     ValidService,
-    removeVietnameseTones
+    removeVietnameseTones,
+    requiredCategory
   }
 }

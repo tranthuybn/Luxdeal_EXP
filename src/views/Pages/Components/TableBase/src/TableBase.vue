@@ -173,7 +173,8 @@ const handleClickAdd = () => {
   })
 }
 const sortValue = ref()
-const sortObj = {}
+let sortObj = {}
+const lastSort = ref('')
 const sortChange = (column) => {
   //value of sort : true/false
   if (column.order == 'ascending') {
@@ -185,20 +186,15 @@ const sortChange = (column) => {
   if (column.order == null) {
     sortValue.value = null
   }
+  
   //sort 1 column at a time
-  //remove search params by making it value = null
-  // if (column.prop !== null) {
-  //   sortField.value = column.prop
-  //   sortObj[`${sortField.value}Sort`] = sortValue.value
-  //   if (lastSort.value && lastSort.value !== `${sortField.value}Sort`) {
-  //     sortObj[lastSort.value] = null
-  //   }
-  //   lastSort.value = `${sortField.value}Sort`
-  // } else {
-  //   sortObj[lastSort.value] = null
-  // }
-  // console.log('sort:', sortObj)
+  if(column.prop !== lastSort.value && lastSort.value !== ''){
+    clearSearchParams(lastSort.value)
+  }
+
+  sortObj = {}
   sortObj[column.prop] = sortValue
+  lastSort.value = column.prop
   setSearchParams({ ...sortObj })
 }
 //value is an object, get called when filter range(to-from) value

@@ -13,7 +13,7 @@ import {
   businessStatusTransferToText
 } from '@/utils/format'
 import { ElNotification } from 'element-plus'
-import { reactive, h } from 'vue'
+import { reactive, h, ref } from 'vue'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 
 const { t } = useI18n()
@@ -138,12 +138,19 @@ export const businessProductLibrary = [
     }
   }
 ]
-let brandSelect = reactive([])
+type Options = {
+  value: number
+  label: string
+}
+const brandSelect = ref<Options[]>([{
+  value: 0,
+  label: ''
+}])
 export const getBrandSelectOptions = async () => {
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key, pageSize: 10000, pageIndex: 1 })
     .then((res) => {
       if (res.data) {
-        brandSelect = res.data
+        brandSelect.value = res.data
           .filter((data) => data.isActive == true)
           .map((index) => ({
             label: index.name,
@@ -154,14 +161,17 @@ export const getBrandSelectOptions = async () => {
     .catch((err) => {
       console.error(err)
     })
-  columnProfileProduct[7].componentProps!.options = brandSelect
+  columnProfileProduct[7].componentProps!.options = brandSelect.value
 }
-let unitSelect = reactive([])
+const unitSelect = ref<Options[]>([{
+  value: 0,
+  label: ''
+}])
 export const getUnitSelectOptions = async () => {
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key, pageSize: 10000, pageIndex: 1 })
     .then((res) => {
       if (res.data) {
-        unitSelect = res.data
+        unitSelect.value = res.data
           .filter((data) => data.isActive == true)
           .map((index) => ({
             label: index.name,
@@ -172,14 +182,17 @@ export const getUnitSelectOptions = async () => {
     .catch((err) => {
       console.error(err)
     })
-  columnProfileProduct[8].componentProps!.options = unitSelect
+  columnProfileProduct[8].componentProps!.options = unitSelect.value
 }
-let originSelect = reactive([])
+const originSelect = ref<Options[]>([{
+  value: 0,
+  label: ''
+}])
 export const getOriginSelectOptions = async () => {
   await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key, pageSize: 10000, pageIndex: 1 })
     .then((res) => {
       if (res.data) {
-        originSelect = res.data
+        originSelect.value = res.data
           .filter((data) => data.isActive == true)
           .map((index) => ({
             label: index.name,
@@ -190,21 +203,39 @@ export const getOriginSelectOptions = async () => {
     .catch((err) => {
       console.error(err)
     })
-  columnProfileProduct[9].componentProps!.options = originSelect
+  columnProfileProduct[9].componentProps!.options = originSelect.value
 }
+
+const optionsCategory = ref()
+export const getCategory = async () => {
+    const res = await getCategories({
+      TypeName: PRODUCTS_AND_SERVICES[0].key,
+      pageSize: 100,
+      pageIndex: 1
+    })
+    optionsCategory.value = res.data.map((product) => ({
+      label: product.name,
+      value: product.id,
+      children: product.children.map((child) => ({
+        value: child.name,
+        label: child.name,
+      }))
+    }))
+}
+
 export const customPostData = async (data) => {
-  if (originSelect.length == 0) {
+  if (originSelect.value.length == 0) {
     await getOriginSelectOptions()
   }
-  if (unitSelect.length == 0) {
+  if (unitSelect.value.length == 0) {
     await getUnitSelectOptions()
   }
-  if (brandSelect.length == 0) {
+  if (brandSelect.value.length == 0) {
     await getBrandSelectOptions()
   }
-  const findBrand = brandSelect.find((brand) => brand['value'] == data.BrandId)
-  const findUnit = unitSelect.find((unit) => unit['value'] == data.UnitId)
-  const findOrigin = originSelect.find((origin) => origin['value'] == data.OriginId)
+  const findBrand = brandSelect.value.find((brand) => brand['value'] == data.BrandId)
+  const findUnit = unitSelect.value.find((unit) => unit['value'] == data.UnitId)
+  const findOrigin = originSelect.value.find((origin) => origin['value'] == data.OriginId)
   if (findBrand == undefined) {
     ElNotification({
       message: t('reuse.cantFindBrandData'),
@@ -224,7 +255,7 @@ export const customPostData = async (data) => {
     })
   }
 }
-export { originSelect, unitSelect, brandSelect }
+export { originSelect, unitSelect, brandSelect, optionsCategory }
 
 export const columnProfileProduct = reactive<FormSchema[]>([
   {

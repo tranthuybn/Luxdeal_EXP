@@ -19,7 +19,6 @@ import {
   ElDatePicker,
   FormRules,
   ElForm,
-  ElTreeSelect,
   ElFormItem,
   FormInstance,
   UploadUserFile,
@@ -37,7 +36,6 @@ import ReturnOrder from './ReturnOrder.vue'
 import { FORM_IMAGES } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 
-import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -46,9 +44,6 @@ import {
   addNewOrderList,
   getOrderList,
   getOrderTransaction,
-  createQuickProduct,
-  getproductId,
-  getCheckProduct,
   getCodePaymentRequest,
   addDNTT,
   addTPV,
@@ -74,10 +69,15 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import { useRoute, useRouter } from 'vue-router'
-import { PRODUCTS_AND_SERVICES, STATUS_ORDER_PAWN } from '@/utils/API.Variables'
+import { STATUS_ORDER_PAWN } from '@/utils/API.Variables'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 
-import { getCategories } from '@/api/LibraryAndSetting'
+//them nhanh sp
+import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
+import { deleteProductProperty } from '@/api/LibraryAndSetting'
+import AddQuickProduct from './AddQuickProduct.vue'
+
+
 const { t } = useI18n()
 const { utility } = appModules
 
@@ -231,6 +231,7 @@ interface ListOfProductsForSaleType {
   edited: boolean
   warehouseId: number | undefined
   warehouseName: string
+  newProduct: Boolean
 }
 
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -259,7 +260,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   paymentType: '',
   edited: true,
   warehouseId: undefined,
-  warehouseName: ''
+  warehouseName: '',
+  newProduct:false
 })
 
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
@@ -312,9 +314,18 @@ watch(
 let totalOrder = ref(0)
 let dataEdit = ref()
 
-const removeListProductsSale = (index) => {
+const removeListProductsSale = async (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
+
+    if(ListOfProductsForSale.value[index].newProduct == true){
+      listProducts.value.splice(listProducts.value.findIndex(product => product.productPropertyId == ListOfProductsForSale.value[index].productPropertyId),1)
+      await deleteProductProperty({Id: ListOfProductsForSale.value[index].productPropertyId})
+    }
+
     ListOfProductsForSale.value.splice(index, 1)
+  }
+  if(ListOfProductsForSale.value.length == 0){
+    addLastIndexSellTable()
   }
 }
 
@@ -515,39 +526,39 @@ const postPaymentRequest = async () => {
   objIdPayment.value = await addDNTT(formDataPayLoad)
   idPayment.value = objIdPayment.value.paymentRequestId
 }
+
 //thêm nahnh sp
-
-const quickProductCode = ref()
-const quickManagementCode = `SP${Date.now()}`
-const quickProductName = ref()
-const quickDescription = ref()
-const productCharacteristics = ref()
-const chooseOrigin = ref()
-
 const dialogAddProduct = ref(false)
-const addnewproduct = () => {
+let callProductApi = 0
+const currentNewProductRow = ref(-1)
+const addnewproduct = (currentRow) => {
+  currentNewProductRow.value = currentRow
   dialogAddProduct.value = true
+  if(callProductApi == 0){
+    Promise.all([getBrandSelectOptions(),getUnitSelectOptions(),getOriginSelectOptions(),getCategory()])
+  }
+  callProductApi++
+}
+
+const postQuickProduct = (product,productId)=>{
+  listProducts.value.unshift({
+      productCode: product.productCode,
+      value: product.productCode,
+      name: product.name ?? '',
+      unit: '',
+      price: 0,
+      productPropertyId: productId,
+      productPropertyCode: product.productPropertyCode
+    })
+
+    //Change productpropertyId of currentNewProductRow
+    ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
+    ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
+    //set value like newProduct:true
+    ListOfProductsForSale.value[currentNewProductRow.value].newProduct = true
+    //when remove row check newProduct if(true){call api remove proudct(id), shift listProducts}
 }
 //end thêm nhanh sp
-const postQuickCustomer = async () => {
-  const payload = {
-    serviceType: 1,
-    productCode: quickProductCode.value,
-    productPropertyCode: quickManagementCode,
-    name: quickProductName.value,
-    shortDescription: quickDescription.value,
-    productTypeId: 9,
-    brandId: 49,
-    originId: 123,
-    unitId: 121,
-    categories: [
-      {
-        id: 0
-      }
-    ]
-  }
-  await createQuickProduct(payload)
-}
 
 const dialogAddQuick = ref(false)
 const historyTable = ref<Array<any>>([])
@@ -858,7 +869,7 @@ const postData = async () => {
     ProductPropertyId: parseInt(val.productPropertyId),
     Quantity: parseInt(val.quantity),
     ProductPrice: 0,
-    UnitPrice: val.unitPrice,
+    UnitPrice: 0,
     HirePrice: 0,
     DepositePrice: 0,
     InterestMoney: val.interestMoney,
@@ -955,92 +966,6 @@ const approvalFunction = async () => {
   })
 }
 
-// Danh mục brand unit origin api
-
-const chooseCategory = ref()
-let categorySelect = ref()
-let optionsCategory = ref()
-let callCategoryAPI = 0
-const getCategory = async () => {
-  if (callCategoryAPI == 0) {
-    const res = await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[0].key,
-      pageSize: 100,
-      pageIndex: 1
-    })
-    categorySelect.value = res.data
-    optionsCategory.value = categorySelect.value.map((product) => ({
-      label: product.name,
-      value: product.id,
-      id: product.id,
-      children: product.children.map((child) => ({
-        value: child.name,
-        label: child.name,
-        id: child.id
-      }))
-    }))
-  }
-  callCategoryAPI++
-}
-const chooseBrand = ref()
-let brandSelect = ref()
-let optionsBrand = ref()
-let callBrandAPI = 0
-const getBrandSelectOptions = async () => {
-  if (callBrandAPI == 0) {
-    const res = await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[7].key,
-      pageSize: 100,
-      pageIndex: 1
-    })
-    brandSelect.value = res.data
-    optionsBrand.value = brandSelect.value.map((product) => ({
-      label: product.name,
-      value: product.id
-    }))
-  }
-  callUnitAPI++
-}
-
-const chooseUnit = ref()
-let unitSelect = ref()
-let optionsUnit = ref()
-let callUnitAPI = 0
-const getUnitSelectOptions = async () => {
-  if (callUnitAPI == 0) {
-    const res = await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[6].key,
-      pageSize: 100,
-      pageIndex: 1
-    })
-    unitSelect.value = res.data
-    optionsUnit.value = unitSelect.value.map((product) => ({
-      label: product.name,
-      value: product.id
-    }))
-  }
-  callUnitAPI++
-}
-
-let originSelect = ref()
-let optionsOrigin = ref()
-let callOriginAPI = 0
-const getOriginSelectOptions = async () => {
-  if (callOriginAPI == 0) {
-    const res = await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[8].key,
-      pageSize: 100,
-      pageIndex: 1
-    })
-    originSelect.value = res.data
-    optionsOrigin.value = originSelect.value.map((product) => ({
-      label: product.name,
-      value: product.id
-    }))
-  }
-  callOriginAPI++
-}
-
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
     `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
@@ -1049,35 +974,6 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   )
 }
 
-const handleChangeQuickAddProduct = async (data) => {
-  const dataSelectedObj = listProducts.value.find((product) => product.productPropertyId == data)
-
-  // call API checkProduct
-  let codeCheckProduct = ref()
-  let checkProductAPI = 0
-  if (checkProductAPI == 0) {
-    const res = await getCheckProduct({ keyWord: dataSelectedObj.value })
-    codeCheckProduct.value = res.data[0]
-  }
-  checkProductAPI++
-
-  // call API getProductId
-  let formProductData = ref()
-  let getProductIdAPI = 0
-  if (getProductIdAPI == 0) {
-    const res = await getproductId({ Id: codeCheckProduct.value.id })
-    formProductData.value = res.data[0]
-  }
-  getProductIdAPI++
-
-  // fill data
-  quickProductName.value = formProductData.value.name
-  quickDescription.value = formProductData.value.shortDescription
-  chooseBrand.value = formProductData.value.categories[0]?.id
-  chooseCategory.value = formProductData.value.categories[1]?.value
-  chooseUnit.value = formProductData.value.categories[2]?.id
-  chooseOrigin.value = formProductData.value.categories[3]?.id
-}
 const handleTotal = (scope) => {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
 }
@@ -1102,9 +998,6 @@ const getCustomerInfo = async (id: string) => {
   customerData.address = orderObj.address
 }
 
-const productAttributeValue = (data) => {
-  return data
-}
 
 const choosePayment = [
   {
@@ -2514,147 +2407,8 @@ const removeRow = (index) => {
       </el-collapse-item>
 
       <!-- Dialog Thêm nhanh sản phẩm -->
-      <el-dialog
-        v-model="dialogAddProduct"
-        :title="t('formDemo.quicklyAddProducts')"
-        width="40%"
-        align-center
-      >
-        <div>
-          <el-divider />
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{
-              t('router.productCategoryProducts')
-            }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.selectCategory') }} <span class="text-red-500">*</span></label
-              >
-              <el-tree-select
-                v-model="chooseCategory"
-                :data="optionsCategory"
-                :placeholder="t('reuse.selectCategory')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('router.productCategoryBrand') }} </label>
-              <el-select v-model="chooseBrand" :placeholder="t('reuse.chooseBrand')">
-                <el-option
-                  v-for="item in optionsBrand"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('router.productCategoryUnit') }} <span class="text-red-500">*</span></label
-              >
-              <el-select v-model="chooseUnit" :placeholder="t('reuse.chooseUnit')">
-                <el-option
-                  v-for="item in optionsUnit"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('router.productCategoryOrigin') }}</label>
-              <el-select v-model="chooseOrigin" :placeholder="t('reuse.chooseOrigin')">
-                <el-option
-                  v-for="item in optionsOrigin"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.productInfomation') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-        </div>
-        <div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.productCode') }} <span class="text-red-500">*</span></label
-            >
-            <el-select
-              filterable
-              allow-create
-              v-model="quickProductCode"
-              :placeholder="t('formDemo.AddSelectProductCode')"
-              @change="(data) => handleChangeQuickAddProduct(data)"
-            >
-              <el-option
-                v-for="item in listProducts"
-                :key="item.productPropertyId"
-                :label="item.value"
-                :value="item.productPropertyId"
-              />
-            </el-select>
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.managementCode') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              :modelValue="quickManagementCode"
-              style="width: 100%"
-              :placeholder="t('formDemo.addManagementCode')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.productName') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="quickProductName"
-              style="width: 100%"
-              :placeholder="t('formDemo.EnterNameDescription')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.shortDescription') }}</label>
-            <el-input
-              v-model="quickDescription"
-              style="width: 100%"
-              :placeholder="t('formDemo.EnterNameDescription')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <ProductAttribute
-              :value="productCharacteristics"
-              @change-value="productAttributeValue"
-            />
-          </div>
-        </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button
-              class="btn"
-              type="primary"
-              @click="
-                () => {
-                  dialogAddProduct = false
-                  postQuickCustomer()
-                }
-              "
-              >{{ t('reuse.save') }}</el-button
-            >
-            <el-button class="btn" @click="dialogAddProduct = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
-        </template>
-      </el-dialog>
+      <AddQuickProduct :list-products="listProducts" v-model="dialogAddProduct" @save="postQuickProduct" v-if="dialogAddProduct"/>
+
 
       <el-collapse-item :name="collapse[1].name">
         <template #title>
@@ -2685,7 +2439,7 @@ const removeRow = (index) => {
                 width="650px"
                 :items="listProducts"
                 valueKey="productPropertyId"
-                :disabled="disabledEdit"
+                :disabled="disabledEdit || props.row.newProduct"
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
@@ -2701,11 +2455,7 @@ const removeRow = (index) => {
                       class="text-base text-blue-400 cursor-pointer pl-2"
                       @click="
                         () => {
-                          addnewproduct()
-                          getBrandSelectOptions()
-                          getUnitSelectOptions()
-                          getOriginSelectOptions()
-                          getCategory()
+                          addnewproduct(props.$index)
                         }
                       "
                       >+ {{ t('formDemo.quicklyAddProducts') }}</div

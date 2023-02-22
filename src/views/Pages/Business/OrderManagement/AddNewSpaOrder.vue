@@ -620,6 +620,8 @@ const getValueOfSelected = async (value, obj, scope) => {
       message: t('reuse.productCodeExist'),
       type: 'warning'
     })
+    scope.row.productPropertyId = undefined
+    return
   }
 
   const data = scope.row
@@ -1437,7 +1439,7 @@ const addnewproduct = (currentRow) => {
 }
 
 //end thêm nhanh sp
-const addQuickProduct = (product,productId)=>{
+const postQuickProduct = (product,productId)=>{
   listProducts.value.unshift({
       productCode: product.productCode,
       value: product.productCode,
@@ -1448,7 +1450,6 @@ const addQuickProduct = (product,productId)=>{
       productPropertyCode: product.productPropertyCode
     })
 
-    //mai làm
     //Change productpropertyId of currentNewProductRow
     ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
     ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
@@ -3042,7 +3043,7 @@ const postReturnRequest = async (reason) => {
       </el-dialog>
 
       <!-- Dialog Thêm nhanh sản phẩm -->
-      <AddQuickProduct :list-products="listProducts" v-model="dialogAddProduct" @save="addQuickProduct" v-if="dialogAddProduct"/>
+      <AddQuickProduct :list-products="listProducts" v-model="dialogAddProduct" @save="postQuickProduct" v-if="dialogAddProduct"/>
 
       <!-- Địa chỉ nhận hàng -->
       <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
@@ -3561,7 +3562,6 @@ const postReturnRequest = async (reason) => {
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-divider content-position="left">{{ t('formDemo.listProductSpa') }}</el-divider>
-        {{ListOfProductsForSale}}
         <el-table
           :data="ListOfProductsForSale"
           border

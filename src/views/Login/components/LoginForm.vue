@@ -161,7 +161,6 @@ const getRole = async (accountId) => {
 
     if (routers?.data && routers.data.length > 0) {
       const urlList = routers.data.map((el) => el.url)
-      console.log(urlList)
 
       // generateRouter(tempUrl.data)
       generateRouter(urlList)

@@ -26,7 +26,6 @@ import {
   ElFormItem,
   ElMessage,
   ElNotification,
-  ElTreeSelect,
   UploadUserFile,
   UploadProps
 } from 'element-plus'
@@ -37,7 +36,6 @@ import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
 import { appModules } from '@/config/app'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import type { UploadFile } from 'element-plus'
 import { useValidator } from '@/hooks/web/useValidator'
 import {
@@ -47,9 +45,6 @@ import {
   getCustomerById,
   addNewOrderList,
   getOrderList,
-  createQuickProduct,
-  getCheckProduct,
-  getproductId,
   addQuickCustomer,
   getOrderTransaction,
   addTPV,
@@ -82,14 +77,16 @@ import { FORM_IMAGES } from '@/utils/format'
 import { STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
-import { getCategories } from '@/api/LibraryAndSetting'
 import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import liquidationPurchaseContractPrint from '../../Components/formPrint/src/liquidationPurchaseContractPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
-import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
+//them nhanh sp
+import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
+import { deleteProductProperty } from '@/api/LibraryAndSetting'
+import AddQuickProduct from '@/views/Pages/Business/OrderManagement/AddQuickProduct.vue'
 const { utility } = appModules
 
 const { t } = useI18n()
@@ -385,6 +382,7 @@ interface ListOfProductsForSaleType {
   warehouseId: number | undefined
   warehouseTotal?: number | any
   warehouseName: string
+  newProduct: Boolean
 }
 
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -406,7 +404,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   totalPrice: '',
   paymentType: '',
   warehouseId: undefined,
-  warehouseName: ''
+  warehouseName: '',
+  newProduct: false
 })
 
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
@@ -966,165 +965,58 @@ watch(
 
 let customerIdPromo = ref()
 
-const removeListProductsSale = (index) => {
-  ListOfProductsForSale.value.splice(index, 1)
+const removeListProductsSale = async (index) => {
+  if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
+
+    if(ListOfProductsForSale.value[index].newProduct == true){
+      listProductsTable.value.splice(listProductsTable.value.findIndex(product => product.productPropertyId == ListOfProductsForSale.value[index].productPropertyId),1)
+      await deleteProductProperty({Id: ListOfProductsForSale.value[index].productPropertyId})
+    }
+
+    ListOfProductsForSale.value.splice(index, 1)
+  }
+  if(ListOfProductsForSale.value.length == 0){
+    addLastIndexSellTable()
+  }
 }
+
 
 const checkDisabled = ref(false)
 const checkDisabledProduct = ref(false)
 
+//thêm nahnh sp
 const dialogAddProduct = ref(false)
-
-const addnewproduct = () => {
+let callProductApi = 0
+const currentNewProductRow = ref(-1)
+const addnewproduct = (currentRow) => {
+  currentNewProductRow.value = currentRow
   dialogAddProduct.value = true
+  if(callProductApi == 0){
+    Promise.all([getBrandSelectOptions(),getUnitSelectOptions(),getOriginSelectOptions(),getCategory()])
+  }
+  callProductApi++
 }
 
-// Thêm nhanh sản phẩm
-const quickProductCode = ref()
-const quickManagementCode = ref()
-const quickProductName = ref()
-const quickDescription = ref()
-const valueCharacteristics = ref()
-const chooseOrigin = ref()
-
-// Danh mục brand unit origin api
-
-const chooseCategory = ref()
-let categorySelect = ref()
-let optionsCategory = ref()
-let callCategoryAPI = 0
-const getCategory = async () => {
-  if (callCategoryAPI == 0) {
-    const res = await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[0].key,
-      pageSize: 100,
-      pageIndex: 1
+const postQuickProduct = (product,productId)=>{
+  listProductsTable.value.unshift({
+      code: product.productCode,
+      value: product.productCode,
+      name: product.name ?? '',
+      unit: '',
+      price: 0,
+      productPropertyId: productId,
+      productPropertyCode: product.productPropertyCode
     })
-    categorySelect.value = res.data
-    optionsCategory.value = categorySelect.value.map((product) => ({
-      label: product.name,
-      value: product.id,
-      id: product.id,
-      children: product.children.map((child) => ({
-        value: child.name,
-        label: child.name,
-        id: child.id
-      }))
-    }))
-  }
-  callCategoryAPI++
+
+    //Change productpropertyId of currentNewProductRow
+    ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
+    ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
+    //set value like newProduct:true
+    ListOfProductsForSale.value[currentNewProductRow.value].newProduct = true
+    //when remove row check newProduct if(true){call api remove proudct(id), shift listProducts}
 }
-const chooseBrand = ref()
-let brandSelect = ref()
-let optionsBrand = ref()
-let callBrandAPI = 0
-const getBrandSelectOptions = async () => {
-  if (callBrandAPI == 0) {
-    const res = await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[7].key,
-      pageSize: 100,
-      pageIndex: 1
-    })
-    brandSelect.value = res.data
-    optionsBrand.value = brandSelect.value.map((product) => ({
-      label: product.name,
-      value: product.id
-    }))
-  }
-  callUnitAPI++
-}
+//end thêm nhanh sp
 
-const chooseUnit = ref()
-let unitSelect = ref()
-let optionsUnit = ref()
-let callUnitAPI = 0
-const getUnitSelectOptions = async () => {
-  if (callUnitAPI == 0) {
-    const res = await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[6].key,
-      pageSize: 100,
-      pageIndex: 1
-    })
-    unitSelect.value = res.data
-    optionsUnit.value = unitSelect.value.map((product) => ({
-      label: product.name,
-      value: product.id
-    }))
-  }
-  callUnitAPI++
-}
-
-let originSelect = ref()
-let optionsOrigin = ref()
-let callOriginAPI = 0
-const getOriginSelectOptions = async () => {
-  if (callOriginAPI == 0) {
-    const res = await getCategories({
-      TypeName: PRODUCTS_AND_SERVICES[8].key,
-      pageSize: 100,
-      pageIndex: 1
-    })
-    originSelect.value = res.data
-    optionsOrigin.value = originSelect.value.map((product) => ({
-      label: product.name,
-      value: product.id
-    }))
-  }
-  callOriginAPI++
-}
-
-const postQuickProduct = async () => {
-  const characteristics = valueCharacteristics.value.map((val) => ({
-    id: val
-  }))
-
-  const payload = {
-    serviceType: 1,
-    productCode: quickProductCode.value,
-    productPropertyCode: quickManagementCode.value,
-    name: quickProductName.value,
-    shortDescription: quickDescription.value,
-    productTypeId: 9,
-    brandId: 49,
-    originId: 123,
-    unitId: 121,
-    categories: characteristics
-  }
-  await createQuickProduct(payload)
-  callApiProductList()
-}
-
-const handleChangeQuickAddProduct = async (data) => {
-  const dataSelectedObj = listProductsTable.value.find(
-    (product) => product.productPropertyId == data
-  )
-
-  // call API checkProduct
-  let codeCheckProduct = ref()
-  let checkProductAPI = 0
-  if (checkProductAPI == 0) {
-    const res = await getCheckProduct({ keyWord: dataSelectedObj.value })
-    codeCheckProduct.value = res.data[0]
-  }
-  checkProductAPI++
-
-  // call API getProductId
-  let formProductData = ref()
-  let getProductIdAPI = 0
-  if (getProductIdAPI == 0) {
-    const res = await getproductId({ Id: codeCheckProduct.value.id })
-    formProductData.value = res.data[0]
-  }
-  getProductIdAPI++
-
-  // fill data
-  quickProductName.value = formProductData.value.name
-  quickDescription.value = formProductData.value.shortDescription
-  chooseBrand.value = formProductData.value.categories[0]?.id
-  chooseCategory.value = formProductData.value.categories[1]?.value
-  chooseUnit.value = formProductData.value.categories[2]?.id
-  chooseOrigin.value = formProductData.value.categories[3]?.id
-}
 
 let Files = reactive({})
 const validImageType = ['jpeg', 'png']
@@ -1195,13 +1087,15 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 }
 const fileList = ref<UploadUserFile[]>([])
 
-let orderDetailsTable = reactive([{}]) as any[]
+let orderDetailsTable = ref()
 
 let idOrderPost = ref()
 const checkValidatorProduct = ref(false)
 // Tạo đơn hàng
 const postData = async () => {
-  orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+  orderDetailsTable.value = ListOfProductsForSale.value
+  .filter(val=>val.productPropertyId != '' || !val.productPropertyId)
+  .map((val) => ({
     ProductPropertyId: parseInt(val?.productPropertyId),
     Quantity: val.quantity,
     UnitPrice: val.unitPrice,
@@ -1216,16 +1110,15 @@ const postData = async () => {
     Code: val.code,
     Description: val.description
   }))
-  orderDetailsTable.pop()
-  if (orderDetailsTable?.length > 0) {
-    orderDetailsTable.forEach((el) => {
+  if (orderDetailsTable.value?.length > 0) {
+    orderDetailsTable.value.forEach((el) => {
       if (el.Quantity == 0 || el.Quantity < 0) {
         checkValidatorProduct.value = true
         ElMessage.error(t('reuse.positiveNumber'))
       }
     })
     if (!checkValidatorProduct.value) {
-      const productPayment = JSON.stringify([...orderDetailsTable])
+      const productPayment = JSON.stringify([...orderDetailsTable.value])
       const payload = {
         ServiceType: 6,
         OrderCode: ruleForm.orderCode,
@@ -1945,10 +1838,6 @@ function printPageLiquidation(id: string, { url, title, w, h }) {
     newWindow?.print()
     newWindow?.close()
   }, 500)
-}
-
-const productAttributeValue = (data) => {
-  return data
 }
 
 // input nhập tiền viết bằng chữ
@@ -2971,142 +2860,7 @@ onBeforeMount(async () => {
       </el-dialog>
 
       <!-- Dialog Thêm nhanh sản phẩm -->
-      <el-dialog v-model="dialogAddProduct" :title="t('formDemo.quicklyAddProducts')" width="40%">
-        <div>
-          <el-divider />
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{
-              t('router.productCategoryProducts')
-            }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.selectCategory') }} <span class="text-red-500">*</span></label
-              >
-              <el-tree-select
-                v-model="chooseCategory"
-                :data="optionsCategory"
-                :placeholder="t('reuse.selectCategory')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('router.productCategoryBrand') }} </label>
-              <el-select v-model="chooseBrand" :placeholder="t('reuse.chooseBrand')">
-                <el-option
-                  v-for="item in optionsBrand"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('router.productCategoryUnit') }} <span class="text-red-500">*</span></label
-              >
-              <el-select v-model="chooseUnit" :placeholder="t('reuse.chooseUnit')">
-                <el-option
-                  v-for="item in optionsUnit"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right">{{ t('router.productCategoryOrigin') }}</label>
-              <el-select v-model="chooseOrigin" :placeholder="t('reuse.chooseOrigin')">
-                <el-option
-                  v-for="item in optionsOrigin"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </div>
-          </div>
-          <div class="flex items-center">
-            <span class="w-[25%] text-base font-bold">{{ t('formDemo.productInfomation') }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-        </div>
-        <div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.productCode') }} <span class="text-red-500">*</span></label
-            >
-            <el-select
-              filterable
-              allow-create
-              v-model="quickProductCode"
-              :placeholder="t('formDemo.AddSelectProductCode')"
-              @change="(data) => handleChangeQuickAddProduct(data)"
-            >
-              <el-option
-                v-for="item in listProductsTable"
-                :key="item?.productPropertyId"
-                :label="item.productCode"
-                :value="item?.productPropertyId"
-              />
-            </el-select>
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.managementCode') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="quickManagementCode"
-              style="width: 100%"
-              :placeholder="t('formDemo.addManagementCode')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('reuse.productName') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="quickProductName"
-              style="width: 100%"
-              :placeholder="t('formDemo.EnterNameDescription')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.shortDescription') }}</label>
-            <el-input
-              v-model="quickDescription"
-              style="width: 100%"
-              :placeholder="t('formDemo.EnterNameDescription')"
-            />
-          </div>
-          <div class="flex gap-4 pt-4 pb-4 items-center">
-            <label class="w-[30%] text-right">{{ t('formDemo.productCharacteristics') }}</label>
-            <ProductAttribute
-              v-model="valueCharacteristics"
-              @change-value="productAttributeValue"
-            />
-          </div>
-        </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button
-              class="btn"
-              type="primary"
-              @click="
-                () => {
-                  postQuickProduct()
-                  dialogAddProduct = false
-                }
-              "
-              >{{ t('reuse.save') }}</el-button
-            >
-            <el-button class="btn" @click="dialogAddProduct = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
-        </template>
-      </el-dialog>
+      <AddQuickProduct :list-products="listProductsTable" v-model="dialogAddProduct" @save="postQuickProduct" v-if="dialogAddProduct"/>
 
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
@@ -4940,7 +4694,7 @@ onBeforeMount(async () => {
                 ]"
                 v-else
                 filterable
-                :disabled="type == 'edit' || type == 'approval-order' ? true : false"
+                :disabled="type == 'edit' || type == 'approval-order' ? true : false || props.row.newProduct"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
                 labelKey="code"
@@ -4958,11 +4712,7 @@ onBeforeMount(async () => {
                       class="text-base text-blue-400 cursor-pointer pl-2"
                       @click="
                         () => {
-                          addnewproduct()
-                          getBrandSelectOptions()
-                          getUnitSelectOptions()
-                          getOriginSelectOptions()
-                          getCategory()
+                          addnewproduct(props.$index)
                         }
                       "
                       >+ {{ t('formDemo.quicklyAddProducts') }}</div

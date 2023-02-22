@@ -359,7 +359,6 @@ export const useValidator = () => {
   }
 
     const requiredCategory = (_, val: any, callback: Callback) => {
-      console.log('val', val)
       if (val.length < 5) {
         callback(new Error(t('reuse.notFillAllInformation')))
       } else {

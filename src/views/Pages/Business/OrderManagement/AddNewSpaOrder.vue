@@ -89,6 +89,7 @@ import { API_URL } from '@/utils/API_URL'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import AddQuickProduct from './AddQuickProduct.vue'
 import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
+import { deleteProductProperty } from '@/api/LibraryAndSetting'
 
 const { t } = useI18n()
 const { utility } = appModules
@@ -227,6 +228,7 @@ interface ListOfProductsForSaleType {
   toLotId?: number,
   priceChange : Boolean
   returnedQuantity: number
+  newProduct: Boolean
 }
 
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -251,7 +253,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   paymentType: '',
   edited: true,
   priceChange: false,
-  returnedQuantity: 0
+  returnedQuantity: 0,
+  newProduct: false
 })
 
 const ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
@@ -605,8 +608,17 @@ const getPriceSpaService = () => {
 let promoValue = ref(0)
 let promoCash = ref(0)
 
-const getValueOfSelected = async (_value, obj, scope) => {
-  console.log('listProduct:', listProducts.value)
+const getValueOfSelected = async (value, obj, scope) => {
+  const selected = ListOfProductsForSale.value
+    .filter((row) => row !== scope.row)
+    .find((product) => product.productPropertyId == value)
+  if(selected){
+    ElMessage({
+      message: t('reuse.productCodeExist'),
+      type: 'warning'
+    })
+  }
+
   const data = scope.row
 
   data.productPropertyId = obj?.productPropertyId
@@ -1040,9 +1052,17 @@ const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
 }
 
-const removeListProductsSale = (index) => {
+const removeListProductsSale = async (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
+    //when remove row check newProduct if(true){call api remove proudct(id), shift listProducts}
+    if(ListOfProductsForSale.value[index].newProduct == true){
+      listProducts.value.splice(listProducts.value.findIndex(product => product.productPropertyId == ListOfProductsForSale.value[index].productPropertyId),1)
+      await deleteProductProperty({Id: ListOfProductsForSale.value[index].productPropertyId})
+    }
     ListOfProductsForSale.value.splice(index, 1)
+  }
+  if(ListOfProductsForSale.value.length == 0){
+    addLastIndexSellTable()
   }
   autoCalculateOrder()
 }
@@ -1426,7 +1446,10 @@ const addQuickProduct = (product,productId)=>{
 
     //mai làm
     //Change productpropertyId of currentNewProductRow
+    ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
+    ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
     //set value like newProduct:true
+    ListOfProductsForSale.value[currentNewProductRow.value].newProduct = true
     //when remove row check newProduct if(true){call api remove proudct(id), shift listProducts}
 }
 
@@ -3529,6 +3552,7 @@ const postReturnRequest = async (reason) => {
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-divider content-position="left">{{ t('formDemo.listProductSpa') }}</el-divider>
+        {{ListOfProductsForSale}}
         <el-table
           :data="ListOfProductsForSale"
           border
@@ -3553,7 +3577,7 @@ const postReturnRequest = async (reason) => {
                 width="650px"
                 :items="listProducts"
                 valueKey="productPropertyId"
-                :disabled="disabledEdit"
+                :disabled="disabledEdit || props.row.newProduct"
                 labelKey="productCode"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"

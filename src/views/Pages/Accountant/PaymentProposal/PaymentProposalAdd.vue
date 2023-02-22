@@ -183,9 +183,32 @@ watch(
   }
 )
 
-const postData= () => {
+const autoCalculate = () =>{
+  form.value.totalPrice = 0
+  tableData.value.forEach((el) => {
+    if (el.numberVouchers && el.unitPrice) {
+      form.value.totalPrice += el.totalPrice
+    }
+  })
+  form.value.debtMoney = form.value.totalPrice - form.value.depositeMoney
+}
 
+const autoCalculateFun = () => {
+  form.value.debtMoney = form.value.totalPrice - form.value.depositeMoney
+}
+
+let detailedListExpenses = ref()
+const postData = async() => {
   if (!tableData.value[tableData.value.length - 1].numberVouchers) tableData.value.pop()
+  detailedListExpenses.value = tableData.value.map((el) => ({
+    numberVouchers: el.numberVouchers,
+    dayVouchers: el.dayVouchers,
+    spentFor: el.spentFor,
+    quantity: parseInt(el.quantity),
+    unitPrice: parseInt(el.unitPrice),
+    totalPrice: parseInt(el.totalPrice),
+    note: el.note
+  }))
 
   const payload = {
     Code: form.value.code,
@@ -194,20 +217,18 @@ const postData= () => {
     PeopleId: form.value.peopleId,
     status: 1,
     PeopleType: 1,
-    OrderId: form.value.orderId ?? '',
-    Description:'a',
-    Document: [],
-    AccountingEntryId: [],
+    Description: '',
+    Document: undefined,
+    AccountingEntryId: undefined,
     ReasonCollectMoney: form.value.reasonCollectMoney,
     EnterMoney: form.value.enterMoney,
-    ExpensesDetail: tableData.value,
+    ExpensesDetail: JSON.stringify(detailedListExpenses.value),
     DepositeMoney: form.value.depositeMoney,
     DebtMoney: form.value.debtMoney,
     TotalPrice: form.value.totalPrice
-   }
-   console.log('payload:', payload);
+  }
 
-  //  addDNTT(FORM_IMAGES(payload))
+  await addDNTT(FORM_IMAGES(payload))
 }
 
 const getDetailPayment = async() => {
@@ -463,6 +484,7 @@ onBeforeMount(() => {
                 @change="
                   () => {
                     props.row.totalPrice = props.row.unitPrice * props.row.quantity
+                    autoCalculate()
                   }
                 "
               />
@@ -475,6 +497,7 @@ onBeforeMount(() => {
                 @change="
                   () => {
                     props.row.totalPrice = props.row.unitPrice * props.row.quantity
+                    autoCalculate()
                   }
                 "/>
             </template>
@@ -504,7 +527,7 @@ onBeforeMount(() => {
             <div class="flex gap-4">
               <label class="w-[10%] text-right">Đặt cọc</label>
               <span class="w-[170px] text-right">
-                <el-input class="poi_text_right" v-model="form.depositeMoney" />
+                <el-input @change="autoCalculateFun" class="poi_text_right" v-model="form.depositeMoney" />
               </span>
             </div>
             <div class="flex gap-4">

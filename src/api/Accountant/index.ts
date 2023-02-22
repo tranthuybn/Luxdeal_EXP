@@ -53,8 +53,7 @@ export const EditAReceiptOrPaymentVoucher = async (params: any): Promise<IRespon
 export const deleteAReceiptOrPaymentVoucher = async (params: any): Promise<IResponse> => {
   const res = await request.delete(
     {
-      url: ACCOUNTANT_API.DELETE_RECEIPT_OR_PAYMENT_VOUCHER,
-      data: params
+      url: `${ACCOUNTANT_API.DELETE_RECEIPT_OR_PAYMENT_VOUCHER}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

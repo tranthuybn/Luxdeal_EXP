@@ -3,6 +3,7 @@ import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getReceiptsExpendituresList } from '@/api/Business'
+import { deleteAReceiptOrPaymentVoucher } from '@/api/Accountant'
 import { PAYMENT, ATTACH_DOCUMENT, STATUS_TYPE } from '@/utils/API.Variables'
 import {
   filtersReceiptExpenditure,
@@ -109,5 +110,5 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getReceiptsExpendituresList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :delApi="deleteAReceiptOrPaymentVoucher" :api="getReceiptsExpendituresList" />
 </template>

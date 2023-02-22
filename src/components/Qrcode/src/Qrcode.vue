@@ -63,7 +63,7 @@ const initQrcode = async () => {
       options.errorCorrectionLevel || getErrorCorrectionLevel(unref(renderText))
     const _width: number = await getOriginWidth(unref(renderText), options)
     options.scale = props.width === 0 ? undefined : (props.width / _width) * 4
-    const canvasRef: HTMLCanvasElement = await toCanvas(
+    const canvasRef: any = await toCanvas(
       unref(wrapRef) as HTMLCanvasElement,
       unref(renderText),
       options

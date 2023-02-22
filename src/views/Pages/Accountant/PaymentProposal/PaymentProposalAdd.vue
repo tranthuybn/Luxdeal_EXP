@@ -197,16 +197,26 @@ const autoCalculateFun = () => {
   form.value.debtMoney = form.value.totalPrice - form.value.depositeMoney
 }
 
-let detailedListExpenses = ref()
+interface typeDetailExpenses {
+  numberVouchers: string | number
+  dayVouchers: any
+  spentFor: string
+  quantity: number
+  unitPrice: number
+  totalPrice: number
+  note: string
+}
+
+let detailedListExpenses = ref<Array<typeDetailExpenses>>([])
 const postData = async() => {
   if (!tableData.value[tableData.value.length - 1].numberVouchers) tableData.value.pop()
   detailedListExpenses.value = tableData.value.map((el) => ({
     numberVouchers: el.numberVouchers,
     dayVouchers: el.dayVouchers,
     spentFor: el.spentFor,
-    quantity: parseInt(el.quantity),
-    unitPrice: parseInt(el.unitPrice),
-    totalPrice: parseInt(el.totalPrice),
+    quantity: el.quantity,
+    unitPrice: el.unitPrice,
+    totalPrice: el.totalPrice,
     note: el.note
   }))
 

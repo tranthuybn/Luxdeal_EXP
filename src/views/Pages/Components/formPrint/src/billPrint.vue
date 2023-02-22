@@ -19,6 +19,8 @@ const props = defineProps({
   }
 })
 
+console.log('props:', props)
+
 const policySale = [
   {
     title: 'Quý khách vui lòng kiểm tra hàng trước khi thanh toán',

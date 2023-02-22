@@ -1287,6 +1287,8 @@ interface statusOrderType {
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 const isPartialReturn = ref()
+// Check trạng thái đơn hàng có đang ở chốt đơn hàng k để sinh bút toán tự động
+const automaticEntry = ref(false)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
@@ -1295,6 +1297,9 @@ const editData = async () => {
     const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
     arrayStatusOrder.value = orderObj?.statusHistory
+    if (arrayStatusOrder.value[arrayStatusOrder.value.length-1].orderStatus == STATUS_ORDER_RENTAL[2].orderStatus) {
+      automaticEntry.value = true
+    } else automaticEntry.value = false
     if (arrayStatusOrder.value?.length) {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
       if (type != 'approval-order')
@@ -1368,7 +1373,7 @@ const editData = async () => {
       const paymentPeriods = moment.duration(start.diff(lastPaymentDate)).asDays()* - 1
       let paymentPeriod = Math.ceil(paymentPeriods / ruleForm.leaseTerm) 
       const curMonth = ruleForm.rentalPeriod[0].slice(5,7)
-      if (postPayment > 0 && debtTable.value.length == 0) {
+      if (postPayment > 0 && debtTable.value.length == 0 && automaticEntry.value) {
         alreadyPaidForTt.value = false
         for (let i = 0; i < postPayment; i++) {
           if (month.value) {
@@ -2428,15 +2433,9 @@ const openDialogAdditional = () => {
   dialogAccountingEntryAdditional.value = true
 }
 
-const radioWarehouseId = ref()
 const indexRowWarehouse = ref()
 
 const openDialogChooseWarehouse = ref(false)
-const showIdWarehouse = (scope) => {
-  radioWarehouseId.value = scope.row.warehouseCheckbox
-  tableData.value[indexRowWarehouse.value].warehouseId = radioWarehouseId.value
-  tableData.value[indexRowWarehouse.value].warehouseName = scope.row.name
-}
 
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
@@ -4668,19 +4667,8 @@ onBeforeMount(async() => {
       >
         <el-divider />
         <el-table :data="tableWarehouse" border>
-          <el-table-column prop="warehouseCheckbox" width="90" align="center">
-            <template #default="props">
-              <el-radio
-                v-model="radioWarehouseId"
-                @change="() => showIdWarehouse(props)"
-                :label="props.row.warehouseCheckbox"
-                style="color: #fff; margin-right: -25px"
-                ><span></span
-              ></el-radio>
-            </template>
-          </el-table-column>
-          <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
-          <el-table-column prop="inventory" :label="t('reuse.inventory')">
+          <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" />
+          <el-table-column prop="inventory" :label="t('reuse.inventory')" width="180">
             <template #default="props">
               <div class="flex">
                 <span class="flex-1">{{ props.row.inventory }}</span>
@@ -4689,6 +4677,7 @@ onBeforeMount(async() => {
             </template>
           </el-table-column>
         </el-table>
+        <div class="flex justify-end mr-[156px] text-right font-medium">{{ totalWarehouse }}</div>
         <template #footer>
           <span class="dialog-footer">
             <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"

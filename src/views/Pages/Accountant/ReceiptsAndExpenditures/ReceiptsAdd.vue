@@ -28,7 +28,7 @@ import {
   getProductsList,
   getCollaboratorsInOrderList,
   getAllCustomer,
-  editStatusReceiptPaymentVoucher,
+  // editStatusReceiptPaymentVoucher,
   getStaffList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
@@ -698,23 +698,23 @@ const saveDataEdit = async () => {
     )
 }
 
-const updateStatus = async (status: number) => {
-  const payload = {
-    status: status,
-    TypeOfPayment: dataDetail.value.typeOfPayment,
-    PeopleType: dataDetail.value.peopleType,
-    PeopleId: dataDetail.value.peopleId,
-    Id: dataDetail.value.id,
-    Type: 1
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  await editStatusReceiptPaymentVoucher(formDataPayLoad).then(() => {
-    ElNotification({
-      message: t('reuse.addSuccess'),
-      type: 'success'
-    })
-  })
-}
+// const updateStatus = async (status: number) => {
+//   const payload = {
+//     status: status,
+//     TypeOfPayment: dataDetail.value.typeOfPayment,
+//     PeopleType: dataDetail.value.peopleType,
+//     PeopleId: dataDetail.value.peopleId,
+//     Id: dataDetail.value.id,
+//     Type: 1
+//   }
+//   const formDataPayLoad = FORM_IMAGES(payload)
+//   await editStatusReceiptPaymentVoucher(formDataPayLoad).then(() => {
+//     ElNotification({
+//       message: t('reuse.addSuccess'),
+//       type: 'success'
+//     })
+//   })
+// }
 
 
 const editData = async () => {

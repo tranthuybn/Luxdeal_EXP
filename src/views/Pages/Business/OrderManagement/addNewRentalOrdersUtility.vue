@@ -1287,6 +1287,7 @@ interface statusOrderType {
 }
 let arrayStatusOrder = ref(Array<statusOrderType>())
 const isPartialReturn = ref()
+const transaction = ref()
 // Check trạng thái đơn hàng có đang ở chốt đơn hàng k để sinh bút toán tự động
 const automaticEntry = ref(false)
 const editData = async () => {
@@ -1297,7 +1298,7 @@ const editData = async () => {
     const res = await getOrderList({ Id: id, ServiceType: 3 })
     const orderObj = { ...res.data[0] }
     arrayStatusOrder.value = orderObj?.statusHistory
-    if (arrayStatusOrder.value[arrayStatusOrder.value.length-1].orderStatus == STATUS_ORDER_RENTAL[2].orderStatus) {
+    if (arrayStatusOrder.value[arrayStatusOrder.value.length-1].orderStatus == STATUS_ORDER_RENTAL[5].orderStatus) {
       automaticEntry.value = true
     } else automaticEntry.value = false
     if (arrayStatusOrder.value?.length) {
@@ -1309,9 +1310,9 @@ const editData = async () => {
         duplicateStatusButton.value = true
       else duplicateStatusButton.value = false
     }
-    const transaction = await getOrderTransaction({ id: id })
+    transaction.value = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
-    debtTable.value = transaction.data
+    debtTable.value = transaction.value.data
     isPartialReturn.value = orderObj.isPartialReturn
     getReturnRequestTable()
 
@@ -1347,45 +1348,9 @@ const editData = async () => {
         showPromo.value = true
         promoActive.value = orderObj.promotionCode + ' | ' + orderObj.promotionCodeInfo
       }
+      // Sinh bút toán tự động
+      automaticAcountingEntry()
 
-      let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
-      let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
-
-      //Difference in number of days
-      let day = moment.duration(start.diff(end)).asDays() * -1
-      let days = Math.ceil(day / ruleForm.leaseTerm)
-
-      dateRangePrice.value = days
-      const dateAfter = transaction.data.findLast((el) => el.typeOfAccountingEntry == 1)
-      let lastPaymentDate
-      if (!dateAfter?.createdAt) lastPaymentDate = start
-      else lastPaymentDate = moment(dateAfter?.createdAt, 'YYYY-MM-DD')
-      let countPostPayment = moment.duration(lastPaymentDate.diff(end)).asDays()* - 1
-      // Số bút toán tự động cần tạo
-      let postPayment = Math.ceil(countPostPayment / ruleForm.leaseTerm)   
-      // currentDateTime là thời gian hiện tại
-      // const currentDateTime = moment(new Date(), 'YYYY-MM-DD')
-      // numPayments để lấy chênh lệch thời gian từ ngày tạo bút toán cuối cùng đến ngày hiện tại
-      // const numPayments = moment.duration(lastPaymentDate.diff(currentDateTime)).asDays()* - 1
-      // numPayment là số bút toán tự động cần tạo
-      // let numPayment = Math.ceil(numPayments / ruleForm.leaseTerm)
-
-      const paymentPeriods = moment.duration(start.diff(lastPaymentDate)).asDays()* - 1
-      let paymentPeriod = Math.ceil(paymentPeriods / ruleForm.leaseTerm) 
-      const curMonth = ruleForm.rentalPeriod[0].slice(5,7)
-      if (postPayment > 0 && debtTable.value.length == 0 && automaticEntry.value) {
-        alreadyPaidForTt.value = false
-        for (let i = 0; i < postPayment; i++) {
-          if (month.value) {
-            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tháng/ Ngày ${month.value}/${curMonth}/2022/ Tháng thứ ${paymentPeriod + i + 1}`
-          } else if (week.value){
-            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tuần/ Thứ ${week.value}/ Tuần thứ ${paymentPeriod + i + 1}`
-          }
-        assignTableRentalProducts()
-        await postOrderStransaction(1)
-      }
-      }
-      
       getTotalWarehouse()
       changeDateRange(ruleForm.rentalPeriod)
       customerAddress.value = orderObj.address
@@ -2811,10 +2776,89 @@ const doneReturnGoods = async () => {
   reloadStatusOrder()
 }
 
+const automaticAcountingEntry = async() => {
+  let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
+      let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
+
+      //Difference in number of days
+      let day = moment.duration(start.diff(end)).asDays() * -1
+      let days = Math.ceil(day / ruleForm.leaseTerm)
+
+      dateRangePrice.value = days
+      const dateAfter = transaction.value.data.findLast((el) => el.typeOfAccountingEntry == 1)
+      let lastPaymentDate
+      if (!dateAfter?.createdAt) lastPaymentDate = start
+      else lastPaymentDate = moment(dateAfter?.createdAt, 'YYYY-MM-DD')
+      let countPostPayment = moment.duration(lastPaymentDate.diff(end)).asDays()* - 1
+      // Số bút toán tự động cần tạo
+      let postPayment = Math.ceil(countPostPayment / ruleForm.leaseTerm)   
+      // currentDateTime là thời gian hiện tại
+      // const currentDateTime = moment(new Date(), 'YYYY-MM-DD')
+      // numPayments để lấy chênh lệch thời gian từ ngày tạo bút toán cuối cùng đến ngày hiện tại
+      // const numPayments = moment.duration(lastPaymentDate.diff(currentDateTime)).asDays()* - 1
+      // numPayment là số bút toán tự động cần tạo
+      // let numPayment = Math.ceil(numPayments / ruleForm.leaseTerm)
+
+      const paymentPeriods = moment.duration(start.diff(lastPaymentDate)).asDays()* - 1
+      let paymentPeriod = Math.ceil(paymentPeriods / ruleForm.leaseTerm) 
+      const curMonth = ruleForm.rentalPeriod[0].slice(5,7)
+      if (postPayment > 0 && debtTable.value.length == 0 && automaticEntry.value) {
+        alreadyPaidForTt.value = false
+        for (let i = 0; i < postPayment; i++) {
+          if (month.value) {
+            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tháng/ Ngày ${month.value}/${curMonth}/2022/ Tháng thứ ${paymentPeriod + i + 1}`
+          } else if (week.value){
+            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tuần/ Thứ ${week.value}/ Tuần thứ ${paymentPeriod + i + 1}`
+          }
+          assignTableRentalProducts()
+          await postOrderStransaction(1)
+        }
+      }
+}
+
 // Bắt đầu thuê theo kỳ hạn -> call api phiếu nhập kho tự động
-const orderCompletion = () => {
+const orderCompletion = async() => {
   automaticCouponWareHouse(2)
-  updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)
+  await updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)
+
+  // đang bị lỗi bất đồng bộ dùng hàm automaticAcountingEntry() nó k chạy, k có thời gian fix nên dev sau thấy cái này thì fix hộ vs ạ
+  let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
+      let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
+
+      //Difference in number of days
+      let day = moment.duration(start.diff(end)).asDays() * -1
+      let days = Math.ceil(day / ruleForm.leaseTerm)
+
+      dateRangePrice.value = days
+      const dateAfter = transaction.value.data.findLast((el) => el.typeOfAccountingEntry == 1)
+      let lastPaymentDate
+      if (!dateAfter?.createdAt) lastPaymentDate = start
+      else lastPaymentDate = moment(dateAfter?.createdAt, 'YYYY-MM-DD')
+      let countPostPayment = moment.duration(lastPaymentDate.diff(end)).asDays()* - 1
+      // Số bút toán tự động cần tạo
+      let postPayment = Math.ceil(countPostPayment / ruleForm.leaseTerm)   
+      // currentDateTime là thời gian hiện tại
+      // const currentDateTime = moment(new Date(), 'YYYY-MM-DD')
+      // numPayments để lấy chênh lệch thời gian từ ngày tạo bút toán cuối cùng đến ngày hiện tại
+      // const numPayments = moment.duration(lastPaymentDate.diff(currentDateTime)).asDays()* - 1
+      // numPayment là số bút toán tự động cần tạo
+      // let numPayment = Math.ceil(numPayments / ruleForm.leaseTerm)
+
+      const paymentPeriods = moment.duration(start.diff(lastPaymentDate)).asDays()* - 1
+      let paymentPeriod = Math.ceil(paymentPeriods / ruleForm.leaseTerm) 
+      const curMonth = ruleForm.rentalPeriod[0].slice(5,7)
+      if (postPayment > 0 && debtTable.value.length == 0 && automaticEntry.value) {
+        alreadyPaidForTt.value = false
+        for (let i = 0; i < postPayment; i++) {
+          if (month.value) {
+            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tháng/ Ngày ${month.value}/${curMonth}/2022/ Tháng thứ ${paymentPeriod + i + 1}`
+          } else if (week.value){
+            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tuần/ Thứ ${week.value}/ Tuần thứ ${paymentPeriod + i + 1}`
+          }
+          assignTableRentalProducts()
+          await postOrderStransaction(1)
+        }
+      }
 }
 
 onBeforeMount(async() => {

@@ -5,7 +5,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElButton, ElDivider, ElInput, ElForm, ElFormItem, ElSelect, ElOption } from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { computed, onBeforeMount, reactive, ref, unref } from 'vue'
+import { computed, onMounted, reactive, ref, unref } from 'vue'
 import { getAllCustomer } from '@/api/Business'
 import QuickAddCustomer from './QuickAddCustomer.vue'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -68,6 +68,18 @@ const callCustomersApi = async () => {
       id: customer.id
     }))
   }
+  if(FormData.value.customerId){
+  const find = optionsCustomerApi.value.find(customer => customer.id == FormData.value.customerId)
+    if(!find){
+      optionsStaffApi.value.unshift({
+        code: FormData.value?.code,
+        phone: FormData.value?.phonenumber,
+        name: FormData.value?.customerName,
+        label: FormData.value?.customerName + ' | ' + FormData.value?.phonenumber,
+        email: FormData.value?.email,
+        id: FormData.value?.customerId
+      })
+    }}
 }
 const getValueOfStaffSelected = (value, _obj) => {
   FormData.value.staffId = value
@@ -105,6 +117,17 @@ const getListStaff = async () => {
     label: item.name + ' | ' + item.phonenumber,
     id: item.id
   }))
+  if(FormData.value.staffId){
+    const find = optionsStaffApi.value.find(staff => staff.id == FormData.value.staffId)
+    if(!find){
+      optionsStaffApi.value.unshift({
+        code: FormData.value?.code,
+        phone: FormData.value?.phonenumber,
+        name: FormData.value?.staffName,
+        label: FormData.value?.staffName,
+        id: FormData.value?.staffId
+      })
+    }}
 }
 const scrollCustomerBottom = ref(false)
 const pageIndexCustomer = ref(1)
@@ -189,7 +212,7 @@ const submitFormTicket = async () => {
   })
   return validate
 }
-onBeforeMount(() => {
+onMounted(() => {
   getListStaff(), callCustomersApi(), callAPIWarehouse()
 })
 defineExpose({

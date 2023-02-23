@@ -226,6 +226,10 @@ const callApiForData = async () => {
       
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
+        productPropertyName: item.productPropertyName,
+        productPropertyCode: item.productPropertyCode,
+        productName: item.productName,
+        productCode: item.productCode,
         quantity: item.detail[0]?.quantity,
         price: item.importPrice,
         productPropertyQuality: item.productPropertyQuality,
@@ -240,9 +244,7 @@ const callApiForData = async () => {
         toLot: { value: item.detail[0]?.toLotId, label: item.detail[0]?.toLotCode },
         orderId: item.detail[0]?.orderId,
         imageUrl: item?.imageUrl,
-        serviceType: item.detail[0]?.serviceType,
-        productName: item.productName,
-        productCode: item.productPropertyCode
+        serviceType: item.detail[0]?.serviceType
 
       }))
     }

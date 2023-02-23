@@ -10,7 +10,7 @@ import {
   ElImage,
   ElDialog
 } from 'element-plus'
-import { computed, onBeforeMount, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import SelectTable from '@/components/SelectTable.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
@@ -44,6 +44,7 @@ type Options = {
 
 type ProductWarehouse = {
   productPropertyId?: number
+  productPropertyCode?: string
   productCode?: string
   quantity: number
   price: number
@@ -72,8 +73,19 @@ const callApiProductList = async () => {
     productPropertyCode: product.productCode,
     name: product.name
   }))
+  ListOfProductsForSale.value.forEach(row=>{
+    const find = tempListProducts.value.find(product => product.productPropertyId == row.productPropertyId)
+    if(!find && row.productPropertyId){
+      tempListProducts.value.unshift({
+        productCode: row.productCode,
+        productPropertyId: row.productPropertyId,
+        productPropertyCode: row.productPropertyCode,
+        name: row.productName
+      })
+    }
+  })
 }
-onBeforeMount(async () => await callApiProductList())
+onMounted(() => callApiProductList())
 watch(
   () => ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]?.productPropertyId,
   () => {

@@ -132,6 +132,8 @@ const ticketData = ref({
   ticketCode: '',
   createdAt: '',
   staffId: '',
+  staffName: '',
+  customerName: '',
   description: '',
   customerId: '',
   isActive: '',
@@ -187,7 +189,9 @@ const callApiForData = async () => {
       ticketData.value.ticketCode = res.data[0].transactionCode
       ticketData.value.createdAt = res.data[0].createdAt
       ticketData.value.staffId = res.data[0]?.staffId
+      ticketData.value.staffName = res.data[0]?.staffName
       ticketData.value.customerId = res.data[0]?.customerId
+      ticketData.value.customerName = res.data[0]?.customerName
       ticketData.value.description = res.data[0]?.description
       ticketData.value.orderCode = res.data[0]?.orderCode
       ticketData.value.updatedAt = res.data[0].updatedAt
@@ -212,10 +216,13 @@ else duplicateStatusButton.value = false
 }
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
+        productPropertyName: item.productPropertyName,
+        productPropertyCode: item.productPropertyCode,
+        productName: item.productName,
+        productCode: item.productCode,
         quantity: item.quantity,
         productPropertyQuality: item?.detail[0]?.productPropertyQuality,
         accessory: item.accessory,
-        productName: item.productPropertyName,
         unitName: item.unitName,
         price: item?.detail[0]?.unitPrice,
         warehouse: { value: res.data[0]?.toWarehouseId, label: res.data[0]?.toWarehouseName },

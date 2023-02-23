@@ -861,71 +861,71 @@ const openWarehouseTable = async (scope) => {
 //same logic
 // cài đặt cầm đồ đang đóng
 let pawnDialogTitle = ref('')
-const openPawnTable = async (scope) => {
-  pawnDialogTitle.value = categoriesToString(scope.row.categories)
-  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
-  if (findPropertyId == undefined) {
-    ElNotification({
-      message: t('reuse.notSaveAttribute'),
-      type: 'warning'
-    })
-  } else {
-    pawnTableVisible.value = true
-    const res = collapse[4].api
-      ? await collapse[4].api({ ProductPropertyId: findPropertyId, ServiceType: 4 })
-      : ''
-    if (res.data.length == 0) {
-      collapse[4].tableList = []
-      collapse[4].tableList.push({
-        quantity: 1,
-        prices: [
-          { priceType: 4, price: undefined },
-          { priceType: 5, price: undefined }
-        ]
-      })
-    } else {
-      collapse[4].tableList = []
-      collapse[4].tableList = res.data
-    }
-    collapse[4].tableList.productPropertyId = findPropertyId
-    collapse[4].tableList.serviceType = 4
-    collapse[4].tableList.currentRow = scope.$index
-  }
-  collapse[4].loading = false
-  forceRemove.value == false
-}
+// const openPawnTable = async (scope) => {
+//   pawnDialogTitle.value = categoriesToString(scope.row.categories)
+//   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
+//   if (findPropertyId == undefined) {
+//     ElNotification({
+//       message: t('reuse.notSaveAttribute'),
+//       type: 'warning'
+//     })
+//   } else {
+//     pawnTableVisible.value = true
+//     const res = collapse[4].api
+//       ? await collapse[4].api({ ProductPropertyId: findPropertyId, ServiceType: 4 })
+//       : ''
+//     if (res.data.length == 0) {
+//       collapse[4].tableList = []
+//       collapse[4].tableList.push({
+//         quantity: 1,
+//         prices: [
+//           { priceType: 4, price: undefined },
+//           { priceType: 5, price: undefined }
+//         ]
+//       })
+//     } else {
+//       collapse[4].tableList = []
+//       collapse[4].tableList = res.data
+//     }
+//     collapse[4].tableList.productPropertyId = findPropertyId
+//     collapse[4].tableList.serviceType = 4
+//     collapse[4].tableList.currentRow = scope.$index
+//   }
+//   collapse[4].loading = false
+//   forceRemove.value == false
+// }
 let depositDialogTitle = ref('')
 // cài đặt cầm đồ đang đóng
-const openDepositTable = async (scope) => {
-  depositDialogTitle.value = categoriesToString(scope.row.categories)
-  const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
-  if (findPropertyId == undefined) {
-    ElNotification({
-      message: t('reuse.notSaveAttribute'),
-      type: 'warning'
-    })
-  } else {
-    depositTableVisible.value = true
-    const res = collapse[3].api
-      ? await collapse[3].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
-      : ''
-    if (res.data.length == 0) {
-      collapse[3].tableList = []
-      collapse[3].tableList.push({
-        quantity: 1,
-        prices: [{ price: undefined }, { price: undefined }]
-      })
-    } else {
-      collapse[3].tableList = []
-      collapse[3].tableList = res.data
-    }
-    collapse[3].tableList.productPropertyId = findPropertyId
-    collapse[3].tableList.serviceType = 2
-    collapse[3].tableList.currentRow = scope.$index
-  }
-  collapse[3].loading = false
-  forceRemove.value == false
-}
+// const openDepositTable = async (scope) => {
+//   depositDialogTitle.value = categoriesToString(scope.row.categories)
+//   const findPropertyId = isNaN(scope.row.id) ? newProductPropertyId.value : scope.row.id
+//   if (findPropertyId == undefined) {
+//     ElNotification({
+//       message: t('reuse.notSaveAttribute'),
+//       type: 'warning'
+//     })
+//   } else {
+//     depositTableVisible.value = true
+//     const res = collapse[3].api
+//       ? await collapse[3].api({ ProductPropertyId: findPropertyId, ServiceType: 2 })
+//       : ''
+//     if (res.data.length == 0) {
+//       collapse[3].tableList = []
+//       collapse[3].tableList.push({
+//         quantity: 1,
+//         prices: [{ price: undefined }, { price: undefined }]
+//       })
+//     } else {
+//       collapse[3].tableList = []
+//       collapse[3].tableList = res.data
+//     }
+//     collapse[3].tableList.productPropertyId = findPropertyId
+//     collapse[3].tableList.serviceType = 2
+//     collapse[3].tableList.currentRow = scope.$index
+//   }
+//   collapse[3].loading = false
+//   forceRemove.value == false
+// }
 let rentDialogTitle = ref('')
 const openRentTable = async (scope) => {
   rentDialogTitle.value = categoriesToString(scope.row.categories)

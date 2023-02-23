@@ -28,7 +28,7 @@ import {
   getProductsList,
   getCollaboratorsInOrderList,
   getAllCustomer,
-  editStatusReceiptPaymentVoucher,
+  // editStatusReceiptPaymentVoucher,
   getStaffList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
@@ -571,29 +571,6 @@ let dataDetail = ref<ReceiptOrPaymentVoucherDetail>({
 })
 const checkDisabelDetail = ref(false)
 
-const editData = async () => {
-  if (type == 'detail') checkDisabelDetail.value = true
-
-  if (type == 'edit' || type == 'detail') {
-    var su = await getDetailReceiptPaymentVoucher({ id: id })
-    console.log('su: ', su)
-    if (su.data) dataDetail.value = Object.assign({}, su?.data)
-    var cus = optionsCustomerApi.value.find((x) => x.id == dataDetail.value.customerId)
-    getValueOfCustomerSelected(dataDetail.value.customerId, cus)
-
-    inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
-
-    console.log('dataDetail.value:', dataDetail.value)
-
-    // arrayStatusOrder.value = orderObj?.statusHistory
-    // if (arrayStatusOrder.value?.length) {
-    //   arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
-    // }
-
-
-
-    }
-}
 const infoCustomerId = ref()
 const changeAddressCustomer = (data) => {
   infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value.id == data)
@@ -629,7 +606,7 @@ let moneyDepositPayment = ref()
 // infinity scroll CTV
 // Call api danh sách cộng tác viên
 const optionsCollaborators = ref()
-const checkDisabled = ref(false)
+// const checkDisabled = ref(false)
 const pageIndexCollaborator = ref(1)
 const callApiCollaborators = async () => {
   const res = await getCollaboratorsInOrderList({
@@ -720,23 +697,48 @@ const saveDataEdit = async () => {
     )
 }
 
-const updateStatus = async (status: number) => {
-  const payload = {
-    status: status,
-    TypeOfPayment: dataDetail.value.typeOfPayment,
-    PeopleType: dataDetail.value.peopleType,
-    PeopleId: dataDetail.value.peopleId,
-    Id: dataDetail.value.id,
-    Type: 1
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  await editStatusReceiptPaymentVoucher(formDataPayLoad).then(() => {
-    ElNotification({
-      message: t('reuse.addSuccess'),
-      type: 'success'
-    })
-  })
+// const updateStatus = async (status: number) => {
+//   const payload = {
+//     status: status,
+//     TypeOfPayment: dataDetail.value.typeOfPayment,
+//     PeopleType: dataDetail.value.peopleType,
+//     PeopleId: dataDetail.value.peopleId,
+//     Id: dataDetail.value.id,
+//     Type: 1
+//   }
+//   const formDataPayLoad = FORM_IMAGES(payload)
+//   await editStatusReceiptPaymentVoucher(formDataPayLoad).then(() => {
+//     ElNotification({
+//       message: t('reuse.addSuccess'),
+//       type: 'success'
+//     })
+//   })
+// }
+
+
+const editData = async () => {
+  if (type == 'detail') checkDisabelDetail.value = true
+
+  if (type == 'edit' || type == 'detail') {
+    var su = await getDetailReceiptPaymentVoucher({ id: id })
+    console.log('su: ', su)
+    if (su.data) dataDetail.value = Object.assign({}, su?.data)
+    var cus = optionsCustomerApi.value.find((x) => x.id == dataDetail.value.customerId)
+    getValueOfCustomerSelected(dataDetail.value.customerId, cus)
+
+    inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
+
+
+    // arrayStatusOrder.value = orderObj?.statusHistory
+    // if (arrayStatusOrder.value?.length) {
+    //   arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
+    // }
+
+
+
+    }
 }
+
 onBeforeMount(async () => {
   callApiRecharger()
   getListStaff()

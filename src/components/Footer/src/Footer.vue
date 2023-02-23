@@ -2,7 +2,7 @@
 import { useAppStore } from '@/store/modules/app'
 import { computed } from 'vue'
 import { useDesign } from '@/hooks/web/useDesign'
-import { version } from '/package.json'
+import { version } from '../../../../package.json'
 const { getPrefixCls } = useDesign()
 
 const prefixCls = getPrefixCls('footer')

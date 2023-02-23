@@ -315,7 +315,7 @@ const cancel = async () => {
 // const cancel = () => {
 //   go(-1)
 // }
-const ListFileUpload = ref<UploadUserFile[]>([])
+const ListFileUpload:any = ref<UploadUserFile[]>([])
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
 }

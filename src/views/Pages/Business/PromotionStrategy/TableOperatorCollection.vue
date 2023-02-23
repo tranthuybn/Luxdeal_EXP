@@ -229,7 +229,7 @@ watch(
     if (formValue.value) {
       if (props.type === 'detail' || props.type === 'edit') {
         let newArr = ref(formValue.value[0].productProperties)
-        let formService = ref([])
+        let formService:any = ref([])
         newArr.value[0]?.spaServices.map((e) => {
           formService.value.push(e.name)
         })

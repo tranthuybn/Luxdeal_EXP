@@ -14,6 +14,7 @@ const props = defineProps({
     default: () => ''
   }
 })
+console.log('props:', props)
 </script>
 
 <template>

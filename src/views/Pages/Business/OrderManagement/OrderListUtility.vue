@@ -3751,7 +3751,7 @@ onBeforeMount(async () => {
               </p>
               <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" />
               <p class="pr-2 text-red-600 pt-2">
-                {{ moneyDeposit ? changeMoney.format(moneyDeposit) : '0 đ' }}</p>
+                {{ inputDeposit ? changeMoney.format(outstandingDebt - inputDeposit) : '0 đ' }}</p>
             </div>
           </div>
         </div>

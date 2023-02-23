@@ -22,6 +22,7 @@ function getArraySum(arr) {
   }
   return total
 }
+console.log('props: ', props)
 </script>
 
 <template>

@@ -39,6 +39,16 @@ export const getOrderApproval = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+// Lấy danh sách chiến dịch khuyến mãi
+export const getCampaignApproval = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${APPROVAL_API.GET_LIST_CAMPAIGN_APPROVED}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 
 // Lấy danh sách CTV cần duyệt
 export const listApprovalCollab = async (params): Promise<IResponse> => {

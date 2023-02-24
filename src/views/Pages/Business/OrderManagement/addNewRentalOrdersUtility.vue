@@ -83,7 +83,8 @@ import ReturnOrder from './ReturnOrder.vue'
 import LeaseExtension from './LeaseExtension.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
-
+import { appModules } from '@/config/app'
+const { utility } = appModules
 const { t } = useI18n()
 
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -2743,7 +2744,6 @@ const callApiWarehouse = async (scope) => {
   }))
 }
 
-const utility = 'Utility'
 const buttonDuplicate = ref(false)
 const statusButtonDetail = ref(false)
 const editOrder = () => {

@@ -44,6 +44,8 @@ import {
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
 import moment from 'moment'
+import { appModules } from '@/config/app'
+const { utility } = appModules
 const { required } = useValidator()
 
 const { t } = useI18n()
@@ -542,7 +544,6 @@ const save = async () => {
     }
   }
 }
-const utility = 'Utility'
 const fix = async () => {
   push({
     name: `business.collaborators.collaboratorsList.${utility}`,

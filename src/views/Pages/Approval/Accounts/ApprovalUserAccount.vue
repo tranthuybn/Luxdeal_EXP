@@ -5,11 +5,12 @@ import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus'
 import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router'
 import { listApprovalUserAccount } from '@/api/Approval';
-
+import { appModules } from '@/config/app'
+const { utility } = appModules
 const { t } = useI18n()
 
 const { push } = useRouter()
-const utility = 'Utility'
+
 
 const tableListOrder = ref([])
 

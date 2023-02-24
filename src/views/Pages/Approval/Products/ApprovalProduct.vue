@@ -9,8 +9,9 @@ import { setImageDisplayInDOm } from '@/utils/domUtils'
 import { useRouter } from 'vue-router'
 import { ElButton } from 'element-plus'
 import { businessStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import { appModules } from '@/config/app'
 const { t } = useI18n()
-
+const { utility } = appModules
 const columnsApprovalProduct = [
   {
     field: 'index',
@@ -108,7 +109,7 @@ const action = (row: any, _type: string) => {
   }
 }
 
-const utility = 'Utility'
+
 </script>
 <template>
   <ContentWrap

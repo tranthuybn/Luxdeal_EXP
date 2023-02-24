@@ -4,7 +4,8 @@ import { onBeforeMount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus'
 import { getOrderPayments } from '@/api/Approval'
-
+import { appModules } from '@/config/app'
+const { utility } = appModules
 const { t } = useI18n()
 
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -15,7 +16,6 @@ const changeMoney = new Intl.NumberFormat('vi', {
 
 const route = useRoute()
 const { push } = useRouter()
-const utility = 'Utility'
 let nameRoute = route.name?.toString()
 const type = nameRoute?.slice(25, nameRoute.length)
 

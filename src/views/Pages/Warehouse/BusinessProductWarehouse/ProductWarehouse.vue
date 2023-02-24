@@ -13,7 +13,7 @@ import {
   ElDialog
 } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import { onBeforeMount, ref, watch, computed } from 'vue'
+import { onMounted, ref, watch, computed } from 'vue'
 import SelectTable from '@/components/SelectTable.vue'
 import ChooseWarehouse from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -64,6 +64,8 @@ type Options = {
 }
 type ProductWarehouse = {
   productPropertyId?: number
+  productCode?: string
+  productPropertyCode?: string
   quantity?: number
   price?: number
   warehouseId?: number
@@ -92,8 +94,19 @@ const callApiProductList = async () => {
     name: product.name,
     unit: product.unitName
   }))
+  ListOfProductsForSale.value.forEach(row=>{
+    const find = tempListProducts.value.find(product => product.productPropertyId == row.productPropertyId)
+    if(!find && row.productPropertyId){
+      tempListProducts.value.unshift({
+        productCode: row.productCode,
+        productPropertyId: row.productPropertyId,
+        productPropertyCode: row.productPropertyCode,
+        name: row.productName
+      })
+    }
+  })
 }
-onBeforeMount(async () => await callApiProductList())
+onMounted(async () => await callApiProductList())
 watch(
   () => ListOfProductsForSale.value[ListOfProductsForSale.value.length - 1]?.productPropertyId,
   () => {

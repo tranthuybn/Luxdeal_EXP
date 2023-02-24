@@ -87,8 +87,6 @@ import ReturnOrder from './ReturnOrder.vue'
 import { getProductStorage, getWarehouseLot } from '@/api/Warehouse'
 import { API_URL } from '@/utils/API_URL'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
-import AddQuickProduct from './AddQuickProduct.vue'
-import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
 
 const { t } = useI18n()
@@ -419,8 +417,59 @@ const callCustomersApi = async () => {
       id: customer?.id
     }))
   }
+  if(dataEdit.value.customer){
+  const find = optionsCustomerApi.value.find(customer => customer.id == dataEdit.value.customerId)
+    if(!find){
+      optionsCustomerApi.value.unshift({
+        code: dataEdit.value?.code,
+        label: dataEdit.value?.isOrganization
+        ? dataEdit.value?.name + ' | MST ' + dataEdit.value?.taxCode
+        : dataEdit.value?.name + ' | ' + dataEdit.value?.phonenumber,
+        address: dataEdit.value?.address,
+        name: dataEdit.value?.name,
+        value: dataEdit.value?.id,
+        isOrganization: dataEdit.value?.isOrganization,
+        taxCode: dataEdit.value?.taxCode,
+        phone: dataEdit.value?.phonenumber,
+        email: dataEdit.value?.email,
+        id: dataEdit.value?.id
+      })
+    }}
 }
+const scrollCustomerBottom = ref(false)
+const pageIndexCustomer = ref(1)
+const noMoreCustomerData = ref(false)
 
+const ScrollCustomerBottom = () => {
+  scrollCustomerBottom.value = true
+  pageIndexCustomer.value++
+  noMoreCustomerData.value
+    ? ''
+    : getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
+        .then((res) => {
+          res.data.length == 0
+            ? (noMoreCustomerData.value = true)
+            : res.data.map((customer) =>
+                optionsCustomerApi.value.push({
+                      code: customer?.code,
+                      label: customer?.isOrganization
+                        ? customer?.name + ' | MST ' + customer?.taxCode
+                        : customer?.name + ' | ' + customer?.phonenumber,
+                      address: customer?.address,
+                      name: customer?.name,
+                      value: customer?.id,
+                      isOrganization: customer?.isOrganization,
+                      taxCode: customer?.taxCode,
+                      phone: customer?.phonenumber,
+                      email: customer?.email,
+                      id: customer?.id
+                })
+              )
+        })
+        .catch(() => {
+          noMoreCustomerData.value = true
+        })
+}
 let infoCompany = reactive({
   name: '',
   taxCode: '',
@@ -472,6 +521,19 @@ const callAPIProduct = async () => {
       productPropertyCode: product.productPropertyCode
     }))
   }
+  ListOfProductsForSale.value.forEach(row=>{
+    const find = listProducts.value.find(product => product.productPropertyId == row.productPropertyId)
+    if(!find && row.productPropertyId){
+      listProducts.value.unshift({
+        productCode: row?.productCode,
+        value: row?.productCode,
+        name: row?.productName ?? '',
+        unit: row?.unitName,
+        productPropertyId: row?.productPropertyId,
+        productPropertyCode: row?.productPropertyCode
+    })
+    }
+  })
 }
 
 const scrollProductTop = ref(false)
@@ -487,7 +549,7 @@ const ScrollProductBottom = () => {
   pageIndexProducts.value++
   noMoreProductData.value
     ? ''
-    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+    : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20,ServiceType: 5, IsApprove: true })
         .then((res) => {
           res.data.length == 0
             ? (noMoreProductData.value = true)
@@ -1426,37 +1488,37 @@ const districtChange = async (value) => {
 
 //thêm nahnh sp
 
-const dialogAddProduct = ref(false)
-let callProductApi = 0
-const currentNewProductRow = ref(-1)
-const addnewproduct = (currentRow) => {
-  currentNewProductRow.value = currentRow
-  dialogAddProduct.value = true
-  if(callProductApi == 0){
-    Promise.all([getBrandSelectOptions(),getUnitSelectOptions(),getOriginSelectOptions(),getCategory()])
-  }
-  callProductApi++
-}
+// const dialogAddProduct = ref(false)
+// let callProductApi = 0
+// const currentNewProductRow = ref(-1)
+// const addnewproduct = (currentRow) => {
+//   currentNewProductRow.value = currentRow
+//   dialogAddProduct.value = true
+//   if(callProductApi == 0){
+//     Promise.all([getBrandSelectOptions(),getUnitSelectOptions(),getOriginSelectOptions(),getCategory()])
+//   }
+//   callProductApi++
+// }
 
-//end thêm nhanh sp
-const postQuickProduct = (product,productId)=>{
-  listProducts.value.unshift({
-      productCode: product.productCode,
-      value: product.productCode,
-      name: product.name ?? '',
-      unit: '',
-      price: 0,
-      productPropertyId: productId,
-      productPropertyCode: product.productPropertyCode
-    })
+// //end thêm nhanh sp
+// const postQuickProduct = (product,productId)=>{
+//   listProducts.value.unshift({
+//       productCode: product.productCode,
+//       value: product.productCode,
+//       name: product.name ?? '',
+//       unit: '',
+//       price: 0,
+//       productPropertyId: productId,
+//       productPropertyCode: product.productPropertyCode
+//     })
 
-    //Change productpropertyId of currentNewProductRow
-    ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
-    ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
-    //set value like newProduct:true
-    ListOfProductsForSale.value[currentNewProductRow.value].newProduct = true
-    //when remove row check newProduct if(true){call api remove proudct(id), shift listProducts}
-}
+//     //Change productpropertyId of currentNewProductRow
+//     ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
+//     ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
+//     //set value like newProduct:true
+//     ListOfProductsForSale.value[currentNewProductRow.value].newProduct = true
+//     //when remove row check newProduct if(true){call api remove proudct(id), shift listProducts}
+// }
 
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
@@ -2204,9 +2266,7 @@ const editData = async () => {
       ruleForm.collaborators = orderObj?.collaborator?.id
 
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
-      ruleForm.customerName = orderObj.customer?.isOrganization
-        ? orderObj.customer.representative + ' | ' + orderObj.customer?.taxCode
-        : orderObj.customer?.name + ' | ' + orderObj.customer?.phonenumber
+      ruleForm.customerName = orderObj.customer?.id
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouseImport = orderObj?.warehouseId
       ruleForm.warehouseParent = orderObj?.warehouseId
@@ -2372,7 +2432,7 @@ const openRepairBill = () =>{
   const store = warehouseOptions.value.find((warehouse)=>warehouse.value == dataEdit.value.warehouseId)
   dialogPrinRepairSpa.value = true
   billRepairData.value =dataEdit.value.orderDetails.map((orderDetail)=>({
-    storeName: store.label,
+    storeName: store?.label,
     importTicket: curDate,//Tự sinh
     productPropertyCode: orderDetail.productPropertyCode,
     productName: orderDetail.productName,
@@ -2673,7 +2733,17 @@ const postReturnRequest = async (reason) => {
     isPaid: true
   }
 
-  const res = await createReturnRequest(payload)
+  const res = await createReturnRequest(payload).then(() => {
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          })
+       }).catch(() => {
+      ElNotification({
+      message: 'Đơn hàng chưa được nhập kho',
+      type: 'warning'
+    })
+    })
   await createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
       .then((res) => {
         if(res.statusCode == 400) {
@@ -3042,9 +3112,6 @@ const postReturnRequest = async (reason) => {
         </template>
       </el-dialog>
 
-      <!-- Dialog Thêm nhanh sản phẩm -->
-      <AddQuickProduct :list-products="listProducts" v-model="dialogAddProduct" @save="postQuickProduct" v-if="dialogAddProduct"/>
-
       <!-- Địa chỉ nhận hàng -->
       <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
         <el-divider />
@@ -3332,6 +3399,7 @@ const postReturnRequest = async (reason) => {
                             :defaultValue="ruleForm.customerName"
                             :clearable="false"
                             @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
+                            @scroll-bottom="ScrollCustomerBottom"
                           />
                           <el-button :disabled="disabledCustomer" @click="dialogAddQuick = true"
                             >+ {{ t('button.add') }}</el-button
@@ -3595,21 +3663,7 @@ const postReturnRequest = async (reason) => {
                 @scroll-top="ScrollProductTop"
                 @scroll-bottom="ScrollProductBottom"
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
-                ><template #underButton>
-                  <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
-                    <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
-                    <div
-                      class="text-base text-blue-400 cursor-pointer pl-2"
-                      @click="
-                        () => {
-                          addnewproduct(props.$index)
-                        }
-                      "
-                      >+ {{ t('formDemo.quicklyAddProducts') }}</div
-                    >
-                  </div>
-                </template></MultipleOptionsBox
-              >
+                />
             </template>
           </el-table-column>
 

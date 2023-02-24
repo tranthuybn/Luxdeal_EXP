@@ -76,7 +76,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   })
 }
 const postQuickProduct = async () => {
-  const codeProduct = props.listProducts.find(product=>product.productPropertyId == Number(ruleForm.value.quickProductCode))
+  const codeProduct = props.listProducts?.find(product=>product.productPropertyId == Number(ruleForm.value.quickProductCode))
   const payload = {
     productCode: codeProduct ? codeProduct.value :ruleForm.value.quickProductCode,
     productPropertyCode: ruleForm.value.quickManagementCode,

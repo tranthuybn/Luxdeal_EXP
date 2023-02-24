@@ -608,7 +608,7 @@ const addnewproduct = (currentRow) => {
 }
 
 const postQuickProduct = (product,productId)=>{
-  listProducts.value.unshift({
+  listProducts.value?.unshift({
       productCode: product.productCode,
       value: product.productCode,
       name: product.name ?? '',

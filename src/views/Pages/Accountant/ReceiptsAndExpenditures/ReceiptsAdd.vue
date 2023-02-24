@@ -37,7 +37,8 @@ import type { FormRules } from 'element-plus'
 import { getStaff } from '@/api/Warehouse'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import { CreateANewReceiOrPayment, EditAReceiptOrPaymentVoucher } from '@/api/Accountant'
-const utility = 'Utility'
+import { appModules } from '@/config/app'
+const { utility } = appModules
 const { t } = useI18n()
 //lay du lieu tu router
 const router = useRouter()

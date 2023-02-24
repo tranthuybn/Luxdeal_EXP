@@ -614,3 +614,34 @@ export const STATUS_ORDER_RENTAL = [
     createdAt: ''
   }
 ]
+
+export const CampaignType = {
+
+  Flashsale : 1,
+
+  BoSuuTap : 2,
+
+  HangMoiVe : 3,
+
+  Voucher : 4,
+
+  Combo : 5
+}
+export const Approvement = {
+ 
+  Product : 1,
+
+  Order : 2,
+
+  CustomerAccount :3,
+
+  CollaboratorAccount :4,
+
+  DeNghiThanhToan : 5,
+
+  Campaign : 6,
+
+  PhieuThuChi :7,
+
+  SpaService : 8
+}

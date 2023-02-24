@@ -83,7 +83,8 @@ import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
-
+import { appModules } from '@/config/app'
+const { utility } = appModules
 const { t } = useI18n()
 
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -2571,7 +2572,6 @@ const approvalFunction = async (checkApproved) => {
   })
 }
 
-const utility = 'Utility'
 const editOrder = () => {
   if (type == 'detail') {
     push({

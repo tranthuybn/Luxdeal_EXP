@@ -36,6 +36,9 @@ import { API_URL } from '@/utils/API_URL'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getSpaLibrary } from '@/api/LibraryAndSetting'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+import { approvalProducts } from '@/api/Approval'
+import { FORM_IMAGES } from '@/utils/format'
+import { Approvement } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 
@@ -203,17 +206,17 @@ watch(
     if (props.params.CampaignType == '5') console.log('true')
   }
 )
-//Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
+//Lấy dữ liệu từ bảng khi ấn nút detail, edit, approve
 watch(
   () => props.type,
   () => {
-    if (props.type === 'detail') {
+    if (props.type === 'detail'||  props.type === 'approval' ) {
       const { setProps } = methods
       setProps({
         disabled: true
       })
     }
-    if (props.type === 'detail' || props.type === 'edit') {
+    if (props.type === 'detail' || props.type === 'edit'|| props.type === 'approval' ) {
       getTableValue()
     }
   },
@@ -227,7 +230,7 @@ watch(
   () => formValue.value,
   () => {
     if (formValue.value) {
-      if (props.type === 'detail' || props.type === 'edit') {
+      if (props.type === 'detail' || props.type === 'edit'|| props.type === 'approval' ) {
         let newArr = ref(formValue.value[0].productProperties)
         let formService:any = ref([])
         newArr.value[0]?.spaServices.map((e) => {
@@ -958,6 +961,30 @@ onBeforeMount(() => {
   callAPIProduct()
 })
 
+const approvisionnement = async (val:boolean) => { 
+  const payload = { ItemType: Approvement.Campaign , Id: props.id ?? null , IsApprove: val }
+  await approvalProducts(FORM_IMAGES(payload))
+    .then(() => {
+      ElNotification({
+        message: val ? 'Duyệt thành công':'Hủy duyệt thành công',
+        type: 'success'
+      })
+      push({
+        name: `approve.approve-promotion-strategy`
+      })
+    })
+    .catch(() => {
+      ElNotification({
+        message: 'Duyệt thất bại',
+        type: 'warning'
+      })
+      push({
+        name: `approve.approve-promotion-strategy`
+      })
+    }
+    )
+}
+
 const spaMoney = ref(0)
 </script>
 <template>
@@ -1310,7 +1337,7 @@ const spaMoney = ref(0)
         <ElDivider class="text-center font-bold">{{ t('reuse.addImage') }}</ElDivider>
         <el-upload
           action="#"
-          :disabled="props.type === 'detail'"
+          :disabled="props.type === 'detail'|| props.type === 'approval' "
           :auto-upload="false"
           :show-file-list="multipleImages"
           v-model:file-list="fileList"
@@ -1346,11 +1373,11 @@ const spaMoney = ref(0)
                   <ElButton :icon="viewIcon" />
                 </span>
                 <span
-                  v-if="props.type !== 'detail'"
+                  v-if="props.type !== 'detail' && props.type !== 'approval' "
                   class="el-upload-list__item-delete"
                   @click="handleRemove(file)"
                 >
-                  <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" />
+                  <ElButton :icon="deleteIcon" :disabled="props.type === 'detail' ||  props.type === 'approval' " />
                 </span>
               </span>
             </div>
@@ -1362,7 +1389,7 @@ const spaMoney = ref(0)
           v-if="imageUrl"
         >
           <ElButton :icon="viewIcon" @click="previewImage" />
-          <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
+          <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'|| props.type === 'approval' " @click="removeImage" />
         </div>
         <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
           <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
@@ -1378,7 +1405,7 @@ const spaMoney = ref(0)
           {{ t('reuse.cancel') }}
         </ElButton>
       </div>
-      <div v-if="props.type === 'detail'">
+      <div v-else-if="props.type === 'detail'">
         <ElButton :loading="loading" @click="edit">
           {{ t('reuse.edit') }}
         </ElButton>
@@ -1386,7 +1413,15 @@ const spaMoney = ref(0)
           {{ t('formDemo.cancelTheProgram') }}
         </ElButton>
       </div>
-      <div v-if="props.type === 'edit'">
+      <div v-else-if="props.type === 'approval'">
+        <ElButton type="warning" :loading="loading" @click="approvisionnement(true)">
+        {{ t('router.approve') }}
+        </ElButton>
+        <ElButton :loading="loading" @click="approvisionnement(false)">
+          {{ t('router.notApproval') }}
+        </ElButton>
+      </div>
+      <div v-else-if="props.type === 'edit'">
         <ElButton type="primary" :loading="loading" @click="save('edit')">
           {{ t('reuse.save') }}
         </ElButton>

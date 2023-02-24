@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, reactive } from 'vue'
+import { onMounted, provide, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getCampaignList } from '@/api/Business'
@@ -113,6 +113,9 @@ const columns = reactive<TableColumn[]>([
     }
   }
 ])
+onMounted(() => {
+  console.log('columns ',columns )
+ })
 </script>
 <template>
   <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" />

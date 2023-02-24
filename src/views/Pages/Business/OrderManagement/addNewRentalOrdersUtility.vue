@@ -68,7 +68,8 @@ import {
   getReturnRequestForOrder,
   cancelReturnOrder,
   getAllStaffList,
-  finishReturnOrder
+  finishReturnOrder,
+createTicketFromReturnOrder
 } from '@/api/Business'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -2267,6 +2268,7 @@ const cancelExpendReturn = async() => {
   }
   await cancelReturnOrder(FORM_IMAGES(payload))
   reloadStatusOrder()
+  getReturnRequestTable()
 }
 // Dialog trả hàng hết hạn
 const dialogReturnExpired = ref(false)
@@ -2382,10 +2384,32 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
     xuatDetails: [],
     isPaid: true
   }
-  const res = await createReturnRequest(payload)
-  if (res) {
+   await createReturnRequest(payload).then(async (res)=>{
+    idReturnRequest.value = res
+    await createTicketFromReturnOrders()
     reloadStatusOrder()
+    getReturnRequestTable()
+  })
+}
+const idReturnRequest = ref()
+// Tạo phiếu cho đơn đổi trả
+const createTicketFromReturnOrders = async () => {
+  const payload = {
+    orderId: id,
+    returnRequestId: idReturnRequest.value
   }
+    await createTicketFromReturnOrder(payload).then(() => {
+      ElNotification({
+        message: 'Tạo phiếu đổi trả thành công',
+        type: 'success'
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: 'Tạo phiếu đổi trả thất bại',
+        type: 'warning'
+      })
+    )
 }
 
 // open dialog bút toán bổ sung
@@ -2774,6 +2798,7 @@ const doneReturnGoods = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   await finishReturnOrder(formDataPayLoad)
   reloadStatusOrder()
+  getReturnRequestTable()
 }
 
 const automaticAcountingEntry = async() => {

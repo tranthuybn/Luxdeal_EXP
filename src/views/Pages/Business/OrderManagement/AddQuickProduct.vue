@@ -76,7 +76,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   })
 }
 const postQuickProduct = async () => {
-  const codeProduct = props.listProducts.find(product=>product.productPropertyId == Number(ruleForm.value.quickProductCode))
+  const codeProduct = props.listProducts?.find(product=>product.productPropertyId == Number(ruleForm.value.quickProductCode))
   const payload = {
     productCode: codeProduct ? codeProduct.value :ruleForm.value.quickProductCode,
     productPropertyCode: ruleForm.value.quickManagementCode,
@@ -155,51 +155,7 @@ const close = () =>{
       >
       <el-form :model="ruleForm" label-width="150px" ref="ruleFormRef" :rules="rules">
           <el-divider />
-          <div class="flex items-center mb-4">
-            <span class="w-[25%] text-base font-bold">{{
-              t('router.productCategoryProducts')
-            }}</span>
-            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
-          </div>
-              <el-form-item :label="t('reuse.selectCategory')" prop="chooseCategory">
-                  <el-tree-select
-                  v-model="ruleForm.chooseCategory"
-                  :data="optionsCategory"
-                  :placeholder="t('reuse.selectCategory')"
-                />
-              </el-form-item>
-              <el-form-item :label="t('router.productCategoryBrand')" prop="chooseBrand">
-              <el-select v-model="ruleForm.chooseBrand" :placeholder="t('reuse.chooseBrand')">
-                <el-option
-                  v-for="item in brandSelect"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-              </el-form-item>
-              
-              <el-form-item :label="t('router.productCategoryUnit')" prop="chooseUnit">
-              <el-select v-model="ruleForm.chooseUnit" :placeholder="t('reuse.chooseUnit')">
-                <el-option
-                  v-for="item in unitSelect"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-              </el-form-item>
-              
-              <el-form-item :label="t('router.productCategoryOrigin')" prop="chooseOrigin">
-              <el-select v-model="ruleForm.chooseOrigin" :placeholder="t('reuse.chooseOrigin')">
-                <el-option
-                  v-for="item in originSelect"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-              </el-form-item>
+
           <div class="flex items-center mb-4">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.productInfomation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
@@ -247,6 +203,53 @@ const close = () =>{
             <el-form-item :label="t('formDemo.productCharacteristics')" prop="productCharacteristics">
             <ProductAttribute :value="ruleForm.productCharacteristics" @change-value="attributeChange" class="w-full"/>
             </el-form-item>
+
+          <div class="flex items-center mb-4">
+            <span class="w-[25%] text-base font-bold">{{
+              t('router.productCategoryProducts')
+            }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+              <el-form-item :label="t('reuse.selectCategory')" prop="chooseCategory">
+                  <el-tree-select
+                  v-model="ruleForm.chooseCategory"
+                  :data="optionsCategory"
+                  :placeholder="t('reuse.selectCategory')"
+                />
+              </el-form-item>
+              <el-form-item :label="t('router.productCategoryBrand')" prop="chooseBrand">
+              <el-select v-model="ruleForm.chooseBrand" :placeholder="t('reuse.chooseBrand')">
+                <el-option
+                  v-for="item in brandSelect"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+              </el-form-item>
+              
+              <el-form-item :label="t('router.productCategoryUnit')" prop="chooseUnit">
+              <el-select v-model="ruleForm.chooseUnit" :placeholder="t('reuse.chooseUnit')">
+                <el-option
+                  v-for="item in unitSelect"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+              </el-form-item>
+              
+              <el-form-item :label="t('router.productCategoryOrigin')" prop="chooseOrigin">
+              <el-select v-model="ruleForm.chooseOrigin" :placeholder="t('reuse.chooseOrigin')">
+                <el-option
+                  v-for="item in originSelect"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+              </el-form-item>
+
           </el-form>
 
         <template #footer>

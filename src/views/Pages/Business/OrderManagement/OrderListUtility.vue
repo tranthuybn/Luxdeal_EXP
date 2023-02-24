@@ -1621,7 +1621,8 @@ const getReturnRequestTable = async () => {
       returnDetailStatusName: e?.returnDetailStatusName,
       value: e?.productPropertyId,
       warehouseTicketCode: e.warehouseTicketCode,
-      warehouseTicketId: e.warehouseTicketId
+      warehouseTicketId: e.warehouseTicketId,
+      warehouseTicketStatusName: e.warehouseTicketStatusName
     }))
   }
 }
@@ -2643,6 +2644,7 @@ const doneReturnGoods = async () => {
   const formDataPayLoad = FORM_IMAGES(payload)
   await finishReturnOrder(formDataPayLoad)
   reloadStatusOrder()
+  getReturnRequestTable()
 }
 
 // create đổi trả hàng
@@ -5921,7 +5923,7 @@ onBeforeMount(async () => {
               </template>
             </el-table-column>
             <el-table-column
-              prop="inventoryStatus"
+              prop="warehouseTicketStatusName"
               :label="t('formDemo.status')"
               align="left"
               width="200"

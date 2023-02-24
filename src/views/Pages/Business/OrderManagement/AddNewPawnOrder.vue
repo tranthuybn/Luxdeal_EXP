@@ -63,7 +63,8 @@ import {
   cancelOrder,
   finishStatusOrder,
   updateOrderTransaction,
-  postAutomaticWarehouse
+  postAutomaticWarehouse,
+createTicketFromReturnOrder
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -541,7 +542,7 @@ const addnewproduct = (currentRow) => {
 }
 
 const postQuickProduct = (product,productId)=>{
-  listProducts.value.unshift({
+  listProducts.value?.unshift({
       productCode: product.productCode,
       value: product.productCode,
       name: product.name ?? '',
@@ -1048,8 +1049,34 @@ const postReturnRequest = async (reason) => {
     returnRequestType: 1,
     details: tableReturnPost
   }
-  await createReturnRequest(payload)
+  await createReturnRequest(payload).then(async (res)=>{
+    idReturnRequest.value = res
+    await createTicketFromReturnOrders()
+    getReturnRequestTable()
+  })
 }
+
+const idReturnRequest = ref()
+// Tạo phiếu cho đơn đổi trả
+const createTicketFromReturnOrders = async () => {
+  const payload = {
+    orderId: id,
+    returnRequestId: idReturnRequest.value
+  }
+    await createTicketFromReturnOrder(payload).then(() => {
+      ElNotification({
+        message: 'Tạo phiếu đổi trả thành công',
+        type: 'success'
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: 'Tạo phiếu đổi trả thất bại',
+        type: 'warning'
+      })
+    )
+}
+
 const extendDate = (date) => {
   rentReturnOrder.value.extendDate = date
 }
@@ -1067,7 +1094,8 @@ const getReturnRequestTable = async () => {
       unitName: e.unitName,
       returnDetailType: e.returnDetailType,
       returnDetailTypeName: e.returnDetailTypeName,
-      returnDetailStatusName: e.returnDetailStatusName
+      returnDetailStatusName: e.returnDetailStatusName,
+      warehouseTicketStatusName: e.warehouseTicketStatusName
     }))
   }
 }
@@ -4485,7 +4513,7 @@ const removeRow = (index) => {
                 </div>
               </template>
             </el-table-column>
-            <el-table-column prop="returnDetailStatusName" :label="t('formDemo.status')" />
+            <el-table-column prop="warehouseTicketStatusName" :label="t('formDemo.status')" />
           </el-table>
         </div>
       </el-collapse-item>

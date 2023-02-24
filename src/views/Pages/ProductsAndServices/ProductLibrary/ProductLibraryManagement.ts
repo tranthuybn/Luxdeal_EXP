@@ -217,7 +217,7 @@ export const getCategory = async () => {
       label: product.name,
       value: product.id,
       children: product.children.map((child) => ({
-        value: child.name,
+        value: child.id,
         label: child.name,
       }))
     }))

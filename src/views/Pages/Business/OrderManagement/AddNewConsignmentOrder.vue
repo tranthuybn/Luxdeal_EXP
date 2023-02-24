@@ -67,7 +67,8 @@ import {
   finishReturnOrder,
   GetWarehouseTransaction,
   getReturnRequestForOrder,
-  cancelReturnOrder
+  cancelReturnOrder,
+createTicketFromReturnOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -608,7 +609,7 @@ const addnewproduct = (currentRow) => {
 }
 
 const postQuickProduct = (product,productId)=>{
-  listProducts.value.unshift({
+  listProducts.value?.unshift({
       productCode: product.productCode,
       value: product.productCode,
       name: product.name ?? '',
@@ -862,7 +863,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'productAndPayment',
-    title: t('formDemo.productAndPayment'),
+    title: t('formDemo.listOfConsignmentProducts'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -1085,7 +1086,9 @@ let idOrderPost = ref()
 const { push } = useRouter()
 const postData = async () => {
   if (checkValidateForm.value) {
-    orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+    orderDetailsTable = ListOfProductsForSale.value
+    .filter((row)=>row.productPropertyId || row.productPropertyId !== '')
+    .map((val) => ({
       ProductPropertyId: parseInt(val.productPropertyId),
       Quantity: parseInt(val.quantity),
       UnitPrice: 0,
@@ -1102,7 +1105,6 @@ const postData = async () => {
       Code: val.code,
       Description: val.description
     }))
-    // orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
     const payload = {
       ServiceType: 2,
@@ -1560,7 +1562,8 @@ const getReturnRequestTable = async () => {
       returnDetailStatusName: e?.returnDetailStatusName,
       value: e?.productPropertyId,
       warehouseTicketCode: e.warehouseTicketCode,
-      warehouseTicketId: e.warehouseTicketId
+      warehouseTicketId: e.warehouseTicketId,
+      warehouseTicketStatusName: e.warehouseTicketStatusName
     }))
   }
 }
@@ -1917,7 +1920,9 @@ const cancelExpendReturn = async() => {
   const payload = {
     OrderId: id
   }
-  await cancelReturnOrder(FORM_IMAGES(payload))
+  await cancelReturnOrder(FORM_IMAGES(payload)).then(()=>{
+    getReturnRequestTable()
+  })
   reloadStatusOrder()
 }
 // Hoàn thành trả hàng trước hạn
@@ -1927,7 +1932,9 @@ const doneExpendReturn = async() => {
   const payload = {
     OrderId: id
   }
-  await finishReturnOrder(FORM_IMAGES(payload))
+  await finishReturnOrder(FORM_IMAGES(payload)).then(()=>{
+    getReturnRequestTable()
+  })
   reloadStatusOrder()
 }
 
@@ -2022,7 +2029,32 @@ const postReturnRequest = async (reason) => {
     xuatDetails: [],
     isPaid: true
   }
-  await createReturnRequest(payload)
+  await createReturnRequest(payload).then(async (res)=>{
+    idReturnRequest.value = res
+    await createTicketFromReturnOrders()
+    getReturnRequestTable()
+  })
+}
+
+const idReturnRequest = ref()
+// Tạo phiếu cho đơn đổi trả
+const createTicketFromReturnOrders = async () => {
+  const payload = {
+    orderId: id,
+    returnRequestId: idReturnRequest.value
+  }
+    await createTicketFromReturnOrder(payload).then(() => {
+      ElNotification({
+        message: 'Tạo phiếu đổi trả thành công',
+        type: 'success'
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: 'Tạo phiếu đổi trả thất bại',
+        type: 'warning'
+      })
+    )
 }
 
 // trả hàng hết hạn
@@ -2058,6 +2090,9 @@ const paymentExpired = async (status) => {
       message: 'Đã trả hàng hết hạn thành công!',
       type: 'success'
     })
+    idReturnRequest.value = res
+    await createTicketFromReturnOrders()
+    getReturnRequestTable()
     reloadStatusOrder()
   } else {
     ElNotification({
@@ -2097,6 +2132,9 @@ const returnGoodsAheadOfTime = async (status, data) => {
       message: 'Đã gửi yêu cầu thành công!',
       type: 'success'
     })
+    idReturnRequest.value = res
+    await createTicketFromReturnOrders()
+    getReturnRequestTable()
     reloadStatusOrder()
   } else {
     ElNotification({
@@ -2209,7 +2247,9 @@ const doneReturnGoods = async () => {
     OrderId: id
   }
   const formDataPayLoad = FORM_IMAGES(payload)
-  await finishReturnOrder(formDataPayLoad)
+  await finishReturnOrder(formDataPayLoad).then(()=>{
+    getReturnRequestTable()
+  })
   completeThePayment.value = true
 }
 const disabledDate = (time: Date) => {
@@ -3651,14 +3691,13 @@ const openDetailOrder = (id, type) => {
             >
               <div class="flex w-[100%] gap-8">
                 <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
-                <el-divider content-position="left">{{ t('formDemo.delivery') }}</el-divider>
+                <el-divider content-position="left">{{ t('formDemo.methodOfDeliverySpa') }}</el-divider>
               </div>
               <div class="flex">
                 <div class="flex-1">
                   <div class="flex fix-width">
                     <div class="w-[20%] max-w-[170px] text-right pr-[12px] leading-5">
                       <label>{{ t('formDemo.chooseCustomer') }}</label>
-                      <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
                     </div>
                     <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
@@ -3690,7 +3729,7 @@ const openDetailOrder = (id, type) => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <el-form-item :label="t('formDemo.selectExportWarehouse')" prop="warehouse">
+                  <el-form-item :label="t('reuse.chooseImportWarehouse')" prop="warehouse">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
                         <el-select
@@ -3767,9 +3806,6 @@ const openDetailOrder = (id, type) => {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <el-divider content-position="left">{{
-          t('formDemo.listOfConsignmentProducts')
-        }}</el-divider>
         <el-table
           :data="ListOfProductsForSale"
           border
@@ -3980,7 +4016,7 @@ const openDetailOrder = (id, type) => {
             </el-radio-group>
           </div>
         </div>
-        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
+        <div class="flex gap-4 w-[100%] ml-1 pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
             <div class="flex items-center flex-wrap w-[100%]">
@@ -4671,7 +4707,7 @@ const openDetailOrder = (id, type) => {
               </template>
             </el-table-column>
             <el-table-column
-              prop="returnDetailStatusName"
+              prop="warehouseTicketStatusName"
               :label="t('formDemo.status')"
               align="left"
               width="200"

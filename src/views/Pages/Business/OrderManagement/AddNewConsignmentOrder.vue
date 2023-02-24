@@ -67,7 +67,8 @@ import {
   finishReturnOrder,
   GetWarehouseTransaction,
   getReturnRequestForOrder,
-  cancelReturnOrder
+  cancelReturnOrder,
+createTicketFromReturnOrder
 } from '@/api/Business'
 
 import { Collapse } from '../../Components/Type'
@@ -1085,7 +1086,9 @@ let idOrderPost = ref()
 const { push } = useRouter()
 const postData = async () => {
   if (checkValidateForm.value) {
-    orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+    orderDetailsTable = ListOfProductsForSale.value
+    .filter((row)=>row.productPropertyId || row.productPropertyId !== '')
+    .map((val) => ({
       ProductPropertyId: parseInt(val.productPropertyId),
       Quantity: parseInt(val.quantity),
       UnitPrice: 0,
@@ -1102,7 +1105,6 @@ const postData = async () => {
       Code: val.code,
       Description: val.description
     }))
-    // orderDetailsTable.pop()
     const productPayment = JSON.stringify([...orderDetailsTable])
     const payload = {
       ServiceType: 2,
@@ -1560,7 +1562,8 @@ const getReturnRequestTable = async () => {
       returnDetailStatusName: e?.returnDetailStatusName,
       value: e?.productPropertyId,
       warehouseTicketCode: e.warehouseTicketCode,
-      warehouseTicketId: e.warehouseTicketId
+      warehouseTicketId: e.warehouseTicketId,
+      warehouseTicketStatusName: e.warehouseTicketStatusName
     }))
   }
 }
@@ -1917,7 +1920,9 @@ const cancelExpendReturn = async() => {
   const payload = {
     OrderId: id
   }
-  await cancelReturnOrder(FORM_IMAGES(payload))
+  await cancelReturnOrder(FORM_IMAGES(payload)).then(()=>{
+    getReturnRequestTable()
+  })
   reloadStatusOrder()
 }
 // Hoàn thành trả hàng trước hạn
@@ -1927,7 +1932,9 @@ const doneExpendReturn = async() => {
   const payload = {
     OrderId: id
   }
-  await finishReturnOrder(FORM_IMAGES(payload))
+  await finishReturnOrder(FORM_IMAGES(payload)).then(()=>{
+    getReturnRequestTable()
+  })
   reloadStatusOrder()
 }
 
@@ -2022,7 +2029,32 @@ const postReturnRequest = async (reason) => {
     xuatDetails: [],
     isPaid: true
   }
-  await createReturnRequest(payload)
+  await createReturnRequest(payload).then(async (res)=>{
+    idReturnRequest.value = res
+    await createTicketFromReturnOrders()
+    getReturnRequestTable()
+  })
+}
+
+const idReturnRequest = ref()
+// Tạo phiếu cho đơn đổi trả
+const createTicketFromReturnOrders = async () => {
+  const payload = {
+    orderId: id,
+    returnRequestId: idReturnRequest.value
+  }
+    await createTicketFromReturnOrder(payload).then(() => {
+      ElNotification({
+        message: 'Tạo phiếu đổi trả thành công',
+        type: 'success'
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: 'Tạo phiếu đổi trả thất bại',
+        type: 'warning'
+      })
+    )
 }
 
 // trả hàng hết hạn
@@ -2058,6 +2090,9 @@ const paymentExpired = async (status) => {
       message: 'Đã trả hàng hết hạn thành công!',
       type: 'success'
     })
+    idReturnRequest.value = res
+    await createTicketFromReturnOrders()
+    getReturnRequestTable()
     reloadStatusOrder()
   } else {
     ElNotification({
@@ -2097,6 +2132,9 @@ const returnGoodsAheadOfTime = async (status, data) => {
       message: 'Đã gửi yêu cầu thành công!',
       type: 'success'
     })
+    idReturnRequest.value = res
+    await createTicketFromReturnOrders()
+    getReturnRequestTable()
     reloadStatusOrder()
   } else {
     ElNotification({
@@ -2209,7 +2247,9 @@ const doneReturnGoods = async () => {
     OrderId: id
   }
   const formDataPayLoad = FORM_IMAGES(payload)
-  await finishReturnOrder(formDataPayLoad)
+  await finishReturnOrder(formDataPayLoad).then(()=>{
+    getReturnRequestTable()
+  })
   completeThePayment.value = true
 }
 const disabledDate = (time: Date) => {
@@ -4667,7 +4707,7 @@ const openDetailOrder = (id, type) => {
               </template>
             </el-table-column>
             <el-table-column
-              prop="returnDetailStatusName"
+              prop="warehouseTicketStatusName"
               :label="t('formDemo.status')"
               align="left"
               width="200"

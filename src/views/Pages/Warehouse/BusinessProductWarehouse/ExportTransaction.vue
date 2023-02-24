@@ -192,7 +192,7 @@ const callApiForData = async () => {
       ticketData.value.description = res.data[0]?.description
       ticketData.value.orderCode = res.data[0]?.orderCode
       ticketData.value.updatedAt = res.data[0].updatedAt
-      ticketData.value.status = res.data[0].status
+      ticketData.value.status = res.data[0]?.statusHistory[res.data[0]?.statusHistory.length -1]?.value
 
       ticketData.value.statusHistory = res.data[0]?.statusHistory
       arrayStatusWH.value = res.data[0]?.statusHistory
@@ -234,7 +234,7 @@ const callApiForData = async () => {
 
       orderData.value = res.data[0].orderDetails
 
-      status.value = res.data[0]?.status
+      status.value = res.data[0]?.statusHistory[res.data[0]?.statusHistory.length -1]?.value
     }
   } else {
     type.value == 'add'
@@ -486,7 +486,7 @@ const updateTicket = (warehouse) => {
             >
               <div v-if="item.value == TicketStatusHistory.NewCreate">
                 <span
-                  class="box box_1 custom-after bg-gray-300 dark:text-gray-300"
+                  class="box custom-after bg-gray-300 dark:text-gray-300"
                   :class="{ active: item.isActive }"
                 >
                   {{ item.name }}
@@ -504,7 +504,7 @@ const updateTicket = (warehouse) => {
                   :class="{ active: item.isActive }"
                 >
                   {{ item.name }}
-                  <span class="triangle-right right_2"> </span>
+                  <span class="triangle-right right_3"> </span>
                 </span>
                 <p v-if="item?.approveAt">{{
                   item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
@@ -616,5 +616,88 @@ const updateTicket = (warehouse) => {
   </div>
 </template>
 <style scoped>
-@import './StyleStatusHistory.css'
+::deep(.el-select) {
+    width: 100%;
+  }
+  
+  :deep(.cell) {
+    word-break: break-word;
+  }
+  
+  .box {
+    padding: 0 10px 0 20px;
+    position: relative;
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    border: 1px solid #ccc;
+    background-color: #ccc;
+    opacity: 0.6;
+  }
+  
+  .box_1 {
+    border: 1px solid rgba(209, 213, 219, var(--tw-bg-opacity));
+    --tw-bg-opacity: 1;
+    background-color: rgba(209, 213, 219, var(--tw-bg-opacity));
+  
+  }
+  
+  .box_2 {
+    border: 1px solid #f4f8fd;
+    background-color: #f4f8fd;
+  }
+  
+  .box_3 {
+    border: 1px solid #f8dec9;
+    background-color: #f8dec9;
+  }
+  
+  .box_4 {
+    border: 1px solid #fce5e1;
+    background-color: #fce5e1;
+  }
+  .duplicate-status + .duplicate-status {
+    margin-left: 10px;
+  }
+  .active {
+    opacity: 1 !important;
+  }
+  .right_1 {
+    border-left: 11px solid rgba(209, 213, 219, var(--tw-bg-opacity)) !important;
+  }
+  .right_2 {
+    border-left: 11px solid #f4f8fd !important;
+  }
+  
+  .right_3 {
+    border-left: 11px solid #f8dec9 !important;
+  }
+  
+  .right_4 {
+    border-left: 11px solid #fce5e1 !important;
+  }
+  .triangle-right {
+    position: absolute;
+    right: -12px;
+    width: 0;
+    height: 0;
+    border-top: 13px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-left: 11px solid #ccc;
+  }
+  .custom-after::after {
+    content: '';
+    position: absolute;
+    z-index: 1998;
+    width: 11px;
+    border-style: solid;
+    height: 100%;
+    left: -1px;
+    border-bottom-width: 12px;
+    border-left-width: 10px;
+    border-top-width: 12px;
+    border-bottom-color: transparent;border-top-color: transparent;
+    --tw-border-opacity: 1;
+    border-left-color: rgba(255, 255, 255, var(--tw-border-opacity));
+  }
 </style>

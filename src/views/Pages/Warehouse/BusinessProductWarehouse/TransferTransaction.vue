@@ -553,7 +553,7 @@ const updateTicket = (warehouse, type) => {
               v-if="Number(ticketData.orderId) !== 0"
               :disabled="type == 'add' || type == 'edit'"
               @click="cancelTicketWarehouse"
-              >{{ t('reuse.cancelImport') }}</ElButton
+              >{{ t('reuse.cancelTransfer') }}</ElButton
             >
           </div>
         </div>

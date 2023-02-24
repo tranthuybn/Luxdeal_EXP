@@ -862,7 +862,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'productAndPayment',
-    title: t('formDemo.productAndPayment'),
+    title: t('formDemo.listOfConsignmentProducts'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -3651,14 +3651,13 @@ const openDetailOrder = (id, type) => {
             >
               <div class="flex w-[100%] gap-8">
                 <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
-                <el-divider content-position="left">{{ t('formDemo.delivery') }}</el-divider>
+                <el-divider content-position="left">{{ t('formDemo.methodOfDeliverySpa') }}</el-divider>
               </div>
               <div class="flex">
                 <div class="flex-1">
                   <div class="flex fix-width">
                     <div class="w-[20%] max-w-[170px] text-right pr-[12px] leading-5">
                       <label>{{ t('formDemo.chooseCustomer') }}</label>
-                      <p class="text-[#FECB80] italic">{{ t('formDemo.represent') }}</p>
                     </div>
                     <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
@@ -3690,7 +3689,7 @@ const openDetailOrder = (id, type) => {
                   </div>
                 </div>
                 <div class="flex-1">
-                  <el-form-item :label="t('formDemo.selectExportWarehouse')" prop="warehouse">
+                  <el-form-item :label="t('reuse.chooseImportWarehouse')" prop="warehouse">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
                         <el-select
@@ -3767,9 +3766,6 @@ const openDetailOrder = (id, type) => {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <el-divider content-position="left">{{
-          t('formDemo.listOfConsignmentProducts')
-        }}</el-divider>
         <el-table
           :data="ListOfProductsForSale"
           border
@@ -3980,7 +3976,7 @@ const openDetailOrder = (id, type) => {
             </el-radio-group>
           </div>
         </div>
-        <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
+        <div class="flex gap-4 w-[100%] ml-1 pb-3">
           <label class="w-[9%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
             <div class="flex items-center flex-wrap w-[100%]">

@@ -1945,7 +1945,7 @@ onBeforeMount(async () => {
     disableCreateOrder.value = true
 
     disableEditData.value = false
-    await GenerateCodeOrder ({CodeType:5,ServiceType:5,Code:'DH'}).then((res) =>{
+    await GenerateCodeOrder ({CodeType:5,ServiceType:5}).then((res) =>{
       ruleForm.orderCode = res.data
     })
     pawnOrderCode.value = autoCodePawnOrder
@@ -2176,7 +2176,7 @@ const removeRow = (index) => {
 
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  
+                :disabled="disableCreateOrder"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"

@@ -2270,9 +2270,9 @@ onBeforeMount(async () => {
   await callAPIProduct()
   await callApiWarehouseList()
 
-  if (type == 'add' || type == ':type') {
+  if (type == ('add') || type == (':type') ) {
     disableCreateOrder.value = true
-    await GenerateCodeOrder({CodeType:5,ServiceType:2,Code:'DH'})
+    await GenerateCodeOrder({CodeType:5,ServiceType:2})
     .then((res) =>
     {
       ruleForm.orderCode = res.data
@@ -3565,6 +3565,7 @@ const openDetailOrder = (id, type) => {
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
+                :disabled="disableCreateOrder"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"

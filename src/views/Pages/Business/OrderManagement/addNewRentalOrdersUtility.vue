@@ -69,7 +69,8 @@ import {
   cancelReturnOrder,
   getAllStaffList,
   finishReturnOrder,
-createTicketFromReturnOrder
+createTicketFromReturnOrder,
+GenerateCodeOrder
 } from '@/api/Business'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -2893,7 +2894,11 @@ onBeforeMount(async() => {
   editData()
   callApiWarehouseList()
   if (type == 'add' || type == ':type') {
-    ruleForm.orderCode = curDate
+    await GenerateCodeOrder({CodeType:5,ServiceType:3})
+    .then((res) => {
+      ruleForm.orderCode = res.data
+    })
+    // ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
   }

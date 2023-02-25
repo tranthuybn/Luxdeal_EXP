@@ -2697,7 +2697,7 @@ onBeforeMount(async () => {
   callApiCity()
 
   if (type == 'add' || type == ':type') {
-    await GenerateCodeOrder({CodeType:5,ServiceType:1,Code:'DH'})
+    await GenerateCodeOrder({CodeType:5,ServiceType:1})
     .then((res)=>{
       ruleForm.orderCode = res.data
     })
@@ -4434,7 +4434,8 @@ onBeforeMount(async () => {
               </div>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  style="width: 100%"
+                :disabled="true"
+                style="width: 100%"
                   v-model="ruleForm.orderCode"
                 />
               </el-form-item>

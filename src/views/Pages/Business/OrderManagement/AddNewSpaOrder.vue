@@ -1140,7 +1140,7 @@ const removeListProductsSale = async (index) => {
 }
 
 const dialogFormSettingServiceSpa = ref(false)
-var curDate = 'SPA' + Date.now()
+//var curDate = 'SPA' + Date.now()
 
 const optionsTypeSpa = [
   {
@@ -2662,10 +2662,10 @@ onBeforeMount(async () => {
     disableCreateOrder.value = true
     checkDisabled2.value = true
     startSpa.value = true
-    await GenerateCodeOrder({CodeType:5,ServiceType:5,Code:'HM'}).then((res)=>{
+    await GenerateCodeOrder({CodeType:5,ServiceType:5}).then((res)=>{
       ruleForm.orderCode = res.data
     })
-    ruleForm.orderCode = curDate
+    // ruleForm.orderCode = curDate
     spaOrderCode.value = autoCodePawnOrder
     codeReceipts.value = autoCodeReceipts
     codeExpenditures.value = autoCodeExpenditures

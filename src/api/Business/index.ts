@@ -17,6 +17,16 @@ const request = useAxios()
 
 const fixedBaseURL = API_URL
 
+
+export const GenerateCodeOrder = async (params: any): Promise<IResponse> =>{
+  const res = await request.get({
+    url: `${ORDER_API.GET_AUTO_GEN_CODE}?${objectToQueryParams(params)}`,
+  },
+  fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const CreateANewPaymentRequest = async (params): Promise<IResponse>=>{
   const res = await request.post(
     {
@@ -1109,3 +1119,4 @@ export const FinishUpdateSpaService = async (params: any): Promise<IResponse> =>
   )
   return res && res.data
 }
+

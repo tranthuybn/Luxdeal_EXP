@@ -29,6 +29,7 @@ import {
   UploadProps,
   UploadUserFile
 } from 'element-plus'
+// import { ORDER_STYTE } from '@/utils/API.Variables' 
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { useRoute, useRouter } from 'vue-router'
@@ -72,7 +73,8 @@ import {
   getAllStaffList,
   cancelReturnOrder,
   updateStatusTransaction,
-  finishReturnOrder
+  finishReturnOrder,
+GenerateCodeOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { UpdateStatusTicketFromOrder } from '@/api/Warehouse'
@@ -104,7 +106,7 @@ const checkPercent = (_rule: any, value: any, callback: any) => {
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
-var curDate = 'DHB' + moment().format('hhmmss')
+// var curDate = 'DHB' + moment().format('hhmmss')
 var autoCustomerCode = 'KH' + moment().format('hhmmss')
 var autoCodeSellOrder = 'BH' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
@@ -2695,7 +2697,10 @@ onBeforeMount(async () => {
   callApiCity()
 
   if (type == 'add' || type == ':type') {
-    ruleForm.orderCode = curDate
+    await GenerateCodeOrder({CodeType:5,ServiceType:1,Code:'DH'})
+    .then((res)=>{
+      ruleForm.orderCode = res.data
+    })
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
   }
@@ -4429,7 +4434,6 @@ onBeforeMount(async () => {
               </div>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="true"
                   style="width: 100%"
                   v-model="ruleForm.orderCode"
                 />

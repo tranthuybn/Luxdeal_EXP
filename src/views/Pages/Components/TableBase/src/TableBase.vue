@@ -3,7 +3,6 @@ import { TableData } from '@/api/table/types'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Table, TableExpose } from '@/components/Table'
 import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
-import { TableResponse } from '../../Type'
 import {
   ElButton,
   ElDrawer,
@@ -20,6 +19,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 // import { useAppStore } from '@/store/modules/app'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
+import { appModules } from '@/config/app'
 //provide from main component
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
@@ -160,7 +160,7 @@ const filterChange = (filterValue) => {
     }
   setSearchParams(filterValue)
 }
-const utility = 'Utility'
+const { utility } = appModules
 
 const handleClickAdd = () => {
   push({

@@ -6,12 +6,13 @@ import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus'
 import { getOrderApproval } from '@/api/Approval'
 import { API_ORDER } from '@/utils/API.Variables'
 import { dateTimeFormat } from '@/utils/format'
-
+import { appModules } from '@/config/app'
+const { utility } = appModules
 const { t } = useI18n()
 
 const route = useRoute()
 const { push } = useRouter()
-const utility = 'Utility'
+
 let nameRoute = route.name?.toString()
 const type = nameRoute?.slice(24, nameRoute.length)
 

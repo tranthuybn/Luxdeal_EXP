@@ -176,6 +176,7 @@ type ProductWarehouse = {
 }
 const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 const status = ref(0)
+const lastStatus = ref(0)
 const serviceType = ref(6)
 const returnRequestId = ref(0)
 const duplicateStatusButton = ref(false)
@@ -213,6 +214,8 @@ if (arrayStatusWH.value?.length) {
 if (arrayStatusWH.value[arrayStatusWH.value?.length - 1].approveAt)
   duplicateStatusButton.value = true
 else duplicateStatusButton.value = false
+
+lastStatus.value = res.data[0]?.statusHistory[res.data[0]?.statusHistory.length -1]?.value
 }
       productData.value = res.data[0].transactionDetails.map((item) => ({
         productPropertyId: item.productPropertyId,
@@ -443,7 +446,7 @@ const updateTicket = (warehouse) => {
               class="w-[150px]"
               type="primary"
               v-if="Number(ticketData.orderId) !== 0"
-              :disabled="type == 'add' || type == 'edit'"
+              :disabled="type == 'add' || type == 'edit' || lastStatus == 4"
               @click="updateInventoryOrder"
               >{{ t('reuse.importWarehouseNow') }}</ElButton
             >
@@ -479,7 +482,7 @@ const updateTicket = (warehouse) => {
               class="w-[150px]"
               type="danger"
               v-if="Number(ticketData.orderId) !== 0"
-              :disabled="type == 'add' || type == 'edit'"
+              :disabled="type == 'add' || type == 'edit'|| lastStatus == 4"
               @click="cancelTicketWarehouse"
               >{{ t('reuse.cancelImport') }}</ElButton
             >

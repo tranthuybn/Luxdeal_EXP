@@ -215,7 +215,7 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
 
 let statusOrder = ref(2)
 
-var curDate = 'DCT' + moment().format('hhmmss')
+// var curDate = 'DCT' + moment().format('hhmmss')
 var autoCustomerCode = 'KH' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')

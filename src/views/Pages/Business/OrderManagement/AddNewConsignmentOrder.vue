@@ -514,6 +514,13 @@ const debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
+
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -957,9 +964,9 @@ const getTotalWarehouse = () => {
 }
 
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 
 // Tổng tiền table phiếu đề nghị thanh toán nếu có
 const totalPayment = ref(0)

@@ -366,6 +366,7 @@ const updateTicket = (warehouse) => {
           :warehouse="ticketData.warehouse"
           :serviceType="serviceType"
           :returnRequestId="returnRequestId"
+          :status="status"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>

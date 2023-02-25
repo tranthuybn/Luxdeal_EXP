@@ -1287,6 +1287,7 @@ const postData = async (pushBack: boolean) => {
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
     }
+    startSpa.value = false
   if (clickStarSpa.value == true) {
     addStatusOrder(5)
   }}

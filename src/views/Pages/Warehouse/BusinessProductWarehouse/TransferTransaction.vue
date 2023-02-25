@@ -55,6 +55,7 @@ const router = useRouter()
 const id = ref(Number(router.currentRoute.value.params.id))
 const type = ref('add')
 const transactionType = 3
+const returnRequestId = ref(0)
 
 const back = async () => {
   push({
@@ -211,6 +212,7 @@ const callApiForData = async () => {
       }
       ticketData.value.serviceType = res.data[0]?.orderType
       ticketData.value.orderId = res.data[0]?.orderId
+      returnRequestId.value = res.data[0]?.returnRequestID
 
       status.value = res.data[0].status
 lastStatus.value = res.data[0]?.statusHistory[res.data[0]?.statusHistory.length -1]
@@ -437,6 +439,8 @@ const updateTicket = (warehouse, type) => {
           :transactionType="transactionType"
           :productData="productData"
           :ticketData="ticketData"
+          :status="status"
+          :returnRequestId="returnRequestId"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>

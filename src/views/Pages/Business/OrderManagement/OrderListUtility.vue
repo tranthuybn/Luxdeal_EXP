@@ -1089,8 +1089,8 @@ const postData = async (pushBack: boolean) => {
         name: 'business.order-management.order-list',
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
-      disabledPhieu.value = false
     }
+  disabledPhieu.value = false
   } else {
     ElNotification({
       message: t('reuse.addFail'),

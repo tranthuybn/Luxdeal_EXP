@@ -1015,6 +1015,7 @@ const postData = async (pushBack: boolean) => {
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
     }
+  disabledPhieu.value = false
   } else {
     ElNotification({
       message: t('reuse.addFail'),

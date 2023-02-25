@@ -3930,7 +3930,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add'">
+              <div v-if="type == 'add' || type == ':type'">
                 <CurrencyInputComponent v-model="props.row.consignmentSellPrice" />
               </div>
               <div v-else>
@@ -3944,7 +3944,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add'">
+              <div v-if="type == 'add' || type == ':type'">
                 <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
               </div>
               <div v-else>
@@ -4170,7 +4170,7 @@ const openDetailOrder = (id, type) => {
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
-                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add')
+                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && (type == 'add' || type == ':type'))
               "
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"

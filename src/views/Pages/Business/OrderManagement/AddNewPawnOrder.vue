@@ -1854,7 +1854,7 @@ interface statusOrderType {
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
 
-if (type == 'add')
+if (type == 'add' || type == ':type')
   arrayStatusOrder.value.push({
     orderStatusName: 'Duyệt đơn hàng',
     orderStatus: 4,
@@ -1931,7 +1931,7 @@ onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
 
-  if (type == 'add') {
+  if (type == 'add' || type == ':type') {
     disableCreateOrder.value = true
     disabledPhieu.value = true
     disableEditData.value = false
@@ -2798,7 +2798,7 @@ const disabledPhieu = ref(false)
                 statusOrder == STATUS_ORDER_PAWN[9].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
-                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && type == 'add')
+                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type'))
               "
               class="min-w-42 min-h-11"
               @click="openBillPawnDialog"
@@ -2814,7 +2814,7 @@ const disabledPhieu = ref(false)
                 statusOrder == STATUS_ORDER_PAWN[9].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
-                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && type == 'add')
+                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type'))
               "
               class="min-w-42 min-h-11"
               @click="openDepositDialog"
@@ -2844,7 +2844,7 @@ const disabledPhieu = ref(false)
               >{{ t('formDemo.editOrder') }}</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_PAWN[3].orderStatus && type == 'add'"
+              v-if="statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type')"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)

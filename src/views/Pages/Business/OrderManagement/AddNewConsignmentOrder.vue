@@ -4198,7 +4198,7 @@ const openDetailOrder = (id, type) => {
               >{{ t('formDemo.startRentingTermDeposit') }}</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add'"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && (type == 'add' || type == ':type')"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)

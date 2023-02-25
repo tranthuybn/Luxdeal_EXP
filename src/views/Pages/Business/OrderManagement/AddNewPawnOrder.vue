@@ -64,7 +64,8 @@ import {
   finishStatusOrder,
   updateOrderTransaction,
   postAutomaticWarehouse,
-createTicketFromReturnOrder
+createTicketFromReturnOrder,
+GenerateCodeOrder
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -912,6 +913,7 @@ const postData = async () => {
     InterestMoney: priceintoMoneyByday.value,
     Status: 4
   }
+ 
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
@@ -1919,7 +1921,7 @@ const alreadyPaidForTt = ref(false)
 
 const activeName = ref([collapse[0].name, collapse[1].name])
 
-var curDate = 'CD' + moment().format('hhmmss')
+// var curDate = 'CD' + moment().format('hhmmss')
 var autoCodePawnOrder = 'CD' + moment().format('hmmss')
 var autoCodeReceipts = 'PT' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
@@ -1943,7 +1945,9 @@ onBeforeMount(async () => {
     disableCreateOrder.value = true
 
     disableEditData.value = false
-    ruleForm.orderCode = curDate
+    await GenerateCodeOrder ({CodeType:5,ServiceType:5,Code:'DH'}).then((res) =>{
+      ruleForm.orderCode = res.data
+    })
     pawnOrderCode.value = autoCodePawnOrder
     codeReceipts.value = autoCodeReceipts
     codeExpenditures.value = autoCodeExpenditures
@@ -2172,11 +2176,12 @@ const removeRow = (index) => {
 
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="disableCreateOrder"
+                  
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
                 />
+                <!-- :disabled="disableCreateOrder" -->
               </el-form-item>
 
               <el-form-item :label="t('formDemo.pawnTerm')" prop="pawnTerm">

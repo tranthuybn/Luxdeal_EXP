@@ -72,7 +72,8 @@ import {
   finishReturnOrder,
   FinishUpdateSpaService,
 postAutomaticWarehouse,
-createTicketFromReturnOrder
+createTicketFromReturnOrder,
+GenerateCodeOrder
 } from '@/api/Business'
 import ChooseWarehousePR from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -2661,6 +2662,9 @@ onBeforeMount(async () => {
     disableCreateOrder.value = true
     checkDisabled2.value = true
     startSpa.value = true
+    await GenerateCodeOrder({CodeType:5,ServiceType:5,Code:'HM'}).then((res)=>{
+      ruleForm.orderCode = res.data
+    })
     ruleForm.orderCode = curDate
     spaOrderCode.value = autoCodePawnOrder
     codeReceipts.value = autoCodeReceipts

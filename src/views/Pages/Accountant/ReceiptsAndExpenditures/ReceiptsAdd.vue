@@ -722,7 +722,7 @@ const editData = async () => {
 
   if (type == 'edit' || type == 'detail') {
     var su = await getDetailReceiptPaymentVoucher({ id: id })
-    console.log('su: ', su)
+    // console.log('su: ', su)
     if (su.data) dataDetail.value = Object.assign({}, su?.data)
     var cus = optionsCustomerApi.value.find((x) => x.id == dataDetail.value.customerId)
     getValueOfCustomerSelected(dataDetail.value.customerId, cus)
@@ -803,8 +803,7 @@ onBeforeMount(async () => {
               </el-form-item>
               <el-form-item :label="t('reuse.createDate')" prop="orderCode">
                 <p style="width: 100%" v-if="type == ':type'">{{ dataDetail.createdAt }}</p>
-                <p style="width: 100%" v-if="type == ( 'detail') || ('edit' ) ">{{ dateTimeFormat(dataDetail.createdAt) }}</p>
-                
+                <p style="width: 100%" v-if="type == ( 'detail') || ('edit' ) ">{{ dateTimeFormat(dataDetail.createdAt) }}</p>      
               </el-form-item>
 
               <el-form-item class="mt-5" :label="t('reuse.petitioner')" prop="staffId">

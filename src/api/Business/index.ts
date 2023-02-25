@@ -9,7 +9,8 @@ import {
   LOGIN_API_URL,
   WAREHOUSE_API,
   POINT_API,
-  STAFF_API
+  STAFF_API,
+  TOOL_API
 } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 
@@ -1104,6 +1105,15 @@ export const FinishUpdateSpaService = async (params: any): Promise<IResponse> =>
     {
       url: ORDER_API.FINISH_UPDATE_SPA_SERVICE,
       data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const generateCode = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${TOOL_API.GENERATE_CODE}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

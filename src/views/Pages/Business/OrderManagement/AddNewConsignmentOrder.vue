@@ -505,6 +505,7 @@ let countExistedDNTT = ref(0)
 const debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
+const businessTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   if(val.length ==0){
     disabledPTAccountingEntry.value = true
@@ -1235,12 +1236,6 @@ const tableAccountingEntry = ref([
 const openDialogChooseWarehouse = ref(false)
 const dialogbusinessManagement = ref(false)
 
-const formBusuness = reactive({
-  id: 1,
-  check: '',
-  applyExport: ''
-})
-
 const listApplyExport = [
   {
     id: 1,
@@ -1882,6 +1877,9 @@ if (tableProductInformationExportChange.value?.length == 0) addProductInformatio
 const indexRow = ref()
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
+  if(disabledEdit.value){
+    return
+  }
   const label = val.map((e) => e.applyExport)
   const x = val.map((e) => e.id)
   ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(', ')
@@ -1896,6 +1894,20 @@ const ckeckChooseProduct = (scope) => {
     })
   } else {
     dialogbusinessManagement.value = true
+    if(disabledEdit.value){
+      const businessArray = scope.row.businessSetup.split(", ")
+      const businessIndex: number[] = []
+      businessArray.forEach((element)=>{
+        if(element == '1') businessIndex.push(0)
+        if(element == '3') businessIndex.push(1)
+        if(element == '5') businessIndex.push(2)
+      })
+      setTimeout(()=>{
+        businessIndex.forEach((element)=>{
+          businessTableRef.value!.toggleRowSelection(listApplyExport[element],true)
+        })
+      }, 1000)
+    }
   }
 }
 
@@ -2144,7 +2156,7 @@ const returnGoodsAheadOfTime = async (status, data) => {
 }
 // hoàn thành trả hàng
 
-if (type == 'add') {
+if (type == 'add' || type == ':type') {
   arrayStatusOrder.value?.push({
     orderStatusName: 'Duyệt đơn hàng',
     orderStatus: 4,
@@ -3944,14 +3956,13 @@ const openDetailOrder = (id, type) => {
           <el-table-column :label="t('formDemo.businessManagement')" width="200" prop="businessSetupName">
             <template #default="data">
               <div class="flex w-[100%]">
-                <div class="flex-1 limit-text">
+                <div class="flex-1">
                   <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
                     text
                     border 
-                    :disabled="disabledEdit" 
                     class="text-blue-500" 
                     @click="
                       () => {
@@ -3970,7 +3981,6 @@ const openDetailOrder = (id, type) => {
               <div class="flex w-[100%] items-center">
                 <el-button
                   text
-                  :disabled="disabledEdit"
                   @click="
                     () => {
                       callApiWarehouse(props)
@@ -4377,9 +4387,8 @@ const openDetailOrder = (id, type) => {
         align-center
       >
         <el-divider />
-        <el-form :model="formBusuness">
           <el-table
-            ref="multipleTableRef"
+            ref="businessTableRef"
             border
             :data="listApplyExport"
             @selection-change="handleSelectionbusinessManagement"
@@ -4387,12 +4396,12 @@ const openDetailOrder = (id, type) => {
             <el-table-column type="selection" width="55" />
             <el-table-column class="font-normal" prop="applyExport" label="Cho phép xuất hàng" />
           </el-table>
-        </el-form>
 
         <template #footer>
           <span class="dialog-footer">
             <el-button
               type="primary"
+              :disabled="disabledEdit"
               @click="
                 () => {
                   dialogbusinessManagement = false
@@ -4664,7 +4673,6 @@ const openDetailOrder = (id, type) => {
           <span class="text-center text-xl">{{ collapse[3].title }}</span>
         </template>
         <div>
-          <el-divider content-position="left">{{ t('formDemo.importTrackingTable') }}</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column
               prop="createdAt"

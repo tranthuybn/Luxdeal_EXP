@@ -4954,7 +4954,7 @@ onBeforeMount(async () => {
               </el-dropdown>
             </div>
             <div class="text-black font-bold dark:text-[#fff]">{{
-              t('formDemo.totalAmountReceivable')
+              t('reuse.totalAmountPaid')
             }}</div>
           </div>
 

@@ -805,13 +805,6 @@ const inputDeposit = ref(0)
 
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
-  collaborators: [
-    {
-      required: true,
-      message: t('formDemo.pleaseSelectCollaboratorCode'),
-      trigger: 'change'
-    }
-  ],
   warehouse: [
     {
       required: true,
@@ -832,7 +825,6 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],
@@ -1941,7 +1933,7 @@ onBeforeMount(async () => {
 
   if (type == 'add') {
     disableCreateOrder.value = true
-
+    disabledPhieu.value = true
     disableEditData.value = false
     ruleForm.orderCode = curDate
     pawnOrderCode.value = autoCodePawnOrder
@@ -1975,6 +1967,8 @@ const addRow = () => {
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
 }
+
+const disabledPhieu = ref(false)
 </script>
 
 <template>
@@ -2808,6 +2802,7 @@ const removeRow = (index) => {
               "
               class="min-w-42 min-h-11"
               @click="openBillPawnDialog"
+              :disabled="disabledPhieu"
               >{{ t('formDemo.billPawn') }}</el-button
             >
 
@@ -2823,6 +2818,7 @@ const removeRow = (index) => {
               "
               class="min-w-42 min-h-11"
               @click="openDepositDialog"
+              :disabled="disabledPhieu"
               >{{ t('formDemo.bill') }}</el-button
             >
 

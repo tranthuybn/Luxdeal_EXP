@@ -1367,13 +1367,6 @@ const ruleForm = reactive({
 
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
-  collaborators: [
-    {
-      required: true,
-      message: t('formDemo.pleaseSelectCollaboratorCode'),
-      trigger: 'change'
-    }
-  ],
   warehouseImport: [
     {
       required: true,
@@ -1395,7 +1388,6 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
   customerName: [{ required: false }],
   delivery: [
     {
@@ -2814,18 +2806,14 @@ const postReturnRequest = async (reason) => {
     isPaid: true
   }
 
-  const res = await createReturnRequest(payload).then(() => {
+  await createReturnRequest(payload).then((res) => {
           ElNotification({
             message: t('reuse.addSuccess'),
             type: 'success'
           })
-       }).catch(() => {
-      ElNotification({
-      message: 'Đơn hàng chưa được nhập kho',
-      type: 'warning'
-    })
-    })
-  await createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
+       
+    console.log('res', res)
+  createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
       .then((res) => {
         if(res.statusCode == 400) {
           ElNotification({
@@ -2839,6 +2827,7 @@ const postReturnRequest = async (reason) => {
       type: 'warning'
     })
     })
+  })
   await getReturnRequestTable()
   // let ISSPA = true
   // rentReturnOrder.value.tableData.forEach((row)=>{

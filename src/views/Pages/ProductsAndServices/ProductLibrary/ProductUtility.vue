@@ -52,6 +52,7 @@ import { productStatusPending, dateTimeFormat } from '@/utils/format'
 import ProductAttribute from './ProductAttribute.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { getLotHistory } from '@/api/Warehouse'
+import { GenerateCodeOrder } from '@/api/common'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -220,7 +221,7 @@ const addLastRowAttribute = async () => {
   }
 
   let randomCode = ''
-  await generateCode({CodeType:1,Code:'SP'}).then((res)=>{
+  await GenerateCodeOrder({CodeType:1,Code:'SP'}).then((res)=>{
     randomCode = res.data
   })
   //have id when in edit mode

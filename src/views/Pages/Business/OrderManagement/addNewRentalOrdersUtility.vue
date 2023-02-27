@@ -69,7 +69,8 @@ import {
   cancelReturnOrder,
   getAllStaffList,
   finishReturnOrder,
-createTicketFromReturnOrder
+createTicketFromReturnOrder,
+GenerateCodeOrder
 } from '@/api/Business'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -135,20 +136,12 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  collaborators: [
-    {
-      required: true,
-      message: t('formDemo.pleaseSelectCollaboratorCode'),
-      trigger: 'change'
-    }
-  ],
   discount: [
     {
       validator: checkPercent,
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: t('formDemo.pleaseEnterANote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],
@@ -214,7 +207,7 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
 
 let statusOrder = ref(2)
 
-var curDate = 'DCT' + moment().format('hhmmss')
+// var curDate = 'DCT' + moment().format('hhmmss')
 var autoCustomerCode = 'KH' + moment().format('hhmmss')
 var autoRentalOrderCode = 'T' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
@@ -1023,6 +1016,7 @@ const postData = async (pushBack: boolean) => {
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
     }
+  disabledPhieu.value = false
   } else {
     ElNotification({
       message: t('reuse.addFail'),
@@ -2893,7 +2887,11 @@ onBeforeMount(async() => {
   editData()
   callApiWarehouseList()
   if (type == 'add' || type == ':type') {
-    ruleForm.orderCode = curDate
+    await GenerateCodeOrder({CodeType:5,ServiceType:3})
+    .then((res) => {
+      ruleForm.orderCode = res.data
+    })
+    // ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
   }
@@ -2909,6 +2907,9 @@ onBeforeMount(async() => {
   }
   await callApiStaffList()
 })
+
+const disabledPhieu = ref(false)
+
 </script>
 
 <template>
@@ -5375,14 +5376,14 @@ onBeforeMount(async() => {
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled || disabledPhieu"
               @click="openDetailRentalPaymentBill"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.rentalFeePaymentSlip') }}</el-button
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled || disabledPhieu"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >

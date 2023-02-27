@@ -35,6 +35,7 @@ import { dateTimeFormat } from '@/utils/format'
 import { appModules } from '@/config/app'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+import {GenerateCodeOrder} from '@/api/Business'
 import {
   getProductsList,
   getCustomerById,
@@ -315,13 +316,6 @@ const ruleFormRef2 = ref<FormInstance>()
 
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
-  collaborators: [
-    {
-      required: true,
-      message: t('formDemo.pleaseSelectCollaboratorCode'),
-      trigger: 'change'
-    }
-  ],
   warehouse: [
     {
       required: true,
@@ -342,7 +336,6 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],
@@ -513,7 +506,15 @@ let countExistedDNTT = ref(0)
 const debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
+const businessTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
+
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -957,9 +958,9 @@ const getTotalWarehouse = () => {
 }
 
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 
 // Tổng tiền table phiếu đề nghị thanh toán nếu có
 const totalPayment = ref(0)
@@ -1236,12 +1237,6 @@ const tableAccountingEntry = ref([
 const openDialogChooseWarehouse = ref(false)
 const dialogbusinessManagement = ref(false)
 
-const formBusuness = reactive({
-  id: 1,
-  check: '',
-  applyExport: ''
-})
-
 const listApplyExport = [
   {
     id: 1,
@@ -1268,7 +1263,7 @@ var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
-var curDate = 'DHKG' + moment().format('hhmmss')
+// var curDate = 'DHKG' + moment().format('hhmmss')
 
 const dialogBillLiquidation = ref(false)
 const enterdetailAddress = ref([])
@@ -1883,6 +1878,9 @@ if (tableProductInformationExportChange.value?.length == 0) addProductInformatio
 const indexRow = ref()
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
+  if(disabledEdit.value){
+    return
+  }
   const label = val.map((e) => e.applyExport)
   const x = val.map((e) => e.id)
   ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(', ')
@@ -1897,6 +1895,20 @@ const ckeckChooseProduct = (scope) => {
     })
   } else {
     dialogbusinessManagement.value = true
+    if(disabledEdit.value){
+      const businessArray = scope.row.businessSetup.split(", ")
+      const businessIndex: number[] = []
+      businessArray.forEach((element)=>{
+        if(element == '1') businessIndex.push(0)
+        if(element == '3') businessIndex.push(1)
+        if(element == '5') businessIndex.push(2)
+      })
+      setTimeout(()=>{
+        businessIndex.forEach((element)=>{
+          businessTableRef.value!.toggleRowSelection(listApplyExport[element],true)
+        })
+      }, 1000)
+    }
   }
 }
 
@@ -2145,7 +2157,7 @@ const returnGoodsAheadOfTime = async (status, data) => {
 }
 // hoàn thành trả hàng
 
-if (type == 'add') {
+if (type == 'add' || type == ':type') {
   arrayStatusOrder.value?.push({
     orderStatusName: 'Duyệt đơn hàng',
     orderStatus: 4,
@@ -2269,9 +2281,14 @@ onBeforeMount(async () => {
   await callAPIProduct()
   await callApiWarehouseList()
 
-  if (type == 'add' || type == ':type') {
+  if (type == ('add') || type == (':type') ) {
     disableCreateOrder.value = true
-    ruleForm.orderCode = curDate
+    await GenerateCodeOrder({CodeType:5,ServiceType:2})
+    .then((res) =>
+    {
+      ruleForm.orderCode = res.data
+    })
+    // ruleForm.orderCode = curDate
     billLiquidationDis.value = true
     disableEditData.value = false
   }
@@ -3559,7 +3576,7 @@ const openDetailOrder = (id, type) => {
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="disableCreateOrder"
+                :disabled="disableCreateOrder"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
@@ -3919,7 +3936,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add'">
+              <div v-if="type == 'add' || type == ':type'">
                 <CurrencyInputComponent v-model="props.row.consignmentSellPrice" />
               </div>
               <div v-else>
@@ -3933,7 +3950,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add'">
+              <div v-if="type == 'add' || type == ':type'">
                 <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
               </div>
               <div v-else>
@@ -3945,14 +3962,13 @@ const openDetailOrder = (id, type) => {
           <el-table-column :label="t('formDemo.businessManagement')" width="200" prop="businessSetupName">
             <template #default="data">
               <div class="flex w-[100%]">
-                <div class="flex-1 limit-text">
+                <div class="flex-1">
                   <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
                     text
                     border 
-                    :disabled="disabledEdit" 
                     class="text-blue-500" 
                     @click="
                       () => {
@@ -3971,7 +3987,6 @@ const openDetailOrder = (id, type) => {
               <div class="flex w-[100%] items-center">
                 <el-button
                   text
-                  :disabled="disabledEdit"
                   @click="
                     () => {
                       callApiWarehouse(props)
@@ -4161,7 +4176,7 @@ const openDetailOrder = (id, type) => {
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
-                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add')
+                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && (type == 'add' || type == ':type'))
               "
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"
@@ -4189,7 +4204,7 @@ const openDetailOrder = (id, type) => {
               >{{ t('formDemo.startRentingTermDeposit') }}</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add'"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && (type == 'add' || type == ':type')"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
@@ -4378,9 +4393,8 @@ const openDetailOrder = (id, type) => {
         align-center
       >
         <el-divider />
-        <el-form :model="formBusuness">
           <el-table
-            ref="multipleTableRef"
+            ref="businessTableRef"
             border
             :data="listApplyExport"
             @selection-change="handleSelectionbusinessManagement"
@@ -4388,12 +4402,12 @@ const openDetailOrder = (id, type) => {
             <el-table-column type="selection" width="55" />
             <el-table-column class="font-normal" prop="applyExport" label="Cho phép xuất hàng" />
           </el-table>
-        </el-form>
 
         <template #footer>
           <span class="dialog-footer">
             <el-button
               type="primary"
+              :disabled="disabledEdit"
               @click="
                 () => {
                   dialogbusinessManagement = false
@@ -4665,7 +4679,6 @@ const openDetailOrder = (id, type) => {
           <span class="text-center text-xl">{{ collapse[3].title }}</span>
         </template>
         <div>
-          <el-divider content-position="left">{{ t('formDemo.importTrackingTable') }}</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column
               prop="createdAt"

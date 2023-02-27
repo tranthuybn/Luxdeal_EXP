@@ -1,6 +1,11 @@
 import { ERP_DOMAIN, ERP_DOMAIN_LOGIN } from '../../public/config'
 export const API_URL = ERP_DOMAIN
 export const LOGIN_API_URL = ERP_DOMAIN_LOGIN
+
+//Mã tạo tự động khi tạo đơn hàng
+export const GENERATE_CODE_API = {
+  GET_GENERATE_CODE:'/api/v1/Tool/GenerateCode'
+}
 export const PRODUCTS_AND_SERVICES_API = {
   GET_CATEGORY: '/api/v1/Category/GetCategory',
   ADD_CATEGORY: '/api/v1/Category/AddCategory',
@@ -80,6 +85,8 @@ export const CAMPAIGN_API = {
 }
 
 export const ORDER_API = {
+  DELETE_CODE_TEMP:'api/v1/Tool/DeleteTemporaryCode',
+  GET_AUTO_GEN_CODE :'/api/v1/Tool/GenerateCode',
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',
   ADD_NEW_ORDER: '/api/v1/Order/CreateOrder',
   UPDATE_ORDER_INFO: '/api/v1/Order/UpdateOrderInfo',
@@ -221,4 +228,9 @@ export const APPROVAL_API = {
 
 export const ROLE_API = {
   CREATE_NEW_STAFF_ROLE :'api/v1/Authorization/AddNewStaffRole'
+}
+
+export const TOOL_API = {
+  GENERATE_CODE: '/api/v1/Tool/GenerateCode',
+  DELETE_TEMPORARY_CODE: '/api/v1/Tool/DeleteTemporaryCode',
 }

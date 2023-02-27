@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElSelect,
@@ -14,7 +14,7 @@ import {
 ElNotification} from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { originSelect, unitSelect, brandSelect, optionsCategory} from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
-import { createQuickProduct, getCheckProduct, getproductId } from '@/api/Business'
+import { createQuickProduct, generateCode, getCheckProduct, getproductId } from '@/api/Business'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import { useValidator } from '@/hooks/web/useValidator'
 
@@ -46,7 +46,7 @@ type ListProduct = {
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = ref({
   quickProductCode: '',
-  quickManagementCode: `SP${Date.now()}`,
+  quickManagementCode: '',
   quickProductName: '',
   quickDescription: '',
   chooseCategory: '',
@@ -143,6 +143,12 @@ const attributeChange = (attributeArray)=>{
 const close = () =>{
   emit('update:modelValue', false)
 }
+
+onMounted(()=>{
+  generateCode({CodeType:1,Code:'SP'}).then((res)=>{
+    ruleForm.value.quickManagementCode = res.data
+  })
+})
 </script>
 <template>
         <!-- Dialog Thêm nhanh sản phẩm -->

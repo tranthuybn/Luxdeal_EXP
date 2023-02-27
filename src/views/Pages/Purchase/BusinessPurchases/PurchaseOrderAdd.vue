@@ -130,13 +130,6 @@ const ruleForm = reactive({
 
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
-  collaborators: [
-    {
-      required: true,
-      message: t('formDemo.pleaseSelectCollaboratorCode'),
-      trigger: 'change'
-    }
-  ],
   discount: [
     {
       validator: (_rule: any, value: any, callback: any) => {
@@ -149,7 +142,6 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],
@@ -4962,7 +4954,7 @@ onBeforeMount(async () => {
               </el-dropdown>
             </div>
             <div class="text-black font-bold dark:text-[#fff]">{{
-              t('formDemo.totalAmountReceivable')
+              t('reuse.totalAmountPaid')
             }}</div>
           </div>
 

@@ -14,9 +14,10 @@ import {
 ElNotification} from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { originSelect, unitSelect, brandSelect, optionsCategory} from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
-import { createQuickProduct, generateCode, getCheckProduct, getproductId } from '@/api/Business'
+import { createQuickProduct, getCheckProduct, getproductId } from '@/api/Business'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import { useValidator } from '@/hooks/web/useValidator'
+import { GenerateCodeOrder } from '@/api/common'
 
 
 const { t } = useI18n()
@@ -145,7 +146,7 @@ const close = () =>{
 }
 
 onMounted(()=>{
-  generateCode({CodeType:1,Code:'SP'}).then((res)=>{
+  GenerateCodeOrder({CodeType:1,Code:'SP'}).then((res)=>{
     ruleForm.value.quickManagementCode = res.data
   })
 })

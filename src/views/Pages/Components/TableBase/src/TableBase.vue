@@ -106,6 +106,8 @@ let paginationObj = ref<Pagination>()
 const getData = (data = {}) => {
   methods.setSearchParams({ ...unref(params), ...data })
 }
+
+
 onBeforeMount(() => {
   getData()
 })
@@ -116,8 +118,8 @@ watch(
   () => {
     props.paginationType
       ? (paginationObj.value = {
-          total: tableObject.total
-        })
+        total: tableObject.total
+      })
       : (paginationObj.value = undefined)
     emit('TotalRecord', tableObject?.tableList?.length ?? 0)
     // console.log(tableObject?.tableList?.length)
@@ -144,7 +146,7 @@ async function getTableSelected() {
     .then((res) => {
       emit('SelectedRecord', res)
     })
-    .catch(() => {})
+    .catch(() => { })
 }
 defineExpose({
   getData,
@@ -186,9 +188,9 @@ const sortChange = (column) => {
   if (column.order == null) {
     sortValue.value = null
   }
-  
+
   //sort 1 column at a time
-  if(column.prop !== lastSort.value && lastSort.value !== ''){
+  if (column.prop !== lastSort.value && lastSort.value !== '') {
     clearSearchParams(lastSort.value)
   }
 
@@ -292,8 +294,8 @@ const localeChange = (_show: boolean) => {
 const showingColumn =
   props.fullColumns.length > 0
     ? props.fullColumns
-        .map((el) => ({ value: el.field, label: el.label }))
-        ?.filter((el) => el.value)
+      .map((el) => ({ value: el.field, label: el.label }))
+      ?.filter((el) => el.value)
     : []
 
 //pagination
@@ -311,12 +313,8 @@ const updateTableColumn = () => {
 </script>
 <template>
   <ContentWrap class="relative">
-    <div
-      v-if="!removeDrawer"
-      class="dark:(bg-dark-600 opacity-25 text-red-800) absolute"
-      id="rabbit-ear"
-      @click="drawer = !drawer"
-    >
+    <div v-if="!removeDrawer" class="dark:(bg-dark-600 opacity-25 text-red-800) absolute" id="rabbit-ear"
+      @click="drawer = !drawer">
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
     <ElDrawer v-model="drawer" direction="ttb" size="15%" @close="updateTableColumn">
@@ -325,69 +323,27 @@ const updateTableColumn = () => {
       </template>
       <template #default>
         <ElCheckboxGroup v-model="showingColumnList" fill="var(--el-color-primary)">
-          <ElCheckboxButton
-            v-for="(item, index) in showingColumn"
-            :key="index"
-            :label="item.value"
-            size="small"
-            >{{ item.label }}</ElCheckboxButton
-          >
+          <ElCheckboxButton v-for="(item, index) in showingColumn" :key="index" :label="item.value" size="small">{{
+            item.label }}</ElCheckboxButton>
         </ElCheckboxGroup>
       </template>
     </ElDrawer>
-    <Table
-      ref="tableRef"
-      :expand="expand"
-      v-model:pageSize="tableObject.pageSize"
-      v-model:currentPage="tableObject.currentPage"
-      row-key="id"
-      :data="tableObject.tableList"
-      :loading="tableObject.loading"
-      :pagination="paginationObj"
-      :showOverflowTooltip="false"
-      reserveIndex
-      :maxHeight="maxHeight"
-      @mouseenter="operatorColumnToggle('right')"
-      @mouseleave="operatorColumnToggle(false)"
-      @select="getTableSelected"
-      @select-all="getTableSelected"
-      @register="register"
-      @filter-change="filterChange"
-      @sort-change="sortChange"
-      :selection="selection"
-      @update:page-size="handleSizeChange"
-      @update:current-page="handleCurrentChange"
-    >
-      <template
-        v-for="(header, index) in ColumnsHaveHeaderFilter"
-        #[`${header.field}-header`]
-        :key="index"
-      >
+    <Table ref="tableRef" :expand="expand" v-model:pageSize="tableObject.pageSize"
+      v-model:currentPage="tableObject.currentPage" row-key="id" :data="tableObject.tableList"
+      :loading="tableObject.loading" :pagination="paginationObj" :showOverflowTooltip="false" reserveIndex
+      :maxHeight="maxHeight" @mouseenter="operatorColumnToggle('right')" @mouseleave="operatorColumnToggle(false)"
+      @select="getTableSelected" @select-all="getTableSelected" @register="register" @filter-change="filterChange"
+      @sort-change="sortChange" :selection="selection" @update:page-size="handleSizeChange"
+      @update:current-page="handleCurrentChange">
+      <template v-for="(header, index) in ColumnsHaveHeaderFilter" #[`${header.field}-header`] :key="index">
         {{ header.label }}
-        <InputMoneyRange
-          v-if="header.headerFilter === 'Money'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputDateRange
-          v-if="header.headerFilter === 'Date'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputNumberRange
-          v-if="header.headerFilter === 'Number'"
-          :field="header.field"
-          @confirm="confirm"
-          @cancel="cancel"
-        />
-        <InputName
-          v-if="header.headerFilter === 'Name'"
-          :field="header.field"
-          @filter-select="filterSelect"
-          @cancel="cancel"
-        />
+        <InputMoneyRange v-if="header.headerFilter === 'Money'" :field="header.field" @confirm="confirm"
+          @cancel="cancel" />
+        <InputDateRange v-if="header.headerFilter === 'Date'" :field="header.field" @confirm="confirm" @cancel="cancel" />
+        <InputNumberRange v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
+          @cancel="cancel" />
+        <InputName v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"
+          @cancel="cancel" />
       </template>
       <template v-if="!(customOperator === 3)" #operator="{ row }">
         <div v-if="customOperator === 1">
@@ -421,15 +377,8 @@ const updateTableColumn = () => {
         <slot name="expand"></slot>
       </template>
     </Table>
-    <ElButton
-      v-if="!(props.titleButtons === '')"
-      @click="handleClickAdd"
-      id="bt-add"
-      :icon="plusIcon"
-      class="mx-12"
-    >
-      {{ props.titleButtons }}</ElButton
-    >
+    <ElButton v-if="!(props.titleButtons === '')" @click="handleClickAdd" id="bt-add" :icon="plusIcon" class="mx-12">
+      {{ props.titleButtons }}</ElButton>
   </ContentWrap>
 </template>
 <style lang="less" scoped>

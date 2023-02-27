@@ -6,32 +6,63 @@ import { getCampaignList } from '@/api/Business'
 import { filterPromotionPrice, filterTableStatus, filterSubject } from '@/utils/filters'
 import { dateTimeFormat, formatStatusVoucher, formatSubjectVoucher } from '@/utils/format'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+
+import { useRouter } from 'vue-router'
+import { ElButton } from 'element-plus'
+import { useIcon } from '@/hooks/web/useIcon'
+import { useAppStore } from '@/store/modules/app'
+
+
+const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
+
+const { push } = useRouter()
+const router = useRouter()
+const appStore = useAppStore()
+const Utility = appStore.getUtility
+const action = (row: any, type: string) => {
+  if (type === 'detail' || type === 'edit' || !type) {
+    push({
+      name: `${String(router.currentRoute.value.name)}.${Utility}`,
+      params: { id: row.id, type: type, tab: row.voucherType }
+    })
+  }
+}
+
+
 const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
 provide('parameters', {
   params
 })
 
+
+
 const columns = reactive<TableColumn[]>([
   {
     field: 'index',
     label: t('reuse.index'),
     type: 'index',
-    align: 'center'
+    align: 'center',
   },
   {
     field: 'code',
     label: t('reuse.flashSaleCode'),
-    minWidth: '130'
+    minWidth: '130',
+    headerAlign: 'left',
   },
   {
     field: 'description',
     label: t('reuse.descriptions'),
-    minWidth: '250'
+    minWidth: '250',
+    headerAlign: 'left',
+
   },
   {
     field: 'targetType',
+    justifyContent: 'between',
     label: t('reuse.subject'),
+    headerAlign: 'left',
     minWidth: '130',
     filters: filterSubject,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -42,6 +73,7 @@ const columns = reactive<TableColumn[]>([
     field: 'reduce',
     label: t('reuse.promotion'),
     minWidth: '150',
+    headerAlign: 'left',
     filters: filterPromotionPrice,
     formatter: (row: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', `${cellValue}(${row['maximumReduce']} đ)`)
@@ -51,7 +83,7 @@ const columns = reactive<TableColumn[]>([
     field: 'fromDate',
     label: t('reuse.start'),
     minWidth: '130',
-    align: 'center',
+    headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -61,7 +93,7 @@ const columns = reactive<TableColumn[]>([
     field: 'toDate',
     label: t('common.doneLabel'),
     minWidth: '130',
-    align: 'center',
+    headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -71,7 +103,7 @@ const columns = reactive<TableColumn[]>([
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '130',
-    align: 'center',
+    headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -81,24 +113,36 @@ const columns = reactive<TableColumn[]>([
     field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '130',
+    headerAlign: 'left',
     headerFilter: 'Name'
   },
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
+    headerAlign: 'left',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return formatStatusVoucher(cellValue)
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    headerAlign: 'left',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit') })
+      ])
+    }
   }
 ])
 </script>
+
 <template>
-  <tableDatetimeFilterBasicVue
-    :columns="columns"
-    :titleAdd="t('formDemo.addNewFlashSale')"
-    :api="getCampaignList"
-    :customOperator="5"
-  />
+  <tableDatetimeFilterBasicVue :columns="columns" :titleAdd="t('formDemo.addNewFlashSale')" :api="getCampaignList"
+    :customOperator="5" />
 </template>
+

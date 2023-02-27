@@ -215,9 +215,9 @@ export default defineComponent({
                 v.children && v.children.length
                   ? renderTableColumn(v.children)
                   : // @ts-ignore
-                    getSlot(slots, v.field, data) ||
-                    v?.formatter?.(data.row, data.column, data.row[v.field], data.$index) ||
-                    data.row[v.field],
+                  getSlot(slots, v.field, data) ||
+                  v?.formatter?.(data.row, data.column, data.row[v.field], data.$index) ||
+                  data.row[v.field],
               // @ts-ignore
               header: getSlot(slots, `${v.field}-header`)
             }}
@@ -298,9 +298,9 @@ export default defineComponent({
                     v.children && v.children.length
                       ? renderTreeTableColumn(v.children)
                       : // @ts-ignore
-                        getSlot(slots, v.field, data) ||
-                        v?.formatter?.(data.row, data.column, data.row[v.field], data.$index) ||
-                        data.row[v.field],
+                      getSlot(slots, v.field, data) ||
+                      v?.formatter?.(data.row, data.column, data.row[v.field], data.$index) ||
+                      data.row[v.field],
                   // @ts-ignore
                   header: () =>
                     getSlot(slots, `${v.field}-header`) ||
@@ -349,17 +349,32 @@ export default defineComponent({
   .cell {
     word-break: break-word;
     white-space: unset;
+    width: 100%;
+    position: relative;
   }
+}
+
+::v-deep(.el-tooltip__trigger),
+::v-deep(.caret-wrapper) {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 14px;
+
 }
 
 .arrowRight {
   border: solid white;
   border-width: 0 3px 3px 0;
   display: inline-block;
-  padding: 3px; 
+  padding: 3px;
   transform: rotate(-45deg);
   -webkit-transform: rotate(-45deg);
 }
+
+
+
 ::v-deep(.el-pagination.is-background .btn-next),
 ::v-deep(.el-pagination.is-background .btn-prev),
 ::v-deep(.el-pagination.is-background .el-pager li) {

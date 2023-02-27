@@ -2769,11 +2769,12 @@ const dialogLeaseExtension = ref(false)
 
 // Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
 const backToListOrder = () => {
+  deleteTempCode(ruleForm.orderCode)
   router.push({
     name: 'business.order-management.order-list',
     params: { backRoute: String(router.currentRoute.value.name), tab: tab }
   })
-  deleteTempCode(ruleForm.orderCode)
+  
 }
 
 // Danh sách nhân viên

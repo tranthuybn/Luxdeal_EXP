@@ -79,7 +79,7 @@ import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
 import { API_URL } from '@/utils/API_URL'
 import { API_ORDER } from '@/utils/API.Variables'
-
+import { deleteTempCode } from '@/api/common'
 //them nhanh sp
 import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
@@ -795,7 +795,9 @@ const addStatusOrder = (index) => {
 }
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
+  debugger
   // 13 hoàn thành đơn hàng
+  deleteTempCode(ruleForm.orderCode)
   if (typeState == STATUS_ORDER_DEPOSIT[0].orderStatus) {
     let payload = {
       OrderId: id

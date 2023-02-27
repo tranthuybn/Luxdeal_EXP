@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted, PropType } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElSelect,
@@ -17,13 +17,13 @@ import { originSelect, unitSelect, brandSelect, optionsCategory} from '@/views/P
 import { createQuickProduct, getCheckProduct, getproductId } from '@/api/Business'
 import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAttribute.vue'
 import { useValidator } from '@/hooks/web/useValidator'
+import { GenerateCodeOrder } from '@/api/common'
 
 
 const { t } = useI18n()
-
 const props = defineProps({
   listProducts: {
-    type: Array<ListProduct>,
+    type: Array as PropType<ListProduct[]>,
     required: true
   },
   modelValue:{
@@ -46,7 +46,7 @@ type ListProduct = {
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = ref({
   quickProductCode: '',
-  quickManagementCode: `SP${Date.now()}`,
+  quickManagementCode: '',
   quickProductName: '',
   quickDescription: '',
   chooseCategory: '',
@@ -143,6 +143,12 @@ const attributeChange = (attributeArray)=>{
 const close = () =>{
   emit('update:modelValue', false)
 }
+
+onMounted(()=>{
+  GenerateCodeOrder({CodeType:1,Code:'SP'}).then((res)=>{
+    ruleForm.value.quickManagementCode = res.data
+  })
+})
 </script>
 <template>
         <!-- Dialog Thêm nhanh sản phẩm -->

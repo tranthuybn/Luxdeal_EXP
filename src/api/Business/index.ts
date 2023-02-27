@@ -9,7 +9,8 @@ import {
   LOGIN_API_URL,
   WAREHOUSE_API,
   POINT_API,
-  STAFF_API
+  STAFF_API,
+  TOOL_API
 } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 
@@ -1119,4 +1120,3 @@ export const FinishUpdateSpaService = async (params: any): Promise<IResponse> =>
   )
   return res && res.data
 }
-

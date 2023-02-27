@@ -170,32 +170,13 @@ const initMappingObject = (el) => {
         </el-button>
       </template>
     </HeaderFiler>
-    <TableExtension
-      v-if="selection"
-      :totalRecord="getTotalRecord"
-      :selectedRecord="getSelectedRecord"
-      @export-excel-event="ExportExcelEvent"
-    />
-    <TableBase
-      :removeDrawer="removeDrawer"
-      :expand="expand"
-      :titleButtons="props.titleButtons"
-      :typeButton="props.typeButton"
-      :customOperator="customOperator"
-      :apiTableChild="apiTableChild"
-      :delApi="delApi"
-      :deleteTitle="deleteTitle"
-      :columnsTableChild="columnsTableChild"
-      :paginationType="pagination"
-      ref="tableBase01"
-      :api="dynamicApi"
-      :maxHeight="'69vh'"
-      :fullColumns="dynamicColumns"
-      @total-record="fnGetTotalRecord"
-      @selected-record="fnGetSelectedRecord"
-      :selection="selection"
-      :titleChilden="props.titleChilden"
-    >
+    <TableExtension v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
+      @export-excel-event="ExportExcelEvent" />
+    <TableBase :removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
+      :typeButton="props.typeButton" :customOperator="customOperator" :apiTableChild="apiTableChild" :delApi="delApi"
+      :deleteTitle="deleteTitle" :columnsTableChild="columnsTableChild" :paginationType="pagination" ref="tableBase01"
+      :api="dynamicApi" :maxHeight="'69vh'" :fullColumns="dynamicColumns" @total-record="fnGetTotalRecord"
+      @selected-record="fnGetSelectedRecord" :selection="selection" :titleChilden="props.titleChilden">
       <template #expand>
         <slot name="expand"></slot>
       </template>

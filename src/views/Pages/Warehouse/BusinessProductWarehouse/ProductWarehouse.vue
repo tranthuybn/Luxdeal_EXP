@@ -49,6 +49,10 @@ const prop = defineProps({
   returnRequestId: {
     type: Number,
     default: 0
+  },
+  status:{
+    type: Number,
+    default: 0
   }
 })
 const ListOfProductsForSale = computed(() => {
@@ -451,7 +455,7 @@ const disabled = computed(() => {
             <el-button
               text
               @click="openDialogWarehouse(props)"
-              :disabled="Number(returnRequestId) != 0"
+              :disabled="Number(returnRequestId) != 0 || status == 3 || status == 4"
             >
               <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
             </el-button>

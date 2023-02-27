@@ -229,3 +229,8 @@ export const APPROVAL_API = {
 export const ROLE_API = {
   CREATE_NEW_STAFF_ROLE :'api/v1/Authorization/AddNewStaffRole'
 }
+
+export const TOOL_API = {
+  GENERATE_CODE: '/api/v1/Tool/GenerateCode',
+  DELETE_TEMPORARY_CODE: '/api/v1/Tool/DeleteTemporaryCode',
+}

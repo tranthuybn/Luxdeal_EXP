@@ -1805,6 +1805,7 @@ export default {
         //trạng thái kho
     exportTicketStatus: 'Export ticket status',
     transferTicketStatus: 'Transfer ticket status',
+    totalAmountPaid: 'Total amount paid'
   }
 }
   

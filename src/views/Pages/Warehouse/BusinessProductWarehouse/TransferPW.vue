@@ -34,6 +34,14 @@ const prop = defineProps({
   ticketData: {
     type: Object,
     default: () => {}
+  },
+  status:{
+    type: Number,
+    default: 0
+  },
+  returnRequestId: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -455,7 +463,10 @@ const totalMoney = () => {
     <el-table-column :label="t('reuse.detailExportWarehouse')" min-width="250">
       <template #default="props">
         {{ fromWarehouseFormat(props) }}
-        <el-button text @click="openDialogWarehouseExport(props)">
+        <el-button
+text @click="openDialogWarehouseExport(props)" 
+        :disabled="Number(returnRequestId) != 0 || status == 3 || status == 4"
+        >
           <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
         </el-button>
       </template>

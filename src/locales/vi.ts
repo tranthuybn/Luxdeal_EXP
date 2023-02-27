@@ -947,7 +947,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
-    duplicateInformation:'Trùng thông tin, vui lòng kiểm tra tên/mã/email/sđt ...',
+    duplicateInformation: 'Trùng thông tin, vui lòng kiểm tra tên/mã/email/sđt ...',
     addNewBranch: 'Thêm mới chi nhánh',
     addNewDepartment: 'Thêm mới phòng ban',
     addNewTypePersonnel: 'Thêm mới loại hình nhân sự',
@@ -1035,13 +1035,13 @@ export default {
     surveyDate: 'Ngày khảo sát',
     serviceRating: 'Xếp hạng DV(sao)',
     picture: 'Hình ảnh',
-    collectionCode: 'Mã bộ sưu tập',
+    collectionCode: 'Mã BST',
     subject: 'Đối tượng',
     subjectsOfApplication: 'Đối tượng áp dụng',
     promotion: 'Khuyến mại',
     promotionCode: 'Mã khuyến mại',
     newproductCode: 'Mã HMV',
-    flashSaleCode: 'Mã Flash Sale',
+    flashSaleCode: 'Mã Flash sale',
     surveyContent: 'Nội dung khảo sát',
     productCode: 'Mã sản phẩm',
     managementCode: 'Mã quản lý',
@@ -1220,7 +1220,7 @@ export default {
     title: 'Tiêu đề',
     buyProduct: 'Mua hàng',
     finishPending: 'Đã duyệt',
-    voucherCode: 'Mã voucher',
+    voucherCode: 'Mã Voucher',
     enterprise: 'Công ty',
     personal: 'Cá nhân',
     allCustomer: 'Tất cả khách hàng',
@@ -1960,5 +1960,6 @@ export default {
     //trạng thái kho
     exportTicketStatus: 'Trạng thái phiếu xuất kho',
     transferTicketStatus: 'Trạng thái phiếu chuyển kho',
+    totalAmountPaid: 'Tổng tiền phải trả'
   }
 }

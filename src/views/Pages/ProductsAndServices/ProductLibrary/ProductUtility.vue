@@ -52,6 +52,7 @@ import { productStatusPending, dateTimeFormat } from '@/utils/format'
 import ProductAttribute from './ProductAttribute.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { getLotHistory } from '@/api/Warehouse'
+import { generateCode } from '@/api/Business'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -209,7 +210,7 @@ const collapseChangeEvent = async (val) => {
     })
   }
 }
-const addLastRowAttribute = () => {
+const addLastRowAttribute = async () => {
   if (
     collapse[1].tableList.length > 0 &&
     (collapse[1].tableList[collapse[1].tableList.length - 1].categories == undefined ||
@@ -218,7 +219,11 @@ const addLastRowAttribute = () => {
     ElMessage.error(t('reuse.haveNotChooseProperty'))
     return
   }
-  let randomCode = `SP${Date.now()}`
+
+  let randomCode = ''
+  await generateCode({CodeType:1,Code:'SP'}).then((res)=>{
+    randomCode = res.data
+  })
   //have id when in edit mode
   //newId: when click save and add return id
   const findId = (id==0||isNaN(id)) ? newId.value : id

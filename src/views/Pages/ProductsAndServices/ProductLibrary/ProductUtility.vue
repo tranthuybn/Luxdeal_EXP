@@ -52,7 +52,6 @@ import { productStatusPending, dateTimeFormat } from '@/utils/format'
 import ProductAttribute from './ProductAttribute.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { getLotHistory } from '@/api/Warehouse'
-import { generateCode } from '@/api/Business'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })

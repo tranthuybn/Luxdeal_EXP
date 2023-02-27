@@ -85,6 +85,7 @@ import LeaseExtension from './LeaseExtension.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
+import { deleteTempCode } from '@/api/common'
 const { utility } = appModules
 const { t } = useI18n()
 
@@ -2772,6 +2773,7 @@ const backToListOrder = () => {
     name: 'business.order-management.order-list',
     params: { backRoute: String(router.currentRoute.value.name), tab: tab }
   })
+  deleteTempCode(ruleForm.orderCode)
 }
 
 // Danh sách nhân viên

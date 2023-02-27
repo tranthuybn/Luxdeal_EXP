@@ -5,6 +5,7 @@ declare type TableColumn = {
   align?: string
   headerFilter?: string = 'Number' | 'Date' | 'Money' | 'Name'
   title?: string
+  headerAlign?: string
 } & Recordable
 
 declare type TableSlotDefault = {

@@ -1,11 +1,34 @@
 <script setup lang="ts">
-import { provide, reactive } from 'vue'
+import { provide, reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getCampaignList } from '@/api/Business'
 import { filterPromotionPrice, filterTableStatus, filterSubject } from '@/utils/filters'
 import { dateTimeFormat, formatStatusVoucher, formatSubjectVoucher } from '@/utils/format'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { useRouter } from 'vue-router'
+import { ElButton } from 'element-plus'
+import { useIcon } from '@/hooks/web/useIcon'
+import { useAppStore } from '@/store/modules/app'
+
+const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
+
+const { push } = useRouter()
+const router = useRouter()
+const appStore = useAppStore()
+const Utility = appStore.getUtility
+const action = (row: any, type: string) => {
+  if (type === 'detail' || type === 'edit' || !type) {
+    push({
+      name: `${String(router.currentRoute.value.name)}.${Utility}`,
+      params: { id: row.id, type: type, tab: row.voucherType }
+    })
+  }
+}
+
+
+
 const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[1].key }
 provide('parameters', {
@@ -21,18 +44,21 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'code',
-    label: t('reuse.flashSaleCode'),
-    minWidth: '130'
+    label: t('reuse.collectionCode'),
+    minWidth: '130',
+    headerAlign: 'left',
   },
   {
     field: 'description',
     label: t('reuse.descriptions'),
-    minWidth: '250'
+    minWidth: '250',
+    headerAlign: 'left',
   },
   {
     field: 'targetType',
     label: t('reuse.subject'),
     minWidth: '130',
+    headerAlign: 'left',
     filters: filterSubject,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return formatSubjectVoucher(cellValue)
@@ -42,13 +68,14 @@ const columns = reactive<TableColumn[]>([
     field: 'reduce',
     label: t('reuse.promotion'),
     minWidth: '150',
+    headerAlign: 'left',
     filters: filterPromotionPrice
   },
   {
     field: 'fromDate',
     label: t('reuse.start'),
     minWidth: '130',
-    align: 'center',
+    headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -58,7 +85,7 @@ const columns = reactive<TableColumn[]>([
     field: 'toDate',
     label: t('common.doneLabel'),
     minWidth: '130',
-    align: 'center',
+    headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -68,7 +95,7 @@ const columns = reactive<TableColumn[]>([
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '130',
-    align: 'center',
+    headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -78,15 +105,29 @@ const columns = reactive<TableColumn[]>([
     field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '130',
+    headerAlign: 'left',
     headerFilter: 'Name'
   },
   {
     field: 'status',
     label: t('reuse.status'),
+    headerAlign: 'left',
     minWidth: '150',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return formatStatusVoucher(cellValue)
+    }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    headerAlign: 'left',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),
+        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit') })
+      ])
     }
   }
 ])

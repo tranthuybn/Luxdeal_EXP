@@ -37,17 +37,20 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'code',
-    label: t('router.voucherCode'),
-    minWidth: '130'
+    label: t('reuse.voucherCode'),
+    minWidth: '130',
+    headerAlign: 'left',
   },
   {
     field: 'description',
     label: t('reuse.descriptions'),
-    minWidth: '250'
+    minWidth: '250',
+    headerAlign: 'left',
   },
   {
     field: 'voucherType',
     label: t('reuse.type'),
+    headerAlign: 'left',
     minWidth: '200',
     filters: filterVoucherType,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -57,6 +60,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'condition',
     label: t('formDemo.condition'),
+    headerAlign: 'left',
     minWidth: '130',
     filters: filterVoucherCondition,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -66,6 +70,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'targetType',
     label: t('reuse.subject'),
+    headerAlign: 'left',
     minWidth: '200',
     filters: filterSubject,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -75,6 +80,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'reduce',
     label: t('reuse.promotion'),
+    headerAlign: 'left',
     minWidth: '150',
     filters: filterPromotionPrice
   },
@@ -82,7 +88,7 @@ const columns = reactive<TableColumn[]>([
     field: 'fromDate',
     label: t('reuse.start'),
     minWidth: '130',
-    align: 'center',
+    headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -92,7 +98,7 @@ const columns = reactive<TableColumn[]>([
     field: 'toDate',
     label: t('common.doneLabel'),
     minWidth: '130',
-    align: 'center',
+    headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -102,7 +108,7 @@ const columns = reactive<TableColumn[]>([
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '130',
-    align: 'center',
+    headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -112,12 +118,14 @@ const columns = reactive<TableColumn[]>([
     field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '130',
+    headerAlign: 'left',
     headerFilter: 'Name'
   },
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
+    headerAlign: 'left',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return formatStatusVoucher(cellValue)
@@ -127,6 +135,7 @@ const columns = reactive<TableColumn[]>([
     field: 'operator',
     label: t('reuse.operator'),
     minWidth: '200',
+    headerAlign: 'left',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', { style: 'display:flex;justify-content: center;' }, [
         h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),
@@ -151,10 +160,6 @@ const action = (row: any, type: string) => {
 }
 </script>
 <template>
-  <tableDatetimeFilterBasicVue
-    :columns="columns"
-    :titleAdd="t('formDemo.addNewVoucher')"
-    :api="getCampaignList"
-    :customOperator="3"
-  />
+  <tableDatetimeFilterBasicVue :columns="columns" :titleAdd="t('formDemo.addNewVoucher')" :api="getCampaignList"
+    :customOperator="3" />
 </template>

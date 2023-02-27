@@ -152,8 +152,8 @@ export const PROMOTION_STRATEGY = [
     label: 'Combo'
   },
   {
-    value: 4,
-    key: 5,
+    value: 5,
+    key: 6,
     label: 'Đấu giá'
   }
 ]
@@ -617,31 +617,31 @@ export const STATUS_ORDER_RENTAL = [
 
 export const CampaignType = {
 
-  Flashsale : 1,
+  Flashsale: 1,
 
-  BoSuuTap : 2,
+  BoSuuTap: 2,
 
-  HangMoiVe : 3,
+  HangMoiVe: 3,
 
-  Voucher : 4,
+  Voucher: 4,
 
-  Combo : 5
+  Combo: 5
 }
 export const Approvement = {
- 
-  Product : 1,
 
-  Order : 2,
+  Product: 1,
 
-  CustomerAccount :3,
+  Order: 2,
 
-  CollaboratorAccount :4,
+  CustomerAccount: 3,
 
-  DeNghiThanhToan : 5,
+  CollaboratorAccount: 4,
 
-  Campaign : 6,
+  DeNghiThanhToan: 5,
 
-  PhieuThuChi :7,
+  Campaign: 6,
 
-  SpaService : 8
+  PhieuThuChi: 7,
+
+  SpaService: 8
 }

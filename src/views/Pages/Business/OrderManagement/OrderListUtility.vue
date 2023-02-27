@@ -29,6 +29,7 @@ import {
   UploadProps,
   UploadUserFile
 } from 'element-plus'
+// import { ORDER_STYTE } from '@/utils/API.Variables' 
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { useRoute, useRouter } from 'vue-router'
@@ -72,7 +73,8 @@ import {
   getAllStaffList,
   cancelReturnOrder,
   updateStatusTransaction,
-  finishReturnOrder
+  finishReturnOrder,
+GenerateCodeOrder
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
 import { UpdateStatusTicketFromOrder } from '@/api/Warehouse'
@@ -84,6 +86,7 @@ import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPayment
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
+import { deleteTempCode } from '@/api/common'
 const { utility } = appModules
 const { t } = useI18n()
 
@@ -104,7 +107,7 @@ const checkPercent = (_rule: any, value: any, callback: any) => {
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
-var curDate = 'DHB' + moment().format('hhmmss')
+// var curDate = 'DHB' + moment().format('hhmmss')
 var autoCustomerCode = 'KH' + moment().format('hhmmss')
 var autoCodeSellOrder = 'BH' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
@@ -1115,6 +1118,9 @@ const backToListOrder = () => {
     name: 'business.order-management.order-list',
     params: { backRoute: String(router.currentRoute.value.name), tab: tab }
   })
+  deleteTempCode({
+     Code:ruleForm.orderCode
+   })
 }
 
 // total order
@@ -2688,7 +2694,10 @@ onBeforeMount(async () => {
   callApiCity()
 
   if (type == 'add' || type == ':type') {
-    ruleForm.orderCode = curDate
+    await GenerateCodeOrder({CodeType:5,ServiceType:1})
+    .then((res)=>{
+      ruleForm.orderCode = res.data
+    })
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
     disabledPhieu.value = true
@@ -4425,8 +4434,8 @@ const disabledPhieu = ref(false)
               </div>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="true"
-                  style="width: 100%"
+                :disabled="true"
+                style="width: 100%"
                   v-model="ruleForm.orderCode"
                 />
               </el-form-item>

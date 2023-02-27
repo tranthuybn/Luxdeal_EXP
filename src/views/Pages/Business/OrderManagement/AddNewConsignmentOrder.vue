@@ -35,6 +35,7 @@ import { dateTimeFormat } from '@/utils/format'
 import { appModules } from '@/config/app'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+import {GenerateCodeOrder} from '@/api/Business'
 import {
   getProductsList,
   getCustomerById,
@@ -1262,7 +1263,7 @@ var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
-var curDate = 'DHKG' + moment().format('hhmmss')
+// var curDate = 'DHKG' + moment().format('hhmmss')
 
 const dialogBillLiquidation = ref(false)
 const enterdetailAddress = ref([])
@@ -2280,9 +2281,14 @@ onBeforeMount(async () => {
   await callAPIProduct()
   await callApiWarehouseList()
 
-  if (type == 'add' || type == ':type') {
+  if (type == ('add') || type == (':type') ) {
     disableCreateOrder.value = true
-    ruleForm.orderCode = curDate
+    await GenerateCodeOrder({CodeType:5,ServiceType:2})
+    .then((res) =>
+    {
+      ruleForm.orderCode = res.data
+    })
+    // ruleForm.orderCode = curDate
     billLiquidationDis.value = true
     disableEditData.value = false
   }
@@ -3570,7 +3576,7 @@ const openDetailOrder = (id, type) => {
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-                  :disabled="disableCreateOrder"
+                :disabled="disableCreateOrder"
                   v-model="ruleForm.orderCode"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"

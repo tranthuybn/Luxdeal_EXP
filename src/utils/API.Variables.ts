@@ -1,6 +1,39 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 
+export const ORDER_STYTE = [
+  {
+    value:1,
+    key:'Bán',
+    lable:''
+  },
+  {
+    value:2,
+    key:'Kygui',
+    lable:'Đơn hàng Ký Gửi'
+  },
+  {
+    value:3,
+    key:'Chothue',
+    lable:'Cho thuê'
+  },
+  {
+    value:4,
+    key:'Thechap',
+    lable:'Thế chấp'
+  },
+  {
+    value:5,
+    key:'Spa',
+    lable:'Đơn hàng Span'
+  },
+  {
+    value:6,
+    key:'Mua',
+    lable:'Đơn hàng mua'
+  },
+]
+
 export const PRODUCTS_AND_SERVICES = [
   {
     value: 0,

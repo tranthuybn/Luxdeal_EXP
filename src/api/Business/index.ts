@@ -18,16 +18,26 @@ const request = useAxios()
 
 const fixedBaseURL = API_URL
 
-export const CreateANewPaymentRequest = async (params): Promise<IResponse>=>{
+
+export const GenerateCodeOrder = async (params: any): Promise<IResponse> => {
+  const res = await request.get({
+    url: `${ORDER_API.GET_AUTO_GEN_CODE}?${objectToQueryParams(params)}`,
+  },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const CreateANewPaymentRequest = async (params): Promise<IResponse> => {
   const res = await request.post(
     {
-    url: `${ACCOUNTANT_API.POST_ACCOUNTANT_CREATEANEWPAYMENTREQUEST}`,
-    data: params,
-  },
-  fixedBaseURL
-)
-return res && res.data
-  }
+      url: `${ACCOUNTANT_API.POST_ACCOUNTANT_CREATEANEWPAYMENTREQUEST}`,
+      data: params,
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 
 export const addCustomerRatings = async (params): Promise<IResponse> => {
   const res = await request.post(
@@ -1105,15 +1115,6 @@ export const FinishUpdateSpaService = async (params: any): Promise<IResponse> =>
     {
       url: ORDER_API.FINISH_UPDATE_SPA_SERVICE,
       data: params
-    },
-    fixedBaseURL
-  )
-  return res && res.data
-}
-export const generateCode = async (params: any): Promise<IResponse> => {
-  const res = await request.get(
-    {
-      url: `${TOOL_API.GENERATE_CODE}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

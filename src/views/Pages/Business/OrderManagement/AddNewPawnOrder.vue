@@ -805,13 +805,6 @@ const inputDeposit = ref(0)
 
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
-  collaborators: [
-    {
-      required: true,
-      message: t('formDemo.pleaseSelectCollaboratorCode'),
-      trigger: 'change'
-    }
-  ],
   warehouse: [
     {
       required: true,
@@ -832,7 +825,6 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],
@@ -1862,7 +1854,7 @@ interface statusOrderType {
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
 
-if (type == 'add')
+if (type == 'add' || type == ':type')
   arrayStatusOrder.value.push({
     orderStatusName: 'Duyệt đơn hàng',
     orderStatus: 4,
@@ -1939,9 +1931,9 @@ onBeforeMount(async () => {
   callCustomersApi()
   callApiCollaborators()
 
-  if (type == 'add') {
+  if (type == 'add' || type == ':type') {
     disableCreateOrder.value = true
-
+    disabledPhieu.value = true
     disableEditData.value = false
     ruleForm.orderCode = curDate
     pawnOrderCode.value = autoCodePawnOrder
@@ -1975,6 +1967,8 @@ const addRow = () => {
 const removeRow = (index) => {
   rentReturnOrder.value.tableData.splice(index, 1)
 }
+
+const disabledPhieu = ref(false)
 </script>
 
 <template>
@@ -2804,10 +2798,11 @@ const removeRow = (index) => {
                 statusOrder == STATUS_ORDER_PAWN[9].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
-                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && type == 'add')
+                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type'))
               "
               class="min-w-42 min-h-11"
               @click="openBillPawnDialog"
+              :disabled="disabledPhieu"
               >{{ t('formDemo.billPawn') }}</el-button
             >
 
@@ -2819,10 +2814,11 @@ const removeRow = (index) => {
                 statusOrder == STATUS_ORDER_PAWN[9].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
-                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && type == 'add')
+                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type'))
               "
               class="min-w-42 min-h-11"
               @click="openDepositDialog"
+              :disabled="disabledPhieu"
               >{{ t('formDemo.bill') }}</el-button
             >
 
@@ -2848,7 +2844,7 @@ const removeRow = (index) => {
               >{{ t('formDemo.editOrder') }}</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_PAWN[3].orderStatus && type == 'add'"
+              v-if="statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type')"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)

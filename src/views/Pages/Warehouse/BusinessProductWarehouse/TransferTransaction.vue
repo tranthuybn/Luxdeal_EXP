@@ -55,6 +55,7 @@ const router = useRouter()
 const id = ref(Number(router.currentRoute.value.params.id))
 const type = ref('add')
 const transactionType = 3
+const returnRequestId = ref(0)
 
 const back = async () => {
   push({
@@ -180,7 +181,7 @@ type ProductWarehouse = {
   serviceType?: number
 }
 const status = ref(1)
-const lastStatus = ref(1)
+const lastStatus = ref()
 const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 const serviceType = ref(6)
 
@@ -211,9 +212,10 @@ const callApiForData = async () => {
       }
       ticketData.value.serviceType = res.data[0]?.orderType
       ticketData.value.orderId = res.data[0]?.orderId
+      returnRequestId.value = res.data[0]?.returnRequestID
 
       status.value = res.data[0].status
-lastStatus.value = res.data[0]?.statusHistory[res.data[0]?.statusHistory.length -1]?.value
+lastStatus.value = res.data[0]?.statusHistory[res.data[0]?.statusHistory.length -1]
       arrayStatusWH.value = res.data[0]?.statusHistory
         if (arrayStatusWH.value?.length) {
       arrayStatusWH.value[arrayStatusWH.value?.length - 1].isActive = true
@@ -437,6 +439,8 @@ const updateTicket = (warehouse, type) => {
           :transactionType="transactionType"
           :productData="productData"
           :ticketData="ticketData"
+          :status="status"
+          :returnRequestId="returnRequestId"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
@@ -517,7 +521,7 @@ const updateTicket = (warehouse, type) => {
               class="w-[150px]"
               type="primary"
               v-if="Number(ticketData.orderId) !== 0"
-              :disabled="type == 'add' || type == 'edit' || lastStatus == 4"
+              :disabled="type == 'add' || type == 'edit' || (lastStatus.value == 4 && !lastStatus.approveAt)"
               @click="updateInventoryOrder"
               >{{ t('reuse.transferWarehouseNow') }}</ElButton
             >
@@ -553,7 +557,7 @@ const updateTicket = (warehouse, type) => {
               class="w-[150px]"
               type="danger"
               v-if="Number(ticketData.orderId) !== 0"
-              :disabled="type == 'add' || type == 'edit' || lastStatus == 4"
+              :disabled="type == 'add' || type == 'edit' || (lastStatus.value == 4 && !lastStatus.approveAt)"
               @click="cancelTicketWarehouse"
               >{{ t('reuse.cancelTransfer') }}</ElButton
             >

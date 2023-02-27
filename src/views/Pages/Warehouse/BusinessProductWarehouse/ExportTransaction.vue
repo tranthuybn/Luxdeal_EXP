@@ -63,7 +63,7 @@ const back = async () => {
   })
 }
 const status = ref(2)
-const lastStatus = ref(2)
+const lastStatus = ref()
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const ExportPWRef = ref<InstanceType<typeof ExportPW>>()
@@ -236,7 +236,7 @@ const callApiForData = async () => {
       orderData.value = res.data[0].orderDetails
 
       status.value = res.data[0]?.status
-      lastStatus.value = res.data[0]?.statusHistory[res.data[0]?.statusHistory.length -1]?.value
+      lastStatus.value = res.data[0]?.statusHistory[res.data[0]?.statusHistory.length -1]
     }
   } else {
     type.value == 'add'
@@ -448,6 +448,7 @@ const updateTicket = (warehouse) => {
           :warehouse="ticketData.warehouse"
           :serviceType="serviceType"
           :returnRequestId="returnRequestId"
+          :status="status"
         />
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
@@ -554,7 +555,7 @@ const updateTicket = (warehouse) => {
               class="w-[150px]"
               type="primary"
               v-if="Number(ticketData.orderId) !== 0"
-              :disabled="type == 'add' || type == 'edit' || lastStatus == 4"
+              :disabled="type == 'add' || type == 'edit' || (lastStatus.value == 4 && !lastStatus.approveAt)"
               @click="updateInventoryOrder"
               >{{ t('reuse.outStockNow') }}</ElButton
             >
@@ -590,7 +591,7 @@ const updateTicket = (warehouse) => {
               class="w-[150px]"
               type="danger"
               v-if="Number(ticketData.orderId) !== 0"
-              :disabled="type == 'add' || type == 'edit' || lastStatus == 4"
+              :disabled="type == 'add' || type == 'edit' || (lastStatus.value == 4 && !lastStatus.approveAt)"
               @click="cancelTicketWarehouse"
               >{{ t('reuse.cancelImport') }}</ElButton
             >

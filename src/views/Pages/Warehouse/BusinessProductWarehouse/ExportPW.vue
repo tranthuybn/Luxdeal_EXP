@@ -50,6 +50,10 @@ const prop = defineProps({
   returnRequestId: {
     type: Number,
     default: 0
+  },
+  status:{
+    type: Number,
+    default: 0
   }
 })
 
@@ -452,7 +456,7 @@ const disabled = computed(() => {
         <div class="flex w-[100%] items-center">
           <div class="w-[60%] break-words">{{ warehouseFormat(props) }}</div>
           <div class="w-[40%]">
-            <el-button text @click="openDialogWarehouse(props)" :disabled="returnRequestId !== 0">
+            <el-button text @click="openDialogWarehouse(props)" :disabled="returnRequestId !== 0 || status == 3 || status == 4">
               <span class="text-blue-500"> + {{ t('formDemo.chooseWarehouse') }}</span>
             </el-button>
           </div>

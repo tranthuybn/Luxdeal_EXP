@@ -127,20 +127,12 @@ const ruleForm = reactive({
 
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
-  collaborators: [
-    {
-      required: true,
-      message: t('formDemo.pleaseSelectCollaboratorCode'),
-      trigger: 'change'
-    }
-  ],
   discount: [
     {
       validator: checkPercent,
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],
@@ -1098,6 +1090,7 @@ const postData = async (pushBack: boolean) => {
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
     }
+  disabledPhieu.value = false
   } else {
     ElNotification({
       message: t('reuse.addFail'),
@@ -2698,6 +2691,7 @@ onBeforeMount(async () => {
     ruleForm.orderCode = curDate
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
+    disabledPhieu.value = true
   }
   if (type == 'detail') buttonDuplicate.value = true
 
@@ -2711,6 +2705,8 @@ onBeforeMount(async () => {
   }
   await callApiStaffList()
 })
+
+const disabledPhieu = ref(false)
 </script>
 
 <template>
@@ -5498,14 +5494,14 @@ onBeforeMount(async () => {
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled || disabledPhieu"
               @click="openBillDialog"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.paymentSlip') }}</el-button
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled || disabledPhieu"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >

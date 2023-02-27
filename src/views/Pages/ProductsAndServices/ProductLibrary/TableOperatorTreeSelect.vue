@@ -792,7 +792,7 @@ const approvalProduct = async () => {
             </el-radio-group>
             <span class="text-[#FECB80]">({{ t('reuse.allBusinessRelatedActivities') }})</span>
 
-            <div class="break" v-if="form['ProductStatus'] == 1">
+            <div class="break" v-if="form['ProductStatus'] == 2">
               <span class="bg-orange-100 text-orange-300 px-2">{{ t('reuse.pendings') }}</span>
               </div>
           </template>

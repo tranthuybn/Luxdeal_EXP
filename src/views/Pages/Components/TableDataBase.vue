@@ -116,6 +116,7 @@ const Utility = appStore.getUtility
 const { push } = useRouter()
 const router = useRouter()
 const pushAdd = () => {
+  debugger
   push({
     name: `${String(router.currentRoute.value.name)}.${Utility}`,
     params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
@@ -170,9 +171,11 @@ const initMappingObject = (el) => {
         </el-button>
       </template>
     </HeaderFiler>
-    <TableExtension v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
+    <TableExtension
+v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
       @export-excel-event="ExportExcelEvent" />
-    <TableBase :removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
+    <TableBase
+:removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
       :typeButton="props.typeButton" :customOperator="customOperator" :apiTableChild="apiTableChild" :delApi="delApi"
       :deleteTitle="deleteTitle" :columnsTableChild="columnsTableChild" :paginationType="pagination" ref="tableBase01"
       :api="dynamicApi" :maxHeight="'69vh'" :fullColumns="dynamicColumns" @total-record="fnGetTotalRecord"

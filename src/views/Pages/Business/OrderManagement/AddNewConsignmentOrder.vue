@@ -316,6 +316,13 @@ const ruleFormRef2 = ref<FormInstance>()
 
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
+  collaborators: [
+    {
+      required: true,
+      message: t('formDemo.pleaseSelectCollaboratorCode'),
+      trigger: 'change'
+    }
+  ],
   warehouse: [
     {
       required: true,
@@ -336,6 +343,7 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
+  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],
@@ -506,15 +514,7 @@ let countExistedDNTT = ref(0)
 const debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
-const businessTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
-  if(val.length ==0){
-    disabledPTAccountingEntry.value = true
-      disabledPCAccountingEntry.value = true
-      disabledDNTTAccountingEntry.value = true
-    return
-  }
-
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -795,9 +795,8 @@ const addStatusOrder = (index) => {
 }
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
-  debugger
   // 13 hoàn thành đơn hàng
-  deleteTempCode(ruleForm.orderCode)
+  await deleteTempCode(ruleForm.orderCode)
   if (typeState == STATUS_ORDER_DEPOSIT[0].orderStatus) {
     let payload = {
       OrderId: id
@@ -960,9 +959,9 @@ const getTotalWarehouse = () => {
 }
 
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
-const disabledPTAccountingEntry = ref(true)
-const disabledPCAccountingEntry = ref(true)
-const disabledDNTTAccountingEntry = ref(true)
+const disabledPTAccountingEntry = ref(false)
+const disabledPCAccountingEntry = ref(false)
+const disabledDNTTAccountingEntry = ref(false)
 
 // Tổng tiền table phiếu đề nghị thanh toán nếu có
 const totalPayment = ref(0)
@@ -1238,6 +1237,12 @@ const tableAccountingEntry = ref([
 
 const openDialogChooseWarehouse = ref(false)
 const dialogbusinessManagement = ref(false)
+
+const formBusuness = reactive({
+  id: 1,
+  check: '',
+  applyExport: ''
+})
 
 const listApplyExport = [
   {
@@ -1880,9 +1885,6 @@ if (tableProductInformationExportChange.value?.length == 0) addProductInformatio
 const indexRow = ref()
 
 const handleSelectionbusinessManagement = (val: tableDataType[]) => {
-  if(disabledEdit.value){
-    return
-  }
   const label = val.map((e) => e.applyExport)
   const x = val.map((e) => e.id)
   ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(', ')
@@ -1897,20 +1899,6 @@ const ckeckChooseProduct = (scope) => {
     })
   } else {
     dialogbusinessManagement.value = true
-    if(disabledEdit.value){
-      const businessArray = scope.row.businessSetup.split(", ")
-      const businessIndex: number[] = []
-      businessArray.forEach((element)=>{
-        if(element == '1') businessIndex.push(0)
-        if(element == '3') businessIndex.push(1)
-        if(element == '5') businessIndex.push(2)
-      })
-      setTimeout(()=>{
-        businessIndex.forEach((element)=>{
-          businessTableRef.value!.toggleRowSelection(listApplyExport[element],true)
-        })
-      }, 1000)
-    }
   }
 }
 
@@ -2159,7 +2147,7 @@ const returnGoodsAheadOfTime = async (status, data) => {
 }
 // hoàn thành trả hàng
 
-if (type == 'add' || type == ':type') {
+if (type == 'add') {
   arrayStatusOrder.value?.push({
     orderStatusName: 'Duyệt đơn hàng',
     orderStatus: 4,
@@ -3938,7 +3926,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add' || type == ':type'">
+              <div v-if="type == 'add'">
                 <CurrencyInputComponent v-model="props.row.consignmentSellPrice" />
               </div>
               <div v-else>
@@ -3952,7 +3940,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add' || type == ':type'">
+              <div v-if="type == 'add'">
                 <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
               </div>
               <div v-else>
@@ -3964,13 +3952,14 @@ const openDetailOrder = (id, type) => {
           <el-table-column :label="t('formDemo.businessManagement')" width="200" prop="businessSetupName">
             <template #default="data">
               <div class="flex w-[100%]">
-                <div class="flex-1">
+                <div class="flex-1 limit-text">
                   <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">
                   <el-button
                     text
                     border 
+                    :disabled="disabledEdit" 
                     class="text-blue-500" 
                     @click="
                       () => {
@@ -3989,6 +3978,7 @@ const openDetailOrder = (id, type) => {
               <div class="flex w-[100%] items-center">
                 <el-button
                   text
+                  :disabled="disabledEdit"
                   @click="
                     () => {
                       callApiWarehouse(props)
@@ -4178,7 +4168,7 @@ const openDetailOrder = (id, type) => {
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
-                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && (type == 'add' || type == ':type'))
+                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add')
               "
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"
@@ -4206,7 +4196,7 @@ const openDetailOrder = (id, type) => {
               >{{ t('formDemo.startRentingTermDeposit') }}</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && (type == 'add' || type == ':type')"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add'"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
@@ -4395,8 +4385,9 @@ const openDetailOrder = (id, type) => {
         align-center
       >
         <el-divider />
+        <el-form :model="formBusuness">
           <el-table
-            ref="businessTableRef"
+            ref="multipleTableRef"
             border
             :data="listApplyExport"
             @selection-change="handleSelectionbusinessManagement"
@@ -4404,12 +4395,12 @@ const openDetailOrder = (id, type) => {
             <el-table-column type="selection" width="55" />
             <el-table-column class="font-normal" prop="applyExport" label="Cho phép xuất hàng" />
           </el-table>
+        </el-form>
 
         <template #footer>
           <span class="dialog-footer">
             <el-button
               type="primary"
-              :disabled="disabledEdit"
               @click="
                 () => {
                   dialogbusinessManagement = false
@@ -4681,6 +4672,7 @@ const openDetailOrder = (id, type) => {
           <span class="text-center text-xl">{{ collapse[3].title }}</span>
         </template>
         <div>
+          <el-divider content-position="left">{{ t('formDemo.importTrackingTable') }}</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column
               prop="createdAt"

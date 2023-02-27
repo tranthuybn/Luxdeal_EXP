@@ -1885,7 +1885,6 @@ const addStatusOrder = (index) => {
 
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
-  debugger
   await deleteTempCode(ruleForm.orderCode)
   // 13 hoàn thành đơn hàng
   if (typeState == STATUS_ORDER_PAWN[0].orderStatus) {

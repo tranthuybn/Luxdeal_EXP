@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, PropType } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElSelect,
@@ -21,10 +21,9 @@ import { GenerateCodeOrder } from '@/api/common'
 
 
 const { t } = useI18n()
-
 const props = defineProps({
   listProducts: {
-    type: Array<ListProduct>,
+    type: Array as PropType<ListProduct[]>,
     required: true
   },
   modelValue:{

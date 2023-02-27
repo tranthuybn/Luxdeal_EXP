@@ -73,7 +73,7 @@ import moment from 'moment'
 import { useRoute, useRouter } from 'vue-router'
 import { STATUS_ORDER_PAWN } from '@/utils/API.Variables'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
-
+import { deleteTempCode } from '@/api/common'
 //them nhanh sp
 import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
@@ -1893,6 +1893,7 @@ const addStatusOrder = (index) => {
 
 // Cập nhật trạng thái đơn hàng
 const updateStatusOrders = async (typeState) => {
+  await deleteTempCode(ruleForm.orderCode)
   // 13 hoàn thành đơn hàng
   if (typeState == STATUS_ORDER_PAWN[0].orderStatus) {
     let payload = {

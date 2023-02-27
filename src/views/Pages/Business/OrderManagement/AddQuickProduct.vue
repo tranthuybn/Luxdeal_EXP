@@ -46,6 +46,7 @@ type ListProduct = {
 
 const ruleFormRef = ref<FormInstance>()
 const ruleForm = ref({
+  productId: null,
   quickProductCode: '',
   quickManagementCode: '',
   quickProductName: '',
@@ -79,6 +80,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 const postQuickProduct = async () => {
   const codeProduct = props.listProducts?.find(product=>product.productPropertyId == Number(ruleForm.value.quickProductCode))
   const payload = {
+    productId: ruleForm.value.productId,
     productCode: codeProduct ? codeProduct.value :ruleForm.value.quickProductCode,
     productPropertyCode: ruleForm.value.quickManagementCode,
     name: ruleForm.value.quickProductName,
@@ -128,6 +130,7 @@ const handleChangeQuickAddProduct = async (data) => {
   getProductIdAPI++
 
   // fill data
+  ruleForm.value.productId = codeCheckProduct.value?.id
   ruleForm.value.quickProductName = formProductData.value.name
   ruleForm.value.quickDescription = formProductData.value.shortDescription
   ruleForm.value.chooseBrand = formProductData.value.categories[0]?.id

@@ -597,7 +597,7 @@ const listProductsTable = ref()
 
 const pageIndexProducts = ref(1)
 const callApiProductList = async () => {
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20,  IsApprove :true })
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
       value: product.productCode,

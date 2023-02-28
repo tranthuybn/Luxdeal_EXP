@@ -102,7 +102,7 @@ export const formatSubjectVoucher = (val) => {
     case 3:
       return t('reuse.allCustomer')
     case 2:
-      return 'reuse.groupCustomer'
+      return t('reuse.groupCustomer')
     default:
       return ''
   }

@@ -2057,13 +2057,13 @@ const createTicketFromReturnOrders = async () => {
   }
     await createTicketFromReturnOrder(payload).then(() => {
       ElNotification({
-        message: 'Tạo phiếu đổi trả thành công',
+        message: 'Tạo phiếu trả thành công',
         type: 'success'
       })
     })
     .catch(() =>
       ElNotification({
-        message: 'Tạo phiếu đổi trả thất bại',
+        message: 'Tạo phiếu trả thất bại',
         type: 'warning'
       })
     )
@@ -2141,7 +2141,7 @@ const returnGoodsAheadOfTime = async (status, data) => {
   const res = await createReturnRequest(payload)
   if (res) {
     ElNotification({
-      message: 'Đã gửi yêu cầu thành công!',
+      message: 'Tạo phiếu trả thành công',
       type: 'success'
     })
     idReturnRequest.value = res

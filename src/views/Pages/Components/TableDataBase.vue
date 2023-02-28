@@ -116,7 +116,6 @@ const Utility = appStore.getUtility
 const { push } = useRouter()
 const router = useRouter()
 const pushAdd = () => {
-  debugger
   push({
     name: `${String(router.currentRoute.value.name)}.${Utility}`,
     params: { type: 'add', backRoute: String(router.currentRoute.value.name) }

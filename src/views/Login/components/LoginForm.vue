@@ -180,13 +180,13 @@ const getRole = async (accountId) => {
       await generateRouter(urlList)
     } else {
       ElNotification({
-        message: t('reuse.accountInfo'),
+        message: t('reuse.authorized'),
         type: 'error'
       })
     }
   } catch {
     ElNotification({
-      message: `${t('reuse.authorized')}`,
+      message: `${t('router.errorPage')}`,
       type: 'error'
     })
   }

@@ -85,6 +85,7 @@ import LeaseExtension from './LeaseExtension.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
+import { deleteTempCode } from '@/api/common'
 const { utility } = appModules
 const { t } = useI18n()
 
@@ -966,6 +967,14 @@ const postData = async (pushBack: boolean) => {
   }))
   if (!postTable.value[postTable.value.length - 1].ProductPropertyId) postTable.value.pop()
   const productPayment = JSON.stringify([...postTable.value])
+
+  const invalidArrayLength = postTable.value.filter(item => !item.ProductPropertyId).length
+
+  if(invalidArrayLength || postTable.value.length < 1) {
+    ElMessage.error('Vui lòng chọn mã sản phẩm')
+    return 
+  }
+
   const payload = {
     ServiceType: 3,
     OrderCode: ruleForm.orderCode,
@@ -2769,10 +2778,12 @@ const dialogLeaseExtension = ref(false)
 
 // Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
 const backToListOrder = () => {
+  deleteTempCode(ruleForm.orderCode)
   router.push({
     name: 'business.order-management.order-list',
     params: { backRoute: String(router.currentRoute.value.name), tab: tab }
   })
+  
 }
 
 // Danh sách nhân viên

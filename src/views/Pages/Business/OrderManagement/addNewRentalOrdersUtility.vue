@@ -967,6 +967,14 @@ const postData = async (pushBack: boolean) => {
   }))
   if (!postTable.value[postTable.value.length - 1].ProductPropertyId) postTable.value.pop()
   const productPayment = JSON.stringify([...postTable.value])
+
+  const invalidArrayLength = postTable.value.filter(item => !item.ProductPropertyId).length
+
+  if(invalidArrayLength || postTable.value.length < 1) {
+    ElMessage.error('Vui lòng chọn mã sản phẩm')
+    return 
+  }
+
   const payload = {
     ServiceType: 3,
     OrderCode: ruleForm.orderCode,

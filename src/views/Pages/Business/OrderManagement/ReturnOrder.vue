@@ -20,6 +20,7 @@ import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { STATUS_ORDER_RENTAL, STATUS_ORDER_DEPOSIT } from '@/utils/API.Variables'
 
+const doCloseOnClickModal = ref(false)
 const { t } = useI18n()
 const props = defineProps({
   modelValue: Boolean,
@@ -276,6 +277,7 @@ onBeforeMount(()=>{
 <template>
   <!-- 2:Trả hàng trước hạn -->
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-Value="modelValue"
     v-if="orderStatusType == 3"
     @open="open"
@@ -502,6 +504,7 @@ onBeforeMount(()=>{
 
   <!-- 3.Trả hàng hết hạn -->
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-Value="modelValue"
     v-if="orderStatusType == 4"
     @open="open"
@@ -644,6 +647,7 @@ onBeforeMount(()=>{
   </el-dialog>
   <!-- 4:chuộc hàng trước thời hạn -->
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-Value="modelValue"
     v-if="orderStatusType == 5"
     @open="open"
@@ -775,6 +779,7 @@ onBeforeMount(()=>{
   </el-dialog>
   <!-- 5.chuộc hàng trước hết hạn -->
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-Value="modelValue"
     v-if="orderStatusType == 5"
     @open="open"
@@ -901,6 +906,7 @@ onBeforeMount(()=>{
   </el-dialog>
   <!--  6.Đứt hàng -->
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-Value="modelValue"
     v-if="orderStatusType == 6"
     @open="open"
@@ -1032,6 +1038,7 @@ onBeforeMount(()=>{
   </el-dialog>
   <!--  7.Gia hạn cầm đồ -->
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-Value="modelValue"
     v-if="orderStatusType == 7"
     @open="open"
@@ -1169,6 +1176,7 @@ onBeforeMount(()=>{
   </el-dialog>
   <!--  9.Gia hạn ký gửi-->
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-Value="modelValue"
     v-if="orderStatusType == 9"
     @open="open"
@@ -1340,6 +1348,7 @@ onBeforeMount(()=>{
   </el-dialog>
   <!-- 8,Trả hàng Spa -->
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     width="65%"
     align-center
     :model-Value="modelValue"

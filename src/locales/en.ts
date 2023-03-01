@@ -97,7 +97,8 @@ export default {
     usernamePlaceholder: 'Please input username',
     passwordPlaceholder: 'Please input password',
     code: 'Verification code',
-    codePlaceholder: 'Please input verification code'
+    codePlaceholder: 'Please input verification code',
+    incorrectAccount:'incorrect account'
   },
   customerList: {
     rankingList: 'Ranking list',

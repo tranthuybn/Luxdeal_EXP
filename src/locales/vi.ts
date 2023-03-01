@@ -83,7 +83,7 @@ export default {
     small: 'Nhỏ bé'
   },
   login: {
-    welcome: 'Chào mừng bạn đến sử dụng hệ thống này',
+    welcome: 'Chào mừng bạn đến với hệ thống',
     message: 'Hệ thống ERP',
     username: 'Tên tài khoản',
     password: 'Mật khẩu',
@@ -92,12 +92,13 @@ export default {
     login: 'Đăng nhập',
     otherLogin: 'Đăng nhập với',
     remember: 'Lưu mật khẩu',
-    hasUser: 'Tài khoản hiện có?Đăng nhập',
+    hasUser: 'Chưa có tài khoản đăng nhập?',
     forgetPassword: 'Quên mật khẩu',
     usernamePlaceholder: 'Vui lòng nhập tên người dùng',
     passwordPlaceholder: 'Xin vui lòng nhập mật khẩu',
     code: 'Mã xác nhận',
-    codePlaceholder: 'vui lòng nhập mã xác nhận'
+    codePlaceholder: 'vui lòng nhập mã xác nhận',
+    incorrectAccount:'Tài khoản không hợp lệ',
   },
   customerList: {
     rankingList: 'Danh sách xếp hạng',

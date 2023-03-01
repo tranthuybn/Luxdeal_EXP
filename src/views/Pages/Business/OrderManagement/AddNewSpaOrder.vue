@@ -72,7 +72,8 @@ import {
   finishReturnOrder,
   FinishUpdateSpaService,
 postAutomaticWarehouse,
-createTicketFromReturnOrder
+createTicketFromReturnOrder,
+updateStatusTransaction
 } from '@/api/Business'
 import ChooseWarehousePR from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'

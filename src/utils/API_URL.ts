@@ -12,7 +12,7 @@ export const PRODUCTS_AND_SERVICES_API = {
   GET_CATEGORY_BY_ID: '/api/v1/Category/GetCategoryById',
   UPDATE_CATEGORY: '/api/v1/Category/updateCategory',
   HIDE_CATEGORY: '/api/v1/Category/HideCategory',
-  DELETE_CATEGORY: '/api/v1/Categories/DeleteCategory',
+  DELETE_CATEGORY: '/api/v1/Category/DeleteCategory',
   GET_PRODUCT: '/api/v1/Product/GetProduct',
   CHECK_PRODUCT: '/api/v1/Product/CheckProduct',
   GET_PRODUCTS: '/api/v1/Product/GetProductProperty',

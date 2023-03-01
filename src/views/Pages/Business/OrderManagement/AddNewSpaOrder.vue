@@ -1140,7 +1140,7 @@ const removeListProductsSale = async (index) => {
 }
 
 const dialogFormSettingServiceSpa = ref(false)
-var curDate = 'SPA' + Date.now()
+// var curDate = 'SPA' + Date.now()
 
 const optionsTypeSpa = [
   {
@@ -2720,7 +2720,7 @@ onBeforeMount(async () => {
   callApiCollaborators()
   callApiStaffList()
   callApiCity()
-  if (type == 'add') {
+  if (type == 'add' || type == ':type') {
     disableCreateOrder.value = true
     checkDisabled2.value = true
     startSpa.value = true
@@ -2729,7 +2729,8 @@ onBeforeMount(async () => {
     {
       ruleForm.orderCode = res.data
     })
-    ruleForm.orderCode = curDate
+    
+    // ruleForm.orderCode = curDate
     spaOrderCode.value = autoCodePawnOrder
     codeReceipts.value = autoCodeReceipts
     codeExpenditures.value = autoCodeExpenditures
@@ -3282,7 +3283,7 @@ const postReturnRequest = async (reason) => {
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
                   v-model="ruleForm.orderCode"
-                  :disabled="disableCreateOrder"
+                  :disabled="true"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
                 />

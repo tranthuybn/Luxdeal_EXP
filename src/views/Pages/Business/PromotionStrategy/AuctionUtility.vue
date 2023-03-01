@@ -499,7 +499,7 @@ const editData = async (data) => {
               <el-switch v-model="props.row.permissionPurchase" inline-prompt active-text="ON" inactive-text="OFF" />
             </template>
           </el-table-column>
-          <el-table-column fixed="ri bvght" :label="t('reuse.operator')" width="120">
+          <el-table-column fixed="right" :label="t('reuse.operator')" width="120">
             <template #default="scope">
               <el-button type="danger" @click.prevent="deleteRow(scope.$index)">
                 {{ t('button.cancelResult') }}

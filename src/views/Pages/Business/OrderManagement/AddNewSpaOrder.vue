@@ -72,7 +72,8 @@ import {
   finishReturnOrder,
   FinishUpdateSpaService,
 postAutomaticWarehouse,
-createTicketFromReturnOrder
+createTicketFromReturnOrder,
+updateStatusTransaction
 } from '@/api/Business'
 import ChooseWarehousePR from './ChooseImportWH.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
@@ -93,10 +94,13 @@ import { GenerateCodeOrder } from '@/api/common'
 const { t } = useI18n()
 const { utility } = appModules
 
+
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const percentIcon = useIcon({ icon: 'material-symbols:percent' })
 
+
+const doCloseOnClickModal = ref(false)
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
@@ -2978,7 +2982,7 @@ const postReturnRequest = async (reason) => {
         :tempLotData="lotData"
       />
       <!-- Dialog In phiếu thu -->
-      <el-dialog v-model="PrintReceipts" class="font-bold" width="40%" align-center>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%" align-center>
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button
@@ -3014,6 +3018,7 @@ const postReturnRequest = async (reason) => {
 
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAddQuick"
         width="40%"
         align-center
@@ -3187,7 +3192,7 @@ const postReturnRequest = async (reason) => {
       </el-dialog>
 
       <!-- Địa chỉ nhận hàng -->
-      <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
         <el-divider />
         <el-form
           ref="ruleFormAddress"
@@ -3420,7 +3425,7 @@ const postReturnRequest = async (reason) => {
                       </span>
                     </div>
                   </template>
-                  <el-dialog v-model="dialogVisible" class="absolute">
+                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute">
                     <div class="text-[#303133] font-medium dark:text-[#fff]"
                       >+ {{ t('formDemo.addPhotosOrFiles') }}
                     </div>
@@ -3609,6 +3614,7 @@ const postReturnRequest = async (reason) => {
 
       <!-- DialogPromotion -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="openDialogChoosePromotion"
         :title="t('formDemo.choosePromotion')"
         width="40%"
@@ -4423,6 +4429,7 @@ const postReturnRequest = async (reason) => {
 
       <!-- Thông tin phiếu thanh toán dv spa -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogBillSpaInfomation"
         :title="t('formDemo.informationOnSpaService')"
         width="45%"
@@ -4639,6 +4646,7 @@ const postReturnRequest = async (reason) => {
 
       <!-- dialog In Phiếu thăm khám sản phẩm" -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogPrinBillSpa"
         title="Phiếu thăm khám sản phẩm"
         width="40%"
@@ -4672,6 +4680,7 @@ const postReturnRequest = async (reason) => {
 
 <!-- dialog In Phiếu sửa chữa" -->
 <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogPrinRepairSpa"
         width="40%"
         align-center
@@ -4703,6 +4712,7 @@ const postReturnRequest = async (reason) => {
 
       <!-- dialog nội dung thăm khám sản phẩm -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogexaminationContentSpa"
         :title="t('formDemo.examinationContentProduct')"
         width="40%"
@@ -4741,6 +4751,7 @@ const postReturnRequest = async (reason) => {
       </el-dialog>
       <!-- dialog2 -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogFormSettingServiceSpa"
         title="Cài đặt phí dịch vụ Spa"
         width="40%"
@@ -4795,6 +4806,7 @@ const postReturnRequest = async (reason) => {
 
       <!-- Bút toán bổ sung -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')"
         width="50%"
@@ -5006,6 +5018,7 @@ const postReturnRequest = async (reason) => {
 
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
         width="40%"
@@ -5126,6 +5139,7 @@ const postReturnRequest = async (reason) => {
 
       <!-- Dialog Thông tin phiếu chi -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogPaymentVoucher"
         :title="t('formDemo.paymentVoucherInformation')"
         width="40%"
@@ -5242,6 +5256,7 @@ const postReturnRequest = async (reason) => {
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')"
         width="45%"
@@ -5648,6 +5663,7 @@ const postReturnRequest = async (reason) => {
 
       <!-- Thông tin phiếu xuất đổi -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="informationWarehouseReceipt"
         :title="warehouseTicketData?.transactionType == 2 ? t('reuse.informationExportReturnSpaTicket') :  t('reuse.informationTransferReturnSpaTicket') "
         width="40%"

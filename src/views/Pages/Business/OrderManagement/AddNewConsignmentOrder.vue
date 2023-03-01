@@ -336,7 +336,6 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],

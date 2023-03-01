@@ -3294,7 +3294,7 @@ const postReturnRequest = async (reason) => {
                   :disabled="disableCreateOrder"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
-                />
+                />{{ruleForm.orderCode}}
               </el-form-item>
 
               <el-form-item :label="t('reuse.typeOfSpa')" prop="typeOfSpa">

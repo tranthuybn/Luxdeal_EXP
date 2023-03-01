@@ -443,21 +443,7 @@ const beforeRemove = (uploadFile) => {
 }
 
 const optionsRole = [
-  {
-    id: 1,
-    label: 'admin',
-    value: 1
-  },
-  {
-    id: 2,
-    label: 'Cus',
-    value: 2
-  },
-  {
-    id: 3,
-    label: 'Tester',
-    value: 3
-  }
+
 ]
 
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {

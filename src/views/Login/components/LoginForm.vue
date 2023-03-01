@@ -137,6 +137,10 @@ const signIn = () => {
             getUserInfoByAccountId(accountId)
             setPermissionForUser(res.data)
             getRole(accountId)
+            ElNotification({
+              message: t('login.welcome'),
+              type: 'success'
+            })
           } else {
             ElNotification({
               message: t('reuse.accountInfo'),
@@ -144,8 +148,18 @@ const signIn = () => {
             })
             wsCache.clear()
           }          
-        }
-      } finally {
+        } else
+        ElNotification({
+              message: t('login.incorrectAccount'),
+              type: 'error'
+            })
+      } catch (err:any){
+        ElNotification({
+              message: err ? err.toString() : t('router.errorPage'),
+              type: 'error'
+            })
+       }
+      finally {
         loading.value = false
       }
     }
@@ -163,16 +177,16 @@ const getRole = async (accountId) => {
       const urlList = routers.data.map((el) => el.url)
 
       // generateRouter(tempUrl.data)
-      generateRouter(urlList)
+      await generateRouter(urlList)
     } else {
       ElNotification({
-        message: t('reuse.accountInfo'),
+        message: t('reuse.authorized'),
         type: 'error'
       })
     }
   } catch {
     ElNotification({
-      message: `${t('reuse.authorized')}`,
+      message: `${t('router.errorPage')}`,
       type: 'error'
     })
   }
@@ -206,7 +220,6 @@ const getUserInfoByAccountId = (id) => {
 }
 // store user information
 const setPermissionForUser = (data) => {
-  console.log(data)
   wsCache.set(permissionStore.getAccessToken, data['accessToken'] ?? '')
   wsCache.set(permissionStore.getRefreshToken, data['refreshToken'] ?? '')
 }

@@ -31,7 +31,7 @@ export default {
             title: t('router.potentialCustomerList'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -72,7 +72,7 @@ export default {
             title: t('router.orderList'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -103,7 +103,7 @@ export default {
             title: t('router.customerList'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         // {
@@ -126,7 +126,7 @@ export default {
             title: t('router.customerRatings'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
             breadcrumb: true
           }
         },
@@ -180,7 +180,7 @@ export default {
             title: t('router.collaboratorsList'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -191,7 +191,7 @@ export default {
             title: t('router.paymentRequest'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -230,7 +230,7 @@ export default {
             title: t('router.flashsale'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -251,7 +251,7 @@ export default {
             title: t('router.collection'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -272,7 +272,7 @@ export default {
             title: t('router.newproduct'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -282,7 +282,7 @@ export default {
           meta: {
             title: t('reuse.newProductDetail'),
             canTo: true,
-            hidden: true,            
+            hidden: true,
           }
         },
         {
@@ -294,7 +294,7 @@ export default {
             title: t('router.voucher'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -315,7 +315,7 @@ export default {
             title: t('router.combo'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -336,7 +336,7 @@ export default {
             title: t('router.auction'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -396,7 +396,7 @@ export default {
             title: t('router.installPoints'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -429,7 +429,7 @@ export default {
             title: t('router.customervirtualWallet'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -453,7 +453,7 @@ export default {
             title: t('router.withDrawalRequest'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -478,7 +478,7 @@ export default {
             title: t('router.settingsvirtualWallet'),
             add: true,
             edit: true,
-            delete:true,
+            delete: true,
           }
         },
         {
@@ -502,7 +502,7 @@ export default {
       name: 'business.employee-management',
       redirect: { name: 'business.employee-management.employeeList' },
       meta: {
-        title: t('router.businessMan'),      
+        title: t('router.businessMan'),
       },
       children: [
         {

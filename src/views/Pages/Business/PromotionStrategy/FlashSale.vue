@@ -43,6 +43,7 @@ const columns = reactive<TableColumn[]>([
     field: 'index',
     label: t('reuse.index'),
     type: 'index',
+    filters: filterPromotionPrice,
     align: 'center',
   },
   {

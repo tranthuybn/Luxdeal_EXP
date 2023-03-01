@@ -56,8 +56,8 @@ const columns = reactive<TableColumn[]>([
     headerAlign: 'left',
   },
   {
-    field: 'productCode',
-    label: t('reuse.productCode'),
+    field: 'spaService',
+    label: t('reuse.spaService'),
     headerAlign: 'left',
     minWidth: '200',
   },

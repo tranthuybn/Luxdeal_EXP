@@ -322,7 +322,7 @@ export default defineComponent({
           data={unref(getProps).data}
           onSelection-change={selectionChange}
           {...unref(getBindValue)}
-          headerRowClassName="header-Table-customize"
+          headerRowClassName="header-Table-customize header-Table-promotion-strategy"
         >
           {{
             default: () => renderTableColumn(),
@@ -354,15 +354,19 @@ export default defineComponent({
   }
 }
 
-::v-deep(.el-tooltip__trigger),
-::v-deep(.caret-wrapper) {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  max-width: 14px;
 
+::v-deep(.header-Table-promotion-strategy) {
+
+  .el-tooltip__trigger,
+  .caret-wrapper {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 14px;
+  }
 }
+
 
 .arrowRight {
   border: solid white;

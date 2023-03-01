@@ -38,10 +38,10 @@ import { getSpaLibrary } from '@/api/LibraryAndSetting'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { approvalProducts } from '@/api/Approval'
 import { FORM_IMAGES } from '@/utils/format'
-import { Approvement } from '@/utils/API.Variables'
+import { Approvement, CampaignTypeArr } from '@/utils/API.Variables'
+
 
 const { t } = useI18n()
-
 const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
@@ -90,7 +90,7 @@ const props = defineProps({
   //rules để validate
   rules: {
     type: Object,
-    default: () => {}
+    default: () => { }
   },
   //limitUpload ảnh
   limitUpload: {
@@ -100,12 +100,12 @@ const props = defineProps({
   //truyền params cho api nếu cần
   params: {
     type: Object,
-    default: () => {}
+    default: () => { }
   },
   //dữ liệu đã được xử lí được gửi sau khi emit lên component cha
   formDataCustomize: {
     type: Object,
-    default: () => {}
+    default: () => { }
   },
   // remove the button at the end of the component
   removeButton: {
@@ -128,6 +128,13 @@ const props = defineProps({
   tabActive: {
     type: Number,
     default: NaN
+  },
+  campaignAndStrategyType: {
+    type: Number,
+    default: 0,
+    description: 'Loại chiến dịch khuyến mãi',
+    validator(val: number) { return CampaignTypeArr.includes(val) }
+
   }
 })
 
@@ -146,8 +153,8 @@ const dataTable = reactive({
   productData: [{ id: -1, code: '', name: null, isActive: true }],
   spaData: [{ id: -1, isActive: 1, code: '', name: null, service: [] }],
   spaVoucherData: [{ id: -1, code: '', name: null, service: [] }],
-  auctionData: [{ id: -1, code: '', name: null }]
 })
+
 //get data from table
 const getTableValue = async () => {
   if (!isNaN(props.id)) {
@@ -182,7 +189,6 @@ const setFormValue = async () => {
   await customizeData()
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
-
     dataTable.customerData = props.formDataCustomize.customers ?? []
     dataTable.productData = props.formDataCustomize.products ?? []
 
@@ -210,13 +216,13 @@ watch(
 watch(
   () => props.type,
   () => {
-    if (props.type === 'detail'||  props.type === 'approval' ) {
+    if (props.type === 'detail' || props.type === 'approval') {
       const { setProps } = methods
       setProps({
         disabled: true
       })
     }
-    if (props.type === 'detail' || props.type === 'edit'|| props.type === 'approval' ) {
+    if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
       getTableValue()
     }
   },
@@ -230,9 +236,9 @@ watch(
   () => formValue.value,
   () => {
     if (formValue.value) {
-      if (props.type === 'detail' || props.type === 'edit'|| props.type === 'approval' ) {
+      if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
         let newArr = ref(formValue.value[0].productProperties)
-        let formService:any = ref([])
+        let formService: any = ref([])
         newArr.value[0]?.spaServices.map((e) => {
           formService.value.push(e.name)
         })
@@ -277,8 +283,8 @@ const save = async (type) => {
       let data = (await getFormData()) as TableData
       props.multipleImages
         ? (data.Images = ListFileUpload.value
-            ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
-            : null)
+          ? ListFileUpload.value.map((file) => (file.raw ? file.raw : null))
+          : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       if (data.target == 3 || data.target == undefined) {
         data.customers = null
@@ -317,6 +323,7 @@ const save = async (type) => {
           loading.value = false
           return
         }
+
       }
       data.spa = spaMoney.value
       // dataTable.spaData.pop()
@@ -324,17 +331,15 @@ const save = async (type) => {
       //voucher product
       dataTable.spaVoucherData.pop()
       data.spaVoucher = dataTable.spaVoucherData
-
       //callback cho hàm emit
-      console.log('run 1')
       if (type == 'add') {
-        console.log('run 2')
         emit('post-data', data)
         loading.value = false
       }
       if (type == 'saveAndAdd') {
+
         emit('post-data', data)
-        unref(elFormRef)!.resetFields()
+        // unref(elFormRef)!.resetFields()
         loading.value = false
       }
       if (type == 'edit') {
@@ -451,13 +456,13 @@ const edit = () => {
   })
 }
 //xóa dữ liệu sản phẩm
-const delAction = async () => {
+const delAction = () => {
   {
-    ElMessageBox.confirm(`${t('reuse.deleteWarningFlashSale')}`, props.deleteTitle, {
+    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
       confirmButtonText: t('button.cancel'),
       cancelButtonText: t('reuse.exit'),
       type: 'warning',
-      title: t('reuse.cancelFlashSaleProgramming'),
+      title: t('reuse.cancelProgramming'),
       confirmButtonClass: 'el-button--danger'
     })
       .then(() => {
@@ -591,21 +596,6 @@ watch(
   { deep: true }
 )
 
-watch(
-  () => dataTable.auctionData[dataTable.auctionData?.length - 1],
-  () => {
-    if (
-      dataTable.auctionData?.length < 1 ||
-      (dataTable.auctionData[dataTable.auctionData?.length - 1].code !== '' &&
-        dataTable.auctionData[dataTable.auctionData?.length - 1].name !== '' &&
-        forceRemove.value == false)
-    ) {
-      addLastIndexProductOfAuctionTable()
-    }
-  },
-  { deep: true }
-)
-
 const addLastIndexCustomerTable = () => {
   let idTable = Date.now()
   dataTable.customerData.push({ id: idTable, code: '', name: null })
@@ -620,71 +610,11 @@ const addLastIndexProductOfComboTable = () => {
   dataTable.spaData.push({ id: idTable3, isActive: 1, code: '', name: null, service: [] })
 }
 
-const addLastIndexProductOfAuctionTable = () => {
-  let idTable4 = Date.now()
-  dataTable.auctionData.push({ id: idTable4, code: '', name: null })
-}
 const addLastIndexSpaProductVoucher = () => {
   let idTable5 = Date.now()
   dataTable.spaVoucherData.push({ id: idTable5, code: '', name: null, service: [] })
 }
 
-// //fake option
-// const listProductsTable = reactive([
-//   { value: 'dev1', label: '1', name: '111', id: 1 },
-//   { value: '22', label: '2', name: '222', id: 2 },
-//   { value: '33', label: '3', name: '333', id: 3 }
-// ])
-
-// const listProductsTable = ref()
-
-// // const pageIndexProducts = ref(1)
-// const callApiProductList = async () => {
-//   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
-//   if (res.data && res.data?.length > 0) {
-//     listProductsTable.value = res.data.map((product) => ({
-//       productCode: product.code,
-//       value: product.productCode,
-//       name: product.name ?? '',
-//       price: product.price.toString(),
-//       productPropertyId: product.id,
-//       productPropertyCode: product.productPropertyCode
-//     }))
-//   }
-// }
-
-// // const scrollProductTop = ref(false)
-// // const scrollProductBottom = ref(false)
-
-// // const ScrollProductTop = () => {
-// //   scrollProductTop.value = true
-// // }
-// const noMoreProductData = ref(false)
-
-// const ScrollProductBottom = () => {
-//   scrollProductBottom.value = true
-//   pageIndexProducts.value++
-//   noMoreProductData.value
-//     ? ''
-//     : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
-//         .then((res) => {
-//           res.data.length == 0
-//             ? (noMoreProductData.value = true)
-//             : res.data.map((product) =>
-//                 listProductsTable.value.push({
-//                   productCode: product.code,
-//                   value: product.productCode,
-//                   name: product.name ?? '',
-//                   price: product.price.toString(),
-//                   productPropertyId: product.id,
-//                   productPropertyCode: product.productPropertyCode
-//                 })
-//               )
-//         })
-//         .catch(() => {
-//           noMoreProductData.value = true
-//         })
-// }
 
 //get list customer
 const listCustomer = ref()
@@ -721,7 +651,6 @@ const callAPIProduct = async () => {
 //process logic data when click select
 const changeName = (data, scope) => {
   forceRemove.value = false
-
   scope.row.code = data
 }
 const changeProduct = (data, scope) => {
@@ -767,21 +696,21 @@ const ScrollCustomerBottom = () => {
   noMoreCustomerData.value
     ? ''
     : getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
-        .then((res) => {
-          res.data.length == 0
-            ? (noMoreCustomerData.value = true)
-            : res.data.map((customer) =>
-                listCustomer.value.push({
-                  value: customer.code,
-                  label: customer.phonenumber,
-                  name: customer.name,
-                  id: customer.id
-                })
-              )
-        })
-        .catch(() => {
-          noMoreCustomerData.value = true
-        })
+      .then((res) => {
+        res.data.length == 0
+          ? (noMoreCustomerData.value = true)
+          : res.data.map((customer) =>
+            listCustomer.value.push({
+              value: customer.code,
+              label: customer.phonenumber,
+              name: customer.name,
+              id: customer.id
+            })
+          )
+      })
+      .catch(() => {
+        noMoreCustomerData.value = true
+      })
 }
 
 const scrollProductTop = ref(false)
@@ -798,22 +727,22 @@ const ScrollProductBottom = () => {
   noMoreProductData.value
     ? ''
     : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
-        .then((res) => {
-          res.data.length == 0
-            ? (noMoreProductData.value = true)
-            : res.data.map((product) =>
-                listProducts.value.push({
-                  value: product.productCode,
-                  label: product.code,
-                  name: product.name,
-                  id: product.id,
-                  Id: product.id
-                })
-              )
-        })
-        .catch(() => {
-          noMoreProductData.value = true
-        })
+      .then((res) => {
+        res.data.length == 0
+          ? (noMoreProductData.value = true)
+          : res.data.map((product) =>
+            listProducts.value.push({
+              value: product.productCode,
+              label: product.code,
+              name: product.name,
+              id: product.id,
+              Id: product.id
+            })
+          )
+      })
+      .catch(() => {
+        noMoreProductData.value = true
+      })
 }
 const removeCustomer = (scope) => {
   forceRemove.value = true
@@ -831,19 +760,7 @@ const removeSpaProductVoucher = (scope) => {
   forceRemove.value = true
   dataTable.spaVoucherData.splice(scope.$index, 1)
 }
-const removeAuctionProduct = (scope) => {
-  forceRemove.value = true
-  dataTable.auctionData.splice(scope.$index, 1)
-}
-const getValueOfSelected = (_value, obj, scope) => {
-  scope.row.name = obj.name
-  scope.row.id = obj.id
-}
-const getProductSelected = (_value, obj, scope) => {
-  scope.row.name = obj.name
-  scope.row.id = obj.id
-}
-const getCustomerSelected = (_value, obj, scope) => {
+const assignTheValuesForRow = (_value, obj, scope) => {
   scope.row.name = obj.name
   scope.row.id = obj.id
 }
@@ -862,14 +779,14 @@ const getSpaOptions = async () => {
   if (callSpaApi == 0) {
     await getSpaLibrary({ PageIndex: 1, PageSize: 100 }).then(
       (res) =>
-        (SpaSelectOptions.value = res.data.map((spa) => ({
-          name: spa.name,
-          value: spa.id.toString(),
-          code: spa.code,
-          label: spa.name,
-          cost: spa.cost,
-          promotePrice: spa.promotePrice
-        })))
+      (SpaSelectOptions.value = res.data.map((spa) => ({
+        name: spa.name,
+        value: spa.id.toString(),
+        code: spa.code,
+        label: spa.name,
+        cost: spa.cost,
+        promotePrice: spa.promotePrice
+      })))
     )
     callSpaApi++
     selectLoading.value = false
@@ -961,12 +878,12 @@ onBeforeMount(() => {
   callAPIProduct()
 })
 
-const approvisionnement = async (val:boolean) => { 
-  const payload = { ItemType: Approvement.Campaign , Id: props.id ?? null , IsApprove: val }
+const approvisionnement = async (val: boolean) => {
+  const payload = { ItemType: Approvement.Campaign, Id: props.id ?? null, IsApprove: val }
   await approvalProducts(FORM_IMAGES(payload))
     .then(() => {
       ElNotification({
-        message: val ? 'Duyệt thành công':'Hủy duyệt thành công',
+        message: val ? 'Duyệt thành công' : 'Hủy duyệt thành công',
         type: 'success'
       })
       push({
@@ -993,38 +910,24 @@ const spaMoney = ref(0)
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register">
           <template #tableCustomer>
-            <el-table
-              :data="dataTable.customerData"
-              border
-              header-row-class-name="dark:text-white text-black"
-            >
-              <el-table-column prop="code" :label="t('reuse.customerCode')" width="180"
-                ><template #default="scope">
+            <el-table :data="dataTable.customerData" border header-row-class-name="dark:text-white text-black">
+              <el-table-column prop="code" :label="t('reuse.customerCode')" width="180">
+                <template #default="scope">
                   <MultipleOptionsBox
-                    :fields="[
-                      t('reuse.customerCode'),
-                      t('reuse.phoneNumber'),
-                      t('formDemo.customerName')
-                    ]"
-                    filterable
-                    width="500px"
-                    :items="listCustomer"
-                    valueKey="value"
-                    labelKey="value"
-                    :hiddenKey="['id']"
-                    :placeHolder="t('reuse.chooseCustomerCode')"
-                    :clearable="false"
+                 :fields="[
+                    t('reuse.customerCode'),
+                    t('reuse.phoneNumber'),
+                    t('formDemo.customerName')
+                  ]" filterable width="500px" :items="listCustomer" valueKey="value" labelKey="value"
+                    :hiddenKey="['id']" :placeHolder="t('reuse.chooseCustomerCode')" :clearable="false"
                     :defaultValue="scope.row.code"
-                    @update-value="(value, obj) => getCustomerSelected(value, obj, scope)"
-                    @change="(option) => changeCustomer(option, scope)"
-                    @scroll-top="ScrollCustomerTop"
-                    @scroll-bottom="ScrollCustomerBottom"
-                  />
+                    @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
+                    @change="(option) => changeCustomer(option, scope)" @scroll-top="ScrollCustomerTop"
+                    @scroll-bottom="ScrollCustomerBottom" />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('reuse.customerName')" width="780"
-                ><template #default="scope">{{ scope.row.name }}</template></el-table-column
-              >
+              <el-table-column prop="name" :label="t('reuse.customerName')" width="780"><template #default="scope">{{
+                scope.row.name }}</template></el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeCustomer(scope)">{{
@@ -1035,45 +938,25 @@ const spaMoney = ref(0)
             </el-table>
           </template>
           <template #tableProduct>
-            <el-table
-              :data="dataTable.productData"
-              border
-              header-row-class-name="dark:text-white text-black"
-            >
-              <el-table-column :label="t('formDemo.productManagementCode')" width="180"
-                ><template #default="scope">
+            <el-table :data="dataTable.productData" border header-row-class-name="dark:text-white text-black">
+              <el-table-column :label="t('formDemo.productManagementCode')" width="180"><template #default="scope">
                   <MultipleOptionsBox
-                    :defaultValue="scope.row.code"
-                    :fields="[
-                      t('reuse.productCode'),
-                      t('reuse.managementCode'),
-                      t('reuse.productInformation')
-                    ]"
-                    filterable
-                    width="500px"
-                    :items="listProducts"
-                    valueKey="value"
-                    labelKey="value"
-                    :hiddenKey="['id']"
-                    :placeHolder="t('reuse.chooseProductCode')"
-                    :clearable="false"
-                    @update-value="(value, obj) => getProductSelected(value, obj, scope)"
-                    @change="(option) => changeProduct(option, scope)"
-                    @scroll-top="ScrollProductTop"
-                    @scroll-bottom="ScrollProductBottom"
-                  />
+:defaultValue="scope.row.code" :fields="[
+                    t('reuse.productCode'),
+                    t('reuse.managementCode'),
+                    t('reuse.productInformation')
+                  ]" filterable width="500px" :items="listProducts" valueKey="value" labelKey="value"
+                    :hiddenKey="['id']" :placeHolder="t('reuse.chooseProductCode')" :clearable="false"
+                    @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
+                    @change="(option) => changeProduct(option, scope)" @scroll-top="ScrollProductTop"
+                    @scroll-bottom="ScrollProductBottom" />
                 </template>
               </el-table-column>
               <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="600" />
               <el-table-column :label="t('formDemo.joinTheProgram')" width="185">
-                <template #default="scope"
-                  ><el-switch
-                    v-model="scope.row.isActive"
-                    active-text="ON"
-                    inline-prompt
-                    inactive-text="OFF"
-                    size="large" /></template
-              ></el-table-column>
+                <template #default="scope"><el-switch
+v-model="scope.row.isActive" active-text="ON" inline-prompt
+                    inactive-text="OFF" size="large" /></template></el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
@@ -1084,130 +967,59 @@ const spaMoney = ref(0)
             </el-table>
           </template>
 
-          <template #tableProductOfAuction>
-            <el-table
-              :data="dataTable.auctionData"
-              border
-              header-row-class-name="dark:text-white text-black"
-            >
-              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"
-                ><template #default="scope">
-                  <MultipleOptionsBox
-                    :fields="[
-                      t('reuse.productCode'),
-                      t('reuse.managementCode'),
-                      t('reuse.productInformation')
-                    ]"
-                    filterable
-                    width="500px"
-                    :items="listProducts"
-                    valueKey="value"
-                    labelKey="value"
-                    :hiddenKey="['id']"
-                    :placeHolder="t('reuse.chooseProductCode')"
-                    :clearable="false"
-                    :defaultValue="scope.row.code"
-                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
-                    @change="(option) => changeName(option, scope)"
-                  />
-                </template>
-              </el-table-column>
-              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="700" />
-              <el-table-column :label="t('reuse.operator')" fixed="right">
-                <template #default="scope">
-                  <el-button
-                    type="danger"
-                    v-if="scope.row.code"
-                    @click="removeAuctionProduct(scope)"
-                    >{{ t('reuse.delete') }}</el-button
-                  >
-                </template>
-              </el-table-column>
-            </el-table>
-          </template>
 
           <template #tableProductOfCombo>
-            <el-table
-              :data="dataTable.spaData"
-              border
-              header-row-class-name="dark:text-white text-black"
-            >
+            <el-table :data="dataTable.spaData" border header-row-class-name="dark:text-white text-black">
               <template #append>
-                <div class="pl-750px w-320px"
-                  ><div class="w-320px"
-                    >{{ t('reuse.totalRealSpaMoney') }}
-                    <span style="float: right">{{ spaCost }}</span></div
-                  >
-                  <div class="flex w-320px pb-4"
-                    ><span
-                      ><div>{{ t('reuse.enterComboSpaMoney') }}</div>
+                <div class="pl-750px w-320px">
+                  <div class="w-320px">{{ t('reuse.totalRealSpaMoney') }}
+                    <span style="float: right">{{ spaCost }}</span>
+                  </div>
+                  <div class="flex w-320px pb-4"><span>
+                      <div>{{ t('reuse.enterComboSpaMoney') }}</div>
                       <div class="explainText" style="line-height: 10px">{{
                         t('reuse.explainEnterComboSpaMoney')
                       }}</div>
                     </span>
                     <!-- <span><el-input v-model="" /></span -->
-                    <span><CurrencyInputComponent v-model="spaMoney" /></span
-                  ></div>
+                    <span>
+                      <CurrencyInputComponent v-model="spaMoney" />
+                    </span>
+                  </div>
                 </div>
               </template>
-              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"
-                ><template #default="scope">
+              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"><template
+                  #default="scope">
                   <MultipleOptionsBox
-                    :fields="[
-                      t('reuse.productCode'),
-                      t('reuse.managementCode'),
-                      t('reuse.productInformation')
-                    ]"
-                    filterable
-                    width="500px"
-                    :items="listProducts"
-                    valueKey="Id"
-                    labelKey="value"
-                    :hiddenKey="['id']"
-                    :placeHolder="t('reuse.chooseProductCode')"
-                    :clearable="false"
-                    :defaultValue="scope.row.code"
-                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
-                    @change="(option) => changeName(option, scope)"
-                  />
+:fields="[
+                    t('reuse.productCode'),
+                    t('reuse.managementCode'),
+                    t('reuse.productInformation')
+                  ]" filterable width="500px" :items="listProducts" valueKey="Id" labelKey="value" :hiddenKey="['id']"
+                    :placeHolder="t('reuse.chooseProductCode')" :clearable="false" :defaultValue="scope.row.code"
+                    @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
+                    @change="(option) => changeName(option, scope)" />
                 </template>
               </el-table-column>
               <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="480" />
-              <el-table-column width="320"
-                ><template #header
-                  >{{ t('reuse.spaService')
-                  }}<span style="color: orange"
-                    >({{ t('reuse.chooseAtleast2SpaService') }})</span
-                  ></template
-                >
+              <el-table-column width="320">
+                <template #header>{{ t('reuse.spaService') }}<span style="color: orange">({{
+                  t('reuse.chooseAtleast2SpaService') }})</span>
+                </template>
                 <template #default="scope">
                   <el-select
-                    :loading="selectLoading"
-                    multiple
-                    clearable
-                    v-model="scope.row.service"
-                    class="m-2"
-                    placeholder="Select"
-                    size="large"
-                    @change="getSpaSelected"
-                  >
+:loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
+                    placeholder="Select" size="large" @change="getSpaSelected">
                     <div class="flex gap-4">
                       <div class="flex-1 font-bold pl-5 h-[34px]">{{ t('reuse.serviceCode') }}</div>
                       <div class="flex-1 font-bold pr-5 h-[34px]">{{
                         t('reuse.informationServices')
                       }}</div>
                     </div>
-                    <el-option
-                      v-for="item in SpaSelectOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    >
+                    <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value">
                       <span style="float: left">{{ item.code }}</span>
-                      <span
-                        style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                        >{{ item.name }}</span
-                      >
+                      <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px">{{ item.name
+                      }}</span>
                     </el-option>
                   </el-select>
                 </template>
@@ -1221,77 +1033,49 @@ const spaMoney = ref(0)
               </el-table-column>
             </el-table>
           </template>
+
+
           <template #spaProduct>
             <el-table :data="dataTable.spaVoucherData" border>
-              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"
-                ><template #default="scope">
+              <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"><template
+                  #default="scope">
                   <MultipleOptionsBox
-                    :fields="[
-                      t('reuse.productCode'),
-                      t('reuse.managementCode'),
-                      t('reuse.productInformation')
-                    ]"
-                    filterable
-                    width="500px"
-                    :items="listProducts"
-                    valueKey="Id"
-                    labelKey="value"
-                    :hiddenKey="['id']"
-                    :placeHolder="t('reuse.chooseProductCode')"
-                    :clearable="false"
-                    :defaultValue="scope.row.code"
-                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
-                    @change="(option) => changeName(option, scope)"
-                  />
+:fields="[
+                    t('reuse.productCode'),
+                    t('reuse.managementCode'),
+                    t('reuse.productInformation')
+                  ]" filterable width="500px" :items="listProducts" valueKey="Id" labelKey="value" :hiddenKey="['id']"
+                    :placeHolder="t('reuse.chooseProductCode')" :clearable="false" :defaultValue="scope.row.code"
+                    @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
+                    @change="(option) => changeName(option, scope)" />
                 </template>
               </el-table-column>
               <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="500" />
               <el-table-column width="200">
-                <template #header
-                  >{{ t('reuse.spaService')
-                  }}<span style="color: orange"
-                    >({{ t('reuse.chooseAtleast1SpaService') }})</span
-                  ></template
-                >
+                <template #header>{{ t('reuse.spaService')
+                }}<span style="color: orange">({{ t('reuse.chooseAtleast1SpaService') }})</span></template>
                 <template #default="scope">
                   <el-select
-                    :loading="selectLoading"
-                    multiple
-                    clearable
-                    v-model="scope.row.service"
-                    class="m-2"
-                    placeholder="Select"
-                    size="large"
-                  >
+:loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
+                    placeholder="Select" size="large">
                     <div class="flex gap-4">
                       <div class="flex-1 font-bold pl-5 h-[34px]">{{ t('reuse.serviceCode') }}</div>
                       <div class="flex-1 font-bold pr-5 h-[34px]">{{
                         t('reuse.informationServices')
                       }}</div>
                     </div>
-                    <el-option
-                      v-for="item in SpaSelectOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    >
+                    <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value">
                       <span style="float: left">{{ item.code }}</span>
-                      <span
-                        style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
-                        >{{ item.name }}</span
-                      >
+                      <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px">{{ item.name
+                      }}</span>
                     </el-option>
                   </el-select>
                 </template>
               </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
-                  <el-button
-                    type="danger"
-                    v-if="scope.row.code"
-                    @click="removeSpaProductVoucher(scope)"
-                    >{{ t('reuse.delete') }}</el-button
-                  >
+                  <el-button type="danger" v-if="scope.row.code" @click="removeSpaProductVoucher(scope)">{{
+                    t('reuse.delete') }}</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -1307,60 +1091,33 @@ const spaMoney = ref(0)
             }}</el-button>
           </template>
           <template #statusVoucher="form">
-            <el-checkbox v-model="form['statusVoucher']" size="large"
-              ><template #default
-                ><span>{{ t('formDemo.sendImmediatelyAfterBrowsing') }} </span
-                ><span style="color: orange"
-                  >({{ t('reuse.voucherStatusExplain') }})</span
-                ></template
-              ></el-checkbox
-            >
+            <el-checkbox v-model="form['statusVoucher']" size="large"><template #default><span>{{
+              t('formDemo.sendImmediatelyAfterBrowsing') }} </span><span style="color: orange">({{
+    t('reuse.voucherStatusExplain') }})</span></template></el-checkbox>
           </template>
           <template #statusValue="form">
-            <div
-              v-if="form['statusValue'] == 0"
-              class="backgroundAroundLetter"
-              style="background: blue"
-              >{{ t('formDemo.theProgramIsRunning') }}</div
-            >
+            <div v-if="form['statusValue'] == 0" class="backgroundAroundLetter" style="background: blue">{{
+              t('formDemo.theProgramIsRunning') }}</div>
             <div v-else class="backgroundAroundLetter" style="background: orange">{{
               t('reuse.pending')
             }}</div>
           </template>
         </Form>
       </ElCol>
-      <ElCol
-        :span="hasImage ? 8 : 0"
-        v-if="hasImage"
-        class="max-h-400px overflow-y-auto shadow-inner p-1"
-      >
+      <ElCol :span="hasImage ? 8 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto shadow-inner p-1">
         <ElDivider class="text-center font-bold">{{ t('reuse.addImage') }}</ElDivider>
         <el-upload
-          action="#"
-          :disabled="props.type === 'detail'|| props.type === 'approval' "
-          :auto-upload="false"
-          :show-file-list="multipleImages"
-          v-model:file-list="fileList"
-          :list-type="listType"
-          :limit="limitUpload"
-          :on-change="handleChange"
-          :multiple="multipleImages"
-          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
-        >
+action="#" :disabled="props.type === 'detail' || props.type === 'approval'" :auto-upload="false"
+          :show-file-list="multipleImages" v-model:file-list="fileList" :list-type="listType" :limit="limitUpload"
+          :on-change="handleChange" :multiple="multipleImages"
+          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'">
           <div v-if="!multipleImages" class="one-avatar-uploader">
             <div
-              v-if="imageUrl"
-              style="width: 148px; height: 148px; border-radius: 4px"
-              class="flex justify-center relative mb-2"
-            >
+v-if="imageUrl" style="width: 148px; height: 148px; border-radius: 4px"
+              class="flex justify-center relative mb-2">
               <ElImage fit="contain" :src="imageUrl" class="avatar" />
             </div>
-            <ElButton
-              v-else
-              :icon="addIcon"
-              style="border: dashed 1px #e5e7eb"
-              class="avatar-uploader-icon"
-            />
+            <ElButton v-else :icon="addIcon" style="border: dashed 1px #e5e7eb" class="avatar-uploader-icon" />
           </div>
           <div v-else>
             <ElButton :icon="addIcon" />
@@ -1373,23 +1130,21 @@ const spaMoney = ref(0)
                   <ElButton :icon="viewIcon" />
                 </span>
                 <span
-                  v-if="props.type !== 'detail' && props.type !== 'approval' "
-                  class="el-upload-list__item-delete"
-                  @click="handleRemove(file)"
-                >
-                  <ElButton :icon="deleteIcon" :disabled="props.type === 'detail' ||  props.type === 'approval' " />
+v-if="props.type !== 'detail' && props.type !== 'approval'" class="el-upload-list__item-delete"
+                  @click="handleRemove(file)">
+                  <ElButton :icon="deleteIcon" :disabled="props.type === 'detail' || props.type === 'approval'" />
                 </span>
               </span>
             </div>
           </template>
         </el-upload>
         <div
-          class="w-250px flex justify-center"
-          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
-          v-if="imageUrl"
-        >
+class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
+          v-if="imageUrl">
           <ElButton :icon="viewIcon" @click="previewImage" />
-          <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'|| props.type === 'approval' " @click="removeImage" />
+          <ElButton
+:icon="deleteIcon" :disabled="props.type === 'detail' || props.type === 'approval'"
+            @click="removeImage" />
         </div>
         <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
           <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
@@ -1415,7 +1170,7 @@ const spaMoney = ref(0)
       </div>
       <div v-else-if="props.type === 'approval'">
         <ElButton type="warning" :loading="loading" @click="approvisionnement(true)">
-        {{ t('router.approve') }}
+          {{ t('router.approve') }}
         </ElButton>
         <ElButton :loading="loading" @click="approvisionnement(false)">
           {{ t('router.notApproval') }}
@@ -1433,96 +1188,58 @@ const spaMoney = ref(0)
         </ElButton>
       </div>
     </template>
-    <el-dialog
-      v-model="conditionComboVisible"
-      :title="t('reuse.settingVoucherCondition')"
-      width="900px"
-    >
+    <el-dialog v-model="conditionComboVisible" :title="t('reuse.settingVoucherCondition')" width="900px">
       <el-table
-        ref="singleTableRef"
-        :data="conditionComboTable"
-        highlight-current-row
-        style="width: 100%"
-        :border="true"
-        @current-change="handleCurrentChangeSelection"
-      >
+ref="singleTableRef" :data="conditionComboTable" highlight-current-row style="width: 100%" :border="true"
+        @current-change="handleCurrentChangeSelection">
         <el-table-column label="" width="70">
           <template #default="scope">
             <el-radio
-              v-model="radioSelected"
-              :label="scope.$index + 1"
-              style="color: #fff; margin-right: -25px"
-              ><span></span
-            ></el-radio>
+v-model="radioSelected" :label="scope.$index + 1"
+              style="color: #fff; margin-right: -25px"><span></span></el-radio>
           </template>
         </el-table-column>
         <el-table-column :label="t('reuse.condition')" width="500">
-          <template #default="scope"
-            ><div>{{ scope.row.condition }}</div
-            ><div class="explainText">({{ scope.row.explainCondition }})</div></template
-          ></el-table-column
-        >
-        <el-table-column :label="t('reuse.enterCondition')" width="300"
-          ><template #default="scope">
+          <template #default="scope">
+            <div>{{ scope.row.condition }}</div>
+            <div class="explainText">({{ scope.row.explainCondition }})</div>
+          </template></el-table-column>
+        <el-table-column :label="t('reuse.enterCondition')" width="300"><template #default="scope">
             <div v-if="scope.row.enterCondition !== ''" class="w-full">
-              <div v-if="scope.row.enterCondition == 'points'"
-                ><el-input v-model="scope.row.point" type="number"
-                  ><template #suffix
-                    ><span>{{ t('reuse.points') }}</span></template
-                  ></el-input
-                ></div
-              >
+              <div v-if="scope.row.enterCondition == 'points'"><el-input v-model="scope.row.point" type="number"><template
+                    #suffix><span>{{ t('reuse.points') }}</span></template></el-input></div>
               <div v-if="scope.row.enterCondition == 'prices'">
                 <CurrencyInputComponent v-model="scope.row.price" />
               </div>
-            </div> </template
-        ></el-table-column>
+            </div>
+          </template></el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog
-      v-model="conditionVoucherVisible"
-      :title="t('reuse.settingVoucherCondition')"
-      width="900px"
-    >
+    <el-dialog v-model="conditionVoucherVisible" :title="t('reuse.settingVoucherCondition')" width="900px">
       <el-table
-        ref="singleTableRef"
-        :data="conditionVoucherTable"
-        highlight-current-row
-        style="width: 100%"
-        :border="true"
-        @current-change="handleCurrentChangeSelection"
-      >
+ref="singleTableRef" :data="conditionVoucherTable" highlight-current-row style="width: 100%"
+        :border="true" @current-change="handleCurrentChangeSelection">
         <el-table-column label="" width="70">
           <template #default="scope">
             <el-radio
-              v-model="radioSelected"
-              :label="scope.$index + 1"
-              style="color: #fff; margin-right: -25px"
-              ><span></span
-            ></el-radio>
+v-model="radioSelected" :label="scope.$index + 1"
+              style="color: #fff; margin-right: -25px"><span></span></el-radio>
           </template>
         </el-table-column>
         <el-table-column :label="t('reuse.condition')" width="500">
-          <template #default="scope"
-            ><div>{{ scope.row.condition }}</div
-            ><div class="explainText">({{ scope.row.explainCondition }})</div></template
-          ></el-table-column
-        >
-        <el-table-column :label="t('reuse.enterCondition')"
-          ><template #default="scope">
+          <template #default="scope">
+            <div>{{ scope.row.condition }}</div>
+            <div class="explainText">({{ scope.row.explainCondition }})</div>
+          </template></el-table-column>
+        <el-table-column :label="t('reuse.enterCondition')"><template #default="scope">
             <div v-if="scope.row.enterCondition !== ''" class="w-full">
-              <div v-if="scope.row.enterCondition == 'points'"
-                ><el-input v-model="scope.row.point" type="number"
-                  ><template #suffix
-                    ><span>{{ t('reuse.points') }}</span></template
-                  ></el-input
-                ></div
-              >
+              <div v-if="scope.row.enterCondition == 'points'"><el-input v-model="scope.row.point" type="number"><template
+                    #suffix><span>{{ t('reuse.points') }}</span></template></el-input></div>
               <div v-if="scope.row.enterCondition == 'prices'">
                 <CurrencyInputComponent v-model="scope.row.price" />
               </div>
-            </div> </template
-        ></el-table-column>
+            </div>
+          </template></el-table-column>
       </el-table>
       <template #footer>
         <span class="dialog-footer">
@@ -1541,11 +1258,13 @@ const spaMoney = ref(0)
   font-size: 14px;
   font-style: italic;
 }
+
 .avatar-uploader .avatar {
   padding-bottom: 1rem;
   width: 250px;
   display: block;
 }
+
 .avatar-uploader .el-upload {
   border: 1px dashed var(--el-border-color);
   border-radius: 6px;
@@ -1563,6 +1282,7 @@ const spaMoney = ref(0)
   width: 148px;
   height: 148px;
 }
+
 .one-avatar-uploader {
   display: flex;
   justify-content: center;
@@ -1572,21 +1292,26 @@ const spaMoney = ref(0)
 ::v-deep(.el-form-item--default .el-form-item__content) {
   line-height: 24px;
 }
+
 :deep(.el-dialog__body) {
   max-height: 85vh;
   overflow: auto;
   display: flex;
   justify-content: center;
 }
+
 .widthOption {
   min-width: 500px;
 }
+
 .fix-padding {
   padding: 0;
 }
+
 ::v-deep(.cell) {
   word-break: break-word;
 }
+
 .backgroundAroundLetter {
   color: white;
   padding-right: 5rem;

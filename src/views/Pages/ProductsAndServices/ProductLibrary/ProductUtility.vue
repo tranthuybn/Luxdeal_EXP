@@ -342,6 +342,7 @@ const handleEditRow = (data) => {
 
 //cannot turn on switch when has no price
 const warningForSwitch = (rowDisabled: boolean) => {
+  
   if (rowDisabled) {
     ElNotification({
       message: t('reuse.clickEditForEditing'),

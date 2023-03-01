@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref} from 'vue'
 import { t } from '@/hooks/web/useI18n'
+// import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElSelect,
   ElOption,
@@ -14,9 +15,9 @@ import { addQuickCustomer } from '@/api/Business';
 import { FORM_IMAGES } from '@/utils/format';
 
 
-const dialogAddQuick = ref(false)
-const valueClassify = ref(false)
-
+const dialogAddQuick = ref(false) //ten dailog
+const valueClassify = ref(false) // select option 
+// chọn cty or cá nhân
   const optionsClassify = [
   {
     value: true,
@@ -29,12 +30,29 @@ const valueClassify = ref(false)
     label: t('formDemo.individual')
   }
 ]
+// chon khac hang or ncc 
+const optionsCustomer = [
+  {
+    value: 1,
+    label: t('formDemo.customer')
+  },
+  {
+    value: 2,
+    label: t('reuse.supplier')
+  },
+  {
+    value: 3,
+    label: t('formDemo.joint')
+  }
+]
+
+
 const valueSelectCustomer = ref(1)
-const addQuickCustomerName = ref()
-const quickTaxCode = ref()
-const quickRepresentative = ref()
-const quickPhoneNumber = ref()
-const quickEmail = ref()
+const addQuickCustomerName = ref() //ten cty,ca nhan
+const quickTaxCode = ref() // thue cty
+const quickRepresentative = ref() // nguoi dai dien
+const quickPhoneNumber = ref() // so dt 
+const quickEmail = ref() // email
 //thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
@@ -67,22 +85,15 @@ const formCustomerPayLoad = FORM_IMAGES(payload)
     )
 }
 
+// Bật dialog thêm nhanh khách hàng
+const openDialogAddQuickCustomer = () => {
+  clearFormPostCustomer()
+
+  dialogAddQuick.value = true
+}
 
 
-const optionsCustomer = [
-  {
-    value: 1,
-    label: t('formDemo.customer')
-  },
-  {
-    value: 2,
-    label: t('reuse.supplier')
-  },
-  {
-    value: 3,
-    label: t('formDemo.joint')
-  }
-]
+
 
 
 
@@ -100,6 +111,14 @@ width="40%"
 align-center
 :title="t('formDemo.QuicklyAddCustomers')"
 >
+<el-form
+    ref="ruleFormRef"
+    :model="ruleForm"
+    status-icon
+    :rules="rules"
+    label-width="120px"
+    class="demo-ruleForm"
+  >
 <!-- class="font-bold" -->
 <div v-if="valueClassify == true">
   <el-divider />
@@ -258,7 +277,9 @@ align-center
       t('reuse.exit')
     }}</el-button>
   </span>
+  
 </template>
+</el-form>
 </el-dialog>
     </div>
 </template>

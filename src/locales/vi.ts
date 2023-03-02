@@ -950,6 +950,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    statusProgram: 'Trạng thái chương trình',
     duplicateInformation: 'Trùng thông tin, vui lòng kiểm tra tên/mã/email/sđt ...',
     addNewBranch: 'Thêm mới chi nhánh',
     addNewDepartment: 'Thêm mới phòng ban',

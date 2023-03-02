@@ -39,8 +39,9 @@ import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { approvalProducts } from '@/api/Approval'
 import { FORM_IMAGES } from '@/utils/format'
 import { Approvement, CampaignTypeArr } from '@/utils/API.Variables'
+import moment from 'moment'
 
-
+const currentDate = ref(moment().format("DD/MM/YYYY"))
 const { t } = useI18n()
 const props = defineProps({
   // api lấy dữ liệu sản phẩm
@@ -745,6 +746,7 @@ const ScrollProductBottom = () => {
       })
 }
 const removeCustomer = (scope) => {
+  console.log(scope)
   forceRemove.value = true
   dataTable.customerData.splice(scope.$index, 1)
 }
@@ -914,7 +916,7 @@ const spaMoney = ref(0)
               <el-table-column prop="code" :label="t('reuse.customerCode')" width="180">
                 <template #default="scope">
                   <MultipleOptionsBox
-                 :fields="[
+:fields="[
                     t('reuse.customerCode'),
                     t('reuse.phoneNumber'),
                     t('formDemo.customerName')
@@ -928,7 +930,7 @@ const spaMoney = ref(0)
               </el-table-column>
               <el-table-column prop="name" :label="t('reuse.customerName')" width="780"><template #default="scope">{{
                 scope.row.name }}</template></el-table-column>
-              <el-table-column :label="t('reuse.operator')" fixed="right">
+              <el-table-column :label="t('reuse.operator')" fixed="right" width="86">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeCustomer(scope)">{{
                     t('reuse.delete')
@@ -954,10 +956,13 @@ const spaMoney = ref(0)
               </el-table-column>
               <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="600" />
               <el-table-column :label="t('formDemo.joinTheProgram')" width="185">
-                <template #default="scope"><el-switch
-v-model="scope.row.isActive" active-text="ON" inline-prompt
-                    inactive-text="OFF" size="large" /></template></el-table-column>
-              <el-table-column :label="t('reuse.operator')" fixed="right">
+                <template #default="scope">
+                  <el-switch
+v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
+                    size="large" />
+                </template>
+              </el-table-column>
+              <el-table-column :label="t('reuse.operator')" fixed="right" width="86">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
                     t('reuse.delete')
@@ -1096,11 +1101,15 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt
     t('reuse.voucherStatusExplain') }})</span></template></el-checkbox>
           </template>
           <template #statusValue="form">
-            <div v-if="form['statusValue'] == 0" class="backgroundAroundLetter" style="background: blue">{{
-              t('formDemo.theProgramIsRunning') }}</div>
-            <div v-else class="backgroundAroundLetter" style="background: orange">{{
-              t('reuse.pending')
-            }}</div>
+            <div class="status_wrap">
+              <div v-if="form['statusValue'] == 0" class="status_wrap--new-account">{{
+                t('formDemo.isNewAccount') }}
+              </div>
+              <div v-else class="backgroundAroundLetter status_wrap--pending" style="background: orange">{{
+                t('reuse.pending')
+              }}</div>
+              <div class="status_wrap-date ">{{ currentDate }}</div>
+            </div>
           </template>
         </Form>
       </ElCol>
@@ -1156,8 +1165,8 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
         <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndPending') }}
         </ElButton>
-        <ElButton :loading="loading" @click="cancel">
-          {{ t('reuse.cancel') }}
+        <ElButton type="danger" :loading="loading" @click="cancel">
+          {{ t('formDemo.cancelTheProgram') }}
         </ElButton>
       </div>
       <div v-else-if="props.type === 'detail'">
@@ -1190,12 +1199,12 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
     </template>
     <el-dialog v-model="conditionComboVisible" :title="t('reuse.settingVoucherCondition')" width="900px">
       <el-table
-ref="singleTableRef" :data="conditionComboTable" highlight-current-row style="width: 100%" :border="true"
+        ref="singleTableRef" :data="conditionComboTable" highlight-current-row style="width: 100%" :border="true"
         @current-change="handleCurrentChangeSelection">
         <el-table-column label="" width="70">
           <template #default="scope">
             <el-radio
-v-model="radioSelected" :label="scope.$index + 1"
+       v-model="radioSelected" :label="scope.$index + 1"
               style="color: #fff; margin-right: -25px"><span></span></el-radio>
           </template>
         </el-table-column>
@@ -1217,7 +1226,7 @@ v-model="radioSelected" :label="scope.$index + 1"
     </el-dialog>
     <el-dialog v-model="conditionVoucherVisible" :title="t('reuse.settingVoucherCondition')" width="900px">
       <el-table
-ref="singleTableRef" :data="conditionVoucherTable" highlight-current-row style="width: 100%"
+        ref="singleTableRef" :data="conditionVoucherTable" highlight-current-row style="width: 100%"
         :border="true" @current-change="handleCurrentChangeSelection">
         <el-table-column label="" width="70">
           <template #default="scope">
@@ -1253,6 +1262,30 @@ v-model="radioSelected" :label="scope.$index + 1"
   </ContentWrap>
 </template>
 <style scoped>
+.status_wrap {
+  display: flex;
+  align-items: left;
+  flex-direction: column;
+}
+
+.status_wrap .status_wrap--new-account {
+  color: #2C6DDA;
+  background: rgba(44, 109, 218, 0.05);
+  width: 88px;
+  height: 18px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.status_wrap .status_wrap-date {
+  color: #65676B;
+  font-weight: 400;
+  font-size: 10px;
+  font-style: italic;
+}
+
 .explainText {
   color: orange;
   font-size: 14px;

@@ -139,7 +139,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'statusValue',
-    label: t('reuse.status'),
+    label: t('reuse.statusProgram'),
     component: 'Input',
     colProps: {
       span: 24

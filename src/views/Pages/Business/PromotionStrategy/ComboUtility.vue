@@ -116,7 +116,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'statusValue',
-    label: t('reuse.status'),
+    label: t('reuse.statusProgram'),
     component: 'Input',
     colProps: {
       span: 24
@@ -350,7 +350,8 @@ const editData = async (data) => {
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
         </template>
-        <TableOperatorCollection ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
+        <TableOperatorCollection
+ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
           :params="params" :apiId="getCampaignList" @post-data="postData" :formDataCustomize="setFormData"
           @customize-form-data="customizeData" @edit-data="editData" />
       </el-collapse-item>

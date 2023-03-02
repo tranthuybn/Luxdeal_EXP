@@ -285,7 +285,7 @@ const save = async (type) => {
       if (type == 'edit') {
         data.Id = props.id
         data.DeleteFileIds = DeleteFileIds.toString()
-        emit('edit-data', data, go(-1))
+        emit('edit-data', data)
       }
     }
     if (!isValid) {
@@ -696,7 +696,7 @@ const approvalProduct = async () => {
               <p class="text-[#FECB80]">{{ t('reuse.showOnAppWebUser') }}</p>
             </div>
           </template>
-          <template #ProductStatus-label>
+          <template #IsActive-label>
             <div class="w-full text-right ml-2 leading-5">
               <label>{{ t('reuse.productStatus') }}</label>
               <p class="text-[#FECB80]">{{ t('reuse.forAllAttribute') }}</p>
@@ -785,14 +785,14 @@ const approvalProduct = async () => {
               <p class="text-[#FECB80]">{{ t('reuse.under256Characters') }}</p>
             </div>
           </template>
-          <template #ProductStatus="form">
+          <template #IsActive="form">
             <!-- formatProductStatus cái này chưa chính xác trạng thái nên sửa lại -->
-            <el-radio-group v-model="form['ProductStatus']">
-              <el-radio :label="2" size="large">{{ t('reuse.active') }}</el-radio>
+            <el-radio-group v-model="form['IsActive']">
+              <el-radio :label="true" size="large">{{ t('reuse.active') }}</el-radio>
             </el-radio-group>
             <span class="text-[#FECB80]">({{ t('reuse.allBusinessRelatedActivities') }})</span>
 
-            <div class="break" v-if="form['ProductStatus'] == 2">
+            <div class="break" v-if="form['ProductStatus'] == 1">
               <span class="bg-orange-100 text-orange-300 px-2">{{ t('reuse.pendings') }}</span>
               </div>
           </template>

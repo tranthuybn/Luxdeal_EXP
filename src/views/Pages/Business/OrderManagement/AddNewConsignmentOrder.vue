@@ -507,6 +507,12 @@ const debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -1597,6 +1603,15 @@ const editData = async () => {
         duplicateStatusButton.value = true
       else duplicateStatusButton.value = false
     }
+
+    let arrayLength = arrayStatusOrder.value?.length
+      while(statusOrder.value == 27 /*Trả 1 phần*/){
+        arrayLength -= 2
+        statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+      }
+      if (statusOrder.value == 27 /*Trả 1 phần*/) {
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
+        }
 
     Files = orderObj.orderFiles
 
@@ -3918,7 +3933,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add'">
+              <div v-if="type == 'add' || type == ':type'">
                 <CurrencyInputComponent v-model="props.row.consignmentSellPrice" />
               </div>
               <div v-else>
@@ -3932,7 +3947,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add'">
+              <div v-if="type == 'add' || type == ':type'">
                 <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
               </div>
               <div v-else>

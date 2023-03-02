@@ -460,6 +460,11 @@ let newTable = ref()
 
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    checkReceiptOrPayment.value = true
+    checkPaymentRequest.value = true
+    return
+  }
   countExisted.value = 0
   countExistedDNTT.value = 0
   newTable.value = val
@@ -1086,7 +1091,7 @@ const checkValidatorProduct = ref(false)
 // Tạo đơn hàng
 const postData = async () => {
   orderDetailsTable.value = ListOfProductsForSale.value
-  .filter(val=>val.productPropertyId != '' || !val.productPropertyId)
+  .filter(val=>val.productPropertyId != '' || val.productPropertyId)
   .map((val) => ({
     ProductPropertyId: parseInt(val?.productPropertyId),
     Quantity: val.quantity,

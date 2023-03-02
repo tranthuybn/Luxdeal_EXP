@@ -721,7 +721,7 @@ const approvalProduct = async () => {
               :remote-method="remoteProductCode"
               default-first-option
               @change="data=>fillAllInformation(data)"
-              @input="(event) => (productCode = event.target.value)"
+              @input="(event: any) => (productCode = event.target.value)"
               @blur="setProductCode"
               @keyup.enter="setProductCode"
               popper-class="max-w-600px"
@@ -763,7 +763,7 @@ const approvalProduct = async () => {
               :remote-method="remoteProductName"
               default-first-option
               popper-class="max-w-600px"
-              @input="(event) => (productName = event.target.value)"
+              @input="(event: any) => (productName = event.target.value)"
               @blur="setProductName"
             >
               <el-option

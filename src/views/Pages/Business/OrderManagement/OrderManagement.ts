@@ -911,7 +911,7 @@ export const spaOrder = [
     }
   }
 ]
-const action = (row: any, type: string, tab: string) => {
+const action = (row: any, type: string, _tab: string) => {
   const curTab: any = API_ORDER.find((el) => el.key == row.serviceType)
   router.push({
     name: `business.order-management.order-list.${utility}`,

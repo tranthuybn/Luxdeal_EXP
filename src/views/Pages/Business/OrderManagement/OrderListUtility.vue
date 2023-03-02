@@ -191,8 +191,8 @@ const rulesAddress = reactive<FormRules>({
 let checkValidateForm = ref(false)
 
 const submitForm = async (
-  formEl: FormInstance | undefined,
-  formEl2: FormInstance | undefined,
+  formEl: any,
+  formEl2: any,
   pushBack: boolean
 ) => {
   if (!formEl || !formEl2) return
@@ -2560,8 +2560,7 @@ const updateStatusOrders = async (typeState) => {
         ServiceType: 1,
         OrderStatus: typeState
       }
-      // @ts-ignore
-      submitForm(ruleFormRef, ruleFormRef2)
+      submitForm(ruleFormRef, ruleFormRef2, true)
       updateStatusOrder(FORM_IMAGES(payload))
     } else {
       let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }

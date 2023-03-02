@@ -160,6 +160,8 @@ const action = (row: any, type: string) => {
 }
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :titleAdd="t('formDemo.addNewVoucher')" :api="getCampaignList"
+  <tableDatetimeFilterBasicVue 
+    :columns="columns" :titleAdd="t('formDemo.addNewVoucher')" 
+    :api="getCampaignList"
     :customOperator="3" />
 </template>

@@ -419,7 +419,7 @@ const disabledForm = ref(false)
 
 let FileDeleteIds: any = []
 
-const beforeRemove = (uploadFile) => {
+const beforeRemove : any = (uploadFile) => {
   return ElMessageBox.confirm(`Bạn muốn xóa ${uploadFile.name} ?`, {
     confirmButtonText: 'OK',
     cancelButtonText: 'Hủy',
@@ -442,9 +442,7 @@ const beforeRemove = (uploadFile) => {
     })
 }
 
-const optionsRole = [
-
-]
+const optionsRole = [{id: '', label: '', value: ''}]
 
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(

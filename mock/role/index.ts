@@ -3,7 +3,6 @@ import { MockMethod } from 'vite-plugin-mock'
 const { result_code } = config
 import { appModules } from '@/config/app'
 const { utility } = appModules
-
 const timeout = 1000
 
 const adminList = [
@@ -1543,11 +1542,9 @@ export default [
     url: '/role/list',
     method: 'get',
     timeout,
-    response: ({ query }) => {
-      const { roleName } = query
+    response: () => {
       return {
         code: result_code,
-        // data: roleName === 'admin' ? adminList : testList
         data: testList
       }
     }

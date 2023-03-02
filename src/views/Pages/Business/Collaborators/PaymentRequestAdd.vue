@@ -326,7 +326,7 @@ onBeforeMount(() => {
   }
 })
 let FileDeleteIds: any = []
-const beforeRemove = (uploadFile) => {
+const beforeRemove : any = (uploadFile) => {
   return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
     confirmButtonText: 'OK',
     cancelButtonText: 'Hủy',

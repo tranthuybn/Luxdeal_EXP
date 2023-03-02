@@ -10,7 +10,6 @@ import {
   WAREHOUSE_API,
   POINT_API,
   STAFF_API,
-  TOOL_API
 } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 

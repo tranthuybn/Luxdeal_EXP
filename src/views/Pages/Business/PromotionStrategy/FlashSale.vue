@@ -143,7 +143,9 @@ const columns = reactive<TableColumn[]>([
 </script>
 
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :titleAdd="t('formDemo.addNewFlashSale')" :api="getCampaignList"
+  <tableDatetimeFilterBasicVue 
+    :columns="columns" :titleAdd="t('formDemo.addNewFlashSale')" 
+    :api="getCampaignList"
     :customOperator="5" />
 </template>
 

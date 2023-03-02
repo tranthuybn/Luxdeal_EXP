@@ -10,7 +10,7 @@ export default [
     method: 'get',
     timeout,
     response: ({ query }) => {
-      const { pageIndex, pageSize, id } = query
+      const { pageIndex, pageSize } = query
       const pageList = productStorageList.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )

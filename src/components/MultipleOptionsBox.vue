@@ -6,7 +6,7 @@ import { computed, ref, watchEffect } from 'vue'
 const propsObj = defineProps({
   // columns name
   fields: {
-    type: Array,
+    type: Array<string>,
     default: () => [],
     require: true,
     description: 'Tiêu đề của các cột'

@@ -106,7 +106,6 @@ const columns = reactive<TableColumn[]>([
 </script>
 <template>
   <tableDatetimeFilterBasicVue 
-  :removeButtonAdd="true"
   :columns="columns" 
   :api="getStaffList" 
   :customOperator=4

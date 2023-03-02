@@ -93,7 +93,6 @@ const props = defineProps({
     default: false
   }
 })
-
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
@@ -163,22 +162,21 @@ const initMappingObject = (el) => {
   }
   return []
 }
+
+
 </script>
 <template>
   <section>
-    <div>
-    <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter">
-      <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
-        <el-button v-if="!removeButtonAdd" type="primary" :icon="createIcon" @click="pushAdd">
-          {{ t(`${props.titleAdd}`) }}
-        </el-button>
-      </template>
-    </HeaderFiler>
-    <TableExtension
-      v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
-      @export-excel-event="ExportExcelEvent" 
-    />
-    </div>
+    <HeaderFiler @get-data="getData" @refrsesh-data="getData" v-if="!removeHeaderFilter">
+        <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
+          <el-button type="primary" :icon="createIcon" @click="pushAdd">
+            {{ t(`${props.titleAdd}`) }}
+          </el-button>
+        </template>
+      </HeaderFiler>
+      <TableExtension
+       v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
+        @export-excel-event="ExportExcelEvent" />
     <TableBase
       :removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
       :typeButton="props.typeButton" :customOperator="customOperator" :apiTableChild="apiTableChild" :delApi="delApi"

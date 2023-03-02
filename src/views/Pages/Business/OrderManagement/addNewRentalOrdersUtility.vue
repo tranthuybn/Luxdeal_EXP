@@ -444,6 +444,12 @@ let countExisted = ref(0)
 let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -1294,6 +1300,7 @@ interface statusOrderType {
 let arrayStatusOrder = ref(Array<statusOrderType>())
 const isPartialReturn = ref()
 const transaction = ref()
+const disabledPhieuDatCoc = ref(false)
 // Check trạng thái đơn hàng có đang ở chốt đơn hàng k để sinh bút toán tự động
 const automaticEntry = ref(false)
 const editData = async () => {
@@ -1319,6 +1326,13 @@ const editData = async () => {
     transaction.value = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.value.data
+
+    debtTable.value.forEach((row)=>{
+      if(row.typeOfAccountingEntry == 2){
+        disabledPhieuDatCoc.value = true
+      }
+    })
+
     isPartialReturn.value = orderObj.isPartialReturn
     getReturnRequestTable()
 
@@ -2906,6 +2920,7 @@ onBeforeMount(async() => {
     // ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
+    disabledPhieu.value = true
   }
   if (type == 'detail') buttonDuplicate.value = true
 
@@ -5405,7 +5420,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled || disabledPhieu"
+              :disabled="doubleDisabled || disabledPhieu|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5451,7 +5466,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5504,7 +5519,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5571,7 +5586,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5630,7 +5645,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5653,7 +5668,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5679,7 +5694,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled || disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >

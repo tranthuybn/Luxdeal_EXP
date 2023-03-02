@@ -513,6 +513,14 @@ export default {
           meta: {
             title: t('router.employeeRatings')
           }
+        },
+        {
+          path: `employeeRatings-${utility}`,
+          name: `business.employee-management.employeeRatings.${utility}`,
+          component: () => import('@/views/Pages/Business/EmployeeManagement/EmployeeRatingsUtility.vue'),
+          meta: {
+            title: t('router.employeeRatings')
+          }
         }
       ]
     },

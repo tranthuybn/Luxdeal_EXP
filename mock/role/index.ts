@@ -722,6 +722,14 @@ const adminList = [
             meta: {
               title: 'router.employeeRatings'
             }
+          },
+          {
+            path: `employeeRatings-${utility}`,
+            name: `business.employee-management.employeeRatings.${utility}`,
+            component: 'views/Pages/Business/EmployeeManagement/EmployeeRatingsUtility',
+            meta: {
+              title: 'router.employeeRatings'
+            }
           }
         ]
       },

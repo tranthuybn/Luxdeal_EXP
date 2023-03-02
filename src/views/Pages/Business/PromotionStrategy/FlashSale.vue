@@ -145,7 +145,6 @@ const columns = reactive<TableColumn[]>([
 <template>
   <tableDatetimeFilterBasicVue 
     :columns="columns" 
-    :titleAdd="t('formDemo.addNewFlashSale')" 
     :api="getCampaignList"
     :customOperator="5" />
 </template>

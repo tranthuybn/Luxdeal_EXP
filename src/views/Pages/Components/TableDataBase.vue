@@ -87,11 +87,14 @@ const props = defineProps({
   typeButton: {
     type: String,
     default: ''
+  },
+  removeButtonAdd: {
+    type: Boolean,
+    default: false
   }
 })
 
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
-
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const getData = (data) => {
@@ -163,18 +166,21 @@ const initMappingObject = (el) => {
 </script>
 <template>
   <section>
+    <div>
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter">
       <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
-        <el-button type="primary" :icon="createIcon" @click="pushAdd">
+        <el-button v-if="!removeButtonAdd" type="primary" :icon="createIcon" @click="pushAdd">
           {{ t(`${props.titleAdd}`) }}
         </el-button>
       </template>
     </HeaderFiler>
     <TableExtension
-v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
-      @export-excel-event="ExportExcelEvent" />
+      v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
+      @export-excel-event="ExportExcelEvent" 
+    />
+    </div>
     <TableBase
-:removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
+      :removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
       :typeButton="props.typeButton" :customOperator="customOperator" :apiTableChild="apiTableChild" :delApi="delApi"
       :deleteTitle="deleteTitle" :columnsTableChild="columnsTableChild" :paginationType="pagination" ref="tableBase01"
       :api="dynamicApi" :maxHeight="'69vh'" :fullColumns="dynamicColumns" @total-record="fnGetTotalRecord"

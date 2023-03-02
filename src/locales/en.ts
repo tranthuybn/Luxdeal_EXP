@@ -125,6 +125,8 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    salesTrackingTable: 'Sales tracking board',
+    employeeDetail: 'Employee Detail',
     comboCode: 'Combo code',
     cancelAccountingEntry: 'Cancel accounting entry',
     expired: 'Expired',

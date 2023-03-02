@@ -124,6 +124,8 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    salesTrackingTable: 'Bảng theo dõi doanh số',
+    employeeDetail: 'Thông tin nhân viên',
     cancelAccountingEntry: 'Hủy bút toán',
     expired: 'Hết hạn',
     keepGoodsOnDeposit: 'Giữ hàng đang đặt cọc',

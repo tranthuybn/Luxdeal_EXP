@@ -17,83 +17,96 @@ const columns = reactive<TableColumn[]>([
     field: 'index',
     label: t('reuse.index'),
     type: 'index',
-    align: 'center'
+    minWidth: '86',
+    align: 'center',
   },
   {
     field: 'employeeCode',
     label: t('reuse.employeeCode'),
-    minWidth: '250'
+    minWidth: '250',
+    headerAlign: 'left',
   },
   {
     field: 'employeeName',
     label: t('reuse.employeeName'),
-    minWidth: '150'
+    minWidth: '150',
+    headerAlign: 'left'
   },
   {
     field: 'phoneNumber',
     label: t('reuse.phoneNumber'),
-    minWidth: '100'
+    minWidth: '100',
+    headerAlign: 'left'
   },
   {
     field: 'email',
     label: t('reuse.email'),
     minWidth: '100',
     align: 'center',
-    sortable: true
+    sortable: true,
+    headerAlign: 'left'
   },
   {
     field: 'branch',
     label: t('reuse.branch'),
     minWidth: '200',
-    filters: filterBranch
+    filters: filterBranch,
+    headerAlign: 'left'
   },
   {
     field: 'department',
     label: t('reuse.department'),
     minWidth: '200',
-    filters: filterDepartment
+    filters: filterDepartment,
+    headerAlign: 'left'
   },
   {
     field: 'rank',
     label: t('reuse.rank'),
     minWidth: '200',
-    filters: filterRankEmployee
+    filters: filterRankEmployee,
+    headerAlign: 'left'
   },
   {
     field: 'type',
     label: t('reuse.type'),
     minWidth: '150',
-    filters: filterTypeEmployee
+    filters: filterTypeEmployee,
+    headerAlign: 'left'
   },
   {
     field: 'monthlySales',
     label: t('customerList.monthlyRevenue'),
-    minWidth: '100'
+    minWidth: '100',
+    headerAlign: 'left'
   },
   {
     field: 'quarterlySales',
     label: t('customerList.quarterlySales'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    headerAlign: 'left'
   },
   {
     field: 'annualSales',
     label: t('customerList.salesYear'),
     minWidth: '150',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    headerAlign: 'left'
   },
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filterStatusCustomer
+    filters: filterStatusCustomer,
+    headerAlign: 'left'
   }
 ])
 </script>
 <template>
   <tableDatetimeFilterBasicVue 
-  :removeHeaderFilter="true" 
+  :removeButtonAdd="true"
   :columns="columns" 
   :api="getStaffList" />
 </template>

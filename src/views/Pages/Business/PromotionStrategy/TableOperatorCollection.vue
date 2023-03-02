@@ -1226,7 +1226,7 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
     </el-dialog>
     <el-dialog v-model="conditionVoucherVisible" :title="t('reuse.settingVoucherCondition')" width="900px">
       <el-table
-ref="singleTableRef" :data="conditionVoucherTable" highlight-current-row style="width: 100%"
+        ref="singleTableRef" :data="conditionVoucherTable" highlight-current-row style="width: 100%"
         :border="true" @current-change="handleCurrentChangeSelection">
         <el-table-column label="" width="70">
           <template #default="scope">

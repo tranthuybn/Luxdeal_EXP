@@ -932,7 +932,7 @@ const spaMoney = ref(0)
                 scope.row.name }}</template></el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right" width="86">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeCustomer(scope)">{{
+                  <el-button type="danger" @click="removeCustomer(scope)">{{
                     t('reuse.delete')
                   }}</el-button>
                 </template>
@@ -964,7 +964,7 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
               </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right" width="86">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
+                  <el-button type="danger" @click="removeProduct(scope)">{{
                     t('reuse.delete')
                   }}</el-button>
                 </template>

@@ -370,17 +370,26 @@ const callCustomersApi = async () => {
   }
 }
 
+// IsOrganization: valueClassify.value,
+//     Name: addQuickCustomerName.value,
+//     TaxCode: quickTaxCode.value,
+//     Representative: quickRepresentative.value,
+//     Phonenumber: quickPhoneNumber.value,
+//     Email: quickEmail.value,
+//     DistrictId: 1,
+//     WardId: 1,
+//     Address: 1,
+//     CustomerType: valueSelectCustomer.value
+var autoCustomerCode = 'KH' + moment().format('hhmmss')
 const createQuickCustomer = async () => {
   const payload = {
+    Code: autoCustomerCode,
     IsOrganization: valueClassify.value,
     Name: addQuickCustomerName.value,
     TaxCode: quickTaxCode.value,
     Representative: quickRepresentative.value,
     Phonenumber: quickPhoneNumber.value,
     Email: quickEmail.value,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 1,
     CustomerType: valueSelectCustomer.value
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
@@ -847,11 +856,19 @@ const autoCollaboratorCommission = (index) => {
     if (val.value == index) ruleForm.collaboratorCommission = val.collaboratorCommission
   })
 }
-const valueSelectCustomer = ref(t('formDemo.customer'))
+const valueSelectCustomer = ref(1)
 const optionsCustomer = [
   {
-    value: 'customer',
+    value: 1,
     label: t('formDemo.customer')
+  },
+  {
+    value: 2,
+    label: t('reuse.supplier')
+  },
+  {
+    value: 3,
+    label: t('formDemo.joint')
   }
 ]
 let orderDetailsTable = reactive([{}])
@@ -2142,8 +2159,8 @@ const disabledPhieu = ref(false)
               class="w-[150px]"
               @click.stop.prevent="
                 () => {
-                  dialogAddQuick = false
                   createQuickCustomer()
+                  dialogAddQuick = false
                 }
               "
               >{{ t('reuse.save') }}</el-button

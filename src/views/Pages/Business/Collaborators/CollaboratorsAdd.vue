@@ -47,7 +47,7 @@ import moment from 'moment'
 import { appModules } from '@/config/app'
 const { utility } = appModules
 const { required } = useValidator()
-
+const doCloseOnClickModal = ref(false)
 const { t } = useI18n()
 
 const { push } = useRouter()
@@ -923,6 +923,7 @@ provide('parameters', {
             {{ t('formDemo.cancelAccount') }}
           </ElButton>
           <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
             v-model="centerDialogCancelAccount"
             :title="t('formDemo.cancelAccount')"
             width="30%"

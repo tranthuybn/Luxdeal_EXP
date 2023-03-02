@@ -1140,7 +1140,7 @@ const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
 }
-
+const doCloseOnClickModal = ref(false)
 const disabledDeleteRow = ref(false)
 const duplicateStatusButton = ref(false)
 const editData = async () => {
@@ -2750,7 +2750,7 @@ const disabledPhieu = ref(false)
       </div>
 
       <!-- Dialog In phiếu thu chi -->
-      <el-dialog v-model="PrintReceipts" class="font-bold" width="40%" align-center>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%" align-center >
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
@@ -2782,6 +2782,7 @@ const disabledPhieu = ref(false)
 
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
+        :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAddQuick"
         width="40%"
         align-center
@@ -2953,6 +2954,7 @@ const disabledPhieu = ref(false)
         :title="t('formDemo.informationReceipts')"
         width="40%"
         align-center
+        :close-on-click-modal="doCloseOnClickModal"
       >
         <div>
           <el-divider />
@@ -3077,6 +3079,7 @@ const disabledPhieu = ref(false)
         :title="t('formDemo.paymentVoucherInformation')"
         width="40%"
         align-center
+        :close-on-click-modal="doCloseOnClickModal"
       >
         <div>
           <el-divider />
@@ -3200,6 +3203,7 @@ const disabledPhieu = ref(false)
         :title="t('formDemo.informationPaymentRequestForm')"
         width="50%"
         align-center
+        :close-on-click-modal="doCloseOnClickModal"
       >
         <div>
           <el-divider />
@@ -3452,6 +3456,7 @@ const disabledPhieu = ref(false)
         :title="t('formDemo.salesSlipInformation')"
         width="40%"
         align-center
+        :close-on-click-modal="doCloseOnClickModal"
       >
         <div>
           <el-divider />
@@ -3656,6 +3661,7 @@ const disabledPhieu = ref(false)
         :title="t('formDemo.depositSlipAdvanceinformation')"
         width="40%"
         align-center
+        :close-on-click-modal="doCloseOnClickModal"
       >
         <div>
           <el-divider />
@@ -3893,6 +3899,7 @@ const disabledPhieu = ref(false)
         :title="t('formDemo.infoCouponExportExchange')"
         width="50%"
         align-center
+        :close-on-click-modal="doCloseOnClickModal"
       >
         <div>
           <el-divider />
@@ -4010,6 +4017,7 @@ const disabledPhieu = ref(false)
         :title="t('formDemo.invoiceForGoodsEntering')"
         width="40%"
         align-center
+        :close-on-click-modal="doCloseOnClickModal"
       >
         <div>
           <el-divider />
@@ -4118,11 +4126,12 @@ const disabledPhieu = ref(false)
       </el-dialog>
 
       <!-- Bút toán bổ sung -->
-      <el-dialog
+      <el-dialog 
         v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')"
         width="50%"
         align-center
+        :close-on-click-modal="doCloseOnClickModal"
       >
         <div>
           <el-divider />
@@ -4327,7 +4336,7 @@ const disabledPhieu = ref(false)
       </el-dialog>
 
       <!-- Địa chỉ nhận hàng -->
-      <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
         <el-divider />
         <el-form
           ref="ruleFormAddress"
@@ -4530,7 +4539,7 @@ const disabledPhieu = ref(false)
                       </span>
                     </div>
                   </template>
-                  <el-dialog v-model="dialogVisible" class="absolute" />
+                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute" />
                   <div class="text-[#303133] font-medium dark:text-[#fff]"
                     >+ {{ t('formDemo.addPhotosOrFiles') }}</div
                   >
@@ -4689,6 +4698,7 @@ const disabledPhieu = ref(false)
 
       <!-- DialogChooseWarehouse -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="openDialogChooseWarehouse"
         :title="t('formDemo.inventoryInformation')"
         width="35%"
@@ -4722,6 +4732,7 @@ const disabledPhieu = ref(false)
 
       <!-- DialogPromotion -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="openDialogChoosePromotion"
         :title="t('formDemo.choosePromotion')"
         width="40%"
@@ -4814,6 +4825,7 @@ const disabledPhieu = ref(false)
 
       <!-- Thông tin đổi/trả hàng -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="changeReturnGoods"
         :title="t('formDemo.InformationChangeReturnGoods')"
         width="50%"

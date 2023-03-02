@@ -19,6 +19,7 @@ import { PropType, reactive, ref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { dateTimeFormat } from '@/utils/format'
 
+const doCloseOnClickModal = ref(false)
 const { required } = useValidator()
 const { t } = useI18n()
 const props = defineProps({
@@ -164,6 +165,7 @@ const ruleFormRef = ref<FormInstance>()
 </script>
 <template>
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-value="showDialog"
     :title="t('formDemo.inventoryInformation')"
     width="65%"

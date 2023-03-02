@@ -21,6 +21,7 @@ import moment from 'moment'
 import { API_URL } from '@/utils/API_URL'
 import { useRouter } from 'vue-router'
 
+const doCloseOnClickModal = ref(false)
 const { t } = useI18n()
 
 const escape = useIcon({ icon: 'quill:escape' })
@@ -248,7 +249,7 @@ const errorImage = () => {
           </div>
         </div>
       </el-collapse-item>
-      <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" top="5vh" v-model="dialogVisible" width="130vh">
         <div class="flex justify-center">
           <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
         </div>

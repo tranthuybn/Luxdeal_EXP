@@ -711,19 +711,11 @@ const adminList = [
       {
         path: 'employee-management',
         name: 'business.employee-management',
-        redirect: { name: 'business.employee-management.employeeList' },
+        redirect: { name: 'business.employee-management.employeeRatings' },
         meta: {
           title: 'router.businessMan'
         },
         children: [
-          {
-            path: 'employeeList',
-            name: 'business.employee-management.employeeList',
-            component: 'views/Pages/Business/EmployeeManagement/EmployeeList',
-            meta: {
-              title: 'router.employeeList'
-            }
-          },
           {
             path: 'employeeRatings',
             name: 'business.employee-management.employeeRatings',
@@ -1464,7 +1456,6 @@ const testList: string[] = [
   '/business/virtual-wallet/settings',
   '/business/virtual-wallet/settings-utility/:type?/:id?',
   '/business/employee-management',
-  '/business/employee-management/employeeList',
   '/business/employee-management/employeeRatings',
   '/business/business-report',
   '/business/business-report/growth',

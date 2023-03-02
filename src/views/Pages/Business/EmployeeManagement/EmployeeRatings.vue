@@ -92,5 +92,8 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :removeHeaderFilter="true" :columns="columns" :api="getStaffList" />
+  <tableDatetimeFilterBasicVue 
+  :removeHeaderFilter="true" 
+  :columns="columns" 
+  :api="getStaffList" />
 </template>

@@ -109,18 +109,25 @@ const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
 
+interface IRuleForm { 
+  orderCode: 'DHB039423'
+  leaseTerm: number
+  rentalPeriod: any
+  rentalPaymentPeriod: number
+  collaborators: string
+  discount: number
+  orderNotes: string
+  customerName: string
+  warehouse: string
+  delivery: number
+}
+
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   leaseTerm: 30,
-  rentalPeriod: '',
   rentalPaymentPeriod: 4,
-  collaborators: '',
-  discount: 0,
-  orderNotes: '',
-  customerName: '',
-  warehouse: '',
-  delivery: 0
-})
+  delivery: 0 
+} as IRuleForm)
 
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseEnterOrderCode'), trigger: 'blur' }],
@@ -1344,7 +1351,6 @@ const editData = async () => {
       ruleForm.collaborators = orderObj.collaboratorId
       ruleForm.discount = orderObj.collaboratorCommission
       ruleForm.leaseTerm = orderObj.days
-      // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
       ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
       if (ruleForm.rentalPaymentPeriod == 3) week.value = orderObj.hirePeriodDay

@@ -300,19 +300,21 @@ let infoCompany = reactive({
   phone: '',
   email: ''
 })
+interface IRuleForm {
+  orderCode: string
+  collaborators: string
+  rentalPeriod: any
+  pawnTerm: string
+  paymentPeriod: string
+  collaboratorCommission: string
+  orderNotes: string
+  customerName: string
+  delivery: number
+  warehouse: string
+}
 
-const ruleForm = reactive({
-  orderCode: '',
-  collaborators: '',
-  rentalPeriod: '',
-  pawnTerm: '',
-  paymentPeriod: '',
-  collaboratorCommission: '',
-  orderNotes: '',
-  customerName: '',
-  delivery: 0,
-  warehouse: ''
-})
+const ruleForm = reactive({delivery: 0} as IRuleForm)
+
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 
@@ -1634,7 +1636,6 @@ const editData = async () => {
       ruleForm.warehouse = orderObj?.warehouseId
       consignOrderCode.value = ruleForm.orderCode
 
-      // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value?.length > 0)

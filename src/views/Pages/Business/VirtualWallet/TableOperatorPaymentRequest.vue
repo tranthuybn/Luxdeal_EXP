@@ -27,7 +27,7 @@ import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
-
+const doCloseOnClickModal = ref(false)
 const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
@@ -418,7 +418,7 @@ const options = [
           <ElButton :icon="viewIcon" @click="previewImage" />
           <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
         </div>
-        <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
+        <el-dialog :close-on-click-modal="doCloseOnClickModal" top="5vh" v-model="dialogVisible" width="130vh">
           <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
         </el-dialog>
       </ElCol>

@@ -19,7 +19,7 @@ import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
 
 const { t } = useI18n()
-
+const doCloseOnClickModal = ref(false)
 const changeMoney = new Intl.NumberFormat('vi', {
   style: 'currency',
   currency: 'vnd',
@@ -216,6 +216,7 @@ onBeforeMount(()=>{
 <template>
   <!-- Gia hạn thuê -->
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-Value="modelValue"
     v-if="orderStatusType == 2"
     @open="open"

@@ -21,6 +21,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { dateTimeFormat } from '@/utils/format'
 import moment from 'moment'
 
+const doCloseOnClickModal = ref(false)
 const { required } = useValidator()
 const { t } = useI18n()
 const props = defineProps({
@@ -189,7 +190,7 @@ watch(
 )
 </script>
 <template>
-  <el-dialog
+  <el-dialog :close-on-click-modal="doCloseOnClickModal"
     :model-value="showDialog"
     :title="t('formDemo.inventoryInformation')"
     width="65%"

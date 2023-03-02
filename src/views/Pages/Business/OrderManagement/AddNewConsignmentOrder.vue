@@ -99,6 +99,8 @@ const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
+const doCloseOnClickModal = ref(false)
+
 
 var autoCustomerCode = 'KH' + moment().format('hhmmss')
 
@@ -507,6 +509,12 @@ const debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -1598,6 +1606,15 @@ const editData = async () => {
       else duplicateStatusButton.value = false
     }
 
+    let arrayLength = arrayStatusOrder.value?.length
+      while(statusOrder.value == 27 /*Trả 1 phần*/){
+        arrayLength -= 2
+        statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+      }
+      if (statusOrder.value == 27 /*Trả 1 phần*/) {
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
+        }
+
     Files = orderObj.orderFiles
 
     if (statusOrder.value == 2 && type == 'edit') {
@@ -2039,13 +2056,13 @@ const createTicketFromReturnOrders = async () => {
   }
     await createTicketFromReturnOrder(payload).then(() => {
       ElNotification({
-        message: 'Tạo phiếu đổi trả thành công',
+        message: 'Tạo phiếu trả thành công',
         type: 'success'
       })
     })
     .catch(() =>
       ElNotification({
-        message: 'Tạo phiếu đổi trả thất bại',
+        message: 'Tạo phiếu trả thất bại',
         type: 'warning'
       })
     )
@@ -2123,7 +2140,7 @@ const returnGoodsAheadOfTime = async (status, data) => {
   const res = await createReturnRequest(payload)
   if (res) {
     ElNotification({
-      message: 'Đã gửi yêu cầu thành công!',
+      message: 'Tạo phiếu trả thành công',
       type: 'success'
     })
     idReturnRequest.value = res
@@ -2321,6 +2338,7 @@ const openDetailOrder = (id, type) => {
     >
       <!-- Dialog thêm nhanh khách hàng -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAddQuick"
         width="40%"
         align-center
@@ -2512,6 +2530,7 @@ const openDetailOrder = (id, type) => {
 
       <!-- Dialog thông tin hợp đồng ký gửi-->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogBillLiquidation"
         title="Thông tin hợp đồng ký gửi"
         class="font-bold"
@@ -2551,6 +2570,7 @@ const openDetailOrder = (id, type) => {
 
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
         class="font-bold"
@@ -2672,6 +2692,7 @@ const openDetailOrder = (id, type) => {
 
       <!-- Dialog Thông tin phiếu chi -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogPaymentVoucher"
         class="font-bold"
         :title="t('formDemo.paymentVoucherInformation')"
@@ -2790,6 +2811,7 @@ const openDetailOrder = (id, type) => {
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')"
         width="40%"
@@ -2964,6 +2986,7 @@ const openDetailOrder = (id, type) => {
 
       <!-- Bút toán bổ sung -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')"
         width="45%"
@@ -3139,6 +3162,7 @@ const openDetailOrder = (id, type) => {
 
       <!-- Thông tin phiếu thanh toán tiền đàm phán -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogDepositSlip"
         :title="t('formDemo.negotiatedPaymentInformation')"
         width="40%"
@@ -3352,6 +3376,7 @@ const openDetailOrder = (id, type) => {
 
       <!-- Dialog Thông tin thanh toán phiếu kí gửi spa -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogDepositFeeInformation"
         :title="'Thông tin thanh toán phiếu kí gửi spa'"
         width="40%"
@@ -3664,14 +3689,14 @@ const openDetailOrder = (id, type) => {
                       </span>
                     </div>
                   </template>
-                  <el-dialog v-model="dialogVisible" class="absolute">
+                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute">
                     <div class="text-[#303133] font-medium dark:text-[#fff]"
                       >+ {{ t('formDemo.addPhotosOrFiles') }}</div
                     >
                   </el-dialog>
                 </el-upload>
 
-                <el-dialog v-model="dialogVisible">
+                <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible">
                   <img w-full :src="dialogImageUrl" alt="Preview Image" />
                 </el-dialog>
               </div>
@@ -3918,7 +3943,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add'">
+              <div v-if="type == 'add' || type == ':type'">
                 <CurrencyInputComponent v-model="props.row.consignmentSellPrice" />
               </div>
               <div v-else>
@@ -3932,7 +3957,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add'">
+              <div v-if="type == 'add' || type == ':type'">
                 <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
               </div>
               <div v-else>
@@ -4371,6 +4396,7 @@ const openDetailOrder = (id, type) => {
 
       <!-- dialog quản lý kinh doanh -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogbusinessManagement"
         :title="t('formDemo.businessManagement')"
         width="40%"
@@ -4407,6 +4433,7 @@ const openDetailOrder = (id, type) => {
 
       <!-- DialogChooseWarehouse -->
       <el-dialog
+      :close-on-click-modal="doCloseOnClickModal"
         v-model="openDialogChooseWarehouse"
         :title="t('formDemo.inventoryInformation')"
         width="35%"

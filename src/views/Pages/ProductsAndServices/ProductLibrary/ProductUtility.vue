@@ -54,6 +54,7 @@ import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { getLotHistory } from '@/api/Warehouse'
 import { GenerateCodeOrder } from '@/api/common'
 const { t } = useI18n()
+const doCloseOnClickModal = ref(false)
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
@@ -351,8 +352,7 @@ const warningForSwitch = (rowDisabled: boolean) => {
   }
 }
 const changeDataSwitch = (scope, dataSwitch) => {
-  
-  scope.row.bussinessSetups![scope.cellIndex - 2]!.hasPrice
+  scope.row.bussinessSetups![scope.cellIndex == 4 ? 4 : scope.cellIndex - 2]!.hasPrice
     ? (scope.row.bussinessSetups![scope.cellIndex == 4 ? 4 : scope.cellIndex - 2]!.value = dataSwitch)
     : ElNotification({
         message: t('reuse.addPricesBeforeTurningOnSetting'),
@@ -623,6 +623,7 @@ type CustomFormData = {
   HireInventoryStatus?: number
   SellInventoryStatus?: number
   ProductStatus?: number
+  IsActive?: boolean
 }
 const emptyFormObj = {} as CustomFormData
 const setFormData = reactive(emptyFormObj)
@@ -663,20 +664,27 @@ const customizeData = async (formData) => {
   setFormData.VerificationInfo = formData.verificationInfo
   setFormData.HireInventoryStatus = formData.hireInventoryStatus
   setFormData.SellInventoryStatus = formData.sellInventoryStatus
+  setFormData.IsActive =  formData.isActive
   setFormData.ProductStatus =  formData.productStatus
+  console.log('set', setFormData)
   // formData.productStatus == 2 ? (setFormData.ProductStatus = 2) : (setFormData.ProductStatus = 0)
   unitData.value = formData.categories[2].value
   customSeoData(formData)
 }
+const { push } = useRouter()
 const editData = async (data) => {
   //fixxbug 
   data.ProductTypeId = data.ProductType
   await updateProductLibrary(FORM_IMAGES(data))
-    .then(() =>
+    .then(() =>{
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
       })
+      push({
+        name: 'products-services.productLibrary.Products',
+      })
+      }
     )
     .catch(() =>
       ElNotification({
@@ -1462,6 +1470,7 @@ const categoriesToString = (categories) => {
       />
     </el-collapse-item>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="sellTableVisible"
       :title="`${t('reuse.settingSalePrice')}/ ${sellDialogTitle}`"
       width="70%"
@@ -1631,12 +1640,12 @@ const categoriesToString = (categories) => {
                   :icon="plusIcon"
                   link
                   :disabled="type == 'detail'"
-                  :type="scope.row.bussinessSetups[1].hasPrice ? 'primary' : 'warning'"
+                  :type="scope.row.bussinessSetups[2].hasPrice ? 'primary' : 'warning'"
                   @click="openRentTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
                 <ElSwitch
-                  :model-value="scope.row.bussinessSetups[1]?.value"
+                  :model-value="scope.row.bussinessSetups[2]?.value"
                   :disabled="!scope.row.edited"
                   size="large"
                   inline-prompt
@@ -1805,6 +1814,7 @@ const categoriesToString = (categories) => {
       >
     </el-collapse-item>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="rentTableVisible"
       :title="`${t('reuse.settingRentPrice')}/ ${rentDialogTitle}`"
       width="70%"
@@ -1934,6 +1944,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="depositTableVisible"
       :title="`${t('reuse.settingDepositPrice')}/ ${depositDialogTitle}`"
       width="70%"
@@ -2019,6 +2030,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="pawnTableVisible"
       :title="`${t('reuse.settingPawnPrice')}/ ${pawnDialogTitle}`"
       width="70%"
@@ -2108,6 +2120,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="spaTableVisible"
       :title="`${t('reuse.settingSpaPrice')}/ ${spaDialogTitle}`"
       width="70%"
@@ -2224,6 +2237,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="warehouseTableVisible"
       :title="`${t('reuse.inventoryTracking')}/ ${warehouseDialogTitle}`"
       width="70%"

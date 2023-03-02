@@ -19,7 +19,7 @@ import ProductAttribute from '../../ProductsAndServices/ProductLibrary/ProductAt
 import { useValidator } from '@/hooks/web/useValidator'
 import { GenerateCodeOrder } from '@/api/common'
 
-
+const doCloseOnClickModal = ref(false)
 const { t } = useI18n()
 const props = defineProps({
   listProducts: {
@@ -156,6 +156,7 @@ onMounted(()=>{
 <template>
         <!-- Dialog Thêm nhanh sản phẩm -->
         <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         :modelValue="modelValue"
         :title="t('formDemo.quicklyAddProducts')"
         width="40%"

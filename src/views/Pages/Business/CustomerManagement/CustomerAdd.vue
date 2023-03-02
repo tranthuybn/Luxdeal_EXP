@@ -48,6 +48,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
+const doCloseOnClickModal = ref(false)
 const size = ref<'' | 'large' | 'small'>('')
 const disabledDate = (time: Date) => {
   return time.getTime() > Date.now()
@@ -1184,6 +1185,7 @@ onBeforeMount(() => {
                     </el-button>
                   </div>
                   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
                     v-model="centerDialogVisible"
                     :title="t('reuse.changePassword')"
                     width="30%"
@@ -1343,6 +1345,7 @@ onBeforeMount(() => {
                   >{{ t('formDemo.cancelAccount') }}</el-button
                 >
                 <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
                   v-model="centerDialogCancelAccount"
                   :title="t('formDemo.cancelAccount')"
                   width="30%"

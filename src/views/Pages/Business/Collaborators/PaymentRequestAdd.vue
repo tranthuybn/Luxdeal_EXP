@@ -38,7 +38,7 @@ import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
 import moment from 'moment'
 const { t } = useI18n()
-
+const doCloseOnClickModal = ref(false)
 const { push } = useRouter()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -769,7 +769,7 @@ const activeName = ref(collapse[0].title)
                   v-model:fileList="ListFileUpload"
                   :disabled="disabledForm"
                 >
-                  <el-dialog v-model="dialogVisible">
+                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible">
                     <div class="text-[#303133] font-medium dark:text-[#fff]"
                       >+ {{ t('formDemo.addPhotosOrFiles') }}
                     </div>

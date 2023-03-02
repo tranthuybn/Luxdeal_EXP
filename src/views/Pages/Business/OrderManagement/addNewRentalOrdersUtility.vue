@@ -88,6 +88,7 @@ import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
 const { utility } = appModules
 const { t } = useI18n()
+const doCloseOnClickModal = ref(false)
 
 const changeMoney = new Intl.NumberFormat('vi', {
   style: 'currency',
@@ -2960,7 +2961,7 @@ const disabledPhieu = ref(false)
 
       <div id="IPRFormPrint">
         <slot>
-          <!-- <el-dialog v-model="testDialog" width="40%" align-center> -->
+          <!-- <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="testDialog" width="40%" align-center> -->
           <paymentOrderPrint />
           <!-- </el-dialog> -->
         </slot>
@@ -2968,6 +2969,7 @@ const disabledPhieu = ref(false)
 
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAddQuick"
         class="font-bold"
         width="40%"
@@ -3136,6 +3138,7 @@ const disabledPhieu = ref(false)
 
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
         class="font-bold"
@@ -3261,6 +3264,7 @@ const disabledPhieu = ref(false)
 
       <!-- Dialog Thông tin phiếu chi -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogPaymentVoucher"
         class="font-bold"
         :title="t('formDemo.paymentVoucherInformation')"
@@ -3382,6 +3386,7 @@ const disabledPhieu = ref(false)
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')"
         width="50%"
@@ -3597,6 +3602,7 @@ const disabledPhieu = ref(false)
 
       <!-- Thông tin phiếu thanh toán tiền phí thuê -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogRentalPaymentInformation"
         class="font-bold"
         :title="t('formDemo.rentalFeePaymentSlipInformation')"
@@ -3839,6 +3845,7 @@ const disabledPhieu = ref(false)
 
       <!-- Thông tin phiếu thanh toán tiền cọc thuê -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogDepositSlip"
         :title="t('formDemo.depositSlipInformation')"
         width="40%"
@@ -4046,6 +4053,7 @@ const disabledPhieu = ref(false)
 
       <!-- Thông tin phiếu nhập kho trả hàng cho thuê -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogWarehouseRentalPayment"
         class="font-bold"
         :title="t('formDemo.informationWarehouseReceiptRentalPayment')"
@@ -4237,7 +4245,7 @@ const disabledPhieu = ref(false)
       />
 
       <!-- Dialog Địa chỉ nhận hàng -->
-      <el-dialog v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogFormVisible" width="40%" align-center title="Địa chỉ nhận hàng">
         <el-divider />
         <el-form
           ref="ruleFormAddress"
@@ -4502,7 +4510,7 @@ const disabledPhieu = ref(false)
                       </span>
                     </div>
                   </template>
-                  <el-dialog v-model="dialogVisible" class="absolute" />
+                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute" />
                   <div class="text-[#303133] font-medium dark:text-[#fff]"
                     >+ {{ t('formDemo.addPhotosOrFiles') }}</div
                   >
@@ -4663,6 +4671,7 @@ const disabledPhieu = ref(false)
 
       <!-- DialogPromotion -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="openDialogChoosePromotion"
         :title="t('formDemo.choosePromotion')"
         width="40%"
@@ -4755,6 +4764,7 @@ const disabledPhieu = ref(false)
 
       <!-- DialogChooseWarehouse -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="openDialogChooseWarehouse"
         :title="t('formDemo.inventoryInformation')"
         width="35%"
@@ -4788,6 +4798,7 @@ const disabledPhieu = ref(false)
 
       <!-- Bút toán bổ sung -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')"
         width="50%"

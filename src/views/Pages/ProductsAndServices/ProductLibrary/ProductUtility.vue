@@ -54,6 +54,7 @@ import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { getLotHistory } from '@/api/Warehouse'
 import { GenerateCodeOrder } from '@/api/common'
 const { t } = useI18n()
+const doCloseOnClickModal = ref(false)
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 
@@ -1469,6 +1470,7 @@ const categoriesToString = (categories) => {
       />
     </el-collapse-item>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="sellTableVisible"
       :title="`${t('reuse.settingSalePrice')}/ ${sellDialogTitle}`"
       width="70%"
@@ -1812,6 +1814,7 @@ const categoriesToString = (categories) => {
       >
     </el-collapse-item>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="rentTableVisible"
       :title="`${t('reuse.settingRentPrice')}/ ${rentDialogTitle}`"
       width="70%"
@@ -1941,6 +1944,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="depositTableVisible"
       :title="`${t('reuse.settingDepositPrice')}/ ${depositDialogTitle}`"
       width="70%"
@@ -2026,6 +2030,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="pawnTableVisible"
       :title="`${t('reuse.settingPawnPrice')}/ ${pawnDialogTitle}`"
       width="70%"
@@ -2115,6 +2120,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="spaTableVisible"
       :title="`${t('reuse.settingSpaPrice')}/ ${spaDialogTitle}`"
       width="70%"
@@ -2231,6 +2237,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
       v-model="warehouseTableVisible"
       :title="`${t('reuse.inventoryTracking')}/ ${warehouseDialogTitle}`"
       width="70%"

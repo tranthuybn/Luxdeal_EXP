@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, onBeforeMount, reactive, ref } from 'vue'
+import { h, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { addNewCampaign, getCampaignList, updateCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -237,7 +237,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'statusValue',
-    label: t('reuse.status'),
+    label: t('reuse.statusProgram'),
     component: 'Input',
     colProps: {
       span: 24
@@ -527,12 +527,6 @@ const editData = async (data) => {
       })
     )
 }
-
-onBeforeMount(() => {
-  if (type === 'add') {
-    schema[16].hidden = true
-  }
-})
 </script>
 
 <template>

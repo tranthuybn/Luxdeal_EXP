@@ -1141,7 +1141,7 @@ const removeListProductsSale = async (index) => {
 }
 
 const dialogFormSettingServiceSpa = ref(false)
-//var curDate = 'SPA' + Date.now()
+// var curDate = 'SPA' + Date.now()
 
 const optionsTypeSpa = [
   {
@@ -2700,18 +2700,7 @@ const beforeAvatarUpload = (rawFile, type: string) => {
     }
     return true
   }
-  // else {
-  //   //báo lỗi nếu ko có ảnh
-  //   if (type === 'list' && fileList.value.length > 0) {
-  //     return true
-  //   }
-  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
-  //     return true
-  //   } else {
-  //     ElMessage.warning(t('reuse.notHaveImage'))
-  //     return false
-  //   }
-  // }
+ 
 }
 const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
@@ -2732,13 +2721,16 @@ onBeforeMount(async () => {
   callApiCollaborators()
   callApiStaffList()
   callApiCity()
-  if (type == 'add') {
+  if (type == 'add' || type == ':type') {
     disableCreateOrder.value = true
     checkDisabled2.value = true
     startSpa.value = true
-    await GenerateCodeOrder({CodeType:5,ServiceType:5}).then((res)=>{
+    await GenerateCodeOrder({CodeType:5,ServiceType:5})
+    .then((res) =>
+    {
       ruleForm.orderCode = res.data
     })
+    
     // ruleForm.orderCode = curDate
     spaOrderCode.value = autoCodePawnOrder
     codeReceipts.value = autoCodeReceipts
@@ -3292,7 +3284,7 @@ const postReturnRequest = async (reason) => {
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
                   v-model="ruleForm.orderCode"
-                  :disabled="disableCreateOrder"
+                  :disabled="true"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')"
                 />

@@ -1,18 +1,43 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, reactive, ref, onBeforeMount } from 'vue'
 import { Collapse } from '../../Components/Type'
+import { getCampaignList, addNewCampaign, updateCampaign, deleteCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
+import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
-import { getCampaignList } from '@/api/Business'
-import { moneyToNumber } from '@/utils/format'
+import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { API_URL } from '@/utils/API_URL'
+import moment from 'moment'
+
+import { useValidator } from '@/hooks/web/useValidator'
+
 const { t } = useI18n()
 
-const params = { CampaignType: PROMOTION_STRATEGY[0].key }
+const { required, ValidService, requiredOption } = useValidator()
+const rules = reactive({
+  code: [{ validator: ValidService.checkCodeServiceLength.validator }, required()],
+  promotion: requiredOption(),
+  date: required(),
 
+  percent: [
+    required(),
+    { validator: ValidService.maxPercent.validator, blur: ValidService.maxPercent.trigger }
+  ],
+  money: [
+    required(),
+    { validator: ValidService.checkPositiveNumber.validator, blur: ValidService.maxPercent.trigger }
+  ],
+  shortDescription: [required(), { validator: ValidService.checkDescriptionLength.validator }]
+})
+
+const params = { CampaignType: PROMOTION_STRATEGY[1].key }
+
+
+//random mã
+const curDate = 'BST0' + moment().format('hhmmss')
 const schema = reactive<FormSchema[]>([
   {
     field: 'collectionInfo',
@@ -23,21 +48,26 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'discountCode',
+    field: 'code',
     label: t('formDemo.codeCollection'),
     component: 'Input',
     colProps: {
       span: 24
-    }
+    },
+    componentProps: {
+      disabled: true
+    },
+    value: curDate
   },
   {
     field: 'promotion',
     label: t('reuse.promotion'),
     component: 'Select',
     colProps: {
-      span: 14
+      span: 18
     },
     componentProps: {
+      onChange: (data) => changeSuffixIcon(data),
       placeholder: t('formDemo.choosePromotion'),
       style: 'width: 100%',
       options: [
@@ -45,7 +75,8 @@ const schema = reactive<FormSchema[]>([
         { label: t('formDemo.decreaseByAmount'), value: 2 },
         { label: t('formDemo.noPromotion'), value: 3 }
       ]
-    }
+    },
+    value: 1
   },
   {
     field: 'percent',
@@ -87,6 +118,8 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
+      format: 'DD/MM/YYYY',
+      valueFormat: 'YYYY-MM-DD',
       type: 'daterange'
     }
   },
@@ -119,7 +152,7 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       onChange: (data) => hideTableCustomer(data),
       options: [
-        { label: t('reuse.allCustomer'), value: 1 },
+        { label: t('reuse.allCustomer'), value: 3 },
         { label: t('formDemo.chooseCustomerDetail'), value: 2 }
       ]
     },
@@ -158,7 +191,8 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'status',
-    label: t('reuse.status'),
+    label: t('reuse.status')
+    ,
     component: 'Divider',
     colProps: {
       span: 24
@@ -173,6 +207,13 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+
+let valueRadioOjbApply = ref(2)
+const hideTableCustomer = (data) => {
+  data == 3 ? (schema[9].hidden = true) : (schema[9].hidden = false)
+  valueRadioOjbApply.value = data
+}
+
 
 const changeSuffixIcon = (data) => {
   if (schema[3].componentProps) {
@@ -193,9 +234,8 @@ const changeSuffixIcon = (data) => {
     }
   }
 }
-const hideTableCustomer = (data) => {
-  data == 1 ? (schema[8].hidden = true) : (schema[8].hidden = false)
-}
+
+
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const collapse: Array<Collapse> = [
@@ -230,13 +270,145 @@ const collapseChangeEvent = (val) => {
       el.icon = plusIcon
     })
 }
-
+//upload image
 const activeName = ref(collapse[0].name)
-const rules = reactive({})
 
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+
+
+//post data api
+type FormDataPost = {
+  Code: string
+  Name: string
+  Description?: string
+  ReducePercent?: number | null
+  ReduceCash?: number | null
+  CustomerIds?: string | null
+  ProductPropertyIdJson?: string
+  StartDate: string
+  EndDate: string
+  TargetType: number
+  VoucherType?: number
+  VoucherConditionType: number
+  ExchangeValue?: number
+  ServiceType: number
+  Image: any
+  CampaignType: number
+}
+
+const customPostDataCollection = (data) => {
+  const customData = {} as FormDataPost
+  if (data.promotion == 1) {
+    customData.ReducePercent = data.percent
+    customData.ReduceCash = null
+  } else if (data.promotion == 2) {
+    customData.ReduceCash = data.money
+    customData.ReducePercent = null
+  } else {
+    customData.ReducePercent = null
+    customData.ReduceCash = null
+  }
+  customData.Code = data.code
+  customData.Name = data.code
+  customData.Description = data.shortDescription
+  customData.StartDate = data.date[0]
+  customData.EndDate = data.date[1]
+  customData.CampaignType = 2
+  customData.ServiceType = data.order
+  customData.Image = data.Image
+
+  if (valueRadioOjbApply.value == 3) {
+    customData.CustomerIds = null
+    customData.TargetType = 3
+  } else {
+    customData.TargetType = 2
+    customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
+  }
+  customData.ProductPropertyIdJson = JSON.stringify(data.products)
+  customData.VoucherType = 2
+  customData.VoucherConditionType = data.conditon
+  return customData
+}
+
+
+//edit data api
+type FormDataEdit = {
+  Id: number
+  Name?: string
+  Description?: string
+  ReducePercent?: number | null
+  ReduceCash?: number | null
+  CustomerIds?: string | null
+  CustomerIdsAdd?: string
+  CustomerIdsDelete?: string
+  ProductPropertyIdJson: string
+  StartDate: string
+  EndDate: string
+  TargetType: number
+  ServiceType: number
+  Image: any
+  imageurl?: string
+  CampaignType: number
+}
+
+const customEditDataFlashSale = (data) => {
+  const customData = {} as FormDataEdit
+  customData.Id = id
+  customData.Name = data.code
+  customData.Description = data.shortDescription
+  if (data.promotion == 1) {
+    customData.ReducePercent = data.percent
+    customData.ReduceCash = null
+  } else if (data.promotion == 2) {
+    customData.ReduceCash = data.money
+    customData.ReducePercent = null
+  } else {
+    customData.ReducePercent = null
+    customData.ReduceCash = null
+  }
+  customData.StartDate = data.date[0]
+  customData.EndDate = data.date[1]
+  customData.CampaignType = 1
+  customData.ServiceType = 1
+  customData.Image = data.Image
+  if (data.target == 3) {
+    customData.CustomerIds = null
+    customData.TargetType = 3
+  } else {
+    customData.TargetType = 2
+    customData.CustomerIds = data.customers.map((customer) => customer.id).toString()
+  }
+  customData.ProductPropertyIdJson = JSON.stringify(
+    data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
+  )
+
+  return customData
+}
+
+
+
+const postData = async (data) => {
+  data = customPostDataCollection(data)
+  await addNewCampaign(FORM_IMAGES(data))
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'business.promotion-strategy.collection',
+          params: { backRoute: 'business.promotion-strategy.collection' }
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+}
 
 type SetFormData = {
   code: string
@@ -250,10 +422,12 @@ type SetFormData = {
   target: number
   percent: number
   money: number
+  imageurl?: string
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
-const postData = () => {}
+
+
 const customizeData = async (data) => {
   if (data[0].reduce) {
     const moneyType = data[0].reduce.split(' ')
@@ -271,9 +445,41 @@ const customizeData = async (data) => {
   setFormData.products = data[0].productProperties
   setFormData.Images = data[0].images
   setFormData.target = data[0].targetType
+  setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
   hideTableCustomer(data[0].targetType)
 }
-const editData = () => {}
+
+const { push } = useRouter()
+
+const editData = async (data) => {
+  data = customEditDataFlashSale(data)
+
+  await updateCampaign(FORM_IMAGES(data))
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'business.promotion-strategy.collection',
+          params: { backRoute: 'business.promotion-strategy.collection' }
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
+}
+onBeforeMount(() => {
+  if (type === 'add') {
+    schema[13].hidden = true
+  }
+})
+
+
+
 </script>
 
 <template>
@@ -284,20 +490,10 @@ const editData = () => {}
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
         </template>
-        <TableOperatorCollection
-          ref="formRef"
-          :schema="schema"
-          :type="type"
-          :apiId="getCampaignList"
-          :id="id"
-          :multipleImages="false"
-          @post-data="postData"
-          :params="params"
-          :rules="rules"
-          @customize-form-data="customizeData"
-          @edit-data="editData"
-          :formDataCustomize="setFormData"
-        />
+        <TableOperatorCollection ref="formRef" :schema="schema" :type="type" :apiId="getCampaignList" :id="id"
+          :delApi="deleteCampaign" :multipleImages="false" @post-data="postData" :params="params" :rules="rules"
+          @customize-form-data="customizeData" @edit-data="editData" :formDataCustomize="setFormData"
+          :show-product="true" />
       </el-collapse-item>
     </el-collapse>
   </div>

@@ -3,34 +3,34 @@ const { t } = useI18n()
 
 export const ORDER_STYTE = [
   {
-    value:1,
-    key:'Bán',
-    lable:''
+    value: 1,
+    key: 'Bán',
+    lable: ''
   },
   {
-    value:2,
-    key:'Kygui',
-    lable:'Đơn hàng Ký Gửi'
+    value: 2,
+    key: 'Kygui',
+    lable: 'Đơn hàng Ký Gửi'
   },
   {
-    value:3,
-    key:'Chothue',
-    lable:'Cho thuê'
+    value: 3,
+    key: 'Chothue',
+    lable: 'Cho thuê'
   },
   {
-    value:4,
-    key:'Thechap',
-    lable:'Thế chấp'
+    value: 4,
+    key: 'Thechap',
+    lable: 'Thế chấp'
   },
   {
-    value:5,
-    key:'Spa',
-    lable:'Đơn hàng Span'
+    value: 5,
+    key: 'Spa',
+    lable: 'Đơn hàng Span'
   },
   {
-    value:6,
-    key:'Mua',
-    lable:'Đơn hàng mua'
+    value: 6,
+    key: 'Mua',
+    lable: 'Đơn hàng mua'
   },
 ]
 
@@ -658,8 +658,10 @@ export const CampaignType = {
 
   Voucher: 4,
 
-  Combo: 5
+  Combo: 5,
+  Auction: 6
 }
+export const CampaignTypeArr = [CampaignType.Flashsale, CampaignType.BoSuuTap, CampaignType.HangMoiVe, CampaignType.Voucher, CampaignType.Combo, CampaignType.Auction]
 export const Approvement = {
 
   Product: 1,

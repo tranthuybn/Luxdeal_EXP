@@ -83,7 +83,7 @@ export default {
     small: 'Nhỏ bé'
   },
   login: {
-    welcome: 'Chào mừng bạn đến sử dụng hệ thống này',
+    welcome: 'Chào mừng bạn đến với hệ thống',
     message: 'Hệ thống ERP',
     username: 'Tên tài khoản',
     password: 'Mật khẩu',
@@ -92,12 +92,13 @@ export default {
     login: 'Đăng nhập',
     otherLogin: 'Đăng nhập với',
     remember: 'Lưu mật khẩu',
-    hasUser: 'Tài khoản hiện có?Đăng nhập',
+    hasUser: 'Chưa có tài khoản đăng nhập?',
     forgetPassword: 'Quên mật khẩu',
     usernamePlaceholder: 'Vui lòng nhập tên người dùng',
     passwordPlaceholder: 'Xin vui lòng nhập mật khẩu',
     code: 'Mã xác nhận',
-    codePlaceholder: 'vui lòng nhập mã xác nhận'
+    codePlaceholder: 'vui lòng nhập mã xác nhận',
+    incorrectAccount:'Tài khoản không hợp lệ',
   },
   customerList: {
     rankingList: 'Danh sách xếp hạng',
@@ -135,6 +136,7 @@ export default {
     detailedlistofexpenses: 'Bảng kê chi tiết các khoản chi (Nếu có)',
     reasonRevenueExpenditure: 'Lý do thu/chi',
     formCode: 'Mã phiếu',
+    comboCode: 'Mã Combo',
     pleaseSelectWarehouse: 'Vui lòng chọn kho',
     selectAWarehouse: 'Chọn kho',
     selectExportWarehouse: 'Chọn kho xuất',
@@ -427,6 +429,7 @@ export default {
     sendingDetail: 'Nếu không lựa chọn, combo chỉ được gửi khi bấm nút "gửi"',
     auctionInformation: 'Thông tin đấu giá',
     auctionProgramDetails: 'Chi tiết chương trình đấu giá',
+    comboProgramDetails: 'Chi tiết chương trình combo',
     floorPriceSettingPriceStep: 'Cài đặt giá sàn/bước giá',
     setPriceFloor: 'Đặt giá sàn',
     setPriceStepUp: 'Đặt bước giá tăng',
@@ -1571,6 +1574,7 @@ export default {
     deleteWarning: 'Bạn có chắc chắn muốn xóa ?',
     deleteWarningFlashSale: 'Bạn muốn hủy chương trình Flash Sale ?',
     cancelFlashSaleProgramming: 'Hủy chương trình Flash Sale',
+    cancelProgramming: 'Hủy chương trình',
     deleteOrigin: 'Xóa xuất xứ',
     selectRankOrigin: 'Chọn cấp xuất xứ',
     originLevel1: 'Xuất xứ cấp 1',

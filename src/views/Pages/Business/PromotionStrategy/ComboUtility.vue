@@ -3,16 +3,17 @@ import { reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
+import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { getCampaignList, addNewCampaign, updateCampaign } from '@/api/Business'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { useRouter } from 'vue-router'
 import { FORM_IMAGES } from '@/utils/format'
 import moment from 'moment'
+import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
-
+const curDate = 'Combo0' + moment().format('hhmmss')
 const params = { CampaignType: PROMOTION_STRATEGY[4].key }
 
 const schema = reactive<FormSchema[]>([
@@ -25,12 +26,16 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'discountCode',
-    label: t('formDemo.auctionCode'),
+    field: 'code',
+    label: t('formDemo.comboCode'),
     component: 'Input',
     colProps: {
       span: 24
-    }
+    },
+    componentProps: {
+      disabled: true
+    },
+    value: curDate
   },
   {
     field: 'date',
@@ -40,6 +45,8 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
+      format: 'DD/MM/YYYY',
+      valueFormat: 'YYYY-MM-DD',
       type: 'daterange'
     }
   },
@@ -123,7 +130,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'generalInformation',
-    title: t('formDemo.auctionProgramDetails'),
+    title: t('formDemo.comboProgramDetails'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -152,93 +159,186 @@ const collapseChangeEvent = (val) => {
     })
 }
 
-type SetFormData = {
-  code: string
-  promotion: number
-  reduce: number
-  date: any
-  shortDescription: string
-  customers: any
-  products: any
-  Images: any
-  target: number
-  percent: number
-  money: number
-  discountCode: string
-}
-const emptyFormData = {} as SetFormData
-const setFormData = reactive(emptyFormData)
+
 
 const activeName = ref(collapse[0].name)
-const rules = reactive({})
 
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-const postData = async (data) => {
+//post data api
+type FormDataPost = {
+  Code: string
+  Name: string
+  Description?: string
+  ReducePercent?: number | null
+  ReduceCash?: number | null
+  CustomerIds?: string | null
+  ProductPropertyIdJson?: string
+  StartDate: string
+  EndDate: string
+  TargetType: number
+  VoucherType?: number
+  VoucherConditionType: number
+  ExchangeValue?: number
+  ServiceType: number
+  Image: any
+  CampaignType: number
+  ComboValue: any
+}
+
+const customPostDataCombo = (data) => {
+  console.log('data before post', data)
+  const customData = {} as FormDataPost
+  customData.Code = data.code
+  customData.Name = data.code
+  customData.Description = data.shortDescription
+  customData.StartDate = data.date[0]
+  customData.EndDate = data.date[1]
+  customData.CampaignType = 5
+  customData.Image = data.Image
+  customData.VoucherConditionType = data.condition
+
   let postIdSpaService = ref('')
   data.tableProductOfCombo.pop()
   data.tableProductOfCombo?.map((val) => {
     postIdSpaService.value += val.service.toString()
   })
+
   let postSpaTable = data.tableProductOfCombo?.map((val) => ({
     Id: val.id,
     IsActive: val.isActive,
     SpaServiceIds: postIdSpaService.value
   }))
-  const payload = {
-    Code: data.discountCode,
-    Name: data.discountCode,
-    Description: data.shortDescription,
-    ReducePercent: 1,
-    CustomerIds: '2,3',
-    ProductPropertyIdJson: JSON.stringify(postSpaTable),
-    StartDate: moment(data.date[0]).format('YYYY-MM-DD'),
-    EndDate: moment(data.date[1]).format('YYYY-MM-DD'),
-    CampaignType: 5,
-    TargetType: 2,
-    ComboValue: data.spa,
-    ServiceType: 1,
-    Image: data.Image
-  }
 
-  let postPayload = FORM_IMAGES(payload)
-  await addNewCampaign(postPayload)
-}
-// let apiData = ref()
-const customizeData = async (data) => {
-  // apiData.value = data
-  setFormData.date = [data[0]?.fromDate, data[0]?.toDate]
-  setFormData.products = data[0]?.productProperties
-  setFormData.discountCode = data[0]?.code
-  setFormData.shortDescription = data[0]?.description
-  setFormData.Images = data[0]?.Images
+
+  customData.ProductPropertyIdJson = JSON.stringify(
+    postSpaTable
+  )
+  customData.ComboValue = 1
+  return customData
 }
 
-const editData = async (data) => {
+
+type FormDataEdit = {
+  Id: number
+  Name?: string
+  Description?: string
+  ReducePercent?: number | null
+  ReduceCash?: number | null
+  CustomerIds?: string | null
+  CustomerIdsAdd?: string
+  CustomerIdsDelete?: string
+  ProductPropertyIdJson: string
+  StartDate: string
+  EndDate: string
+  TargetType: number
+  ServiceType: number
+  Image: any
+  imageurl?: string
+  CampaignType: number
+  ComboValue: any
+}
+
+
+const customEditDataCombo = (data) => {
+  const customData = {} as FormDataEdit
+  customData.Id = id
+  customData.Name = data.code
+  customData.Description = data.shortDescription
+  customData.StartDate = data.date[0]
+  customData.EndDate = data.date[1]
+  customData.CampaignType = 6
+  customData.Image = data.Image
+
   let postIdSpaService = ref('')
-  data.tableProductOfCombo.map((val) => {
-    postIdSpaService.value += val.service?.toString()
+  data.tableProductOfCombo.pop()
+  data.tableProductOfCombo?.map((val) => {
+    postIdSpaService.value += val.service.toString()
   })
-  let postSpaTable = data.tableProductOfCombo.map((val) => ({
+
+  let postSpaTable = data.tableProductOfCombo?.map((val) => ({
     Id: val.id,
     IsActive: val.isActive,
-    SpaServiceIds: postIdSpaService.value ?? '2,3'
+    SpaServiceIds: postIdSpaService.value
   }))
-  const payload = {
-    Id: id,
-    Name: data.name,
-    Description: data.Description,
-    ProductPropertyIdJson: JSON.stringify(postSpaTable),
-    StartDate: data.date[0],
-    EndDate: data.date[1],
-    ExchangeValue: data.spa,
-    Image: data.Image
-  }
 
-  const updateForm = FORM_IMAGES(payload)
-  await updateCampaign(updateForm)
+
+  customData.ProductPropertyIdJson = JSON.stringify(
+    postSpaTable
+  )
+  customData.ComboValue = data.spa
+  return customData
+}
+
+const postData = async (data) => {
+  data = customPostDataCombo(data)
+  await addNewCampaign(FORM_IMAGES(data))
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'business.promotion-strategy.combo',
+          params: { backRoute: 'business.promotion-strategy.combo' }
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    )
+}
+
+type SetFormData = {
+  code: string
+  date: any
+  shortDescription: string
+  customers: any
+  products: any
+  Image: any
+  imageurl?: string
+}
+
+const emptyFormData = {} as SetFormData
+const setFormData = reactive(emptyFormData)
+
+
+
+// let apiData = ref()
+const customizeData = async (data) => {
+  setFormData.date = [data[0].fromDate, data[0].toDate]
+  setFormData.products = data[0]?.productProperties
+  setFormData.code = data[0]?.code
+  setFormData.shortDescription = data[0].description
+  setFormData.Image = data[0]?.Images
+  setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
+}
+
+const { push } = useRouter()
+const editData = async (data) => {
+  data = customEditDataCombo(data)
+
+  await updateCampaign(FORM_IMAGES(data))
+    .then(() => {
+      ElNotification({
+        message: t('reuse.updateSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'business.promotion-strategy.combo',
+          params: { backRoute: 'business.promotion-strategy.combo' }
+        })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.updateFail'),
+        type: 'warning'
+      })
+    )
 }
 </script>
 
@@ -250,20 +350,9 @@ const editData = async (data) => {
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
         </template>
-        <TableOperatorCollection
-          ref="formRef"
-          :schema="schema"
-          :type="type"
-          :id="id"
-          :multipleImages="false"
-          :params="params"
-          :apiId="getCampaignList"
-          @post-data="postData"
-          :formDataCustomize="setFormData"
-          :rules="rules"
-          @customize-form-data="customizeData"
-          @edit-data="editData"
-        />
+        <TableOperatorCollection ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
+          :params="params" :apiId="getCampaignList" @post-data="postData" :formDataCustomize="setFormData"
+          @customize-form-data="customizeData" @edit-data="editData" />
       </el-collapse-item>
     </el-collapse>
   </div>

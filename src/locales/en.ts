@@ -97,7 +97,8 @@ export default {
     usernamePlaceholder: 'Please input username',
     passwordPlaceholder: 'Please input password',
     code: 'Verification code',
-    codePlaceholder: 'Please input verification code'
+    codePlaceholder: 'Please input verification code',
+    incorrectAccount:'incorrect account'
   },
   customerList: {
     rankingList: 'Ranking list',
@@ -124,6 +125,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    comboCode: 'Combo code',
     cancelAccountingEntry: 'Cancel accounting entry',
     expired: 'Expired',
     keepGoodsOnDeposit: 'Keep goods on deposit',
@@ -432,6 +434,7 @@ export default {
     auctionCode: 'Auction code',
     auctionInformation: 'Auction information',
     auctionProgramDetails: 'Auction program details',
+    comboProgramDetails: 'Combo program details',
     floorPriceSettingPriceStep: 'floor price setting or price step',
     setPriceFloor: 'Set price floor',
     setPriceStepUp: 'Set price step up',
@@ -904,6 +907,7 @@ export default {
     exportQuantity: 'Export quantity',
     index: 'Index',
     fix: 'Fix',
+    spaService: 'Spa service',
     receivedDate: 'Received Date',
     sale: 'Sale',
     customerInfo: 'Customer information',
@@ -1014,7 +1018,7 @@ export default {
     amountImport: 'Amount Import',
     amountImportLot: 'Amount Import lot',
     quantityInventory: 'Quantity inventory',
-    depositing:'Depositing',
+    depositing: 'Depositing',
     inventory: 'Inventory',
     priceImport: 'Price Import',
     CashIntoInventory: 'Cash Into Inventory',
@@ -1113,7 +1117,6 @@ export default {
     promotionCode: 'Promotion Code',
     referralCode: 'Referral Code',
     start: 'Start',
-    spaService: 'Spa Service',
     auctionCode: 'Auction code',
     totalRechargePoints: 'Total recharge point',
     pointsUsed: 'Point used',
@@ -1784,7 +1787,7 @@ export default {
     transferWarehouseNow: 'Transfer warehouse now',
     printTransferTicket: 'Print transfer ticket',
     accessCategoriesPermission: "directory access",
-    actionPermission:"Action permission",
+    actionPermission: "Action permission",
     informationExportReturnSpaTicket: 'Information export return spa ticket',
     informationTransferReturnSpaTicket: 'Information transfer return spa ticket',
     informationProductTransferReturn: 'Information product transfer return',
@@ -1802,10 +1805,9 @@ export default {
     moneyReceipts: 'Money receipts',
     moneyPaid: 'Money paid',
     purchaseInfo: 'Information seller',
-        //trạng thái kho
+    //trạng thái kho
     exportTicketStatus: 'Export ticket status',
     transferTicketStatus: 'Transfer ticket status',
     totalAmountPaid: 'Total amount paid'
   }
 }
-  

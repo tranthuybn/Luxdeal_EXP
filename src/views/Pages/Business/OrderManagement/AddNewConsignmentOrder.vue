@@ -316,13 +316,6 @@ const ruleFormRef2 = ref<FormInstance>()
 
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
-  collaborators: [
-    {
-      required: true,
-      message: t('formDemo.pleaseSelectCollaboratorCode'),
-      trigger: 'change'
-    }
-  ],
   warehouse: [
     {
       required: true,
@@ -343,7 +336,6 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
-  orderNotes: [{ required: true, message: t('formDemo.pleaseInputOrderNote'), trigger: 'blur' }],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],

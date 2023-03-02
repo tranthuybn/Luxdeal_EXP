@@ -240,13 +240,13 @@ const addLastRowAttribute = async () => {
         value: false,
         hasPrice: false
       },
-      {
-        id: 2,
-        serviceType: 3,
-        key: 'KyGui',
-        value: false,
-        hasPrice: false
-      },
+      // {
+      //   id: 2,
+      //   serviceType: 3,
+      //   key: 'KyGui',
+      //   value: false,
+      //   hasPrice: false
+      // },
       {
         id: 3,
         serviceType: 2,
@@ -254,13 +254,13 @@ const addLastRowAttribute = async () => {
         value: false,
         hasPrice: false
       },
-      {
-        id: 4,
-        serviceType: 4,
-        key: 'TheChap',
-        value: false,
-        hasPrice: false
-      },
+      // {
+      //   id: 4,
+      //   serviceType: 4,
+      //   key: 'TheChap',
+      //   value: false,
+      //   hasPrice: false
+      // },
       {
         id: 5,
         serviceType: 5,
@@ -342,6 +342,7 @@ const handleEditRow = (data) => {
 
 //cannot turn on switch when has no price
 const warningForSwitch = (rowDisabled: boolean) => {
+  
   if (rowDisabled) {
     ElNotification({
       message: t('reuse.clickEditForEditing'),
@@ -350,6 +351,7 @@ const warningForSwitch = (rowDisabled: boolean) => {
   }
 }
 const changeDataSwitch = (scope, dataSwitch) => {
+  
   scope.row.bussinessSetups![scope.cellIndex - 2]!.hasPrice
     ? (scope.row.bussinessSetups![scope.cellIndex == 4 ? 4 : scope.cellIndex - 2]!.value = dataSwitch)
     : ElNotification({

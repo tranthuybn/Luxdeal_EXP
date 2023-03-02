@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref, onBeforeMount } from 'vue'
+import { h, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { getCampaignList, addNewCampaign, updateCampaign, deleteCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -200,7 +200,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'statusValue',
-    label: t('reuse.status'),
+    label: t('reuse.statusProgram'),
     component: 'Input',
     colProps: {
       span: 24
@@ -472,11 +472,6 @@ const editData = async (data) => {
       })
     )
 }
-onBeforeMount(() => {
-  if (type === 'add') {
-    schema[13].hidden = true
-  }
-})
 
 
 
@@ -490,7 +485,8 @@ onBeforeMount(() => {
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
         </template>
-        <TableOperatorCollection ref="formRef" :schema="schema" :type="type" :apiId="getCampaignList" :id="id"
+        <TableOperatorCollection
+ref="formRef" :schema="schema" :type="type" :apiId="getCampaignList" :id="id"
           :delApi="deleteCampaign" :multipleImages="false" @post-data="postData" :params="params" :rules="rules"
           @customize-form-data="customizeData" @edit-data="editData" :formDataCustomize="setFormData"
           :show-product="true" />

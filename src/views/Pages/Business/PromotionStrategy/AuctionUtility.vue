@@ -143,7 +143,7 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'statusValue',
-    label: t('reuse.status'),
+    label: t('reuse.statusProgram'),
     component: 'Input',
     colProps: {
       span: 24
@@ -461,11 +461,6 @@ const editData = async (data) => {
       })
     )
 }
-// onBeforeMount(() => {
-//   if (type === 'add') {
-//     schema[13].hidden = true
-//   }
-// })
 </script>
 
 <template>
@@ -476,7 +471,8 @@ const editData = async (data) => {
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
         </template>
-        <TableOperatorCollection ref="formRef" :apiId="getCampaignList" :schema="schema" :type="type"
+        <TableOperatorCollection
+ref="formRef" :apiId="getCampaignList" :schema="schema" :type="type"
           :multipleImages="false" :id="id" :params="params" @post-data="postData" :formDataCustomize="setFormData"
           @customize-form-data="customizeData" @edit-data="editData" :show-product="true" />
       </el-collapse-item>
@@ -499,7 +495,7 @@ const editData = async (data) => {
               <el-switch v-model="props.row.permissionPurchase" inline-prompt active-text="ON" inactive-text="OFF" />
             </template>
           </el-table-column>
-          <el-table-column fixed="ri bvght" :label="t('reuse.operator')" width="120">
+          <el-table-column fixed="right" :label="t('reuse.operator')" width="120">
             <template #default="scope">
               <el-button type="danger" @click.prevent="deleteRow(scope.$index)">
                 {{ t('button.cancelResult') }}

@@ -898,6 +898,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    statusProgram: 'Program status',
     duplicateInformation: 'Duplicate information, data already exists',
     addNewBranch: 'Add new branch',
     addNewDepartment: 'Add new department',

@@ -13,6 +13,8 @@ import {
 import type { UploadFile } from 'element-plus'
 import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
+
+const doCloseOnClickModal = ref(false)
 const { t } = useI18n()
 type Tag = {
   [key: string]: any
@@ -93,11 +95,11 @@ const handleRemove = (file: UploadFile) => {
 }
 </script>
 <template>
-  <el-dialog v-model="uploadDialogVisible" width="30%" center @closed="resetUploadDialogField">
+  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="uploadDialogVisible" width="30%" center @closed="resetUploadDialogField">
     <div class="text-center pb-3 border-bottom-1">
       <b>{{ t('reuse.createPosts') }}</b>
     </div>
-    <el-dialog width="30%" v-model="innerVisible" @opened="getAllTags" append-to-body>
+    <el-dialog :close-on-click-modal="doCloseOnClickModal" width="30%" v-model="innerVisible" @opened="getAllTags" append-to-body>
       <div class="w-full text-center">
         <el-input
           v-model="searchingKey"

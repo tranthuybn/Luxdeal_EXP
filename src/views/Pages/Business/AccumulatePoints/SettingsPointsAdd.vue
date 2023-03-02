@@ -39,6 +39,7 @@ import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 import moment from 'moment'
 
+const doCloseOnClickModal = ref(false)
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
@@ -833,7 +834,7 @@ const enableEverything = () => {
             <ElButton :icon="viewIcon" @click="previewImage" />
             <ElButton :icon="deleteIcon" :disabled="disabled" @click="handleRemove" />
           </div>
-          <el-dialog top="5vh" v-model="dialogImageUrl" width="130vh">
+          <el-dialog :close-on-click-modal="doCloseOnClickModal" top="5vh" v-model="dialogImageUrl" width="130vh">
             <div class="flex justify-center items-center">
               <el-image class="h-full" :src="imageUrl" alt="Preview Image" />
             </div>
@@ -845,6 +846,7 @@ const enableEverything = () => {
 
   <!-- Dialog change combo -->
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     v-model="typeDialog"
     :title="t('reuse.choosePointExchangeType')"
     width="55%"

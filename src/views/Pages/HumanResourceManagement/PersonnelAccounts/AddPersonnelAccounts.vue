@@ -43,7 +43,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { getEmployeeById } from '@/api/Accountant'
 import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
-
+const doCloseOnClickModal = ref(false)
 //random mã
 const curDate = 'NV' + moment().format('hhmmss')
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -896,6 +896,7 @@ onBeforeMount(() => {
                       >{{ t('formDemo.cancelAccount') }}</el-button
                     >
                     <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
                       v-model="centerDialogCancelAccount"
                       :title="t('formDemo.cancelAccount')"
                       width="30%"

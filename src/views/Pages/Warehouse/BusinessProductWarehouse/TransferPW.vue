@@ -17,6 +17,7 @@ import { moneyFormat } from '@/utils/format'
 import ChooseExportWarehouse from './ChooseExportWH.vue'
 import ChooseImportWarehouse from './ChooseImportWH.vue'
 
+const doCloseOnClickModal = ref(false)
 const { t } = useI18n()
 const prop = defineProps({
   type: {
@@ -368,7 +369,7 @@ const totalMoney = () => {
 }
 </script>
 <template>
-  <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
+  <el-dialog :close-on-click-modal="doCloseOnClickModal" top="5vh" v-model="dialogVisible" width="130vh">
     <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
   </el-dialog>
   <ChooseImportWarehouse

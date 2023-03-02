@@ -20,6 +20,7 @@ import { computed, onBeforeMount, reactive, ref } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { dateTimeFormat } from '@/utils/format'
 
+const doCloseOnClickModal = ref(false)
 const { required } = useValidator()
 const { t } = useI18n()
 const props = defineProps({
@@ -248,6 +249,7 @@ onBeforeMount(async () => {
 </script>
 <template>
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-value="showDialog"
     :title="t('formDemo.inventoryInformation')"
     width="65%"

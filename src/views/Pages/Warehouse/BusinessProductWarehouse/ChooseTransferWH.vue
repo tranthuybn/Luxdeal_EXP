@@ -19,6 +19,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { PropType, reactive, ref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 
+const doCloseOnClickModal = ref(false)
 const { required, requiredOption } = useValidator()
 const { t } = useI18n()
 const props = defineProps({
@@ -206,6 +207,7 @@ const closeDialogTransfer = () => {}
 </script>
 <template>
   <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
     :model-value="showDialog"
     :title="t('formDemo.inventoryInformation')"
     width="65%"

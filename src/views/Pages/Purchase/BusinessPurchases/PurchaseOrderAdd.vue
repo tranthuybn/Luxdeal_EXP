@@ -90,7 +90,7 @@ import AddQuickProduct from '@/views/Pages/Business/OrderManagement/AddQuickProd
 const { utility } = appModules
 
 const { t } = useI18n()
-
+const doCloseOnClickModal = ref(false)
 //lay du lieu tu router
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
@@ -2654,7 +2654,7 @@ onBeforeMount(async () => {
       </div>
 
       <!-- Dialog In phiếu thu chi -->
-      <el-dialog v-model="PrintReceipts" class="font-bold" width="40%">
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%">
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
@@ -2685,7 +2685,7 @@ onBeforeMount(async () => {
       </div>
 
       <!-- Dialog Thêm nhanh nhà cung cấp -->
-      <el-dialog v-model="dialogAddQuick" width="40%" :title="t('formDemo.QuicklyAddSupplier')">
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogAddQuick" width="40%" :title="t('formDemo.QuicklyAddSupplier')">
         <div v-if="valueClassify == true">
           <el-divider />
           <div>
@@ -2856,6 +2856,7 @@ onBeforeMount(async () => {
 
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
         width="40%"
@@ -2977,6 +2978,7 @@ onBeforeMount(async () => {
 
       <!-- Dialog Thông tin phiếu chi -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogPaymentVoucher"
         :title="t('formDemo.paymentVoucherInformation')"
         width="40%"
@@ -3094,6 +3096,7 @@ onBeforeMount(async () => {
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')"
         width="40%"
@@ -3338,7 +3341,7 @@ onBeforeMount(async () => {
       </el-dialog>
 
       <!-- Dialog thông tin hợp đồng thanh lý-->
-      <el-dialog v-model="dialogBillLiquidation" class="font-bold" width="40%">
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogBillLiquidation" class="font-bold" width="40%">
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button
@@ -3370,6 +3373,7 @@ onBeforeMount(async () => {
 
       <!-- Thông tin phiếu thanh toán mua hàng -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogSalesSlipInfomation"
         :title="t('formDemo.buySlipInformation')"
         width="40%"
@@ -3542,6 +3546,7 @@ onBeforeMount(async () => {
 
       <!-- Thông tin phiếu xuất đổi -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="informationWarehouseReceipt"
         :title="t('formDemo.infoCouponExportExchange')"
         width="40%"
@@ -3641,6 +3646,7 @@ onBeforeMount(async () => {
 
       <!-- Thông tin phiếu nhập hoàn -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="invoiceForGoodsEntering"
         :title="t('formDemo.infoCouponInvoice')"
         width="40%"
@@ -3740,6 +3746,7 @@ onBeforeMount(async () => {
 
       <!-- Bút toán bổ sung -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')"
         width="40%"
@@ -3898,7 +3905,7 @@ onBeforeMount(async () => {
       </el-dialog>
 
       <!-- Địa chỉ nhận hàng -->
-      <el-dialog v-model="dialogFormVisible" width="40%" title="Địa chỉ nhận hàng">
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogFormVisible" width="40%" title="Địa chỉ nhận hàng">
         <el-divider />
         <el-form
           ref="ruleFormAddress"
@@ -4098,7 +4105,7 @@ onBeforeMount(async () => {
                       </span>
                     </div>
                   </template>
-                  <el-dialog v-model="dialogVisible" class="absolute" />
+                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute" />
                   <div class="text-[#303133] font-medium dark:text-[#fff]"
                     >+ {{ t('formDemo.addPhotosOrFiles') }}</div
                   >
@@ -4252,6 +4259,7 @@ onBeforeMount(async () => {
 
       <!-- dialog quản lý kinh doanh -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="dialogbusinessManagement"
         :title="t('formDemo.businessManagement')"
         width="40%"
@@ -4287,6 +4295,7 @@ onBeforeMount(async () => {
 
       <!-- DialogChooseWarehouse -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="openDialogChooseWarehouse"
         :title="t('formDemo.inventoryInformation')"
         width="35%"
@@ -4322,6 +4331,7 @@ onBeforeMount(async () => {
 
       <!-- Thông tin đổi/trả hàng -->
       <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
         v-model="changeReturnGoods"
         :title="t('formDemo.informationOnExchangeAndReturnPaymentVouchers')"
         width="40%"

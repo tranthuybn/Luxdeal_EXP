@@ -686,6 +686,7 @@ export default {
     orderManagement: 'Order management',
     promotionCampaign: 'Promotion strategy',
     serviceSurvey: 'Service survey',
+    employeeInfo: 'Employee Info',
     orderList: 'Order list',
     createANewOrder: 'Create a new order',
     paymentProposal: 'Payment proposal',

@@ -724,7 +724,7 @@ const adminList = [
             }
           },
           {
-            path: `employeeRatings-${utility}`,
+            path: `${utility}/:type?/:id?`,
             name: `business.employee-management.employeeRatings.${utility}`,
             component: 'views/Pages/Business/EmployeeManagement/EmployeeRatingsUtility',
             meta: {
@@ -1464,6 +1464,7 @@ const testList: string[] = [
   '/business/virtual-wallet/settings-utility/:type?/:id?',
   '/business/employee-management',
   '/business/employee-management/employeeRatings',
+  '/business/employee-management/employeeRatings-utility/:type?/:id?',
   '/business/business-report',
   '/business/business-report/growth',
   '/business/business-report/sales',
@@ -1545,15 +1546,16 @@ const testList: string[] = [
 ]
 
 export default [
-  // List interface
+  // 列表接口
   {
     url: '/role/list',
     method: 'get',
     timeout,
-    response: () => {
+    response: ({ query }) => {
+      const { roleName } = query
       return {
         code: result_code,
-        data: testList
+        data: roleName === 'admin' ? adminList : testList
       }
     }
   }

@@ -166,10 +166,9 @@ const initMappingObject = (el) => {
 </script>
 <template>
   <section>
-    <div>
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter">
       <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
-        <el-button v-if="!removeButtonAdd" type="primary" :icon="createIcon" @click="pushAdd">
+        <el-button type="primary" :icon="createIcon" @click="pushAdd">
           {{ t(`${props.titleAdd}`) }}
         </el-button>
       </template>
@@ -178,7 +177,6 @@ const initMappingObject = (el) => {
       v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
       @export-excel-event="ExportExcelEvent" 
     />
-    </div>
     <TableBase
       :removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
       :typeButton="props.typeButton" :customOperator="customOperator" :apiTableChild="apiTableChild" :delApi="delApi"

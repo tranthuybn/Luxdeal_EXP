@@ -771,6 +771,7 @@ export default {
     customerAdd: 'Thêm mới khách hàng',
     employeeList: 'Danh sách nhân viên',
     employeeRatings: 'Xếp hạng nhân viên',
+    employeeInfo: 'Thông tin nhân viên',
     accumulatePoints: 'Tích điểm',
     packageAccumulatePointsCode: 'Mã gói tích điểm',
     buyPointsPackage: 'Mua gói tích điểm',

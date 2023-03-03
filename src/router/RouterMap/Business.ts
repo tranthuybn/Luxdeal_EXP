@@ -515,11 +515,16 @@ export default {
           }
         },
         {
-          path: `employeeRatings-${utility}`,
+          path: `employeeRatings-utility/:type?/:id?`,
           name: `business.employee-management.employeeRatings.${utility}`,
           component: () => import('@/views/Pages/Business/EmployeeManagement/EmployeeRatingsUtility.vue'),
           meta: {
-            title: t('router.employeeRatings')
+            title: t('router.employeeInfo'),
+            noTagsView: true,
+            noCache: true,
+            hidden: true,
+            canTo: true,
+            showMainRoute: true
           }
         }
       ]

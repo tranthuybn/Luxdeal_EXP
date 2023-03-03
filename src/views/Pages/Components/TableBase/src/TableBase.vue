@@ -331,7 +331,7 @@ v-if="!removeDrawer" class="dark:(bg-dark-600 opacity-25 text-red-800) absolute"
       </template>
     </ElDrawer>
     <Table
-ref="tableRef" :expand="expand" v-model:pageSize="tableObject.pageSize"
+      ref="tableRef" :expand="expand" v-model:pageSize="tableObject.pageSize"
       v-model:currentPage="tableObject.currentPage" row-key="id" :data="tableObject.tableList"
       :loading="tableObject.loading" :pagination="paginationObj" :showOverflowTooltip="false" reserveIndex
       :maxHeight="maxHeight" @mouseenter="operatorColumnToggle('right')" @mouseleave="operatorColumnToggle(false)"
@@ -341,14 +341,14 @@ ref="tableRef" :expand="expand" v-model:pageSize="tableObject.pageSize"
       <template v-for="(header, index) in ColumnsHaveHeaderFilter" #[`${header.field}-header`] :key="index">
         {{ header.label }}
         <InputMoneyRange
-v-if="header.headerFilter === 'Money'" :field="header.field" @confirm="confirm"
+         v-if="header.headerFilter === 'Money'" :field="header.field" @confirm="confirm"
           @cancel="cancel" />
         <InputDateRange v-if="header.headerFilter === 'Date'" :field="header.field" @confirm="confirm" @cancel="cancel" />
         <InputNumberRange
-v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
+          v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
           @cancel="cancel" />
         <InputName
-v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"
+            -if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"
           @cancel="cancel" />
       </template>
       <template v-if="!(customOperator === 3)" #operator="{ row }">

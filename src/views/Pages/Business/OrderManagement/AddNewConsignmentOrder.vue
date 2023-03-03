@@ -300,19 +300,21 @@ let infoCompany = reactive({
   phone: '',
   email: ''
 })
+interface IRuleForm {
+  orderCode: string
+  collaborators: string
+  rentalPeriod: any
+  pawnTerm: string
+  paymentPeriod: string
+  collaboratorCommission: string
+  orderNotes: string
+  customerName: string
+  delivery: number
+  warehouse: string
+}
 
-const ruleForm = reactive({
-  orderCode: '',
-  collaborators: '',
-  rentalPeriod: '',
-  pawnTerm: '',
-  paymentPeriod: '',
-  collaboratorCommission: '',
-  orderNotes: '',
-  customerName: '',
-  delivery: 0,
-  warehouse: ''
-})
+const ruleForm = reactive({delivery: 0} as IRuleForm)
+
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 
@@ -509,6 +511,12 @@ const debtTable = ref<Array<tableDataType>>([])
 let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -1600,6 +1608,15 @@ const editData = async () => {
       else duplicateStatusButton.value = false
     }
 
+    let arrayLength = arrayStatusOrder.value?.length
+      while(statusOrder.value == 27 /*Trả 1 phần*/){
+        arrayLength -= 2
+        statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+      }
+      if (statusOrder.value == 27 /*Trả 1 phần*/) {
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
+        }
+
     Files = orderObj.orderFiles
 
     if (statusOrder.value == 2 && type == 'edit') {
@@ -1619,7 +1636,6 @@ const editData = async () => {
       ruleForm.warehouse = orderObj?.warehouseId
       consignOrderCode.value = ruleForm.orderCode
 
-      // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
       totalOrder.value = orderObj.totalPrice
       if (ListOfProductsForSale.value?.length > 0)
@@ -2041,13 +2057,13 @@ const createTicketFromReturnOrders = async () => {
   }
     await createTicketFromReturnOrder(payload).then(() => {
       ElNotification({
-        message: 'Tạo phiếu đổi trả thành công',
+        message: 'Tạo phiếu trả thành công',
         type: 'success'
       })
     })
     .catch(() =>
       ElNotification({
-        message: 'Tạo phiếu đổi trả thất bại',
+        message: 'Tạo phiếu trả thất bại',
         type: 'warning'
       })
     )
@@ -2125,7 +2141,7 @@ const returnGoodsAheadOfTime = async (status, data) => {
   const res = await createReturnRequest(payload)
   if (res) {
     ElNotification({
-      message: 'Đã gửi yêu cầu thành công!',
+      message: 'Tạo phiếu trả thành công',
       type: 'success'
     })
     idReturnRequest.value = res
@@ -3927,7 +3943,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add'">
+              <div v-if="type == 'add' || type == ':type'">
                 <CurrencyInputComponent v-model="props.row.consignmentSellPrice" />
               </div>
               <div v-else>
@@ -3941,7 +3957,7 @@ const openDetailOrder = (id, type) => {
             width="160"
           >
             <template #default="props">
-              <div v-if="type == 'add'">
+              <div v-if="type == 'add' || type == ':type'">
                 <CurrencyInputComponent v-model="props.row.consignmentHirePrice" />
               </div>
               <div v-else>

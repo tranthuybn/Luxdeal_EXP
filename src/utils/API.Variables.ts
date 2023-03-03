@@ -402,6 +402,18 @@ export const STATUS_ORDER_DEPOSIT = [
     orderStatusName: 'Hoàn thành trả hàng',
     createdAt: ''
   },
+  //12
+  {
+    orderStatus: 28,
+    orderStatusName: 'Trả toàn bộ',
+    createdAt: ''
+  },
+  //13
+  {
+    orderStatus: 29,
+    orderStatusName: 'Trả một phần',
+    createdAt: ''
+  },
 ]
 
 export const STATUS_ORDER_PAWN = [
@@ -581,6 +593,11 @@ export const STATUS_ORDER_SELL = [
   {
     orderStatus: 15,
     orderStatusName: 'Hoàn thành đổi trả',
+    createdAt: ''
+  },
+  {
+    orderStatus: 5,
+    orderStatusName: 'Đã đặt cọc',
     createdAt: ''
   }
 ]

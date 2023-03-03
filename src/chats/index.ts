@@ -3,22 +3,23 @@ import Launcher from './Launcher.vue'
 import emitter from './emitter'
 
 const defaultComponentName = 'BeautifulChat'
-
+let installed = false
+let componentName = ''
 const VueBeatifulChat = {
   install(app, options = {}) {
     /**
      * Makes sure that plugin can be installed only once
      */
-    if (this.installed) {
+    if (installed) {
       return
     }
 
-    this.installed = true
+    installed = true
     app.config.globalProperties.$event = emitter
 
-    this.componentName = options.componentName || defaultComponentName
+    componentName = options['componentName'] || defaultComponentName
 
-    app.component(this.componentName, Launcher)
+    app.component(componentName, Launcher)
   }
 }
 

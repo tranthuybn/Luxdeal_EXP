@@ -162,7 +162,6 @@ export const off = function (
 export const once = function (el: HTMLElement, event: string, fn: EventListener): void {
   const listener = function (this: any, ...args: unknown[]) {
     if (fn) {
-      // @ts-ignore
       fn.apply(this, args)
     }
     off(el, event, listener)
@@ -291,8 +290,8 @@ export const isInContainer = (el: Element, container: any) => {
 }
 import { ElImage, ElEmpty } from 'element-plus'
 export const setImageDisplayInDOm = (
-  record: Recordable,
-  column: TableColumn,
+  _record: Recordable,
+  _column: TableColumn,
   cellValue: TableSlotDefault,
   content = ''
 ) =>

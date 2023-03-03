@@ -452,7 +452,7 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'ProductStatus',
+    field: 'IsActive',
     colProps: {
       span: 24
     },

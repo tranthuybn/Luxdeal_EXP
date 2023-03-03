@@ -190,7 +190,8 @@ watch(
 )
 </script>
 <template>
-  <el-dialog :close-on-click-modal="doCloseOnClickModal"
+  <el-dialog 
+    :close-on-click-modal="doCloseOnClickModal"
     :model-value="showDialog"
     :title="t('formDemo.inventoryInformation')"
     width="65%"

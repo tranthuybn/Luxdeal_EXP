@@ -2254,8 +2254,8 @@ const editData = async () => {
         statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
       }
       if (statusOrder.value == 58 /*Trả 1 phần*/) {
-    statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
-    }
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
+        }
     }
 
     if (statusOrder.value == 2 && type == 'edit') {

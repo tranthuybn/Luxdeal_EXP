@@ -801,18 +801,21 @@ const valueCommune = ref('')
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 
-const ruleForm = reactive({
-  orderCode: '',
-  collaborators: '',
-  pawnTerm: '',
-  paymentPeriod: 10,
-  collaboratorCommission: '',
-  orderNotes: '',
-  customerName: '',
-  delivery: 1,
-  warehouse: '',
-  orderFiles: []
-})
+
+interface IRuleForm {
+  orderCode: string
+  collaborators: string
+  pawnTerm: any
+  paymentPeriod: number
+  collaboratorCommission: string
+  orderNotes: string
+  customerName: string
+  delivery: number
+  warehouse: string
+  orderFiles: Array<any>
+}
+
+const ruleForm = reactive({paymentPeriod: 10, delivery: 1} as IRuleForm )
 const inputDeposit = ref(0)
 
 const rules = reactive<FormRules>({
@@ -1393,6 +1396,12 @@ let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -1573,7 +1582,6 @@ const editData = async () => {
       customerData.customerId = orderObj.customerId
       await getCustomerInfo(customerData.customerId)
       ruleForm.orderCode = orderObj.code
-      // @ts-ignore
       ruleForm.pawnTerm = [orderObj.fromDate, orderObj.toDate]
       pawnOrderCode.value = ruleForm.orderCode
       priceintoMoneyPawnGOC.value = orderObj.totalPrice

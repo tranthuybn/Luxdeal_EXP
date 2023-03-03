@@ -710,7 +710,8 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
   ListFileUpload.value = uploadFiles
 }
 let FileDeleteIds: any = []
-const beforeRemove = (uploadFile) => {
+
+const beforeRemove : any = (uploadFile) => {
   return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
     confirmButtonText: 'OK',
     cancelButtonText: 'Hủy',

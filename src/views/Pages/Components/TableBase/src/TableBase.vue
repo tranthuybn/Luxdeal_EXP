@@ -20,6 +20,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 import { appModules } from '@/config/app'
+import { TableResponse } from '../../Type'
 //provide from main component
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
@@ -313,7 +314,8 @@ const updateTableColumn = () => {
 </script>
 <template>
   <ContentWrap class="relative">
-    <div v-if="!removeDrawer" class="dark:(bg-dark-600 opacity-25 text-red-800) absolute" id="rabbit-ear"
+    <div
+v-if="!removeDrawer" class="dark:(bg-dark-600 opacity-25 text-red-800) absolute" id="rabbit-ear"
       @click="drawer = !drawer">
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
@@ -328,7 +330,8 @@ const updateTableColumn = () => {
         </ElCheckboxGroup>
       </template>
     </ElDrawer>
-    <Table ref="tableRef" :expand="expand" v-model:pageSize="tableObject.pageSize"
+    <Table
+ref="tableRef" :expand="expand" v-model:pageSize="tableObject.pageSize"
       v-model:currentPage="tableObject.currentPage" row-key="id" :data="tableObject.tableList"
       :loading="tableObject.loading" :pagination="paginationObj" :showOverflowTooltip="false" reserveIndex
       :maxHeight="maxHeight" @mouseenter="operatorColumnToggle('right')" @mouseleave="operatorColumnToggle(false)"
@@ -337,12 +340,15 @@ const updateTableColumn = () => {
       @update:current-page="handleCurrentChange">
       <template v-for="(header, index) in ColumnsHaveHeaderFilter" #[`${header.field}-header`] :key="index">
         {{ header.label }}
-        <InputMoneyRange v-if="header.headerFilter === 'Money'" :field="header.field" @confirm="confirm"
+        <InputMoneyRange
+v-if="header.headerFilter === 'Money'" :field="header.field" @confirm="confirm"
           @cancel="cancel" />
         <InputDateRange v-if="header.headerFilter === 'Date'" :field="header.field" @confirm="confirm" @cancel="cancel" />
-        <InputNumberRange v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
+        <InputNumberRange
+v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
           @cancel="cancel" />
-        <InputName v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"
+        <InputName
+v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"
           @cancel="cancel" />
       </template>
       <template v-if="!(customOperator === 3)" #operator="{ row }">

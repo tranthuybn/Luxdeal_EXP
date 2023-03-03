@@ -109,18 +109,25 @@ const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
 
+interface IRuleForm { 
+  orderCode: 'DHB039423'
+  leaseTerm: number
+  rentalPeriod: any
+  rentalPaymentPeriod: number
+  collaborators: string
+  discount: number
+  orderNotes: string
+  customerName: string
+  warehouse: string
+  delivery: number
+}
+
 const ruleForm = reactive({
   orderCode: 'DHB039423',
   leaseTerm: 30,
-  rentalPeriod: '',
   rentalPaymentPeriod: 4,
-  collaborators: '',
-  discount: 0,
-  orderNotes: '',
-  customerName: '',
-  warehouse: '',
-  delivery: 0
-})
+  delivery: 0 
+} as IRuleForm)
 
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseEnterOrderCode'), trigger: 'blur' }],
@@ -444,6 +451,12 @@ let countExisted = ref(0)
 let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -1294,6 +1307,7 @@ interface statusOrderType {
 let arrayStatusOrder = ref(Array<statusOrderType>())
 const isPartialReturn = ref()
 const transaction = ref()
+const disabledPhieuDatCoc = ref(false)
 // Check trạng thái đơn hàng có đang ở chốt đơn hàng k để sinh bút toán tự động
 const automaticEntry = ref(false)
 const editData = async () => {
@@ -1319,6 +1333,13 @@ const editData = async () => {
     transaction.value = await getOrderTransaction({ id: id })
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.value.data
+
+    debtTable.value.forEach((row)=>{
+      if(row.typeOfAccountingEntry == 2){
+        disabledPhieuDatCoc.value = true
+      }
+    })
+
     isPartialReturn.value = orderObj.isPartialReturn
     getReturnRequestTable()
 
@@ -1330,7 +1351,6 @@ const editData = async () => {
       ruleForm.collaborators = orderObj.collaboratorId
       ruleForm.discount = orderObj.collaboratorCommission
       ruleForm.leaseTerm = orderObj.days
-      // @ts-ignore
       ruleForm.rentalPeriod = [orderObj.fromDate, orderObj.toDate]
       ruleForm.rentalPaymentPeriod = orderObj.paymentPeriod
       if (ruleForm.rentalPaymentPeriod == 3) week.value = orderObj.hirePeriodDay
@@ -2906,6 +2926,7 @@ onBeforeMount(async() => {
     // ruleForm.orderCode = curDate
     rentalOrderCode.value = autoRentalOrderCode
     codeExpenditures.value = autoCodeExpenditures
+    disabledPhieu.value = true
   }
   if (type == 'detail') buttonDuplicate.value = true
 
@@ -5405,7 +5426,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled || disabledPhieu"
+              :disabled="doubleDisabled || disabledPhieu|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5451,7 +5472,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5504,7 +5525,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5571,7 +5592,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5630,7 +5651,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5653,7 +5674,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled|| disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5679,7 +5700,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled || disabledPhieuDatCoc"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >

@@ -191,8 +191,8 @@ const rulesAddress = reactive<FormRules>({
 let checkValidateForm = ref(false)
 
 const submitForm = async (
-  formEl: FormInstance | undefined,
-  formEl2: FormInstance | undefined,
+  formEl: any,
+  formEl2: any,
   pushBack: boolean
 ) => {
   if (!formEl || !formEl2) return
@@ -451,6 +451,12 @@ let countExisted = ref(0)
 let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
+  if(val.length ==0){
+    disabledPTAccountingEntry.value = true
+      disabledPCAccountingEntry.value = true
+      disabledDNTTAccountingEntry.value = true
+    return
+  }
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
@@ -1141,6 +1147,7 @@ const getOrderStransactionList = async () => {
   debtTable.value = transaction.data
 }
 const doCloseOnClickModal = ref(false)
+const isKeepDeposite = ref(false)
 const disabledDeleteRow = ref(false)
 const duplicateStatusButton = ref(false)
 const editData = async () => {
@@ -1154,6 +1161,7 @@ const editData = async () => {
     debtTable.value = transaction.data
     getReturnRequestTable()
     const orderObj = { ...res?.data[0] }
+    isKeepDeposite.value = orderObj.isKeepDeposite
     arrayStatusOrder.value = orderObj?.statusHistory
     if (arrayStatusOrder.value?.length) {
       arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].isActive = true
@@ -1283,7 +1291,7 @@ const updateInfoAcountingEntry = async(index) => {
         orderId: id,
         status: 5
       }
-
+      await automaticCouponWareHouse(2)
       await UpdateStatusTicketFromOrder(payload)
     }
   }
@@ -2552,8 +2560,7 @@ const updateStatusOrders = async (typeState) => {
         ServiceType: 1,
         OrderStatus: typeState
       }
-      // @ts-ignore
-      submitForm(ruleFormRef, ruleFormRef2)
+      submitForm(ruleFormRef, ruleFormRef2, true)
       updateStatusOrder(FORM_IMAGES(payload))
     } else {
       let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
@@ -2677,7 +2684,7 @@ const UpdateStatusTransaction = async() => {
 }
 
 // Giữ hàng đang đặt cọc
-const keepGoodsOnDeposit = ref(true)
+const keepGoodsOnDeposit = ref(false)
 
 // Hoàn thành đơn hàng -> call api phiếu nhập kho tự động
 const orderCompletion = () => {
@@ -3777,6 +3784,7 @@ const disabledPhieu = ref(false)
             <label class="w-[30%] text-right">{{ t('formDemo.delivery') }}</label>
             <div class="w-[100%]">
               <el-checkbox
+                :disabled="isKeepDeposite"
                 v-model="keepGoodsOnDeposit"
                 :label="t('formDemo.keepGoodsOnDeposit')"
                 size="large"
@@ -5428,7 +5436,8 @@ const disabledPhieu = ref(false)
                     item.orderStatus == STATUS_ORDER_SELL[1].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SELL[5].orderStatus ||
                     item.orderStatus == STATUS_ORDER_SELL[6].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SELL[7].orderStatus
+                    item.orderStatus == STATUS_ORDER_SELL[7].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_SELL[8].orderStatus
                   "
                 >
                   <span
@@ -5450,7 +5459,7 @@ const disabledPhieu = ref(false)
                 <div
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_SELL[2].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SELL[3].orderStatus
+                    item.orderStatus == STATUS_ORDER_SELL[3].orderStatus  || STATUS_ORDER_SELL[8].orderStatus
                   "
                 >
                   <span
@@ -5665,7 +5674,7 @@ const disabledPhieu = ref(false)
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus"
+            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || STATUS_ORDER_SELL[8].orderStatus"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
@@ -5722,7 +5731,7 @@ const disabledPhieu = ref(false)
               >{{ t('formDemo.cancellationReturn') }}</el-button
             >
           </div>
-          <div v-else-if="statusOrder == STATUS_ORDER_SELL[7].orderStatus" class="w-[100%] flex ml-1 gap-4">
+          <div v-else-if="statusOrder ==  STATUS_ORDER_SELL[7].orderStatus" class="w-[100%] flex ml-1 gap-4">
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>

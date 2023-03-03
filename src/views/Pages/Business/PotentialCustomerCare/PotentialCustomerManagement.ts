@@ -1,19 +1,21 @@
 import { useI18n } from '@/hooks/web/useI18n'
-import { ref, unref } from 'vue'
-import TableType01 from '@/views/Pages/Components/TableBase.vue'
 import { reactive } from 'vue'
 import { getCustomer } from '@/api/Business'
-const tableBase01 = ref<ComponentRef<typeof TableType01>>()
-const seeDetail = (...param) => {
-  const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
-    ? unref(tableBase01)?.tableObject.tableList
-    : []
-  if (array && array.length > 0) {
-    array.forEach((el) => {
-      if (el.id === param[0].id) el['approveOrNot'] = !param[2]
-    })
-  }
-}
+
+// import { ref } from 'vue'
+// import TableType01 from '@/views/Pages/Components/TableBase.vue'
+// const tableBase01 = ref<ComponentRef<typeof TableType01>>()
+
+// const seeDetail = (...param) => {
+//   const array = Array.isArray(unref(tableBase01)?.tableObject.tableList)
+//     ? unref(tableBase01)?.tableObject.tableList
+//     : []
+//   if (array && array.length > 0) {
+//     array.forEach((el) => {
+//       if (el.id === param[0].id) el['approveOrNot'] = !param[2]
+//     })
+//   }
+// }
 const { t } = useI18n()
 
 let optionsApi = reactive([])

@@ -137,7 +137,8 @@ const moveToCurrentTag = async () => {
 const tagLinksRefs = useTemplateRefsList<RouterLinkProps>()
 
 const moveToTarget = (currentTag: RouteLocationNormalizedLoaded) => {
-  const wrap$ = unref(scrollbarRef)?.wrap$
+  // @ts-ignore
+  const wrap$ = unref(scrollbarRef)?.wrap$ 
   let firstTag: Nullable<RouterLinkProps> = null
   let lastTag: Nullable<RouterLinkProps> = null
 
@@ -233,6 +234,7 @@ const scroll = ({ scrollLeft }) => {
 
 // Move to a certain position
 const move = (to: number) => {
+  // @ts-ignore
   const wrap$ = unref(scrollbarRef)?.wrap$
   const { start } = useScrollTo({
     el: wrap$!,

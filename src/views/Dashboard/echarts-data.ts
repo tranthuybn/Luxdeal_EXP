@@ -1,4 +1,5 @@
 import { EChartsOption } from 'echarts'
+//@ts-ignore
 import { EChartsOption as EChartsWordOption } from 'echarts-wordcloud'
 import { useI18n } from '@/hooks/web/useI18n'
 

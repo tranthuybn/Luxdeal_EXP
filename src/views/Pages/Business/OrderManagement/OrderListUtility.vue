@@ -2432,7 +2432,7 @@ const callApiCollaborators = async () => {
   if (res.data && res.data?.length > 0) {
     optionsCollaborators.value = res.data.map((collaborator) => ({
       label: collaborator.code + ' | ' + collaborator.accountName,
-      value: cdetailollaborator.id,
+      value: collaborator.id, // cdetailollaborator
       collaboratorCommission: collaborator.discount,
       phone: collaborator.accountNumber
     }))

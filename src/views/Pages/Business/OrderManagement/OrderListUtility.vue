@@ -2943,6 +2943,7 @@ const disabledPhieu = ref(false)
               @click.stop.prevent="
                 () => {
                   createQuickCustomer()
+                  callCustomersApi()
                   dialogAddQuick = false
                 }
               "

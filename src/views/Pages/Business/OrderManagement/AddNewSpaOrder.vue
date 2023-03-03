@@ -1076,18 +1076,27 @@ const quickRepresentative = ref()
 const quickPhoneNumber = ref()
 const quickEmail = ref()
 
+// IsOrganization: valueClassify.value,
+// Name: addQuickCustomerName.value,
+// TaxCode: quickTaxCode.value,
+// Representative: quickRepresentative.value,
+// Phonenumber: quickPhoneNumber.value,
+// Email: quickEmail.value,
+// DistrictId: 1,
+// WardId: 1,
+// Address: 1,
+// CustomerType: valueSelectCustomer.value
+var autoCustomerCode = 'KH' + moment().format('hhmmss')
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
+    Code: autoCustomerCode,
     IsOrganization: valueClassify.value,
     Name: addQuickCustomerName.value,
     TaxCode: quickTaxCode.value,
     Representative: quickRepresentative.value,
     Phonenumber: quickPhoneNumber.value,
     Email: quickEmail.value,
-    DistrictId: 1,
-    WardId: 1,
-    Address: 1,
     CustomerType: valueSelectCustomer.value
   }
 
@@ -3163,9 +3172,9 @@ const postReturnRequest = async (reason) => {
               class="w-[150px]"
               @click.stop.prevent="
                 () => {
-                  dialogAddQuick = false
                   createQuickCustomer()
                   callCustomersApi()
+                  dialogAddQuick = false
                 }
               "
               >{{ t('reuse.save') }}</el-button

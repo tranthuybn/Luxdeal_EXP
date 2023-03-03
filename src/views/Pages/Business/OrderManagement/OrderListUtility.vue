@@ -128,6 +128,8 @@ const ruleForm = reactive({
   orderFiles: []
 })
 
+const condition = ref(false)
+
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
   discount: [
@@ -2430,7 +2432,7 @@ const callApiCollaborators = async () => {
   if (res.data && res.data?.length > 0) {
     optionsCollaborators.value = res.data.map((collaborator) => ({
       label: collaborator.code + ' | ' + collaborator.accountName,
-      value: collaborator.id,
+      value: cdetailollaborator.id,
       collaboratorCommission: collaborator.discount,
       phone: collaborator.accountNumber
     }))
@@ -3770,7 +3772,7 @@ const disabledPhieu = ref(false)
               <p class="pr-2">
                 {{ outstandingDebt ? changeMoney.format(outstandingDebt) : '0 đ' }}
               </p>
-              <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" />
+              <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" :disabled="condition"/>
               <p class="pr-2 text-red-600 pt-2">
                 {{ inputDeposit ? changeMoney.format(outstandingDebt - inputDeposit) : '0 đ' }}</p>
             </div>
@@ -5886,7 +5888,7 @@ const disabledPhieu = ref(false)
             <template #default="data">
               <div class="flex">
                 <button
-                  @click="() => openDialogAcountingEntry(data)"
+                  @click="() => {openDialogAcountingEntry(data) ;condition=true}"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}

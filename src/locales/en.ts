@@ -901,6 +901,11 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    accounted: "Accounted",
+    accountingAccountName: 'Accounting account name',
+    reasonRevenueExpenditure: 'Reason for revenue/expenditure',
+    attachDocument: 'Accompanying documents',
+    reasonSpendMoney: 'Reason to spend money',
     statusProgram: 'Program status',
     duplicateInformation: 'Duplicate information, data already exists',
     addNewBranch: 'Add new branch',

@@ -941,7 +941,7 @@ const spaMoney = ref(0)
           </template>
           <template #tableProduct>
             <el-table :data="dataTable.productData" border header-row-class-name="dark:text-white text-black">
-              <el-table-column :label="t('formDemo.productManagementCode')" width="120"><template #default="scope">
+              <el-table-column :label="t('formDemo.productManagementCode')" width="180"><template #default="scope">
                   <MultipleOptionsBox
                 :defaultValue="scope.row.code" :fields="[
                     t('reuse.productCode'),

@@ -315,7 +315,7 @@ const updateTableColumn = () => {
 <template>
   <ContentWrap class="relative">
     <div
-v-if="!removeDrawer" class="dark:(bg-dark-600 opacity-25 text-red-800) absolute" id="rabbit-ear"
+      v-if="!removeDrawer" class="dark:(bg-dark-600 opacity-25 text-red-800) absolute" id="rabbit-ear"
       @click="drawer = !drawer">
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>

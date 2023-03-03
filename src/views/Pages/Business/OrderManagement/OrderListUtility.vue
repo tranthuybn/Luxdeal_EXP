@@ -2942,9 +2942,9 @@ const disabledPhieu = ref(false)
               class="w-[150px]"
               @click.stop.prevent="
                 () => {
+                  dialogAddQuick = false
                   createQuickCustomer()
                   callCustomersApi()
-                  dialogAddQuick = false
                 }
               "
               >{{ t('reuse.save') }}</el-button

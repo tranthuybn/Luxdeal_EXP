@@ -393,20 +393,21 @@ const createQuickCustomer = async () => {
     CustomerType: valueSelectCustomer.value
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
-  await addQuickCustomer(formCustomerPayLoad)
-    .then(() =>
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-    )
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
-    )
-}
+  const res =  await addQuickCustomer(formCustomerPayLoad)
+        if (res) {
+          ElNotification({
+              message: t('reuse.addSuccess'),
+              type: 'success'
+            })
+          callCustomersApi()
+
+        } else {
+          ElNotification({
+              message: t('reuse.addFail'),
+              type: 'warning'
+            })
+        }  
+      }
 
 const valueMoneyAccoungtingEntry = ref(0)
 
@@ -2167,8 +2168,9 @@ const disabledPhieu = ref(false)
               class="w-[150px]"
               @click.stop.prevent="
                 () => {
-                  createQuickCustomer()
                   dialogAddQuick = false
+                  createQuickCustomer()
+                  callCustomersApi()
                 }
               "
               >{{ t('reuse.save') }}</el-button

@@ -113,6 +113,7 @@ onBeforeMount(() => {
   if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
 })
 
+
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 
@@ -174,6 +175,16 @@ const initMappingObject = (el) => {
           </el-button>
         </template>
     </HeaderFiler>
+      <TableExtension
+       v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
+        @export-excel-event="ExportExcelEvent" />
+    <HeaderFiler @get-data="getData" @refrsesh-data="getData" v-if="!removeHeaderFilter">
+        <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
+          <el-button type="primary" :icon="createIcon" @click="pushAdd">
+            {{ t(`${props.titleAdd}`) }}
+          </el-button>
+        </template>
+      </HeaderFiler>
       <TableExtension
        v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
         @export-excel-event="ExportExcelEvent" />

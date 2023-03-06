@@ -1234,7 +1234,8 @@ let tableSalesSlip = ref<any[]>([{}])
 let formAccountingId = ref()
 const idAcountingEntry = ref()
 // Chi tiết bút toán
-const openDialogAcountingEntry = (scope) => {
+const openDialogAcountingEntry = (scope,isDisable) => {
+  condition.value=isDisable;
   const data = scope.row
   switch (data.typeOfAccountingEntry) {
     case 1:
@@ -5888,7 +5889,7 @@ const disabledPhieu = ref(false)
             <template #default="data">
               <div class="flex">
                 <button
-                  @click="() => {openDialogAcountingEntry(data) ;condition=true}"
+                  @click="openDialogAcountingEntry(data,true)"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}

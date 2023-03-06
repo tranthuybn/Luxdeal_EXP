@@ -91,19 +91,21 @@ const postQuickProduct = async () => {
     categories: ruleForm.value.productCharacteristics,
   }
 
-  const res = await createQuickProduct(payload)
-  if (res) {
-    ElNotification({
-      message: t('reuse.addSuccess'),
-      type: 'success'
+  await createQuickProduct(payload)
+  .then((res)=>{
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
     })
-    emit('save', payload, res.id)    
-  } else {
+    emit('save', payload, res.id)  
+  })
+  .catch((error)=>{
+    console.log('err', error)
     ElNotification({
-      message: t('reuse.addFail'),
-      type: 'warning'
-    })
-  }
+        message: error.response.data.message ?? t('reuse.addFail'),
+        type: 'warning'
+      })
+  })
   close()
 }
 
@@ -112,21 +114,16 @@ const handleChangeQuickAddProduct = async (data) => {
 
   // call API checkProduct
   let codeCheckProduct = ref()
+  let formProductData = ref()
   let checkProductAPI = 0
   if (checkProductAPI == 0) {
     const res = await getCheckProduct({ keyWord: dataSelectedObj!.value })
     codeCheckProduct.value = res.data[0]
+
+    const res2 = await getproductId({ Id: codeCheckProduct.value?.id })
+    formProductData.value = res2.data[0]
   }
   checkProductAPI++
-
-  // call API getProductId
-  let formProductData = ref()
-  let getProductIdAPI = 0
-  if (getProductIdAPI == 0) {
-    const res = await getproductId({ Id: codeCheckProduct.value?.id })
-    formProductData.value = res.data[0]
-  }
-  getProductIdAPI++
 
   // fill data
   ruleForm.value.productId = codeCheckProduct.value?.id

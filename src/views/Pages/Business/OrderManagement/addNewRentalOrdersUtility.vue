@@ -2261,6 +2261,8 @@ const UpdateStatusTransaction = async() => {
   }
 
   updateStatusTransaction(FORM_IMAGES(payload))
+    // Cập nhật lại bảng lịch sử công nợ
+    getOrderStransactionList()
 }
 
 const listOfOrderProduct = ref()

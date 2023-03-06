@@ -40,12 +40,12 @@ export default {
 }
 
 .sc-suggestions-element {
+  padding: 5px 10px;
   margin: 3px;
-  padding: 5px 10px 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  background: inherit;
   border: 1px solid;
   border-radius: 15px;
-  font-size: 14px;
-  background: inherit;
-  cursor: pointer;
 }
 </style>

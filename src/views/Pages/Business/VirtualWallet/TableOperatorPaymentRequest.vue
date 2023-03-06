@@ -456,16 +456,17 @@ const options = [
 </template>
 <style scoped>
 .avatar-uploader .avatar {
-  padding-bottom: 1rem;
-  width: 250px;
   display: block;
+  width: 250px;
+  padding-bottom: 1rem;
 }
+
 .avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
   transition: var(--el-transition-duration-fast);
 }
 
@@ -477,15 +478,17 @@ const options = [
   width: 178px;
   height: 178px;
 }
+
 .one-avatar-uploader {
   display: flex;
   justify-content: center;
   margin: 0 auto;
 }
+
 :deep(.el-dialog__body) {
+  display: flex;
   max-height: 85vh;
   overflow: auto;
-  display: flex;
   justify-content: center;
 }
 </style>

@@ -329,7 +329,7 @@ onBeforeMount(async () => {
           {{ orderType(scope.row.orderType) }}
         </template></el-table-column
       >
-      <el-table-column prop="inventory" :label="t('reuse.iventoryy')" width="180" />
+      <el-table-column prop="inventory" :label="t('reuse.inventory')" width="180" />
       <el-table-column
         v-if="transactionType == 1"
         prop="quantity"

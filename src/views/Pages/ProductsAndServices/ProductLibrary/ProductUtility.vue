@@ -2381,13 +2381,16 @@ const categoriesToString = (categories) => {
 .text-center {
   font-size: 20px;
 }
+
 :deep(.el-collapse-item__wrap) {
   margin: 2rem;
 }
+
 :deep(.el-dialog) {
   height: 70vh;
   overflow: auto;
 }
+
 :deep(.cell) {
   word-break: break-word;
 }

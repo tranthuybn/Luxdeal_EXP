@@ -142,15 +142,17 @@ const postData = (data) => {
 </template>
 <style scoped>
 .text-center {
-  font-size: 20px;
   margin-left: 5px;
+  font-size: 20px;
 }
+
 .infinite-list {
   max-height: 75vh;
 }
+
 #title-price-information {
   font-size: large;
-  text-align: center;
   font-weight: 600;
+  text-align: center;
 }
 </style>

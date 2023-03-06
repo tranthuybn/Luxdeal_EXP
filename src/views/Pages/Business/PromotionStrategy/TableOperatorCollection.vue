@@ -1023,7 +1023,7 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
                     </div>
                     <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value">
                       <span style="float: left">{{ item.code }}</span>
-                      <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px">{{ item.name
+                      <span style="float: right; font-size: 13px; color: var(--el-text-color-secondary)">{{ item.name
                       }}</span>
                     </el-option>
                   </el-select>
@@ -1071,7 +1071,7 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
                     </div>
                     <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value">
                       <span style="float: left">{{ item.code }}</span>
-                      <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px">{{ item.name
+                      <span style="float: right; font-size: 13px; color: var(--el-text-color-secondary)">{{ item.name
                       }}</span>
                     </el-option>
                   </el-select>
@@ -1205,7 +1205,7 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
           <template #default="scope">
             <el-radio
        v-model="radioSelected" :label="scope.$index + 1"
-              style="color: #fff; margin-right: -25px"><span></span></el-radio>
+              style=" margin-right: -25px;color: #fff"><span></span></el-radio>
           </template>
         </el-table-column>
         <el-table-column :label="t('reuse.condition')" width="500">
@@ -1232,7 +1232,7 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
           <template #default="scope">
             <el-radio
 v-model="radioSelected" :label="scope.$index + 1"
-              style="color: #fff; margin-right: -25px"><span></span></el-radio>
+              style=" margin-right: -25px;color: #fff"><span></span></el-radio>
           </template>
         </el-table-column>
         <el-table-column :label="t('reuse.condition')" width="500">
@@ -1269,41 +1269,41 @@ v-model="radioSelected" :label="scope.$index + 1"
 }
 
 .status_wrap .status_wrap--new-account {
-  color: #2C6DDA;
-  background: rgba(44, 109, 218, 0.05);
   width: 88px;
   height: 18px;
-  font-weight: 400;
   font-size: 12px;
+  font-weight: 400;
   line-height: 18px;
+  color: #2C6DDA;
   text-align: center;
+  background: rgb(44 109 218 / 5%);
 }
 
 .status_wrap .status_wrap-date {
-  color: #65676B;
-  font-weight: 400;
   font-size: 10px;
   font-style: italic;
+  font-weight: 400;
+  color: #65676B;
 }
 
 .explainText {
-  color: orange;
   font-size: 14px;
   font-style: italic;
+  color: orange;
 }
 
 .avatar-uploader .avatar {
-  padding-bottom: 1rem;
-  width: 250px;
   display: block;
+  width: 250px;
+  padding-bottom: 1rem;
 }
 
 .avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
   transition: var(--el-transition-duration-fast);
 }
 
@@ -1327,9 +1327,9 @@ v-model="radioSelected" :label="scope.$index + 1"
 }
 
 :deep(.el-dialog__body) {
+  display: flex;
   max-height: 85vh;
   overflow: auto;
-  display: flex;
   justify-content: center;
 }
 
@@ -1346,8 +1346,8 @@ v-model="radioSelected" :label="scope.$index + 1"
 }
 
 .backgroundAroundLetter {
-  color: white;
   padding-right: 5rem;
   padding-left: 1rem;
+  color: white;
 }
 </style>

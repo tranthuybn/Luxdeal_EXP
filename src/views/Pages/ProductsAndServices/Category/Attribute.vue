@@ -103,6 +103,7 @@ onBeforeMount(() => {
 ::v-deep(.custom-empty > .el-empty) {
   padding: 5px 0;
 }
+
 ::v-deep(.custom-empty .el-empty > .el-empty__description) {
   margin-top: 5px;
 }

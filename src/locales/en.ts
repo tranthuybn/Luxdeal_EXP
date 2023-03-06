@@ -1698,7 +1698,6 @@ export default {
     chooseImportExportWH: 'chooseImportExportWarehouse',
     chooseLocation: 'Choose Location',
     lotList: 'Lot list',
-    iventoryy: 'Iventory',
     importToSelectedLot: 'Import to selected lot',
     createNewLot: 'Create new lot',
     import: 'Import',

@@ -7,7 +7,7 @@ const propsObj = defineProps({
     default: ''
   },
   modelValue: {
-    type: Number || String || undefined,
+    type: Number ,
     default: 0
   },
   disabled: {

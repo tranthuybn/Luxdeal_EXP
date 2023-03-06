@@ -928,11 +928,11 @@ const spaMoney = ref(0)
                     @scroll-bottom="ScrollCustomerBottom" />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('reuse.customerName')" width="780"><template #default="scope">{{
+              <el-table-column prop="name" :label="t('reuse.customerName')"><template #default="scope">{{
                 scope.row.name }}</template></el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right" width="86">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeCustomer(scope)">{{
+                  <el-button type="danger" @click="removeCustomer(scope)">{{
                     t('reuse.delete')
                   }}</el-button>
                 </template>
@@ -943,7 +943,7 @@ const spaMoney = ref(0)
             <el-table :data="dataTable.productData" border header-row-class-name="dark:text-white text-black">
               <el-table-column :label="t('formDemo.productManagementCode')" width="180"><template #default="scope">
                   <MultipleOptionsBox
-:defaultValue="scope.row.code" :fields="[
+                :defaultValue="scope.row.code" :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
                     t('reuse.productInformation')
@@ -954,8 +954,8 @@ const spaMoney = ref(0)
                     @scroll-bottom="ScrollProductBottom" />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="600" />
-              <el-table-column :label="t('formDemo.joinTheProgram')" width="185">
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" />
+              <el-table-column :label="t('formDemo.joinTheProgram')" width="120">
                 <template #default="scope">
                   <el-switch
 v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
@@ -964,7 +964,7 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
               </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right" width="86">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
+                  <el-button type="danger" @click="removeProduct(scope)">{{
                     t('reuse.delete')
                   }}</el-button>
                 </template>
@@ -1013,7 +1013,7 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
                 </template>
                 <template #default="scope">
                   <el-select
-:loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
+                   :loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
                     placeholder="Select" size="large" @change="getSpaSelected">
                     <div class="flex gap-4">
                       <div class="flex-1 font-bold pl-5 h-[34px]">{{ t('reuse.serviceCode') }}</div>

@@ -125,6 +125,8 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    salesTrackingTable: 'Sales tracking board',
+    employeeDetail: 'Employee Detail',
     comboCode: 'Combo code',
     cancelAccountingEntry: 'Cancel accounting entry',
     expired: 'Expired',
@@ -684,6 +686,7 @@ export default {
     orderManagement: 'Order management',
     promotionCampaign: 'Promotion strategy',
     serviceSurvey: 'Service survey',
+    employeeInfo: 'Employee Info',
     orderList: 'Order list',
     createANewOrder: 'Create a new order',
     paymentProposal: 'Payment proposal',
@@ -898,6 +901,11 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    accounted: "Accounted",
+    accountingAccountName: 'Accounting account name',
+    reasonRevenueExpenditure: 'Reason for revenue/expenditure',
+    attachDocument: 'Accompanying documents',
+    reasonSpendMoney: 'Reason to spend money',
     statusProgram: 'Program status',
     duplicateInformation: 'Duplicate information, data already exists',
     addNewBranch: 'Add new branch',

@@ -124,6 +124,8 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    salesTrackingTable: 'Bảng theo dõi doanh số',
+    employeeDetail: 'Thông tin nhân viên',
     cancelAccountingEntry: 'Hủy bút toán',
     expired: 'Hết hạn',
     keepGoodsOnDeposit: 'Giữ hàng đang đặt cọc',
@@ -769,6 +771,7 @@ export default {
     customerAdd: 'Thêm mới khách hàng',
     employeeList: 'Danh sách nhân viên',
     employeeRatings: 'Xếp hạng nhân viên',
+    employeeInfo: 'Thông tin nhân viên',
     accumulatePoints: 'Tích điểm',
     packageAccumulatePointsCode: 'Mã gói tích điểm',
     buyPointsPackage: 'Mua gói tích điểm',
@@ -950,6 +953,11 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    accounted: 'Đã hạch toán',
+    accountingAccountName: 'Tên tài khoản hạch toán',
+    reasonRevenueExpenditure: 'Lý do thu/chi',
+    attachDocument: 'Chứng từ kèm theo',
+    reasonSpendMoney: 'Lý do để chi tiền',
     statusProgram: 'Trạng thái chương trình',
     duplicateInformation: 'Trùng thông tin, vui lòng kiểm tra tên/mã/email/sđt ...',
     addNewBranch: 'Thêm mới chi nhánh',
@@ -1156,7 +1164,7 @@ export default {
     numberInput: 'Số lượng nhập',
     totalMoneyInput: 'Tổng tiền nhập',
     unpaidDebt: 'Công nợ tồn',
-    revenueAndExpenditure: 'Phải thu/Phải chi',
+    revenueAndExpenditure: 'Thu/Chi',
     inputName: 'Nhập tên',
     online: 'Online',
     offline: 'Offline',
@@ -1209,7 +1217,7 @@ export default {
     contentDescriptions: 'Nội dung / Mô tả',
     amountOfMoney: 'Số tiền',
     reciprocalProfile: 'Hồ sơ đối ứng',
-    accountCode: 'Mã tài khoản',
+    accountCode: 'Mã tài khoản hạch toán',
     accountingDate: 'Ngày hoạch toán',
     proposalCode: 'Mã đề nghị',
     rentTerm: 'Kỳ hạn thuê',

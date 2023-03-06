@@ -4,14 +4,35 @@ import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getReceiptsExpendituresList } from '@/api/Business'
 import { deleteAReceiptOrPaymentVoucher } from '@/api/Accountant'
-import { PAYMENT, ATTACH_DOCUMENT, STATUS_TYPE } from '@/utils/API.Variables'
+import { PAYMENT, ATTACH_DOCUMENT } from '@/utils/API.Variables'
 import {
   filtersReceiptExpenditure,
-  filterStatusRevenueExpenditure,
-  filterReciprocalProfile
+  filterStatusAccouting,
+  filterReciprocalProfile,
 } from '@/utils/filters'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, formatStatusAccounting } from '@/utils/format'
+import { useRouter } from 'vue-router'
+import { ElButton } from 'element-plus'
+import { useIcon } from '@/hooks/web/useIcon'
+import { useAppStore } from '@/store/modules/app'
+
 const { t } = useI18n()
+const { push } = useRouter()
+const router = useRouter()
+const appStore = useAppStore()
+const Utility = appStore.getUtility
+const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+
+const action = (row: any, type: string) => {
+  if (type === 'detail' || type === 'edit' || !type) {
+    push({
+      name: `${String(router.currentRoute.value.name)}.${Utility}`,
+      params: { id: row.id, type: type, tab: row.voucherType }
+    })
+  }
+}
+
+
 const columns = reactive<TableColumn[]>([
   {
     field: 'id',
@@ -22,18 +43,21 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'code',
     label: t('reuse.formCode'),
-    minWidth: '150'
+    minWidth: '110',
+    headerAlign: 'left',
   },
   {
     field: 'description',
-    label: t('reuse.contentDescriptions'),
-    minWidth: '150'
+    label: t('reuse.reasonRevenueExpenditure'),
+    minWidth: '200',
+    headerAlign: 'left',
   },
   {
     field: 'totalMoney',
     label: t('reuse.amountOfMoney'),
-    minWidth: '100',
-    sortable: true
+    minWidth: '120',
+    sortable: true,
+    headerAlign: 'left',
   },
   {
     field: 'paymentType',
@@ -42,40 +66,46 @@ const columns = reactive<TableColumn[]>([
     filters: filtersReceiptExpenditure,
     formatter: (_record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
       return h(cellValue ? h('div', PAYMENT[0].label) : h('div', PAYMENT[1].label))
-    }
+    },
+    headerAlign: 'left',
   },
   {
     field: 'peopleName',
     label: t('reuse.subject'),
     minWidth: '200',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    headerAlign: 'left',
   },
   {
     field: 'attachDocument',
-    label: t('reuse.reciprocalProfile'),
+    label: t('reuse.attachDocument'),
     minWidth: '150',
     filters: filterReciprocalProfile,
     formatter: (_record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
       return h(cellValue ? h('div', ATTACH_DOCUMENT[1].label) : h('div', ATTACH_DOCUMENT[0].label))
-    }
+    },
+    headerAlign: 'left',
   },
   {
     field: 'accountNumber',
     label: t('reuse.accountCode'),
-    minWidth: '150',
-    headerFilter: 'Name'
+    minWidth: '140',
+    headerFilter: 'Name',
+    headerAlign: 'left',
   },
   {
     field: 'accountName',
-    label: t('login.username'),
-    minWidth: '150',
-    headerFilter: 'Name'
+    label: t('reuse.accountingAccountName'),
+    minWidth: '140',
+    headerFilter: 'Name',
+    headerAlign: 'left',
   },
   {
     field: 'accountingDate',
     label: t('reuse.accountingDate'),
     minWidth: '150',
-    sortable: true
+    sortable: true,
+    headerAlign: 'left',
   },
   {
     field: 'createdAt',
@@ -84,31 +114,45 @@ const columns = reactive<TableColumn[]>([
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
-    }
+    },
+    headerAlign: 'left',
   },
   {
     field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '130',
-    headerFilter: 'Name'
+    headerFilter: 'Name',
+    headerAlign: 'left',
   },
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterStatusRevenueExpenditure,
-    formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
-      if (record.pepopleType == 0) {
-        return h('div', STATUS_TYPE[0].label)
-      } else if (record.pepopleType == 1) {
-        return h('div', STATUS_TYPE[1].label)
-      } else {
-        return h('div', STATUS_TYPE[2].label)
-      }
+    filters: filterStatusAccouting,
+    headerAlign: 'left',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return formatStatusAccounting(cellValue)
+    },
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '90',
+    headerAlign: 'left',
+    align: 'center',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),
+      ])
     }
   }
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :delApi="deleteAReceiptOrPaymentVoucher" :api="getReceiptsExpendituresList" />
+  <tableDatetimeFilterBasicVue 
+  :columns="columns" 
+  :delApi="deleteAReceiptOrPaymentVoucher" 
+  :api="getReceiptsExpendituresList" 
+  :customOperator="4"
+  />
 </template>

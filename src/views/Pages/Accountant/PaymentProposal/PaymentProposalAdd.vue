@@ -16,6 +16,7 @@ import {
 } from 'element-plus'
 import type {FormRules, FormInstance} from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import {
   GetPaymentRequestDetail,
   getAllStaffList,
@@ -111,7 +112,7 @@ peopleName: null,
 pepopleType: 1,
 reasonCollectMoney: "",
 status: 1,
-totalMoney: 0,
+totalMoney: NaN,
 totalPrice: 0,
 updatedAt: "",
 updatedBy: ""
@@ -368,10 +369,11 @@ const approvalPayments = async (checkApproved) => {
     name: `accountant.payment-proposal.payment-proposal-list`
   })
 }
-
+const disabledEdit = ref(false)
 // Xem detail or edit or approved 
 const editData = () => {
   if (type == 'approval-payments' || type == 'detail' || type == 'edit') {
+    disabledEdit.value = true
     getDetailPayment()
   } else {
     form.value.code = curDate
@@ -408,7 +410,7 @@ onBeforeMount(() => {
               <div>{{ dateTimeFormat(form.createdAt) }}</div>
             </el-form-item>
             <el-form-item label="Người yêu cầu" >
-              <el-select v-model="form.peopleId" placeholder="Lấy tk đang tạo phiếu" >
+              <el-select v-model="form.peopleId" >
                 <el-option
                   v-for="item in getStaffList"
                   :key="item.value"
@@ -466,13 +468,13 @@ onBeforeMount(() => {
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
         <el-table :data="tableData" border style="width: 100%">
-          <el-table-column type="index" label="STT" align="center" width="60" />
-          <el-table-column prop="numberVouchers" label="Số chứng từ" width="150" >
+          <el-table-column type="index" label="STT" align="center" width="56" />
+          <el-table-column prop="numberVouchers" label="Số chứng từ" width="132" >
             <template #default="props">
               <el-input  v-model="props.row.numberVouchers"/>
             </template>
           </el-table-column>
-          <el-table-column prop="dayVouchers" label="Ngày chứng từ" width="150">
+          <el-table-column prop="dayVouchers" label="Ngày chứng từ" width="132">
             <template #default="props">
                 <el-date-picker
                   v-model="props.row.dayVouchers"
@@ -482,12 +484,12 @@ onBeforeMount(() => {
                 />
             </template>
           </el-table-column>
-          <el-table-column prop="spentFor" label="Nội dung chi" >
+          <el-table-column prop="spentFor" label="Nội dung chi" width="436" >
             <template #default="props">
                   <el-input v-model="props.row.spentFor" />
             </template>
           </el-table-column>
-          <el-table-column prop="quantity" label="Số lượng" >
+          <el-table-column prop="quantity" label="Số lượng" width="150">
             <template #default="props">
               <el-input
                 v-model="props.row.quantity"
@@ -500,7 +502,7 @@ onBeforeMount(() => {
               />
             </template>
           </el-table-column>
-            <el-table-column prop="price" label="Đơn giá" >
+          <el-table-column prop="price" label="Đơn giá" width="150">
               <template #default="props">
                 <el-input
                 v-model="props.row.unitPrice" 
@@ -512,24 +514,24 @@ onBeforeMount(() => {
                 "/>
             </template>
           </el-table-column>
-          <el-table-column prop="totalPrice" label="Thành tiền" >
+          <el-table-column prop="totalPrice" label="Thành tiền" width="150" >
             <template #default="props">
                 {{ props.row.totalPrice }}
             </template>
           </el-table-column>
-          <el-table-column prop="note" label="Ghi chú" >
+          <el-table-column prop="note" label="Ghi chú">
             <template #default="props">
               <el-input v-model="props.row.note" />
             </template>            
           </el-table-column>
-          <el-table-column label="Thao Tác" >
+          <el-table-column label="Thao Tác" width="86">
             <template #default="scope">
               <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)" >Xóa</el-button>
             </template>
           </el-table-column>
         </el-table>
         <div class="flex justify-end">
-          <div class="total flex flex-col w-[680px]">
+          <div class="total flex flex-col mt-4 w-[880px]">
             <div class="flex gap-4">
               <label class="w-[10%] text-right font-bold">Tổng tiền</label>
               <span class="w-[170px] text-right">{{ changeMoney.format(form.totalPrice) }}</span>
@@ -537,7 +539,7 @@ onBeforeMount(() => {
             <div class="flex gap-4">
               <label class="w-[10%] text-right">Đặt cọc</label>
               <span class="w-[170px] text-right">
-                <el-input @change="autoCalculateFun" class="poi_text_right" v-model="form.depositeMoney" />
+                <el-input @change="autoCalculateFun" placeholder="đ" class="poi_text_right" v-model="form.depositeMoney" />
               </span>
             </div>
             <div class="flex gap-4">
@@ -547,15 +549,21 @@ onBeforeMount(() => {
           </div>
         </div>
         <el-divider content-position="left" >Thông tin thanh toán</el-divider>
-        <div class="flex flex-row">
+        <div class="flex flex-row hello">
           <el-form :model="form" label-width="160px" class="basis-1/2" >
             <el-form-item 
               label="Số tiền chi" 
+              tabindex="Nhập số tiền"
               :rules="[
-                { required: true, message: 'Nhập số tiền' },
-                { type: 'number', message: 'Nhập số tiền' }                                    
+              
+                { required: true, message: 'Nhập số tiền', trigger: 'blur' }
+                                         
               ]">
-              <el-input v-model="form.totalMoney" placeholder="Nhập số tiền" />
+              <!-- <el-input v-model="form.totalMoney" :parser="(value) => changeMoney.format(value)" placeholder="Nhập số tiền" /> -->
+              <CurrencyInputComponent
+                v-model="form.totalMoney"
+                v-if="type != 'detail'"
+              />
             </el-form-item>
             <el-form-item
               label="Viết bằng chữ"
@@ -583,14 +591,14 @@ onBeforeMount(() => {
                 />
               </el-select>
             </el-form-item>
-            <el-form-item label="Trạng thái ">
+            <el-form-item label="Trạng thái" class="day-update-wrap">
               <span class="day-updated">
                 Khởi tạo & ghi số
               </span>
             </el-form-item>
             <el-form-item>
-              <div>
-                <label style= "font-style:italic"> {{ dateTimeFormat(moment()) }} </label>
+              <div class="dateCreated">
+                <label> {{ dateTimeFormat(moment()) }} </label>
               </div>
             </el-form-item>
             <el-form-item v-if="type != 'approval-payments'">
@@ -664,12 +672,13 @@ onBeforeMount(() => {
                 <div class="flex flex-row">
                         <el-form :model="form" label-width="160px" class="basis-1/2" >
                                     <el-form-item 
-                                            label="Số tiền chi" prop="name" :rules="[
+                                            label="Số tiền chi" tabindex="" prop="name" :rules="
+                                           [
                                           { required: true, message: 'Nhập số tiền' },
                                           { type: 'number', message: 'Nhập số tiền' },
                                     
                                           ]">
-                                              <el-input v-model="form.reasonCollectMoney" placeholder="Nhập số tiền" />
+                                            <el-input v-model="form.reasonCollectMoney" placeholder="Nhập số tiền" />
                                     </el-form-item>
                                     <el-form-item
                                           label="Viết bằng chữ" prop="name" :rules="[
@@ -696,7 +705,7 @@ onBeforeMount(() => {
                                     </el-form-item>
                                     <el-form-item>
                                           <div>
-                                            <label style= "font-style:italic"> {{ dateTimeFormat(moment()) }} </label>
+                                            <label class="dateCreated" > {{ dateTimeFormat(moment()) }} </label>
                                           </div>
                                     </el-form-item>
                                     <el-form-item >
@@ -709,12 +718,20 @@ onBeforeMount(() => {
       </el-collapse-item>
       </el-collapse>
 </template>  
-<style scoped>
+<style scoped lang="less">
 .requied{
   color: red;
 }
 ::v-deep(.el-select){
   width: 100%;
+}
+::v-deep(.el-form-item) {
+  .dateCreated {
+    color: #65676B;
+    font-weight: 400;
+    font-size: 10px;
+    font-style: italic;
+  }
 }
 ::v-deep(.poi_text_right > .el-input__wrapper > .el-input__inner){
   text-align: right;
@@ -737,8 +754,8 @@ onBeforeMount(() => {
   right: -12px;
   width: 0;
   height: 0;
-  border-top: 8px solid transparent;
-  border-bottom: 12px solid transparent;
+  border-top: 14px solid transparent;
+  border-bottom: 18px solid transparent;
   border-left: 12px solid rgba(44, 109, 218, 0.05);
 }
 
@@ -749,8 +766,8 @@ onBeforeMount(() => {
   left: 0;
   width: 0;
   height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
   border-left: 12px solid white;
 }
 

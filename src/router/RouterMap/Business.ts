@@ -500,25 +500,31 @@ export default {
     {
       path: 'employee-management',
       name: 'business.employee-management',
-      redirect: { name: 'business.employee-management.employeeList' },
+      redirect: { name: 'business.employee-management.employeeRatings' },
       meta: {
         title: t('router.businessMan'),
       },
       children: [
-        {
-          path: 'employeeList',
-          name: 'business.employee-management.employeeList',
-          component: () => import('@/views/Pages/Business/EmployeeManagement/EmployeeList.vue'),
-          meta: {
-            title: t('router.employeeList')
-          }
-        },
+       
         {
           path: 'employeeRatings',
           name: 'business.employee-management.employeeRatings',
           component: () => import('@/views/Pages/Business/EmployeeManagement/EmployeeRatings.vue'),
           meta: {
             title: t('router.employeeRatings')
+          }
+        },
+        {
+          path: `employeeRatings-utility/:type?/:id?`,
+          name: `business.employee-management.employeeRatings.${utility}`,
+          component: () => import('@/views/Pages/Business/EmployeeManagement/EmployeeRatingsUtility.vue'),
+          meta: {
+            title: t('router.employeeInfo'),
+            noTagsView: true,
+            noCache: true,
+            hidden: true,
+            canTo: true,
+            showMainRoute: true
           }
         }
       ]

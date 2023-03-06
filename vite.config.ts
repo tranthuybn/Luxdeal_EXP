@@ -2,12 +2,16 @@ import { resolve } from 'path'
 import { loadEnv } from 'vite'
 import type { UserConfig, ConfigEnv } from 'vite'
 import Vue from '@vitejs/plugin-vue'
+import WindiCSS from 'vite-plugin-windicss'
 // allow to write JSX type 
 import VueJsx from '@vitejs/plugin-vue-jsx'
-import WindiCSS from 'vite-plugin-windicss'
-import progress from 'vite-plugin-progress'
 import EslintPlugin from 'vite-plugin-eslint'
-import { ViteEjsPlugin } from "vite-plugin-ejs"
+import VueI18n from '@intlify/vite-plugin-vue-i18n'
+// A plug-in that imports component library styles on demand
+import styleImport, { ElementPlusResolve } from 'vite-plugin-style-import'
+// icon
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import PurgeIcons from 'vite-plugin-purge-icons'
 /**
  Provide local and prod mocks for vite.
  A mock plugin for vite, developed based on mockjs.
@@ -15,13 +19,10 @@ import { ViteEjsPlugin } from "vite-plugin-ejs"
  Connect service middleware is used locally, mockjs is used online
  */
 import { viteMockServe } from 'vite-plugin-mock'
-import PurgeIcons from 'vite-plugin-purge-icons'
-import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite"
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 /**
  * Introduce a macro in script setup, defineOptions, to use Options API in script setup, specifically to be able to set name, props, emits and render in one function.
  */
-import DefineOptions from "unplugin-vue-define-options/vite"
+import DefineOptions from 'unplugin-vue-define-options/vite'
 /**
   HTML compression capability
   EJS template capability
@@ -29,8 +30,7 @@ import DefineOptions from "unplugin-vue-define-options/vite"
   Support custom entry
   Support custom template
  */
-// A plug-in that imports component library styles on demand
-import { createStyleImportPlugin, ElementPlusResolve } from 'vite-plugin-style-import'
+import { createHtmlPlugin } from 'vite-plugin-html'
 
 // https://vitejs.dev/config/
 const root = process.cwd()
@@ -53,8 +53,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       Vue(),
       VueJsx(),
       WindiCSS(),
-      progress(),
-      createStyleImportPlugin({
+      styleImport({
         resolves: [ElementPlusResolve()],
         libs: [{
           libraryName: 'element-plus',
@@ -68,7 +67,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
         cache: false,
         include: ['src/**/*.vue', 'src/**/*.ts', 'src/**/*.tsx'] // 检查的文件
       }),
-      VueI18nPlugin({
+      VueI18n({
         runtimeOnly: true,
         compositionOnly: true,
         include: [resolve(__dirname, 'src/locales/**')]
@@ -91,8 +90,13 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
           `
       }),
       DefineOptions(),
-      ViteEjsPlugin({
-        title: env.VITE_APP_TITLE
+      createHtmlPlugin({
+        inject: {
+          data: {
+            title: env.VITE_APP_TITLE,
+            injectScript: `<script src="./inject.js"></script>`,
+          }
+        }
       })
     ],
 
@@ -130,9 +134,9 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       }
     },
     server: {
-      port: 2204,
+      port: 1795,
       proxy: {
-        // 选项写法
+        // Option writing
         '/api': {
           target: 'http://127.0.0.1:8000',
           changeOrigin: true,
@@ -165,3 +169,4 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
     }
   }
 }
+

@@ -3890,7 +3890,7 @@ const disabledPhieu = ref(false)
                   @click="
                     () => {
                       UpdateStatusTransaction()
-                      dialogSalesSlipInfomation = false
+                      dialogDepositSlipAdvance = false
                     }
                   "
                 > 
@@ -4334,7 +4334,7 @@ const disabledPhieu = ref(false)
               @click="
                 () => {
                   UpdateStatusTransaction()
-                  dialogSalesSlipInfomation = false
+                  dialogAccountingEntryAdditional = false
                 }
               "
                 > 
@@ -5463,7 +5463,8 @@ const disabledPhieu = ref(false)
                 <div
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_SELL[2].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SELL[3].orderStatus  || STATUS_ORDER_SELL[8].orderStatus
+                    item.orderStatus == STATUS_ORDER_SELL[3].orderStatus  || 
+                    item.orderStatus == STATUS_ORDER_SELL[8].orderStatus
                   "
                 >
                   <span

@@ -351,9 +351,9 @@ const warningForSwitch = (rowDisabled: boolean) => {
     })
   }
 }
-const changeDataSwitch = (scope, dataSwitch) => {
-  scope.row.bussinessSetups![scope.cellIndex == 4 ? 4 : scope.cellIndex - 2]!.hasPrice
-    ? (scope.row.bussinessSetups![scope.cellIndex == 4 ? 4 : scope.cellIndex - 2]!.value = dataSwitch)
+const changeDataSwitch = (scope, dataSwitch, index) => {
+  scope.row.bussinessSetups![index]!.hasPrice
+    ? (scope.row.bussinessSetups![index]!.value = dataSwitch)
     : ElNotification({
         message: t('reuse.addPricesBeforeTurningOnSetting'),
         type: 'warning'
@@ -1125,9 +1125,9 @@ const saveDataSpaTable = async () => {
         ElNotification({
           message: t('reuse.saveSuccess'),
           type: 'success'
-        }),
-          (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
-            false)
+        })
+          collapse[1].tableList[collapse[5].tableList.currentRow].bussinessSetups[4].hasPrice =false
+        collapse[1].tableList[collapse[5].tableList.currentRow].bussinessSetups[4].value = false
       })
       .catch(() => {
         ElNotification({
@@ -1184,9 +1184,9 @@ const saveDataRentTable = async () => {
         ElNotification({
           message: t('reuse.saveSuccess'),
           type: 'success'
-        }),
-          (collapse[1].tableList[collapse[2].tableList.currentRow].bussinessSetups[1].hasPrice =
-            false)
+        })
+        collapse[1].tableList[collapse[2].tableList.currentRow].bussinessSetups[2].hasPrice =false
+        collapse[1].tableList[collapse[2].tableList.currentRow].bussinessSetups[2].value = false
       })
       .catch(() => {
         ElNotification({
@@ -1322,9 +1322,10 @@ const saveDataSellTable = async () => {
         ElNotification({
           message: t('reuse.saveSuccess'),
           type: 'success'
-        }),
-          (collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice =
-            false)
+        })
+        collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].hasPrice = false
+        collapse[1].tableList[collapse[8].tableList.currentRow].bussinessSetups[0].value = false
+
       })
       .catch(() => {
         ElNotification({
@@ -1622,7 +1623,7 @@ const categoriesToString = (categories) => {
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => changeDataSwitch(scope, data)"
+                  @change="(data) => changeDataSwitch(scope, data, 0)"
                 />
               </div>
             </template>
@@ -1652,7 +1653,7 @@ const categoriesToString = (categories) => {
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => changeDataSwitch(scope, data)"
+                  @change="(data) => changeDataSwitch(scope, data, 2)"
                 />
               </div>
             </template>
@@ -1741,7 +1742,7 @@ const categoriesToString = (categories) => {
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => changeDataSwitch(scope, data)"
+                  @change="(data) => changeDataSwitch(scope, data, 4)"
                 />
               </div>
             </template>

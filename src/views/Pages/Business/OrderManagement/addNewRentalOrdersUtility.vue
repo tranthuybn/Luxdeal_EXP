@@ -2261,6 +2261,8 @@ const UpdateStatusTransaction = async() => {
   }
 
   updateStatusTransaction(FORM_IMAGES(payload))
+    // Cập nhật lại bảng lịch sử công nợ
+    getOrderStransactionList()
 }
 
 const listOfOrderProduct = ref()
@@ -4905,7 +4907,7 @@ const disabledPhieu = ref(false)
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">{{t('formDemo.totalPayment')}}</p>
+              <p class="text-black font-bold dark:text-white">{{t('reuse.totalPayment')}}</p>
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2 text-black font-bold dark:text-white">{{

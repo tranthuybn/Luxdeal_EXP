@@ -2157,7 +2157,7 @@ const returnGoodsAheadOfTime = async (status, data) => {
 }
 // hoàn thành trả hàng
 
-if (type == 'add') {
+if (type == 'add' || type == ':type') {
   arrayStatusOrder.value?.push({
     orderStatusName: 'Duyệt đơn hàng',
     orderStatus: 4,
@@ -4185,7 +4185,7 @@ const openDetailOrder = (id, type) => {
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
-                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add')
+                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && (type == 'add' || type == ':type'))
               "
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"
@@ -4213,7 +4213,7 @@ const openDetailOrder = (id, type) => {
               >{{ t('formDemo.startRentingTermDeposit') }}</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add'"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && (type == 'add' || type == ':type')"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)

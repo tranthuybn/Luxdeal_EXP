@@ -62,8 +62,9 @@ export default defineComponent({
     border: propTypes.bool.def(true),
     maxHeight: propTypes.string.def('auto')
   },
+
   emits: ['update:pageSize', 'update:currentPage', 'register'],
-  setup(props, { attrs, slots, emit, expose }) {
+  setup(props, { attrs,  slots, emit, expose }) {
     const elTableRef = ref<ComponentRef<typeof ElTable>>()
 
     // register
@@ -225,6 +226,7 @@ export default defineComponent({
         )
       })
     }
+
     const formVisible = ref(false)
     const showForm = () => {
       formVisible.value = !formVisible.value

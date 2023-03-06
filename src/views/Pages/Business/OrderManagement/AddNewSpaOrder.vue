@@ -1101,21 +1101,21 @@ const createQuickCustomer = async () => {
   }
 
   const formCustomerPayLoad = FORM_IMAGES(payload)
-  await addQuickCustomer(formCustomerPayLoad)
-    .then(() =>
-      ElNotification({
+   const res =  await addQuickCustomer(formCustomerPayLoad)
+   if (res) {
+    ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-    )
-    .catch(() =>
-      ElNotification({
+    callCustomersApi()
+
+  } else {
+    ElNotification({
         message: t('reuse.addFail'),
         type: 'warning'
       })
-    )
+  }  
 }
-
 // select khách hàng
 const valueSelectCustomer = ref(1)
 const optionsCustomer = [
@@ -3172,9 +3172,9 @@ const postReturnRequest = async (reason) => {
               class="w-[150px]"
               @click.stop.prevent="
                 () => {
+                  dialogAddQuick = false
                   createQuickCustomer()
                   callCustomersApi()
-                  dialogAddQuick = false
                 }
               "
               >{{ t('reuse.save') }}</el-button

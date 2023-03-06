@@ -121,6 +121,32 @@ export const formatStatusVoucher = (val) => {
       return ''
   }
 }
+export const formatStatusGeneral = (val) => {
+  switch (val) {
+    case 0:
+      return t('reuse.pending')
+    case 1:
+      return t('reuse.finishPending')
+    case 2:
+      return t('reuse.cancelled')
+    default:
+      return ''
+  }
+}
+export const formatStatusAccounting = (val) => {
+  switch (val) {
+    case 0:
+      return t('reuse.pending')
+    case 1:
+      return t('reuse.finishPending')
+    case 2:
+      return t('reuse.accounted')
+    case 3:
+      return t('reuse.cancelled')
+    default:
+      return ''
+  }
+}
 export const formatCustomerRatings = (val) => {
   switch (val) {
     case 1:

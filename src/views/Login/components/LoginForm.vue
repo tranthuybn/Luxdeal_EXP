@@ -171,12 +171,11 @@ const getRole = async (accountId) => {
   // get role list
   try {
     const routers = await GetRouterByStaffAccountId({ id: accountId })
-    // var tempUrl = await getRoutesAsRolesApi({ roleName: 'admin' })
+    // var tempUrl = await getRoutesAsRolesApi({ roleName: 'test' })
 
     if (routers?.data && routers.data.length > 0) {
       const urlList = routers.data.map((el) => el.url)
-
-      // generateRouter(tempUrl.data)
+      //generateRouter(tempUrl.data)
       await generateRouter(urlList)
     } else {
       ElNotification({

@@ -480,7 +480,7 @@ const editData = async (data) => {
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
         </template>
         <TableOperatorCollection
-ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
+          ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
           :apiId="getCampaignList" @post-data="postData" :params="params" :rules="rules"
           @customize-form-data="customizeData" :formDataCustomize="setFormData" @edit-data="editData"
           :show-product="true" />

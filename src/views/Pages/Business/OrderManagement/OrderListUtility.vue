@@ -127,7 +127,7 @@ const ruleForm = reactive({
   delivery: 1,
   orderFiles: []
 })
-
+// disable khi gọi chi tiết phiếu đặt cọc
 const condition = ref(false)
 
 const rules = reactive<FormRules>({
@@ -849,7 +849,6 @@ const createQuickCustomer = async () => {
         type: 'success'
       })
     callCustomersApi()
-
   } else {
     ElNotification({
         message: t('reuse.addFail'),
@@ -2864,6 +2863,7 @@ const disabledPhieu = ref(false)
                 v-model="quickPhoneNumber"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterPhoneNumber')"
+
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
@@ -2929,7 +2929,7 @@ const disabledPhieu = ref(false)
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
               <el-input
                 v-model="quickEmail"
                 style="width: 100%"
@@ -5678,7 +5678,7 @@ const disabledPhieu = ref(false)
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || statusOrder == STATUS_ORDER_SELL[8].orderStatus"
+            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || STATUS_ORDER_SELL[8].orderStatus"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{

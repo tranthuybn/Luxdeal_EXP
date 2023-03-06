@@ -1491,7 +1491,7 @@ const postOrderStransaction = async (index: number) => {
     TypeOfAccountingEntry: index == 1 ? 1 : index == 2 ? 2 : index == 3 ? 3 : 4,
     ReturnRequestId: null
   }
-condition
+
   objOrderStransaction.value = await addOrderStransaction(payload)
   idStransaction.value = objOrderStransaction.value.paymentRequestId
   getOrderStransactionList()
@@ -2415,7 +2415,7 @@ const openDetailOrder = (id, type) => {
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
               <el-input
                 v-model="quickEmail"
                 style="width: 100%"

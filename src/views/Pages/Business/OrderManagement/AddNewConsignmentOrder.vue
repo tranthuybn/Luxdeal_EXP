@@ -2326,7 +2326,7 @@ const openDetailOrder = (id, type) => {
     })
 }
 
-</script>
+</script>nhanh khách
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -3745,9 +3745,8 @@ const openDetailOrder = (id, type) => {
                             :clearable="false"
                             @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
                           />
-                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
-                            >+ {{ t('button.add') }}</el-button
-                          >
+                          <!-- :placeHolder="'Chọn khách hàng'" -->
+                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true">+ {{ t('button.add') }}</el-button> 
                         </div>
                       </div>
                     </el-form-item>

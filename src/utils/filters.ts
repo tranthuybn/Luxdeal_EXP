@@ -266,7 +266,19 @@ export const filterWarehouseManagement: Array<Filter> = [
 export const filterStatusRevenueExpenditure: Array<Filter> = [
   { text: t('reuse.pending'), value: 1 },
   { text: t('reuse.finishPending'), value: 2 },
-  { text: t('reuse.auctioning'), value: 3 }
+  { text: t('reuse.auctioning'), value: 3 },
+  
+]
+export const filterStatusAccouting: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.finishPending'), value: 2 },
+  { text: t('reuse.accounted'), value: 3 },
+  { text: t('reuse.cancelled'), value: 4 }
+]
+export const filterStatusGeneral: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.finishPending'), value: 2 },
+  { text: t('reuse.cancelled'), value: 3 }
 ]
 export const filterReciprocalProfile: Array<Filter> = [
   { text: t('reuse.yes'), value: 1 },

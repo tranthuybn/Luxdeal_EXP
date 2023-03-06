@@ -555,6 +555,7 @@ onBeforeMount(() => {
               label="Số tiền chi" 
               tabindex="Nhập số tiền"
               :rules="[
+              
                 { required: true, message: 'Nhập số tiền', trigger: 'blur' }
                                          
               ]">

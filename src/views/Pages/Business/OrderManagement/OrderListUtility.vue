@@ -128,6 +128,8 @@ const ruleForm = reactive({
   orderFiles: []
 })
 
+const condition = ref(false)
+
 const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
   discount: [
@@ -1232,7 +1234,8 @@ let tableSalesSlip = ref<any[]>([{}])
 let formAccountingId = ref()
 const idAcountingEntry = ref()
 // Chi tiết bút toán
-const openDialogAcountingEntry = (scope) => {
+const openDialogAcountingEntry = (scope,isDisable) => {
+  condition.value=isDisable;
   const data = scope.row
   switch (data.typeOfAccountingEntry) {
     case 1:
@@ -2430,7 +2433,7 @@ const callApiCollaborators = async () => {
   if (res.data && res.data?.length > 0) {
     optionsCollaborators.value = res.data.map((collaborator) => ({
       label: collaborator.code + ' | ' + collaborator.accountName,
-      value: collaborator.id,
+      value: collaborator.id, // cdetailollaborator
       collaboratorCommission: collaborator.discount,
       phone: collaborator.accountNumber
     }))
@@ -2942,8 +2945,9 @@ const disabledPhieu = ref(false)
               class="w-[150px]"
               @click.stop.prevent="
                 () => {
-                  createQuickCustomer()
                   dialogAddQuick = false
+                  createQuickCustomer()
+                  callCustomersApi()
                 }
               "
               >{{ t('reuse.save') }}</el-button
@@ -3769,7 +3773,7 @@ const disabledPhieu = ref(false)
               <p class="pr-2">
                 {{ outstandingDebt ? changeMoney.format(outstandingDebt) : '0 đ' }}
               </p>
-              <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" />
+              <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" :disabled="condition"/>
               <p class="pr-2 text-red-600 pt-2">
                 {{ inputDeposit ? changeMoney.format(outstandingDebt - inputDeposit) : '0 đ' }}</p>
             </div>
@@ -5674,7 +5678,7 @@ const disabledPhieu = ref(false)
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || STATUS_ORDER_SELL[8].orderStatus"
+            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || statusOrder == STATUS_ORDER_SELL[8].orderStatus"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
@@ -5885,7 +5889,7 @@ const disabledPhieu = ref(false)
             <template #default="data">
               <div class="flex">
                 <button
-                  @click="() => openDialogAcountingEntry(data)"
+                  @click="openDialogAcountingEntry(data,true)"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}

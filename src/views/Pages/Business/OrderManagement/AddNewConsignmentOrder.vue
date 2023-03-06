@@ -1491,7 +1491,7 @@ const postOrderStransaction = async (index: number) => {
     TypeOfAccountingEntry: index == 1 ? 1 : index == 2 ? 2 : index == 3 ? 3 : 4,
     ReturnRequestId: null
   }
-
+condition
   objOrderStransaction.value = await addOrderStransaction(payload)
   idStransaction.value = objOrderStransaction.value.paymentRequestId
   getOrderStransactionList()
@@ -1729,9 +1729,10 @@ const dialogDepositFeeInformation = ref(false)
 const typeDialog = ref(1)
 const idAccounting = ref()
 const negotiablePrice = ref(0)
-
+const condition = ref(false)
 // Chi tiết bút toán
-const openDialogAcountingEntry = (scope) => {
+const openDialogAcountingEntry = (scope,restrue) => {
+  condition.value = restrue
   const data = scope.row
   idAccounting.value = data.id
   switch (data.typeOfAccountingEntry) {
@@ -4664,7 +4665,7 @@ const openDetailOrder = (id, type) => {
             <template #default="data">
               <div class="flex">
                 <button
-                  @click="() => openDialogAcountingEntry(data)"
+                  @click="() => openDialogAcountingEntry(data,true)"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}

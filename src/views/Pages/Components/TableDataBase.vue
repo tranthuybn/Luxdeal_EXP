@@ -113,6 +113,7 @@ onBeforeMount(() => {
   if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
 })
 
+
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 

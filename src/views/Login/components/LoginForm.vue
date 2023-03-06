@@ -306,7 +306,8 @@ const setPermissionForUser = (data) => {
     color: var(--el-color-primary) !important;
   }
 }
+
 .box-shadow-blue {
-  box-shadow: 0px 0px 7px 1px #68d3fd;
+  box-shadow: 0 0 7px 1px #68d3fd;
 }
 </style>

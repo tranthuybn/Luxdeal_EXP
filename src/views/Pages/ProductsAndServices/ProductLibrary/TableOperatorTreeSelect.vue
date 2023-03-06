@@ -737,7 +737,7 @@ const approvalProduct = async () => {
                   :value="item.value"
                 >
                   <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
-                  <span style="float: right; color: var(--el-text-color-secondary); font-size: 13px"
+                  <span style="float: right; font-size: 13px; color: var(--el-text-color-secondary)"
                     >{{ t('reuse.productName') }}: {{ item.name
  }}</span
                   >
@@ -908,17 +908,17 @@ const approvalProduct = async () => {
 </template>
 <style scoped>
 .avatar-uploader .avatar {
-  padding-bottom: 1rem;
-  width: 250px;
   display: block;
+  width: 250px;
+  padding-bottom: 1rem;
 }
 
 .avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
   transition: var(--el-transition-duration-fast);
 }
 
@@ -932,16 +932,16 @@ const approvalProduct = async () => {
 }
 
 :deep(.el-dialog__body) {
+  display: flex;
   max-height: 85vh;
   overflow: auto;
-  display: flex;
   justify-content: center;
 }
 
 #content {
   height: 200px;
-  overflow: auto;
   padding: 0 10px;
+  overflow: auto;
 }
 
 .break {

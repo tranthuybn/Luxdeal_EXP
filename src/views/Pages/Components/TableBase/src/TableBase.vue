@@ -402,61 +402,62 @@ v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filt
   &::-webkit-scrollbar {
     display: block;
     width: 10px;
+    height: 10px;
+
     /* width of vertical scrollbar */
     background-color: var(--top-tool-border-color);
-    height: 10px;
+
     /* height of horizontal scrollbar ← You're missing this */
   }
 
   &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background-color: var(--el-color-primary);
     width: 4px;
+    background-color: var(--el-color-primary);
+    border-radius: 10px;
   }
 
   ::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0px 0px 1px var(--el-color-info);
-    box-shadow: inset 0px 0px 1px var(--el-color-info);
     background-color: var(--el-color-primary);
+    box-shadow: inset 0 0 1px var(--el-color-info);
   }
 }
 
 ::v-deep(.el-drawer__header) {
-  margin-bottom: 0;
   padding: 0;
+  margin-bottom: 0;
 }
 
 ::v-deep(.el-checkbox-group) {
-  margin: auto;
   display: flex;
   width: max-content;
+  margin: auto;
   justify-content: center;
   align-items: flex-start;
 }
 
 #rabbit-ear {
-  width: 132px;
-  text-align: center;
-  z-index: 28;
-  border-radius: 0 0 5px 5px;
-  border: 1px solid var(--tags-view-border-color);
-  background-color: var(--logo-title-text-color);
-  box-shadow: 0px 0px 2px 1px var(--left-menu-text-color);
   top: -10px;
-  height: 24px;
   right: calc(50% - 66px);
+  z-index: 28;
+  width: 132px;
+  height: 24px;
+  text-align: center;
+  background-color: var(--logo-title-text-color);
+  border: 1px solid var(--tags-view-border-color);
+  border-radius: 0 0 5px 5px;
+  box-shadow: 0 0 2px 1px var(--left-menu-text-color);
 
   &:hover {
     top: 0;
-    border: 0px 1px 1px 1px solid var(--el-color-primary);
-    box-shadow: 0px 0px 2px 1px var(--el-color-primary);
     color: var(--el-color-primary);
+    border: 0 1px 1px 1px solid var(--el-color-primary);
+    box-shadow: 0 0 2px 1px var(--el-color-primary);
   }
 }
 
 #price-information {
-  max-width: 70vw;
   position: relative;
   left: 11vw;
+  max-width: 70vw;
 }
 </style>

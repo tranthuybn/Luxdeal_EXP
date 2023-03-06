@@ -235,7 +235,7 @@ const ruleFormRef = ref<FormInstance>()
           <el-radio
             v-model="radioSelected"
             :label="scope.$index"
-            style="color: #fff; margin-right: -25px"
+            style=" margin-right: -25px;color: #fff"
             ><span></span
           ></el-radio>
         </template>

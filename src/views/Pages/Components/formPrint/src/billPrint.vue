@@ -194,19 +194,24 @@ function getArraySum(arr) {
 .el-divider--horizontal {
   margin: 14px 0;
 }
+
 .bill:nth-child(1) {
   padding-bottom: 12px;
 }
+
 .bill:nth-child(2) {
   padding: 16px 0;
   border-top: 1px solid #e5e7eb;
 }
+
 .deposit:nth-child(1) {
   padding-bottom: 12px;
 }
+
 .deposit:nth-child(2) {
   padding-bottom: 12px;
 }
+
 .deposit:nth-child(3) {
   padding: 12px 0;
   border-top: 1px solid #e5e7eb;

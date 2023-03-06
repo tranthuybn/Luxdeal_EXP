@@ -52,19 +52,19 @@ export default {
 }
 
 .sc-user-input--file-icon-wrapper {
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
   background: none;
   border: none;
-  padding: 0px;
-  margin: 0px;
   outline: none;
-  cursor: pointer;
 }
 
 .sc-user-input--file-icon {
-  height: 27px;
   width: 27px;
-  align-self: center;
+  height: 27px;
   outline: none;
+  align-self: center;
 }
 
 .sc-user-input--file-icon:hover path {

@@ -18,19 +18,33 @@ export default {
 </script>
 
 <style scoped>
+
+
+@keyframes bob {
+  10% {
+    background-color: #9e9da2;
+    transform: translateY(-10px);
+  }
+
+  50% {
+    background-color: #b6b5ba;
+    transform: translateY(0);
+  }
+}
+
 .sc-typing-indicator {
-  text-align: center;
   padding: 17px 20px;
+  text-align: center;
   border-radius: 6px;
 }
 
 .sc-typing-indicator span {
   display: inline-block;
-  background-color: #b6b5ba;
   width: 10px;
   height: 10px;
-  border-radius: 100%;
   margin-right: 3px;
+  background-color: #b6b5ba;
+  border-radius: 100%;
   animation: bob 2s infinite;
 }
 
@@ -38,21 +52,12 @@ export default {
 .sc-typing-indicator span:nth-child(1) {
   animation-delay: -1s;
 }
+
 .sc-typing-indicator span:nth-child(2) {
   animation-delay: -0.85s;
 }
+
 .sc-typing-indicator span:nth-child(3) {
   animation-delay: -0.7s;
-}
-
-@keyframes bob {
-  10% {
-    transform: translateY(-10px);
-    background-color: #9e9da2;
-  }
-  50% {
-    transform: translateY(0);
-    background-color: #b6b5ba;
-  }
 }
 </style>

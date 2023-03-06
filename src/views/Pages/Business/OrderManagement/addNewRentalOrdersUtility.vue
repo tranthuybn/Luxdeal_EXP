@@ -892,6 +892,7 @@ const callApiProductList = async () => {
       productCode: product?.code,
       value: product?.productCode,
       name: product?.name ?? '',
+      inventory:product.tonKho ?? 0,
       price: product?.price.toString(),
       productPropertyId: product?.id,
       productPropertyCode: product?.productPropertyCode,
@@ -924,6 +925,7 @@ const ScrollProductBottom = () => {
                   productCode: product?.code,
                   value: product?.productCode,
                   name: product?.name ?? '',
+                  inventory: product.tonKho ?? 0,
                   price: product?.price.toString(),
                   productPropertyId: product?.id,
                   productPropertyCode: product?.productPropertyCode
@@ -5042,7 +5044,8 @@ const disabledPhieu = ref(false)
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory'),
                 ]"
                 filterable
                 :disabled="disabledEdit"
@@ -5150,7 +5153,7 @@ const disabledPhieu = ref(false)
               }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="c" :label="t('reuse.iventoryy')" width="200">
+          <el-table-column prop="c" :label="t('reuse.inventory')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <el-button

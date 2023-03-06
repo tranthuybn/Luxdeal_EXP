@@ -678,6 +678,7 @@ const callAPIProduct = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
+      inventory:product.tonKho??0,
       unit: product.unitName,
       price: product.price.toString(),
       productPropertyId: product.id,
@@ -708,6 +709,7 @@ const ScrollProductBottom = () => {
                   productCode: product.code,
                   value: product.productCode,
                   name: product.name ?? '',
+                  inventory:product.tonKho??0,
                   price: product.price.toString(),
                   productPropertyId: product.id.toString(),
                   productPropertyCode: product.productPropertyCode
@@ -2491,7 +2493,8 @@ const disabledPhieu = ref(false)
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory')
                 ]"
                 filterable
                 width="650px"
@@ -2637,7 +2640,7 @@ const disabledPhieu = ref(false)
             </template>
           </el-table-column>
 
-          <el-table-column prop="warehouseTotal" :label="t('reuse.iventoryy')" width="200">
+          <el-table-column prop="warehouseTotal" :label="t('reuse.inventory')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <el-button

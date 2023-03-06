@@ -266,7 +266,7 @@ watch(
             {{ orderType(scope.row.orderType) }}
           </template></el-table-column
         >
-        <el-table-column prop="inventory" :label="t('reuse.iventoryy')" width="180" />
+        <el-table-column prop="inventory" :label="t('reuse.inventory')" width="180" />
         <el-table-column prop="quantity" :label="t('reuse.numberInput')" width="180">
           <template #default="scope">
             {{ calculateQuantity(scope) }}

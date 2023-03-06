@@ -617,6 +617,7 @@ const callApiProductList = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
+      inventory:product.tonKho ?? 0,
       unit: product.unitName,
       price: product.price.toString(),
       productPropertyId: product.id,
@@ -647,6 +648,7 @@ const ScrollProductBottom = () => {
                   productCode: product.code,
                   value: product.productCode,
                   name: product.name ?? '',
+                  inventory:product.tonKho ?? 0,
                   unit: product.unitName,
                   price: product.price.toString(),
                   productPropertyId: product.id,
@@ -4902,7 +4904,8 @@ const disabledPhieu = ref(false)
                   :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
-                    t('formDemo.productInformation')
+                    t('formDemo.productInformation'),
+                    t('reuse.inventory')
                   ]"
                   v-if="checkCreate"
                   filterable
@@ -4975,7 +4978,8 @@ const disabledPhieu = ref(false)
                   :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
-                    t('formDemo.productInformation')
+                    t('formDemo.productInformation'),
+                    t('reuse.inventory')
                   ]"
                   v-if="checkCreate"
                   filterable
@@ -5183,7 +5187,9 @@ const disabledPhieu = ref(false)
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory')
+
                 ]"
                 filterable
                 :disabled="disabledEdit"
@@ -5266,7 +5272,7 @@ const disabledPhieu = ref(false)
           </el-table-column>
           <el-table-column
             prop="warehouseTotal"
-            :label="t('reuse.iventoryy')"
+            :label="t('reuse.inventory')"
             min-width="200"
           >
             <template #default="props">

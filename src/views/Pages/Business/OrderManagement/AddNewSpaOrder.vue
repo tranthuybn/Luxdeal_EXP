@@ -520,6 +520,7 @@ const callAPIProduct = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
+      inventory:product.tonKho ?? 0,
       unit: product.unitName,
       price: product.price.toString(),
       productPropertyId: product.id,
@@ -563,6 +564,7 @@ const ScrollProductBottom = () => {
                   productCode: product.code,
                   value: product.productCode,
                   name: product.name ?? '',
+                  inventory:product.tonKho ?? 0,
                   price: product.price.toString(),
                   productPropertyId: product.id,
                   productPropertyCode: product.productPropertyCode
@@ -3466,8 +3468,8 @@ const postReturnRequest = async (reason) => {
                             :fields="[
                               t('reuse.customerCode'),
                               t('reuse.customerName'),
-                              t('reuse.customerInfo')
-                            ]"
+                              t('reuse.customerInfo'),
+                             ]"
                             filterable
                             width="700px"
                             :items="optionsCustomerApi"
@@ -3729,7 +3731,8 @@ const postReturnRequest = async (reason) => {
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory')
                 ]"
                 filterable
                 width="650px"

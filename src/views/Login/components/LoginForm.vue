@@ -127,6 +127,7 @@ const signIn = () => {
 
       try {
         const res = await loginApi(formData)
+        console.log('asdfa',res)
         if (res) {
           const now = new Date()
           if(wsCache['storage']?.length > 0)
@@ -134,9 +135,13 @@ const signIn = () => {
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           const accountId = res.data['userInformation']?.id ?? null
           if (accountId) {
-            getUserInfoByAccountId(accountId)
+            const hasInfo = getUserInfoByAccountId(accountId)
+            if (!hasInfo)
+              return null
             setPermissionForUser(res.data)
-            getRole(accountId)
+            const hasRole = getRole(accountId)
+            if (!hasRole)
+              return null
             ElNotification({
               message: t('login.welcome'),
               type: 'success'
@@ -155,7 +160,7 @@ const signIn = () => {
             })
       } catch (err:any){
         ElNotification({
-              message: err ? err.toString() : t('router.errorPage'),
+              message: t('login.incorrectAccount'),
               type: 'error'
             })
        }
@@ -167,7 +172,7 @@ const signIn = () => {
 }
 
 // Get role information
-const getRole = async (accountId) => {
+const getRole = async (accountId) :Promise<boolean> => {
   // get role list
   try {
     const routers = await GetRouterByStaffAccountId({ id: accountId })
@@ -182,12 +187,16 @@ const getRole = async (accountId) => {
         message: t('reuse.authorized'),
         type: 'error'
       })
+      return false
     }
   } catch {
     ElNotification({
       message: `${t('router.errorPage')}`,
       type: 'error'
     })
+    return false
+  } finally { 
+    return true
   }
 }
 const generateRouter = (routers) => {
@@ -202,8 +211,8 @@ const generateRouter = (routers) => {
   permissionStore.setIsAddRouters(true)
   push({ path: redirect.value || permissionStore.addRouters[0].path })
 }
-const getUserInfoByAccountId = (id) => {
-  getStaffInfoByAccountId({ Id: id })
+const getUserInfoByAccountId = async (id):Promise<boolean>  => {
+  await getStaffInfoByAccountId({ Id: id })
     .then((res) => {
       if (res.data && Object.keys(res.data).length > 0) {
         wsCache.set(permissionStore.getStaffInfo, res.data)
@@ -215,7 +224,9 @@ const getUserInfoByAccountId = (id) => {
         message: t('reuse.accountInfo'),
         type: 'error'
       })
+      return false
     })
+    return true
 }
 // store user information
 const setPermissionForUser = (data) => {

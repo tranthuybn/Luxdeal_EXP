@@ -19,6 +19,10 @@ import { Form, FormExpose } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
 
 // declare variables
+const props = defineProps({removeButtonAdd: {
+  type: Boolean,
+  default: false
+}})
 const emit = defineEmits(['refreshData', 'getData'])
 const dateFilterFormRefer = ref<FormExpose>()
 type momentDateType = Date | moment.Moment | null
@@ -198,7 +202,7 @@ const formRef = ref<FormInstance>()
 </script>
 <template>
   <section>
-    <el-row justify="space-between" :gutter="20">
+    <el-row :class="[props.removeButtonAdd ? 'relative top-8' : '']" justify="space-between" :gutter="20">
       <el-col :xl="6" :lg="4" :xs="12" class="<xl:mb-2">
         <slot name="headerFilterSlot"></slot>
       </el-col>

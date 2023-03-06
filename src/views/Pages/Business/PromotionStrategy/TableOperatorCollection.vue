@@ -250,6 +250,7 @@ watch(
           service: formService.value
         }))
         dataTable.spaData = formDataTable
+        // dataTable.productData = formDataTable
         spaMoney.value = formValue.value[0].comboValue
         imageUrl.value = formValue.value[0].images
       }

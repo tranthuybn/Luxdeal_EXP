@@ -16,7 +16,7 @@ import {
 } from 'element-plus'
 import type {FormRules, FormInstance} from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
+// import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import {
   GetPaymentRequestDetail,
   getAllStaffList,
@@ -24,7 +24,7 @@ import {
   approvalOrder,
   addDNTT
 } from '@/api/Business'
-import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { onBeforeMount, reactive, ref, watch, h } from 'vue'
 import { FORM_IMAGES } from '@/utils/format'
 import { dateTimeFormat } from '@/utils/format'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -112,7 +112,7 @@ peopleName: null,
 pepopleType: 1,
 reasonCollectMoney: "",
 status: 1,
-totalMoney: NaN,
+totalMoney: '',
 totalPrice: 0,
 updatedAt: "",
 updatedBy: ""
@@ -549,21 +549,26 @@ onBeforeMount(() => {
           </div>
         </div>
         <el-divider content-position="left" >Thông tin thanh toán</el-divider>
-        <div class="flex flex-row hello">
+        <div class="flex flex-row">
           <el-form :model="form" label-width="160px" class="basis-1/2" >
             <el-form-item 
               label="Số tiền chi" 
               tabindex="Nhập số tiền"
               :rules="[
-              
-                { required: true, message: 'Nhập số tiền', trigger: 'blur' }
+                { required: true, message: 'Nhập số tiền', trigger: 'change' }
                                          
               ]">
+                <el-input
+                  v-model="form.totalMoney"
+                  size="default"
+                  :placeholder="t('reuse.placeholderMoney')"
+                  :suffixIcon="h('div', 'đ')"
+                />
               <!-- <el-input v-model="form.totalMoney" :parser="(value) => changeMoney.format(value)" placeholder="Nhập số tiền" /> -->
-              <CurrencyInputComponent
+              <!-- <CurrencyInputComponent
                 v-model="form.totalMoney"
                 v-if="type != 'detail'"
-              />
+              /> -->
             </el-form-item>
             <el-form-item
               label="Viết bằng chữ"

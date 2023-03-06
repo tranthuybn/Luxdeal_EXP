@@ -124,6 +124,9 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    jobPosition: 'Vị trí việc làm',
+    sales: 'Doanh số',
+    percentageSales:'% doanh số',
     salesTrackingTable: 'Bảng theo dõi doanh số',
     employeeDetail: 'Thông tin nhân viên',
     cancelAccountingEntry: 'Hủy bút toán',

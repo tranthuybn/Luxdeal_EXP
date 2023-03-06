@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import {  ref } from 'vue'
 import { Collapse } from '../../Components/Type'
-import {getStaffList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
-import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
-import TableOperator from './TableOperator.vue'
-import { useRouter } from 'vue-router'
-import { API_URL } from '@/utils/API_URL'
-
+import { ElCollapse, ElCollapseItem, ElButton, ElRow, ElCol, ElDivider } from 'element-plus'
+// import { useRouter } from 'vue-router'
+import {
+  ElTable,
+  ElTableColumn,
+} from 'element-plus'
 
 const { t } = useI18n()
-const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
-const type = String(router.currentRoute.value.params.type)
-
-const schema = reactive<FormSchema[]>([])
+// const router = useRouter()
+// const id = Number(router.currentRoute.value.params.id)
+// const type = String(router.currentRoute.value.params.type)
 
 // Show | Hiden detail utility
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -72,56 +70,50 @@ const collapseChangeEvent = (val) => {
 }
 const activeName = ref(collapse[0].name)
 //
-
-type SetFormData = {
-  code: string
-  promotion: number
-  reduce: number
-  date: any
-  shortDescription: string
-  customers: any
-  products: any
-  Image: any
-  target: number
-  percent: number
-  money: number
-  imageurl?: string
-}
-const emptyFormData = {} as SetFormData
-const setFormData = reactive(emptyFormData)
-
-const customizeData = async (data) => {
-  setFormData.code = data[0].code
-  setFormData.date = [data[0].fromDate, data[0].toDate]
-  setFormData.shortDescription = data[0].description
-  setFormData.customers = data[0].customers
-  setFormData.products = data[0].productProperties
-  setFormData.Image = data[0].images[0].path
-  setFormData.target = data[0].targetType
-  setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
-}
+const tableData = ref([])
 
 </script>
 
 <template>
+
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <el-collapse-item :name="collapse[0].name">
         <template #title>
           <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl">{{ collapse[0].title }}</span>
+          <span class="text-center text-xl ml-3">{{ collapse[0].title }}</span>
         </template>
-        <TableOperator
-          ref="formRef" 
-          :schema="schema" 
-          :type="type" 
-          :id="id" 
-          :multipleImages="false"
-          :apiId="getStaffList" 
-          @customize-form-data="customizeData" 
-          :formDataCustomize="setFormData"
-          :show-product="true" />
+        <ElRow class="pl-8" :gutter="20" justify="space-between">
+           <ElCol :span="12">
+            <ElDivider contentPosition="left">{{ t('formDemo.generalInformation') }}</ElDivider>
+            <!-- Thông tin hiện ở dây -->
+           </ElCol>
+           <ElCol :span="12">
+            <ElDivider contentPosition="left">{{ t('formDemo.jobPosition') }}</ElDivider>
+            <!-- Vị trí làm việc ở đây -->
+           </ElCol>
+        </ElRow>
+      </el-collapse-item>
+      <el-collapse-item :name="collapse[1].name">
+        <template #title>
+          <el-button class="header-icon" :icon="collapse[1].icon" link />
+          <span class="text-center text-xl ml-3">{{ collapse[1].title }}</span>
+        </template>
+        <el-table :data="tableData"  border>
+          <el-table-column prop="orderCode" :label="t('formDemo.orderCode')" min-width="794" />
+          <el-table-column prop="orderValue" :label="t('formDemo.orderValue')" min-width="200" />
+          <el-table-column prop="percentageSales" :label="t('formDemo.percentageSales')" min-width="200"/>
+          <el-table-column prop="sales" :label="t('formDemo.sales')"  min-width="200"/>
+          <el-table-column prop="day" :label="t('formDemo.day')" min-width="200"/>
+        </el-table>
       </el-collapse-item>
     </el-collapse>
   </div>
 </template>
+
+<style scoped lang="less">
+  ::v-deep(.el-divider__text){
+    font-size: 15px;
+    font-weight: 700;
+  }
+</style>

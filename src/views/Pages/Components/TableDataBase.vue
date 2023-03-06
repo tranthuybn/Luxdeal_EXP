@@ -164,17 +164,16 @@ const initMappingObject = (el) => {
   return []
 }
 
-
 </script>
 <template>
   <section>
-    <HeaderFiler @get-data="getData" @refrsesh-data="getData" v-if="!removeHeaderFilter">
+    <HeaderFiler @get-data="getData" @refrsesh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
         <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
-          <el-button type="primary" :icon="createIcon" @click="pushAdd">
+          <el-button v-if="!removeButtonAdd" type="primary" :icon="createIcon" @click="pushAdd">
             {{ t(`${props.titleAdd}`) }}
           </el-button>
         </template>
-      </HeaderFiler>
+    </HeaderFiler>
       <TableExtension
        v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
         @export-excel-event="ExportExcelEvent" />

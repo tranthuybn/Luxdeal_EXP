@@ -125,6 +125,9 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    jobPosition: 'Job position',
+    sales: 'Sales',
+    percentageSales:'% Sales',
     salesTrackingTable: 'Sales tracking board',
     employeeDetail: 'Employee Detail',
     comboCode: 'Combo code',

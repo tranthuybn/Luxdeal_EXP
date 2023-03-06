@@ -182,6 +182,7 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'tableProduct',
     component: 'Input',
+    hidden: false,
     colProps: {
       span: 24
     },
@@ -427,6 +428,7 @@ const setFormData = reactive(emptyFormData)
 
 
 const customizeData = async (data) => {
+  console.log('data nhận vào để customize', data)
   if (data[0].reduce) {
     const moneyType = data[0].reduce.split(' ')
     moneyType[1] == '%'
@@ -441,6 +443,12 @@ const customizeData = async (data) => {
   setFormData.shortDescription = data[0].description
   setFormData.customers = data[0].customers
   setFormData.products = data[0].productProperties
+  // setFormData.products= data[0].productProperties.map((val) => ({
+  //         code: '',
+  //         id: '',
+  //         isActive: val.isActive,
+  //         name: val.name
+  //       }))
   setFormData.Image = data[0].images[0].path
   setFormData.target = data[0].targetType
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`

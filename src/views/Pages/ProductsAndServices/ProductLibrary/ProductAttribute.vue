@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
+import { propTypes } from '@/utils/propTypes';
 import { ElTree, ElTreeSelect } from 'element-plus'
 import { onBeforeMount, ref } from 'vue'
 import {
@@ -11,15 +12,14 @@ import {
   sizeData,
   statusData
 } from './ProductLibraryManagement'
-
 const { t } = useI18n()
-
 const props = defineProps({
   defaultValue: {
-    type: Array,
+    type:  propTypes,
     default: () => []
   }
 })
+
 const modelValue = ref(props.defaultValue)
 const treeRef = ref<InstanceType<typeof ElTree>>()
 

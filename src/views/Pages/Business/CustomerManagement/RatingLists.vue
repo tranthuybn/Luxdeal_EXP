@@ -56,7 +56,7 @@ const columns = reactive<TableColumn[]>([
     align: 'left',
     filters: filterRankCustomer,
     formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
-      return formatRankingCustomer(cellValue)
+      return t(`${formatRankingCustomer(cellValue)}`)
     }
   },
   {
@@ -66,7 +66,7 @@ const columns = reactive<TableColumn[]>([
     align: 'left',
     filters: filterRankCustomer,
     formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
-      return formatRankingCustomer(cellValue)
+      return t(`${formatRankingCustomer(cellValue)}`)
     }
   },
   {
@@ -76,7 +76,7 @@ const columns = reactive<TableColumn[]>([
     align: 'left',
     filters: filterRankCustomer,
     formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
-      return formatRankingCustomer(cellValue)
+      return t(`${formatRankingCustomer(cellValue)}`)
     }
   }
 ])

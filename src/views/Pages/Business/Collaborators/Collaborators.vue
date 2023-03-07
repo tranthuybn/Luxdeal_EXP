@@ -79,7 +79,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '200',
     filters: filterStatusCustomer,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', collaboratorStatusTransferToText(cellValue))
+      return t(`${collaboratorStatusTransferToText(cellValue)}`)
     }
   }
 ])

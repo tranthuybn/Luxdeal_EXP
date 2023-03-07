@@ -78,7 +78,7 @@ const columnsApprovalProduct = [
     minWidth: '150',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', businessStatusTransferToText(cellValue))
+      return t(`${businessStatusTransferToText(cellValue)}`)
     }
   },
   {

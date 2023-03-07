@@ -68,7 +68,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150',
     align: 'center',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', isFileTransferToText(cellValue))
+      return t(`${isFileTransferToText(cellValue)}`)
     }
   },
   {
@@ -92,7 +92,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150',
     align: 'right',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', paidTransferToText(cellValue))
+      return t(`${paidTransferToText(cellValue)}`)
     }
   },
   {
@@ -118,7 +118,7 @@ const columns = reactive<TableColumn[]>([
 
     filters: filterStatusCustomer,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', commissionPaymentStatusTransferToText(cellValue))
+      return t(`${commissionPaymentStatusTransferToText(cellValue)}`)
     }
   }
 ])

@@ -68,7 +68,7 @@ export const businessProductLibrary = [
     minWidth: '150',
     filters: filterIventory,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', businessIventoryStatusTransferToText(cellValue))
+     return t(`${businessIventoryStatusTransferToText(cellValue)}`)
     }
   },
   {
@@ -77,7 +77,7 @@ export const businessProductLibrary = [
     minWidth: '150',
     filters: filterIventory,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', businessIventoryStatusTransferToText(cellValue))
+     return t(`${businessIventoryStatusTransferToText(cellValue)}`)
     }
   },
   {
@@ -134,7 +134,7 @@ export const businessProductLibrary = [
     minWidth: '150',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', businessStatusTransferToText(cellValue))
+      return t(`${businessStatusTransferToText(cellValue)}`)
     }
   }
 ]

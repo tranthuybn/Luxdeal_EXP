@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, unref, watch } from 'vue'
+import {reactive, ref, unref, watch } from 'vue'
 import { Form } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton, ElCheckbox, ElLink, ElNotification } from 'element-plus'
@@ -127,19 +127,17 @@ const signIn = () => {
 
       try {
         const res = await loginApi(formData)
-        console.log('asdfa',res)
-        if (res) {
+        if (res && res.statusCode == 200) {
+          await setPermissionForUser(res.data)
           const now = new Date()
-          if(wsCache['storage']?.length > 0)
-            wsCache.clear() 
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           const accountId = res.data['userInformation']?.id ?? null
+          console.log('accountId', accountId)
           if (accountId) {
-            const hasInfo = getUserInfoByAccountId(accountId)
+            const hasInfo = await getUserInfoByAccountId(accountId)
             if (!hasInfo)
               return null
-            setPermissionForUser(res.data)
-            const hasRole = getRole(accountId)
+            const hasRole = await getRole(accountId)
             if (!hasRole)
               return null
             ElNotification({
@@ -151,28 +149,34 @@ const signIn = () => {
               message: t('reuse.accountInfo'),
               type: 'error'
             })
-            wsCache.clear()
-          }          
-        } else
-        ElNotification({
-              message: t('login.incorrectAccount'),
-              type: 'error'
-            })
+            inValidAccountAccess()
+          }
+        } else {
+          ElNotification({
+            message: t('login.incorrectAccount'),
+            type: 'error'
+          })
+          inValidAccountAccess()
+        }
       } catch (err:any){
         ElNotification({
               message: t('login.incorrectAccount'),
               type: 'error'
-            })
+        })
+        inValidAccountAccess()     
        }
-      finally {
-        loading.value = false
-      }
+     
     }
   })
 }
-
+const inValidAccountAccess = () => { 
+  wsCache.clear()
+  loading.value = false
+}
 // Get role information
-const getRole = async (accountId) :Promise<boolean> => {
+const getRole =  async (accountId): Promise<boolean> => {
+  console.log('getRole');
+  
   // get role list
   try {
     const routers = await GetRouterByStaffAccountId({ id: accountId })
@@ -181,7 +185,7 @@ const getRole = async (accountId) :Promise<boolean> => {
     if (routers?.data && routers.data.length > 0) {
       const urlList = routers.data.map((el) => el.url)
       //generateRouter(tempUrl.data)
-      await generateRouter(urlList)
+      generateRouter(urlList)
     } else {
       ElNotification({
         message: t('reuse.authorized'),
@@ -211,7 +215,9 @@ const generateRouter = (routers) => {
   permissionStore.setIsAddRouters(true)
   push({ path: redirect.value || permissionStore.addRouters[0].path })
 }
-const getUserInfoByAccountId = async (id):Promise<boolean>  => {
+const getUserInfoByAccountId = async (id): Promise<boolean> => {
+  console.log('getUserInfoByAccountId');
+  
   await getStaffInfoByAccountId({ Id: id })
     .then((res) => {
       if (res.data && Object.keys(res.data).length > 0) {
@@ -230,6 +236,8 @@ const getUserInfoByAccountId = async (id):Promise<boolean>  => {
 }
 // store user information
 const setPermissionForUser = (data) => {
+  console.log('setPermissionForUser',data);
+  
   wsCache.set(permissionStore.getAccessToken, data['accessToken'] ?? '')
   wsCache.set(permissionStore.getRefreshToken, data['refreshToken'] ?? '')
 }
@@ -237,6 +245,12 @@ const setPermissionForUser = (data) => {
 // const toRegister = () => {
 //   emit('to-register')
 // }
+
+window.addEventListener('keyup', function(event) {
+    if (event.keyCode === 13) { 
+      signIn()
+    }
+});
 </script>
 
 <template>

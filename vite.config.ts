@@ -6,7 +6,7 @@ import WindiCSS from 'vite-plugin-windicss'
 // allow to write JSX type 
 import VueJsx from '@vitejs/plugin-vue-jsx'
 import EslintPlugin from 'vite-plugin-eslint'
-import VueI18n from '@intlify/vite-plugin-vue-i18n'
+import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite"
 // A plug-in that imports component library styles on demand
 import styleImport, { ElementPlusResolve } from 'vite-plugin-style-import'
 // icon
@@ -67,7 +67,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
         cache: false,
         include: ['src/**/*.vue', 'src/**/*.ts', 'src/**/*.tsx'] // 检查的文件
       }),
-      VueI18n({
+      VueI18nPlugin({
         runtimeOnly: true,
         compositionOnly: true,
         include: [resolve(__dirname, 'src/locales/**')]

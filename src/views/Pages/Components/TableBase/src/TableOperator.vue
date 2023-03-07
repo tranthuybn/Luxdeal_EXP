@@ -596,22 +596,25 @@ const approvalProduct = async () => {
 </template>
 <style scoped>
 .avatar-uploader .avatar {
-  padding-bottom: 1rem;
-  width: 250px;
   display: block;
+  width: 250px;
+  padding-bottom: 1rem;
 }
+
 .avatar-uploader .el-upload {
+  position: relative;
+  margin-left: 2rem;
+  overflow: hidden;
+  cursor: pointer;
   border: 1px dashed var(--el-border-color);
   border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
   transition: var(--el-transition-duration-fast);
-  margin-left: 2rem;
 }
+
 .avatar-uploader :deep(.el-upload) {
   display: flex;
 }
+
 .avatar-uploader .el-upload:hover {
   border-color: var(--el-color-primary);
 }
@@ -620,17 +623,20 @@ const approvalProduct = async () => {
   width: 148px;
   height: 148px;
 }
+
 .one-avatar-uploader {
   display: flex;
   justify-content: center;
   margin: 0 auto;
 }
+
 :deep(.el-dialog__body) {
+  display: flex;
   max-height: 85vh;
   overflow: auto;
-  display: flex;
   justify-content: center;
 }
+
 :deep(.el-button) {
   min-width: 150px;
   min-height: 40px;

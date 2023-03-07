@@ -507,7 +507,7 @@ export const createQuickProduct = async (params: any): Promise<IResponse> => {
     },
     fixedBaseURL
   )
-  return res.data && res.data.data
+  return res && res.data
 }
 
 // check product

@@ -27,21 +27,21 @@ export default {
 <style scoped>
 .sc-message--system {
   padding: 8px 20px;
-  border-radius: 6px;
-  font-weight: 300;
   font-size: 12px;
-  line-height: 1.2;
-  white-space: pre-wrap;
   -webkit-font-smoothing: subpixel-antialiased;
   font-style: italic;
+  font-weight: 300;
+  line-height: 1.2;
+  white-space: pre-wrap;
+  border-radius: 6px;
   opacity: 0.55;
 }
 
 .sc-message--meta {
-  font-size: xx-small;
-  margin-bottom: 0px;
   margin-top: 5px;
-  opacity: 0.5;
+  margin-bottom: 0;
+  font-size: xx-small;
   text-align: center;
+  opacity: 0.5;
 }
 </style>

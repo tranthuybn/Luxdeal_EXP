@@ -135,12 +135,12 @@ export default {
 
 <style scoped>
 body {
-  padding: 0px;
-  margin: 0px;
+  padding: 0;
+  margin: 0;
 }
 
 * {
-  font-family: Avenir Next, Helvetica Neue, Helvetica, sans-serif;
+  font-family: "Avenir Next", "Helvetica Neue", Helvetica, sans-serif;
 }
 
 .demo-description {
@@ -157,27 +157,26 @@ body {
 }
 
 .demo-test-area--text {
-  box-sizing: border-box;
   width: 100%;
-  margin: 0px;
-  padding: 0px;
-  resize: none;
-  font-family: Avenir Next, Helvetica Neue, Helvetica, sans-serif;
-  background: #fafbfc;
-  color: #8da2b5;
-  border: 1px solid #dde5ed;
-  font-size: 16px;
+  height: 150px;
+  padding: 0;
   padding: 16px 15px 14px;
   margin: 0;
+  margin-bottom: 10px;
+  font-family: "Avenir Next", "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 16px;
+  color: #8da2b5;
+  background: #fafbfc;
+  border: 1px solid #dde5ed;
   border-radius: 6px;
   outline: none;
-  height: 150px;
-  margin-bottom: 10px;
+  box-sizing: border-box;
+  resize: none;
 }
 
 .demo-monster-img {
-  width: 400px;
   display: block;
+  width: 400px;
   margin: 60px auto;
 }
 
@@ -186,9 +185,9 @@ body {
 }
 
 .colors a {
+  padding: 4px 10px;
   color: #fff;
   text-decoration: none;
-  padding: 4px 10px;
   border-radius: 10px;
 }
 

@@ -3,7 +3,7 @@ import { ElPopover, ElButton, ElSelect, ElOption } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { ref, watch, onMounted } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { getStaffList } from '@/api/Business';
+import { getSpaLibrary } from '@/api/LibraryAndSetting';
 
 const { t } = useI18n()
 const ArrowDown = useIcon({ icon: 'ic:sharp-keyboard-arrow-down' })
@@ -24,11 +24,11 @@ const options = ref([
   }])
 
 const callApi = async () => {
-  await getStaffList({PageIndex:1,PageSize:100})
+  await getSpaLibrary({PageIndex:1,PageSize:999})
   .then((res)=>
   {
     options.value = res.data.map(e=>({
-      label: e.name,
+      label: e.createdBy,
       value: e.id
     }))
   })

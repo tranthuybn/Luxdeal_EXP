@@ -628,46 +628,51 @@ const updateTicket = (warehouse) => {
   }
   
   .box {
-    padding: 0 10px 0 20px;
     position: relative;
     display: flex;
     width: fit-content;
-    align-items: center;
-    border: 1px solid #ccc;
+    padding: 0 10px 0 20px;
     background-color: #ccc;
+    border: 1px solid #ccc;
     opacity: 0.6;
+    align-items: center;
   }
   
   .box_1 {
-    border: 1px solid rgba(209, 213, 219, var(--tw-bg-opacity));
     --tw-bg-opacity: 1;
-    background-color: rgba(209, 213, 219, var(--tw-bg-opacity));
+
+    background-color: rgb(209 213 219 / var(--tw-bg-opacity));
+    border: 1px solid rgb(209 213 219 / var(--tw-bg-opacity));
   
   }
   
   .box_2 {
-    border: 1px solid #f4f8fd;
     background-color: #f4f8fd;
+    border: 1px solid #f4f8fd;
   }
   
   .box_3 {
-    border: 1px solid #f8dec9;
     background-color: #f8dec9;
+    border: 1px solid #f8dec9;
   }
   
   .box_4 {
-    border: 1px solid #fce5e1;
     background-color: #fce5e1;
+    border: 1px solid #fce5e1;
   }
+
   .duplicate-status + .duplicate-status {
     margin-left: 10px;
   }
+
   .active {
     opacity: 1 !important;
   }
+
   .right_1 {
-    border-left: 11px solid rgba(209, 213, 219, var(--tw-bg-opacity)) !important;
+    border-left: 11px solid rgb(209 213 219 / var(--tw-bg-opacity)) !important;
   }
+
   .right_2 {
     border-left: 11px solid #f4f8fd !important;
   }
@@ -679,6 +684,7 @@ const updateTicket = (warehouse) => {
   .right_4 {
     border-left: 11px solid #fce5e1 !important;
   }
+
   .triangle-right {
     position: absolute;
     right: -12px;
@@ -688,19 +694,21 @@ const updateTicket = (warehouse) => {
     border-bottom: 12px solid transparent;
     border-left: 11px solid #ccc;
   }
+
   .custom-after::after {
-    content: '';
+    --tw-border-opacity: 1;
+
     position: absolute;
+    left: -1px;
     z-index: 1998;
     width: 11px;
+    height: 100%;border-top-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: rgb(255 255 255 / var(--tw-border-opacity));
     border-style: solid;
-    height: 100%;
-    left: -1px;
+    border-top-width: 12px;
     border-bottom-width: 12px;
     border-left-width: 10px;
-    border-top-width: 12px;
-    border-bottom-color: transparent;border-top-color: transparent;
-    --tw-border-opacity: 1;
-    border-left-color: rgba(255, 255, 255, var(--tw-border-opacity));
+    content: '';
   }
 </style>

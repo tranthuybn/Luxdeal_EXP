@@ -318,16 +318,19 @@ const errorImage = () => {
 .info {
   width: 50%;
 }
+
 .image {
   width: 50%;
   padding-left: 1%;
 }
+
 .formDetail {
   display: flex;
   margin-left: 5%;
   align-items: center;
   text-align: right;
 }
+
 .formLabel {
   width: 25%;
   margin-right: 3%;

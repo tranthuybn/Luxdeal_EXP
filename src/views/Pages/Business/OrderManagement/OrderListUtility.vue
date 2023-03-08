@@ -3773,11 +3773,11 @@ const disabledPhieu = ref(false)
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2">
-                {{ outstandingDebt ? changeMoney.format(outstandingDebt) : '0 đ' }}
+                {{ totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ' }}
               </p>
               <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" :disabled="condition"/>
               <p class="pr-2 text-red-600 pt-2">
-                {{ inputDeposit ? changeMoney.format(outstandingDebt - inputDeposit) : '0 đ' }}</p>
+                {{ inputDeposit ? changeMoney.format(totalFinalOrder - inputDeposit) : '0 đ' }}</p>
             </div>
           </div>
         </div>
@@ -6067,10 +6067,6 @@ const disabledPhieu = ref(false)
   margin-right: 10px;
 }
 
-::v-deep(.el-dialog__body) {
-  padding-top: 0;
-}
-
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
@@ -6231,6 +6227,7 @@ const disabledPhieu = ref(false)
 
 ::v-deep(.el-dialog__body) {
   max-height: 80vh;
+  padding-top: 0;
   overflow-y: auto;
 }
 

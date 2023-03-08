@@ -3841,7 +3841,7 @@ const openDetailOrder = (id, type) => {
         >
           <el-table-column
             :label="t('formDemo.productManagementCode')"
-            min-width="190"
+            min-width="100"
             prop="productPropertyId"
           >
             <template #default="props">
@@ -3886,9 +3886,9 @@ const openDetailOrder = (id, type) => {
           <el-table-column
             prop="productName"
             :label="t('formDemo.productInformation')"
-            min-width="400"
+            min-width="276"
           />
-          <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
+          <el-table-column prop="accessory" :label="t('reuse.accessory')" width="200">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.accessory }}</div>
               <el-input
@@ -3900,7 +3900,7 @@ const openDetailOrder = (id, type) => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="code" :label="t('formDemo.code')" width="180">
+          <el-table-column prop="code" :label="t('formDemo.code')" min-width="90">
             <template #default="data">
               <div v-if="type == 'detail'">
                 {{ data.row.code }}
@@ -3913,7 +3913,7 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" width="180">
+          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" min-width="150">
             <template #default="data">
               <div v-if="type == 'detail'">
                 {{ data.row.description }}
@@ -3926,7 +3926,7 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
+          <el-table-column prop="quantity" :label="t('reuse.depositNumber')" min-width="90">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
               <el-input
@@ -3938,12 +3938,12 @@ const openDetailOrder = (id, type) => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="unitName" :label="t('reuse.dram')" min-width="100" />
+          <el-table-column prop="unitName" :label="t('reuse.dram')" min-width="80" />
 
           <el-table-column
             prop="consignmentSellPrice"
             :label="t('formDemo.consignmentPriceForSale')"
-            width="160"
+            min-width="130"
           >
             <template #default="props">
               <div v-if="type == 'add' || type == ':type'">
@@ -3957,7 +3957,7 @@ const openDetailOrder = (id, type) => {
           <el-table-column
             prop="consignmentHirePrice"
             :label="t('formDemo.depositpriceForRentalByDay')"
-            width="160"
+            min-width="130"
           >
             <template #default="props">
               <div v-if="type == 'add' || type == ':type'">
@@ -3969,10 +3969,10 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('formDemo.businessManagement')" width="200" prop="businessSetupName">
+          <el-table-column :label="t('formDemo.businessManagement')" min-width="200" prop="businessSetupName">
             <template #default="data">
               <div class="flex w-[100%]">
-                <div class="flex-1 limit-text">
+                <div class="flex-1">
                   <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">

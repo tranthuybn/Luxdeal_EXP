@@ -34,12 +34,13 @@ import { TableResponse } from '../../Components/Type'
 import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { getSpaLibrary } from '@/api/LibraryAndSetting'
+import { getSpaByProduct } from '@/api/LibraryAndSetting'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { approvalProducts } from '@/api/Approval'
 import { FORM_IMAGES } from '@/utils/format'
 import { Approvement, CampaignTypeArr } from '@/utils/API.Variables'
 import moment from 'moment'
+import { dateTimeFormat } from '@/utils/format'
 
 const currentDate = ref(moment().format("DD/MM/YYYY"))
 const { t } = useI18n()
@@ -207,12 +208,26 @@ const setFormValue = async () => {
   }
 }
 
-watch(
-  () => props.params,
-  () => {
-    if (props.params.CampaignType == '5') console.log('true')
+// Modify color of statusValue
+const statusClass = (campaignStatus) => {
+  switch (campaignStatus) {
+    case -1:
+      return 'text-blue-500';
+    case 0:
+      return 'text-blue-500 box_0';
+    case 1:
+      return 'text-yellow-500 box_1';
+    case 2:
+      return 'text-yellow-500';
+    case 3:
+      return 'text-yellow-500';
+    case 4:
+      return 'text-yellow-500';
+    default:
+      return '';
   }
-)
+}
+
 //Lấy dữ liệu từ bảng khi ấn nút detail, edit, approve
 watch(
   () => props.type,
@@ -632,12 +647,27 @@ const callAPICustomer = async () => {
   }
 }
 
-//get list product
+//get list product, before that check serviceTyle
 const listProducts = ref()
 const pageIndexProducts = ref(1)
-
+interface IParamsCallAPIProduct {
+  PageIndex: number
+  PageSize: number
+  ServiceType?: number
+}
+const getServiceType = () => {
+  switch (props.params.CampaignType) {
+    case 5 : 
+      return 5 
+    default : 
+      return undefined
+  }
+}
 const callAPIProduct = async () => {
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  const params: IParamsCallAPIProduct = { PageIndex: pageIndexProducts.value, PageSize: 20 }
+  const serviceType = ref(getServiceType())
+  if(serviceType.value) params.ServiceType = serviceType.value
+  const res = await getProductsList(params)
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
       value: product.productCode,
@@ -766,6 +796,36 @@ const assignTheValuesForRow = (_value, obj, scope) => {
   scope.row.name = obj.name
   scope.row.id = obj.id
 }
+
+const getValueOfSelected = async (value, obj, scope) => {
+  // console.log('scope.row',  scope.row)
+  // console.log('listProducts.value',  listProducts.value)
+  const selected = listProducts.value
+    .filter((row) => row.id !== scope.row.code) 
+    .find((product) => product.productPropertyId == value)
+  
+  if(selected){
+    ElMessage({
+
+      message: t('reuse.productCodeExist'),
+      type: 'warning'
+    })
+    scope.row.productPropertyId = undefined
+    return
+  }
+
+  scope.row.name = obj.name
+  scope.row.id = obj.id
+
+  // data.productPropertyId = obj?.productPropertyId
+  // data.productCode = obj.value
+  // add new row
+  // if (scope.$index == ListOfProductsForSale.value.length - 1) {
+  //   ListOfProductsForSale.value.push({ ...productForSale })
+  // }
+}
+
+
 const conditionVoucherVisible = ref(false)
 const conditionComboVisible = ref(false)
 
@@ -779,7 +839,7 @@ const SpaSelectOptions = ref()
 let callSpaApi = 0
 const getSpaOptions = async () => {
   if (callSpaApi == 0) {
-    await getSpaLibrary({ PageIndex: 1, PageSize: 100 }).then(
+    await getSpaByProduct({ PageIndex: 1, PageSize: 100 }).then(
       (res) =>
       (SpaSelectOptions.value = res.data.map((spa) => ({
         name: spa.name,
@@ -920,7 +980,7 @@ const spaMoney = ref(0)
                     t('reuse.customerCode'),
                     t('reuse.phoneNumber'),
                     t('formDemo.customerName')
-                  ]" filterable width="500px" :items="listCustomer" valueKey="value" labelKey="value"
+                  ]" filterable min-width="500px" :items="listCustomer" valueKey="value" labelKey="value"
                     :hiddenKey="['id']" :placeHolder="t('reuse.chooseCustomerCode')" :clearable="false"
                     :defaultValue="scope.row.code"
                     @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
@@ -928,9 +988,9 @@ const spaMoney = ref(0)
                     @scroll-bottom="ScrollCustomerBottom" />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('reuse.customerName')" width="780"><template #default="scope">{{
+              <el-table-column prop="name" :label="t('reuse.customerName')" min-width="780"><template #default="scope">{{
                 scope.row.name }}</template></el-table-column>
-              <el-table-column :label="t('reuse.operator')" fixed="right" width="86">
+              <el-table-column :label="t('reuse.operator')" fixed="right" min-width="86">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeCustomer(scope)">{{
                     t('reuse.delete')
@@ -943,26 +1003,26 @@ const spaMoney = ref(0)
             <el-table :data="dataTable.productData" border header-row-class-name="dark:text-white text-black">
               <el-table-column :label="t('formDemo.productManagementCode')" width="180"><template #default="scope">
                   <MultipleOptionsBox
-:defaultValue="scope.row.code" :fields="[
+                  :defaultValue="scope.row.code" :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
                     t('reuse.productInformation')
-                  ]" filterable width="500px" :items="listProducts" valueKey="value" labelKey="value"
+                  ]" filterable min-width="500px" :items="listProducts" valueKey="value" labelKey="value"
                     :hiddenKey="['id']" :placeHolder="t('reuse.chooseProductCode')" :clearable="false"
                     @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
                     @change="(option) => changeProduct(option, scope)" @scroll-top="ScrollProductTop"
                     @scroll-bottom="ScrollProductBottom" />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="600" />
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" min-width="600" />
               <el-table-column :label="t('formDemo.joinTheProgram')" width="185">
                 <template #default="scope">
                   <el-switch
-v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
+                    v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
                     size="large" />
                 </template>
               </el-table-column>
-              <el-table-column :label="t('reuse.operator')" fixed="right" width="86">
+              <el-table-column :label="t('reuse.operator')" fixed="right" min-width="86">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
                     t('reuse.delete')
@@ -996,13 +1056,13 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"><template
                   #default="scope">
                   <MultipleOptionsBox
-:fields="[
+                    :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
                     t('reuse.productInformation')
                   ]" filterable width="500px" :items="listProducts" valueKey="Id" labelKey="value" :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')" :clearable="false" :defaultValue="scope.row.code"
-                    @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)" />
                 </template>
               </el-table-column>
@@ -1013,7 +1073,7 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
                 </template>
                 <template #default="scope">
                   <el-select
-:loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
+                    :loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
                     placeholder="Select" size="large" @change="getSpaSelected">
                     <div class="flex gap-4">
                       <div class="flex-1 font-bold pl-5 h-[34px]">{{ t('reuse.serviceCode') }}</div>
@@ -1045,7 +1105,7 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"><template
                   #default="scope">
                   <MultipleOptionsBox
-:fields="[
+                    :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
                     t('reuse.productInformation')
@@ -1098,18 +1158,42 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
           <template #statusVoucher="form">
             <el-checkbox v-model="form['statusVoucher']" size="large"><template #default><span>{{
               t('formDemo.sendImmediatelyAfterBrowsing') }} </span><span style="color: orange">({{
-    t('reuse.voucherStatusExplain') }})</span></template></el-checkbox>
+             t('reuse.voucherStatusExplain') }})</span></template></el-checkbox>
           </template>
           <template #statusValue="form">
-            <div class="status_wrap">
-              <div v-if="form['statusValue'] == 0" class="status_wrap--new-account">{{
-                t('formDemo.isNewAccount') }}
+            <div v-if="!form.statusHistory" class="flex flex-col justify-start gap-2" >
+              <div>
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span class="box box_0 text-blue-500 dark:text-divck" >
+                    {{ t('reuse.newInitialization') }}
+                    <span class="triangle-right right_0"></span>
+                  </span>
               </div>
-              <div v-else class="backgroundAroundLetter status_wrap--pending" style="background: orange">{{
-                t('reuse.pending')
-              }}</div>
-              <div class="status_wrap-date ">{{ currentDate }}</div>
+              <div class="italic text-xs text-gray-500">{{ currentDate }}</div>
             </div>
+
+            <div
+                v-else
+                v-for="item in form.statusHistory"
+                :key="item.campaignStatus"
+            >
+              <div class="mr-5 flex flex-col justify-start align-top gap-2">
+                  <div class="align-top">
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span class="box dark:text-divck" :class="statusClass(item.campaignStatus)" >
+                      {{item.campaignStatusName }}    
+                      <span class="triangle-right right_0"></span>
+                    </span>
+                  </div>
+                  <div class="italic text-xs text-gray-500">{{ item.campaignStatus === 0 ? dateTimeFormat(form.statusHistory[0].createdAt) : dateTimeFormat(form.statusHistory[0].approvedAt) }}</div>
+              </div>
+              {{ form.statusHistory[0].approveAt }}
+            </div>
+            
           </template>
         </Form>
       </ElCol>
@@ -1267,23 +1351,48 @@ v-model="radioSelected" :label="scope.$index + 1"
   align-items: left;
   flex-direction: column;
 }
-
-.status_wrap .status_wrap--new-account {
-  width: 88px;
-  height: 18px;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 18px;
-  color: #2C6DDA;
-  text-align: center;
-  background: rgb(44 109 218 / 5%);
+.box {
+  position: relative;
+  display: flex;
+  width: fit-content;
+  padding: 0 10px 0 20px;
+  background-color: #ccc;
+  border: 1px solid #ccc;
+  opacity: 1;
+  align-items: center;
 }
 
-.status_wrap .status_wrap-date {
-  font-size: 10px;
-  font-style: italic;
-  font-weight: 400;
-  color: #65676B;
+.box_0 {
+  background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
+}
+.box_1 {
+  background-color: #fff0d9;
+  border: 1px solid #fff0d9;
+}
+.right_0 {
+  border-left: 11px solid #f4f8fd !important;
+}
+.right_1 {
+  border-left: 11px solid #fff0d9 !important;
+}
+
+
+.triangle-left {
+  position: absolute;
+  z-index: 1998;
+  width: 0;
+  height: 0;
+}
+
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
 }
 
 .explainText {

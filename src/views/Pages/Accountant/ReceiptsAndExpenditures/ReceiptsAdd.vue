@@ -50,6 +50,7 @@ var autoCodeSellOrder = 'MH' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 const sellOrderCode = ref()
 const codePaymentRequest = ref()
+
 const ruleForm = reactive({
   orderCode: '',
   collaborators: '',
@@ -60,6 +61,19 @@ const ruleForm = reactive({
   warehouse: '',
   orderFiles: []
 })
+
+const lableReceiptsPayment = reactive({
+  lableInformation: t('formDemo.informationReceipts'),
+  lableCode: t('formDemo.receiptsCode'),
+  lableReason : t('formDemo.reasonCollectingMoney'),
+  lableAmount: t('formDemo.amountCollect'),
+})
+if (router.currentRoute.value.name == 'accountant.receipts-expenditures.payment-add') {
+  lableReceiptsPayment.lableInformation = t('formDemo.paymentVoucherInformation')
+  lableReceiptsPayment.lableCode = t('formDemo.codePayment')
+  lableReceiptsPayment.lableReason = t('formDemo.reasonsSpendMoney')
+  lableReceiptsPayment.lableAmount = t('formDemo.amountSpent')
+}
 const getListStaff = async () => {
   const res = await getStaff({ pageIndex: 1, pageSize: 20 })
   optionsStaffApi.value = res.data.map((item) => ({
@@ -70,6 +84,7 @@ const getListStaff = async () => {
     id: item.id
   }))
 }
+
 
 // form phiếu thu
 let formReceipts = ref<any>()
@@ -573,6 +588,7 @@ let dataDetail = ref<ReceiptOrPaymentVoucherDetail>({
 const checkDisabelDetail = ref(false)
 
 const infoCustomerId = ref()
+
 const changeAddressCustomer = (data) => {
   infoCustomerId.value = optionsCustomerApi.value.find((e) => e.value.id == data)
   if (infoCustomerId.value) {
@@ -634,10 +650,11 @@ const postData = async () => {
     PeopleType: 2,
     PeopleId  : customerID.value,
     OrderId : 2123 ,
-    Type : 1,
+    Type : type == 'undefined' ? 0 : 1,
     Description: dataDetail.value.description,
     Document: [],
-    AccountingEntryId: valueTree.value ?? 0
+    AccountingEntryId: valueTree.value ?? 0,
+    EnterMoney: dataDetail.value.enterMoney, 
   }
 
   await CreateANewReceiOrPayment(FORM_IMAGES(payload))
@@ -676,8 +693,9 @@ const saveDataEdit = async () => {
     PeopleType: 2,
     PeopleId  : customerID.value,
     Type : 1,
-    Description: dataDetail.value.description
-    // AccountingEntryId: valueTree.value ?? 0
+    Description: dataDetail.value.description,
+    AccountingEntryId: valueTree.value ?? 0,
+    EnterMoney: dataDetail.value.enterMoney, 
   }
   await EditAReceiptOrPaymentVoucher(FORM_IMAGES(payload))
     .then(() => {
@@ -724,6 +742,12 @@ const editData = async () => {
     var su = await getDetailReceiptPaymentVoucher({ id: id })
     // console.log('su: ', su)
     if (su.data) dataDetail.value = Object.assign({}, su?.data)
+    if (dataDetail.value.typeOfPayment == 2) {
+      lableReceiptsPayment.lableInformation = t('formDemo.paymentVoucherInformation')
+      lableReceiptsPayment.lableCode = t('formDemo.codePayment')
+      lableReceiptsPayment.lableReason = t('formDemo.reasonsSpendMoney')
+      lableReceiptsPayment.lableAmount = t('formDemo.amountSpent')
+    }
     var cus = optionsCustomerApi.value.find((x) => x.id == dataDetail.value.customerId)
     getValueOfCustomerSelected(dataDetail.value.customerId, cus)
 
@@ -748,8 +772,7 @@ onBeforeMount(async () => {
   callApiCollaborators()
   await callApiProductList()
   callApiCity()
-
-  if (type == 'add' || type == ':type') {
+  if (type == 'add' || type == ':type' || type == 'undefined') {
     dataDetail.value.code = curDate
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
@@ -795,15 +818,15 @@ onBeforeMount(async () => {
             >
               <div class="text-sm text-[#303133] font-medium pb-4 dark:text-[#fff]">
                 <el-divider content-position="left">{{
-                  t('formDemo.informationReceipts')
+                  lableReceiptsPayment.lableInformation
                 }}</el-divider>
               </div>
-              <el-form-item :label="t('formDemo.receiptsCode')" prop="orderCode">
+              <el-form-item :label="lableReceiptsPayment.lableCode" prop="orderCode">
                 <p style="width: 100%">{{ dataDetail.code }}</p>
               </el-form-item>
               <el-form-item :label="t('reuse.createDate')" prop="orderCode">
-                <p style="width: 100%" v-if="type == ':type'">{{ dataDetail.createdAt }}</p>
-                <p style="width: 100%" v-if="type == ( 'detail') || ('edit' ) ">{{ dateTimeFormat(dataDetail.createdAt) }}</p>      
+                <p style="width: 100%" v-if="type == 'detail' || type == 'edit' ">{{ dateTimeFormat(dataDetail.createdAt) }}</p>
+                <p style="width: 100%" v-else>{{ dataDetail.createdAt }}</p>      
               </el-form-item>
 
               <el-form-item class="mt-5" :label="t('reuse.petitioner')" prop="staffId">
@@ -821,7 +844,7 @@ onBeforeMount(async () => {
               </el-form-item> 
 
               <el-form-item
-                :label="t('formDemo.reasonCollectingMoney')"
+                :label="lableReceiptsPayment.lableReason"
                 prop="reasonCollectingMoney"
                 >
                 <el-input
@@ -882,10 +905,10 @@ onBeforeMount(async () => {
                   t('formDemo.billingInformation')
                 }}</el-divider>
               </div>
-              <ElFormItem :label="t('formDemo.amountCollect')" prop="Price">
+              <ElFormItem :label="lableReceiptsPayment.lableAmount" prop="Price">
                 <el-input
                   size="default"
-                :disabled="checkDisabelDetail"
+                  :disabled="checkDisabelDetail"
                   v-model="dataDetail.totalMoney"
                   :placeholder="t('reuse.placeholderMoney')"
                   :suffixIcon="h('div', 'đ')"
@@ -894,7 +917,7 @@ onBeforeMount(async () => {
               <ElFormItem :label="t('formDemo.writtenWords')" prop="Price">
                 <ElInput
                   size="default"
-                :disabled="checkDisabelDetail"
+                  :disabled="checkDisabelDetail"
                   v-model="dataDetail.enterMoney"
                   :placeholder="t('formDemo.writtenWords')"
                 />

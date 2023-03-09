@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive } from 'vue'
+import { reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getProductStorage, deleteProductStorage } from '@/api/Warehouse'

@@ -2,8 +2,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 import { filterProductStatus } from '@/utils/filters'
 import { productStatusTransferToText, dateTimeFormat, valueDateFormat } from '@/utils/format'
-import { h } from 'vue'
-
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 export const productCategories = [
   { field: '', width: '50' },

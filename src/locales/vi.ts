@@ -1972,6 +1972,7 @@ export default {
     //trạng thái kho
     exportTicketStatus: 'Trạng thái phiếu xuất kho',
     transferTicketStatus: 'Trạng thái phiếu chuyển kho',
-    totalAmountPaid: 'Tổng tiền phải trả'
+    totalAmountPaid: 'Tổng tiền phải trả',
+    pleaseChooseTheRole:'Vui lòng chọn quyền'
   }
 }

@@ -258,7 +258,7 @@ export const getRoleList = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
-export const posCreateNewStaffRole = async (params): Promise<IResponse> => {
+export const postCreateNewStaffRole = async (params): Promise<IResponse> => {
   const res = await request.post(
     {
       url: ROLE_API.CREATE_NEW_STAFF_ROLE,

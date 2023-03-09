@@ -34,7 +34,7 @@ import { TableResponse } from '../../Components/Type'
 import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { getSpaLibrary } from '@/api/LibraryAndSetting'
+import { getSpaByProduct } from '@/api/LibraryAndSetting'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { approvalProducts } from '@/api/Approval'
 import { dateTimeFormat, FORM_IMAGES } from '@/utils/format'
@@ -167,7 +167,6 @@ const getTableValue = async () => {
       } else {
         formValue.value = res.data
       }
-      console.log('form', formValue.value, res)
       await setFormValue()
     } else {
       ElNotification({
@@ -191,10 +190,33 @@ const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
   if (props.formDataCustomize !== undefined) {
-    console.log('props.formDataCustomize', props.formDataCustomize)
     setValues(props.formDataCustomize)
-    dataTable.customerData = props.formDataCustomize.customers ?? []
-    dataTable.productData = props.formDataCustomize.products ?? []
+    if(props.campaignAndStrategyType != 0){
+      if(props.campaignAndStrategyType == 4){
+        dataTable.spaVoucherData = props.formDataCustomize.products ?? []
+        dataTable.customerData = props.formDataCustomize.customers ?? []
+      }
+      if(props.campaignAndStrategyType == 5){
+        dataTable.spaData = props.formDataCustomize.products ?? []
+      }
+      else{
+        dataTable.customerData = props.formDataCustomize.customers ?? []
+        dataTable.productData = props.formDataCustomize.products ?? []
+      }
+    }
+    if(dataTable.spaData){
+      dataTable.spaData.forEach(row=>{
+        if(row.id && row.id != -1){
+          getSpaOptions(row.id)}
+      })
+    }
+    if(dataTable.spaVoucherData){
+      dataTable.spaVoucherData.forEach(row=>{
+        if(row.id && row.id != -1){
+          getSpaOptions(row.id)}
+      })
+    }
+
 
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
@@ -210,12 +232,26 @@ const setFormValue = async () => {
   }
 }
 
-watch(
-  () => props.params,
-  () => {
-    if (props.params.CampaignType == '5') console.log('true')
-  }
-)
+// Modify color of statusValue
+// const statusClass = (campaignStatus) => {
+//   switch (campaignStatus) {
+//     case -1:
+//       return 'text-blue-500';
+//     case 0:
+//       return 'text-blue-500 box_0';
+//     case 1:
+//       return 'text-yellow-500 box_1';
+//     case 2:
+//       return 'text-yellow-500';
+//     case 3:
+//       return 'text-yellow-500';
+//     case 4:
+//       return 'text-yellow-500';
+//     default:
+//       return '';
+//   }
+// }
+
 //Lấy dữ liệu từ bảng khi ấn nút detail, edit, approve
 watch(
   () => props.type,
@@ -310,7 +346,7 @@ const save = async (type) => {
           return
         }
       }
-      if (props.showProduct) {
+      if (props.showProduct && props.campaignAndStrategyType !== 6) {
         if (dataTable.productData.length > 1) {
           if (
             dataTable.productData[dataTable.productData.length - 1].name == null ||
@@ -327,8 +363,10 @@ const save = async (type) => {
           loading.value = false
           return
         }
-
       }
+      if(props.campaignAndStrategyType == 6){
+          data.products = dataTable.productData
+        }
       data.spa = spaMoney.value
       // dataTable.spaData.pop()
       data.tableProductOfCombo = dataTable.spaData
@@ -451,7 +489,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
   }
 }
 //chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
-const { push } = useRouter()
+const { push, go } = useRouter()
 const router = useRouter()
 const edit = () => {
   push({
@@ -477,9 +515,7 @@ const delAction = () => {
               message: t('reuse.deleteSuccess'),
               type: 'success'
             })
-            switch(props.campaignAndStrategyType){
-
-            }
+            cancel()
           }
           )
           .catch(() => {
@@ -498,10 +534,34 @@ const delAction = () => {
   }
 }
 const cancel = () => {
-  push({
-    name: 'business.promotion-strategy.flash-sale',
-    params: { backRoute: 'business.promotion-strategy.flash-sale' }
-  })
+  switch(props.campaignAndStrategyType){
+    case 1:
+      push({
+        name: 'business.promotion-strategy.flash-sale',
+      })
+    case 2:
+      push({
+        name: 'business.promotion-strategy.collection',
+      })
+    case 3:
+      push({
+        name: 'business.promotion-strategy.new-product',
+      })
+    case 4:
+      push({
+        name: 'business.promotion-strategy.voucher',
+      })
+    case 5:
+      push({
+        name: 'business.promotion-strategy.combo',
+      })
+    case 6:
+      push({
+        name: 'business.promotion-strategy.auction',
+      })
+    default:
+      go(-1)
+  }
 }
 //xử lí ảnh
 const ListFileUpload = ref()
@@ -582,24 +642,9 @@ watch(
       dataTable.productData?.length < 1 ||
       (dataTable.productData[dataTable.productData?.length - 1].code !== '' &&
         dataTable.productData[dataTable.productData?.length - 1].name !== '' &&
-        forceRemove.value == false)
+        forceRemove.value == false  && props.campaignAndStrategyType !== 6)
     ) {
       addLastIndexProductTable()
-    }
-  },
-  { deep: true }
-)
-
-watch(
-  () => dataTable.spaData[dataTable.spaData?.length - 1],
-  () => {
-    if (
-      dataTable.spaData?.length < 1 ||
-      (dataTable.spaData[dataTable.spaData?.length - 1].code !== '' &&
-        dataTable.spaData[dataTable.spaData?.length - 1].name !== '' &&
-        forceRemove.value == false)
-    ) {
-      addLastIndexProductOfComboTable()
     }
   },
   { deep: true }
@@ -612,11 +657,6 @@ const addLastIndexCustomerTable = () => {
 const addLastIndexProductTable = () => {
   let idTable2 = Date.now()
   dataTable.productData.push({ id: idTable2, code: '', name: null, isActive: true })
-}
-
-const addLastIndexProductOfComboTable = () => {
-  let idTable3 = Date.now()
-  dataTable.spaData.push({ id: idTable3, isActive: 1, code: '', name: null, service: [] })
 }
 
 const addLastIndexSpaProductVoucher = () => {
@@ -640,12 +680,27 @@ const callAPICustomer = async () => {
   }
 }
 
-//get list product
+//get list product, before that check serviceTyle
 const listProducts = ref()
 const pageIndexProducts = ref(1)
-
+interface IParamsCallAPIProduct {
+  PageIndex: number
+  PageSize: number
+  ServiceType?: number
+}
+const getServiceType = () => {
+  switch (props.params.CampaignType) {
+    case 5 : 
+      return 5 
+    default : 
+      return undefined
+  }
+}
 const callAPIProduct = async () => {
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
+  const params: IParamsCallAPIProduct = { PageIndex: pageIndexProducts.value, PageSize: 20 }
+  const serviceType = ref(getServiceType())
+  if(serviceType.value) params.ServiceType = serviceType.value
+  const res = await getProductsList(params)
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
       value: product.productCode,
@@ -754,7 +809,6 @@ const ScrollProductBottom = () => {
       })
 }
 const removeCustomer = (scope) => {
-  console.log(scope)
   forceRemove.value = true
   dataTable.customerData.splice(scope.$index, 1)
 }
@@ -774,6 +828,37 @@ const assignTheValuesForRow = (_value, obj, scope) => {
   scope.row.name = obj.name
   scope.row.id = obj.id
 }
+
+const getValueOfSelected = async (_value, obj, scope) => {
+  // console.log('scope.row',  scope.row)
+  // console.log('value', value)
+  // console.log('listProducts.value',  listProducts.value)
+  // const selected = listProducts.value
+  //   .filter((product) => product.id !== scope.row.id) 
+  //   .find((product) => product.id == value)
+  
+  // if(selected){
+  //   ElMessage({
+
+  //     message: t('reuse.productCodeExist'),
+  //     type: 'warning'
+  //   })
+  //   scope.row.productPropertyId = undefined
+  //   return
+  // }
+
+  scope.row.name = obj.name
+  scope.row.id = obj.id
+  scope.row.service=[]
+  // data.productPropertyId = obj?.productPropertyId
+  // data.productCode = obj.value
+  // add new row
+  // if (scope.$index == ListOfProductsForSale.value.length - 1) {
+  //   ListOfProductsForSale.value.push({ ...productForSale })
+  // }
+}
+
+
 const conditionVoucherVisible = ref(false)
 const conditionComboVisible = ref(false)
 
@@ -784,23 +869,20 @@ const changeComboCondition = () => {
   conditionComboVisible.value = true
 }
 const SpaSelectOptions = ref()
-let callSpaApi = 0
-const getSpaOptions = async () => {
-  if (callSpaApi == 0) {
-    await getSpaLibrary({ PageIndex: 1, PageSize: 100 }).then(
-      (res) =>
-      (SpaSelectOptions.value = res.data.map((spa) => ({
-        name: spa.name,
-        value: spa.id.toString(),
+const getSpaOptions = async (productPropertyId) => {
+    await getSpaByProduct({ PageIndex: 1, PageSize: 100, ProductPropertyId:productPropertyId }).then(
+      (res) =>{
+      SpaSelectOptions.value = res.data.map((spa) => ({
+        name: spa.spaServiceName,
+        value: spa.id,
         code: spa.code,
-        label: spa.name,
-        cost: spa.cost,
-        promotePrice: spa.promotePrice
-      })))
+        label: spa.spaServiceName,
+        cost: spa.price,
+        promotePrice: spa.price
+          })
+        )}
     )
-    callSpaApi++
     selectLoading.value = false
-  }
 }
 const conditionVoucherTable = reactive([
   {
@@ -883,9 +965,9 @@ const getSpaSelected = (spaServices) => {
     return accumulator + curValue.cost
   }, 0)
 }
-onBeforeMount(() => {
-  callAPICustomer(), getSpaOptions()
-  callAPIProduct()
+onBeforeMount(async () => {
+  await callAPICustomer()
+  await callAPIProduct()
 })
 
 const approvisionnement = async (val: boolean) => {
@@ -928,7 +1010,7 @@ const spaMoney = ref(0)
                     t('reuse.customerCode'),
                     t('reuse.phoneNumber'),
                     t('formDemo.customerName')
-                  ]" filterable width="500px" :items="listCustomer" valueKey="value" labelKey="value"
+                  ]" filterable min-width="500px" :items="listCustomer" valueKey="value" labelKey="value"
                     :hiddenKey="['id']" :placeHolder="t('reuse.chooseCustomerCode')" :clearable="false"
                     :defaultValue="scope.row.code"
                     @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
@@ -936,9 +1018,9 @@ const spaMoney = ref(0)
                     @scroll-bottom="ScrollCustomerBottom" />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('reuse.customerName')" width="780"><template #default="scope">{{
+              <el-table-column prop="name" :label="t('reuse.customerName')" min-width="780"><template #default="scope">{{
                 scope.row.name }}</template></el-table-column>
-              <el-table-column :label="t('reuse.operator')" fixed="right" width="86">
+              <el-table-column :label="t('reuse.operator')" fixed="right" min-width="86">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeCustomer(scope)">{{
                     t('reuse.delete')
@@ -951,26 +1033,26 @@ const spaMoney = ref(0)
             <el-table :data="dataTable.productData" border header-row-class-name="dark:text-white text-black">
               <el-table-column :label="t('formDemo.productManagementCode')" width="180"><template #default="scope">
                   <MultipleOptionsBox
-:defaultValue="scope.row.code" :fields="[
+                  :defaultValue="scope.row.code" :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
                     t('reuse.productInformation')
-                  ]" filterable width="500px" :items="listProducts" valueKey="value" labelKey="value"
+                  ]" filterable min-width="500px" :items="listProducts" valueKey="value" labelKey="value"
                     :hiddenKey="['id']" :placeHolder="t('reuse.chooseProductCode')" :clearable="false"
                     @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
                     @change="(option) => changeProduct(option, scope)" @scroll-top="ScrollProductTop"
                     @scroll-bottom="ScrollProductBottom" />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" :label="t('formDemo.productInfomation')" width="600" />
+              <el-table-column prop="name" :label="t('formDemo.productInfomation')" min-width="600" />
               <el-table-column :label="t('formDemo.joinTheProgram')" width="185">
                 <template #default="scope">
                   <el-switch
-v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
+                    v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
                     size="large" />
                 </template>
               </el-table-column>
-              <el-table-column :label="t('reuse.operator')" fixed="right" width="86">
+              <el-table-column :label="t('reuse.operator')" fixed="right" min-width="86">
                 <template #default="scope">
                   <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
                     t('reuse.delete')
@@ -1004,13 +1086,13 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"><template
                   #default="scope">
                   <MultipleOptionsBox
-:fields="[
+                    :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
                     t('reuse.productInformation')
                   ]" filterable width="500px" :items="listProducts" valueKey="Id" labelKey="value" :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseProductCode')" :clearable="false" :defaultValue="scope.row.code"
-                    @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
+                    @update-value="(value, obj) => getValueOfSelected(value, obj, scope)"
                     @change="(option) => changeName(option, scope)" />
                 </template>
               </el-table-column>
@@ -1021,25 +1103,16 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
                 </template>
                 <template #default="scope">
                   <el-select
-:loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
+                    @focus="getSpaOptions(scope.row.id)"
+                    :loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
                     placeholder="Select" size="large" @change="getSpaSelected">
-                    <div class="flex gap-4">
-                      <div class="flex-1 font-bold pl-5 h-[34px]">{{ t('reuse.serviceCode') }}</div>
-                      <div class="flex-1 font-bold pr-5 h-[34px]">{{
-                        t('reuse.informationServices')
-                      }}</div>
-                    </div>
-                    <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value">
-                      <span style="float: left">{{ item.code }}</span>
-                      <span style="float: right; font-size: 13px; color: var(--el-text-color-secondary)">{{ item.name
-                      }}</span>
-                    </el-option>
+                    <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value"/>
                   </el-select>
                 </template>
               </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeSpaProduct(scope)">{{
+                  <el-button type="danger" v-if="scope.row.code" disabled @click="removeSpaProduct(scope)">{{
                     t('reuse.delete')
                   }}</el-button>
                 </template>
@@ -1053,7 +1126,7 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
               <el-table-column prop="code" :label="t('formDemo.productManagementCode')" width="180"><template
                   #default="scope">
                   <MultipleOptionsBox
-:fields="[
+                    :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
                     t('reuse.productInformation')
@@ -1069,19 +1142,14 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
                 }}<span style="color: orange">({{ t('reuse.chooseAtleast1SpaService') }})</span></template>
                 <template #default="scope">
                   <el-select
-:loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
+                  @focus="getSpaOptions(scope.row.id)"
+                  :loading="selectLoading"
+                   multiple
+                    clearable
+                     v-model="scope.row.service" class="m-2"
                     placeholder="Select" size="large">
-                    <div class="flex gap-4">
-                      <div class="flex-1 font-bold pl-5 h-[34px]">{{ t('reuse.serviceCode') }}</div>
-                      <div class="flex-1 font-bold pr-5 h-[34px]">{{
-                        t('reuse.informationServices')
-                      }}</div>
-                    </div>
-                    <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value">
-                      <span style="float: left">{{ item.code }}</span>
-                      <span style="float: right; font-size: 13px; color: var(--el-text-color-secondary)">{{ item.name
-                      }}</span>
-                    </el-option>
+
+                    <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value"/>
                   </el-select>
                 </template>
               </el-table-column>
@@ -1106,13 +1174,19 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
           <template #statusVoucher="form">
             <el-checkbox v-model="form['statusVoucher']" size="large"><template #default><span>{{
               t('formDemo.sendImmediatelyAfterBrowsing') }} </span><span style="color: orange">({{
-    t('reuse.voucherStatusExplain') }})</span></template></el-checkbox>
+             t('reuse.voucherStatusExplain') }})</span></template></el-checkbox>
           </template>
           <template #statusValue="form">
             <div class="status_wrap" v-if="type=='add'">
-              <div v-if="form['statusValue'] == 0" class="status_wrap--new-account">{{
-                t('formDemo.isNewAccount') }}
-              </div>
+              <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box_3 text-blue-500 dark:text-black active"
+                  >
+                    {{ t('reuse.newInitialization') }}
+                    <span class="right_3"> </span>
+                  </span>
               <div class="status_wrap-date ">{{ currentDate }}</div>
             </div>
             <div v-else class="flex items-center flex-wrap w-[100%]">
@@ -1333,23 +1407,48 @@ v-model="radioSelected" :label="scope.$index + 1"
   align-items: left;
   flex-direction: column;
 }
-
-.status_wrap .status_wrap--new-account {
-  width: 88px;
-  height: 18px;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 18px;
-  color: #2C6DDA;
-  text-align: center;
-  background: rgb(44 109 218 / 5%);
+.box {
+  position: relative;
+  display: flex;
+  width: fit-content;
+  padding: 0 10px 0 20px;
+  background-color: #ccc;
+  border: 1px solid #ccc;
+  opacity: 1;
+  align-items: center;
 }
 
-.status_wrap .status_wrap-date {
-  font-size: 10px;
-  font-style: italic;
-  font-weight: 400;
-  color: #65676B;
+.box_0 {
+  background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
+}
+.box_1 {
+  background-color: #fff0d9;
+  border: 1px solid #fff0d9;
+}
+.right_0 {
+  border-left: 11px solid #f4f8fd !important;
+}
+.right_1 {
+  border-left: 11px solid #fff0d9 !important;
+}
+
+
+.triangle-left {
+  position: absolute;
+  z-index: 1998;
+  width: 0;
+  height: 0;
+}
+
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
 }
 
 .explainText {

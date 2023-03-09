@@ -386,9 +386,7 @@ const customEditDataFlashSale = (data) => {
 }
 
 const postData = async (data) => {
-  console.log("first flash sale", data)
   data = customPostDataFlashSale(data)
-  console.log("second flash sale", data)
   await addNewCampaign(FORM_IMAGES(data))
     .then(() => {
       ElNotification({

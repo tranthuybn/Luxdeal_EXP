@@ -924,7 +924,7 @@ export const deleteCampaign = async (params): Promise<IResponse> => {
   return res && res.data
 }
 export const CancelCampaign = async (params): Promise<IResponse> => {
-  const res = await request.delete(
+  const res = await request.put(
     {
       url: `${CAMPAIGN_API.CANCEL_CAMPAIGN}?${objectToQueryParams(params)}`
     },

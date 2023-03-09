@@ -25,7 +25,7 @@ export const CustomerList = [
   {
     field: 'name',
     label: t('reuse.customerName'),
-    minWidth: '150',
+    minWidth: '170',
     filters: filtersCustomerType
   },
   {
@@ -37,7 +37,7 @@ export const CustomerList = [
   {
     field: 'sex',
     label: t('reuse.gender'),
-    minWidth: '100',
+    minWidth: '130',
     filters: filterGender,
     formatter: (row: Recordable, __: TableColumn, cellValue: boolean) => {
       return row['isOrganization']
@@ -80,7 +80,7 @@ export const CustomerList = [
   {
     field: 'customerType',
     label: t('reuse.accountType'),
-    minWidth: '150',
+    minWidth: '160',
     filters: filterAccount,
     formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
       if (record.customerType == 0) {

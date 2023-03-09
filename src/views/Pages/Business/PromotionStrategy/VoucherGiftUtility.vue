@@ -324,7 +324,6 @@ const customPostDataVoucher = (data) => {
 }
 const { push } = useRouter()
 const postData = async (data) => {
-  console.log('run here')
   data = customPostDataVoucher(data)
 
   await addNewCampaign(FORM_IMAGES(data))
@@ -364,7 +363,13 @@ const customizeData = async (data) => {
   setFormData.date = [data[0].fromDate, data[0].toDate]
   setFormData.reduce = data[0].reduce
   setFormData.shortDescription = data[0].description
-  setFormData.products = data[0].productProperties
+  setFormData.products = data[0]?.productProperties.map((row)=>({
+    id: row.id,
+    code: row.code,
+    isActive: row.isActive,
+    name: row.name,
+    service: row.spaServices.map((service)=>service.id)
+  }))
   setFormData.Image = data[0].images[0].path
   setFormData.customers = data[0].customers
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
@@ -417,7 +422,7 @@ const editData = async (data) => {
           :multipleImages="false"
           @edit-data="editData"
           :tabActive="tab"
-          :campaignAndStrategyType="5"
+          :campaignAndStrategyType="4"
         />
       </el-collapse-item>
     </el-collapse>

@@ -147,7 +147,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'operator',
     label: t('reuse.operator'),
-    minWidth: '200',
+    minWidth: '150',
     headerAlign: 'left',
 
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
@@ -158,9 +158,6 @@ const columns = reactive<TableColumn[]>([
     }
   }
 ])
-onMounted(() => {
-  console.log('columns ', columns)
-})
 </script>
 <template>
   <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" />

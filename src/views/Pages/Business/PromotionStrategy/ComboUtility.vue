@@ -189,7 +189,6 @@ type FormDataPost = {
 }
 
 const customPostDataCombo = (data) => {
-  console.log('data before post', data)
   const customData = {} as FormDataPost
   customData.Code = data.code
   customData.Name = data.code
@@ -201,7 +200,6 @@ const customPostDataCombo = (data) => {
   customData.VoucherConditionType = data.condition
 
   let postIdSpaService = ref('')
-  data.tableProductOfCombo.pop()
   data.tableProductOfCombo?.map((val) => {
     postIdSpaService.value += val.service.toString()
   })
@@ -217,6 +215,7 @@ const customPostDataCombo = (data) => {
     postSpaTable
   )
   customData.ComboValue = 1
+  customData.ServiceType = 5
   return customData
 }
 
@@ -249,7 +248,7 @@ const customEditDataCombo = (data) => {
   customData.Description = data.shortDescription
   customData.StartDate = data.date[0]
   customData.EndDate = data.date[1]
-  customData.CampaignType = 6
+  customData.CampaignType = 5
   customData.Image = data.Image
 
   let postIdSpaService = ref('')
@@ -269,6 +268,7 @@ const customEditDataCombo = (data) => {
     postSpaTable
   )
   customData.ComboValue = data.spa
+  customData.ServiceType = 5
   return customData
 }
 
@@ -301,6 +301,7 @@ type SetFormData = {
   products: any
   Image: any
   imageurl?: string
+  statusName: string
   statusHistory?: any
 }
 
@@ -312,12 +313,19 @@ const setFormData = reactive(emptyFormData)
 // let apiData = ref()
 const customizeData = async (data) => {
   setFormData.date = [data[0].fromDate, data[0].toDate]
-  setFormData.products = data[0]?.productProperties
+  setFormData.products = data[0]?.productProperties.map((row)=>({
+    id: row.id,
+    code: row.code,
+    isActive: row.isActive,
+    name: row.name,
+    service: row.spaServices.map((service)=>service.id)
+  }))
   setFormData.code = data[0]?.code
   setFormData.shortDescription = data[0].description
   setFormData.Image = data[0]?.Images
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
   setFormData.statusHistory = data[0].statusHistory
+  setFormData.statusName = data[0].statusName
 
 }
 
@@ -354,7 +362,7 @@ const editData = async (data) => {
           <span class="text-center text-xl">{{ collapse[0].title }}</span>
         </template>
         <TableOperatorCollection
-ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
+          ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
           :params="params" :apiId="getCampaignList" @post-data="postData" :formDataCustomize="setFormData"
           @customize-form-data="customizeData" @edit-data="editData" 
           :campaignAndStrategyType="5"

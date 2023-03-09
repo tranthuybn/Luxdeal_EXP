@@ -373,9 +373,6 @@ const customEditDataVoucher = (data) => {
   }
   customData.ExchangeValue = 1
   customData.ProductPropertyIdJson = '[]'
-  customData.ProductPropertyIdJson = JSON.stringify(
-    data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
-  )
 
   return customData
 }

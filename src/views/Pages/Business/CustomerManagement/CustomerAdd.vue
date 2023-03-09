@@ -666,7 +666,7 @@ const callAPICustomer = async () => {
   if(res?.data && res.data?.length > 0){
     res?.data.map((el) => {
         chooseCustomer.push({
-          value: el.id,
+          value: el.code,
           label: el.code
         })
     })
@@ -684,7 +684,7 @@ const ScrollCustomerBottom = () => {
             ? (noMoreCustomerData.value = true)
             : res.data.map((el) =>
                chooseCustomer.push({
-                value: el.id,
+                value: el.code,
                 label: el.code
                 })
               )

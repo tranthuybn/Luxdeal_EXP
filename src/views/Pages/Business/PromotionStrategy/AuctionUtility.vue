@@ -477,7 +477,8 @@ const editData = async (data) => {
         <TableOperatorCollection
 ref="formRef" :apiId="getCampaignList" :schema="schema" :type="type"
           :multipleImages="false" :id="id" :params="params" @post-data="postData" :formDataCustomize="setFormData"
-          @customize-form-data="customizeData" @edit-data="editData" :show-product="true" />
+          @customize-form-data="customizeData" @edit-data="editData" :show-product="true"
+          :campaignAndStrategyType="6" />
       </el-collapse-item>
 
       <el-collapse-item :name="collapse[1].name">

@@ -441,7 +441,7 @@ const customizeData = async (data) => {
   changeSuffixIcon(setFormData.promotion)
   setFormData.code = data[0].code
   setFormData.date = [data[0].fromDate, data[0].toDate]
-  setFormData.shortDescription = data[0].shortDescription
+  setFormData.shortDescription = data[0].Description
   setFormData.customers = data[0].customers
   setFormData.products = data[0].productProperties
   setFormData.Images = data[0].images

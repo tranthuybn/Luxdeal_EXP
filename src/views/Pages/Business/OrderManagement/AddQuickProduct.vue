@@ -97,7 +97,7 @@ const postQuickProduct = async () => {
         message: t('reuse.addSuccess'),
         type: 'success'
     })
-    emit('save', payload, res.id)  
+    emit('save', payload, res.data.id)  
   })
   .catch((error)=>{
     console.log('err', error)

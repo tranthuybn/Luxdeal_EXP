@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, provide, reactive, h } from 'vue'
+import { provide, reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getCampaignList } from '@/api/Business'

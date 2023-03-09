@@ -5685,7 +5685,7 @@ const disabledPhieu = ref(false)
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || STATUS_ORDER_SELL[8].orderStatus"
+            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || statusOrder == STATUS_ORDER_SELL[8].orderStatus"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{

@@ -135,7 +135,4 @@ const columns = reactive<TableColumn[]>([
   :api="getStaffList" 
   :customOperator=4
   />
-  :api="getStaffList" 
-  :customOperator=4
-  />
 </template>

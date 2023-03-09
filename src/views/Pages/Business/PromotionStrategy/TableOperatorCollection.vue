@@ -248,30 +248,30 @@ watch(
   }
 )
 
-watch(
-  () => formValue.value,
-  () => {
-    if (formValue.value) {
-      if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
-        let newArr = ref(formValue.value[0].productProperties)
-        let formService: any = ref([])
-        newArr.value[0]?.spaServices.map((e) => {
-          formService.value.push(e.name)
-        })
-        let formDataTable = formValue.value[0]?.productProperties.map((val) => ({
-          code: val.code,
-          id: val.id,
-          isActive: val.isActive,
-          service: formService.value
-        }))
-        dataTable.spaData = formDataTable
-        // dataTable.productData = formDataTable
-        spaMoney.value = formValue.value[0].comboValue
-        imageUrl.value = formValue.value[0].images
-      }
-    }
-  }
-)
+// watch(
+//   () => formValue.value,
+//   () => {
+//     if (formValue.value) {
+//       if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
+//         let newArr = ref(formValue.value[0].productProperties)
+//         let formService: any = ref([])
+//         newArr.value[0]?.spaServices.map((e) => {
+//           formService.value.push(e.name)
+//         })
+//         let formDataTable = formValue.value[0]?.productProperties.map((val) => ({
+//           code: val.code,
+//           id: val.id,
+//           isActive: val.isActive,
+//           service: formService.value
+//         }))
+//         dataTable.spaData = formDataTable
+//         // dataTable.productData = formDataTable
+//         spaMoney.value = formValue.value[0].comboValue
+//         imageUrl.value = formValue.value[0].images
+//       }
+//     }
+//   }
+// )
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData

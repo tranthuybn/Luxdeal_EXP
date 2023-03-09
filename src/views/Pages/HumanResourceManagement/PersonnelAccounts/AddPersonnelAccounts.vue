@@ -788,7 +788,7 @@ onBeforeMount(() => {
 
                 <el-form-item
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
-                  label="Vị trí/loại hình"
+                  label="Cấp bậc/loại hình"
                 >
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
@@ -796,7 +796,7 @@ onBeforeMount(() => {
                         <el-select
                           v-model="ruleForm.jobPosition"
                           clearable
-                          placeholder="Chọn vị trí làm việc"
+                          placeholder="Chọn cấp bậc làm việc"
                         >
                           <el-option
                             v-for="item in listPosition"
@@ -807,7 +807,7 @@ onBeforeMount(() => {
                         </el-select>
                       </el-form-item>
                     </div>
-                    <div class="flex-1 mb-5">
+                    <div class="flex-1">
                       <el-form-item prop="typeOfEmployee">
                         <el-select
                           v-model="ruleForm.typeOfEmployee"

@@ -716,7 +716,6 @@ const saveDataEdit = async () => {
 //   })
 // }
 
-
 const editData = async () => {
   if (type == 'detail') checkDisabelDetail.value = true
 
@@ -889,6 +888,10 @@ onBeforeMount(async () => {
                   v-model="dataDetail.totalMoney"
                   :placeholder="t('reuse.placeholderMoney')"
                   :suffixIcon="h('div', 'đ')"
+                  :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                  :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                  :clearable="true"
+                  type="number" 
                 />
               </ElFormItem>
               <ElFormItem :label="t('formDemo.writtenWords')" prop="Price">

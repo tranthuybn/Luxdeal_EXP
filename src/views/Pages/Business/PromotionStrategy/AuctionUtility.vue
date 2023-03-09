@@ -413,6 +413,7 @@ type SetFormData = {
   percent: number
   money: number
   imageurl?: string
+  statusHistory?: any
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -436,6 +437,8 @@ const customizeData = async (data) => {
   setFormData.Image = data[0].images[0].path
   setFormData.target = data[0].targetType
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
+  setFormData.statusHistory = data[0].statusHistory
+
 }
 
 

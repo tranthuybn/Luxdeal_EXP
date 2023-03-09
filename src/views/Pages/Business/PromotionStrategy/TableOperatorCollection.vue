@@ -25,7 +25,7 @@ import {
   ElRadio,
   ElInput
 } from 'element-plus'
-import { deleteCampaign, getAllCustomer, getProductsList } from '@/api/Business'
+import { CancelCampaign, getAllCustomer, getProductsList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
@@ -37,9 +37,10 @@ import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getSpaLibrary } from '@/api/LibraryAndSetting'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { approvalProducts } from '@/api/Approval'
-import { FORM_IMAGES } from '@/utils/format'
+import { dateTimeFormat, FORM_IMAGES } from '@/utils/format'
 import { Approvement, CampaignTypeArr } from '@/utils/API.Variables'
 import moment from 'moment'
+import { CampaignStatusV2 } from './CampaignStatusEnum'
 
 const currentDate = ref(moment().format("DD/MM/YYYY"))
 const { t } = useI18n()
@@ -166,6 +167,7 @@ const getTableValue = async () => {
       } else {
         formValue.value = res.data
       }
+      console.log('form', formValue.value, res)
       await setFormValue()
     } else {
       ElNotification({
@@ -189,6 +191,7 @@ const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
   if (props.formDataCustomize !== undefined) {
+    console.log('props.formDataCustomize', props.formDataCustomize)
     setValues(props.formDataCustomize)
     dataTable.customerData = props.formDataCustomize.customers ?? []
     dataTable.productData = props.formDataCustomize.products ?? []
@@ -233,29 +236,29 @@ watch(
   }
 )
 
-watch(
-  () => formValue.value,
-  () => {
-    if (formValue.value) {
-      if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
-        let newArr = ref(formValue.value[0].productProperties)
-        let formService: any = ref([])
-        newArr.value[0]?.spaServices.map((e) => {
-          formService.value.push(e.name)
-        })
-        let formDataTable = formValue.value[0]?.productProperties.map((val) => ({
-          code: val.code,
-          id: val.id,
-          isActive: val.isActive,
-          service: formService.value
-        }))
-        dataTable.spaData = formDataTable
-        spaMoney.value = formValue.value[0].comboValue
-        imageUrl.value = formValue.value[0].images
-      }
-    }
-  }
-)
+// watch(
+//   () => formValue.value,
+//   () => {
+//     if (formValue.value) {
+//       if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
+//         let newArr = ref(formValue.value[0].productProperties)
+//         let formService: any = ref([])
+//         newArr.value[0]?.spaServices.map((e) => {
+//           formService.value.push(e.name)
+//         })
+//         let formDataTable = formValue.value[0]?.productProperties.map((val) => ({
+//           code: val.code,
+//           id: val.id,
+//           isActive: val.isActive,
+//           service: formService.value
+//         }))
+//         dataTable.spaData = formDataTable
+//         spaMoney.value = formValue.value[0].comboValue
+//         imageUrl.value = formValue.value[0].images
+//       }
+//     }
+//   }
+// )
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData
@@ -460,19 +463,24 @@ const edit = () => {
 const delAction = () => {
   {
     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
-      confirmButtonText: t('button.cancel'),
+      confirmButtonText: t('reuse.confirm'),
       cancelButtonText: t('reuse.exit'),
       type: 'warning',
       title: t('reuse.cancelProgramming'),
       confirmButtonClass: 'el-button--danger'
     })
       .then(() => {
-        deleteCampaign({ id: props.id })
+        CancelCampaign({ id: props.id })
           .then(() =>
-            ElNotification({
+            {
+              ElNotification({
               message: t('reuse.deleteSuccess'),
               type: 'success'
             })
+            switch(props.campaignAndStrategyType){
+
+            }
+          }
           )
           .catch(() => {
             ElNotification({
@@ -976,7 +984,7 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
           <template #tableProductOfCombo>
             <el-table :data="dataTable.spaData" border header-row-class-name="dark:text-white text-black">
               <template #append>
-                <div class="pl-750px w-320px">
+                <div class="pl-600px w-320px">
                   <div class="w-320px">{{ t('reuse.totalRealSpaMoney') }}
                     <span style="float: right">{{ spaCost }}</span>
                   </div>
@@ -1101,14 +1109,71 @@ v-model="scope.row.isActive" active-text="ON" inline-prompt inactive-text="OFF"
     t('reuse.voucherStatusExplain') }})</span></template></el-checkbox>
           </template>
           <template #statusValue="form">
-            <div class="status_wrap">
+            <div class="status_wrap" v-if="type=='add'">
               <div v-if="form['statusValue'] == 0" class="status_wrap--new-account">{{
                 t('formDemo.isNewAccount') }}
               </div>
-              <div v-else class="backgroundAroundLetter status_wrap--pending" style="background: orange">{{
-                t('reuse.pending')
-              }}</div>
               <div class="status_wrap-date ">{{ currentDate }}</div>
+            </div>
+            <div v-else class="flex items-center flex-wrap w-[100%]">
+            <div
+                class="duplicate-status"
+                v-for="item, index in form['statusHistory']"
+                :key="item.campaignStatus"
+              >
+              <div>
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    v-if="item.campaignStatus == CampaignStatusV2.KhoiTaoMoi
+                     || item.campaignStatus == CampaignStatusV2.ChayChuongTrinh
+                    || item.campaignStatus == CampaignStatusV2.DaGuiVoucher"
+                    class="box_3 text-blue-500 dark:text-black"
+                    :class="{ active: index == form['statusHistory'].length - 1}"
+                  >
+                    {{ item.campaignStatusName }}
+
+                    <span class="right_3"> </span>
+                  </span>
+
+                  <span
+                    v-if="item.campaignStatus == CampaignStatusV2.DuyetKhoiTao 
+                    || item.campaignStatus == CampaignStatusV2.SuaChuongTrinh"
+                    class="box_1 text-orange-500 dark:text-black"
+                    :class="{ active: index == form['statusHistory'].length - 1}"
+                  >
+                    {{ item.campaignStatusName }}
+
+                    <span class="right_1"> </span>
+                  </span>
+
+                  <span
+                    v-if="item.campaignStatus == CampaignStatusV2.HuyChuongTrinh"
+                    class="box_4 text-red-500 dark:text-black"
+                    :class="{ active: index == form['statusHistory'].length - 1}"
+                  >
+                    {{ item.campaignStatusName }}
+
+                    <span class="right_4"> </span>
+                  </span>
+                  
+                  <span
+                    v-if="item.campaignStatus == CampaignStatusV2.KetThuc"
+                    class="box_3 text-black dark:text-black"
+                    :class="{ active: index == form['statusHistory'].length - 1}"
+                  >
+                    {{ item.campaignStatusName }}
+
+                    <span class="right_3"> </span>
+                  </span>
+
+                  <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
+                </div>
+              </div>
             </div>
           </template>
         </Form>
@@ -1261,7 +1326,8 @@ v-model="radioSelected" :label="scope.$index + 1"
     </el-dialog>
   </ContentWrap>
 </template>
-<style scoped>
+<style lang="scss" scoped>
+@import "@/styles/statusHistory.scss";
 .status_wrap {
   display: flex;
   align-items: left;

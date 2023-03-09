@@ -923,6 +923,15 @@ export const deleteCampaign = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const CancelCampaign = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${CAMPAIGN_API.CANCEL_CAMPAIGN}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
 
 export const getComboList = async (params: any): Promise<IResponse> => {
   const res = await request.get({ url: '/combo', params })

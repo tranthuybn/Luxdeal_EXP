@@ -355,6 +355,7 @@ type SetFormData = {
   customers: any
   products: any
   imageurl?: string
+  statusHistory?: any
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -367,6 +368,8 @@ const customizeData = async (data) => {
   setFormData.Image = data[0].images[0].path
   setFormData.customers = data[0].customers
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
+  setFormData.statusHistory = data[0].statusHistory
+
 }
 
 const editData = async (data) => {
@@ -414,6 +417,7 @@ const editData = async (data) => {
           :multipleImages="false"
           @edit-data="editData"
           :tabActive="tab"
+          :campaignAndStrategyType="5"
         />
       </el-collapse-item>
     </el-collapse>

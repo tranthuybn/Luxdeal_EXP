@@ -301,6 +301,7 @@ type SetFormData = {
   products: any
   Image: any
   imageurl?: string
+  statusHistory?: any
 }
 
 const emptyFormData = {} as SetFormData
@@ -316,6 +317,8 @@ const customizeData = async (data) => {
   setFormData.shortDescription = data[0].description
   setFormData.Image = data[0]?.Images
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
+  setFormData.statusHistory = data[0].statusHistory
+
 }
 
 const { push } = useRouter()
@@ -353,7 +356,9 @@ const editData = async (data) => {
         <TableOperatorCollection
 ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
           :params="params" :apiId="getCampaignList" @post-data="postData" :formDataCustomize="setFormData"
-          @customize-form-data="customizeData" @edit-data="editData" />
+          @customize-form-data="customizeData" @edit-data="editData" 
+          :campaignAndStrategyType="5"
+          />
       </el-collapse-item>
     </el-collapse>
   </div>

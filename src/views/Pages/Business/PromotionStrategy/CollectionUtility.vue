@@ -423,6 +423,7 @@ type SetFormData = {
   percent: number
   money: number
   imageurl?: string
+  statusHistory?: any
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -446,6 +447,8 @@ const customizeData = async (data) => {
   setFormData.Images = data[0].images
   setFormData.target = data[0].targetType
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
+  setFormData.statusHistory = data[0].statusHistory
+
   hideTableCustomer(data[0].targetType)
 }
 
@@ -489,7 +492,9 @@ const editData = async (data) => {
 ref="formRef" :schema="schema" :type="type" :apiId="getCampaignList" :id="id"
           :delApi="deleteCampaign" :multipleImages="false" @post-data="postData" :params="params" :rules="rules"
           @customize-form-data="customizeData" @edit-data="editData" :formDataCustomize="setFormData"
-          :show-product="true" />
+          :show-product="true"
+          :campaignAndStrategyType="2"
+          />
       </el-collapse-item>
     </el-collapse>
   </div>

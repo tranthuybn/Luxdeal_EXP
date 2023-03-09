@@ -485,12 +485,13 @@ const postDataPositon = async (data) => {
   data.Image = data.Image
   
   await addNewPosition(data)
-    .then(() => 
+    .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })        
-    )
+      checkTrungCode.value = true
+})
     .catch(() =>
       ElNotification({
         message: t('reuse.addFail') + ', ' + t('reuse.codeExist'),

@@ -503,6 +503,7 @@ const customizeData = async (data) => {
   setFormData.customers = data[0].customers
   setFormData.Image = data[0].images[0].path
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
+
 }
 const { push } = useRouter()
 

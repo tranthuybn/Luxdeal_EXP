@@ -1190,6 +1190,7 @@ watch(
 .header-icon {
   margin: 10px;
 }
+
 .text-center {
   font-size: 20px;
 }
@@ -1198,6 +1199,7 @@ watch(
   display: flex;
   justify-content: center;
 }
+
 /* DatePicker Css  */
 .demo-date-picker {
   display: flex;
@@ -1205,19 +1207,22 @@ watch(
   padding: 0;
   flex-wrap: wrap;
 }
+
 .demo-date-picker .block {
   padding: 30px 0;
   text-align: center;
   border-right: solid 1px var(--el-border-color);
   flex: 1;
 }
+
 .demo-date-picker .block:last-child {
   border-right: none;
 }
+
 .demo-date-picker .demonstration {
   display: block;
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
   margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
 }
 </style>

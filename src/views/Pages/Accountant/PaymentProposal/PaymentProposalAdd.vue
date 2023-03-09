@@ -727,33 +727,37 @@ onBeforeMount(() => {
 .requied{
   color: red;
 }
+
 ::v-deep(.el-select){
   width: 100%;
 }
+
 ::v-deep(.el-form-item) {
   .dateCreated {
-    color: #65676B;
-    font-weight: 400;
     font-size: 10px;
     font-style: italic;
+    font-weight: 400;
+    color: #65676B;
   }
 }
+
 ::v-deep(.poi_text_right > .el-input__wrapper > .el-input__inner){
   text-align: right;
 }
+
 ::ve-deep(.collapse-margin){
   margin-top: 30px;
 }
+
 .day-updated {
   position: relative;
-  padding-left: 20px;
   width: fit-content;
+  padding-left: 20px;
   color: var(--el-color-primary);
-  background: rgba(44, 109, 218, 0.05);
+  background: rgb(44 109 218 / 5%);
 }
 
 .day-updated::after {
-  content: '';
   position: absolute;
   top: 0;
   right: -12px;
@@ -761,11 +765,11 @@ onBeforeMount(() => {
   height: 0;
   border-top: 14px solid transparent;
   border-bottom: 18px solid transparent;
-  border-left: 12px solid rgba(44, 109, 218, 0.05);
+  border-left: 12px solid rgb(44 109 218 / 5%);
+  content: '';
 }
 
 .day-updated::before {
-  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -774,6 +778,7 @@ onBeforeMount(() => {
   border-top: 16px solid transparent;
   border-bottom: 16px solid transparent;
   border-left: 12px solid white;
+  content: '';
 }
 
 ::v-deep(.el-table td.el-table__cell div) {

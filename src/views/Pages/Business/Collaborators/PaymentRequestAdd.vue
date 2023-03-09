@@ -810,8 +810,8 @@ const activeName = ref(collapse[0].title)
 }
 
 ::v-deep(.el-textarea__inner) {
-  box-shadow: none;
   padding: 5px 0;
+  box-shadow: none;
 }
 
 ::v-deep(.el-form-item) {
@@ -856,7 +856,7 @@ const activeName = ref(collapse[0].title)
 }
 
 ::v-deep(.el-divider--horizontal) {
-  margin: 40px 0 24px 0;
+  margin: 40px 0 24px;
 }
 
 ::v-deep(.el-input) {
@@ -884,9 +884,9 @@ const activeName = ref(collapse[0].title)
 }
 
 .example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
   display: flex;
+  color: var(--el-color-primary);
+  cursor: pointer;
   align-items: center;
 }
 

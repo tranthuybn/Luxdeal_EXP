@@ -62,19 +62,22 @@ export default {
 
 <style scoped>
 .sc-header {
-  padding: 20px 15px;
   position: relative;
-  box-sizing: border-box;
   display: flex;
+  padding: 20px 15px;
+  box-sizing: border-box;
 }
 
 .sc-search {
-  background: #ffffff;
-  border: 1px solid #b1b1b1;
-  border-radius: 5px;
+  width: 100%;
+  height: 35px;
+  padding: 0 30px 0 10px;
   font-size: 12px;
   line-height: 14px;
   color: #9ea1a5;
+  background: #fff;
+  border: 1px solid #b1b1b1;
+  border-radius: 5px;
 
   /* Inside auto layout */
 
@@ -82,23 +85,20 @@ export default {
   order: 0;
   align-self: stretch;
   flex-grow: 0;
-  width: 100%;
-  height: 35px;
-  padding: 0 30px 0 10px;
 }
 
 .sc-header--img {
+  padding: 10px;
   border-radius: 50%;
   align-self: center;
-  padding: 10px;
 }
 
 .sc-header--title {
-  align-self: center;
   padding: 10px;
-  flex: 1;
-  user-select: none;
   font-size: 20px;
+  user-select: none;
+  align-self: center;
+  flex: 1;
 }
 
 .sc-header--title.enabled {
@@ -107,22 +107,22 @@ export default {
 }
 
 .sc-header--title.enabled:hover {
-  box-shadow: 0px 2px 5px rgba(0.2, 0.2, 0.5, 0.1);
+  box-shadow: 0 2px 5px rgb(0.2 0.2 0.5 / 10%);
 }
 
 .sc-header--close-button {
   width: 40px;
-  align-self: center;
   height: 40px;
   margin-right: 10px;
-  box-sizing: border-box;
+  margin-left: auto;
   cursor: pointer;
   border-radius: 5px;
-  margin-left: auto;
+  box-sizing: border-box;
+  align-self: center;
 }
 
 .sc-header--close-button:hover {
-  box-shadow: 0px 2px 5px rgba(0.2, 0.2, 0.5, 0.1);
+  box-shadow: 0 2px 5px rgb(0.2 0.2 0.5 / 10%);
 }
 
 .sc-header--close-button img {
@@ -134,7 +134,7 @@ export default {
 
 @media (max-width: 450px) {
   .sc-header {
-    border-radius: 0px;
+    border-radius: 0;
   }
 }
 </style>

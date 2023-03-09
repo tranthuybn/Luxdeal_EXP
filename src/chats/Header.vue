@@ -72,28 +72,28 @@ export default {
 
 <style scoped>
 .sc-header {
+  position: relative;
+  display: flex;
   min-height: 74px;
   padding: 10px;
-  border-bottom: 1px solid #eeeeee;
-  position: relative;
+  border-bottom: 1px solid #eee;
   box-sizing: border-box;
-  display: flex;
 }
 
 .sc-header--img {
-  border-radius: 50%;
-  align-self: center;
   width: 48px;
   height: 48px;
+  border-radius: 50%;
+  align-self: center;
 }
 
 .sc-header--title {
-  align-self: center;
   padding: 0 14px;
-  flex: 1;
-  user-select: none;
   font-size: 13px;
   font-weight: 700;
+  user-select: none;
+  align-self: center;
+  flex: 1;
 }
 
 .sc-header--title.enabled {
@@ -103,12 +103,12 @@ export default {
 
 .sc-header--close-button {
   width: 40px;
-  align-self: center;
   height: 40px;
-  box-sizing: border-box;
+  margin-left: auto;
   cursor: pointer;
   border-radius: 5px;
-  margin-left: auto;
+  box-sizing: border-box;
+  align-self: center;
 }
 
 .sc-header--close-button img {
@@ -120,7 +120,7 @@ export default {
 
 @media (max-width: 450px) {
   .sc-header {
-    border-radius: 0px;
+    border-radius: 0;
   }
 }
 </style>

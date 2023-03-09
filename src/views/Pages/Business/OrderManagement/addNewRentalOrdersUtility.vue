@@ -892,6 +892,7 @@ const callApiProductList = async () => {
       productCode: product?.code,
       value: product?.productCode,
       name: product?.name ?? '',
+      inventory:product.tonKho ?? 0,
       price: product?.price.toString(),
       productPropertyId: product?.id,
       productPropertyCode: product?.productPropertyCode,
@@ -924,6 +925,7 @@ const ScrollProductBottom = () => {
                   productCode: product?.code,
                   value: product?.productCode,
                   name: product?.name ?? '',
+                  inventory: product.tonKho ?? 0,
                   price: product?.price.toString(),
                   productPropertyId: product?.id,
                   productPropertyCode: product?.productPropertyCode
@@ -2261,6 +2263,8 @@ const UpdateStatusTransaction = async() => {
   }
 
   updateStatusTransaction(FORM_IMAGES(payload))
+    // Cập nhật lại bảng lịch sử công nợ
+    getOrderStransactionList()
 }
 
 const listOfOrderProduct = ref()
@@ -3051,7 +3055,7 @@ const disabledPhieu = ref(false)
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
               <el-input
                 v-model="quickEmail"
                 style="width: 100%"
@@ -4905,7 +4909,7 @@ const disabledPhieu = ref(false)
           </el-table>
           <div class="flex justify-end">
             <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">{{t('formDemo.totalPayment')}}</p>
+              <p class="text-black font-bold dark:text-white">{{t('reuse.totalPayment')}}</p>
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2 text-black font-bold dark:text-white">{{
@@ -5042,7 +5046,8 @@ const disabledPhieu = ref(false)
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory'),
                 ]"
                 filterable
                 :disabled="disabledEdit"
@@ -5150,7 +5155,7 @@ const disabledPhieu = ref(false)
               }}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="c" :label="t('reuse.iventoryy')" width="200">
+          <el-table-column prop="c" :label="t('reuse.inventory')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <el-button
@@ -5951,8 +5956,8 @@ const disabledPhieu = ref(false)
 }
 
 ::v-deep(.el-textarea__inner) {
-  box-shadow: none;
   padding: 5px 0;
+  box-shadow: none;
 }
 
 ::v-deep(.el-form-item) {
@@ -6014,9 +6019,9 @@ const disabledPhieu = ref(false)
 }
 
 .example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
   display: flex;
+  color: var(--el-color-primary);
+  cursor: pointer;
   align-items: center;
 }
 
@@ -6058,38 +6063,40 @@ const disabledPhieu = ref(false)
 }
 
 .box {
-  padding: 0 10px 0 20px;
   position: relative;
   display: flex;
   width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
+  padding: 0 10px 0 20px;
   background-color: #ccc;
+  border: 1px solid #ccc;
   opacity: 0.6;
+  align-items: center;
 }
+
 .box_1 {
-  border: 1px solid #fff0d9;
   background-color: #fff0d9;
+  border: 1px solid #fff0d9;
 }
 
 .box_2 {
-  border: 1px solid #f4f8fd;
   background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
 }
 
 .box_3 {
-  border: 1px solid #d9d9d9;
   background-color: #d9d9d9;
+  border: 1px solid #d9d9d9;
 }
 
 .box_4 {
-  border: 1px solid #fce5e1;
   background-color: #fce5e1;
+  border: 1px solid #fce5e1;
 }
 
 .right_1 {
   border-left: 11px solid #fff0d9 !important;
 }
+
 .right_2 {
   border-left: 11px solid #f4f8fd !important;
 }
@@ -6108,6 +6115,7 @@ const disabledPhieu = ref(false)
   width: 0;
   height: 0;
 }
+
 .triangle-right {
   position: absolute;
   right: -12px;
@@ -6117,6 +6125,7 @@ const disabledPhieu = ref(false)
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
 }
+
 ::v-deep(.el-table td.el-table__cell div) {
   width: 100%;
 }
@@ -6140,6 +6149,7 @@ const disabledPhieu = ref(false)
 .duplicate-status + .duplicate-status {
   margin-left: 10px;
 }
+
 .active {
   opacity: 1 !important;
 }
@@ -6147,9 +6157,11 @@ const disabledPhieu = ref(false)
   #recpPaymentPrint {
     display: none;
   }
+
   #billDepositPrint {
     display: none;
   }
+
   #IPRFormPrint {
     display: none;
   }
@@ -6157,11 +6169,11 @@ const disabledPhieu = ref(false)
 
 @media print {
   #printPage {
-    display: block; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 10; /* Sit on top */
-    left: 0;
     top: 0;
+    left: 0;
+    z-index: 10; /* Sit on top */
+    display: block; /* Hidden by default */
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
@@ -6179,8 +6191,8 @@ const disabledPhieu = ref(false)
 
 #content {
   height: 200px;
-  overflow: auto;
   padding: 0 10px;
+  overflow: auto;
 }
 
 ::v-deep(.el-overlay-dialog) {
@@ -6193,10 +6205,10 @@ const disabledPhieu = ref(false)
 }
 
 ::v-deep(.el-dialog) {
-  margin: 0;
   position: absolute;
   top: 50%;
   left: 50%;
+  margin: 0;
   transform: translate(-50%, -50%);
 }
 </style>

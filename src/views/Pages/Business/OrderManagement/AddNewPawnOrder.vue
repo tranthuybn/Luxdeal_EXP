@@ -678,6 +678,7 @@ const callAPIProduct = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
+      inventory:product.tonKho??0,
       unit: product.unitName,
       price: product.price.toString(),
       productPropertyId: product.id,
@@ -708,6 +709,7 @@ const ScrollProductBottom = () => {
                   productCode: product.code,
                   value: product.productCode,
                   name: product.name ?? '',
+                  inventory:product.tonKho??0,
                   price: product.price.toString(),
                   productPropertyId: product.id.toString(),
                   productPropertyCode: product.productPropertyCode
@@ -2090,7 +2092,7 @@ const disabledPhieu = ref(false)
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
               <el-input
                 v-model="quickEmail"
                 style="width: 100%"
@@ -2491,7 +2493,8 @@ const disabledPhieu = ref(false)
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory')
                 ]"
                 filterable
                 width="650px"
@@ -2637,7 +2640,7 @@ const disabledPhieu = ref(false)
             </template>
           </el-table-column>
 
-          <el-table-column prop="warehouseTotal" :label="t('reuse.iventoryy')" width="200">
+          <el-table-column prop="warehouseTotal" :label="t('reuse.inventory')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <el-button
@@ -4566,6 +4569,7 @@ const disabledPhieu = ref(false)
   #billPawn {
     display: none;
   }
+
   .dialog-content {
     display: block;
   }
@@ -4574,41 +4578,44 @@ const disabledPhieu = ref(false)
 .css-form_has-child > .el-form-item {
   margin: 0;
 }
+
 ::v-deep(.el-select) {
   width: 100%;
 }
+
 ::v-deep(.el-range-editor.el-input__wrapper) {
   width: 100%;
 }
+
 ::v-deep(.el-textarea__inner) {
-  box-shadow: none;
   padding: 5px 0;
+  box-shadow: none;
 }
 
 .box {
-  padding: 0 10px 0 20px;
   position: relative;
   display: flex;
   width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
+  padding: 0 10px 0 20px;
   background-color: #ccc;
+  border: 1px solid #ccc;
   opacity: 0.6;
+  align-items: center;
 }
 
 .box_1 {
-  border: 1px solid #fff0d9;
   background-color: #fff0d9;
+  border: 1px solid #fff0d9;
 }
 
 .box_2 {
-  border: 1px solid #f4f8fd;
   background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
 }
 
 .box_3 {
-  border: 1px solid #d9d9d9;
   background-color: #d9d9d9;
+  border: 1px solid #d9d9d9;
 }
 
 ::v-deep(.el-overlay-dialog) {
@@ -4621,20 +4628,22 @@ const disabledPhieu = ref(false)
 }
 
 ::v-deep(.el-dialog) {
-  margin: 0;
   position: absolute;
   top: 50%;
   left: 50%;
+  margin: 0;
   transform: translate(-50%, -50%);
 }
+
 .box_4 {
-  border: 1px solid #fce5e1;
   background-color: #fce5e1;
+  border: 1px solid #fce5e1;
 }
 
 .right_1 {
   border-left: 11px solid #fff0d9 !important;
 }
+
 .right_2 {
   border-left: 11px solid #f4f8fd !important;
 }
@@ -4646,24 +4655,29 @@ const disabledPhieu = ref(false)
 .right_4 {
   border-left: 11px solid #fce5e1 !important;
 }
+
 .duplicate-status + .duplicate-status {
   margin-left: 10px;
 }
+
 .active {
   opacity: 1 !important;
 }
+
 .limit-text {
-  white-space: nowrap;
   width: 50px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
 .triangle-left {
   position: absolute;
   z-index: 1998;
   width: 0;
   height: 0;
 }
+
 .triangle-right {
   position: absolute;
   right: -12px;
@@ -4684,12 +4698,14 @@ const disabledPhieu = ref(false)
   height: 40px;
   border: 1px solid #409eff;
 }
+
 .triangle-left {
   position: absolute;
   z-index: 1998;
   width: 0;
   height: 0;
 }
+
 .triangle-right {
   position: absolute;
   right: -12px;
@@ -4699,12 +4715,15 @@ const disabledPhieu = ref(false)
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
 }
+
 ::v-deep(.d-block > .el-row) {
   display: block;
 }
+
 ::v-deep(.el-dialog__title) {
   font-weight: bold;
 }
+
 ::v-deep(.el-form-item__content) {
   display: block;
 }
@@ -4753,9 +4772,9 @@ const disabledPhieu = ref(false)
 }
 
 .example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
   display: flex;
+  color: var(--el-color-primary);
+  cursor: pointer;
   align-items: center;
 }
 
@@ -4795,13 +4814,14 @@ const disabledPhieu = ref(false)
 ::v-deep(.el-input__wrapper) {
   width: 100%;
 }
+
 ::v-deep(.el-select .el-input) {
   width: 100% !important;
 }
 
 #content {
   height: 200px;
-  overflow: auto;
   padding: 0 10px;
+  overflow: auto;
 }
 </style>

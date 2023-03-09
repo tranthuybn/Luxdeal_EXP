@@ -664,7 +664,7 @@ const callAPICustomer = async () => {
   if(res?.data && res.data?.length > 0){
     res?.data.map((el) => {
         chooseCustomer.push({
-          value: el.id,
+          value: el.code,
           label: el.code
         })
     })
@@ -682,7 +682,7 @@ const ScrollCustomerBottom = () => {
             ? (noMoreCustomerData.value = true)
             : res.data.map((el) =>
                chooseCustomer.push({
-                value: el.id,
+                value: el.code,
                 label: el.code
                 })
               )
@@ -1588,25 +1588,25 @@ onBeforeMount(() => {
 
 <style scoped>
 .option-select > .option-1 {
-  background-color: #409eff;
-  color: #ffffff;
   padding: 5px;
+  color: #fff;
+  background-color: #409eff;
 }
 
 .option-select > .option-2 {
-  background-color: #f56918;
-  color: #ffffff;
   padding: 5px;
+  color: #fff;
+  background-color: #f56918;
 }
 
 .black-color {
-  color: #000000;
+  color: #000;
 }
 
 .avatar-uploader .avatar {
+  display: block;
   width: 178px;
   height: 178px;
-  display: block;
 }
 
 ::v-deep(.custom-select-w38 > .el-select) {
@@ -1614,44 +1614,48 @@ onBeforeMount(() => {
 }
 
 .box {
-  padding: 0 10px 0 20px;
   position: relative;
   display: flex;
   width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
+  padding: 0 10px 0 20px;
   background-color: #ccc;
+  border: 1px solid #ccc;
   opacity: 0.6;
+  align-items: center;
 }
 
 .box_1 {
-  border: 1px solid #fff0d9;
   background-color: #fff0d9;
+  border: 1px solid #fff0d9;
 }
 
 .box_2 {
-  border: 1px solid #f4f8fd;
   background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
 }
 
 .box_3 {
-  border: 1px solid #d9d9d9;
   background-color: #d9d9d9;
+  border: 1px solid #d9d9d9;
 }
 
 .box_4 {
-  border: 1px solid #fce5e1;
   background-color: #fce5e1;
+  border: 1px solid #fce5e1;
 }
+
 .duplicate-status + .duplicate-status {
   margin-left: 10px;
 }
+
 .active {
   opacity: 1 !important;
 }
+
 .right_1 {
   border-left: 11px solid #fff0d9 !important;
 }
+
 .right_2 {
   border-left: 11px solid #f4f8fd !important;
 }
@@ -1663,6 +1667,7 @@ onBeforeMount(() => {
 .right_4 {
   border-left: 11px solid #fce5e1 !important;
 }
+
 .triangle-right {
   position: absolute;
   right: -12px;
@@ -1674,23 +1679,26 @@ onBeforeMount(() => {
 }
 
 .custom-after::after {
-  content: '';
+  --tw-border-opacity: 1;
+
   position: absolute;
+  left: -1px;
   z-index: 1998;
   width: 11px;
+  height: 100%;border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: rgb(255 255 255 / var(--tw-border-opacity));
   border-style: solid;
-  height: 100%;
-  left: -1px;
+  border-top-width: 12px;
   border-bottom-width: 12px;
   border-left-width: 10px;
-  border-top-width: 12px;
-  border-bottom-color: transparent;border-top-color: transparent;
-  --tw-border-opacity: 1;
-  border-left-color: rgba(255, 255, 255, var(--tw-border-opacity));
+  content: '';
 }
+
 .dark .dark\:border-l-black {
   --tw-border-opacity: 1;
-  border-left-color: rgba(0, 0, 0, var(--tw-border-opacity));
+
+  border-left-color: rgb(0 0 0 / var(--tw-border-opacity));
 }
 
 .dark .dark\:bg-transparent {
@@ -1698,10 +1706,10 @@ onBeforeMount(() => {
 }
 
 .el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
   width: 178px;
   height: 178px;
+  font-size: 28px;
+  color: #8c939d;
   text-align: center;
 }
 
@@ -1714,8 +1722,8 @@ onBeforeMount(() => {
 }
 
 ::v-deep(.el-textarea__inner) {
-  box-shadow: none;
   padding: 5px 0;
+  box-shadow: none;
 }
 
 ::v-deep(.el-form-item) {
@@ -1765,9 +1773,9 @@ onBeforeMount(() => {
 
 .demo-date-picker .demonstration {
   display: block;
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
   margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
 }
 
 ::v-deep(.el-input__wrapper) {
@@ -1788,8 +1796,8 @@ onBeforeMount(() => {
 }
 
 ::v-deep(.el-dialog__header) {
-  border-bottom: 1px solid rgb(214, 209, 209);
   margin-right: 0;
+  border-bottom: 1px solid rgb(214 209 209);
 }
 
 ::v-deep(.align-items-start) {
@@ -1814,7 +1822,7 @@ onBeforeMount(() => {
 
 #content {
   height: 200px;
-  overflow: auto;
   padding: 0 10px;
+  overflow: auto;
 }
 </style>

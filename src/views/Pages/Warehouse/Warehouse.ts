@@ -110,7 +110,7 @@ export const wareHouse = [
     minWidth: '150',
     filters: filterService,
     formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
-      return orderType(cellValue)
+     return t(`${orderType(cellValue)}`)
     }
   },
   {
@@ -211,7 +211,7 @@ export const wareHouseContainer = [
     label: t('reuse.importExportTransferWarehouse'),
     minWidth: '150',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatTransactionType(cellValue)
+      return t(`${formatTransactionType(cellValue)}`)
     },
     filters: filterTransactionType
   },
@@ -334,7 +334,7 @@ export const wareHouseContainer = [
     label: t('reuse.productType'),
     minWidth: '100',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', orderType(row?.orderType))
+       return t(`${orderType(row?.orderType)}`)
     },
     filters: filterService
   },
@@ -395,7 +395,7 @@ export const wareHouseContainer = [
     label: t('reuse.status'),
     minWidth: '100',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatTransactionStatus(cellValue)
+      return t(`${formatTransactionStatus(cellValue)}`)
     }
   },
   {

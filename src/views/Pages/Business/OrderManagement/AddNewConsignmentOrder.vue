@@ -616,6 +616,7 @@ const postQuickProduct = (product,productId)=>{
       productCode: product.productCode,
       value: product.productCode,
       name: product.name ?? '',
+      inventory:product.tonKho ?? 0,
       unit: '',
       price: 0,
       productPropertyId: productId,
@@ -642,6 +643,7 @@ const callAPIProduct = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
+      inventory:product.tonKho?? 0,
       unit: product.unitName,
       price: product.price,
       productPropertyId: product.id,
@@ -1729,9 +1731,10 @@ const dialogDepositFeeInformation = ref(false)
 const typeDialog = ref(1)
 const idAccounting = ref()
 const negotiablePrice = ref(0)
-
+const condition = ref(false)
 // Chi tiết bút toán
-const openDialogAcountingEntry = (scope) => {
+const openDialogAcountingEntry = (scope,restrue) => {
+  condition.value = restrue
   const data = scope.row
   idAccounting.value = data.id
   switch (data.typeOfAccountingEntry) {
@@ -2157,7 +2160,7 @@ const returnGoodsAheadOfTime = async (status, data) => {
 }
 // hoàn thành trả hàng
 
-if (type == 'add') {
+if (type == 'add' || type == ':type') {
   arrayStatusOrder.value?.push({
     orderStatusName: 'Duyệt đơn hàng',
     orderStatus: 4,
@@ -2414,7 +2417,7 @@ const openDetailOrder = (id, type) => {
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
               <el-input
                 v-model="quickEmail"
                 style="width: 100%"
@@ -3839,7 +3842,7 @@ const openDetailOrder = (id, type) => {
         >
           <el-table-column
             :label="t('formDemo.productManagementCode')"
-            min-width="190"
+            min-width="100"
             prop="productPropertyId"
           >
             <template #default="props">
@@ -3847,7 +3850,8 @@ const openDetailOrder = (id, type) => {
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory')
                 ]"
                 filterable
                 width="650px"
@@ -3883,9 +3887,9 @@ const openDetailOrder = (id, type) => {
           <el-table-column
             prop="productName"
             :label="t('formDemo.productInformation')"
-            min-width="400"
+            min-width="276"
           />
-          <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
+          <el-table-column prop="accessory" :label="t('reuse.accessory')" width="200">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.accessory }}</div>
               <el-input
@@ -3897,7 +3901,7 @@ const openDetailOrder = (id, type) => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="code" :label="t('formDemo.code')" width="180">
+          <el-table-column prop="code" :label="t('formDemo.code')" min-width="90">
             <template #default="data">
               <div v-if="type == 'detail'">
                 {{ data.row.code }}
@@ -3910,7 +3914,7 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" width="180">
+          <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" min-width="150">
             <template #default="data">
               <div v-if="type == 'detail'">
                 {{ data.row.description }}
@@ -3923,7 +3927,7 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="quantity" :label="t('reuse.depositNumber')" width="90">
+          <el-table-column prop="quantity" :label="t('reuse.depositNumber')" min-width="90">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
               <el-input
@@ -3935,12 +3939,12 @@ const openDetailOrder = (id, type) => {
               />
             </template>
           </el-table-column>
-          <el-table-column prop="unitName" :label="t('reuse.dram')" min-width="100" />
+          <el-table-column prop="unitName" :label="t('reuse.dram')" min-width="80" />
 
           <el-table-column
             prop="consignmentSellPrice"
             :label="t('formDemo.consignmentPriceForSale')"
-            width="160"
+            min-width="130"
           >
             <template #default="props">
               <div v-if="type == 'add' || type == ':type'">
@@ -3954,7 +3958,7 @@ const openDetailOrder = (id, type) => {
           <el-table-column
             prop="consignmentHirePrice"
             :label="t('formDemo.depositpriceForRentalByDay')"
-            width="160"
+            min-width="130"
           >
             <template #default="props">
               <div v-if="type == 'add' || type == ':type'">
@@ -3966,10 +3970,10 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
 
-          <el-table-column :label="t('formDemo.businessManagement')" width="200" prop="businessSetupName">
+          <el-table-column :label="t('formDemo.businessManagement')" min-width="200" prop="businessSetupName">
             <template #default="data">
               <div class="flex w-[100%]">
-                <div class="flex-1 limit-text">
+                <div class="flex-1">
                   <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">
@@ -3990,7 +3994,7 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="warehouseTotal" :label="t('reuse.iventoryy')" width="200">
+          <el-table-column prop="warehouseTotal" :label="t('reuse.inventory')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <el-button
@@ -4185,7 +4189,7 @@ const openDetailOrder = (id, type) => {
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[8].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
-                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add')
+                (statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && (type == 'add' || type == ':type'))
               "
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"
@@ -4213,7 +4217,7 @@ const openDetailOrder = (id, type) => {
               >{{ t('formDemo.startRentingTermDeposit') }}</el-button
             >
             <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && type == 'add'"
+              v-if="statusOrder == STATUS_ORDER_DEPOSIT[10].orderStatus && (type == 'add' || type == ':type')"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
@@ -4664,7 +4668,7 @@ const openDetailOrder = (id, type) => {
             <template #default="data">
               <div class="flex">
                 <button
-                  @click="() => openDialogAcountingEntry(data)"
+                  @click="() => openDialogAcountingEntry(data,true)"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}
@@ -4750,8 +4754,8 @@ const openDetailOrder = (id, type) => {
 }
 
 ::v-deep(.el-textarea__inner) {
-  box-shadow: none;
   padding: 5px 0;
+  box-shadow: none;
 }
 
 ::v-deep(.el-form-item) {
@@ -4778,40 +4782,42 @@ const openDetailOrder = (id, type) => {
     max-width: 100%;
   }
 }
+
 .box {
-  padding: 0 10px 0 20px;
   position: relative;
   display: flex;
   width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
+  padding: 0 10px 0 20px;
   background-color: #ccc;
+  border: 1px solid #ccc;
   opacity: 0.6;
+  align-items: center;
 }
 
 .box_1 {
-  border: 1px solid #fff0d9;
   background-color: #fff0d9;
+  border: 1px solid #fff0d9;
 }
 
 .box_2 {
-  border: 1px solid #f4f8fd;
   background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
 }
 
 .box_3 {
-  border: 1px solid #d9d9d9;
   background-color: #d9d9d9;
+  border: 1px solid #d9d9d9;
 }
 
 .box_4 {
-  border: 1px solid #fce5e1;
   background-color: #fce5e1;
+  border: 1px solid #fce5e1;
 }
 
 .right_1 {
   border-left: 11px solid #fff0d9 !important;
 }
+
 .right_2 {
   border-left: 11px solid #f4f8fd !important;
 }
@@ -4830,6 +4836,7 @@ const openDetailOrder = (id, type) => {
   width: 0;
   height: 0;
 }
+
 .triangle-right {
   position: absolute;
   right: -12px;
@@ -4839,6 +4846,7 @@ const openDetailOrder = (id, type) => {
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
 }
+
 .duplicate-status + .duplicate-status {
   margin-left: 10px;
 }
@@ -4853,12 +4861,13 @@ const openDetailOrder = (id, type) => {
 }
 
 ::v-deep(.el-dialog) {
-  margin: 0;
   position: absolute;
   top: 50%;
   left: 50%;
+  margin: 0;
   transform: translate(-50%, -50%);
 }
+
 .active {
   opacity: 1 !important;
 }
@@ -4891,17 +4900,18 @@ const openDetailOrder = (id, type) => {
 .dialog-footer button:first-child {
   margin-right: 10px;
 }
+
 ::v-deep(.el-dialog__title) {
   font-weight: bold;
 }
 
 @media print {
   #printPage {
-    display: block; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 10; /* Sit on top */
-    left: 0;
     top: 0;
+    left: 0;
+    z-index: 10; /* Sit on top */
+    display: block; /* Hidden by default */
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
@@ -4913,6 +4923,7 @@ const openDetailOrder = (id, type) => {
   #billLiquidationContract {
     display: none;
   }
+
   .dialog-content {
     display: block;
   }
@@ -4925,23 +4936,26 @@ const openDetailOrder = (id, type) => {
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
+
 ::v-deep(.el-range-editor.el-input__wrapper) {
   width: 100%;
 }
+
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
 }
+
 .limit-text {
-  white-space: nowrap;
   width: 50px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
   display: flex;
+  color: var(--el-color-primary);
+  cursor: pointer;
   align-items: center;
 }
 
@@ -4984,7 +4998,7 @@ const openDetailOrder = (id, type) => {
 
 #content {
   height: 200px;
-  overflow: auto;
   padding: 0 10px;
+  overflow: auto;
 }
 </style>

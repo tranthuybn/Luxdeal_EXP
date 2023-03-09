@@ -84,7 +84,7 @@ export const businessProductLibrary = [
     minWidth: '150',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ]

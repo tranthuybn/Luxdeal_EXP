@@ -38,7 +38,7 @@ const combo = reactive<TableColumn[]>([
     headerAlign: 'left',
     filters: filterVoucherCondition,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSubjectVoucher(cellValue)
+      return t(`${formatSubjectVoucher(cellValue)}`)
     }
   },
   {
@@ -85,7 +85,7 @@ const combo = reactive<TableColumn[]>([
     headerAlign: 'left',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatStatusVoucher(cellValue)
+     return t(`${formatStatusVoucher(cellValue)}`)
     }
   },
 ])
@@ -196,7 +196,7 @@ const auction = reactive<TableColumn[]>([
     headerAlign: 'left',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatStatusVoucher(cellValue)
+     return t(`${formatStatusVoucher(cellValue)}`)
     }
   }
 ])
@@ -229,7 +229,7 @@ const flashSale =  reactive<TableColumn[]>([
     minWidth: '130',
     filters: filterSubject,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSubjectVoucher(cellValue)
+      return t(`${formatSubjectVoucher(cellValue)}`)
     }
   },
   {
@@ -286,7 +286,7 @@ const flashSale =  reactive<TableColumn[]>([
     headerAlign: 'left',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatStatusVoucher(cellValue)
+     return t(`${formatStatusVoucher(cellValue)}`)
     }
   }
 ])
@@ -317,7 +317,7 @@ const newProduct = reactive<TableColumn[]>([
     headerAlign: 'left',
     filters: filterSubject,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSubjectVoucher(cellValue)
+      return t(`${formatSubjectVoucher(cellValue)}`)
     }
   },
   {
@@ -371,7 +371,7 @@ const newProduct = reactive<TableColumn[]>([
     headerAlign: 'left',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatStatusVoucher(cellValue)
+     return t(`${formatStatusVoucher(cellValue)}`)
     }
   }
 ])
@@ -412,7 +412,7 @@ const voucher = reactive<TableColumn[]>([
     minWidth: '130',
     filters: filterVoucherCondition,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSubjectVoucher(cellValue)
+      return t(`${formatSubjectVoucher(cellValue)}`)
     }
   },
   {
@@ -422,7 +422,7 @@ const voucher = reactive<TableColumn[]>([
     minWidth: '200',
     filters: filterSubject,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSubjectVoucher(cellValue)
+      return t(`${formatSubjectVoucher(cellValue)}`)
     }
   },
   {
@@ -476,7 +476,7 @@ const voucher = reactive<TableColumn[]>([
     headerAlign: 'left',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatStatusVoucher(cellValue)
+     return t(`${formatStatusVoucher(cellValue)}`)
     }
   },
 ])
@@ -506,7 +506,7 @@ const collection = reactive<TableColumn[]>([
     headerAlign: 'left',
     filters: filterSubject,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSubjectVoucher(cellValue)
+      return t(`${formatSubjectVoucher(cellValue)}`)
     }
   },
   {
@@ -560,7 +560,7 @@ const collection = reactive<TableColumn[]>([
     minWidth: '150',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatStatusVoucher(cellValue)
+     return t(`${formatStatusVoucher(cellValue)}`)
     }
   }
 ])

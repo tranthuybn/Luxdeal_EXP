@@ -349,10 +349,10 @@ export default defineComponent({
 ::v-deep(.header-Table-customize),
 ::v-deep(.el-table__row) {
   .cell {
+    position: relative;
+    width: 100%;
     word-break: break-word;
     white-space: unset;
-    width: 100%;
-    position: relative;
   }
 }
 
@@ -362,21 +362,20 @@ export default defineComponent({
   .el-tooltip__trigger,
   .caret-wrapper {
     position: absolute;
-    right: 12px;
     top: 50%;
-    transform: translateY(-50%);
+    right: 12px;
     max-width: 14px;
+    transform: translateY(-50%);
   }
 }
 
 
 .arrowRight {
-  border: solid white;
-  border-width: 0 3px 3px 0;
   display: inline-block;
   padding: 3px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
   transform: rotate(-45deg);
-  -webkit-transform: rotate(-45deg);
 }
 
 

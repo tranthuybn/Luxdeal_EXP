@@ -235,7 +235,7 @@ const ruleFormRef = ref<FormInstance>()
           <el-radio
             v-model="radioSelected"
             :label="scope.$index"
-            style="color: #fff; margin-right: -25px"
+            style=" margin-right: -25px;color: #fff"
             ><span></span
           ></el-radio>
         </template>
@@ -247,7 +247,7 @@ const ruleFormRef = ref<FormInstance>()
           {{ orderType(scope.row.orderType) }}
         </template></el-table-column
       >
-      <el-table-column prop="inventory" :label="t('reuse.iventoryy')" width="100" />
+      <el-table-column prop="inventory" :label="t('reuse.inventory')" width="100" />
       <el-table-column prop="quantity" :label="t('reuse.numberInput')" width="180">
         <template #default="scope">
           {{ calculateQuantity(scope) }}

@@ -127,7 +127,7 @@ const ruleForm = reactive({
   delivery: 1,
   orderFiles: []
 })
-
+// disable khi gọi chi tiết phiếu đặt cọc
 const condition = ref(false)
 
 const rules = reactive<FormRules>({
@@ -617,6 +617,7 @@ const callApiProductList = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
+      inventory:product.tonKho ?? 0,
       unit: product.unitName,
       price: product.price.toString(),
       productPropertyId: product.id,
@@ -647,6 +648,7 @@ const ScrollProductBottom = () => {
                   productCode: product.code,
                   value: product.productCode,
                   name: product.name ?? '',
+                  inventory:product.tonKho ?? 0,
                   unit: product.unitName,
                   price: product.price.toString(),
                   productPropertyId: product.id,
@@ -849,7 +851,6 @@ const createQuickCustomer = async () => {
         type: 'success'
       })
     callCustomersApi()
-
   } else {
     ElNotification({
         message: t('reuse.addFail'),
@@ -2864,6 +2865,7 @@ const disabledPhieu = ref(false)
                 v-model="quickPhoneNumber"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterPhoneNumber')"
+
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
@@ -2929,7 +2931,7 @@ const disabledPhieu = ref(false)
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
               <el-input
                 v-model="quickEmail"
                 style="width: 100%"
@@ -3771,11 +3773,11 @@ const disabledPhieu = ref(false)
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2">
-                {{ outstandingDebt ? changeMoney.format(outstandingDebt) : '0 đ' }}
+                {{ totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ' }}
               </p>
               <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" :disabled="condition"/>
               <p class="pr-2 text-red-600 pt-2">
-                {{ inputDeposit ? changeMoney.format(outstandingDebt - inputDeposit) : '0 đ' }}</p>
+                {{ inputDeposit ? changeMoney.format(totalFinalOrder - inputDeposit) : '0 đ' }}</p>
             </div>
           </div>
         </div>
@@ -3890,7 +3892,7 @@ const disabledPhieu = ref(false)
                   @click="
                     () => {
                       UpdateStatusTransaction()
-                      dialogSalesSlipInfomation = false
+                      dialogDepositSlipAdvance = false
                     }
                   "
                 > 
@@ -4334,7 +4336,7 @@ const disabledPhieu = ref(false)
               @click="
                 () => {
                   UpdateStatusTransaction()
-                  dialogSalesSlipInfomation = false
+                  dialogAccountingEntryAdditional = false
                 }
               "
                 > 
@@ -4902,7 +4904,8 @@ const disabledPhieu = ref(false)
                   :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
-                    t('formDemo.productInformation')
+                    t('formDemo.productInformation'),
+                    t('reuse.inventory')
                   ]"
                   v-if="checkCreate"
                   filterable
@@ -4975,7 +4978,8 @@ const disabledPhieu = ref(false)
                   :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
-                    t('formDemo.productInformation')
+                    t('formDemo.productInformation'),
+                    t('reuse.inventory')
                   ]"
                   v-if="checkCreate"
                   filterable
@@ -5183,7 +5187,9 @@ const disabledPhieu = ref(false)
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory')
+
                 ]"
                 filterable
                 :disabled="disabledEdit"
@@ -5266,7 +5272,7 @@ const disabledPhieu = ref(false)
           </el-table-column>
           <el-table-column
             prop="warehouseTotal"
-            :label="t('reuse.iventoryy')"
+            :label="t('reuse.inventory')"
             min-width="200"
           >
             <template #default="props">
@@ -5463,7 +5469,8 @@ const disabledPhieu = ref(false)
                 <div
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_SELL[2].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_SELL[3].orderStatus  || STATUS_ORDER_SELL[8].orderStatus
+                    item.orderStatus == STATUS_ORDER_SELL[3].orderStatus  || 
+                    item.orderStatus == STATUS_ORDER_SELL[8].orderStatus
                   "
                 >
                   <span
@@ -5678,7 +5685,7 @@ const disabledPhieu = ref(false)
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || statusOrder == STATUS_ORDER_SELL[8].orderStatus"
+            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || STATUS_ORDER_SELL[8].orderStatus"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
@@ -5978,8 +5985,8 @@ const disabledPhieu = ref(false)
 }
 
 ::v-deep(.el-textarea__inner) {
-  box-shadow: none;
   padding: 5px 0;
+  box-shadow: none;
 }
 
 ::v-deep(.el-form-item) {
@@ -6011,12 +6018,15 @@ const disabledPhieu = ref(false)
   #recpPaymentPrint {
     display: none;
   }
+
   #billDepositPrint {
     display: none;
   }
+
   #IPRFormPrint {
     display: none;
   }
+
   .dialog-content {
     display: block;
   }
@@ -6024,11 +6034,11 @@ const disabledPhieu = ref(false)
 
 @media print {
   #printPage {
-    display: block; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 10; /* Sit on top */
-    left: 0;
     top: 0;
+    left: 0;
+    z-index: 10; /* Sit on top */
+    display: block; /* Hidden by default */
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
@@ -6057,10 +6067,6 @@ const disabledPhieu = ref(false)
   margin-right: 10px;
 }
 
-::v-deep(.el-dialog__body) {
-  padding-top: 0;
-}
-
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
@@ -6070,9 +6076,9 @@ const disabledPhieu = ref(false)
 }
 
 .example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
   display: flex;
+  color: var(--el-color-primary);
+  cursor: pointer;
   align-items: center;
 }
 
@@ -6122,38 +6128,40 @@ const disabledPhieu = ref(false)
 }
 
 .box {
-  padding: 0 10px 0 20px;
   position: relative;
   display: flex;
   width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
+  padding: 0 10px 0 20px;
   background-color: #ccc;
+  border: 1px solid #ccc;
   opacity: 0.6;
+  align-items: center;
 }
+
 .box_1 {
-  border: 1px solid #fff0d9;
   background-color: #fff0d9;
+  border: 1px solid #fff0d9;
 }
 
 .box_2 {
-  border: 1px solid #f4f8fd;
   background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
 }
 
 .box_3 {
-  border: 1px solid #d9d9d9;
   background-color: #d9d9d9;
+  border: 1px solid #d9d9d9;
 }
 
 .box_4 {
-  border: 1px solid #fce5e1;
   background-color: #fce5e1;
+  border: 1px solid #fce5e1;
 }
 
 .right_1 {
   border-left: 11px solid #fff0d9 !important;
 }
+
 .right_2 {
   border-left: 11px solid #f4f8fd !important;
 }
@@ -6172,6 +6180,7 @@ const disabledPhieu = ref(false)
   width: 0;
   height: 0;
 }
+
 .triangle-right {
   position: absolute;
   right: -12px;
@@ -6193,6 +6202,7 @@ const disabledPhieu = ref(false)
 .duplicate-status + .duplicate-status {
   margin-left: 10px;
 }
+
 .active {
   opacity: 1 !important;
 }
@@ -6207,8 +6217,8 @@ const disabledPhieu = ref(false)
 
 #content {
   height: 200px;
-  overflow: auto;
   padding: 0 10px;
+  overflow: auto;
 }
 
 ::v-deep(.el-overlay-dialog) {
@@ -6217,14 +6227,15 @@ const disabledPhieu = ref(false)
 
 ::v-deep(.el-dialog__body) {
   max-height: 80vh;
+  padding-top: 0;
   overflow-y: auto;
 }
 
 ::v-deep(.el-dialog) {
-  margin: 0;
   position: absolute;
   top: 50%;
   left: 50%;
+  margin: 0;
   transform: translate(-50%, -50%);
 }
 </style>

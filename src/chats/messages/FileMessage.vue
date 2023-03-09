@@ -32,12 +32,13 @@ export default {
 
 <style scoped>
 .sc-message--file {
-  border-radius: 6px;
-  font-weight: 300;
   font-size: 14px;
-  line-height: 1.4;
+
   /* white-space: pre-wrap; */
   -webkit-font-smoothing: subpixel-antialiased;
+  font-weight: 300;
+  line-height: 1.4;
+  border-radius: 6px;
 }
 
 .sc-message--content.sent .sc-message--file {
@@ -45,11 +46,8 @@ export default {
 }
 
 .sc-message--file-icon {
+  margin: 15px auto 0;
   text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 15px;
-  margin-bottom: 0px;
 }
 
 .sc-image {
@@ -59,26 +57,26 @@ export default {
 
 .sc-message--file-text {
   padding: 17px 20px;
-  border-radius: 6px;
-  font-weight: 300;
   font-size: 14px;
+  -webkit-font-smoothing: subpixel-antialiased;
+  font-weight: 300;
   line-height: 1.4;
   white-space: pre-wrap;
-  -webkit-font-smoothing: subpixel-antialiased;
+  border-radius: 6px;
 }
 
 .sc-message--file-name {
-  color: white;
-  padding-left: 15px;
-  padding-right: 15px;
   padding-top: 0;
+  padding-right: 15px;
+  padding-left: 15px;
   font-size: x-small;
+  color: white;
   text-align: center;
 }
 
 .sc-message--file-name a {
-  text-decoration: none;
   color: #ece7e7;
+  text-decoration: none;
 }
 
 .sc-message--file-name a:hover {
@@ -87,14 +85,14 @@ export default {
 
 .sc-message--content.sent .sc-message--file-text {
   color: white;
-  background-color: #4e8cff;
   word-wrap: break-word;
+  background-color: #4e8cff;
 }
 
 .sc-message--content.received .sc-message--file {
+  margin-right: 40px;
   color: #263238;
   background-color: #f4f7f9;
-  margin-right: 40px;
 }
 
 .sc-message--content.received .sc-message--file-name {
@@ -102,7 +100,7 @@ export default {
 }
 
 .sc-message--content.received .sc-message--file a {
-  color: rgba(43, 40, 40, 0.7);
+  color: rgb(43 40 40 / 70%);
 }
 
 .sc-message--content.received .sc-message--file a:hover {

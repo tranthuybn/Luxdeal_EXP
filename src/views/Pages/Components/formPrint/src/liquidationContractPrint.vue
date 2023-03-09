@@ -205,28 +205,30 @@ function getArraySum(arr) {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+
 * {
-  font-family: 'Lora', serif;
+  font-family: Lora, serif;
   font-weight: 500;
 }
 
 .text-end {
   text-align: end;
 }
+
 ::v-deep(table) {
   word-break: break-word;
 }
 
 table {
+  width: 100%;
   font-family: arial, sans-serif;
   border-collapse: collapse;
-  width: 100%;
 }
 
 td,
 th {
-  border: 1px solid #dddddd;
-  text-align: left;
   padding: 8px;
+  text-align: left;
+  border: 1px solid #ddd;
 }
 </style>

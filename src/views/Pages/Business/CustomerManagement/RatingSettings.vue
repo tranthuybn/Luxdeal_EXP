@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -87,8 +87,8 @@ const columns = reactive<TableColumn[]>([
     label: t('customerList.ratings'),
     minWidth: '200',
     align: 'left',
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', formatCustomerRatings(cellValue))
+    formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
+      return t(`${formatCustomerRatings(cellValue)}`)
     }
   },
   {
@@ -123,8 +123,8 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150',
     align: 'left',
     filters: filterProductStatus,
-    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', productStatusTransferToText(_))
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ])

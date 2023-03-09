@@ -71,7 +71,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '100',
     filters: filterTransactionStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return onlineToText(cellValue)
+      return t(`${onlineToText(cellValue)}`)
     }
   },
   {
@@ -97,7 +97,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '100',
     filters: filterService,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatServiceIdToText(cellValue)
+      return t(`${formatServiceIdToText(cellValue)}`)
     }
   },
   {
@@ -159,7 +159,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '180',
     filters: filterPotentialCustomerStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatPotentialCustomerStatusIdToText(cellValue)
+      return t(`${formatPotentialCustomerStatusIdToText(cellValue)}`)
     }
   }
 ])

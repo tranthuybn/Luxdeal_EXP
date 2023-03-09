@@ -2,8 +2,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
 import { filterProductStatus } from '@/utils/filters'
 import { productStatusTransferToText, dateTimeFormat, valueDateFormat } from '@/utils/format'
-import { h } from 'vue'
-
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 export const productCategories = [
   { field: '', width: '50' },
@@ -35,8 +33,8 @@ export const productCategories = [
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterProductStatus,
-    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', productStatusTransferToText(_))
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ]
@@ -72,8 +70,8 @@ export const colorCategories = [
     minWidth: '150',
     filters: filterProductStatus,
     valueFormat: valueDateFormat,
-    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', productStatusTransferToText(_))
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ]
@@ -113,7 +111,7 @@ export const sizeCategories = [
     align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ]
@@ -152,7 +150,7 @@ export const materialCategories = [
     align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ]
@@ -191,7 +189,7 @@ export const statusCategories = [
     align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ]
@@ -230,7 +228,7 @@ export const genderCategories = [
     align: 'center',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ]
@@ -269,8 +267,8 @@ export const unitCategories = [
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterProductStatus,
-    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', productStatusTransferToText(_))
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ]
@@ -308,8 +306,8 @@ export const brandCategories = [
     minWidth: '150',
     align: 'center',
     filters: filterProductStatus,
-    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', productStatusTransferToText(_))
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ]
@@ -346,8 +344,8 @@ export const originCategories = [
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterProductStatus,
-    formatter: (_: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', productStatusTransferToText(_))
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ]

@@ -1,6 +1,6 @@
 import { useAxios } from '@/hooks/web/useAxios'
 import { FORM_DATA, FORM_IMAGES, objectToQueryParams } from '@/utils/format'
-import { PRODUCTS_AND_SERVICES_API, API_URL } from '@/utils/API_URL'
+import { PRODUCTS_AND_SERVICES_API, API_URL,ORDER_API } from '@/utils/API_URL'
 
 const request = useAxios()
 const fixedBaseURL = API_URL
@@ -160,6 +160,17 @@ export const getSpaLibrary = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+export const getSpaByProduct = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_SPA_BY_PRODUCT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getProductProperty = async (params): Promise<IResponse> => {
   const res = await request.get(
     {

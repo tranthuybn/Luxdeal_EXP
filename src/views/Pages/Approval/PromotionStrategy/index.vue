@@ -124,10 +124,11 @@ const action = (row: any, _type: string) => {
 <style scoped>
 ::v-deep(.arrowRight) {
   position: relative;
-  height: 0;
-  right: 20px;
   top: 12px;
+  right: 20px;
+  height: 0;
 }
+
 ::v-deep(.btn-detail_Approval) {
   display: flex;
   justify-content: center;

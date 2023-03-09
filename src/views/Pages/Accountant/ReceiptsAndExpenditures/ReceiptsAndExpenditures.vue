@@ -131,7 +131,7 @@ const columns = reactive<TableColumn[]>([
     filters: filterStatusAccouting,
     headerAlign: 'left',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatStatusAccounting(cellValue)
+      return t(`${formatStatusAccounting(cellValue)}`)
     },
   },
   {

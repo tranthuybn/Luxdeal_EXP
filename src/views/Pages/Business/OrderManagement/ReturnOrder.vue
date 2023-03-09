@@ -1487,49 +1487,53 @@ onBeforeMount(()=>{
 .limit-text {
   display: -webkit-box;
   max-height: 3.2rem;
-  -webkit-box-orient: vertical;
   overflow: hidden;
+  line-height: 1.6rem;
   text-overflow: ellipsis;
   white-space: normal;
+  -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  line-height: 1.6rem;
 }
+
 .active {
   opacity: 1 !important;
 }
+
 .box {
-  padding: 0 10px 0 20px;
   position: relative;
   display: flex;
   width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
+  padding: 0 10px 0 20px;
   background-color: #ccc;
+  border: 1px solid #ccc;
   opacity: 0.6;
+  align-items: center;
 }
+
 .box_1 {
-  border: 1px solid #fff0d9!important;
   background-color: #fff0d9!important;
+  border: 1px solid #fff0d9!important;
 }
 
 .box_2 {
-  border: 1px solid #f4f8fd;
   background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
 }
 
 .box_3 {
-  border: 1px solid #d9d9d9;
   background-color: #d9d9d9;
+  border: 1px solid #d9d9d9;
 }
 
 .box_4 {
-  border: 1px solid #fce5e1;
   background-color: #fce5e1;
+  border: 1px solid #fce5e1;
 }
 
 .right_1 {
   border-left: 11px solid #fff0d9 !important;
 }
+
 .right_2 {
   border-left: 11px solid #f4f8fd !important;
 }
@@ -1548,6 +1552,7 @@ onBeforeMount(()=>{
   width: 0;
   height: 0;
 }
+
 .triangle-right {
   position: absolute;
   right: -12px;

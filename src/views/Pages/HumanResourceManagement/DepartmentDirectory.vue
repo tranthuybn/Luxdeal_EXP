@@ -66,7 +66,7 @@ const columnsBranch = reactive<TableColumn[]>([
     minWidth: '150',
     filters: filterDepartment,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return statusBranch(cellValue)
+      return t(`${statusBranch(cellValue)}`)
     }
   }
 ])
@@ -113,7 +113,7 @@ const columnsDepartment = reactive<TableColumn[]>([
     minWidth: '150',
     filters: filterDepartment,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return statusBranch(cellValue)
+      return t(`${statusBranch(cellValue)}`)
     }
   }
 ])
@@ -160,7 +160,7 @@ const columnsRank = reactive<TableColumn[]>([
     minWidth: '150',
     filters: filterDepartment,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return statusBranch(cellValue)
+      return t(`${statusBranch(cellValue)}`)
     }
   }
 ])
@@ -207,7 +207,7 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     minWidth: '150',
     filters: filterDepartment,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return statusBranch(cellValue)
+      return t(`${statusBranch(cellValue)}`)
     }
   }
 ])

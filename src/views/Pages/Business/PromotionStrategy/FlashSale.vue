@@ -67,7 +67,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '130',
     filters: filterSubject,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSubjectVoucher(cellValue)
+      return t(`${formatSubjectVoucher(cellValue)}`)
     }
   },
   {
@@ -124,7 +124,7 @@ const columns = reactive<TableColumn[]>([
     headerAlign: 'left',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatStatusVoucher(cellValue)
+     return t(`${formatStatusVoucher(cellValue)}`)
     }
   },
   {

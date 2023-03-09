@@ -124,6 +124,7 @@ onBeforeMount(() => {
 ::v-deep(.cell) {
   word-break: break-word;
 }
+
 ::v-deep(.el-table td.el-table__cell div) {
   font-weight: 400;
   color: black;

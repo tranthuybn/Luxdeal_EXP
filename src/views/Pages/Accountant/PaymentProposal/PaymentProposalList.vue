@@ -95,7 +95,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '130',
     filters: filterStatusGeneral,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatStatusGeneral(cellValue)
+      return t(`${formatStatusGeneral(cellValue)}`)
     },
     headerAlign: "left"
   },

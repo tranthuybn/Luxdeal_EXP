@@ -616,6 +616,7 @@ const postQuickProduct = (product,productId)=>{
       productCode: product.productCode,
       value: product.productCode,
       name: product.name ?? '',
+      inventory:product.tonKho ?? 0,
       unit: '',
       price: 0,
       productPropertyId: productId,
@@ -642,6 +643,7 @@ const callAPIProduct = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
+      inventory:product.tonKho?? 0,
       unit: product.unitName,
       price: product.price,
       productPropertyId: product.id,
@@ -3847,7 +3849,8 @@ const openDetailOrder = (id, type) => {
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory')
                 ]"
                 filterable
                 width="650px"
@@ -3990,7 +3993,7 @@ const openDetailOrder = (id, type) => {
             </template>
           </el-table-column>
 
-          <el-table-column prop="warehouseTotal" :label="t('reuse.iventoryy')" width="200">
+          <el-table-column prop="warehouseTotal" :label="t('reuse.inventory')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
                 <el-button
@@ -4750,8 +4753,8 @@ const openDetailOrder = (id, type) => {
 }
 
 ::v-deep(.el-textarea__inner) {
-  box-shadow: none;
   padding: 5px 0;
+  box-shadow: none;
 }
 
 ::v-deep(.el-form-item) {
@@ -4778,40 +4781,42 @@ const openDetailOrder = (id, type) => {
     max-width: 100%;
   }
 }
+
 .box {
-  padding: 0 10px 0 20px;
   position: relative;
   display: flex;
   width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
+  padding: 0 10px 0 20px;
   background-color: #ccc;
+  border: 1px solid #ccc;
   opacity: 0.6;
+  align-items: center;
 }
 
 .box_1 {
-  border: 1px solid #fff0d9;
   background-color: #fff0d9;
+  border: 1px solid #fff0d9;
 }
 
 .box_2 {
-  border: 1px solid #f4f8fd;
   background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
 }
 
 .box_3 {
-  border: 1px solid #d9d9d9;
   background-color: #d9d9d9;
+  border: 1px solid #d9d9d9;
 }
 
 .box_4 {
-  border: 1px solid #fce5e1;
   background-color: #fce5e1;
+  border: 1px solid #fce5e1;
 }
 
 .right_1 {
   border-left: 11px solid #fff0d9 !important;
 }
+
 .right_2 {
   border-left: 11px solid #f4f8fd !important;
 }
@@ -4830,6 +4835,7 @@ const openDetailOrder = (id, type) => {
   width: 0;
   height: 0;
 }
+
 .triangle-right {
   position: absolute;
   right: -12px;
@@ -4839,6 +4845,7 @@ const openDetailOrder = (id, type) => {
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
 }
+
 .duplicate-status + .duplicate-status {
   margin-left: 10px;
 }
@@ -4853,12 +4860,13 @@ const openDetailOrder = (id, type) => {
 }
 
 ::v-deep(.el-dialog) {
-  margin: 0;
   position: absolute;
   top: 50%;
   left: 50%;
+  margin: 0;
   transform: translate(-50%, -50%);
 }
+
 .active {
   opacity: 1 !important;
 }
@@ -4891,17 +4899,18 @@ const openDetailOrder = (id, type) => {
 .dialog-footer button:first-child {
   margin-right: 10px;
 }
+
 ::v-deep(.el-dialog__title) {
   font-weight: bold;
 }
 
 @media print {
   #printPage {
-    display: block; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 10; /* Sit on top */
-    left: 0;
     top: 0;
+    left: 0;
+    z-index: 10; /* Sit on top */
+    display: block; /* Hidden by default */
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
@@ -4913,6 +4922,7 @@ const openDetailOrder = (id, type) => {
   #billLiquidationContract {
     display: none;
   }
+
   .dialog-content {
     display: block;
   }
@@ -4925,23 +4935,26 @@ const openDetailOrder = (id, type) => {
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
+
 ::v-deep(.el-range-editor.el-input__wrapper) {
   width: 100%;
 }
+
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
 }
+
 .limit-text {
-  white-space: nowrap;
   width: 50px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
   display: flex;
+  color: var(--el-color-primary);
+  cursor: pointer;
   align-items: center;
 }
 
@@ -4984,7 +4997,7 @@ const openDetailOrder = (id, type) => {
 
 #content {
   height: 200px;
-  overflow: auto;
   padding: 0 10px;
+  overflow: auto;
 }
 </style>

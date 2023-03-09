@@ -875,7 +875,7 @@ onBeforeMount(() => {
                       </span>
                     </ElCol>
                     <ElCol
-                      ><label style="font-style: italic; font-size: 13px">
+                      ><label style=" font-size: 13px;font-style: italic">
                         {{ dateTimeFormat(moment()) }}</label
                       >
                     </ElCol>
@@ -1125,9 +1125,9 @@ onBeforeMount(() => {
 
 <style scoped>
 .avatar-uploader .avatar {
+  display: block;
   width: 178px;
   height: 178px;
-  display: block;
 }
 
 ::v-deep(.custom-select-w38 > .el-select) {
@@ -1139,10 +1139,10 @@ onBeforeMount(() => {
 }
 
 .el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
   width: 178px;
   height: 178px;
+  font-size: 28px;
+  color: #8c939d;
   text-align: center;
 }
 
@@ -1191,9 +1191,9 @@ onBeforeMount(() => {
 
 .demo-date-picker .demonstration {
   display: block;
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
   margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
 }
 
 ::v-deep(.el-input__wrapper) {
@@ -1204,16 +1204,16 @@ onBeforeMount(() => {
 ::v-deep(.fix-width > .el-input) {
   width: 100%;
 }
+
 .day-updated {
   position: relative;
-  padding-left: 20px;
   width: fit-content;
+  padding-left: 20px;
   color: var(--el-color-primary);
-  background: rgba(44, 109, 218, 0.05);
+  background: rgb(44 109 218 / 5%);
 }
 
 .day-updated::after {
-  content: '';
   position: absolute;
   top: 0;
   right: -12px;
@@ -1221,11 +1221,11 @@ onBeforeMount(() => {
   height: 0;
   border-top: 8px solid transparent;
   border-bottom: 12px solid transparent;
-  border-left: 12px solid rgba(44, 109, 218, 0.05);
+  border-left: 12px solid rgb(44 109 218 / 5%);
+  content: '';
 }
 
 .day-updated::before {
-  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -1234,5 +1234,6 @@ onBeforeMount(() => {
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
   border-left: 12px solid white;
+  content: '';
 }
 </style>

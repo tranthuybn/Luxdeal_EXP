@@ -100,12 +100,12 @@ const cancelPost = (id) => {
 </template>
 <style scoped>
 .dots {
-  margin-right: 3px;
-  content: ' ';
+  bottom: 5px;
   width: 5px;
   height: 5px;
-  bottom: 5px;
-  border-radius: 50%;
+  margin-right: 3px;
   background: #0d0d0d;
+  border-radius: 50%;
+  content: ' ';
 }
 </style>

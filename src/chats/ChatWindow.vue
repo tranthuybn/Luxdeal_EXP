@@ -220,55 +220,55 @@ export default {
 
 <style scoped>
 .sc-chat-window-inner {
-  width: 400px;
-  height: calc(100% - 120px);
-  max-height: 590px;
   position: fixed;
   right: 320px;
   bottom: 100px;
-  box-sizing: border-box;
-  box-shadow: 0px 7px 40px 2px rgba(148, 149, 150, 0.1);
-  background: white;
+  z-index: 1000;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  width: 400px;
+  height: calc(100% - 120px);
+  max-height: 590px;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: white;
+  box-shadow: 0 7px 40px 2px rgb(148 149 150 / 10%);
+  box-sizing: border-box;
   animation: fadeIn;
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
-  z-index: 1000;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .scc-chat-window {
-  width: 290px;
-  height: 100%;
-  max-height: calc(100% - 120px);
   position: fixed;
   right: 25px;
   bottom: 100px;
-  box-sizing: border-box;
-  box-shadow: 0px 7px 40px 2px rgba(148, 149, 150, 0.1);
-  background: white;
+  z-index: 1000;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  width: 290px;
+  height: 100%;
+  max-height: calc(100% - 120px);
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: white;
+  box-shadow: 0 7px 40px 2px rgb(148 149 150 / 10%);
+  box-sizing: border-box;
   animation: fadeIn;
   animation-duration: 0.3s;
   animation-timing-function: ease-in-out;
-  z-index: 1000;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .sc-chat-window.closed {
-  opacity: 0;
-  display: none;
   bottom: 90px;
+  display: none;
+  opacity: 0;
 }
 
 .scc-chat-window.closed {
-  opacity: 0;
-  display: none;
   bottom: 90px;
+  display: none;
+  opacity: 0;
 }
 
 @keyframes fadeIn {
@@ -286,24 +286,27 @@ export default {
 .sc-message--me {
   text-align: right;
 }
+
 .sc-message--them {
   text-align: left;
 }
 
 @media (max-width: 450px) {
   .sc-chat-window {
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
     max-height: 100%;
-    right: 0px;
-    bottom: 0px;
-    border-radius: 0px;
+    border-radius: 0;
   }
+
   .sc-chat-window {
     transition: 0.1s ease-in-out;
   }
+
   .sc-chat-window.closed {
-    bottom: 0px;
+    bottom: 0;
   }
 }
 </style>

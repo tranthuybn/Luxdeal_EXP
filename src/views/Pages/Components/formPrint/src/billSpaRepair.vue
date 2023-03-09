@@ -105,35 +105,40 @@ const props = defineProps({
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+
 * {
-  font-family: 'Lora', serif;
+  font-family: Lora, serif;
 }
+
 .header{
   display: flex;
   justify-content: center;
   flex-wrap: wrap
 }
+
 .header div{
-  text-align:center;
   width: 100%;
+  text-align: center;
 }
+
 .text-end {
   text-align: end;
 }
+
 ::v-deep(table) {
   word-break: break-word;
 }
 
 table {
+  width: 100%;
   font-family: arial, sans-serif;
   border-collapse: collapse;
-  width: 100%;
 }
 
 ::v-deep(td), ::v-deep(th){
-  border: 1px solid #dddddd;
-  text-align: left;
   padding: 8px 0 8px 8px;
+  text-align: left;
   word-break: break-word;
+  border: 1px solid #ddd;
 }
 </style>

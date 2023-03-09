@@ -889,19 +889,22 @@ const enableEverything = () => {
 .lightGray {
   background-color: #e0e0e0;
 }
+
 .darkGray {
   background-color: #a0a0a0;
 }
+
 .red {
-  background-color: #ff9999;
+  background-color: #f99;
 }
+
 .day-updated {
   position: relative;
-  padding-left: 20px;
   width: fit-content;
+  padding-left: 20px;
 }
+
 .day-updated::after {
-  content: '';
   position: absolute;
   top: 0;
   right: -12px;
@@ -910,9 +913,10 @@ const enableEverything = () => {
   border-top: 10px solid transparent;
   border-bottom: 14px solid transparent;
   border-left: 12px solid #e0e0e0;
-}
-.day-updated::before {
   content: '';
+}
+
+.day-updated::before {
   position: absolute;
   top: 0;
   left: 0;
@@ -921,14 +925,16 @@ const enableEverything = () => {
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 12px solid white;
+  content: '';
 }
+
 .red-updated {
   position: relative;
-  padding-left: 20px;
   width: fit-content;
+  padding-left: 20px;
 }
+
 .red-updated::after {
-  content: '';
   position: absolute;
   top: 0;
   right: -12px;
@@ -936,10 +942,11 @@ const enableEverything = () => {
   height: 0;
   border-top: 10px solid transparent;
   border-bottom: 14px solid transparent;
-  border-left: 12px solid #ff9999;
-}
-.red-updated::before {
+  border-left: 12px solid #f99;
   content: '';
+}
+
+.red-updated::before {
   position: absolute;
   top: 0;
   left: 0;
@@ -948,14 +955,16 @@ const enableEverything = () => {
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 12px solid white;
+  content: '';
 }
+
 .darkGray-updated {
   position: relative;
-  padding-left: 20px;
   width: fit-content;
+  padding-left: 20px;
 }
+
 .darkGray-updated::after {
-  content: '';
   position: absolute;
   top: 0;
   right: -12px;
@@ -964,9 +973,10 @@ const enableEverything = () => {
   border-top: 10px solid transparent;
   border-bottom: 14px solid transparent;
   border-left: 12px solid #a0a0a0;
-}
-.darkGray-updated::before {
   content: '';
+}
+
+.darkGray-updated::before {
   position: absolute;
   top: 0;
   left: 0;
@@ -975,33 +985,39 @@ const enableEverything = () => {
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
   border-left: 12px solid white;
+  content: '';
 }
+
 .avatar {
   width: 178px;
   height: 178px;
 }
+
 .avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
   transition: var(--el-transition-duration-fast);
 }
+
 .avatar-uploader .el-upload:hover {
   border-color: var(--el-color-primary);
 }
 
 .uploadIcon {
-  font-size: 28px;
-  color: #8c939d;
   width: 178px;
   height: 178px;
+  font-size: 28px;
+  color: #8c939d;
   text-align: center;
 }
+
 :deep(.el-row) {
   width: 100%;
 }
+
 :deep(.el-form-item) {
   margin-left: 7% !important;
 }

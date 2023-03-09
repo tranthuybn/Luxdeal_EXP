@@ -178,9 +178,10 @@ const remoteMethod = (query: string) => {
 <style lang="css" scoped>
 #content {
   height: 200px;
-  overflow: auto;
   padding: 0 10px;
+  overflow: auto;
 }
+
 .el-select-custom {
   width: 100%;
 }
@@ -193,26 +194,30 @@ const remoteMethod = (query: string) => {
 .el-select-custom .el-input__icon {
   color: #9ea1a5;
 }
+
 .text-ellipsis {
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
 }
 
 .el-select-dropdown__item:hover {
-  background-color: #4c89e5;
   color: white;
+  background-color: #4c89e5;
 }
 
 .el-select-dropdown__item {
   padding: 0;
 }
+
 ::v-deep(.el-input__wrapper) {
   cursor: default !important;
 }
+
 ::v-deep(.el-select__caret.el-icon) {
   cursor: default !important;
 }
+
 ::v-deep(.el-input__inner) {
   cursor: default !important;
 }

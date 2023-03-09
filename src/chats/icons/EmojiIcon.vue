@@ -77,10 +77,10 @@ export default {
 
 <style scoped>
 .sc-user-input--emoji-icon-wrapper {
+  padding: 0;
+  margin: 0;
   background: none;
   border: none;
-  padding: 0px;
-  margin: 0px;
   outline: none;
 }
 

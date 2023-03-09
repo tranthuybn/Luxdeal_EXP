@@ -35,7 +35,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '250',
     filters: filterPointSettingType,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatPointSettingType(cellValue)
+      return t(`${formatPointSettingType(cellValue)}`)
     }
   },
   {
@@ -44,7 +44,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '130',
     filters: filterSubject,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSubjectVoucher(cellValue)
+      return t(`${formatSubjectVoucher(cellValue)}`)
     }
   },
   {
@@ -68,7 +68,7 @@ const columns = reactive<TableColumn[]>([
     align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
+      return t(`${dateTimeFormat(cellValue)}`)
     }
   },
   {
@@ -78,7 +78,7 @@ const columns = reactive<TableColumn[]>([
     align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
+      return t(`${dateTimeFormat(cellValue)}`)
     }
   },
   {
@@ -88,7 +88,7 @@ const columns = reactive<TableColumn[]>([
     align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
+      return t(`${dateTimeFormat(cellValue)}`)
     }
   },
   {
@@ -103,7 +103,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '200',
     filters: filterStatusSettingPoint,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatSettingPointStatus(cellValue)
+      return t(`${formatSettingPointStatus(cellValue)}`)
     }
   },
   {

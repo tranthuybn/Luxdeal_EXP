@@ -419,14 +419,14 @@ onBeforeMount(()=>{
 
 <style scope>
 .box {
-  padding: 0 10px 0 20px;
   position: relative;
   display: flex;
   width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
+  padding: 0 10px 0 20px;
   background-color: #ccc;
+  border: 1px solid #ccc;
   opacity: 0.6;
+  align-items: center;
 }
 
 .triangle-left {
@@ -435,6 +435,7 @@ onBeforeMount(()=>{
   width: 0;
   height: 0;
 }
+
 .triangle-right {
   position: absolute;
   right: -12px;
@@ -444,6 +445,7 @@ onBeforeMount(()=>{
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
 }
+
 .active {
   opacity: 1 !important;
 }

@@ -60,7 +60,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150',
     filters: filterPointStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return formatCustomerPointStatus(cellValue)
+      return t(`${formatCustomerPointStatus(cellValue)}`)
     }
   },
   {

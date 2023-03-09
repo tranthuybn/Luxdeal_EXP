@@ -247,19 +247,19 @@ export const formatServiceIdToText = (val) => {
   }
 }
 export const onlineToText = (val) => {
-  if (val) return `${t('reuse.online')}`
-  return `${t('reuse.offline')}`
+  if (val) return t('reuse.online')
+  return t('reuse.offline')
 }
 export const businessIventoryStatusTransferToText = (val) => {
-  if (val) return `${t('reuse.stocking')}`
-  return `${t('reuse.outOfStock')}`
+  if (val) t('reuse.stocking')
+  return t('reuse.outOfStock')
 }
 
 export const businessStatusTransferToText = (val) => {
-  if (val == 2) return `${t('reuse.active')}`
-  else if (val == 0) return `${t('reuse.pending')}`
-  else if (val == 1) return `${t('reuse.finishPending')}`
-  return `${t('reuse.inactive')}`
+  if (val == 2) return t('reuse.active')
+  else if (val == 0) return t('reuse.pending')
+  else if (val == 1) return t('reuse.finishPending')
+  return t('reuse.inactive')
 }
 
 export const orderType = (val) => {

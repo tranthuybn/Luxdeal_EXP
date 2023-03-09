@@ -496,7 +496,7 @@ const renderTitle = (route) => {
       }
     }
 
-    &:after {
+    &::after {
       position: absolute;
       top: 1px;
       left: 0;
@@ -561,7 +561,7 @@ const renderTitle = (route) => {
         }
       }
 
-      &:after {
+      &::after {
         border-right: 1px solid var(--el-border-color);
         border-left: 1px solid var(--el-border-color);
       }

@@ -520,6 +520,7 @@ const callAPIProduct = async () => {
       productCode: product.code,
       value: product.productCode,
       name: product.name ?? '',
+      inventory:product.tonKho ?? 0,
       unit: product.unitName,
       price: product.price.toString(),
       productPropertyId: product.id,
@@ -563,6 +564,7 @@ const ScrollProductBottom = () => {
                   productCode: product.code,
                   value: product.productCode,
                   name: product.name ?? '',
+                  inventory:product.tonKho ?? 0,
                   price: product.price.toString(),
                   productPropertyId: product.id,
                   productPropertyCode: product.productPropertyCode
@@ -3466,8 +3468,8 @@ const postReturnRequest = async (reason) => {
                             :fields="[
                               t('reuse.customerCode'),
                               t('reuse.customerName'),
-                              t('reuse.customerInfo')
-                            ]"
+                              t('reuse.customerInfo'),
+                             ]"
                             filterable
                             width="700px"
                             :items="optionsCustomerApi"
@@ -3729,7 +3731,8 @@ const postReturnRequest = async (reason) => {
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory')
                 ]"
                 filterable
                 width="650px"
@@ -5840,12 +5843,15 @@ const postReturnRequest = async (reason) => {
   #billSpa {
     display: none;
   }
+
   #recpPaymentPrint {
     display: none;
   }
+
   #repairSpa{
     display: none;
   }
+
   .dialog-content {
     display: block;
   }
@@ -5856,14 +5862,15 @@ const postReturnRequest = async (reason) => {
 }
 
 ::v-deep(.el-textarea__inner) {
-  box-shadow: none;
   padding: 5px 0;
+  box-shadow: none;
 }
 
 ::v-deep(.el-form-item) {
   display: flex;
   align-items: center;
 }
+
 ::v-deep(.el-dialog__title) {
   font-weight: bold;
 }
@@ -5877,48 +5884,54 @@ const postReturnRequest = async (reason) => {
 ::v-deep(.d-block > .el-row) {
   display: block;
 }
+
 .fix-width > .el-form-item {
   width: 80%;
 }
+
 .box {
-  padding: 0 10px 0 20px;
   position: relative;
   display: flex;
   width: fit-content;
-  align-items: center;
-  border: 1px solid #ccc;
+  padding: 0 10px 0 20px;
   background-color: #ccc;
+  border: 1px solid #ccc;
   opacity: 0.6;
+  align-items: center;
 }
 
 .box_1 {
-  border: 1px solid #fff0d9;
   background-color: #fff0d9;
+  border: 1px solid #fff0d9;
 }
 
 .box_2 {
-  border: 1px solid #f4f8fd;
   background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
 }
 
 .box_3 {
-  border: 1px solid #d9d9d9;
   background-color: #d9d9d9;
+  border: 1px solid #d9d9d9;
 }
 
 .box_4 {
-  border: 1px solid #fce5e1;
   background-color: #fce5e1;
+  border: 1px solid #fce5e1;
 }
+
 .duplicate-status + .duplicate-status {
   margin-left: 10px;
 }
+
 .active {
   opacity: 1 !important;
 }
+
 .right_1 {
   border-left: 11px solid #fff0d9 !important;
 }
+
 .right_2 {
   border-left: 11px solid #f4f8fd !important;
 }
@@ -5930,12 +5943,14 @@ const postReturnRequest = async (reason) => {
 .right_4 {
   border-left: 11px solid #fce5e1 !important;
 }
+
 .triangle-left {
   position: absolute;
   z-index: 1998;
   width: 0;
   height: 0;
 }
+
 .triangle-right {
   position: absolute;
   right: -12px;
@@ -5949,20 +5964,22 @@ const postReturnRequest = async (reason) => {
 .limit-text {
   display: -webkit-box;
   max-height: 3.2rem;
-  -webkit-box-orient: vertical;
   overflow: hidden;
+  line-height: 1.6rem;
   text-overflow: ellipsis;
   white-space: normal;
+  -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  line-height: 1.6rem;
 }
 
 ::v-deep(.el-form-item__content) {
   display: block;
 }
+
 ::v-deep(.custom-date .el-input__wrapper) {
   width: 100%;
 }
+
 ::v-deep(.custom-date .el-date-editor) {
   width: 100%;
 }
@@ -6005,6 +6022,7 @@ const postReturnRequest = async (reason) => {
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
+
 ::v-deep(.el-input) {
   width: 100%;
   height: fit-content;
@@ -6015,9 +6033,9 @@ const postReturnRequest = async (reason) => {
 }
 
 .example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
   display: flex;
+  color: var(--el-color-primary);
+  cursor: pointer;
   align-items: center;
 }
 
@@ -6036,6 +6054,7 @@ const postReturnRequest = async (reason) => {
 ::v-deep(.el-button--large) {
   padding: 12px 18px;
 }
+
 ::v-deep(.fix-err > .el-form-item__content > .el-form-item__error) {
   padding-left: 8px;
 }
@@ -6050,21 +6069,22 @@ const postReturnRequest = async (reason) => {
 }
 
 ::v-deep(.el-dialog) {
-  margin: 0;
   position: absolute;
   top: 50%;
   left: 50%;
+  margin: 0;
   transform: translate(-50%, -50%);
 }
 
 #content {
   height: 200px;
-  overflow: auto;
   padding: 0 10px;
+  overflow: auto;
 }
 
 @media print {
   * { overflow: visible !important; } 
-  .page { page-break-after:always; }
+
+  .page { page-break-after: always; }
 }
 </style>

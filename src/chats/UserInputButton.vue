@@ -28,11 +28,11 @@ export default {
 
 <style scoped>
 .sc-user-input--button-icon-wrapper {
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
   background: none;
   border: none;
-  padding: 0px;
-  margin: 0px;
   outline: none;
-  cursor: pointer;
 }
 </style>

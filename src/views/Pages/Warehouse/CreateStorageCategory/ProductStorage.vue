@@ -37,7 +37,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '100',
     filters: filterTableStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', productStatusTransferToText(cellValue))
+      return t(`${productStatusTransferToText(cellValue)}`)
     }
   }
 ])
@@ -55,6 +55,7 @@ const columns = reactive<TableColumn[]>([
 ::v-deep(.custom-empty > .el-empty) {
   padding: 5px 0;
 }
+
 ::v-deep(.custom-empty .el-empty > .el-empty__description) {
   margin-top: 5px;
 }

@@ -212,17 +212,17 @@ const setFormValue = async () => {
 const statusClass = (campaignStatus) => {
   switch (campaignStatus) {
     case -1:
-      return 'text-blue-500';
+      return 'status--initial';
     case 0:
-      return 'text-blue-500 box_0';
+      return 'status--initial';
     case 1:
-      return 'text-yellow-500 box_1';
+      return 'status--pending';
     case 2:
-      return 'text-yellow-500';
+      return 'status--pending';
     case 3:
-      return 'text-yellow-500';
+      return 'status--pending';
     case 4:
-      return 'text-yellow-500';
+      return 'status--pending';
     default:
       return '';
   }
@@ -1166,9 +1166,9 @@ const spaMoney = ref(0)
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
-                  <span class="box box_0 text-blue-500 dark:text-divck" >
+                  <span class="box status--initial dark:text-divck" >
                     {{ t('reuse.newInitialization') }}
-                    <span class="triangle-right right_0"></span>
+                    <span class="triangle-right"></span>
                   </span>
               </div>
               <div class="italic text-xs text-gray-500">{{ currentDate }}</div>
@@ -1186,7 +1186,7 @@ const spaMoney = ref(0)
                     ></span>
                     <span class="box dark:text-divck" :class="statusClass(item.campaignStatus)" >
                       {{item.campaignStatusName }}    
-                      <span class="triangle-right right_0"></span>
+                      <span class="triangle-right"></span>
                     </span>
                   </div>
                   <div class="italic text-xs text-gray-500">{{ item.campaignStatus === 0 ? dateTimeFormat(form.statusHistory[0].createdAt) : dateTimeFormat(form.statusHistory[0].approvedAt) }}</div>
@@ -1346,38 +1346,6 @@ v-model="radioSelected" :label="scope.$index + 1"
   </ContentWrap>
 </template>
 <style scoped>
-.status_wrap {
-  display: flex;
-  align-items: left;
-  flex-direction: column;
-}
-.box {
-  position: relative;
-  display: flex;
-  width: fit-content;
-  padding: 0 10px 0 20px;
-  background-color: #ccc;
-  border: 1px solid #ccc;
-  opacity: 1;
-  align-items: center;
-}
-
-.box_0 {
-  background-color: #f4f8fd;
-  border: 1px solid #f4f8fd;
-}
-.box_1 {
-  background-color: #fff0d9;
-  border: 1px solid #fff0d9;
-}
-.right_0 {
-  border-left: 11px solid #f4f8fd !important;
-}
-.right_1 {
-  border-left: 11px solid #fff0d9 !important;
-}
-
-
 .triangle-left {
   position: absolute;
   z-index: 1998;
@@ -1394,7 +1362,33 @@ v-model="radioSelected" :label="scope.$index + 1"
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
 }
+.box {
+  position: relative;
+  display: flex;
+  width: fit-content;
+  padding: 0 10px 0 20px;
+  background-color: #ccc;
+  border: 1px solid #ccc;
+  opacity: 1;
+  align-items: center;
+}
 
+.status--initial {
+  color: rgb(59 130 246);
+  background-color: #f4f8fd !important;
+  border: 1px solid #f4f8fd !important;
+}
+.status--initial .triangle-right{
+  border-left: 11px solid #f4f8fd !important;
+}
+.status--pending {
+  color: rgb(234 179 8); 
+  background-color: #fff0d9;
+  border: 1px solid #fff0d9;
+}
+.status--pending .triangle-right{
+  border-left: 11px solid #fff0d9 !important;
+}
 .explainText {
   font-size: 14px;
   font-style: italic;

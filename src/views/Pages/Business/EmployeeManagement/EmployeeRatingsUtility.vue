@@ -10,10 +10,11 @@ import {
   ElTableColumn,
   ElNotification
 } from 'element-plus'
-
 import { getStaffList } from '@/api/Business'
 
+const escape = useIcon({ icon: 'quill:escape' })
 const { t } = useI18n()
+const { push } = useRouter()
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
@@ -77,6 +78,12 @@ onBeforeMount(() => {
   getTableValue()
 })
 
+const back = async () => {
+  push({
+    name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+  })
+}
+
 //get data
 const formValue = ref()
 const getTableValue = async () => {
@@ -134,6 +141,20 @@ const setFormValue = () => {
   salesTrackingTable[0].dateOrder = data.dateOrder
 }
 
+const infoEmployeeList = reactive([{
+  [t('reuse.employeeCode')] : 'MHTU',
+  [t('reuse.employeeName')] : 'Trần Thúy',
+  [t('reuse.phoneNumber')]: 88880000,
+  [t('reuse.email')]: 'thuy@gmail.com'
+}])
+
+
+const salesTracking = reactive([{
+  [t('reuse.branch')] : 'Bắc Ninh',
+  [t('reuse.department')] : 'Nhân viên sale',
+  [t('reuse.type')]: 'Full time',
+  [t('reuse.rank')]: 'Trưởng phòng'
+}])
 
 </script>
 
@@ -142,28 +163,34 @@ const setFormValue = () => {
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <el-collapse-item :name="collapse[0].name">
         <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl ml-3">{{ collapse[0].title }}</span>
+          <div class="flex w-full justify-between">
+            <div class="before">
+              <el-button class="header-icon" :icon="collapse[0].icon" link />
+              <span class="text-center text-xl ml-3">{{ collapse[0].title }}</span>
+            </div>
+            <div @click="back()" class="after">
+              <span class="text-center text-xl">{{ t('reuse.exit') }}</span>
+              <el-button class="header-icon" :icon="escape" link />
+            </div>
+          </div>
         </template>
 
         <ElRow class="pl-8" :gutter="20" justify="space-between">
            <ElCol :span="12">
               <ElDivider contentPosition="left">{{ t('formDemo.generalInformation') }}</ElDivider>
-              <el-table :data="infoEmployeeTable">
-                <el-table-column fixed prop="employeeCode" :label="t('reuse.employeeCode')" min-width="200" />
-                <el-table-column prop="employeeName" :label="t('reuse.employeeName')" min-width="200" />
-                <el-table-column prop="phoneNumber" :label="t('reuse.phoneNumber')" min-width="200" />
-                <el-table-column prop="email" :label="t('reuse.email')" min-width="200" />
-              </el-table>
+              <el-row v-for="(infoValue, label) in infoEmployeeList[0]" :key="infoValue">
+                <el-col :span="6" class="flex justify-end pr-2">{{ label }}</el-col>
+                <el-col :span="18" class="">{{ infoValue }}</el-col>
+              </el-row>
+
+
            </ElCol>
            <ElCol :span="12">
               <ElDivider contentPosition="left">{{ t('formDemo.jobPosition') }}</ElDivider>
-              <el-table :data="infoEmployeeTable">
-                <el-table-column prop="branch" :label="t('reuse.branch')" min-width="600" />
-                <el-table-column prop="department" :label="t('reuse.department')" min-width="120" />
-                <el-table-column prop="typeEmployee" :label="t('reuse.type')" min-width="120" />
-                <el-table-column prop="rankEmployee" :label="t('reuse.rank')" min-width="320" />
-              </el-table>
+              <el-row v-for="(infoValue, label) in salesTracking[0]" :key="infoValue">
+                <el-col :span="6" class="flex justify-end pr-2">{{ label }}</el-col>
+                <el-col :span="18" class="">{{ infoValue }}</el-col>
+              </el-row>
            </ElCol>
         </ElRow>
       </el-collapse-item>

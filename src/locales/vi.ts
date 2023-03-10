@@ -956,6 +956,9 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    cantGetBrandList: 'Không thể lấy danh sách chi nhánh',
+    cantGetDepartmentList: 'Không thể lấy danh sách phòng ban',
+    cantGetRankList: 'Không thể lấy danh sách cấp bậc',
     accounted: 'Đã hạch toán',
     accountingAccountName: 'Tên tài khoản hạch toán',
     reasonRevenueExpenditure: 'Lý do thu/chi',

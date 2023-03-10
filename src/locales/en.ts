@@ -904,6 +904,9 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    cantGetBrandList: 'Can\'t get brand list',
+    cantGetDepartmentList: 'Can\'t get department List',
+    cantGetRankList: 'Can\'t get rank list',
     accounted: "Accounted",
     accountingAccountName: 'Accounting account name',
     reasonRevenueExpenditure: 'Reason for revenue/expenditure',

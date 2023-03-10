@@ -117,7 +117,7 @@ const callAPISalesTracking= async () => {
       } else {
         saleTrackingRes = res
       }
-      await setTableValue()
+      await setInfoEmployeeTableValue()
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),
@@ -141,7 +141,7 @@ const infoEmployeeTable = reactive({
   positionInfo: {} 
 } )
 let salesTrackingTable = reactive([])
-const setTableValue = () => {
+const setInfoEmployeeTableValue = () => {
   if(infoEmployeeRes) {
     infoEmployeeTable.generalInfo[t('reuse.employeeCode')] = infoEmployeeRes.employeeCode
     infoEmployeeTable.generalInfo[t('reuse.employeeName')] = infoEmployeeRes.employeeName

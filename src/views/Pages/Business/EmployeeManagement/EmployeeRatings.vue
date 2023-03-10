@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { reactive, h, ref, onBeforeMount, watch} from 'vue'
+import { reactive, h, ref, watch} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getEmployeeRatingList } from '@/api/Business'
 import {
   filterStatusRatingEmployee,
-  filterDepartment,
   filterRankEmployee,
   filterTypeEmployee
 } from '@/utils/filters'
@@ -13,6 +12,7 @@ import {
 import {
       getBranchList,
       getDepartmentList,
+      getRankList
 } from '@/api/HumanResourceManagement'
 
 
@@ -31,42 +31,58 @@ const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 
+// API call branch, department, rank list to filter
+const callAPIList = async (getListFunc, errorMessage) => {
+  const res = await getListFunc()
+  if (res) {
+    return res.data.map((item) => ({ text: item.name, value: item.id }))
+  } else {
+    ElMessage({
+      message: t(errorMessage),
+      type: 'error'
+    })
+    return
+  }
+}
 
-onBeforeMount(() => {
-  callAPITBranchList()
-  callAPIDepartmentList()
+// Populate the list
+const branchList = ref([]) 
+const departmentList = ref([]) ;
+const rankList = ref([]) ;
+(async () => {
+  const list = await callAPIList(getBranchList, t('reuse.cantGetBrandList'))
+  branchList.value = list
+})() ;
+
+(async () => {
+  const list = await callAPIList(getDepartmentList, t('reuse.cantGetDepartmentList'))
+  departmentList.value = list
+})() ;
+
+(async () => {
+  const list = await callAPIList(getRankList, t('reuse.cantGetRankList'))
+  rankList.value = list
+})()
+
+// Watch for changes to the list and update the filter accordingly
+watch (branchList, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    columns[5].filters = newVal
+  }
+})
+watch (departmentList, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    columns[6].filters = newVal
+  }
 })
 
-const branchList = ref()
-const callAPITBranchList = async () => {
-  const res: any =  await getBranchList()
-  if (res) {
-    branchList.value = res.data.map((branchs) => ({ text: branchs.name, value: branchs.id }))
-    return branchList.value
-  } else {
-    ElMessage({
-      message: t('reuse.cantGetData'),
-      type: 'error'
-    })
-    return
+watch (rankList, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    columns[7].filters = newVal
   }
-}
-const callAPIDepartmentList = async () => {
-  const res: any =  await getDepartmentList()
-  if (res) {
-    branchList.value = res.data.map((branchs) => ({ text: branchs.name, value: branchs.id }))
-    return branchList.value
-  } else {
-    ElMessage({
-      message: t('reuse.cantGetData'),
-      type: 'error'
-    })
-    return
-  }
-}
-// Xem detail
+})
+
 const action = (row: any, type: string) => {
-  console.log('run here', row, type)
   if (type === 'detail' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
@@ -74,11 +90,7 @@ const action = (row: any, type: string) => {
     })
   }
 }
-watch (branchList, (newVal) => {
-  if (newVal && newVal.length > 0) {
-    columns[5].filters = newVal
-  }
-})
+
 const columns = reactive<TableColumn[]>([
   {
     field: 'index',
@@ -115,14 +127,14 @@ const columns = reactive<TableColumn[]>([
     field: 'branch',
     label: t('reuse.branch'),
     minWidth: '110',
-    filters: filterDepartment,
+    filters: [],
     headerAlign: 'left'
   },
   {
     field: 'department',
     label: t('reuse.department'),
     minWidth: '110',
-    filters: filterDepartment,
+    filters: [],
     headerAlign: 'left'
   },
   {
@@ -170,7 +182,6 @@ const columns = reactive<TableColumn[]>([
   }
   
 ])
-
 
 </script>
 <template>

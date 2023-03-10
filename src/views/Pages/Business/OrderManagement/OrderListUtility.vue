@@ -127,7 +127,7 @@ const ruleForm = reactive({
   delivery: 1,
   orderFiles: []
 })
-
+// disable khi gọi chi tiết phiếu đặt cọc
 const condition = ref(false)
 
 const rules = reactive<FormRules>({
@@ -851,7 +851,6 @@ const createQuickCustomer = async () => {
         type: 'success'
       })
     callCustomersApi()
-
   } else {
     ElNotification({
         message: t('reuse.addFail'),
@@ -1019,7 +1018,7 @@ const inputDeposit = ref(0)
 watch(
   () => inputDeposit.value,
   () => {
-    moneyDeposit.value = totalPriceOrder.value - inputDeposit.value
+    moneyDeposit.value = outstandingDebt.value - inputDeposit.value
   }
 )
 
@@ -1237,7 +1236,7 @@ let formAccountingId = ref()
 const idAcountingEntry = ref()
 // Chi tiết bút toán
 const openDialogAcountingEntry = (scope,isDisable) => {
-  condition.value=isDisable;
+  condition.value = isDisable;
   const data = scope.row
   switch (data.typeOfAccountingEntry) {
     case 1:
@@ -1796,18 +1795,23 @@ function openBillDialog() {
 
 const outstandingDebt = ref(0)
 const totalOutstandingDebt = () => {
-  outstandingDebt.value = 0
-  debtTable.value?.forEach((val) =>  {
-    if (val.deibt != 0) {
-      outstandingDebt.value += val?.deibt
+  if (debtTable.value.length <= 0) {
+    outstandingDebt.value = totalPriceOrder.value
+  } else {
+    if (showCancelAcountingEntry.value) {
+      outstandingDebt.value = formAccountingId.value.accountingEntry?.deibt + formAccountingId.value.accountingEntry?.receiveMoney
+    } else {
+      outstandingDebt.value = debtTable.value[debtTable.value.length-1].deibt
     }
-  })
+  }
 }
 // Tạo mới phiếu đặt cọc
 function openDepositDialog() {
   showCreatedOrUpdateButton.value = true
   showCancelAcountingEntry.value = false
   updateDetailAcountingEntry.value = false
+  condition.value = false
+  inputDeposit.value = 0
   totalOutstandingDebt()
   createStatusAcountingEntry()
   alreadyPaidForTt.value = true
@@ -1950,9 +1954,9 @@ const postOrderStransaction = async (index: number) => {
     typeOfAccountingEntry: index,
     returnRequestId: idReturnRequest.value
   }
-
   objOrderStransaction.value = await addOrderStransaction(payload)
   idStransaction.value = objOrderStransaction.value.paymentRequestId
+  inputDeposit.value = 0
   getOrderStransactionList()
 }
 
@@ -2866,6 +2870,7 @@ const disabledPhieu = ref(false)
                 v-model="quickPhoneNumber"
                 style="width: 100%"
                 :placeholder="t('formDemo.enterPhoneNumber')"
+
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
@@ -2931,7 +2936,7 @@ const disabledPhieu = ref(false)
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
               <el-input
                 v-model="quickEmail"
                 style="width: 100%"
@@ -3777,7 +3782,8 @@ const disabledPhieu = ref(false)
               </p>
               <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" :disabled="condition"/>
               <p class="pr-2 text-red-600 pt-2">
-                {{ inputDeposit ? changeMoney.format(outstandingDebt - inputDeposit) : '0 đ' }}</p>
+                {{ changeMoney.format(outstandingDebt - inputDeposit) }}
+              }</p>
             </div>
           </div>
         </div>
@@ -5530,7 +5536,7 @@ const disabledPhieu = ref(false)
           <!-- Không thay đổi giá -->
           <div
             v-if="
-              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add' || STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == ':type'
+              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add' ||statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5572,7 +5578,7 @@ const disabledPhieu = ref(false)
           <!-- Có thay đổi giá -->
           <div
             v-else-if="
-              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add' || STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == ':type'
+              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add' || statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -6067,10 +6073,6 @@ const disabledPhieu = ref(false)
   margin-right: 10px;
 }
 
-::v-deep(.el-dialog__body) {
-  padding-top: 0;
-}
-
 ::v-deep(.el-dialog__header) {
   padding-bottom: 0;
 }
@@ -6231,6 +6233,7 @@ const disabledPhieu = ref(false)
 
 ::v-deep(.el-dialog__body) {
   max-height: 80vh;
+  padding-top: 0;
   overflow-y: auto;
 }
 

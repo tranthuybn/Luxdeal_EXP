@@ -283,14 +283,14 @@ const optionsCustomer = [
   }
 ]
 
-const checkPercent = (_rule: any, value: any, callback: any) => {
-  if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
-  else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
-  else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
-  else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
-  else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
-  callback()
-}
+// const checkPercent = (_rule: any, value: any, callback: any) => {
+//   if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
+//   else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+//   else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+//   else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+//   else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
+//   callback()
+// }
 
 let customerAddress = ref('')
 
@@ -325,12 +325,6 @@ const rules = reactive<FormRules>({
       required: true,
       message: t('formDemo.pleaseSelectWarehouse'),
       trigger: 'change'
-    }
-  ],
-  collaboratorCommission: [
-    {
-      validator: checkPercent,
-      trigger: 'blur'
     }
   ],
   discount: [
@@ -622,7 +616,7 @@ const postQuickProduct = (product,productId)=>{
       productPropertyId: productId,
       productPropertyCode: product.productPropertyCode
     })
-
+    console.log(';', product, productId, listProducts.value)
     //Change productpropertyId of currentNewProductRow
     ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
     ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
@@ -963,9 +957,9 @@ const getTotalWarehouse = () => {
 }
 
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 
 // Tổng tiền table phiếu đề nghị thanh toán nếu có
 const totalPayment = ref(0)
@@ -1731,9 +1725,10 @@ const dialogDepositFeeInformation = ref(false)
 const typeDialog = ref(1)
 const idAccounting = ref()
 const negotiablePrice = ref(0)
-
+const condition = ref(false)
 // Chi tiết bút toán
-const openDialogAcountingEntry = (scope) => {
+const openDialogAcountingEntry = (scope,restrue) => {
+  condition.value = restrue
   const data = scope.row
   idAccounting.value = data.id
   switch (data.typeOfAccountingEntry) {
@@ -1902,6 +1897,7 @@ const handleSelectionbusinessManagement = (val: tableDataType[]) => {
   ListOfProductsForSale.value[indexRow.value].businessSetup = x.join(', ')
   ListOfProductsForSale.value[indexRow.value].businessSetupName = label.join(', ')
 }
+const businessTableRef = ref<InstanceType<typeof ElTable>>()
 
 const ckeckChooseProduct = (scope) => {
   if (!scope.row.productPropertyId) {
@@ -1911,6 +1907,20 @@ const ckeckChooseProduct = (scope) => {
     })
   } else {
     dialogbusinessManagement.value = true
+    if(disabledEdit.value){
+      const businessArray = scope.row.businessSetup.split(", ")
+      const businessIndex: number[] = []
+      businessArray.forEach((element)=>{
+        if(element == '1') businessIndex.push(0)
+        if(element == '3') businessIndex.push(1)
+        if(element == '5') businessIndex.push(2)
+      })
+      setTimeout(()=>{
+        businessIndex.forEach((element)=>{
+          businessTableRef.value!.toggleRowSelection(listApplyExport[element],true)
+        })
+      }, 1000)
+    }
   }
 }
 
@@ -2416,7 +2426,7 @@ const openDetailOrder = (id, type) => {
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
               <el-input
                 v-model="quickEmail"
                 style="width: 100%"
@@ -3979,7 +3989,6 @@ const openDetailOrder = (id, type) => {
                   <el-button
                     text
                     border 
-                    :disabled="disabledEdit" 
                     class="text-blue-500" 
                     @click="
                       () => {
@@ -3998,7 +4007,6 @@ const openDetailOrder = (id, type) => {
               <div class="flex w-[100%] items-center">
                 <el-button
                   text
-                  :disabled="disabledEdit"
                   @click="
                     () => {
                       callApiWarehouse(props)
@@ -4422,6 +4430,7 @@ const openDetailOrder = (id, type) => {
           <span class="dialog-footer">
             <el-button
               type="primary"
+              :disabled="disabledEdit"
               @click="
                 () => {
                   dialogbusinessManagement = false
@@ -4667,7 +4676,7 @@ const openDetailOrder = (id, type) => {
             <template #default="data">
               <div class="flex">
                 <button
-                  @click="() => openDialogAcountingEntry(data)"
+                  @click="() => openDialogAcountingEntry(data,true)"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
                 >
                   {{ t('reuse.detail') }}
@@ -4694,7 +4703,6 @@ const openDetailOrder = (id, type) => {
           <span class="text-center text-xl">{{ collapse[3].title }}</span>
         </template>
         <div>
-          <el-divider content-position="left">{{ t('formDemo.importTrackingTable') }}</el-divider>
           <el-table :data="historyTable" border class="pl-4 dark:text-[#fff]">
             <el-table-column
               prop="createdAt"

@@ -47,6 +47,7 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
+import { getCategories } from '@/api/LibraryAndSetting'
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const size = ref<'' | 'large' | 'small'>('')
@@ -238,20 +239,12 @@ const classify2 = [
   }
 ]
 
-const bankList = [
+const bankList = ref([
   {
-    value: 499,
-    label: 'Ngân hàng đầu tư và phát triển Việt Nam'
-  },
-  {
-    value: 500,
-    label: 'Ngân hàng công thương Việt Nam'
-  },
-  {
-    value: 501,
-    label: 'Ngân hàng quốc tế'
+    value: '',
+    label: ''
   }
-]
+])
 const duplicateStatusButton = ref(false)
 
 const formValue = ref()
@@ -467,7 +460,16 @@ const callApiCity = async () => {
   cities.value = await getCity()
   cities.value
 }
+const callApiBank = async () => {
+  const res = await getCategories({TypeName: 'nganhang', PageSize: 20, PageIndex: 1})
+  if(res){
+    bankList.value = res.data.map(e=>({
+      value: e.id,
+      label: e.name,
+    }))
 
+  }
+}
 const CityChange = async (value) => {
   ruleForm.ProvinceId = value
   district.value = await getDistrict(value)
@@ -664,7 +666,7 @@ const callAPICustomer = async () => {
   if(res?.data && res.data?.length > 0){
     res?.data.map((el) => {
         chooseCustomer.push({
-          value: el.id,
+          value: el.code,
           label: el.code
         })
     })
@@ -682,7 +684,7 @@ const ScrollCustomerBottom = () => {
             ? (noMoreCustomerData.value = true)
             : res.data.map((el) =>
                chooseCustomer.push({
-                value: el.id,
+                value: el.code,
                 label: el.code
                 })
               )
@@ -783,6 +785,7 @@ onBeforeMount(() => {
   callAPICustomer()
   change()
   callApiCity()
+  callApiBank()
   if(type === 'add' || type === ':type'){
     alwaysActive.value = true
     getGenCodeCustomer()

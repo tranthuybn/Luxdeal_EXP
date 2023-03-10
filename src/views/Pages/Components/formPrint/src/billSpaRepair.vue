@@ -2,7 +2,7 @@
 import { dateTimeFormat } from '@/utils/format'
 
 //dialogPrinRepairSpa
-const props = defineProps({
+defineProps({
   billRepairData: {
     type: Object,
     default: ()=>{}
@@ -93,11 +93,26 @@ const props = defineProps({
       </tr>
     </thead>
     <tbody>
-      <tr v-if="!props.billRepairData?.tableData">
-        <td colspan="8" class="!text-center">Không có dữ liệu</td>
+      <tr>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
       </tr>
-      <tr v-else v-for="(item,index) in props.billRepairData?.tableData" :key="index">
-        <td v-if="item">{{ item }}</td>
+      <tr>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+      </tr>
+      <tr>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
       </tr>
     </tbody>
   </table>
@@ -136,7 +151,7 @@ table {
 }
 
 ::v-deep(td), ::v-deep(th){
-  padding: 8px 0 8px 8px;
+  padding: 16px 0 16px 8px;
   text-align: left;
   word-break: break-word;
   border: 1px solid #ddd;

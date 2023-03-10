@@ -1755,6 +1755,13 @@ const callApiStaffList = async () => {
     value: el.id,
     label: el.name + ' | ' + el.contact
   }))
+  console.log('currentCreator', currentCreator.value)
+  getStaffList.value.push(
+    {
+      value: currentCreator.value.id,
+      label: currentCreator.value.name + ' | ' + currentCreator.value.contact
+    }
+  )
 }
 
 // Thông tin phiếu bán hàng
@@ -1772,13 +1779,7 @@ const clearData = () => {
   debtPayment.value = 0
   inputReasonCollectMoney.value = ''
   enterMoney.value = ''
-  if ( typeof(Storage) !== "undefined") {
-  var data:any = localStorage.getItem('STAFF_INFO');
-  const datas = JSON.parse(data)
-    inputRecharger.value = JSON.parse(datas.v)?.id
-  } else {
-    alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
-  }
+  inputRecharger.value = currentCreator.value.id
 
   detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
   addRowDetailedListExpoenses()
@@ -2473,6 +2474,7 @@ const openAcountingEntryDialog = async (index, num) => {
   tableAccountingEntry.value[0] = formAccountingId.value.accountingEntry
 
   //trạng thái bút toán
+  console.log('formAccountingId', formAccountingId.value)
   statusAccountingEntry.value = formAccountingId.value.statusHistorys
   statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
   if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
@@ -2490,6 +2492,15 @@ const openAcountingEntryDialog = async (index, num) => {
     dialogAccountingEntryAdditional.value = true
   }
 }
+const openAdditionalDialog = () => {
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
+  createStatusAcountingEntry()
+
+  dialogAccountingEntryAdditional.value = true
+}
+
 // Đúng thì hiển thị button Lưu và ghi sổ và hủy bút toán
 const showCreatedOrUpdateButton = ref (false)
 const showCancelAcountingEntry = ref(true)
@@ -2726,6 +2737,8 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 }
 const fileList = ref<UploadUserFile[]>([])
 const disableCreateOrder = ref(false)
+const currentCreator = ref()
+
 onBeforeMount(async () => {
   await editData()
   await callApiWarehouseList()
@@ -2733,7 +2746,6 @@ onBeforeMount(async () => {
   await callAPIWarehouse()
   callCustomersApi()
   callApiCollaborators()
-  callApiStaffList()
   callApiCity()
   if (type == 'add' || type == ':type') {
     disableCreateOrder.value = true
@@ -2751,6 +2763,13 @@ onBeforeMount(async () => {
     codeExpenditures.value = autoCodeExpenditures
     codePaymentRequest.value = autoCodePaymentRequest
   }
+    if ( typeof(Storage) !== "undefined") {
+
+    var data:any = localStorage.getItem('STAFF_INFO');
+    const datas = JSON.parse(data)
+    currentCreator.value = JSON.parse(datas.v)
+  }
+  await callApiStaffList()
 })
 
 const remainingMoney = ref(0)
@@ -3096,7 +3115,7 @@ const postReturnRequest = async (reason) => {
               />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
               <el-input
                 v-model="quickEmail"
                 style="width: 100%"
@@ -5491,12 +5510,7 @@ const postReturnRequest = async (reason) => {
         <el-button
           :disabled="checkDisabled2"
           text
-          @click="
-            () => {
-              dialogAccountingEntryAdditional = true
-              alreadyPaidForTt = false
-            }
-          "
+          @click="openAdditionalDialog"
           >+ Thêm bút toán</el-button
         >
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog()" text

@@ -512,7 +512,7 @@ const delAction = () => {
           .then(() =>
             {
               ElNotification({
-              message: t('reuse.deleteSuccess'),
+              message: t('reuse.cancelSuccess'),
               type: 'success'
             })
             cancel()
@@ -520,7 +520,7 @@ const delAction = () => {
           )
           .catch(() => {
             ElNotification({
-              message: t('reuse.deleteFail'),
+              message: t('reuse.cancelFail'),
               type: 'warning'
             })
           })
@@ -539,28 +539,35 @@ const cancel = () => {
       push({
         name: 'business.promotion-strategy.flash-sale',
       })
+      break;
     case 2:
       push({
         name: 'business.promotion-strategy.collection',
       })
+      break;
     case 3:
       push({
         name: 'business.promotion-strategy.new-product',
       })
+      break;
     case 4:
       push({
         name: 'business.promotion-strategy.voucher',
       })
+      break;
     case 5:
       push({
         name: 'business.promotion-strategy.combo',
       })
+      break;
     case 6:
       push({
         name: 'business.promotion-strategy.auction',
       })
+      break;
     default:
       go(-1)
+      break;
   }
 }
 //xử lí ảnh

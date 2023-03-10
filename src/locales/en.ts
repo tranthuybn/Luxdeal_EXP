@@ -1816,6 +1816,9 @@ export default {
     //trạng thái kho
     exportTicketStatus: 'Export ticket status',
     transferTicketStatus: 'Transfer ticket status',
-    totalAmountPaid: 'Total amount paid'
+    totalAmountPaid: 'Total amount paid',
+    //chien dich khuyen mai
+    cancelSuccess: 'Cancel Success',
+    cancelFail: 'Cancel fail'
   }
 }

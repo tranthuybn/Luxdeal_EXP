@@ -214,7 +214,7 @@ const customPostDataCombo = (data) => {
   customData.ProductPropertyIdJson = JSON.stringify(
     postSpaTable
   )
-  customData.ComboValue = 1
+  customData.ComboValue = data.spa
   customData.ServiceType = 5
   return customData
 }
@@ -242,6 +242,7 @@ type FormDataEdit = {
 
 
 const customEditDataCombo = (data) => {
+  console.log('data', data)
   const customData = {} as FormDataEdit
   customData.Id = id
   customData.Name = data.code
@@ -252,7 +253,6 @@ const customEditDataCombo = (data) => {
   customData.Image = data.Image
 
   let postIdSpaService = ref('')
-  data.tableProductOfCombo.pop()
   data.tableProductOfCombo?.map((val) => {
     postIdSpaService.value += val.service.toString()
   })
@@ -303,6 +303,7 @@ type SetFormData = {
   imageurl?: string
   statusName: string
   statusHistory?: any
+  comboValue?: number
 }
 
 const emptyFormData = {} as SetFormData
@@ -326,6 +327,7 @@ const customizeData = async (data) => {
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
   setFormData.statusHistory = data[0].statusHistory
   setFormData.statusName = data[0].statusName
+  setFormData.comboValue = data[0].comboValue
 
 }
 

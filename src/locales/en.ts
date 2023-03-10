@@ -1819,6 +1819,7 @@ export default {
     totalAmountPaid: 'Total amount paid',
     //chien dich khuyen mai
     cancelSuccess: 'Cancel Success',
-    cancelFail: 'Cancel fail'
+    cancelFail: 'Cancel fail',
+    sendImmediately: 'Send immediately'
   }
 }

@@ -1975,6 +1975,7 @@ export default {
     totalAmountPaid: 'Tổng tiền phải trả',
     //chien dich khuyen mai
     cancelSuccess: 'Hủy thành công',
-    cancelFail: 'Hủy thất bại'
+    cancelFail: 'Hủy thất bại',
+    sendImmediately: 'Gửi ngay'
   }
 }

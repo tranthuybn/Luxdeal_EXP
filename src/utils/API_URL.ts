@@ -82,7 +82,8 @@ export const CAMPAIGN_API = {
   GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign',
   UPDATE_CAMPAIGN: '/api/v1/Campaign/UpdateCampaign',
   DELETE_CAMPAIGN: '/api/v1/Campaign/DeleteCampaign',
-  CANCEL_CAMPAIGN: '/api/v1/Campaign/CancelCampaign'
+  CANCEL_CAMPAIGN: '/api/v1/Campaign/CancelCampaign',
+  SEND_VOUCHER: '/api/v1/Campaign/SendVoucher'
 }
 
 export const ORDER_API = {

@@ -1128,3 +1128,12 @@ export const FinishUpdateSpaService = async (params: any): Promise<IResponse> =>
   )
   return res && res.data
 }
+export const SendVoucher = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${CAMPAIGN_API.SEND_VOUCHER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

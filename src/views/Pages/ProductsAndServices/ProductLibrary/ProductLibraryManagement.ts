@@ -224,15 +224,16 @@ export const getCategory = async () => {
 }
 
 export const customPostData = async (data) => {
-  if (originSelect.value.length == 0) {
+  if (originSelect.value.length == 1) {
     await getOriginSelectOptions()
   }
-  if (unitSelect.value.length == 0) {
+  if (unitSelect.value.length == 1) {
     await getUnitSelectOptions()
   }
-  if (brandSelect.value.length == 0) {
+  if (brandSelect.value.length == 1) {
     await getBrandSelectOptions()
   }
+ 
   const findBrand = brandSelect.value.find((brand) => brand['value'] == data.BrandId)
   const findUnit = unitSelect.value.find((unit) => unit['value'] == data.UnitId)
   const findOrigin = originSelect.value.find((origin) => origin['value'] == data.OriginId)

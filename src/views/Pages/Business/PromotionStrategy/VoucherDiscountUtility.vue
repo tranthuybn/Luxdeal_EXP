@@ -373,9 +373,6 @@ const customEditDataVoucher = (data) => {
   }
   customData.ExchangeValue = 1
   customData.ProductPropertyIdJson = '[]'
-  customData.ProductPropertyIdJson = JSON.stringify(
-    data.products.map((product) => ({ Id: product.id, IsActive: product.isActive }))
-  )
 
   return customData
 }
@@ -481,6 +478,7 @@ type SetFormData = {
   percent: number
   money: number
   imageurl?: string
+  statusHistory?: any
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -503,6 +501,7 @@ const customizeData = async (data) => {
   setFormData.customers = data[0].customers
   setFormData.Image = data[0].images[0].path
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
+  setFormData.statusHistory = data[0].statusHistory
 
 }
 const { push } = useRouter()
@@ -552,6 +551,7 @@ const editData = async (data) => {
           :multipleImages="false"
           @edit-data="editData"
           :tabActive="tab"
+          :campaignAndStrategyType="4"
         />
       </el-collapse-item>
     </el-collapse>

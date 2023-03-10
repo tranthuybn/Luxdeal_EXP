@@ -16,7 +16,6 @@ import {
 } from 'element-plus'
 import type {FormRules, FormInstance} from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-// import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import {
   GetPaymentRequestDetail,
   getAllStaffList,
@@ -166,6 +165,21 @@ const onAddItem = () => {
     unitPrice: 0
   })
 }
+
+const rulesPaymentMethod = reactive<FormRules>({
+  totalMoney : [
+    { required: true, message: 'Nhập số tiền', trigger: 'blur' }
+  ],
+  enterMoney: [
+    { required: true, message: 'Nhập chữ', trigger: 'blur' },
+    { type: 'string', message: 'Nhập chữ', trigger: 'blur' },
+  ],
+  paymentType : [
+    { required: true, message: 'Viết bằng chữ', trigger: 'blur' },
+    { type: 'string', message: 'Viết bằng chữ', trigger: 'blur' },
+  ]
+})
+
 watch(
   () => tableData.value[tableData.value.length - 1],
   () => {
@@ -550,42 +564,28 @@ onBeforeMount(() => {
         </div>
         <el-divider content-position="left" >Thông tin thanh toán</el-divider>
         <div class="flex flex-row">
-          <el-form :model="form" label-width="160px" class="basis-1/2" >
+          <el-form :model="form" :rules="rulesPaymentMethod" label-width="160px" class="basis-1/2" >
             <el-form-item 
+              prop="totalMoney"
               label="Số tiền chi" 
               tabindex="Nhập số tiền"
-              :rules="[
-                { required: true, message: 'Nhập số tiền', trigger: 'change' }
-                                         
-              ]">
-                <el-input
-                  v-model="form.totalMoney"
+              >
+              <el-input
                   size="default"
+                  v-model="form.totalMoney"
                   :placeholder="t('reuse.placeholderMoney')"
                   :suffixIcon="h('div', 'đ')"
-                />
-              <!-- <el-input v-model="form.totalMoney" :parser="(value) => changeMoney.format(value)" placeholder="Nhập số tiền" /> -->
-              <!-- <CurrencyInputComponent
-                v-model="form.totalMoney"
-                v-if="type != 'detail'"
-              /> -->
+              />
             </el-form-item>
             <el-form-item
+              prop="enterMoney"
               label="Viết bằng chữ"
-              :rules="[
-                { required: true, message: 'Nhập chữ' },
-                { type: 'string', message: 'Nhập chữ' },
-                                  
-                ]"
               >
                 <el-input v-model="form.enterMoney" placeholder="Viết bằng chữ" />
             </el-form-item>
             <el-form-item
+              prop="paymentType"
               label="Hình thức thanh toán" 
-              :rules="[
-                { required: true, message: 'Viết bằng chữ' },
-                { type: 'string', message: 'Viết bằng chữ' },
-              ]"
             >
               <el-select v-model="form.paymentType" placeholder="Select">
                 <el-option
@@ -597,15 +597,16 @@ onBeforeMount(() => {
               </el-select>
             </el-form-item>
             <el-form-item label="Trạng thái" class="day-update-wrap">
-              <span class="day-updated">
-                Khởi tạo & ghi số
-              </span>
+                <div class="flex flex-col gap-1">
+                  <span class="day-updated">
+                    {{ t('reuse.initializeAndWrite') }}
+                  </span>
+                  <span class="italic text-xs text-gray-500">
+                    <label> {{ dateTimeFormat(moment()) }} </label>
+                  </span>
+                </div>
             </el-form-item>
-            <el-form-item>
-              <div class="dateCreated">
-                <label> {{ dateTimeFormat(moment()) }} </label>
-              </div>
-            </el-form-item>
+            <el-form-item/>
             <el-form-item v-if="type != 'approval-payments'">
               <el-button>In phiếu</el-button>
               <el-button type="primary" @click="postData">Lưu và chờ duyệt</el-button>
@@ -705,12 +706,12 @@ onBeforeMount(() => {
                                     </el-form-item>
                                     <el-form-item label="Trạng thái ">
                                           <span class="day-updated">
-                                            Khởi tạo & ghi số
+                                            {{ t('reuse.initializeAndWrite') }}
                                           </span>
                                     </el-form-item>
                                     <el-form-item>
                                           <div>
-                                            <label class="dateCreated" > {{ dateTimeFormat(moment()) }} </label>
+                                            <label class="italic text-xs text-gray-500" > {{ dateTimeFormat(moment()) }} </label>
                                           </div>
                                     </el-form-item>
                                     <el-form-item >
@@ -730,15 +731,6 @@ onBeforeMount(() => {
 
 ::v-deep(.el-select){
   width: 100%;
-}
-
-::v-deep(.el-form-item) {
-  .dateCreated {
-    font-size: 10px;
-    font-style: italic;
-    font-weight: 400;
-    color: #65676B;
-  }
 }
 
 ::v-deep(.poi_text_right > .el-input__wrapper > .el-input__inner){

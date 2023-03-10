@@ -283,7 +283,6 @@ const CallApiBranch = async () => {
     return
   }
 }
-
 const listPosition = ref()
 const CallApiPosition = async () => {
   const res = await getRankList()

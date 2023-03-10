@@ -81,7 +81,8 @@ export const CAMPAIGN_API = {
   POST_CAMPAIGN: '/api/v1/Campaign/CreateCampaign',
   GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign',
   UPDATE_CAMPAIGN: '/api/v1/Campaign/UpdateCampaign',
-  DELETE_CAMPAIGN: '/api/v1/Campaign/DeleteCampaign'
+  DELETE_CAMPAIGN: '/api/v1/Campaign/DeleteCampaign',
+  CANCEL_CAMPAIGN: '/api/v1/Campaign/CancelCampaign'
 }
 
 export const ORDER_API = {
@@ -176,7 +177,9 @@ export const WAREHOUSE_API = {
 }
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff',
-  GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount'
+  GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount',
+  GET_EMPLOYEE_RATING_LIST: '/api/v1/SalaryEmployee/GetListSalers',
+  GET_EMPLOYEE_SALE_TRACKING_LIST: '/api/v1/SalaryEmployee/GetIdEmployeeId',
 }
 export const POINT_API = {
   GET_CUSTOMER_POINT: '/api/v1/Point/GetCustomerPoint',

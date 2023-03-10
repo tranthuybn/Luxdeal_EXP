@@ -1,0 +1,71 @@
+$yellowWhite: #fff0d9;
+$lightGray: #f4f8fd;
+$darkGray: #d9d9d9;
+$redWhite: #fce5e1;
+
+@mixin box($color: #ccc) {
+    position: relative;
+    display: flex;
+    width: fit-content;
+    padding: 0 10px 0 20px;
+    background-color: $color;
+    border: 1px solid $color;
+    opacity: 0.6;
+    align-items: center;
+  }
+  
+  .box_1 {
+    @include box($yellowWhite);
+  }
+  
+  .box_2 {
+    @include box($lightGray);
+  }
+  
+  .box_3 {
+    @include box($darkGray);
+  }
+  
+  .box_4 {
+    @include box($redWhite);
+  }
+  
+  
+ @mixin triangle-right($color:#ccc) {
+    position: absolute;
+    right: -12px;
+    width: 0;
+    height: 0;
+    border-top: 13px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-left: 11px solid $color !important;
+  }
+  .right_1 {
+    @include triangle-right($yellowWhite);
+  }
+  
+  .right_2 {
+    @include triangle-right($lightGray);
+  }
+  
+  .right_3 {
+    @include triangle-right($darkGray);
+  }
+  
+  .right_4 {
+    @include triangle-right($redWhite);
+  }
+  
+  .triangle-left {
+    position: absolute;
+    z-index: 1998;
+    width: 0;
+    height: 0;
+  }
+
+  .active {
+    opacity: 1 !important;
+  }
+  .duplicate-status + .duplicate-status{
+    margin-left: 10px;
+  }

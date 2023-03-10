@@ -1709,7 +1709,7 @@ export default {
     outOfStockInventory: 'Out of stock',
     exporting: 'Exporting',
     importing: 'Importing',
-    initializeAndWrite: 'I1nitialize & Write',
+    initializeAndWrite: 'Initialize & Write',
     // exchange order
     returnOrderPrice: 'Return order price',
     totalReturnMoney: 'Total return money',

@@ -1,17 +1,24 @@
 <script setup lang="ts">
-import { reactive, h } from 'vue'
+import { reactive, h, ref, onBeforeMount, watch} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
-import { getStaffList } from '@/api/Business'
+import { getEmployeeRatingList } from '@/api/Business'
 import {
   filterStatusRatingEmployee,
-  filterBranch,
   filterDepartment,
   filterRankEmployee,
   filterTypeEmployee
 } from '@/utils/filters'
+
+import {
+      getBranchList,
+      getDepartmentList,
+} from '@/api/HumanResourceManagement'
+
+
+
 import { formatStatusRatingEmployee } from '@/utils/format'
-import { ElButton } from 'element-plus'
+import { ElButton, ElMessage } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useAppStore } from '@/store/modules/app'
 import { useRouter } from 'vue-router'
@@ -24,17 +31,54 @@ const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 
+
+onBeforeMount(() => {
+  callAPITBranchList()
+  callAPIDepartmentList()
+})
+
+const branchList = ref()
+const callAPITBranchList = async () => {
+  const res: any =  await getBranchList()
+  if (res) {
+    branchList.value = res.data.map((branchs) => ({ text: branchs.name, value: branchs.id }))
+    return branchList.value
+  } else {
+    ElMessage({
+      message: t('reuse.cantGetData'),
+      type: 'error'
+    })
+    return
+  }
+}
+const callAPIDepartmentList = async () => {
+  const res: any =  await getDepartmentList()
+  if (res) {
+    branchList.value = res.data.map((branchs) => ({ text: branchs.name, value: branchs.id }))
+    return branchList.value
+  } else {
+    ElMessage({
+      message: t('reuse.cantGetData'),
+      type: 'error'
+    })
+    return
+  }
+}
 // Xem detail
 const action = (row: any, type: string) => {
+  console.log('run here', row, type)
   if (type === 'detail' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: row.voucherType }
+      params: { id: row.staffId, type: type, tab: row.voucherType }
     })
   }
 }
-
-
+watch (branchList, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    columns[5].filters = newVal
+  }
+})
 const columns = reactive<TableColumn[]>([
   {
     field: 'index',
@@ -71,7 +115,7 @@ const columns = reactive<TableColumn[]>([
     field: 'branch',
     label: t('reuse.branch'),
     minWidth: '110',
-    filters: filterBranch,
+    filters: filterDepartment,
     headerAlign: 'left'
   },
   {
@@ -82,14 +126,14 @@ const columns = reactive<TableColumn[]>([
     headerAlign: 'left'
   },
   {
-    field: 'rank',
+    field: 'rankEmployee',
     label: t('reuse.rank'),
     minWidth: '110',
     filters: filterRankEmployee,
     headerAlign: 'left'
   },
   {
-    field: 'type',
+    field: 'typeEmployee',
     label: t('reuse.type'),
     minWidth: '110',
     filters: filterTypeEmployee,
@@ -104,7 +148,7 @@ const columns = reactive<TableColumn[]>([
     headerAlign: 'left'
   },
   {
-    field: 'status',
+    field: 'statusRatingEmployee',
     label: t('reuse.status'),
     minWidth: '110',
     filters: filterStatusRatingEmployee,
@@ -124,6 +168,7 @@ const columns = reactive<TableColumn[]>([
       ])
     }
   }
+  
 ])
 
 
@@ -132,7 +177,7 @@ const columns = reactive<TableColumn[]>([
   <tableDatetimeFilterBasicVue 
   :removeButtonAdd="true" 
   :columns="columns" 
-  :api="getStaffList" 
-  :customOperator=4
+  :api="getEmployeeRatingList"
+  :customOperator="3" 
   />
 </template>

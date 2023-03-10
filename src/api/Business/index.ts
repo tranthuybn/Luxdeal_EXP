@@ -81,6 +81,26 @@ export const getStaffList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+export const getEmployeeRatingList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_EMPLOYEE_RATING_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+export const getEmployeeSaleTrackingList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_EMPLOYEE_SALE_TRACKING_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 export const getPotentialCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -918,6 +938,15 @@ export const deleteCampaign = async (params): Promise<IResponse> => {
   const res = await request.delete(
     {
       url: `${CAMPAIGN_API.DELETE_CAMPAIGN}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const CancelCampaign = async (params): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${CAMPAIGN_API.CANCEL_CAMPAIGN}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

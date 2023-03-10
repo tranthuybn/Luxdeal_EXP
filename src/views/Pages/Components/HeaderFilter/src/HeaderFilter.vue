@@ -38,6 +38,7 @@ type Callback = (error?: string | Error | undefined) => void
 const { register, methods } = useForm()
 
 const { getFormData } = methods
+
 //validation
 const checkStartDate = (_, endDate: any, callback: Callback) => {
   getFormData().then((res) =>
@@ -55,6 +56,7 @@ const checkEndDate = (_, startDate: any, callback: Callback) => {
       : callback()
   )
 }
+
 // form data
 const schema = reactive<FormSchema[]>([
   {

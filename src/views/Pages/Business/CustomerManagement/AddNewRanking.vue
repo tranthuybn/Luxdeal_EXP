@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { addCustomerRatings } from '@/api/Business'
-import { getCustomerRatingsById, updateCustomerRatings, deleteCustomerRating } from '@/api/Business'
+import { addCustomerRatings, getCustomerRatingsById, updateCustomerRatings, deleteCustomerRating } from '@/api/Business'
 import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
 import { ElNotification } from 'element-plus'
@@ -39,7 +38,7 @@ const schema = reactive<FormSchema[]>([
     hidden: false
   },
   {
-    field: 'rating',
+    field: 'rankingType',
     label: t('customerList.ratings'),
     component: 'Select',
     colProps: {
@@ -66,7 +65,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'sales',
+    field: 'targetMoney',
     component: 'Input',
     colProps: {
       span: 12
@@ -106,13 +105,13 @@ const schema = reactive<FormSchema[]>([
 
 const { required, ValidService, notSpecialCharacters, notSpace } = useValidator()
 const rules = reactive({
-  name: [
+  Name: [
     required(),
     { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator }
   ],
-  rating: [required()],
-  sales: [
+  RankingType : [required()],
+  TargetMoney: [
     required(),
     { validator: ValidService.checkPositiveNumber.validator },
     { validator: notSpace }
@@ -145,8 +144,14 @@ const customPostData = (data) => {
 }
 const postData = async (data) => {
   data = customPostData(data)
-  console.log('data: ', data)
-  await addCustomerRatings(FORM_IMAGES(data))
+  const params = {
+    Name: data.name,
+    RankingType: data.rankingType,
+    TargetMoney: data.targetMoney,
+    Image: data.Image || '',
+    IsActive: data.isActive,
+  }
+  await addCustomerRatings(FORM_IMAGES(params))
     .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
@@ -176,8 +181,8 @@ const customizeData = async (formData) => {
 type FormDataUpdate = {
   Id: number
   Name: string
-  Rating: number
-  Sales: number
+  RankingType : number
+  TargetMoney : number
   isActive: boolean
   Image: any
   ImageUrl: any
@@ -186,8 +191,8 @@ const customUpdateData = (data) => {
   const customUpdate = {} as FormDataUpdate
   customUpdate.Id = data.id
   customUpdate.Name = data.name
-  customUpdate.Rating = data.rating
-  customUpdate.Sales = data.sales
+  customUpdate.RankingType = data.rankingType
+  customUpdate.TargetMoney = data.targetMoney
   customUpdate.ImageUrl = data.imageurl.replace(`${API_URL}`, '')
   customUpdate.Image = data.Image
 

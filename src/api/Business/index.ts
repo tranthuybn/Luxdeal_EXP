@@ -821,7 +821,7 @@ export const getCustomerRanking = async (params: any): Promise<IResponse> => {
 export const getCustomerRatingsById = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${CUSTOMER_API.GET_CUSTOMER_RAINGS_BY_ID}?${objectToQueryParams(params)}`
+      url: `${CUSTOMER_API.GET_CUSTOMER_RATINGS}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

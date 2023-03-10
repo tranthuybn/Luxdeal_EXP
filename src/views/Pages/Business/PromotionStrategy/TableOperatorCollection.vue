@@ -25,7 +25,7 @@ import {
   ElRadio,
   ElInput
 } from 'element-plus'
-import { deleteCampaign, getAllCustomer, getProductsList } from '@/api/Business'
+import { CancelCampaign, getAllCustomer, getProductsList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
@@ -37,10 +37,10 @@ import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getSpaByProduct } from '@/api/LibraryAndSetting'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { approvalProducts } from '@/api/Approval'
-import { FORM_IMAGES } from '@/utils/format'
+import { dateTimeFormat, FORM_IMAGES } from '@/utils/format'
 import { Approvement, CampaignTypeArr } from '@/utils/API.Variables'
 import moment from 'moment'
-import { dateTimeFormat } from '@/utils/format'
+import { CampaignStatusV2 } from './CampaignStatusEnum'
 
 const currentDate = ref(moment().format("DD/MM/YYYY"))
 const { t } = useI18n()
@@ -191,8 +191,32 @@ const setFormValue = async () => {
   await customizeData()
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
-    dataTable.customerData = props.formDataCustomize.customers ?? []
-    dataTable.productData = props.formDataCustomize.products ?? []
+    if(props.campaignAndStrategyType != 0){
+      if(props.campaignAndStrategyType == 4){
+        dataTable.spaVoucherData = props.formDataCustomize.products ?? []
+        dataTable.customerData = props.formDataCustomize.customers ?? []
+      }
+      if(props.campaignAndStrategyType == 5){
+        dataTable.spaData = props.formDataCustomize.products ?? []
+      }
+      else{
+        dataTable.customerData = props.formDataCustomize.customers ?? []
+        dataTable.productData = props.formDataCustomize.products ?? []
+      }
+    }
+    if(dataTable.spaData){
+      dataTable.spaData.forEach(row=>{
+        if(row.id && row.id != -1){
+          getSpaOptions(row.id)}
+      })
+    }
+    if(dataTable.spaVoucherData){
+      dataTable.spaVoucherData.forEach(row=>{
+        if(row.id && row.id != -1){
+          getSpaOptions(row.id)}
+      })
+    }
+
 
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
@@ -209,24 +233,24 @@ const setFormValue = async () => {
 }
 
 // Modify color of statusValue
-const statusClass = (campaignStatus) => {
-  switch (campaignStatus) {
-    case -1:
-      return 'text-blue-500';
-    case 0:
-      return 'text-blue-500 box_0';
-    case 1:
-      return 'text-yellow-500 box_1';
-    case 2:
-      return 'text-yellow-500';
-    case 3:
-      return 'text-yellow-500';
-    case 4:
-      return 'text-yellow-500';
-    default:
-      return '';
-  }
-}
+// const statusClass = (campaignStatus) => {
+//   switch (campaignStatus) {
+//     case -1:
+//       return 'text-blue-500';
+//     case 0:
+//       return 'text-blue-500 box_0';
+//     case 1:
+//       return 'text-yellow-500 box_1';
+//     case 2:
+//       return 'text-yellow-500';
+//     case 3:
+//       return 'text-yellow-500';
+//     case 4:
+//       return 'text-yellow-500';
+//     default:
+//       return '';
+//   }
+// }
 
 //Lấy dữ liệu từ bảng khi ấn nút detail, edit, approve
 watch(
@@ -248,29 +272,29 @@ watch(
   }
 )
 
-watch(
-  () => formValue.value,
-  () => {
-    if (formValue.value) {
-      if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
-        let newArr = ref(formValue.value[0].productProperties)
-        let formService: any = ref([])
-        newArr.value[0]?.spaServices.map((e) => {
-          formService.value.push(e.name)
-        })
-        let formDataTable = formValue.value[0]?.productProperties.map((val) => ({
-          code: val.code,
-          id: val.id,
-          isActive: val.isActive,
-          service: formService.value
-        }))
-        dataTable.spaData = formDataTable
-        spaMoney.value = formValue.value[0].comboValue
-        imageUrl.value = formValue.value[0].images
-      }
-    }
-  }
-)
+// watch(
+//   () => formValue.value,
+//   () => {
+//     if (formValue.value) {
+//       if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
+//         let newArr = ref(formValue.value[0].productProperties)
+//         let formService: any = ref([])
+//         newArr.value[0]?.spaServices.map((e) => {
+//           formService.value.push(e.name)
+//         })
+//         let formDataTable = formValue.value[0]?.productProperties.map((val) => ({
+//           code: val.code,
+//           id: val.id,
+//           isActive: val.isActive,
+//           service: formService.value
+//         }))
+//         dataTable.spaData = formDataTable
+//         spaMoney.value = formValue.value[0].comboValue
+//         imageUrl.value = formValue.value[0].images
+//       }
+//     }
+//   }
+// )
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData
@@ -322,7 +346,7 @@ const save = async (type) => {
           return
         }
       }
-      if (props.showProduct) {
+      if (props.showProduct && props.campaignAndStrategyType !== 6) {
         if (dataTable.productData.length > 1) {
           if (
             dataTable.productData[dataTable.productData.length - 1].name == null ||
@@ -339,8 +363,10 @@ const save = async (type) => {
           loading.value = false
           return
         }
-
       }
+      if(props.campaignAndStrategyType == 6){
+          data.products = dataTable.productData
+        }
       data.spa = spaMoney.value
       // dataTable.spaData.pop()
       data.tableProductOfCombo = dataTable.spaData
@@ -463,7 +489,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
   }
 }
 //chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
-const { push } = useRouter()
+const { push, go } = useRouter()
 const router = useRouter()
 const edit = () => {
   push({
@@ -475,19 +501,22 @@ const edit = () => {
 const delAction = () => {
   {
     ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, props.deleteTitle, {
-      confirmButtonText: t('button.cancel'),
+      confirmButtonText: t('reuse.confirm'),
       cancelButtonText: t('reuse.exit'),
       type: 'warning',
       title: t('reuse.cancelProgramming'),
       confirmButtonClass: 'el-button--danger'
     })
       .then(() => {
-        deleteCampaign({ id: props.id })
+        CancelCampaign({ id: props.id })
           .then(() =>
-            ElNotification({
+            {
+              ElNotification({
               message: t('reuse.deleteSuccess'),
               type: 'success'
             })
+            cancel()
+          }
           )
           .catch(() => {
             ElNotification({
@@ -505,10 +534,34 @@ const delAction = () => {
   }
 }
 const cancel = () => {
-  push({
-    name: 'business.promotion-strategy.flash-sale',
-    params: { backRoute: 'business.promotion-strategy.flash-sale' }
-  })
+  switch(props.campaignAndStrategyType){
+    case 1:
+      push({
+        name: 'business.promotion-strategy.flash-sale',
+      })
+    case 2:
+      push({
+        name: 'business.promotion-strategy.collection',
+      })
+    case 3:
+      push({
+        name: 'business.promotion-strategy.new-product',
+      })
+    case 4:
+      push({
+        name: 'business.promotion-strategy.voucher',
+      })
+    case 5:
+      push({
+        name: 'business.promotion-strategy.combo',
+      })
+    case 6:
+      push({
+        name: 'business.promotion-strategy.auction',
+      })
+    default:
+      go(-1)
+  }
 }
 //xử lí ảnh
 const ListFileUpload = ref()
@@ -589,24 +642,9 @@ watch(
       dataTable.productData?.length < 1 ||
       (dataTable.productData[dataTable.productData?.length - 1].code !== '' &&
         dataTable.productData[dataTable.productData?.length - 1].name !== '' &&
-        forceRemove.value == false)
+        forceRemove.value == false  && props.campaignAndStrategyType !== 6)
     ) {
       addLastIndexProductTable()
-    }
-  },
-  { deep: true }
-)
-
-watch(
-  () => dataTable.spaData[dataTable.spaData?.length - 1],
-  () => {
-    if (
-      dataTable.spaData?.length < 1 ||
-      (dataTable.spaData[dataTable.spaData?.length - 1].code !== '' &&
-        dataTable.spaData[dataTable.spaData?.length - 1].name !== '' &&
-        forceRemove.value == false)
-    ) {
-      addLastIndexProductOfComboTable()
     }
   },
   { deep: true }
@@ -619,11 +657,6 @@ const addLastIndexCustomerTable = () => {
 const addLastIndexProductTable = () => {
   let idTable2 = Date.now()
   dataTable.productData.push({ id: idTable2, code: '', name: null, isActive: true })
-}
-
-const addLastIndexProductOfComboTable = () => {
-  let idTable3 = Date.now()
-  dataTable.spaData.push({ id: idTable3, isActive: 1, code: '', name: null, service: [] })
 }
 
 const addLastIndexSpaProductVoucher = () => {
@@ -776,7 +809,6 @@ const ScrollProductBottom = () => {
       })
 }
 const removeCustomer = (scope) => {
-  console.log(scope)
   forceRemove.value = true
   dataTable.customerData.splice(scope.$index, 1)
 }
@@ -797,26 +829,27 @@ const assignTheValuesForRow = (_value, obj, scope) => {
   scope.row.id = obj.id
 }
 
-const getValueOfSelected = async (value, obj, scope) => {
+const getValueOfSelected = async (_value, obj, scope) => {
   // console.log('scope.row',  scope.row)
+  // console.log('value', value)
   // console.log('listProducts.value',  listProducts.value)
-  const selected = listProducts.value
-    .filter((row) => row.id !== scope.row.code) 
-    .find((product) => product.productPropertyId == value)
+  // const selected = listProducts.value
+  //   .filter((product) => product.id !== scope.row.id) 
+  //   .find((product) => product.id == value)
   
-  if(selected){
-    ElMessage({
+  // if(selected){
+  //   ElMessage({
 
-      message: t('reuse.productCodeExist'),
-      type: 'warning'
-    })
-    scope.row.productPropertyId = undefined
-    return
-  }
+  //     message: t('reuse.productCodeExist'),
+  //     type: 'warning'
+  //   })
+  //   scope.row.productPropertyId = undefined
+  //   return
+  // }
 
   scope.row.name = obj.name
   scope.row.id = obj.id
-
+  scope.row.service=[]
   // data.productPropertyId = obj?.productPropertyId
   // data.productCode = obj.value
   // add new row
@@ -836,23 +869,20 @@ const changeComboCondition = () => {
   conditionComboVisible.value = true
 }
 const SpaSelectOptions = ref()
-let callSpaApi = 0
-const getSpaOptions = async () => {
-  if (callSpaApi == 0) {
-    await getSpaByProduct({ PageIndex: 1, PageSize: 100 }).then(
-      (res) =>
-      (SpaSelectOptions.value = res.data.map((spa) => ({
-        name: spa.name,
-        value: spa.id.toString(),
+const getSpaOptions = async (productPropertyId) => {
+    await getSpaByProduct({ PageIndex: 1, PageSize: 100, ProductPropertyId:productPropertyId }).then(
+      (res) =>{
+      SpaSelectOptions.value = res.data.map((spa) => ({
+        name: spa.spaServiceName,
+        value: spa.id,
         code: spa.code,
-        label: spa.name,
-        cost: spa.cost,
-        promotePrice: spa.promotePrice
-      })))
+        label: spa.spaServiceName,
+        cost: spa.price,
+        promotePrice: spa.price
+          })
+        )}
     )
-    callSpaApi++
     selectLoading.value = false
-  }
 }
 const conditionVoucherTable = reactive([
   {
@@ -935,9 +965,9 @@ const getSpaSelected = (spaServices) => {
     return accumulator + curValue.cost
   }, 0)
 }
-onBeforeMount(() => {
-  callAPICustomer(), getSpaOptions()
-  callAPIProduct()
+onBeforeMount(async () => {
+  await callAPICustomer()
+  await callAPIProduct()
 })
 
 const approvisionnement = async (val: boolean) => {
@@ -1036,7 +1066,7 @@ const spaMoney = ref(0)
           <template #tableProductOfCombo>
             <el-table :data="dataTable.spaData" border header-row-class-name="dark:text-white text-black">
               <template #append>
-                <div class="pl-750px w-320px">
+                <div class="pl-600px w-320px">
                   <div class="w-320px">{{ t('reuse.totalRealSpaMoney') }}
                     <span style="float: right">{{ spaCost }}</span>
                   </div>
@@ -1073,25 +1103,16 @@ const spaMoney = ref(0)
                 </template>
                 <template #default="scope">
                   <el-select
+                    @focus="getSpaOptions(scope.row.id)"
                     :loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
                     placeholder="Select" size="large" @change="getSpaSelected">
-                    <div class="flex gap-4">
-                      <div class="flex-1 font-bold pl-5 h-[34px]">{{ t('reuse.serviceCode') }}</div>
-                      <div class="flex-1 font-bold pr-5 h-[34px]">{{
-                        t('reuse.informationServices')
-                      }}</div>
-                    </div>
-                    <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value">
-                      <span style="float: left">{{ item.code }}</span>
-                      <span style="float: right; font-size: 13px; color: var(--el-text-color-secondary)">{{ item.name
-                      }}</span>
-                    </el-option>
+                    <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value"/>
                   </el-select>
                 </template>
               </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeSpaProduct(scope)">{{
+                  <el-button type="danger" v-if="scope.row.code" disabled @click="removeSpaProduct(scope)">{{
                     t('reuse.delete')
                   }}</el-button>
                 </template>
@@ -1121,19 +1142,14 @@ const spaMoney = ref(0)
                 }}<span style="color: orange">({{ t('reuse.chooseAtleast1SpaService') }})</span></template>
                 <template #default="scope">
                   <el-select
-:loading="selectLoading" multiple clearable v-model="scope.row.service" class="m-2"
+                  @focus="getSpaOptions(scope.row.id)"
+                  :loading="selectLoading"
+                   multiple
+                    clearable
+                     v-model="scope.row.service" class="m-2"
                     placeholder="Select" size="large">
-                    <div class="flex gap-4">
-                      <div class="flex-1 font-bold pl-5 h-[34px]">{{ t('reuse.serviceCode') }}</div>
-                      <div class="flex-1 font-bold pr-5 h-[34px]">{{
-                        t('reuse.informationServices')
-                      }}</div>
-                    </div>
-                    <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value">
-                      <span style="float: left">{{ item.code }}</span>
-                      <span style="float: right; font-size: 13px; color: var(--el-text-color-secondary)">{{ item.name
-                      }}</span>
-                    </el-option>
+
+                    <el-option v-for="item in SpaSelectOptions" :key="item.value" :label="item.label" :value="item.value"/>
                   </el-select>
                 </template>
               </el-table-column>
@@ -1161,39 +1177,78 @@ const spaMoney = ref(0)
              t('reuse.voucherStatusExplain') }})</span></template></el-checkbox>
           </template>
           <template #statusValue="form">
-            <div v-if="!form.statusHistory" class="flex flex-col justify-start gap-2" >
+            <div class="status_wrap" v-if="type=='add'">
+              <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span
+                    class="box_3 text-blue-500 dark:text-black active"
+                  >
+                    {{ t('reuse.newInitialization') }}
+                    <span class="right_3"> </span>
+                  </span>
+              <div class="status_wrap-date ">{{ currentDate }}</div>
+            </div>
+            <div v-else class="flex items-center flex-wrap w-[100%]">
+            <div
+                class="duplicate-status"
+                v-for="item, index in form['statusHistory']"
+                :key="item.campaignStatus"
+              >
               <div>
                   <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
-                  <span class="box box_0 text-blue-500 dark:text-divck" >
-                    {{ t('reuse.newInitialization') }}
-                    <span class="triangle-right right_0"></span>
-                  </span>
-              </div>
-              <div class="italic text-xs text-gray-500">{{ currentDate }}</div>
-            </div>
+                  <span
+                    v-if="item.campaignStatus == CampaignStatusV2.KhoiTaoMoi
+                     || item.campaignStatus == CampaignStatusV2.ChayChuongTrinh
+                    || item.campaignStatus == CampaignStatusV2.DaGuiVoucher"
+                    class="box_3 text-blue-500 dark:text-black"
+                    :class="{ active: index == form['statusHistory'].length - 1}"
+                  >
+                    {{ item.campaignStatusName }}
 
-            <div
-                v-else
-                v-for="item in form.statusHistory"
-                :key="item.campaignStatus"
-            >
-              <div class="mr-5 flex flex-col justify-start align-top gap-2">
-                  <div class="align-top">
-                    <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span class="box dark:text-divck" :class="statusClass(item.campaignStatus)" >
-                      {{item.campaignStatusName }}    
-                      <span class="triangle-right right_0"></span>
-                    </span>
-                  </div>
-                  <div class="italic text-xs text-gray-500">{{ item.campaignStatus === 0 ? dateTimeFormat(form.statusHistory[0].createdAt) : dateTimeFormat(form.statusHistory[0].approvedAt) }}</div>
+                    <span class="right_3"> </span>
+                  </span>
+
+                  <span
+                    v-if="item.campaignStatus == CampaignStatusV2.DuyetKhoiTao 
+                    || item.campaignStatus == CampaignStatusV2.SuaChuongTrinh"
+                    class="box_1 text-orange-500 dark:text-black"
+                    :class="{ active: index == form['statusHistory'].length - 1}"
+                  >
+                    {{ item.campaignStatusName }}
+
+                    <span class="right_1"> </span>
+                  </span>
+
+                  <span
+                    v-if="item.campaignStatus == CampaignStatusV2.HuyChuongTrinh"
+                    class="box_4 text-red-500 dark:text-black"
+                    :class="{ active: index == form['statusHistory'].length - 1}"
+                  >
+                    {{ item.campaignStatusName }}
+
+                    <span class="right_4"> </span>
+                  </span>
+                  
+                  <span
+                    v-if="item.campaignStatus == CampaignStatusV2.KetThuc"
+                    class="box_3 text-black dark:text-black"
+                    :class="{ active: index == form['statusHistory'].length - 1}"
+                  >
+                    {{ item.campaignStatusName }}
+
+                    <span class="right_3"> </span>
+                  </span>
+
+                  <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
+                </div>
               </div>
-              {{ form.statusHistory[0].approveAt }}
             </div>
-            
           </template>
         </Form>
       </ElCol>
@@ -1345,7 +1400,8 @@ v-model="radioSelected" :label="scope.$index + 1"
     </el-dialog>
   </ContentWrap>
 </template>
-<style scoped>
+<style lang="scss" scoped>
+@import "@/styles/statusHistory.scss";
 .status_wrap {
   display: flex;
   align-items: left;

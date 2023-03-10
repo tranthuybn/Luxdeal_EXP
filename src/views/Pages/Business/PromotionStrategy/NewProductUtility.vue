@@ -421,6 +421,7 @@ type SetFormData = {
   percent: number
   money: number
   imageurl?: string
+  statusHistory?: any
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -443,6 +444,8 @@ const customizeData = async (data) => {
   setFormData.Images = data[0].images
   setFormData.target = data[0].targetType
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
+  setFormData.statusHistory = data[0].statusHistory
+
   hideTableCustomer(data[0].targetType)
 }
 const { push } = useRouter()
@@ -483,7 +486,9 @@ const editData = async (data) => {
 ref="formRef" :schema="schema" :apiId="getCampaignList" :delApi="deleteCampaign"
           :type="type" :id="id" @post-data="postData" :multipleImages="false" :params="params"
           :formDataCustomize="setFormData" :rules="rules" @customize-form-data="customizeData" @edit-data="editData"
-          :show-product="true" :tabActive="tab" />
+          :show-product="true" :tabActive="tab" 
+          :campaignAndStrategyType="3"
+          />
       </el-collapse-item>
     </el-collapse>
   </div>

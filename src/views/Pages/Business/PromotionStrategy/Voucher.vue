@@ -134,7 +134,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'operator',
     label: t('reuse.operator'),
-    minWidth: '200',
+    minWidth: '150',
     headerAlign: 'left',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', { style: 'display:flex;justify-content: center;' }, [

@@ -11,27 +11,8 @@ import {
   filterReciprocalProfile,
 } from '@/utils/filters'
 import { dateTimeFormat, formatStatusAccounting } from '@/utils/format'
-import { useRouter } from 'vue-router'
-import { ElButton } from 'element-plus'
-import { useIcon } from '@/hooks/web/useIcon'
-import { useAppStore } from '@/store/modules/app'
 
 const { t } = useI18n()
-const { push } = useRouter()
-const router = useRouter()
-const appStore = useAppStore()
-const Utility = appStore.getUtility
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-
-const action = (row: any, type: string) => {
-  if (type === 'detail' || type === 'edit' || !type) {
-    push({
-      name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: row.voucherType }
-    })
-  }
-}
-
 
 const columns = reactive<TableColumn[]>([
   {
@@ -60,12 +41,16 @@ const columns = reactive<TableColumn[]>([
     headerAlign: 'left',
   },
   {
-    field: 'paymentType',
+    field: 'typeOfPayment',
     label: t('reuse.revenueAndExpenditure'),
     minWidth: '100',
     filters: filtersReceiptExpenditure,
-    formatter: (_record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
-      return h(cellValue ? h('div', PAYMENT[0].label) : h('div', PAYMENT[1].label))
+    formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
+      if (record.typeOfPayment == 1) {
+        return h('div', PAYMENT[0].label)
+      } else {
+        return h('div', PAYMENT[1].label)
+      }
     },
     headerAlign: 'left',
   },
@@ -134,18 +119,6 @@ const columns = reactive<TableColumn[]>([
       return t(`${formatStatusAccounting(cellValue)}`)
     },
   },
-  {
-    field: 'operator',
-    label: t('reuse.operator'),
-    minWidth: '90',
-    headerAlign: 'left',
-    align: 'center',
-    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', { style: 'display:flex;justify-content: center;' }, [
-        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),
-      ])
-    }
-  }
 ])
 </script>
 <template>
@@ -153,6 +126,5 @@ const columns = reactive<TableColumn[]>([
   :columns="columns" 
   :delApi="deleteAReceiptOrPaymentVoucher" 
   :api="getReceiptsExpendituresList" 
-  :customOperator="4"
   />
 </template>

@@ -628,10 +628,9 @@ const productName = ref('')
 const setProductCode = () => {
   setValues({ ProductCode: productCode.value })
   fillAllInformation(productCode.value)
-  productCode.value = ''
 }
 const setProductName = () => {
-  setValues({ ProductName: productName.value })
+  setValues({ Name: productName.value })
 }
 const resetForm = () => {
   unref(elFormRef)!.resetFields()
@@ -738,8 +737,7 @@ const approvalProduct = async () => {
                 >
                   <span style="float: left">{{ t('reuse.productCode') }}: {{ item.label }}</span>
                   <span style="float: right; font-size: 13px; color: var(--el-text-color-secondary)"
-                    >{{ t('reuse.productName') }}: {{ item.name
- }}</span
+                    >{{ t('reuse.productName') }}: {{ item.name}}</span
                   >
                 </el-option>
               </div>
@@ -765,6 +763,7 @@ const approvalProduct = async () => {
               popper-class="max-w-600px"
               @input="(event: any) => (productName = event.target.value)"
               @blur="setProductName"
+              @keyup.enter="setProductName"
             >
               <el-option
                 v-for="item in NameAndCodeSelect"

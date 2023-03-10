@@ -1191,7 +1191,7 @@ const spaMoney = ref(0)
             <div
                 class="duplicate-status"
                 v-for="item, index in form['statusHistory']"
-                :key="item.campaignStatus"
+                :key="index"
             >
               <div class="mr-5 flex flex-col justify-start align-top gap-2">
                   <div class="align-top">
@@ -1206,6 +1206,7 @@ const spaMoney = ref(0)
                   <div class="italic text-xs text-gray-500">{{ item.campaignStatus === 0 ? dateTimeFormat(form.statusHistory[0].createdAt) : dateTimeFormat(form.statusHistory[0].approvedAt) }}</div>
               </div>
             </div>
+          </div>
           </template>
         </Form>
       </ElCol>

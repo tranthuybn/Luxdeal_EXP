@@ -267,4 +267,14 @@ export const postCreateNewStaffRole = async (params): Promise<IResponse> => {
     fixedBaseURL
   )
   return res && res.data
- }
+}
+ 
+export const getRoleDetail = async (params): Promise<IResponse> => { 
+  const res = await request.get(
+    {
+      url: `${ROLE_API.GET_ROLE_DETAIL}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

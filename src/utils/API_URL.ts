@@ -228,7 +228,8 @@ export const APPROVAL_API = {
 }
 
 export const ROLE_API = {
-  CREATE_NEW_STAFF_ROLE :'api/v1/Authorization/AddNewStaffRole'
+  CREATE_NEW_STAFF_ROLE: 'api/v1/Authorization/AddNewStaffRole',
+  GET_ROLE_DETAIL:'api/v1/Authorization/StaffRoleInDetail'
 }
 
 export const TOOL_API = {

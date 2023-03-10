@@ -12,13 +12,15 @@ import {
 ElMessage
 } from 'element-plus'
 import { Form } from '@/components/Form'
-import { onBeforeMount, reactive, ref,unref } from 'vue'
+import { computed, onBeforeMount, reactive, ref,unref } from 'vue'
 import { appModules } from '@/config/app'
 import { useValidator } from '@/hooks/web/useValidator'
 import { asyncRouterMap } from '@/router'
 import { cloneDeep, cloneDeepWith } from 'lodash-es'
-import { postCreateNewStaffRole } from '@/api/HumanResourceManagement'
+import { getRoleDetail, postCreateNewStaffRole } from '@/api/HumanResourceManagement'
 import { useForm } from '@/hooks/web/useForm' 
+import { RouteRecordName, useRouter } from 'vue-router'
+
 const { t } = useI18n()
 const { utility } = appModules
 const { required, notSpecialCharacters } = useValidator()
@@ -30,7 +32,24 @@ let ElTreeData = ref<Tree[]>([])
 const routerMap = cloneDeep(asyncRouterMap)
 const { register, elFormRef, methods } = useForm()
 const loading = ref(false)
-
+const { currentRoute, push } = useRouter()
+let roleStatus = ref(true)
+const treeRef = ref<InstanceType<typeof ElTree>>()
+const disableCheckbox = ref(false)
+const parentRoute = computed((): RouteRecordName  => {
+  const { name } = unref(currentRoute)
+  if (typeof name == 'string' && name?.length > 0) {    
+    return name.replace('.' + utility, '')
+  }return ''
+})
+const typeOfActivity = computed(():string | string[]=> { 
+  const { params } = unref(currentRoute)
+  return params?.type ?? 'add'
+}) 
+const RoleId = computed(():number=> { 
+  const { params } = unref(currentRoute)
+  return params.id && typeof params.id == 'string'  ? parseInt(params.id): 0
+}) 
 const rules = {
   roleName: [required(), {required: true, validator: notSpecialCharacters, trigger: 'blur' }],
 }
@@ -46,7 +65,8 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
-      placeholder: t('reuse.inputName')
+      placeholder: t('reuse.inputName'),
+      disabled: typeOfActivity.value == 'detail'
     }
   },
   {
@@ -62,7 +82,8 @@ const schema = reactive<FormSchema[]>([
       style: {
         width: '100%'
       },
-      placeholder: t('formDemo.enterDescription')
+      placeholder: t('formDemo.enterDescription'),
+      disabled:typeOfActivity.value == 'detail'
     }
   },
   {
@@ -104,7 +125,8 @@ onBeforeMount(async () => {
   if (filterRouter[filterRouter.length - 1] && filterRouter[filterRouter.length - 1].name == 'NotFound')
     filterRouter.splice(filterRouter.length - 1, 1)
 // mapping recursive
-  ElTreeData.value = mappingRouterTree(filterRouter,null)
+  ElTreeData.value = mappingRouterTree(filterRouter, null)
+  getRoleDetailEvent()
 })
 
 function mappingRouterTree(tree,parentPath) {
@@ -127,7 +149,8 @@ if(Array.isArray(tree) && tree.length > 0)
           edit: false,
           delete:false,
           children: mappingRouterTree(node.children, currentNodePath),
-          isParents:true
+          isParents: true,
+          disabled:typeOfActivity.value == 'detail',
         };
       else
         return {
@@ -139,16 +162,45 @@ if(Array.isArray(tree) && tree.length > 0)
           add: false,
           edit: false,
           delete: false,
-          isParents:false
+          isParents: false,
+          disabled:typeOfActivity.value == 'detail',
         };
     }
     
   });
   return []
 }
-const roleStatus = ref(true)
-const treeRef = ref<InstanceType<typeof ElTree>>()
-const createNewRoleEvent = () => {
+const getRoleDetailEvent = () => {
+
+  if (typeof typeOfActivity.value == 'string' && typeOfActivity.value != 'add') {
+    loading.value = true
+    disableCheckbox.value = true
+    getRoleDetail({ id: RoleId.value }).then((res) => {
+      const { data } = res
+      if (data) {
+        const { setValues } = methods
+        setValues({
+          roleName: data.roleName,
+          description: data.description
+        })
+        const routerMap = data.router.map((el) => el.url)
+        if (data.router.length > 0)
+          treeRef.value?.setCheckedKeys(routerMap)
+        roleStatus.value = data.isActive
+      }
+
+    }).catch((err) => {
+      ElNotification({
+        message: t('reuse.cantFindData'),
+        type: 'error'
+      })
+      console.error(err);
+    }).finally(() => {
+      loading.value = false
+    })
+  }
+}
+const createNewRoleEvent = (goOut) => {
   const formRef = unref(elFormRef)
   formRef?.validate(async (isValid) => {
     if (isValid) {
@@ -162,18 +214,18 @@ const createNewRoleEvent = () => {
           isActive: roleStatus.value,
           router: routes?.map(el => ({
             url: el.url,
-            addable: el.addable ?? null,
-            editable: el.editable ?? null,
-            deletable: el.deletable ?? null
+            addable: el.addable ?? false,
+            editable: el.editable ?? false,
+            deletable: el.deletable ?? false
           }))
         }
         postCreateNewStaffRole(params).then(res => {
-          console.log(res);
-
           ElNotification({
-            message: t('reuse.addSuccess'),
-            type: 'success'
+            message: res.message ?? t('reuse.addSuccess'),
+            type: res.statusCode == 200 ? 'success' : 'error'
           })
+          if (res.statusCode == 200 && goOut&&parentRoute)
+            push({name:unref(parentRoute)})
         }).catch(() => {
           ElNotification({
             message: t('reuse.addFail'),
@@ -193,7 +245,6 @@ const createNewRoleEvent = () => {
 
 }
 
-
 </script>
 <template>
   <ContentWrap :title="t('reuse.decentralization')" :back-button="true">
@@ -205,7 +256,6 @@ const createNewRoleEvent = () => {
         :schema="schema"
         :rules="rules"
         label-position="top"
-        hide-required-asterisk
         size="large"
         @register="register"
         status-icon
@@ -225,7 +275,7 @@ const createNewRoleEvent = () => {
                 show-checkbox
                 node-key="url"
                 default-expand-all 
-                class="w-[100%]"                   
+                class="w-[100%]"                 
               >
                 <template #default="{ node }">
                   <div class="flex justify-between w-[100%]" >                  
@@ -256,7 +306,7 @@ const createNewRoleEvent = () => {
           <p class="mr-5">{{t('formDemo.statusActive')}}</p>          
         </ElCol>
         <ElCol :span="20" >
-         <ElCheckbox v-model = "roleStatus">{{ t('formDemo.isActive') }}</ElCheckbox>
+         <ElCheckbox v-model = "roleStatus" :disabled="disableCheckbox">{{ t('formDemo.isActive') }}</ElCheckbox>
       </ElCol>
     </ElRow >
     <ElRow justify="space-between">
@@ -270,10 +320,10 @@ const createNewRoleEvent = () => {
       </ElCol>
     </ElRow>
   
-          <ElButton type="primary" @click="createNewRoleEvent()" v-loading.fullscreen.lock="loading" >
+          <ElButton type="primary" @click="createNewRoleEvent(true)" v-loading.fullscreen.lock="loading" >
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton type="primary" v-loading.fullscreen.lock="loading">
+        <ElButton type="primary" @click="createNewRoleEvent(false)" v-loading.fullscreen.lock="loading">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
   

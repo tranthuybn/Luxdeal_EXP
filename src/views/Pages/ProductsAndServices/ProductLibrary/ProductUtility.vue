@@ -507,7 +507,6 @@ const rules = reactive({
   ProductCode: [
     required(),
     { validator: notSpace },
-    { validator: notSpecialCharacters },
     { validator: ValidService.checkCodeServiceLength.validator }
   ],
   Name: [
@@ -525,6 +524,7 @@ const rules = reactive({
   HireInventoryStatus: [required()],
   SellInventoryStatus: [required()]
 })
+
 const ruleSEO = reactive({
   SeoTitle: [
     required(),
@@ -666,14 +666,12 @@ const customizeData = async (formData) => {
   setFormData.SellInventoryStatus = formData.sellInventoryStatus
   setFormData.IsActive =  formData.isActive
   setFormData.ProductStatus =  formData.productStatus
-  console.log('set', setFormData)
   // formData.productStatus == 2 ? (setFormData.ProductStatus = 2) : (setFormData.ProductStatus = 0)
   unitData.value = formData.categories[2].value
   customSeoData(formData)
 }
 const { push } = useRouter()
 const editData = async (data) => {
-  //fixxbug 
   data.ProductTypeId = data.ProductType
   await updateProductLibrary(FORM_IMAGES(data))
     .then(() =>{
@@ -1471,7 +1469,7 @@ const categoriesToString = (categories) => {
       />
     </el-collapse-item>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+       :close-on-click-modal="doCloseOnClickModal"
       v-model="sellTableVisible"
       :title="`${t('reuse.settingSalePrice')}/ ${sellDialogTitle}`"
       width="70%"

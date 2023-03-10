@@ -233,24 +233,24 @@ const setFormValue = async () => {
 }
 
 // Modify color of statusValue
-// const statusClass = (campaignStatus) => {
-//   switch (campaignStatus) {
-//     case -1:
-//       return 'text-blue-500';
-//     case 0:
-//       return 'text-blue-500 box_0';
-//     case 1:
-//       return 'text-yellow-500 box_1';
-//     case 2:
-//       return 'text-yellow-500';
-//     case 3:
-//       return 'text-yellow-500';
-//     case 4:
-//       return 'text-yellow-500';
-//     default:
-//       return '';
-//   }
-// }
+const statusClass = (campaignStatus) => {
+  switch (campaignStatus) {
+    case -1:
+      return 'status--initial';
+    case 0:
+      return 'status--initial';
+    case 1:
+      return 'status--pending';
+    case 2:
+      return 'status--pending';
+    case 3:
+      return 'status--pending';
+    case 4:
+      return 'status--pending';
+    default:
+      return '';
+  }
+}
 
 //Lấy dữ liệu từ bảng khi ấn nút detail, edit, approve
 watch(
@@ -1181,11 +1181,9 @@ const spaMoney = ref(0)
               <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
-                  <span
-                    class="box_3 text-blue-500 dark:text-black active"
-                  >
+                  <span class="box box_0 text-blue-500 dark:text-divck" >
                     {{ t('reuse.newInitialization') }}
-                    <span class="right_3"> </span>
+                    <span class="triangle-right right_0"></span>
                   </span>
               <div class="status_wrap-date ">{{ currentDate }}</div>
             </div>
@@ -1194,59 +1192,18 @@ const spaMoney = ref(0)
                 class="duplicate-status"
                 v-for="item, index in form['statusHistory']"
                 :key="item.campaignStatus"
-              >
-              <div>
-                  <span
-                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                  ></span>
-                  <span
-                    v-if="item.campaignStatus == CampaignStatusV2.KhoiTaoMoi
-                     || item.campaignStatus == CampaignStatusV2.ChayChuongTrinh
-                    || item.campaignStatus == CampaignStatusV2.DaGuiVoucher"
-                    class="box_3 text-blue-500 dark:text-black"
-                    :class="{ active: index == form['statusHistory'].length - 1}"
-                  >
-                    {{ item.campaignStatusName }}
-
-                    <span class="right_3"> </span>
-                  </span>
-
-                  <span
-                    v-if="item.campaignStatus == CampaignStatusV2.DuyetKhoiTao 
-                    || item.campaignStatus == CampaignStatusV2.SuaChuongTrinh"
-                    class="box_1 text-orange-500 dark:text-black"
-                    :class="{ active: index == form['statusHistory'].length - 1}"
-                  >
-                    {{ item.campaignStatusName }}
-
-                    <span class="right_1"> </span>
-                  </span>
-
-                  <span
-                    v-if="item.campaignStatus == CampaignStatusV2.HuyChuongTrinh"
-                    class="box_4 text-red-500 dark:text-black"
-                    :class="{ active: index == form['statusHistory'].length - 1}"
-                  >
-                    {{ item.campaignStatusName }}
-
-                    <span class="right_4"> </span>
-                  </span>
-                  
-                  <span
-                    v-if="item.campaignStatus == CampaignStatusV2.KetThuc"
-                    class="box_3 text-black dark:text-black"
-                    :class="{ active: index == form['statusHistory'].length - 1}"
-                  >
-                    {{ item.campaignStatusName }}
-
-                    <span class="right_3"> </span>
-                  </span>
-
-                  <p v-if="item?.approvedAt">{{
-                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
-                  }}</p>
-                  <p v-else class="text-transparent">s</p>
-                </div>
+            >
+              <div class="mr-5 flex flex-col justify-start align-top gap-2">
+                  <div class="align-top">
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span class="box dark:text-divck" :class="statusClass(item.campaignStatus)" >
+                      {{item.campaignStatusName }}    
+                      <span class="triangle-right right_0"></span>
+                    </span>
+                  </div>
+                  <div class="italic text-xs text-gray-500">{{ item.campaignStatus === 0 ? dateTimeFormat(form.statusHistory[0].createdAt) : dateTimeFormat(form.statusHistory[0].approvedAt) }}</div>
               </div>
             </div>
           </template>
@@ -1400,40 +1357,7 @@ v-model="radioSelected" :label="scope.$index + 1"
     </el-dialog>
   </ContentWrap>
 </template>
-<style lang="scss" scoped>
-@import "@/styles/statusHistory.scss";
-.status_wrap {
-  display: flex;
-  align-items: left;
-  flex-direction: column;
-}
-.box {
-  position: relative;
-  display: flex;
-  width: fit-content;
-  padding: 0 10px 0 20px;
-  background-color: #ccc;
-  border: 1px solid #ccc;
-  opacity: 1;
-  align-items: center;
-}
-
-.box_0 {
-  background-color: #f4f8fd;
-  border: 1px solid #f4f8fd;
-}
-.box_1 {
-  background-color: #fff0d9;
-  border: 1px solid #fff0d9;
-}
-.right_0 {
-  border-left: 11px solid #f4f8fd !important;
-}
-.right_1 {
-  border-left: 11px solid #fff0d9 !important;
-}
-
-
+<style scoped>
 .triangle-left {
   position: absolute;
   z-index: 1998;
@@ -1450,7 +1374,33 @@ v-model="radioSelected" :label="scope.$index + 1"
   border-bottom: 12px solid transparent;
   border-left: 11px solid #ccc;
 }
+.box {
+  position: relative;
+  display: flex;
+  width: fit-content;
+  padding: 0 10px 0 20px;
+  background-color: #ccc;
+  border: 1px solid #ccc;
+  opacity: 1;
+  align-items: center;
+}
 
+.status--initial {
+  color: rgb(59 130 246);
+  background-color: #f4f8fd !important;
+  border: 1px solid #f4f8fd !important;
+}
+.status--initial .triangle-right{
+  border-left: 11px solid #f4f8fd !important;
+}
+.status--pending {
+  color: rgb(234 179 8); 
+  background-color: #fff0d9;
+  border: 1px solid #fff0d9;
+}
+.status--pending .triangle-right{
+  border-left: 11px solid #fff0d9 !important;
+}
 .explainText {
   font-size: 14px;
   font-style: italic;

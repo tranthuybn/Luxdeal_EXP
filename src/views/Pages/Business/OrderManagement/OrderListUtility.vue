@@ -1018,7 +1018,7 @@ const inputDeposit = ref(0)
 watch(
   () => inputDeposit.value,
   () => {
-    moneyDeposit.value = totalPriceOrder.value - inputDeposit.value
+    moneyDeposit.value = outstandingDebt.value - inputDeposit.value
   }
 )
 
@@ -1236,7 +1236,7 @@ let formAccountingId = ref()
 const idAcountingEntry = ref()
 // Chi tiết bút toán
 const openDialogAcountingEntry = (scope,isDisable) => {
-  condition.value=isDisable;
+  condition.value = isDisable;
   const data = scope.row
   switch (data.typeOfAccountingEntry) {
     case 1:
@@ -1795,18 +1795,23 @@ function openBillDialog() {
 
 const outstandingDebt = ref(0)
 const totalOutstandingDebt = () => {
-  outstandingDebt.value = 0
-  debtTable.value?.forEach((val) =>  {
-    if (val.deibt != 0) {
-      outstandingDebt.value += val?.deibt
+  if (debtTable.value.length <= 0) {
+    outstandingDebt.value = totalPriceOrder.value
+  } else {
+    if (showCancelAcountingEntry.value) {
+      outstandingDebt.value = formAccountingId.value.accountingEntry?.deibt + formAccountingId.value.accountingEntry?.receiveMoney
+    } else {
+      outstandingDebt.value = debtTable.value[debtTable.value.length-1].deibt
     }
-  })
+  }
 }
 // Tạo mới phiếu đặt cọc
 function openDepositDialog() {
   showCreatedOrUpdateButton.value = true
   showCancelAcountingEntry.value = false
   updateDetailAcountingEntry.value = false
+  condition.value = false
+  inputDeposit.value = 0
   totalOutstandingDebt()
   createStatusAcountingEntry()
   alreadyPaidForTt.value = true
@@ -1949,9 +1954,9 @@ const postOrderStransaction = async (index: number) => {
     typeOfAccountingEntry: index,
     returnRequestId: idReturnRequest.value
   }
-
   objOrderStransaction.value = await addOrderStransaction(payload)
   idStransaction.value = objOrderStransaction.value.paymentRequestId
+  inputDeposit.value = 0
   getOrderStransactionList()
 }
 
@@ -3773,11 +3778,12 @@ const disabledPhieu = ref(false)
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2">
-                {{ totalPriceOrder != undefined ? changeMoney.format(totalFinalOrder) : '0 đ' }}
+                {{ outstandingDebt ? changeMoney.format(outstandingDebt) : '0 đ' }}
               </p>
               <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" :disabled="condition"/>
               <p class="pr-2 text-red-600 pt-2">
-                {{ inputDeposit ? changeMoney.format(totalFinalOrder - inputDeposit) : '0 đ' }}</p>
+                {{ changeMoney.format(outstandingDebt - inputDeposit) }}
+              }</p>
             </div>
           </div>
         </div>

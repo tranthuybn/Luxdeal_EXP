@@ -5530,7 +5530,7 @@ const disabledPhieu = ref(false)
           <!-- Không thay đổi giá -->
           <div
             v-if="
-              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add' || STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == ':type'
+              statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == 'add' ||statusOrder == STATUS_ORDER_SELL[2].orderStatus && !priceChangeOrders && type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5572,7 +5572,7 @@ const disabledPhieu = ref(false)
           <!-- Có thay đổi giá -->
           <div
             v-else-if="
-              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add' || STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == ':type'
+              statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == 'add' || statusOrder == STATUS_ORDER_SELL[1].orderStatus && priceChangeOrders && type == ':type'
             "
             class="w-[100%] flex ml-1 gap-4"
           >
@@ -5685,7 +5685,7 @@ const disabledPhieu = ref(false)
             >
           </div>
           <div
-            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || STATUS_ORDER_SELL[8].orderStatus"
+            v-else-if="statusOrder == STATUS_ORDER_SELL[3].orderStatus  || statusOrder == STATUS_ORDER_SELL[8].orderStatus"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{

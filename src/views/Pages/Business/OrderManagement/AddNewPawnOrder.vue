@@ -65,7 +65,9 @@ import {
   updateOrderTransaction,
   postAutomaticWarehouse,
 createTicketFromReturnOrder,
-GenerateCodeOrder
+GenerateCodeOrder,
+cancelReturnOrder,
+finishReturnOrder
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -133,7 +135,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'productAndPayment',
-    title: t('formDemo.productAndPayment'),
+    title: t('formDemo.listOfPawnProducts') ,
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -226,7 +228,6 @@ interface ListOfProductsForSaleType {
   description: string | undefined
   warehouseInfo: {}
   unitName: string
-  unitPrice: string | number | undefined
   interestMoney: string | number | undefined
   TotalPrice: number
   price: string | number | undefined
@@ -236,6 +237,8 @@ interface ListOfProductsForSaleType {
   warehouseId: number | undefined
   warehouseName: string
   newProduct: Boolean
+  principalMoney: number
+  principalDebt: number
 }
 
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -256,7 +259,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   businessSetupName: '',
   warehouseInfo: {},
   unitName: '',
-  unitPrice: 0,
+  principalMoney: 0,
+  principalDebt: 0,
   interestMoney: 0,
   TotalPrice: 0,
   price: '',
@@ -891,7 +895,9 @@ const postData = async () => {
     ConsignmentHirePrice: 0,
     Accessory: val.accessory,
     Code: val.code,
-    Description: val.description
+    Description: val.description,
+    PrincipalMoney: val.principalMoney,
+    PrincipalDebt: val.principalDebt
   }))
   orderDetailsTable.pop()
   const productPayment = JSON.stringify([...orderDetailsTable])
@@ -917,7 +923,7 @@ const postData = async () => {
     VAT: 1,
     WarehouseId: ruleForm.warehouse,
     Days: ruleForm.paymentPeriod,
-    TotalPrice: priceintoMoneyPawnGOC.value,
+    TotalPrice: totalPrincipalMoney.value,
     DepositePrice: 0,
     DiscountMoney: 0,
     InterestMoney: priceintoMoneyByday.value,
@@ -1042,14 +1048,15 @@ function openBillPawnDialog() {
 }
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async (reason) => {
+  console.log('reason', reason)
   let tableReturnPost = [{}]
-  if (rentReturnOrder.value.tableData.length < 2) {
-    return
-  }
-  rentReturnOrder.value.tableData.pop()
+  // if (rentReturnOrder.value.tableData.length < 2) {
+  //   return
+  // }
+  // rentReturnOrder.value.tableData.pop()
   tableReturnPost = rentReturnOrder.value.tableData.map((e) => ({
     productPropertyId: Number(e.productPropertyId),
-    quantity: e.quantity,
+    quantity: Number(e.quantity),
     accessory: e.accessory
   }))
 
@@ -1059,13 +1066,22 @@ const postReturnRequest = async (reason) => {
     name: 'Đổi trả đơn hàng',
     description: formatOrderReturnReason(reason),
     returnRequestType: 1,
-    details: tableReturnPost
+    giaHanDetails: [],
+    nhapDetails: [],
+    xuatDetails: tableReturnPost,
   }
+  console.log('payload', payload)
   await createReturnRequest(payload).then(async (res)=>{
     idReturnRequest.value = res
     await createTicketFromReturnOrders()
     getReturnRequestTable()
   })
+  .catch(() => {
+      ElNotification({
+      message: 'Đơn hàng chưa được nhập kho',
+      type: 'warning'
+    })
+    })
 }
 
 const idReturnRequest = ref()
@@ -1134,7 +1150,9 @@ const getDetailPaymentRequest = async (_index, scope) => {
 }
 
 // Dialog trả hàng trước hạn
-const changeReturnGoods = ref(false)
+const changeReturnGoods4 = ref(false)
+const changeReturnGoods5 = ref(false)
+
 const earlyEedemption = ref(false)
 const dutHang = ref(false)
 const giaHan = ref(false)
@@ -1538,7 +1556,8 @@ const disableCreateOrder = ref(false)
 const disabledDate = (time: Date) => {
   return time.getTime() <= Date.now()
 }
-const priceintoMoneyPawnGOC = ref(0)
+const totalPrincipalMoney = ref(0)
+const totalPrincipalDebt = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
@@ -1580,7 +1599,7 @@ const editData = async () => {
       ruleForm.orderCode = orderObj.code
       ruleForm.pawnTerm = [orderObj.fromDate, orderObj.toDate]
       pawnOrderCode.value = ruleForm.orderCode
-      priceintoMoneyPawnGOC.value = orderObj.totalPrice
+      totalPrincipalMoney.value = orderObj.totalPrice
       ruleForm.paymentPeriod = orderObj.days
       priceintoMoneyByday.value = orderObj.interestMoney
       customerID.value = orderObj.customer.id
@@ -1594,6 +1613,9 @@ const editData = async () => {
       if (ListOfProductsForSale.value.length > 0)
         ListOfProductsForSale.value.splice(0, ListOfProductsForSale.value.length - 1)
       ListOfProductsForSale.value = orderObj.orderDetails
+      totalPrincipalMoney.value = orderObj?.principalMoney
+      totalPrincipalDebt.value = orderObj?.principalDebt
+
       getTotalWarehouse()
 
       customerAddress.value = orderObj.address
@@ -1987,7 +2009,12 @@ const setDataForReturnOrder = () => {
   rentReturnOrder.value.customerAddress = customerAddress
   rentReturnOrder.value.phone = infoCompany.phone
   rentReturnOrder.value.inputReturnReason = inputReasonReturn
-  rentReturnOrder.value.tableData = ListOfProductsForSale
+  rentReturnOrder.value.tableData = ListOfProductsForSale.value.map((row)=>({
+    productPropertyId:row.productPropertyId,
+    accessory:row.accessory,
+    quantity:row.quantity,
+    maxQuantity: row.quantity
+  }))
 }
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
@@ -1997,6 +2024,40 @@ const removeRow = (index) => {
 }
 
 const disabledPhieu = ref(false)
+
+const cancelReturnRequest = async () =>{
+    const res = await cancelReturnOrder(FORM_IMAGES({OrderId:id}))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.success'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.fail'),
+        type: 'warning'
+      })
+    )
+    if(res) await editData()
+  }
+  const finishReturnRequest = async () =>{
+    await finishReturnOrder(FORM_IMAGES({OrderId:id}))
+    .then(() =>
+      ElNotification({
+        message: t('reuse.success'),
+        type: 'success'
+      })
+    )
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.fail'),
+        type: 'warning'
+      })
+    )
+    await reloadStatusOrder()
+
+  }
 </script>
 
 <template>
@@ -2215,10 +2276,16 @@ const disabledPhieu = ref(false)
                   :disabled-date="disabledDate"
                   format="DD/MM/YYYY"
                 />
+                <template #label>
+                  <div style="translate: 0px -10px">
+                  <div class="text-right h-15px">{{t('formDemo.pawnTerm')}}</div>
+                    <div class="text-right text-[#FECB80] w-[165px]">{{
+                    t('formDemo.atLeastTenDays')
+                  }}</div>
+                  </div>
+                </template>
               </el-form-item>
-              <p class="text-right text-[#FECB80] w-[165px]">{{
-                  t('formDemo.atLeastTenDays')
-                }}</p>
+
                 </div>
 
               <div class="flex gap-2 items-center">
@@ -2456,7 +2523,6 @@ const disabledPhieu = ref(false)
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <el-divider content-position="left">{{ t('formDemo.listOfPawnProducts') }}</el-divider>
         <el-table
           :data="ListOfProductsForSale"
           border
@@ -2520,7 +2586,7 @@ const disabledPhieu = ref(false)
             width="180"
           >
             <template #default="data">
-              <div v-if="type === 'detail'">{{ data.row.accessory }}</div>
+              <div v-if="disabledEdit">{{ data.row.accessory }}</div>
               <el-input
                 v-else
                 class="max-w-[150px]"
@@ -2572,7 +2638,7 @@ const disabledPhieu = ref(false)
           <el-table-column prop="interestMoney" :label="t('reuse.intoMoneyByday')" width="150">
             <template #default="data">
               <div v-if="type === 'detail'">{{ changeMoney.format(data.row.interestMoney) }}</div>
-              <el-input
+              <CurrencyInputComponent
                 v-else 
                 v-model="data.row.interestMoney" 
                 :disabled="disabledEdit"
@@ -2580,10 +2646,21 @@ const disabledPhieu = ref(false)
             </template>
           </el-table-column>
 
-          <el-table-column prop="unitPrice" :label="t('formDemo.moneyPawnGOC')" width="150">
+          <el-table-column prop="principalMoney" :label="t('formDemo.moneyPawnGOC')" width="150">
             <template #default="data">
-              <div v-if="type === 'detail'">{{ changeMoney.format(data.row.unitPrice) }}</div>
-              <el-input 
+              <div v-if="type === 'detail'">{{ changeMoney.format(data.row.principalMoney) }}</div>
+              <CurrencyInputComponent 
+                v-else 
+                v-model="data.row.principalMoney" 
+                :disabled="disabledEdit"
+                style="width: 100%" />
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="principalDebt" :label="t('reuse.originalDebtMoney')" width="150">
+            <template #default="data">
+              <div v-if="type === 'detail'">{{ changeMoney.format(data.row.principalDebt) }}</div>
+              <CurrencyInputComponent 
                 v-else 
                 v-model="data.row.unitPrice" 
                 :disabled="disabledEdit"
@@ -2661,19 +2738,28 @@ const disabledPhieu = ref(false)
         >
 
         <div class="flex justify-end pt-4">
-          <div class="w-50">
-            <div class="text-black font-bold dark:text-[#fff]"
-              >{{ t('formDemo.intoMoneyPawnGOC') }} <span class="text-red-500">*</span></div
-            >
-          </div>
-          <div class="w-30"> {{ changeMoney.format(priceintoMoneyPawnGOC) }} </div>
+          <div>
+            <div class="flex justify-between">
+              <div class="text-black font-bold dark:text-[#fff]"
+                >{{ t('formDemo.intoMoneyPawnGOC') }}</div
+              >
+              <div class="pl-20px"> {{ changeMoney.format(totalPrincipalMoney) }} </div>
+            </div>
+            <div class="flex justify-between">
+              <div class="text-black font-bold dark:text-[#fff]"
+                >{{ t('reuse.totalPrincipalDebt') }}</div
+              >
+            <div class="pl-20px"> {{ changeMoney.format(totalPrincipalDebt) }} </div>
 
-          <div class="w-60 pl-2">
+            </div>
+          </div>
+          <div class="w-60px pl-2">
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
 
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
           </div>
         </div>
+
 
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
@@ -2690,7 +2776,7 @@ const disabledPhieu = ref(false)
         </div>
         <div class="flex w-[100%] ml-1 items-center pb-3 mb-2">
           <label class="w-[11%] text-right">{{ t('formDemo.orderStatus') }}</label>
-          <div class="w-[89%]">
+          <div class="w-[89%] pl-15px">
             <div class="flex items-center w-[100%]">
               <div
                 class="duplicate-status"
@@ -2717,9 +2803,10 @@ const disabledPhieu = ref(false)
 
                     <span class="triangle-right right_1"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
-                  }}</i>
+                   <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div
                   v-else-if="
@@ -2737,9 +2824,10 @@ const disabledPhieu = ref(false)
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
-                  }}</i>
+                   <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div v-else-if="item.orderStatus == STATUS_ORDER_PAWN[2].orderStatus">
                   <span
@@ -2752,9 +2840,10 @@ const disabledPhieu = ref(false)
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
-                  }}</i>
+                   <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
                 <div
                   v-else-if="
@@ -2772,9 +2861,10 @@ const disabledPhieu = ref(false)
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
-                  <i class="text-gray-300">{{
-                    item.createdAt !== '' ? dateTimeFormat(item.createdAt) : ''
-                  }}</i>
+                   <p v-if="item?.approvedAt">{{
+                    item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
+                  }}</p>
+                  <p v-else class="text-transparent">s</p>
                 </div>
               </div>
             </div>
@@ -2895,9 +2985,8 @@ const disabledPhieu = ref(false)
               v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus"
               @click="
                 () => {
-                  changeReturnGoods = true
+                  changeReturnGoods4 = true
                   earlyEedemption = true
-                  addStatusOrder(8)
                   setDataForReturnOrder()
                 }
               "
@@ -2905,21 +2994,16 @@ const disabledPhieu = ref(false)
               class="min-w-42 min-h-11"
               >Chuộc hàng trước hạn</el-button
             >
-            <div v-if="earlyEedemption == true">
+            <div v-if="statusOrder == STATUS_ORDER_PAWN[4].orderStatus">
               <el-button
-                v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus"
+                v-if="duplicateStatusButton"
+                @click="finishReturnRequest"
                 type="warning"
                 class="min-w-42 min-h-11"
                 >Hoàn thành chuộc hàng</el-button
               >
               <el-button
-                v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus"
-                @click="
-                  () => {
-                    earlyEedemption == false
-                  }
-                "
-                type="warning"
+                @click="cancelReturnRequest"
                 class="min-w-42 min-h-11"
                 >Hủy chuộc hàng</el-button
               >
@@ -2961,7 +3045,7 @@ const disabledPhieu = ref(false)
               "
               @click="
                 () => {
-                  changeReturnGoods = true
+                  changeReturnGoods5 = true
                   setDataForReturnOrder()
                 }
               "
@@ -3017,7 +3101,7 @@ const disabledPhieu = ref(false)
             v-if="dataEdit"
             :dataCustomer="customerData"
             :dataEdit="dataEdit"
-            :priceBillPawn="priceintoMoneyPawnGOC"
+            :priceBillPawn="totalPrincipalMoney"
             :dayPayment="ruleForm.paymentPeriod"
           />
         </slot>
@@ -3055,7 +3139,7 @@ const disabledPhieu = ref(false)
                 v-if="dataEdit"
                 :dataCustomer="customerData"
                 :dataEdit="dataEdit"
-                :priceBillPawn="priceintoMoneyPawnGOC"
+                :priceBillPawn="totalPrincipalMoney"
                 :dayPayment="ruleForm.paymentPeriod"
               />
             </slot>
@@ -3401,9 +3485,9 @@ const disabledPhieu = ref(false)
                 {{ changeMoney.format(data.row.priceintoMoneyByday) }}
               </template>
             </el-table-column>
-            <el-table-column prop="priceintoMoneyPawnGOC" min-width="150" :label="t('formDemo.moneyPawnGOC')">
+            <el-table-column prop="totalPrincipalMoney" min-width="150" :label="t('formDemo.moneyPawnGOC')">
               <template #default="data">
-                {{ changeMoney.format(data.row.priceintoMoneyPawnGOC) }}
+                {{ changeMoney.format(data.row.totalPrincipalMoney) }}
               </template>
             </el-table-column>
           </el-table>
@@ -4279,24 +4363,24 @@ const disabledPhieu = ref(false)
 
       <!-- Thông tin chuộc hàng trước thời hạn-->
       <ReturnOrder
-        v-model="changeReturnGoods"
+        v-model="changeReturnGoods4"
         :orderId="id"
         :orderData="rentReturnOrder"
         :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
         @remove-row="removeRow"
         @post-return-request="postReturnRequest"
-        :orderStatusType="4"
+        :orderStatusType="5"
         :type="4"
       />
       <ReturnOrder
-        v-model="changeReturnGoods"
+        v-model="changeReturnGoods5"
         :orderId="id"
         :orderData="rentReturnOrder"
         :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
         @post-return-request="postReturnRequest"
-        :orderStatusType="5"
+        :orderStatusType="4"
         :type="4"
       />
       <ReturnOrder

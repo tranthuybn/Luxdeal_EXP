@@ -734,7 +734,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="quantity" :label="t('reuse.quantity')">
           <template #default="scope">
-            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.quantity" />
+            <el-input v-model="scope.row.quantity" type="number" :min="0" :max="scope.row.maxQuantity" />
           </template>
         </el-table-column>
         <el-table-column prop="hirePrice" :label="t('reuse.conditionProducts')">
@@ -742,11 +742,11 @@ onBeforeMount(()=>{
             <el-input v-model="scope.row.hirePrice" />
           </template>
         </el-table-column>
-        <el-table-column prop="operator" :label="t('reuse.operator')">
+        <!-- <el-table-column prop="operator" :label="t('reuse.operator')">
           <template #default="scope">
             <el-button type="danger" @click="removeRow(scope)">{{ t('reuse.delete') }}</el-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
       <div class="flex items-center">
         <span class="w-[25%] text-base font-bold">{{ t('reuse.status') }}</span>
@@ -769,7 +769,7 @@ onBeforeMount(()=>{
     <template #footer>
       <div class="flex justify-end">
         <div>
-          <el-button type="primary" @click="postReturnRequest">{{
+          <el-button type="primary" @click="postReturnRequest(10)">{{
             t('formDemo.saveAndPending')
           }}</el-button>
           <el-button @click="close">{{ t('reuse.exit') }}</el-button>
@@ -778,7 +778,7 @@ onBeforeMount(()=>{
     </template>
   </el-dialog>
   <!-- 5.chuộc hàng trước hết hạn -->
-  <el-dialog
+  <!-- <el-dialog
 :close-on-click-modal="doCloseOnClickModal"
     :model-Value="modelValue"
     v-if="orderStatusType == 5"
@@ -903,7 +903,7 @@ onBeforeMount(()=>{
         </div>
       </div>
     </template>
-  </el-dialog>
+  </el-dialog> -->
   <!--  6.Đứt hàng -->
   <el-dialog
 :close-on-click-modal="doCloseOnClickModal"

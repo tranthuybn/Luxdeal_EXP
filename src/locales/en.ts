@@ -1820,8 +1820,11 @@ export default {
     //chien dich khuyen mai
     cancelSuccess: 'Cancel Success',
     cancelFail: 'Cancel fail',
-    sendImmediately: 'Send immediately'
-    pleaseChooseTheRole:'please choose the roles'
+    sendImmediately: 'Send immediately',
+    pleaseChooseTheRole:'please choose the roles',
+    //Đơn cầm đồ
+    originalDebtMoney: 'Original Debt Money',
+    totalPrincipalDebt: 'Total principal debt',
 
   }
 }

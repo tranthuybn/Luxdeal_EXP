@@ -907,6 +907,7 @@ export default {
     cantGetBrandList: 'Can\'t get brand list',
     cantGetDepartmentList: 'Can\'t get department List',
     cantGetRankList: 'Can\'t get rank list',
+    cantGetTypeEmployeeList: 'Can\'t get type employee list',
     accounted: "Accounted",
     accountingAccountName: 'Accounting account name',
     reasonRevenueExpenditure: 'Reason for revenue/expenditure',

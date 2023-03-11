@@ -959,6 +959,7 @@ export default {
     cantGetBrandList: 'Không thể lấy danh sách chi nhánh',
     cantGetDepartmentList: 'Không thể lấy danh sách phòng ban',
     cantGetRankList: 'Không thể lấy danh sách cấp bậc',
+    cantGetTypeEmployeeList: 'Không thể lấy danh sách loại hình nhân viên',
     accounted: 'Đã hạch toán',
     accountingAccountName: 'Tên tài khoản hạch toán',
     reasonRevenueExpenditure: 'Lý do thu/chi',

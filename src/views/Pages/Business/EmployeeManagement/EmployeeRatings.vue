@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, h, ref, watch} from 'vue'
+import { reactive, h, ref, watch, onBeforeMount} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getEmployeeRatingList } from '@/api/Business'
@@ -12,7 +12,8 @@ import {
 import {
       getBranchList,
       getDepartmentList,
-      getRankList
+      getRankList,
+      getTypePersonnelList
 } from '@/api/HumanResourceManagement'
 
 
@@ -22,7 +23,6 @@ import { ElButton, ElMessage } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useAppStore } from '@/store/modules/app'
 import { useRouter } from 'vue-router'
-
 
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const { t } = useI18n()
@@ -45,24 +45,32 @@ const callAPIList = async (getListFunc, errorMessage) => {
   }
 }
 
-// Populate the list
 const branchList = ref([]) 
 const departmentList = ref([]) ;
 const rankList = ref([]) ;
-(async () => {
-  const list = await callAPIList(getBranchList, t('reuse.cantGetBrandList'))
-  branchList.value = list
-})() ;
+const typeEmployeeList = ref([]) ;
 
-(async () => {
+onBeforeMount(() => {
+  (async () => {
+  const list = await callAPIList(getBranchList, t('reuse.cantGetBrandList'))
+  branchList.value = list 
+  })() ;
+
+  (async () => {
   const list = await callAPIList(getDepartmentList, t('reuse.cantGetDepartmentList'))
   departmentList.value = list
-})() ;
+  })() ;
 
-(async () => {
+  (async () => {
   const list = await callAPIList(getRankList, t('reuse.cantGetRankList'))
   rankList.value = list
-})()
+  })() ;
+
+  (async () => {
+  const list = await callAPIList(getTypePersonnelList, t('reuse.cantGetTypeEmployeeList'))
+  typeEmployeeList.value = list
+  })() ;
+})
 
 // Watch for changes to the list and update the filter accordingly
 watch (branchList, (newVal) => {
@@ -75,10 +83,15 @@ watch (departmentList, (newVal) => {
     columns[6].filters = newVal
   }
 })
-
 watch (rankList, (newVal) => {
   if (newVal && newVal.length > 0) {
     columns[7].filters = newVal
+  }
+})
+
+watch (rankList, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    columns[8].filters = newVal
   }
 })
 
@@ -86,7 +99,7 @@ const action = (row: any, type: string) => {
   if (type === 'detail' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.staffId, type: type, tab: row.voucherType }
+      params: { id: row.staffId, type: type }
     })
   }
 }

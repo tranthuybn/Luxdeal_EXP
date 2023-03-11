@@ -97,7 +97,7 @@ const callAPIInfoEmployee = async () => {
       } else {
         infoEmployeeRes = res.data[0]
       }
-      await setTableValue()
+      await setInfoEmployeeTableValue()
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),

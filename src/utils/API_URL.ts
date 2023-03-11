@@ -57,12 +57,12 @@ export const CUSTOMER_API = {
   POST_COLLABORATOR_API: 'api/v1/Customer/addCollaborator',
   PUT_COLLABORATOR_API: 'api/v1/Customer/UpdateCollaborator',
   GET_LIST_CUSTOMER: '/api/v1/Customer/GetCustomers',
-  GET_CUSTOMER_RATINGS: '/api/v1/Customer/getCustomerRatings',
-  ADD_CUSTOMER_RATINGS: '/api/v1/Customer/addCustomerRatings',
-  GET_CUSTOMER_RANKING: '/api/v1/Customer/getCustomerRanking',
-  UPDATE_CUSTOMER_RATINGS: '/api/v1/Customer/updateCustomerRatings',
+  GET_CUSTOMER_RATINGS: '/api/v1/Ranking/GetCustomerRankSetting',
+  ADD_CUSTOMER_RATINGS: '/api/v1/Ranking/CreateCustomerRankSetting',
+  GET_CUSTOMER_RANKING: '/api/v1/Ranking/getCustomerRanking',
+  UPDATE_CUSTOMER_RATINGS: '/api/v1/Ranking/UpdateCustomerRankSetting',
   GET_CUSTOMER_RAINGS_BY_ID: '/api/v1/Customer/getCustomerRatingsById',
-  DELETE_CUSTOMER_RATING: '/api/v1/Customer/DelteCustomerRatings',
+  DELETE_CUSTOMER_RATING: '/api/v1/Ranking/DeleteCustomerRankSetting',
   GET_PAYMENT_REQUEST_LIST_API: '/api/v1/Accountant/GetPaymentRequestList',
   GET_COMMISSION_PAYMENT_API: 'api/v1/Customer/getCommissionPayment',
   GET_COMMISSION_PAYMENT_BY_ID_API: 'api/v1/Customer/getCommissionPaymentById',
@@ -82,7 +82,8 @@ export const CAMPAIGN_API = {
   GET_CAMPAIGN_BY_ID: '/api/v1/Campaign/GetCampaign',
   UPDATE_CAMPAIGN: '/api/v1/Campaign/UpdateCampaign',
   DELETE_CAMPAIGN: '/api/v1/Campaign/DeleteCampaign',
-  CANCEL_CAMPAIGN: '/api/v1/Campaign/CancelCampaign'
+  CANCEL_CAMPAIGN: '/api/v1/Campaign/CancelCampaign',
+  SEND_VOUCHER: '/api/v1/Campaign/SendVoucher'
 }
 
 export const ORDER_API = {
@@ -177,7 +178,9 @@ export const WAREHOUSE_API = {
 }
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff',
-  GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount'
+  GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount',
+  GET_EMPLOYEE_RATING_LIST: '/api/v1/SalaryEmployee/GetListSalers',
+  GET_EMPLOYEE_SALE_TRACKING_LIST: '/api/v1/SalaryEmployee/GetIdEmployeeId',
 }
 export const POINT_API = {
   GET_CUSTOMER_POINT: '/api/v1/Point/GetCustomerPoint',
@@ -228,7 +231,8 @@ export const APPROVAL_API = {
 }
 
 export const ROLE_API = {
-  CREATE_NEW_STAFF_ROLE :'api/v1/Authorization/AddNewStaffRole'
+  CREATE_NEW_STAFF_ROLE: 'api/v1/Authorization/AddNewStaffRole',
+  GET_ROLE_DETAIL:'api/v1/Authorization/StaffRoleInDetail'
 }
 
 export const TOOL_API = {

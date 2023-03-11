@@ -25,7 +25,7 @@ import {
   ElRadio,
   ElInput
 } from 'element-plus'
-import { CancelCampaign, getAllCustomer, getProductsList } from '@/api/Business'
+import { CancelCampaign, getAllCustomer, getProductsList, SendVoucher } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
@@ -37,10 +37,9 @@ import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getSpaByProduct } from '@/api/LibraryAndSetting'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { approvalProducts } from '@/api/Approval'
-import { dateTimeFormat, FORM_IMAGES } from '@/utils/format'
+import { dateTimeFormat, FORM_IMAGES, moneyFormat } from '@/utils/format'
 import { Approvement, CampaignTypeArr } from '@/utils/API.Variables'
 import moment from 'moment'
-import { CampaignStatusV2 } from './CampaignStatusEnum'
 
 const currentDate = ref(moment().format("DD/MM/YYYY"))
 const { t } = useI18n()
@@ -184,6 +183,8 @@ const customizeData = async () => {
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const imageUrl = ref()
+const lastStatus = ref()
+const approved = ref(false)
 const { setValues } = methods
 //set data for form edit and detail
 const setFormValue = async () => {
@@ -205,9 +206,11 @@ const setFormValue = async () => {
       }
     }
     if(dataTable.spaData){
-      dataTable.spaData.forEach(row=>{
+      spaMoney.value = props.formDataCustomize.comboValue
+      dataTable.spaData.forEach(async row=>{
         if(row.id && row.id != -1){
-          getSpaOptions(row.id)}
+          await getSpaOptions(row.id)}
+          getSpaSelected(row.service)
       })
     }
     if(dataTable.spaVoucherData){
@@ -216,8 +219,8 @@ const setFormValue = async () => {
           getSpaOptions(row.id)}
       })
     }
-
-
+    lastStatus.value = props.formDataCustomize.statusHistory.at(-1).campaignStatus
+    props.formDataCustomize.statusHistory.at(-1).approvedAt == null ? approved.value = false : approved.value = true
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
@@ -236,17 +239,19 @@ const setFormValue = async () => {
 const statusClass = (campaignStatus) => {
   switch (campaignStatus) {
     case -1:
-      return 'status--initial';
+      return 'status--cancel';
     case 0:
       return 'status--initial';
     case 1:
       return 'status--pending';
     case 2:
-      return 'status--pending';
+      return 'status--pending-edit';
     case 3:
-      return 'status--pending';
+      return 'status--active';
     case 4:
-      return 'status--pending';
+      return 'status--ending';
+    case 41:
+      return 'status--sent-voucher';
     default:
       return '';
   }
@@ -301,6 +306,10 @@ defineExpose({
 })
 
 const loading = ref(false)
+
+const sendImmediately = async () =>{
+  await SendVoucher({id: props.id, campaignType: props.campaignAndStrategyType})
+}
 
 //doc du lieu tu bang roi emit len goi API
 // const { go } = useRouter()
@@ -512,7 +521,7 @@ const delAction = () => {
           .then(() =>
             {
               ElNotification({
-              message: t('reuse.deleteSuccess'),
+              message: t('reuse.cancelSuccess'),
               type: 'success'
             })
             cancel()
@@ -520,7 +529,7 @@ const delAction = () => {
           )
           .catch(() => {
             ElNotification({
-              message: t('reuse.deleteFail'),
+              message: t('reuse.cancelFail'),
               type: 'warning'
             })
           })
@@ -539,28 +548,35 @@ const cancel = () => {
       push({
         name: 'business.promotion-strategy.flash-sale',
       })
+      break;
     case 2:
       push({
         name: 'business.promotion-strategy.collection',
       })
+      break;
     case 3:
       push({
         name: 'business.promotion-strategy.new-product',
       })
+      break;
     case 4:
       push({
         name: 'business.promotion-strategy.voucher',
       })
+      break;
     case 5:
       push({
         name: 'business.promotion-strategy.combo',
       })
+      break;
     case 6:
       push({
         name: 'business.promotion-strategy.auction',
       })
+      break;
     default:
       go(-1)
+      break;
   }
 }
 //xử lí ảnh
@@ -1006,7 +1022,7 @@ const spaMoney = ref(0)
               <el-table-column prop="code" :label="t('reuse.customerCode')" width="180">
                 <template #default="scope">
                   <MultipleOptionsBox
-:fields="[
+                  :fields="[
                     t('reuse.customerCode'),
                     t('reuse.phoneNumber'),
                     t('formDemo.customerName')
@@ -1068,7 +1084,7 @@ const spaMoney = ref(0)
               <template #append>
                 <div class="pl-600px w-320px">
                   <div class="w-320px">{{ t('reuse.totalRealSpaMoney') }}
-                    <span style="float: right">{{ spaCost }}</span>
+                    <span style="float: right">{{ moneyFormat(spaCost) }}</span>
                   </div>
                   <div class="flex w-320px pb-4"><span>
                       <div>{{ t('reuse.enterComboSpaMoney') }}</div>
@@ -1181,17 +1197,17 @@ const spaMoney = ref(0)
               <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
-                  <span class="box box_0 text-blue-500 dark:text-divck" >
+                  <span class="box status-initial dark:text-divck" >
                     {{ t('reuse.newInitialization') }}
-                    <span class="triangle-right right_0"></span>
+                    <span class="triangle-right"></span>
                   </span>
               <div class="status_wrap-date ">{{ currentDate }}</div>
             </div>
-            <div v-else class="flex items-center flex-wrap w-[100%]">
             <div
+                v-else
                 class="duplicate-status"
                 v-for="item, index in form['statusHistory']"
-                :key="item.campaignStatus"
+                :key="index"
             >
               <div class="mr-5 flex flex-col justify-start align-top gap-2">
                   <div class="align-top">
@@ -1200,12 +1216,13 @@ const spaMoney = ref(0)
                     ></span>
                     <span class="box dark:text-divck" :class="statusClass(item.campaignStatus)" >
                       {{item.campaignStatusName }}    
-                      <span class="triangle-right right_0"></span>
+                      <span class="triangle-right"></span>
                     </span>
                   </div>
                   <div class="italic text-xs text-gray-500">{{ item.campaignStatus === 0 ? dateTimeFormat(form.statusHistory[0].createdAt) : dateTimeFormat(form.statusHistory[0].approvedAt) }}</div>
               </div>
             </div>
+          </div>
           </template>
         </Form>
       </ElCol>
@@ -1257,23 +1274,26 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
       </ElCol>
     </ElRow>
     <template #under v-if="!removeButton">
-      <div v-if="props.type === 'add' || isNaN(props.id)">
+    <div v-if="lastStatus != CampaignStatusV2.KetThuc && lastStatus != CampaignStatusV2.HuyChuongTrinh">
+      <div v-if="props.type === 'add' || isNaN(props.id)" class="flex">
         <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
           {{ t('reuse.saveAndPending') }}
         </ElButton>
-        <ElButton type="danger" :loading="loading" @click="cancel">
-          {{ t('formDemo.cancelTheProgram') }}
-        </ElButton>
       </div>
-      <div v-else-if="props.type === 'detail'">
-        <ElButton :loading="loading" @click="edit">
-          {{ t('reuse.edit') }}
-        </ElButton>
-        <ElButton type="danger" :loading="loading" @click="delAction">
-          {{ t('formDemo.cancelTheProgram') }}
-        </ElButton>
+      <div v-else-if="props.type === 'detail'" class="flex">
+        <div
+class="flex"
+              v-if="(lastStatus != CampaignStatusV2.DuyetKhoiTao && approved != false)
+                || (lastStatus != CampaignStatusV2.SuaChuongTrinh && approved != false)">
+          <ElButton :loading="loading" @click="edit">
+            {{ t('reuse.edit') }}
+          </ElButton>
+          <ElButton type="danger" :loading="loading" @click="delAction">
+            {{ t('formDemo.cancelTheProgram') }}
+          </ElButton>
+        </div>
       </div>
-      <div v-else-if="props.type === 'approval'">
+      <div v-else-if="props.type === 'approval'" class="flex">
         <ElButton type="warning" :loading="loading" @click="approvisionnement(true)">
           {{ t('router.approve') }}
         </ElButton>
@@ -1281,17 +1301,29 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
           {{ t('router.notApproval') }}
         </ElButton>
       </div>
-      <div v-else-if="props.type === 'edit'">
-        <ElButton type="primary" :loading="loading" @click="save('edit')">
-          {{ t('reuse.save') }}
-        </ElButton>
-        <ElButton :loading="loading" @click="cancel">
-          {{ t('reuse.cancel') }}
-        </ElButton>
-        <ElButton type="danger" :loading="loading" @click="delAction">
-          {{ t('formDemo.cancelTheProgram') }}
-        </ElButton>
+      <div v-else-if="props.type === 'edit'" class="flex">
+        <!-- If its pending for approving(approved == false) then hide all button -->
+        <div
+class="flex"
+              v-if="(lastStatus != CampaignStatusV2.DuyetKhoiTao && approved != false)
+                || (lastStatus != CampaignStatusV2.SuaChuongTrinh && approved != false)">
+          <ElButton type="primary" :loading="loading" @click="save('edit')">
+            {{ t('reuse.saveAndPending') }}
+          </ElButton>
+          <ElButton :loading="loading" @click="cancel">
+            {{ t('reuse.cancel') }}
+          </ElButton>
+          <div v-if="props.campaignAndStrategyType == 4 || props.campaignAndStrategyType == 5" class="mx-10px">
+            <ElButton type="primary" :loading="loading" @click="sendImmediately">
+            {{ t('reuse.sendImmediately') }}
+            </ElButton>
+          </div>
+          <ElButton type="danger" :loading="loading" @click="delAction">
+            {{ t('formDemo.cancelTheProgram') }}
+          </ElButton>
+        </div>
       </div>
+    </div>
     </template>
     <el-dialog v-model="conditionComboVisible" :title="t('reuse.settingVoucherCondition')" width="900px">
       <el-table
@@ -1357,7 +1389,7 @@ v-model="radioSelected" :label="scope.$index + 1"
     </el-dialog>
   </ContentWrap>
 </template>
-<style scoped>
+<style lang="scss" scoped>
 .triangle-left {
   position: absolute;
   z-index: 1998;
@@ -1387,19 +1419,26 @@ v-model="radioSelected" :label="scope.$index + 1"
 
 .status--initial {
   color: rgb(59 130 246);
-  background-color: #f4f8fd !important;
-  border: 1px solid #f4f8fd !important;
-}
-.status--initial .triangle-right{
-  border-left: 11px solid #f4f8fd !important;
+  background-color: #f4f8fd;
+  border: 1px solid #f4f8fd;
+  .triangle-right{
+    border-left: 11px solid #f4f8fd !important;
+  }
 }
 .status--pending {
   color: rgb(234 179 8); 
   background-color: #fff0d9;
   border: 1px solid #fff0d9;
+  .triangle-right{
+    border-left: 11px solid #fff0d9 !important;
+  }
 }
-.status--pending .triangle-right{
-  border-left: 11px solid #fff0d9 !important;
+
+.status--pending-edit{
+
+}
+.status--active{
+
 }
 .explainText {
   font-size: 14px;

@@ -125,6 +125,9 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    jobPosition: 'Job position',
+    sales: 'Sales',
+    percentageSales:'% Sales',
     salesTrackingTable: 'Sales tracking board',
     employeeDetail: 'Employee Detail',
     comboCode: 'Combo code',
@@ -901,6 +904,10 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    cantGetBrandList: 'Can\'t get brand list',
+    cantGetDepartmentList: 'Can\'t get department List',
+    cantGetRankList: 'Can\'t get rank list',
+    cantGetTypeEmployeeList: 'Can\'t get type employee list',
     accounted: "Accounted",
     accountingAccountName: 'Accounting account name',
     reasonRevenueExpenditure: 'Reason for revenue/expenditure',
@@ -1816,6 +1823,12 @@ export default {
     //trạng thái kho
     exportTicketStatus: 'Export ticket status',
     transferTicketStatus: 'Transfer ticket status',
-    totalAmountPaid: 'Total amount paid'
+    totalAmountPaid: 'Total amount paid',
+    //chien dich khuyen mai
+    cancelSuccess: 'Cancel Success',
+    cancelFail: 'Cancel fail',
+    sendImmediately: 'Send immediately',
+    pleaseChooseTheRole:'please choose the roles'
+
   }
 }

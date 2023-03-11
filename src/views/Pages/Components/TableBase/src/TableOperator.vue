@@ -129,6 +129,8 @@ const getTableValue = async () => {
     if (res) {
       if (res.data?.list !== undefined) {
         formValue.value = res.data.list[0]
+      } else if (res.data[0]) {
+        formValue.value = res.data[0]
       } else {
         formValue.value = res.data
       }
@@ -178,6 +180,9 @@ const setFormValue = async () => {
       props.formDataCustomize?.Images.map((image) =>
         fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
       )
+    }
+    if (props.formDataCustomize && props.formDataCustomize.images) {
+      imageUrl.value = `${API_URL}${props.formDataCustomize.images[0].path}`
     }
   } else {
     setValues(formValue.value)

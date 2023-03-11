@@ -81,6 +81,26 @@ export const getStaffList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+export const getEmployeeRatingList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_EMPLOYEE_RATING_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
+export const getEmployeeSaleTrackingList = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_EMPLOYEE_SALE_TRACKING_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res.data && res.data.data
+}
+
 export const getPotentialCustomerList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -821,7 +841,7 @@ export const getCustomerRanking = async (params: any): Promise<IResponse> => {
 export const getCustomerRatingsById = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
-      url: `${CUSTOMER_API.GET_CUSTOMER_RAINGS_BY_ID}?${objectToQueryParams(params)}`
+      url: `${CUSTOMER_API.GET_CUSTOMER_RATINGS}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -1123,6 +1143,15 @@ export const FinishUpdateSpaService = async (params: any): Promise<IResponse> =>
     {
       url: ORDER_API.FINISH_UPDATE_SPA_SERVICE,
       data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const SendVoucher = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${CAMPAIGN_API.SEND_VOUCHER}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

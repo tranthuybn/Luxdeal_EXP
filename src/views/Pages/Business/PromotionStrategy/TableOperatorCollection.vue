@@ -1222,7 +1222,7 @@ const spaMoney = ref(0)
                   <div class="italic text-xs text-gray-500">{{ item.campaignStatus === 0 ? dateTimeFormat(form.statusHistory[0].createdAt) : dateTimeFormat(form.statusHistory[0].approvedAt) }}</div>
               </div>
             </div>
-          </div>
+        
           </template>
         </Form>
       </ElCol>

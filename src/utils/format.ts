@@ -60,25 +60,24 @@ export const formatTransactionType = (val) => {
 }
 export const formatOrderReturnReason = (val) => {
   switch (val) {
-    
+    case 1:
+      return 'Đổi'
     case 2:
-    return 'Chuộc hàng trước thời hạn'
+      return 'Đổi trả'
       case 3:
     return 'Trả hàng trước hạn'
     case 4:
       return 'Trả hàng hết hạn'
     case 5: 
-      return 'Gia hạn cho thuê'    
+      return 'Gia hạn'    
     case 6:
-      return 'Đứt hàng'
+      return 'Chuộc trước hạn'
     case 7:
-      return 'Gia hạn cầm đồ'
+      return 'Spa'
     case 8:
-      return 'Trả hàng Spa'
+      return 'Chuộc hết hạn'
     case 9:
-      return 'Gia hạn ký gửi'
-    case 10:
-      return 'Chuộc hàng trước hết hạn'
+      return 'Đứt hàng'
     default:
       return ''
   }

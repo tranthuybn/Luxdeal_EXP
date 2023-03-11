@@ -1825,6 +1825,7 @@ export default {
     //Đơn cầm đồ
     originalDebtMoney: 'Original Debt Money',
     totalPrincipalDebt: 'Total principal debt',
-
+    pawnTime: 'Pawn time',
+    importWarehouseMoney: 'Import warehouse money',
   }
 }

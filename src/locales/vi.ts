@@ -1981,5 +1981,7 @@ export default {
     //Đơn cầm đồ
     originalDebtMoney: 'Dư nợ tiền gốc',
     totalPrincipalDebt: 'Tổng dư nợ gốc',
+    pawnTime: 'Thời gian cầm đồ',
+    importWarehouseMoney: 'Tiền nhập kho',
   }
 }

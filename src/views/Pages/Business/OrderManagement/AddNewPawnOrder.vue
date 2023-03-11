@@ -51,7 +51,7 @@ import {
   getDetailReceiptPaymentVoucher,
   addOrderStransaction,
   createReturnRequest,
-  getReturnRequest,
+  getReturnRequestForOrder,
   addQuickCustomer,
   getDetailAccountingEntryById,
   GetProductPropertyInventory,
@@ -67,7 +67,8 @@ import {
 createTicketFromReturnOrder,
 GenerateCodeOrder,
 cancelReturnOrder,
-finishReturnOrder
+finishReturnOrder,
+GetWarehouseTransaction
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -752,9 +753,9 @@ const getValueOfSelected = (_value, obj, scope) => {
 }
 
 // disabled thêm mới phiếu thu chi, phiếu đề nghị thanh toán
-const disabledPTAccountingEntry = ref(false)
-const disabledPCAccountingEntry = ref(false)
-const disabledDNTTAccountingEntry = ref(false)
+const disabledPTAccountingEntry = ref(true)
+const disabledPCAccountingEntry = ref(true)
+const disabledDNTTAccountingEntry = ref(true)
 
 // check disabled
 const disabledEdit = ref(false)
@@ -1056,7 +1057,6 @@ function openBillPawnDialog() {
 }
 // Tạo mới yêu cầu đổi trả
 const postReturnRequest = async (reason) => {
-  console.log('reason', reason)
   let tableReturnPost = [{}]
   // if (rentReturnOrder.value.tableData.length < 2) {
   //   return
@@ -1067,27 +1067,27 @@ const postReturnRequest = async (reason) => {
     quantity: Number(e.quantity),
     accessory: e.accessory
   }))
-
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
-    name: 'Chuộc trước hạn',
+    name: formatOrderReturnReason(reason),
     description: formatOrderReturnReason(reason),
-    returnRequestType: 6,
-    giaHanDetails: [],
+    returnRequestType: reason,
+    targetDate: reason == 5 ? rentReturnOrder.value.extendDate : null,
+    giaHanDetails: reason == 5 ? tableReturnPost :[],
     nhapDetails: [],
-    xuatDetails: tableReturnPost,
+    xuatDetails: reason != 5 ? tableReturnPost : [],
   }
-  console.log('payload', payload)
   await createReturnRequest(payload).then(async (res)=>{
     idReturnRequest.value = res
     await createTicketFromReturnOrders()
     getReturnRequestTable()
     editData()
   })
-  .catch(() => {
+  .catch((err) => {
+    console.log('err', err)
       ElNotification({
-      message: 'Đơn hàng chưa được nhập kho',
+      message: err.response.data.message,
       type: 'warning'
     })
     })
@@ -1119,7 +1119,7 @@ const extendDate = (date) => {
 }
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
-  const res = await getReturnRequest({ CustomerOrderId: id })
+  const res = await getReturnRequestForOrder({ CustomerOrderId: id })
   const optionsReturnRequest = res.data
   if (Array.isArray(unref(optionsReturnRequest)) && optionsReturnRequest?.length > 0) {
     historyTable.value = optionsReturnRequest.map((e) => ({
@@ -1132,7 +1132,9 @@ const getReturnRequestTable = async () => {
       returnDetailType: e.returnDetailType,
       returnDetailTypeName: e.returnDetailTypeName,
       returnDetailStatusName: e.returnDetailStatusName,
-      warehouseTicketStatusName: e.warehouseTicketStatusName
+      warehouseTicketStatusName: e.warehouseTicketStatusName,
+      warehouseTicketCode: e.warehouseTicketCode,
+      warehouseTicketId: e.warehouseTicketId
     }))
   }
 }
@@ -1159,8 +1161,8 @@ const getDetailPaymentRequest = async (_index, scope) => {
 }
 
 // Dialog trả hàng trước hạn
-const changeReturnGoods4 = ref(false)
-const changeReturnGoods5 = ref(false)
+const chuocTruocHan = ref(false)
+const chuocHetHan = ref(false)
 
 const earlyEedemption = ref(false)
 const dutHang = ref(false)
@@ -1602,7 +1604,13 @@ const editData = async () => {
             statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
           }
 
-        console.log('status', statusOrder.value)
+    //để render button
+    if(statusOrder.value == 46){
+      statusOrder.value = 41
+    }
+    if(statusOrder.value == 47){
+      statusOrder.value = 43
+    }
 
     if (statusOrder.value == 2 && type == 'edit') {
       disableEditData.value = true
@@ -1937,13 +1945,13 @@ const updateOrderStatus = async (status: number, idOrder: any) => {
   statusOrder.value = status
 }
 
-const addStatusOrder = (index) => {
+const addStatusOrder = async(index) => {
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
   arrayStatusOrder.value.push(STATUS_ORDER_PAWN[index])
   statusOrder.value = STATUS_ORDER_PAWN[index].orderStatus
   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-  updateOrderStatus(STATUS_ORDER_PAWN[index].orderStatus, id)
-  reloadStatusOrder()
+  await updateOrderStatus(STATUS_ORDER_PAWN[index].orderStatus, id)
+  await reloadStatusOrder()
 }
 
 // Cập nhật trạng thái đơn hàng
@@ -2022,7 +2030,7 @@ const setDataForReturnOrder = () => {
   })
   rentReturnOrder.value.orderCode = ruleForm.orderCode
   rentReturnOrder.value.period = ruleForm.pawnTerm
-  rentReturnOrder.value.extendDate = ''
+  rentReturnOrder.value.extendDate = '16/01/2001'
   rentReturnOrder.value.name = infoCompany.name
   rentReturnOrder.value.customerAddress = customerAddress
   rentReturnOrder.value.phone = infoCompany.phone
@@ -2031,7 +2039,10 @@ const setDataForReturnOrder = () => {
     productPropertyId:row.productPropertyId,
     accessory:row.accessory,
     quantity:row.quantity - row.returnedQuantity,
-    maxQuantity: row.quantity - row.returnedQuantity
+    maxQuantity: row.quantity - row.returnedQuantity,
+    productPropertyCode: row.productPropertyCode,
+    description: row.description,
+    code: row.code
   }))
 }
 const addRow = () => {
@@ -2076,6 +2087,31 @@ const cancelReturnRequest = async () =>{
     await reloadStatusOrder()
 
   }
+
+const changePrincipalMoney = () =>{
+  totalPrincipalMoney.value = ListOfProductsForSale.value.reduce( ( sum, { principalMoney } ) => sum + principalMoney , 0)
+}
+const changePrincipalDebt = () =>{
+  totalPrincipalDebt.value = ListOfProductsForSale.value.reduce( ( sum, { principalDebt } ) => sum + principalDebt , 0)
+}
+const warehouseTicketCode = ref()
+const staffId = ref()
+const warehouseTicketData = ref()
+const informationWarehouseReceipt = ref(false)
+const openDetailFullyIntegrated = async (props) => {
+  const res = await GetWarehouseTransaction({ Id: parseInt(props.row.warehouseTicketId) })
+  warehouseTicketCode.value = res.data[0].transactionCode
+  staffId.value = res.data[0].staffId
+  warehouseTicketData.value = res.data[0].transactionDetails.map((row)=>({
+    productPropertyName: row.productPropertyName,
+    productPropertyCode: row.productPropertyCode,
+    accessory:props.row.accessory,
+    code:ruleForm.orderCode,
+    description: props.row.description,
+    quantity: props.row.quantity
+  }))
+  informationWarehouseReceipt.value = true
+}
 </script>
 
 <template>
@@ -2457,6 +2493,17 @@ const cancelReturnRequest = async () =>{
                       </div>
                     </el-form-item>
                   </div>
+                  <div class="flex w-[100%] gap-6">
+                <div>
+                  <el-form-item>
+                    <p
+                      v-if="ruleForm.customerName !== ''"
+                      class="bg-[#F4F8FD] pl-2 text-blue-500 dark:bg-[#3B3B3B]"
+                      >{{ t('formDemo.noDebt') }}</p
+                    >
+                  </el-form-item>
+                </div>
+              </div>
                 </div>
 
                 <div class="flex-1">
@@ -2500,17 +2547,7 @@ const cancelReturnRequest = async () =>{
                   </el-form-item>
                 </div>
               </div>
-              <div class="flex w-[100%] gap-6">
-                <div class="w-[50%]">
-                  <el-form-item>
-                    <p
-                      v-if="ruleForm.customerName !== ''"
-                      class="bg-[#F4F8FD] pl-2 text-blue-500 dark:bg-[#3B3B3B]"
-                      >{{ t('formDemo.noDebt') }}</p
-                    >
-                  </el-form-item>
-                </div>
-              </div>
+
               <el-form-item
                 v-if="ruleForm.customerName !== ''"
                 class="poi-self"
@@ -2669,6 +2706,7 @@ const cancelReturnRequest = async () =>{
               <div v-if="type === 'detail'">{{ changeMoney.format(data.row.principalMoney) }}</div>
               <CurrencyInputComponent 
                 v-else 
+                @change="changePrincipalMoney"
                 v-model="data.row.principalMoney" 
                 :disabled="disabledEdit"
                 style="width: 100%" />
@@ -2680,7 +2718,8 @@ const cancelReturnRequest = async () =>{
               <div v-if="type === 'detail'">{{ changeMoney.format(data.row.principalDebt) }}</div>
               <CurrencyInputComponent 
                 v-else 
-                v-model="data.row.unitPrice" 
+                @change="changePrincipalDebt"
+                v-model="data.row.principalDebt" 
                 :disabled="disabledEdit"
                 style="width: 100%" />
             </template>
@@ -2795,7 +2834,7 @@ const cancelReturnRequest = async () =>{
         <div class="flex w-[100%] ml-1 items-center pb-3 mb-2">
           <label class="w-[11%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%] pl-15px">
-            <div class="flex items-center w-[100%]">
+            <div class="flex items-center w-[100%] flex-wrap">
               <div
                 class="duplicate-status"
                 v-for="item in arrayStatusOrder"
@@ -2803,13 +2842,13 @@ const cancelReturnRequest = async () =>{
               >
                 <div
                   v-if="
-                    item.orderStatus == STATUS_ORDER_PAWN[10].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PAWN[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PAWN[4].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PAWN[6].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PAWN[12].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[13].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[7].orderStatus
+                    item.orderStatus == STATUS_ORDER_PAWN[8].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[9].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[13].orderStatus 
                   "
                 >
                   <span
@@ -2831,7 +2870,8 @@ const cancelReturnRequest = async () =>{
                 <div
                   v-else-if="
                     item.orderStatus == STATUS_ORDER_PAWN[1].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[5].orderStatus
+                    item.orderStatus == STATUS_ORDER_PAWN[5].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[7].orderStatus
                   "
                 >
                   <span
@@ -2867,8 +2907,10 @@ const cancelReturnRequest = async () =>{
                 </div>
                 <div
                   v-else-if="
-                    item.orderStatus == STATUS_ORDER_PAWN[8].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[0].orderStatus
+                    item.orderStatus == STATUS_ORDER_PAWN[0].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[11].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[10].orderStatus 
+
                   "
                 >
                   <span
@@ -2925,8 +2967,6 @@ const cancelReturnRequest = async () =>{
                 statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[5].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[9].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
                 (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type'))
               "
@@ -2941,8 +2981,6 @@ const cancelReturnRequest = async () =>{
                 statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[5].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[9].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
                 (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type'))
               "
@@ -3005,7 +3043,7 @@ const cancelReturnRequest = async () =>{
               v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus"
               @click="
                 () => {
-                  changeReturnGoods4 = true
+                  chuocTruocHan = true
                   earlyEedemption = true
                   setDataForReturnOrder()
                 }
@@ -3014,7 +3052,7 @@ const cancelReturnRequest = async () =>{
               class="min-w-42 min-h-11"
               >Chuộc hàng trước hạn</el-button
             >
-            <div v-if="statusOrder == STATUS_ORDER_PAWN[6].orderStatus">
+            <div v-if="statusOrder == STATUS_ORDER_PAWN[6].orderStatus || statusOrder == STATUS_ORDER_PAWN[8].orderStatus">
               <el-button
                 v-if="duplicateStatusButton"
                 @click="finishReturnRequest"
@@ -3030,22 +3068,20 @@ const cancelReturnRequest = async () =>{
             </div>
             <el-button
               v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus"
-              @click="() => {}"
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Hủy đứt hàng</el-button
-            >
-            <el-button
-              v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus"
-              @click="() => {}"
+              @click="finishReturnRequest"
               type="warning"
               class="min-w-42 min-h-11"
               >Hoàn thành đứt hàng</el-button
             >
             <el-button
+              v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus"
+              @click="cancelReturnRequest"
+              class="min-w-42 min-h-11"
+              >Hủy đứt hàng</el-button
+            >
+            <el-button
               v-if="
-                statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[9].orderStatus
+                statusOrder == STATUS_ORDER_PAWN[12].orderStatus
               "
               @click="
                 () => {
@@ -3059,19 +3095,19 @@ const cancelReturnRequest = async () =>{
             >
             <el-button
               v-if="
-                statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[11].orderStatus
+                statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[7].orderStatus
               "
               @click="
                 () => {
-                  changeReturnGoods5 = true
+                  giaHan = true
                   setDataForReturnOrder()
                 }
               "
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Chuộc hàng hết hạn</el-button
+              class="min-w-42 min-h-11 !border-red-500"
+              ><p class="text-red-500">Gia hạn cầm đồ</p></el-button
             >
+
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
@@ -3089,18 +3125,20 @@ const cancelReturnRequest = async () =>{
             >
             <el-button
               v-if="
-                statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[7].orderStatus
+                statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
+                statusOrder == STATUS_ORDER_PAWN[11].orderStatus
               "
               @click="
                 () => {
-                  giaHan = true
+                  chuocHetHan = true
                   setDataForReturnOrder()
                 }
               "
-              class="min-w-42 min-h-11 !border-red-500"
-              ><p class="text-red-500">Gia hạn cầm đồ</p></el-button
+              type="warning"
+              class="min-w-42 min-h-11"
+              >Chuộc hàng hết hạn</el-button
             >
+
             <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
               <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
                 t('router.approve')
@@ -3319,6 +3357,12 @@ const cancelReturnRequest = async () =>{
               >
             </template>
           </el-table-column>
+          <el-table-column
+            prop="kindOfMoney"
+            :label="t('formDemo.kindOfMoney')"
+            align="left"
+            min-width="150"
+          />
 
           <el-table-column
             prop="receiveMoney"
@@ -3971,7 +4015,7 @@ const cancelReturnRequest = async () =>{
       :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')"
-        width="40%"
+        width="60%"
         align-center
       >
         <div>
@@ -3991,7 +4035,10 @@ const cancelReturnRequest = async () =>{
                 <label class="text-right w-[170px]"
                   >{{ t('formDemo.pawnTime') }}<span class="text-red-500">*</span></label
                 >
-                <div class="text-xl">20/20/2022</div>
+                <div class="w-[60%] text-black dark:text-light-50"
+              >{{ dateTimeFormat(ruleForm?.pawnTerm[0]) }} đến
+              {{ dateTimeFormat(ruleForm?.pawnTerm[1]) }}</div
+            >
               </div>
             </div>
 
@@ -4040,7 +4087,7 @@ const cancelReturnRequest = async () =>{
                 <el-input v-model="props.row.content" />
               </template>
             </el-table-column>
-            <el-table-column prop="content" :label="t('formDemo.kindOfMoney')" width="120">
+            <el-table-column prop="content" :label="t('formDemo.kindOfMoney')">
               <el-select v-model="value" class="m-2" placeholder="Select">
                 <el-option
                   v-for="item in optionsChooseMoneyType"
@@ -4050,7 +4097,7 @@ const cancelReturnRequest = async () =>{
                 />
               </el-select>
             </el-table-column>
-            <el-table-column prop="collected" :label="t('formDemo.collected')" width="90">
+            <el-table-column prop="collected" :label="t('formDemo.collected')">
               <template #default="props">
                 <CurrencyInputComponent
                   @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
@@ -4382,7 +4429,7 @@ const cancelReturnRequest = async () =>{
 
       <!-- Thông tin chuộc hàng trước thời hạn-->
       <ReturnOrder
-        v-model="changeReturnGoods4"
+        v-model="chuocTruocHan"
         :orderId="id"
         :orderData="rentReturnOrder"
         :listProductsTable="listOfOrderProduct"
@@ -4393,13 +4440,13 @@ const cancelReturnRequest = async () =>{
         :type="4"
       />
       <ReturnOrder
-        v-model="changeReturnGoods5"
+        v-model="chuocHetHan"
         :orderId="id"
         :orderData="rentReturnOrder"
         :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
         @post-return-request="postReturnRequest"
-        :orderStatusType="4"
+        :orderStatusType="51"
         :type="4"
       />
       <ReturnOrder
@@ -4416,7 +4463,7 @@ const cancelReturnRequest = async () =>{
         v-model="giaHan"
         :orderId="id"
         :orderData="rentReturnOrder"
-        :listProductsTable="listProducts"
+        :listProductsTable="listOfOrderProduct"
         @add-row="addRow"
         @post-return-request="postReturnRequest"
         :orderStatusType="7"
@@ -4563,7 +4610,7 @@ const cancelReturnRequest = async () =>{
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%] flex-wrap">
+            <div class="flex items-center w-[100%]">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
               ></span>
@@ -4592,6 +4639,114 @@ const cancelReturnRequest = async () =>{
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
                 >
                 <el-button @click="dialogIPRForm = false">{{ t('reuse.exit') }}</el-button>
+              </span>
+            </div>
+          </div>
+        </template>
+      </el-dialog>
+            <!-- Thông tin phiếu xuất đổi -->
+            <el-dialog
+:close-on-click-modal="doCloseOnClickModal"
+        v-model="informationWarehouseReceipt"
+        :title="warehouseTicketData?.transactionType == 2 ? t('reuse.informationExportReturnSpaTicket') :  t('reuse.informationTransferReturnSpaTicket') "
+        width="40%"
+        align-center
+      >
+        <div>
+          <el-divider />
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('formDemo.documentsAttached') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div class="flex gap-4 items-center">
+            <label class="w-[30%] text-right">{{ t('formDemo.orderCode') }}</label>
+            <div class="w-[100%] text-xl">{{ ruleForm.orderCode }}</div>
+          </div>
+          <div class="flex gap-4 pb-4 items-center">
+            <label class="w-[30%] text-right">{{ t('reuse.pawnTime') }}</label>
+            <div class="w-[100%] text-black dark:text-light-50"
+              >{{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
+              {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}</div
+            >
+          </div>
+          <div class="flex items-center">
+            <span class="w-[25%] text-base font-bold">{{ t('reuse.generalInformation') }}</span>
+            <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+          <div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right">{{ t('formDemo.receiptCode') }}</label>
+              <div class="w-[100%]">{{ warehouseTicketCode }}</div>
+            </div>
+            <div class="flex gap-4 pt-4 items-center">
+              <label class="w-[30%] text-right"
+                >{{ t('formDemo.warehouserExport') }} <span class="text-red-500">*</span></label
+              >
+              <el-select v-model="warehouseTicketData.staffId" placeholder="Trần Hữu Dương | 0998844533">
+                <el-option
+                  v-for="item in optionsCollaborators"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
+            <div class="flex gap-4 pt-4 pb-4 items-center">
+              <label class="w-[30%] text-right">{{ t('formDemo.ReasonExchangeReturn') }}</label>
+              <div class="w-[100%]">Trả hàng Spa</div>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <span class="w-[45%] text-base font-bold break-w">{{
+                warehouseTicketData?.transactionType == 2 ? t('formDemo.productInformationExportChange') : t('reuse.informationProductTransferReturn')
+            }}</span>
+            <span class="block h-1 w-[55%] border-t-1 dark:border-[#4c4d4f]"></span>
+          </div>
+        </div>
+        <div class="pt-2 pb-2">
+          <el-table ref="singleTableRef" :data="warehouseTicketData" border style="width: 100%">
+            <el-table-column label="STT" type="index" width="60" align="center" />
+            <el-table-column
+              prop="productPropertyCode"
+              :label="t('formDemo.productManagementCode')"
+            />
+            <el-table-column
+              prop="productPropertyName"
+              :label="t('formDemo.commodityName')"
+              width="200"
+            />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')"/>
+            <el-table-column prop="code" label="Code"/>
+            <el-table-column prop="description" :label="t('formDemo.descriptionProduct')"/>
+            <el-table-column prop="quantity" :label="t('reuse.quantity')" />
+          </el-table>
+        </div>
+        <div class="flex items-center">
+          <span class="w-[25%] text-base font-bold">{{ t('formDemo.status') }}</span>
+          <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
+        </div>
+        <div>
+          <div class="flex gap-4 pt-4 pb-2 items-center">
+            <label class="w-[30%] text-right">Trạng thái</label>
+            <div class="flex items-center w-[100%]">
+              <span
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
+              ></span>
+              <span class="box dark:text-black">
+                Khởi tạo & ghi sổ
+                <span class="triangle-right"> </span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <template #footer>
+          <div class="flex justify-end">
+            <el-button @click="informationWarehouseReceipt = false" type="primary">Lưu & ghi phiếu xuất trả</el-button>
+            <div>
+              <span class="pl-4 dialog-footer">
+                <el-button @click="informationWarehouseReceipt = false">{{
+                  t('reuse.exit')
+                }}</el-button>
               </span>
             </div>
           </div>
@@ -4630,16 +4785,16 @@ const cancelReturnRequest = async () =>{
             <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
 
             <el-table-column
-              prop="invoiceGoodsEnteringWarehouse"
+              prop="warehouseTicketCode"
               :label="t('formDemo.deliveryNotesExportWarehouse')"
               align="left"
               width="200"
             >
-              <template #default="props">
-                <div class="text-blue-500">
-                  {{ props.row.warehouseTicketCode }}
-                </div>
-              </template>
+                <template #default="props">
+                  <div @click="() => openDetailFullyIntegrated(props)" class="text-blue-500" role="button">
+                    {{ props.row.warehouseTicketCode }}
+                  </div>
+                </template>
             </el-table-column>
             <el-table-column prop="warehouseTicketStatusName" :label="t('formDemo.status')" />
           </el-table>

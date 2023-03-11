@@ -40,6 +40,7 @@ import { approvalProducts } from '@/api/Approval'
 import { dateTimeFormat, FORM_IMAGES, moneyFormat } from '@/utils/format'
 import { Approvement, CampaignTypeArr } from '@/utils/API.Variables'
 import moment from 'moment'
+import {CampaignStatusV2} from './CampaignStatusEnum'
 
 const currentDate = ref(moment().format("DD/MM/YYYY"))
 const { t } = useI18n()
@@ -1222,7 +1223,6 @@ const spaMoney = ref(0)
                   <div class="italic text-xs text-gray-500">{{ item.campaignStatus === 0 ? dateTimeFormat(form.statusHistory[0].createdAt) : dateTimeFormat(form.statusHistory[0].approvedAt) }}</div>
               </div>
             </div>
-        
           </template>
         </Form>
       </ElCol>
@@ -1425,7 +1425,7 @@ v-model="radioSelected" :label="scope.$index + 1"
     border-left: 11px solid #f4f8fd !important;
   }
 }
-.status--pending {
+.status--pending, .status--active {
   color: rgb(234 179 8); 
   background-color: #fff0d9;
   border: 1px solid #fff0d9;
@@ -1434,12 +1434,20 @@ v-model="radioSelected" :label="scope.$index + 1"
   }
 }
 
+.status--cancel, .status--ending{
+  color: rgb(238, 48, 15); 
+  background-color: #fce5e1;
+  border: 1px solid #fce5e1;
+  .triangle-right{
+    border-left: 11px solid #fce5e1 !important;
+  }
+}
+
+
 .status--pending-edit{
 
 }
-.status--active{
 
-}
 .explainText {
   font-size: 14px;
   font-style: italic;

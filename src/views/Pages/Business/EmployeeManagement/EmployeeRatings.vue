@@ -104,6 +104,12 @@ const action = (row: any, type: string) => {
   }
 }
 
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
+
 const columns = reactive<TableColumn[]>([
   {
     field: 'index',
@@ -170,7 +176,11 @@ const columns = reactive<TableColumn[]>([
     minWidth: '120',
     align: 'right',
     sortable: true,
-    headerAlign: 'left'
+    headerAlign: 'left',
+    formatter: (row, _column, _cellValue) => {
+      const x = changeMoney.format(parseInt(row.sales))
+      return x
+    }
   },
   {
     field: 'statusRatingEmployee',
@@ -185,7 +195,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'operator',
     label: t('reuse.operator'),
-    minWidth: '110',
+    minWidth: '70',
     headerAlign: 'left',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', { style: 'display:flex;justify-content: center;' }, [

@@ -41,6 +41,8 @@ const campaignTypeIndex = computed(():number => {
     return CampaignType.Voucher   
     case 'router.combo':
     return  CampaignType.Combo
+    case 'router.auction':
+    return  CampaignType.Auction
     default:
       return 0
   }
@@ -98,7 +100,7 @@ const action = (row: any, _type: string) => {
   console.log(row)
       push({
         name: routeToDetailScreen.value ?? '',
-        params: { type:'approval',id:row.id}
+        params: { type:'approval',id:row.targetId}
       })
   }
 </script>

@@ -160,6 +160,8 @@ const filterChange = (filterValue) => {
     for (let key in filterValue) {
       if (typeof unref(filterValue[key]) === 'object')
         filterValue[key] = Object.values(filterValue[key]).toString()
+
+      console.log('filterValue', filterValue)
     }
   setSearchParams(filterValue)
 }

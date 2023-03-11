@@ -450,7 +450,7 @@ export const STATUS_ORDER_PAWN = [
   },
   {//6
     orderStatus: 42,
-    orderStatusName: 'Duyệt trả hàng trước hạn',
+    orderStatusName: 'Duyệt chuộc hàng trước hạn',
     createdAt: ''
   },
   {//7

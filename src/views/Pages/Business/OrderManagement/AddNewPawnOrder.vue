@@ -220,7 +220,7 @@ interface ListOfProductsForSaleType {
   spaServices: string
   warehouseTotal?: number | any
   amountSpa: number
-  quantity: string
+  quantity: number
   businessSetup: string
   businessSetupName: string
   accessory: string | undefined
@@ -239,6 +239,7 @@ interface ListOfProductsForSaleType {
   newProduct: Boolean
   principalMoney: number
   principalDebt: number
+  returnedQuantity: number
 }
 
 const productForSale = reactive<ListOfProductsForSaleType>({
@@ -251,7 +252,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   spaServices: '',
   amountSpa: 2,
   productPropertyId: undefined,
-  quantity: '1',
+  quantity: 1,
   accessory: '',
   code: '',
   description: '',
@@ -269,7 +270,8 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   edited: true,
   warehouseId: undefined,
   warehouseName: '',
-  newProduct:false
+  newProduct:false,
+  returnedQuantity: 0
 })
 
 let ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
@@ -883,7 +885,7 @@ let idOrderPost = ref()
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
-    Quantity: parseInt(val.quantity),
+    Quantity: val.quantity,
     ProductPrice: 0,
     UnitPrice: 0,
     HirePrice: 0,
@@ -974,6 +976,12 @@ const reloadStatusOrder = async () => {
     if (arrayStatusOrder.value[arrayStatusOrder.value?.length - 1].approvedAt)
       duplicateStatusButton.value = true
     else duplicateStatusButton.value = false
+
+    let arrayLength = arrayStatusOrder.value?.length
+          while(statusOrder.value == 49 /*Trả 1 phần*/){
+            arrayLength -= 2
+            statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+          }
   }
 }
 
@@ -1063,9 +1071,9 @@ const postReturnRequest = async (reason) => {
   const payload = {
     customerOrderId: id,
     code: autoCodeReturnRequest,
-    name: 'Đổi trả đơn hàng',
+    name: 'Chuộc trước hạn',
     description: formatOrderReturnReason(reason),
-    returnRequestType: 1,
+    returnRequestType: 6,
     giaHanDetails: [],
     nhapDetails: [],
     xuatDetails: tableReturnPost,
@@ -1075,6 +1083,7 @@ const postReturnRequest = async (reason) => {
     idReturnRequest.value = res
     await createTicketFromReturnOrders()
     getReturnRequestTable()
+    editData()
   })
   .catch(() => {
       ElNotification({
@@ -1213,7 +1222,7 @@ let idStransaction = ref()
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.productPropertyId),
-    quantity: parseInt(val.quantity)
+    quantity: Number(val.quantity)
   }))
 
   const payload = {
@@ -1560,6 +1569,7 @@ const totalPrincipalMoney = ref(0)
 const totalPrincipalDebt = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
+  console.log('run here')
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
@@ -1585,6 +1595,14 @@ const editData = async () => {
         duplicateStatusButton.value = true
       else duplicateStatusButton.value = false
     }
+    //sửa trạng thái trả hàng
+    let arrayLength = arrayStatusOrder.value?.length
+          while(statusOrder.value == 49 /*Trả 1 phần*/){
+            arrayLength -= 2
+            statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+          }
+
+        console.log('status', statusOrder.value)
 
     if (statusOrder.value == 2 && type == 'edit') {
       disableEditData.value = true
@@ -2012,8 +2030,8 @@ const setDataForReturnOrder = () => {
   rentReturnOrder.value.tableData = ListOfProductsForSale.value.map((row)=>({
     productPropertyId:row.productPropertyId,
     accessory:row.accessory,
-    quantity:row.quantity,
-    maxQuantity: row.quantity
+    quantity:row.quantity - row.returnedQuantity,
+    maxQuantity: row.quantity - row.returnedQuantity
   }))
 }
 const addRow = () => {
@@ -2789,6 +2807,8 @@ const cancelReturnRequest = async () =>{
                     item.orderStatus == STATUS_ORDER_PAWN[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PAWN[4].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PAWN[6].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[12].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_PAWN[13].orderStatus ||
                     item.orderStatus == STATUS_ORDER_PAWN[7].orderStatus
                   "
                 >
@@ -2994,7 +3014,7 @@ const cancelReturnRequest = async () =>{
               class="min-w-42 min-h-11"
               >Chuộc hàng trước hạn</el-button
             >
-            <div v-if="statusOrder == STATUS_ORDER_PAWN[4].orderStatus">
+            <div v-if="statusOrder == STATUS_ORDER_PAWN[6].orderStatus">
               <el-button
                 v-if="duplicateStatusButton"
                 @click="finishReturnRequest"
@@ -3024,7 +3044,6 @@ const cancelReturnRequest = async () =>{
             >
             <el-button
               v-if="
-                statusOrder == STATUS_ORDER_PAWN[6].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[8].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[9].orderStatus
               "
@@ -3034,7 +3053,7 @@ const cancelReturnRequest = async () =>{
                   // setDataForReturnOrder()
                 }
               "
-              type="warning"
+              type="info"
               class="min-w-42 min-h-11"
               >Đối soát & kết thúc</el-button
             >
@@ -4544,7 +4563,7 @@ const cancelReturnRequest = async () =>{
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
+            <div class="flex items-center w-[100%] flex-wrap">
               <span
                 class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
               ></span>

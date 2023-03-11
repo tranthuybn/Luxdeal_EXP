@@ -836,13 +836,6 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     }
   ],
-  paymentPeriod: [
-    {
-      required: true,
-      message: t('common.required'),
-      trigger: 'blur'
-    }
-  ],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],
@@ -2211,6 +2204,7 @@ const disabledPhieu = ref(false)
                 <!-- :disabled="disableCreateOrder" -->
               </el-form-item>
 
+              <div class="css-form_has-child mb-2">
               <el-form-item :label="t('formDemo.pawnTerm')" prop="pawnTerm">
                 <el-date-picker
                   :disabled="disableEditData"
@@ -2222,24 +2216,11 @@ const disabledPhieu = ref(false)
                   format="DD/MM/YYYY"
                 />
               </el-form-item>
-
-              <div class="css-form_has-child mb-2">
-                <el-form-item
-                  :label="t('formDemo.pawnFeePaymentTime')"
-                  prop="paymentPeriod"
-                  class="m-0"
-                >
-                  <el-input
-                    v-model="ruleForm.paymentPeriod"
-                    :disabled="checkDisabled"
-                    style="width: 100%"
-                    :placeholder="t('reuse.byDay')"
-                  />
-                </el-form-item>
-                <p class="text-right text-[#FECB80] w-[165px]">{{
+              <p class="text-right text-[#FECB80] w-[165px]">{{
                   t('formDemo.atLeastTenDays')
                 }}</p>
-              </div>
+                </div>
+
               <div class="flex gap-2 items-center">
                 <div class="w-[60%] max-w-[531.5px]">
                   <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">

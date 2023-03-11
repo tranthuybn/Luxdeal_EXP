@@ -124,6 +124,9 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    jobPosition: 'Vị trí việc làm',
+    sales: 'Doanh số',
+    percentageSales:'% doanh số',
     salesTrackingTable: 'Bảng theo dõi doanh số',
     employeeDetail: 'Thông tin nhân viên',
     cancelAccountingEntry: 'Hủy bút toán',
@@ -953,6 +956,10 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    cantGetBrandList: 'Không thể lấy danh sách chi nhánh',
+    cantGetDepartmentList: 'Không thể lấy danh sách phòng ban',
+    cantGetRankList: 'Không thể lấy danh sách cấp bậc',
+    cantGetTypeEmployeeList: 'Không thể lấy danh sách loại hình nhân viên',
     accounted: 'Đã hạch toán',
     accountingAccountName: 'Tên tài khoản hạch toán',
     reasonRevenueExpenditure: 'Lý do thu/chi',

@@ -98,6 +98,7 @@ const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const getData = (data) => {
   unref(tableBase01)!.getData(data)
+  console.log()
   console.log(
     'NoahKhalifa',
     unref(tableBase01)!.tableObject.tableList,
@@ -112,6 +113,7 @@ onBeforeMount(() => {
   dynamicColumns.value = props.columns
   if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
 })
+
 
 const appStore = useAppStore()
 const Utility = appStore.getUtility
@@ -164,17 +166,16 @@ const initMappingObject = (el) => {
   return []
 }
 
-
 </script>
 <template>
   <section>
-    <HeaderFiler @get-data="getData" @refrsesh-data="getData" v-if="!removeHeaderFilter">
+    <HeaderFiler @get-data="getData" @refrsesh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
         <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
-          <el-button type="primary" :icon="createIcon" @click="pushAdd">
+          <el-button v-if="!removeButtonAdd" type="primary" :icon="createIcon" @click="pushAdd">
             {{ t(`${props.titleAdd}`) }}
           </el-button>
         </template>
-      </HeaderFiler>
+    </HeaderFiler>
       <TableExtension
        v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
         @export-excel-event="ExportExcelEvent" />

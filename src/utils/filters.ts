@@ -172,6 +172,13 @@ export const filterStatusCustomer: Array<Filter> = [
   { text: t('reuse.pending'), value: 2 },
   { text: t('reuse.active'), value: 1 }
 ]
+
+export const filterStatusRatingEmployee: Array<Filter> = [
+  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.pause'), value: 2 },
+  { text: t('reuse.cancelled'), value: 3 },
+]
+
 export const filterResultTable: Array<Filter> = [
   { text: t('reuse.success'), value: 1 },
   { text: t('reuse.outOfStock'), value: 2 },

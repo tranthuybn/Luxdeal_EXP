@@ -687,15 +687,19 @@ const editDataBtn = () => {
 const saveDataEdit = async () => {
   const payload = {
     Id: id,
-    TotalMoney : dataDetail.value.totalMoney,
+    TotalMoney: dataDetail.value.totalMoney,
     TypeOfPayment :dataDetail.value.typeOfPayment ,
-    status : 1,
-    PeopleType: 2,
-    PeopleId  : customerID.value,
-    Type : 1,
+    status: dataDetail.value.status,
+    PeopleType: dataDetail.value.peopleType,
+    PeopleId: customerID.value,
+    Type: dataDetail.value.type == 'true' ? 1 : 0,
     Description: dataDetail.value.description,
     AccountingEntryId: valueTree.value ?? 0,
     EnterMoney: dataDetail.value.enterMoney, 
+    DeletedDocument: '',
+    Document: [],
+    Transacted: parentingStatusData.value.value,
+    fundID: 0
   }
   await EditAReceiptOrPaymentVoucher(FORM_IMAGES(payload))
     .then(() => {

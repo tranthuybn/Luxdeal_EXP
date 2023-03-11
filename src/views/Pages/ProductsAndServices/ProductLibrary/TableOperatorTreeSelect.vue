@@ -757,7 +757,6 @@ const approvalProduct = async () => {
               allow-create
               filterable
               clearable
-              remote
               :remote-method="remoteProductName"
               default-first-option
               popper-class="max-w-600px"
@@ -775,7 +774,7 @@ const approvalProduct = async () => {
           <template #Name-label>
             <div class="w-full text-right ml-2 leading-5">
               <label>{{ t('reuse.productName') }}</label>
-              <p class="text-[#FECB80]">{{ t('reuse.under256Characters') }}</p>
+              <p class="text-[#FECB80]">{{ t('reuse.under50Characters') }}</p>
             </div>
           </template>
           <template #ShortDescription-label>

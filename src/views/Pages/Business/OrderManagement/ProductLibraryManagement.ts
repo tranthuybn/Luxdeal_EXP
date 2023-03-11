@@ -95,13 +95,13 @@ export const businessProductLibrary = [
   {
     field: 'setInventoryForSale',
     label: t('reuse.setInventoryForSale'),
-    minWidth: '150',
+    minWidth: '170',
     filters: filterIventory
   },
   {
     field: 'setInventoryForRent',
     label: t('reuse.setInventoryForRent'),
-    minWidth: '150',
+    minWidth: '200',
     filters: filterIventory
   },
   {

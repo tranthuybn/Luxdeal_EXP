@@ -76,14 +76,14 @@ const columns = reactive<TableColumn[]>([
     align: 'left'
   },
   {
-    field: 'imageUrl',
+    field: 'images',
     label: t('reuse.image'),
     minWidth: '150',
-    formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, cellValue)
+    formatter: (record: Recordable, column: TableColumn, _: TableSlotDefault) =>
+      setImageDisplayInDOm(record, column, record.images[0]?.path)
   },
   {
-    field: 'rating',
+    field: 'rankingTypeName',
     label: t('customerList.ratings'),
     minWidth: '200',
     align: 'left',
@@ -92,7 +92,7 @@ const columns = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'sales',
+    field: 'targetMoney',
     label: t('customerList.sales'),
     minWidth: '200',
     align: 'right',
@@ -111,7 +111,7 @@ const columns = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'updatedBy',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     align: 'left',

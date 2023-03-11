@@ -1821,5 +1821,7 @@ export default {
     cancelSuccess: 'Cancel Success',
     cancelFail: 'Cancel fail',
     sendImmediately: 'Send immediately'
+    pleaseChooseTheRole:'please choose the roles'
+
   }
 }

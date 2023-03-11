@@ -1977,5 +1977,6 @@ export default {
     cancelSuccess: 'Hủy thành công',
     cancelFail: 'Hủy thất bại',
     sendImmediately: 'Gửi ngay'
+    pleaseChooseTheRole:'Vui lòng chọn quyền'
   }
 }

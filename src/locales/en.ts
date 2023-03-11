@@ -1820,7 +1820,7 @@ export default {
     //chien dich khuyen mai
     cancelSuccess: 'Cancel Success',
     cancelFail: 'Cancel fail',
-    sendImmediately: 'Send immediately'
+    sendImmediately: 'Send immediately',
     pleaseChooseTheRole:'please choose the roles'
 
   }

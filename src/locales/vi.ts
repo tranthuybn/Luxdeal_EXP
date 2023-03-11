@@ -1976,7 +1976,7 @@ export default {
     //chien dich khuyen mai
     cancelSuccess: 'Hủy thành công',
     cancelFail: 'Hủy thất bại',
-    sendImmediately: 'Gửi ngay'
+    sendImmediately: 'Gửi ngay',
     pleaseChooseTheRole:'Vui lòng chọn quyền'
   }
 }

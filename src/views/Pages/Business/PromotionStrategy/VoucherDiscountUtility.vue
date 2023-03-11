@@ -339,6 +339,7 @@ type FormDataEdit = {
   CampaignType: number
   MinimumPriceToGetReduce: number
   MaximumReduce: number
+  VoucherStatus: boolean
 }
 
 const customEditDataVoucher = (data) => {
@@ -373,6 +374,7 @@ const customEditDataVoucher = (data) => {
   }
   customData.ExchangeValue = 1
   customData.ProductPropertyIdJson = '[]'
+  customData.VoucherStatus = data.statusVoucher
 
   return customData
 }
@@ -404,9 +406,11 @@ type FormDataPost = {
   CampaignType: number
   MinimumPriceToGetReduce: number
   MaximumReduce: number
+  VoucherStatus: boolean
 }
 
 const customPostDataVoucher = (data) => {
+  console.log('data', data)
   const customData = {} as FormDataPost
   customData.VoucherType = 1
   customData.CampaignType = 4
@@ -441,6 +445,8 @@ const customPostDataVoucher = (data) => {
   customData.ProductPropertyIdJson = '[]'
   customData.ExchangeValue = 1
   customData.VoucherConditionType = data.condition
+
+  customData.VoucherStatus = data.statusVoucher
   return customData
 }
 
@@ -479,6 +485,7 @@ type SetFormData = {
   money: number
   imageurl?: string
   statusHistory?: any
+  statusVoucher?: boolean
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -502,7 +509,7 @@ const customizeData = async (data) => {
   setFormData.Image = data[0].images[0].path
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
   setFormData.statusHistory = data[0].statusHistory
-
+  setFormData.statusVoucher = data[0].VoucherStatus
 }
 const { push } = useRouter()
 

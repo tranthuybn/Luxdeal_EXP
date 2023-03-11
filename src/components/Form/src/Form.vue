@@ -25,7 +25,7 @@ const { getPrefixCls } = useDesign()
 
 const prefixCls = getPrefixCls('form')
 
-export default defineComponent({
+  export default defineComponent({
   name: 'Form',
   props: {
     // The layout structure array of FORM

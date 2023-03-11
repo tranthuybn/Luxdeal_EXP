@@ -11,6 +11,7 @@ import { collectionList, collectionListMock } from './promotionstrategy/collecti
 import { newproductList, newproductListMock } from './promotionstrategy/newproduct'
 import { servicesurveyList, servicesurveyListMock } from './servicesurvey'
 import { customerPointsList, customerPointsListMock } from './customerpoints'
+import { employeeRatingList, employeeRatingListMock } from './employeeRating'
 import { customerVirtualWalletList, customerVirtualWalletListMock } from './customervirtualwallet'
 import { voucherList, voucherListMock } from './promotionstrategy/voucher'
 import { comboList, comboListMock } from './promotionstrategy/combo'
@@ -38,6 +39,7 @@ for (let i = 0; i < count; i++) {
   newproductList.push(Mock.mock(newproductListMock))
   servicesurveyList.push(Mock.mock(servicesurveyListMock))
   customerPointsList.push(Mock.mock(customerPointsListMock))
+  employeeRatingList.push(Mock.mock(employeeRatingListMock))
   customerVirtualWalletList.push(Mock.mock(customerVirtualWalletListMock))
   voucherList.push(Mock.mock(voucherListMock))
   comboList.push(Mock.mock(comboListMock))
@@ -200,6 +202,25 @@ export default [
         pageSize: pageSize,
         pageIndex: pageIndex,
         count: customerPointsList.length
+      })
+      return {
+        ...responseStructure
+      }
+    }
+  },
+  {
+    url: '/employeeRating',
+    method: 'get',
+    timeout,
+    response: ({ query }) => {
+      const { pageIndex, pageSize } = query
+      const pageList = employeeRatingList.filter(
+        (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
+      )
+      const responseStructure = new serviceResponse(pageList, 200, true, result_code, 'Succeed', {
+        pageSize: pageSize,
+        pageIndex: pageIndex,
+        count: employeeRatingList.length
       })
       return {
         ...responseStructure

@@ -178,7 +178,9 @@ export const WAREHOUSE_API = {
 }
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff',
-  GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount'
+  GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount',
+  GET_EMPLOYEE_RATING_LIST: '/api/v1/SalaryEmployee/GetListSalers',
+  GET_EMPLOYEE_SALE_TRACKING_LIST: '/api/v1/SalaryEmployee/GetIdEmployeeId',
 }
 export const POINT_API = {
   GET_CUSTOMER_POINT: '/api/v1/Point/GetCustomerPoint',
@@ -229,7 +231,8 @@ export const APPROVAL_API = {
 }
 
 export const ROLE_API = {
-  CREATE_NEW_STAFF_ROLE :'api/v1/Authorization/AddNewStaffRole'
+  CREATE_NEW_STAFF_ROLE: 'api/v1/Authorization/AddNewStaffRole',
+  GET_ROLE_DETAIL:'api/v1/Authorization/StaffRoleInDetail'
 }
 
 export const TOOL_API = {

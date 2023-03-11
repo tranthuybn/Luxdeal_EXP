@@ -4,22 +4,24 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElRow,
   ElCol,
-  ElForm,
-  ElFormItem,
-  ElInput,
-  FormInstance,
   ElDivider,
   ElTree,
   ElCheckbox,
   ElButton,
-  // ElNotificationk
+  ElNotification,
+ElMessage
 } from 'element-plus'
-import { onBeforeMount, reactive, ref } from 'vue'
+import { Form } from '@/components/Form'
+import { computed, onBeforeMount, reactive, ref,unref } from 'vue'
 import { appModules } from '@/config/app'
 import { useValidator } from '@/hooks/web/useValidator'
 import { asyncRouterMap } from '@/router'
 import { cloneDeep, cloneDeepWith } from 'lodash-es'
-// import { posCreateNewStaffRole} from '@/api/HumanResourceManagement'
+import { getRoleDetail, postCreateNewStaffRole } from '@/api/HumanResourceManagement'
+import { useForm } from '@/hooks/web/useForm' 
+import { RouteRecordName, useRouter } from 'vue-router'
+
+const { t } = useI18n()
 const { utility } = appModules
 const { required, notSpecialCharacters } = useValidator()
 interface Tree {
@@ -28,8 +30,83 @@ interface Tree {
 }
 let ElTreeData = ref<Tree[]>([])
 const routerMap = cloneDeep(asyncRouterMap)
+const { register, elFormRef, methods } = useForm()
+const loading = ref(false)
+const { currentRoute, push } = useRouter()
+let roleStatus = ref(true)
+const treeRef = ref<InstanceType<typeof ElTree>>()
+const disableCheckbox = ref(false)
+const parentRoute = computed((): RouteRecordName  => {
+  const { name } = unref(currentRoute)
+  if (typeof name == 'string' && name?.length > 0) {    
+    return name.replace('.' + utility, '')
+  }return ''
+})
+const typeOfActivity = computed(():string | string[]=> { 
+  const { params } = unref(currentRoute)
+  return params?.type ?? 'add'
+}) 
+const RoleId = computed(():number=> { 
+  const { params } = unref(currentRoute)
+  return params.id && typeof params.id == 'string'  ? parseInt(params.id): 0
+}) 
+const rules = {
+  roleName: [required(), {required: true, validator: notSpecialCharacters, trigger: 'blur' }],
+}
+const schema = reactive<FormSchema[]>([
 
-
+  {
+    field: 'roleName',
+    label: t('reuse.roleName'),
+    value: '',
+    disabled: loading.value == true,
+    component: 'Input',
+    colProps: {
+      span: 24
+    },
+    componentProps: {
+      placeholder: t('reuse.inputName'),
+      disabled: typeOfActivity.value == 'detail'
+    }
+  },
+  {
+    field: 'description',
+    label: t('reuse.description'),
+    value: '',
+    disabled: loading.value == true,
+    component: 'Input',
+    colProps: {
+      span: 24
+    },
+    componentProps: {
+      style: {
+        width: '100%'
+      },
+      placeholder: t('formDemo.enterDescription'),
+      disabled:typeOfActivity.value == 'detail'
+    }
+  },
+  {
+    field: 'chooseRouter',
+    label: t('reuse.choosePermission'),
+    component: 'Divider',
+    colProps: {
+      span: 12
+    }
+  },
+  {
+    field: 'banner',
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'tree',
+    colProps: {
+      span:24
+    }
+  }
+])
 onBeforeMount(async () => {
   // filter recursive, eliminate the utilities screen
   var filterRouter = await routerMap.
@@ -48,7 +125,8 @@ onBeforeMount(async () => {
   if (filterRouter[filterRouter.length - 1] && filterRouter[filterRouter.length - 1].name == 'NotFound')
     filterRouter.splice(filterRouter.length - 1, 1)
 // mapping recursive
-  ElTreeData.value = mappingRouterTree(filterRouter,null)
+  ElTreeData.value = mappingRouterTree(filterRouter, null)
+  getRoleDetailEvent()
 })
 
 function mappingRouterTree(tree,parentPath) {
@@ -71,7 +149,8 @@ if(Array.isArray(tree) && tree.length > 0)
           edit: false,
           delete:false,
           children: mappingRouterTree(node.children, currentNodePath),
-          isParents:true
+          isParents: true,
+          disabled:typeOfActivity.value == 'detail',
         };
       else
         return {
@@ -83,84 +162,88 @@ if(Array.isArray(tree) && tree.length > 0)
           add: false,
           edit: false,
           delete: false,
-          isParents:false
+          isParents: false,
+          disabled:typeOfActivity.value == 'detail',
         };
     }
     
   });
   return []
 }
-function flatObject(r, a) {
-    var b = {};
-  Object.keys(a).forEach(function (k) {
-    // just return the last children in nested object
-    if (k === 'isParents' && b[k] == false)
-      return
-      else if (k !== 'children') {
-        b[k] = a[k];
+const getRoleDetailEvent = () => {
+
+  if (typeof typeOfActivity.value == 'string' && typeOfActivity.value != 'add') {
+    loading.value = true
+    disableCheckbox.value = true
+    getRoleDetail({ id: RoleId.value }).then((res) => {
+      const { data } = res
+      if (data) {
+        const { setValues } = methods
+        setValues({
+          roleName: data.roleName,
+          description: data.description
+        })
+        const routerMap = data.router.map((el) => el.url)
+        if (data.router.length > 0)
+          treeRef.value?.setCheckedKeys(routerMap)
+        roleStatus.value = data.isActive
       }
-      else if (Array.isArray(a.children) && a.children.length > 0)      
-        return a.children.reduce(flatObject, r);
-      else 
-      return 
-      
-    });
-    r.push(b);
-    return r;
+
+    }).catch((err) => {
+      ElNotification({
+        message: t('reuse.cantFindData'),
+        type: 'error'
+      })
+      console.error(err);
+    }).finally(() => {
+      loading.value = false
+    })
+  }
 }
-
-const { t } = useI18n()
-
-const decentralizationRef = ref<FormInstance>()
-const RouterListRef = ref<FormInstance>()
-const decentralizationModule = reactive({
-  roleName: '',
-  description:''
-})
-const decentralizationRule = {
-  roleName: [required(), { validator: notSpecialCharacters, trigger: 'blur' }],
-}
-const roleStatus = ref(true)
-const treeRef = ref<InstanceType<typeof ElTree>>()
-const loading = ref(false)
-
-const createNewRoleEvent = (formEl: FormInstance | undefined) => {  
-   if(!formEl) return   
-  // formEl.validate(async (valid) => {
-  //   if (valid) {
-  // loading.value = true
-    
-    const params = {
-    roleName: decentralizationModule.roleName,  
-    description: decentralizationModule.description,
-    isActive:roleStatus.value,
-    router: treeRef.value?.getCheckedNodes()
-  } 
-  const routes = treeRef.value?.getCheckedNodes()
-  console.log(routes?.reduce(flatObject, []))
-  console.log(params)
-
-
-  // posCreateNewStaffRole(params).then(res => {
-  //   console.log(res);
-    
-  //   ElNotification({
-  //       message: t('reuse.addSuccess'),
-  //       type: 'success'
-  //     })
-  // }).catch(() => { 
-  //   ElNotification({
-  //       message: t('reuse.addFail'),
-  //       type: 'error'
-  //   })
-  // }).finally(() => {
-  //     loading.value = false
-  //    })
-  // }else ElMessage.error(t('reuse.notFillAllInformation'))
-  // })
+const createNewRoleEvent = (goOut) => {
+  const formRef = unref(elFormRef)
+  formRef?.validate(async (isValid) => {
+    if (isValid) {
+      loading.value = true
+      const routes = treeRef.value?.getCheckedNodes() ?? []
+      const { getFormData } = methods
+      const formData = await getFormData()
+      if (routes.length > 0) {
+        const params = {
+          ...formData,
+          isActive: roleStatus.value,
+          router: routes?.map(el => ({
+            url: el.url,
+            addable: el.addable ?? false,
+            editable: el.editable ?? false,
+            deletable: el.deletable ?? false
+          }))
+        }
+        postCreateNewStaffRole(params).then(res => {
+          ElNotification({
+            message: res.message ?? t('reuse.addSuccess'),
+            type: res.statusCode == 200 ? 'success' : 'error'
+          })
+          if (res.statusCode == 200 && goOut&&parentRoute)
+            push({name:unref(parentRoute)})
+        }).catch(() => {
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'error'
+          })
+        }).finally(() => {
+          loading.value = false
+        })
+      } else { 
+        loading.value = false
+        ElMessage.error(t('reuse.pleaseChooseTheRole'))
+      } 
+     
+    }else ElMessage.error(t('reuse.notFillAllInformation'))
+  })
+  
 
 }
-
 
 </script>
 <template>
@@ -169,66 +252,61 @@ const createNewRoleEvent = (formEl: FormInstance | undefined) => {
     <ElRow>
       <ElCol>
         <ElDivider content-position="left" >{{ t('reuse.addNewRole') }}</ElDivider>
-        <ElForm
-          label-position="top"
-          ref="decentralizationRef"
-          :rules="decentralizationRule"
-          :module="decentralizationModule"
-          status-icon
+        <Form
+        :schema="schema"
+        :rules="rules"
+        label-position="top"
+        size="large"
+        @register="register"
+        status-icon
         >
-          <ElFormItem :label="t('reuse.roleName')" prop="roleName">
-            <ElInput v-model="decentralizationModule.roleName" :placeholder="t('reuse.inputName')" class="w-[40]" />
-          </ElFormItem>
-          <ElFormItem :label="t('reuse.description')">
-            <ElInput v-model="decentralizationModule.description" :placeholder="t('formDemo.enterDescription')" class="w-[40]" />
-          </ElFormItem>
-        </ElForm>
-      </ElCol>
-    </ElRow>
-    <ElDivider  content-position="left">{{ t('reuse.choosePermission') }}</ElDivider>
-      <ElRow class="row-bg" justify="space-between" >
-        <ElCol :span="12" ><span class="grid-content bg-gray-500 bg-opacity-50 pl-4">{{t('reuse.accessCategoriesPermission')}}</span></ElCol>
-        <ElCol :span="12"><span class="grid-content bg-gray-500 bg-opacity-50 text-right pr-4 "> {{t('reuse.actionPermision')}}</span></ElCol>
-      </ElRow>
-    <ElRow class="max-h-500px overflow-y-scroll overflow-x-hidden box-shadow-inset">
-      <ElCol>
-        <ElForm ref="RouterListRef" status-icon>
-          <ElFormItem class="w-screen-lg">
-            <ElTree 
-              ref="treeRef"               
-              :data="ElTreeData"
-              show-checkbox
-              node-key="url"
-              default-expand-all 
-              class="w-[100%]"                   
-            >
-              <template #default="{ node }">
-                <div class="flex justify-between w-[100%]" >                  
-                  <div> {{ node.data.label }}</div>
-                  <div class="extension-function w-[30%]">
-                    <p v-if="node.data.addable" >
-                      <ElCheckbox v-model="node.data.add">Thêm</ElCheckbox>   
-                    </p>
-                    <p  v-if="node.data.editable" > 
-                      <ElCheckbox v-model="node.data.edit">Sửa</ElCheckbox> 
-                    </p>
-                    <p  v-if="node.data.deletable"> 
-                      <ElCheckbox v-model="node.data.delete">Xóa</ElCheckbox> 
-                    </p>
+        <template #banner>
+          <ElRow class="row-bg w-[100%]" justify="space-between">
+            <ElCol :span="12" ><span class="grid-content bg-gray-500 bg-opacity-30 pl-4">{{t('reuse.accessCategoriesPermission')}}</span></ElCol>
+            <ElCol :span="12"><span class="grid-content bg-gray-500 bg-opacity-30 text-right pr-4 "> {{t('reuse.actionPermision')}}</span></ElCol>
+          </ElRow>
+        </template>
+        <template #tree>
+          <ElRow class="max-h-500px overflow-y-scroll overflow-x-hidden w-[100%]">
+            <ElCol>            
+              <ElTree 
+                ref="treeRef"               
+                :data="ElTreeData"
+                show-checkbox
+                node-key="url"
+                default-expand-all 
+                class="w-[100%]"                 
+              >
+                <template #default="{ node }">
+                  <div class="flex justify-between w-[100%]" >                  
+                    <div> {{ node.data.label }}</div>
+                    <div class="extension-function w-[30%]">
+                      <p v-if="node.data.addable" >
+                        <ElCheckbox v-model="node.data.add">Thêm</ElCheckbox>   
+                      </p>
+                      <p  v-if="node.data.editable" > 
+                        <ElCheckbox v-model="node.data.edit">Sửa</ElCheckbox> 
+                      </p>
+                      <p  v-if="node.data.deletable"> 
+                        <ElCheckbox v-model="node.data.delete">Xóa</ElCheckbox> 
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </template>
-            </ElTree>
-          </ElFormItem>
-        </ElForm>
+                </template>
+              </ElTree>
+            </ElCol>
+          </ElRow>
+        </template>
+        </Form>
       </ElCol>
-    </ElRow>
+    </ElRow>    
+    
     <ElRow justify="space-between">
       <ElCol :span="4" >
           <p class="mr-5">{{t('formDemo.statusActive')}}</p>          
         </ElCol>
         <ElCol :span="20" >
-         <ElCheckbox v-model = "roleStatus">{{ t('formDemo.isActive') }}</ElCheckbox>
+         <ElCheckbox v-model = "roleStatus" :disabled="disableCheckbox">{{ t('formDemo.isActive') }}</ElCheckbox>
       </ElCol>
     </ElRow >
     <ElRow justify="space-between">
@@ -242,10 +320,10 @@ const createNewRoleEvent = (formEl: FormInstance | undefined) => {
       </ElCol>
     </ElRow>
   
-          <ElButton type="primary" @click="createNewRoleEvent(decentralizationRef)" v-loading.fullscreen.lock="loading" >
+          <ElButton type="primary" @click="createNewRoleEvent(true)" v-loading.fullscreen.lock="loading" >
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton type="primary" v-loading.fullscreen.lock="loading">
+        <ElButton type="primary" @click="createNewRoleEvent(false)" v-loading.fullscreen.lock="loading">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
   

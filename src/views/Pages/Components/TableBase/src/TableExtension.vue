@@ -21,7 +21,7 @@ const selectedNumber = computed(() =>
 )
 </script>
 <template>
-  <el-row class="mb-2">
+  <el-row class="mb-4">
     <el-col :xl="6" :lg="12" :xs="24">
       <div class="extension-function">
         <p style="width: 30%">

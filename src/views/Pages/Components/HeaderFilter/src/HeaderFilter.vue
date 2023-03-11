@@ -19,6 +19,10 @@ import { Form, FormExpose } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
 
 // declare variables
+const props = defineProps({removeButtonAdd: {
+  type: Boolean,
+  default: false
+}})
 const emit = defineEmits(['refreshData', 'getData'])
 const dateFilterFormRefer = ref<FormExpose>()
 type momentDateType = Date | moment.Moment | null
@@ -34,6 +38,7 @@ type Callback = (error?: string | Error | undefined) => void
 const { register, methods } = useForm()
 
 const { getFormData } = methods
+
 //validation
 const checkStartDate = (_, endDate: any, callback: Callback) => {
   getFormData().then((res) =>
@@ -51,6 +56,7 @@ const checkEndDate = (_, startDate: any, callback: Callback) => {
       : callback()
   )
 }
+
 // form data
 const schema = reactive<FormSchema[]>([
   {
@@ -198,7 +204,7 @@ const formRef = ref<FormInstance>()
 </script>
 <template>
   <section>
-    <el-row justify="space-between" :gutter="20">
+    <el-row :class="[props.removeButtonAdd ? 'relative top-8' : '']" justify="space-between" :gutter="20">
       <el-col :xl="6" :lg="4" :xs="12" class="<xl:mb-2">
         <slot name="headerFilterSlot"></slot>
       </el-col>

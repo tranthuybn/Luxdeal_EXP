@@ -5,6 +5,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton, ElRow, ElCol, ElDivider } from 'element-plus'
 import { useRouter } from 'vue-router'
+// import TableDataBase from '../../Components/TableDataBase.vue'
 import {
   ElTable,
   ElTableColumn,
@@ -35,33 +36,11 @@ const collapse: Array<Collapse> = [
     icon: minusIcon,
     name: 'generalInformation',
     title: t('formDemo.employeeDetail'),
-    columns: [],
-    api: undefined,
-    buttonAdd: '',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 1
   },
   {
     icon: minusIcon,
-    name: 'generalInformation',
+    name: 'salesTrackingInformation',
     title: t('formDemo.salesTrackingTable'),
-    columns: [],
-    api: undefined,
-    buttonAdd: '',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 3
   },
 
 ]
@@ -82,7 +61,16 @@ onBeforeMount(() => {
   callAPIInfoEmployee()
   callAPISalesTracking()
 })
-
+interface InfoEmployee {
+  employeeCode: string
+  employeeName: string
+  phoneNumber: string
+  email: string
+  branch: string
+  department: string
+  typeEmployee: string
+  rankEmployee:string
+}
 
 //get data
 let infoEmployeeRes = reactive({} as InfoEmployee)
@@ -115,7 +103,7 @@ const callAPISalesTracking= async () => {
       } else {
         saleTrackingRes = res
       }
-      await setInfoEmployeeTableValue()
+      await setSalesTrackingTableValue()
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),
@@ -124,16 +112,7 @@ const callAPISalesTracking= async () => {
     }
   }
 }
-interface InfoEmployee {
-  employeeCode: string
-  employeeName: string
-  phoneNumber: string
-  email: string
-  branch: string
-  department: string
-  typeEmployee: string
-  rankEmployee:string
-}
+
 
 interface SaleTracking {
   dateOrder: string
@@ -141,17 +120,15 @@ interface SaleTracking {
   orderValue: number
   sales: number
   percentageSale: number
-
 }
 
 const infoEmployeeTable = reactive({
   generalInfo: {},
   positionInfo: {} 
-} )
-let salesTrackingTable = reactive([] as Array<SaleTracking>)
+})
+const salesTrackingTable = reactive([] as Array<SaleTracking>)
 const totalSales = ref()
 const setInfoEmployeeTableValue = () => {
-  if(infoEmployeeRes) {
     infoEmployeeTable.generalInfo[t('reuse.employeeCode')] = infoEmployeeRes.employeeCode
     infoEmployeeTable.generalInfo[t('reuse.employeeName')] = infoEmployeeRes.employeeName
     infoEmployeeTable.generalInfo[t('reuse.phoneNumber')] = infoEmployeeRes.phoneNumber
@@ -161,28 +138,56 @@ const setInfoEmployeeTableValue = () => {
     infoEmployeeTable.positionInfo[t('reuse.department')] = infoEmployeeRes.department
     infoEmployeeTable.positionInfo[t('reuse.type')] = infoEmployeeRes.typeEmployee
     infoEmployeeTable.positionInfo[t('reuse.rank')] = infoEmployeeRes.rankEmployee
-  }
-  if(salesTrackingTable.length == 0) {
-    const newArr = saleTrackingRes.map(item => 
-      ({
-        dateOrder: item.dateOrder,
-        orderCode: item.orderCode,
-        orderValue: moneyFormat(item.orderValue),
-        sales: moneyFormat(item.sales),
-        percentageSale: item.percentageSale,
-      })
-    )
-    salesTrackingTable.push(...newArr)
-    console.log('salesTrackingTable', salesTrackingTable)
-    
-    totalSales.value = moneyFormat(saleTrackingRes.reduce((total, item) => {
-      return total + item?.sales
-    }, 0))
-  }
-
 }
 
+const setSalesTrackingTableValue = () => {
+  const newArr = saleTrackingRes.map(item => 
+    ({
+      dateOrder: item.dateOrder,
+      orderCode: item.orderCode,
+      orderValue: moneyFormat(item.orderValue),
+      sales: moneyFormat(item.sales),
+      percentageSale: item.percentageSale,
+    })
+  )
+  salesTrackingTable.push(...newArr)
+  totalSales.value = moneyFormat(saleTrackingRes.reduce((total, item) => {
+    return total + item.sales
+  }, 0))
+}
 
+// const columns = reactive<TableColumn[]>([
+//   {
+//     field: 'orderCode',
+//     label: t('formDemo.orderCode'),
+//     minWidth: '794',
+//     align: 'center',
+//   },
+//   {
+//     field: 'orderValue',
+//     label: t('formDemo.orderValue'),
+//     minWidth: '200',
+//     headerAlign: 'left',
+//   },
+//   {
+//     field: 'percentageSale',
+//     label: t('formDemo.percentageSales'),
+//     minWidth: '200',
+//     headerAlign: 'left',
+//   },
+//   {
+//     field: 'sales',
+//     label: t('formDemo.sales'),
+//     minWidth: '200',
+//     headerAlign: 'left',
+//   },
+//   {
+//     field: 'dateOrder',
+//     label: t('formDemo.day'),
+//     minWidth: '200',
+//     headerAlign: 'left',
+//   } 
+// ])
 </script>
 
 <template>
@@ -209,8 +214,6 @@ const setInfoEmployeeTableValue = () => {
                 <el-col :span="4" class="flex justify-end pr-2">{{ label }}</el-col>
                 <el-col :class="{'font-bold': index === 0}" :span="20" class="">{{ infoValue }}</el-col>
               </el-row>
-
-
            </ElCol>
            <ElCol :span="12">
               <ElDivider contentPosition="left">{{ t('formDemo.jobPosition') }}</ElDivider>
@@ -236,12 +239,19 @@ const setInfoEmployeeTableValue = () => {
           <el-table-column prop="sales" :label="t('formDemo.sales')"  min-width="200"/>
           <el-table-column prop="dateOrder" :label="t('formDemo.day')" min-width="200"/>
         </el-table>
+        <!-- <TableDataBase 
+          :removeHeaderFilter="true" 
+          :selection="false"
+          :api="getEmployeeSaleTrackingList"
+          :columns="columns" 
+          :removeDrawer="true"
+          /> -->
       </el-collapse-item>
     </el-collapse>
   </div>
 </template>
 
-<style scoped lang="less">el-table-column
+<style scoped lang="less">
   ::v-deep(.el-divider__text){
     font-size: 15px;
     font-weight: 700;

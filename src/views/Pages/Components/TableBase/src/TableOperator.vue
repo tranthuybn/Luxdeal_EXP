@@ -174,7 +174,6 @@ const setFormValue = async () => {
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
-    console.log('data', props.formDataCustomize)
     if (props.hasImage && props.multipleImages) {
       // Images tao tu formDataCustomize
       props.formDataCustomize?.Images.map((image) =>
@@ -490,7 +489,11 @@ const approvalProduct = async () => {
   <ContentWrap :title="props.title" :back-button="props.backButton">
     <ElRow class="pl-8" :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
-        <Form :rules="rules" @register="register" />
+        <Form :rules="rules" @register="register" >
+          <template #statusSpaService>
+            <span class="status--spaService">Đang chờ duyệt</span>
+          </template>
+        </Form>
       </ElCol>
       <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
         <ElDivider class="text-center font-bold ml-2">{{ t('reuse.addImage') }}</ElDivider>
@@ -645,5 +648,12 @@ const approvalProduct = async () => {
 :deep(.el-button) {
   min-width: 150px;
   min-height: 40px;
+}
+
+.status--spaService{
+  color: rgb(234 179 8) ; 
+  background-color: #fff0d9 ;
+  width: 126px;
+  padding: 0 10px;
 }
 </style>

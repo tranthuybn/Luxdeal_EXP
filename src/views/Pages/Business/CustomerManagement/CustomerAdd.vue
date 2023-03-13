@@ -57,21 +57,16 @@ const disabledDate = (time: Date) => {
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const approvalId = Number(router.currentRoute.value.params.approvalId)
-
+const accountNumberList = ref()
 const customerClassification = ref('Khách hàng')
 
 const escape = useIcon({ icon: 'quill:escape' })
 
-const { ValidService, notSpace, removeVietnameseTones } = useValidator()
+const { ValidService, notSpace, removeVietnameseTones, checkAccountNumber, doNotHaveNumber } = useValidator()
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const rules = reactive<FormRules>({
-  //referralCode: [
-  //{ required: false }
-  //   { validator: ValidService.checkNameLength.validator },
-  //   { validator: notSpecialCharacters }
-  //],
   name: [{ required: true, message: t('common.required'), trigger: 'blur' }],
   businessClassification: [
     {
@@ -148,8 +143,15 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  cccdPlaceOfGrant: [{ required: false }]
+  cccdPlaceOfGrant: [{ required: false }],
+  accountName: [
+  {validator: doNotHaveNumber},
+  ],
+  accountNumber: [
+    {validator: checkAccountNumber}
+  ],
 })
+
 
 // let customerCode = ref()
 let ruleForm = reactive({
@@ -670,6 +672,10 @@ const callAPICustomer = async () => {
           label: el.code
         })
     })
+    accountNumberList.value = res?.data.map((el) => ({
+      accountNumber: el.accountNumber
+    }))
+    console.log('accountNumberList', accountNumberList.value)
   }
 }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ElInput } from 'element-plus'
 import { computed, ref } from 'vue'
+
 const propsObj = defineProps({
   className: {
     type: String,
@@ -28,6 +29,18 @@ const propsObj = defineProps({
     type: Number,
     default: 0
   },
+  showCurrency: {
+    type: Boolean,
+    default: true
+  },
+  placeholder: {
+    type: String,
+    default: undefined
+  },
+  suffixIcon: {
+    type: Object,
+    default: undefined
+  }
 })
 const emit = defineEmits(['change', 'update:modelValue'])
 const valueHasChangedEvent = (val) => {
@@ -44,6 +57,10 @@ const displayValue = computed({
     if (isInputActive.value) {
       // Cursor is inside the input field. unformat display value for user
       return propsObj.modelValue
+    } else if(!propsObj.showCurrency) {
+      return (
+        propsObj.modelValue?.toString().replace(/(\d)(?=(\d{3})+(?:\.\d+)?$)/g, '$1.')
+      )
     } else {
       // User is not modifying now. Format display value for user interface
       return (
@@ -72,8 +89,9 @@ const displayValue = computed({
 })
 </script>
 <template>
-  <div>
+  <div class="w-full">
     <ElInput
+      :placeholder="propsObj.placeholder"
       type="text"
       :class="className"
       v-model="displayValue"
@@ -82,6 +100,7 @@ const displayValue = computed({
       @blur="isInputActive = false"
       @focus="isInputActive = true"
       @change="valueHasChangedEvent"
+      :suffix-icon="propsObj.suffixIcon"
     />
   </div>
 </template>

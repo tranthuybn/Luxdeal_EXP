@@ -98,7 +98,7 @@ const { register, tableObject, methods } = useTable<TableData>({
   },
   props: {
     columns: temporaryColumn,
-    headerAlign: 'center'
+    headerAlign: 'left'
   }
 })
 // get api

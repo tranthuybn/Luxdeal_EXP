@@ -232,7 +232,9 @@ export const APPROVAL_API = {
 
 export const ROLE_API = {
   CREATE_NEW_STAFF_ROLE: 'api/v1/Authorization/AddNewStaffRole',
-  GET_ROLE_DETAIL:'api/v1/Authorization/StaffRoleInDetail'
+  GET_ROLE_DETAIL:'api/v1/Authorization/StaffRoleInDetail',
+  UPDATE_STAFF_ROLE: 'api/v1/Authorization/EditStaffRole',
+  DELETE_STAFF_ROLE: 'api/v1/Authorization/DeleteStaffRoleList'
 }
 
 export const TOOL_API = {

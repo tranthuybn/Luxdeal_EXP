@@ -77,29 +77,9 @@ const combo = reactive<TableColumn[]>([
     minWidth: '200',
   },
   {
-    field: 'fromDate',
-    label: t('reuse.start'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
-    field: 'toDate',
-    label: t('common.doneLabel'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
     field: 'createdAt',
-    label: t('reuse.createDate'),
-    minWidth: '130',
+    label: t('formDemo.createdAtEdit'),
+    minWidth: '170',
     headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -108,8 +88,8 @@ const combo = reactive<TableColumn[]>([
   },
   {
     field: 'createdBy',
-    label: t('reuse.creator'),
-    minWidth: '130',
+    label: t('formDemo.createdByEdit'),
+    minWidth: '180',
     headerAlign: 'left',
     headerFilter: 'Name'
   },
@@ -206,29 +186,9 @@ const auction = reactive<TableColumn[]>([
     filters: filterAuctionResult
   },
   {
-    field: 'fromDate',
-    label: t('reuse.start'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
-    field: 'toDate',
-    label: t('common.doneLabel'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
     field: 'createdAt',
-    label: t('reuse.createDate'),
-    minWidth: '130',
+    label: t('formDemo.createdAtEdit'),
+    minWidth: '170',
     headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -237,8 +197,8 @@ const auction = reactive<TableColumn[]>([
   },
   {
     field: 'createdBy',
-    label: t('reuse.creator'),
-    minWidth: '130',
+    label: t('formDemo.createdByEdit'),
+    minWidth: '180',
     headerAlign: 'left',
     headerFilter: 'Name'
   },
@@ -300,29 +260,9 @@ const flashSale =  reactive<TableColumn[]>([
     filters: filterPromotionPrice,
   },
   {
-    field: 'fromDate',
-    label: t('reuse.start'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
-    field: 'toDate',
-    label: t('common.doneLabel'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
     field: 'createdAt',
-    label: t('reuse.createDate'),
-    minWidth: '130',
+    label: t('formDemo.createdAtEdit'),
+    minWidth: '160',
     headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -331,8 +271,8 @@ const flashSale =  reactive<TableColumn[]>([
   },
   {
     field: 'createdBy',
-    label: t('reuse.creator'),
-    minWidth: '130',
+    label: t('formDemo.createdByEdit'),
+    minWidth: '160',
     headerAlign: 'left',
     headerFilter: 'Name'
   },
@@ -392,29 +332,9 @@ const newProduct = reactive<TableColumn[]>([
     filters: filterPromotionPrice
   },
   {
-    field: 'fromDate',
-    label: t('reuse.start'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
-    field: 'toDate',
-    label: t('common.doneLabel'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
     field: 'createdAt',
-    label: t('reuse.createDate'),
-    minWidth: '130',
+    label: t('formDemo.createdAtEdit'),
+    minWidth: '160',
     headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -423,8 +343,8 @@ const newProduct = reactive<TableColumn[]>([
   },
   {
     field: 'createdBy',
-    label: t('reuse.creator'),
-    minWidth: '130',
+    label: t('formDemo.createdByEdit'),
+    minWidth: '160',
     headerAlign: 'left',
     headerFilter: 'Name'
   },
@@ -504,29 +424,9 @@ const voucher = reactive<TableColumn[]>([
     filters: filterPromotionPrice
   },
   {
-    field: 'fromDate',
-    label: t('reuse.start'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
-    field: 'toDate',
-    label: t('common.doneLabel'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
     field: 'createdAt',
-    label: t('reuse.createDate'),
-    minWidth: '130',
+    label: t('formDemo.createdAtEdit'),
+    minWidth: '170',
     headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -535,8 +435,8 @@ const voucher = reactive<TableColumn[]>([
   },
   {
     field: 'createdBy',
-    label: t('reuse.creator'),
-    minWidth: '130',
+    label: t('formDemo.createdByEdit'),
+    minWidth: '180',
     headerAlign: 'left',
     headerFilter: 'Name'
   },
@@ -595,29 +495,9 @@ const collection = reactive<TableColumn[]>([
     filters: filterPromotionPrice
   },
   {
-    field: 'fromDate',
-    label: t('reuse.start'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
-    field: 'toDate',
-    label: t('common.doneLabel'),
-    minWidth: '130',
-    headerAlign: 'left',
-    sortable: true,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return dateTimeFormat(cellValue)
-    }
-  },
-  {
     field: 'createdAt',
-    label: t('reuse.createDate'),
-    minWidth: '130',
+    label: t('formDemo.createdAtEdit'),
+    minWidth: '160',
     headerAlign: 'left',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -626,8 +506,8 @@ const collection = reactive<TableColumn[]>([
   },
   {
     field: 'createdBy',
-    label: t('reuse.creator'),
-    minWidth: '130',
+    label: t('formDemo.createdByEdit'),
+    minWidth: '160',
     headerAlign: 'left',
     headerFilter: 'Name'
   },

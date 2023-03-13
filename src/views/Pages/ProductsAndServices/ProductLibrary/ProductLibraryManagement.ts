@@ -65,7 +65,7 @@ export const businessProductLibrary = [
   {
     field: 'productStat.datTonKhoBan',
     label: t('reuse.setInventoryForSale'),
-    minWidth: '150',
+    minWidth: '170',
     filters: filterIventory,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
      return t(`${businessIventoryStatusTransferToText(cellValue)}`)
@@ -74,7 +74,7 @@ export const businessProductLibrary = [
   {
     field: 'productStat.datTonKhoThue',
     label: t('reuse.setInventoryForRent'),
-    minWidth: '150',
+    minWidth: '200',
     filters: filterIventory,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
      return t(`${businessIventoryStatusTransferToText(cellValue)}`)

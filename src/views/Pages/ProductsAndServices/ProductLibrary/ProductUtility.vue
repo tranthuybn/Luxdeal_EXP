@@ -498,7 +498,7 @@ const router = useRouter()
 let id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-const { required, notSpecialCharacters, ValidService, notSpace } = useValidator()
+const { required, ValidService, notSpace } = useValidator()
 const rules = reactive({
   ProductTypeId: [required()],
   BrandId: [required()],
@@ -511,7 +511,6 @@ const rules = reactive({
   ],
   Name: [
     required(),
-    { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator },
     { validator: ValidService.checkSpaceBeforeAndAfter.validator }
   ],

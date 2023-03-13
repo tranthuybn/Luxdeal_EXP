@@ -1040,6 +1040,17 @@ const postData = async (pushBack: boolean) => {
         name: 'business.order-management.order-list',
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
+    } else {
+      router.push({
+        name: `business.order-management.order-list.${utility}`,
+        params: {
+          backRoute: 'business.order-management.order-list',
+          type: 'detail',
+          tab: 'orderRental',
+          id: res
+        }
+      })
+      orderCompletion(res)
     }
   disabledPhieu.value = false
   } else {
@@ -1047,13 +1058,13 @@ const postData = async (pushBack: boolean) => {
       message: t('reuse.addFail'),
       type: 'warning'
     })
-  }  
+  }
 }
 
 // Phiếu xuất kho tự động
-const automaticCouponWareHouse = async (index) => {
+const automaticCouponWareHouse = async (index, idOrder) => {
   const payload = {
-    OrderId: id,
+    OrderId: idOrder,
     Type: index
   }
 
@@ -1739,7 +1750,6 @@ const inputReasonCollectMoney = ref()
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
-  console.log('debtTable: ', debtTable.value)
   // Cập nhật lại bảng lịch sử công nợ
 }
 
@@ -2395,7 +2405,9 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
       accessory: val.accessory,
       unitPrice: val.hirePrice,
       totalPrice: val.totalPrice,
-      returnDetailType: reason
+      returnDetailType: reason,
+      isSpa: true,
+      description: val.description
     }))
   }
   const payload = {
@@ -2689,23 +2701,23 @@ const updateOrderInfomation = async () => {
 }
 
 // Cập nhật trạng thái đơn hàng
-const updateStatusOrders = async (typeState) => {
+const updateStatusOrders = async (typeState, idOrder) => {
   if (typeState == STATUS_ORDER_RENTAL[0].orderStatus) {
     let payload = {
-      OrderId: id
+      OrderId: idOrder
     }
     await cancelOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else if (typeState == STATUS_ORDER_RENTAL[10].orderStatus) {
     let payload = {
-      OrderId: id
+      OrderId: idOrder
     }
     await finishStatusOrder(FORM_IMAGES(payload))
     reloadStatusOrder()
   } else {
     if (type == 'add' || type == ':type') {
       let payload = {
-        OrderId: idOrderPost.value,
+        OrderId: idOrder ? idOrder : idOrderPost.value,
         ServiceType: 3,
         OrderStatus: typeState
       }
@@ -2713,7 +2725,7 @@ const updateStatusOrders = async (typeState) => {
       submitForm(ruleFormRef, ruleFormRef2)
       updateStatusOrder(FORM_IMAGES(payload))
     } else {
-      let payload = { OrderId: id, ServiceType: 3, OrderStatus: typeState }
+      let payload = { OrderId: idOrder, ServiceType: 3, OrderStatus: typeState }
       await updateStatusOrder(FORM_IMAGES(payload))
       reloadStatusOrder()
     }
@@ -2872,48 +2884,48 @@ const automaticAcountingEntry = async() => {
 }
 
 // Bắt đầu thuê theo kỳ hạn -> call api phiếu nhập kho tự động
-const orderCompletion = async() => {
-  automaticCouponWareHouse(2)
-  await updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus)
+const orderCompletion = async(idOrder) => {
+  automaticCouponWareHouse(2, idOrder)
+  await updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus, idOrder)
 
   // đang bị lỗi bất đồng bộ dùng hàm automaticAcountingEntry() nó k chạy, k có thời gian fix nên dev sau thấy cái này thì fix hộ vs ạ
   let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')
-      let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
+  let end = moment(ruleForm.rentalPeriod[1], 'YYYY-MM-DD')
 
-      //Difference in number of days
-      let day = moment.duration(start.diff(end)).asDays() * -1
-      let days = Math.ceil(day / ruleForm.leaseTerm)
+  //Difference in number of days
+  let day = moment.duration(start.diff(end)).asDays() * -1
+  let days = Math.ceil(day / ruleForm.leaseTerm)
 
-      dateRangePrice.value = days
-      const dateAfter = transaction.value.data.findLast((el) => el.typeOfAccountingEntry == 1)
-      let lastPaymentDate
-      if (!dateAfter?.createdAt) lastPaymentDate = start
-      else lastPaymentDate = moment(dateAfter?.createdAt, 'YYYY-MM-DD')
-      let countPostPayment = moment.duration(lastPaymentDate.diff(end)).asDays()* - 1
-      // Số bút toán tự động cần tạo
-      let postPayment = Math.ceil(countPostPayment / ruleForm.leaseTerm)   
-      // currentDateTime là thời gian hiện tại
-      // const currentDateTime = moment(new Date(), 'YYYY-MM-DD')
-      // numPayments để lấy chênh lệch thời gian từ ngày tạo bút toán cuối cùng đến ngày hiện tại
-      // const numPayments = moment.duration(lastPaymentDate.diff(currentDateTime)).asDays()* - 1
-      // numPayment là số bút toán tự động cần tạo
-      // let numPayment = Math.ceil(numPayments / ruleForm.leaseTerm)
+  dateRangePrice.value = days
+  const dateAfter = transaction.value.data.findLast((el) => el.typeOfAccountingEntry == 1)
+  let lastPaymentDate
+  if (!dateAfter?.createdAt) lastPaymentDate = start
+  else lastPaymentDate = moment(dateAfter?.createdAt, 'YYYY-MM-DD')
+  let countPostPayment = moment.duration(lastPaymentDate.diff(end)).asDays()* - 1
+  // Số bút toán tự động cần tạo
+  let postPayment = Math.ceil(countPostPayment / ruleForm.leaseTerm)   
+  // currentDateTime là thời gian hiện tại
+  // const currentDateTime = moment(new Date(), 'YYYY-MM-DD')
+  // numPayments để lấy chênh lệch thời gian từ ngày tạo bút toán cuối cùng đến ngày hiện tại
+  // const numPayments = moment.duration(lastPaymentDate.diff(currentDateTime)).asDays()* - 1
+  // numPayment là số bút toán tự động cần tạo
+  // let numPayment = Math.ceil(numPayments / ruleForm.leaseTerm)
 
-      const paymentPeriods = moment.duration(start.diff(lastPaymentDate)).asDays()* - 1
-      let paymentPeriod = Math.ceil(paymentPeriods / ruleForm.leaseTerm) 
-      const curMonth = ruleForm.rentalPeriod[0].slice(5,7)
-      if (postPayment > 0 && debtTable.value.length == 0 && automaticEntry.value) {
-        alreadyPaidForTt.value = false
-        for (let i = 0; i < postPayment; i++) {
-          if (month.value) {
-            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tháng/ Ngày ${month.value}/${curMonth}/2022/ Tháng thứ ${paymentPeriod + i + 1}`
-          } else if (week.value){
-            feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tuần/ Thứ ${week.value}/ Tuần thứ ${paymentPeriod + i + 1}`
-          }
-          assignTableRentalProducts()
-          await postOrderStransaction(1)
-        }
+  const paymentPeriods = moment.duration(start.diff(lastPaymentDate)).asDays()* - 1
+  let paymentPeriod = Math.ceil(paymentPeriods / ruleForm.leaseTerm) 
+  const curMonth = ruleForm.rentalPeriod[0].slice(5,7)
+  if (postPayment > 0 && debtTable.value.length == 0 && automaticEntry.value) {
+    alreadyPaidForTt.value = false
+    for (let i = 0; i < postPayment; i++) {
+      if (month.value) {
+        feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tháng/ Ngày ${month.value}/${curMonth}/2022/ Tháng thứ ${paymentPeriod + i + 1}`
+      } else if (week.value){
+        feePaymentPeriod.value = `Kỳ tanh toán phí thuê theo tuần/ Thứ ${week.value}/ Tuần thứ ${paymentPeriod + i + 1}`
       }
+      assignTableRentalProducts()
+      await postOrderStransaction(1)
+    }
+  }
 }
 
 onBeforeMount(async() => {
@@ -5507,7 +5519,7 @@ const disabledPhieu = ref(false)
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus, id)"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5537,7 +5549,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               :disabled="statusButtonDetail"
-              @click="orderCompletion"
+              @click="orderCompletion(id)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.startRentingTerm') }}</el-button
@@ -5549,7 +5561,7 @@ const disabledPhieu = ref(false)
               >{{ t('formDemo.editOrder') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus)"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[0].orderStatus, id)"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5663,7 +5675,7 @@ const disabledPhieu = ref(false)
             >
             <button
               :disabled="statusButtonDetail"
-              @click="updateStatusOrders(STATUS_ORDER_RENTAL[10].orderStatus)"
+              @click="updateStatusOrders(STATUS_ORDER_RENTAL[10].orderStatus, id)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button
             >

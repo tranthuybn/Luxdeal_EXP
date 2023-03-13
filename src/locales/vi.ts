@@ -956,6 +956,8 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    change: 'Thay đổi',
+    initialization: 'Khởi tạo',
     cantGetBrandList: 'Không thể lấy danh sách chi nhánh',
     cantGetDepartmentList: 'Không thể lấy danh sách phòng ban',
     cantGetRankList: 'Không thể lấy danh sách cấp bậc',

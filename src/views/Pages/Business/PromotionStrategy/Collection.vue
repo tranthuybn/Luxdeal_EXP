@@ -1,33 +1,11 @@
 <script setup lang="ts">
-import { provide, reactive, h } from 'vue'
+import { provide, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getCampaignList } from '@/api/Business'
 import { filterPromotionPrice, filterTableStatus, filterSubject } from '@/utils/filters'
 import { dateTimeFormat, formatStatusVoucher, formatSubjectVoucher } from '@/utils/format'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
-import { useRouter } from 'vue-router'
-import { ElButton } from 'element-plus'
-import { useIcon } from '@/hooks/web/useIcon'
-import { useAppStore } from '@/store/modules/app'
-
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-
-const { push } = useRouter()
-const router = useRouter()
-const appStore = useAppStore()
-const Utility = appStore.getUtility
-const action = (row: any, type: string) => {
-  if (type === 'detail' || type === 'edit' || !type) {
-    push({
-      name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: row.voucherType }
-    })
-  }
-}
-
-
 
 const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[1].key }
@@ -123,12 +101,7 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.operator'),
     minWidth: '150',
     headerAlign: 'left',
-    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', { style: 'display:flex;justify-content: center;' }, [
-        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),
-        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit') })
-      ])
-    }
+    align: 'center'
   }
 ])
 </script>

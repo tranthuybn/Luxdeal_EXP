@@ -7,28 +7,6 @@ import { filterAuctionResult, filterTableStatus } from '@/utils/filters'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { dateTimeFormat, formatStatusVoucher } from '@/utils/format'
 
-import { useRouter } from 'vue-router'
-import { ElButton } from 'element-plus'
-import { useIcon } from '@/hooks/web/useIcon'
-import { useAppStore } from '@/store/modules/app'
-
-
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
-
-const { push } = useRouter()
-const router = useRouter()
-const appStore = useAppStore()
-const Utility = appStore.getUtility
-const action = (row: any, type: string) => {
-  if (type === 'detail' || type === 'edit' || !type) {
-    push({
-      name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type, tab: row.voucherType }
-    })
-  }
-}
-
 
 const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[5].key }
@@ -59,6 +37,17 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.productCode'),
     minWidth: '200',
     headerAlign: 'left',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row?.productProperties.map((item) => {
+          if (item.code) {
+            return h('span', `${item.code}`)
+          }
+        })
+      )
+    }
   },
   {
     field: 'floorPrice',
@@ -128,7 +117,7 @@ const columns = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '130',
     headerAlign: 'left',
@@ -149,16 +138,10 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.operator'),
     minWidth: '150',
     headerAlign: 'left',
-
-    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', { style: 'display:flex;justify-content: center;' }, [
-        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),
-        h(ElButton, { icon: editIcon, onClick: () => action(row, 'edit') })
-      ])
-    }
+    align: 'center'
   }
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getCampaignList" :customOperator="5"/>
 </template>

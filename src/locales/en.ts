@@ -904,6 +904,8 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    change: 'Change',
+    initialization: 'initialization',
     cantGetBrandList: 'Can\'t get brand list',
     cantGetDepartmentList: 'Can\'t get department List',
     cantGetRankList: 'Can\'t get rank list',

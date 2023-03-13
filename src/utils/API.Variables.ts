@@ -423,59 +423,69 @@ export const STATUS_ORDER_PAWN = [
     orderStatusName: 'Hủy đơn hàng',
     createdAt: ''
   },
-  {
+  {//1
     orderStatus: 2,
     orderStatusName: 'Chốt đơn hàng',
     createdAt: ''
   },
-  {
+  {//2
     orderStatus: 3,
     orderStatusName: 'Đối soát & kết thúc',
     createdAt: ''
   },
-  {
+  {//3
     orderStatus: 4,
     orderStatusName: 'Duyệt đơn hàng',
     createdAt: ''
   },
-  {
+  {//4
     orderStatus: 0,
     orderStatusName: 'Duyệt hủy đơn hàng',
     createdAt: ''
   },
-  {
+  {//5
     orderStatus: 41,
     orderStatusName: 'Bắt đầu cầm đồ',
     createdAt: ''
   },
-  {
+  {//6
     orderStatus: 42,
-    orderStatusName: 'Duyệt trả hàng trước hạn',
+    orderStatusName: 'Duyệt chuộc hàng trước hạn',
     createdAt: ''
   },
-  {
+  {//7
     orderStatus: 43,
     orderStatusName: 'Hết hạn cầm đồ',
     createdAt: ''
   },
-  {
+  {//8
     orderStatus: 44,
     orderStatusName: 'Duyệt chuộc hàng hết hạn',
     createdAt: ''
   },
-  {
+  {//9
     orderStatus: 45,
     orderStatusName: 'Duyệt đứt hàng hết hạn',
     createdAt: ''
   },
-  {
+  {//10
     orderStatus: 46,
     orderStatusName: 'Bắt đầu gia hạn cầm đồ',
     createdAt: ''
   },
-  {
+  {//11
     orderStatus: 47,
     orderStatusName: 'Kết thúc gia hạn cầm đồ',
+    createdAt: ''
+  },
+  {//12
+    orderStatus: 48,
+    orderStatusName: 'Trả/chuộc toàn bộ',
+    createdAt: ''
+  },
+  {//13
+    orderStatus: 49,
+    orderStatusName: 'Trả/chuộc một phần',
     createdAt: ''
   }
 ]

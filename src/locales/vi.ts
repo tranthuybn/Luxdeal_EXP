@@ -1984,6 +1984,11 @@ export default {
     cancelSuccess: 'Hủy thành công',
     cancelFail: 'Hủy thất bại',
     sendImmediately: 'Gửi ngay',
-    pleaseChooseTheRole:'Vui lòng chọn quyền'
+    pleaseChooseTheRole:'Vui lòng chọn quyền',
+    //Đơn cầm đồ
+    originalDebtMoney: 'Dư nợ tiền gốc',
+    totalPrincipalDebt: 'Tổng dư nợ gốc',
+    pawnTime: 'Thời gian cầm đồ',
+    importWarehouseMoney: 'Tiền nhập kho',
   }
 }

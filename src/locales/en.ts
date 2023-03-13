@@ -1828,7 +1828,11 @@ export default {
     cancelSuccess: 'Cancel Success',
     cancelFail: 'Cancel fail',
     sendImmediately: 'Send immediately',
-    pleaseChooseTheRole:'please choose the roles'
-
+    pleaseChooseTheRole:'please choose the roles',
+    //Đơn cầm đồ
+    originalDebtMoney: 'Original Debt Money',
+    totalPrincipalDebt: 'Total principal debt',
+    pawnTime: 'Pawn time',
+    importWarehouseMoney: 'Import warehouse money',
   }
 }

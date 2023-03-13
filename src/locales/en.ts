@@ -1834,5 +1834,11 @@ export default {
     totalPrincipalDebt: 'Total principal debt',
     pawnTime: 'Pawn time',
     importWarehouseMoney: 'Import warehouse money',
+    pawnPaymentInformation: 'Pawn payment information',
+    paymentType: 'Payment type',
+    originalDebt: 'Original debt',
+    paidMoney:'Paid money',
+    lastDatePaid: 'Last date paid',
+    nextDatePaid: 'Next date paid',
   }
 }

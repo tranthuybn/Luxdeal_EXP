@@ -1207,10 +1207,10 @@ const handleChangePaymentRequest = () => {
 const inputReasonReturn = ref('Hàng bị rách góc')
 const tableAccountingEntry = ref([
   {
-    content: 'Thu tiền gốc cầm đồ',
+    content: '',
     kindOfMoney: '',
-    collected: 0,
-    spent: 0,
+    receiveMoney: 0,
+    paidMoney: 0,
     intoMoney: 0
   }
 ])
@@ -1220,36 +1220,75 @@ var autoCodeReturnRequest = 'DT' + moment().format('hms')
 let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
+const checkPTC = ref(0)
+const totalFinalOrder = ref(0)
+let moneyDeposit = ref(0)
+
+const updateDetailAcountingEntry = ref(false)
+const updateInfoAcountingEntry = async(index) => {
+  if (updateDetailAcountingEntry.value) {
+    updateOrderStransaction()
+  }else {
+    postOrderStransaction(index)
+  }
+}
+
+// cập nhật bút toán
+const updateOrderStransaction = async() => {
+  const payload = {
+    accountingEntryId: idAccounting.value,
+    isReceiptedMoney: alreadyPaidForTt.value,
+    paymentMethods: 1
+  }
+  await updateOrderTransaction(payload)
+  getOrderStransactionList()
+}
+
 // Thêm bút toán cho đơn hàng
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
-    merchadiseTobePayforId: parseInt(val.productPropertyId),
-    quantity: Number(val.quantity)
+    merchadiseTobePayforId: parseInt(val.id),
+    quantity: val.quantity
   }))
 
+  if (index == 4) {
+    tableAccountingEntry.value[0].receiveMoney > tableAccountingEntry.value[0].paidMoney
+      ? (checkPTC.value = 1)
+      : (checkPTC.value = 0)
+  }
   const payload = {
     orderId: id,
     content:
       index == 1
-        ? t('formDemo.feePaymentSlip')
+        ? t('formDemo.bill')
         : index == 2
-        ? t('formDemo.billPawn')
+        ? t('formDemo.depositSlipAdvance')
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
-    receiveMoney: 0,
-    paidMoney: 0,
-    deibt: 0,
-    typeOfPayment: 0,
+    receiveMoney:
+      index == 1
+        ? totalFinalOrder.value
+        : index == 2
+        ? inputDeposit.value
+        : tableAccountingEntry.value[0].receiveMoney,
+    paidMoney:
+      index == 1 || index == 2
+        ? 0
+        : tableAccountingEntry.value[0].paidMoney,
+    deibt: index == 1 || index == 3 || index == 4 ? 0 : moneyDeposit.value,
+    typeOfPayment: index == 1 || index == 2 ? 1 : index == 3 || index == 4 ? checkPTC.value : 0,
     paymentMethods: 1,
-    status: 0,
-    isReceiptedMoney: alreadyPaidForTt.value ? 0 : 1,
+    status: 1,
+    isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
     typeOfMoney: 1,
-    merchadiseTobePayfor: childrenTable.value
+    merchadiseTobePayfor: childrenTable.value,
+    typeOfAccountingEntry: index,
+    returnRequestId: idReturnRequest.value
   }
-
   objOrderStransaction.value = await addOrderStransaction(payload)
   idStransaction.value = objOrderStransaction.value.paymentRequestId
+  inputDeposit.value = 0
   getOrderStransactionList()
 }
 
@@ -1804,6 +1843,7 @@ let formAccountingId = ref()
 const openDialogAcountingEntry = (scope) => {
   const data = scope.row
   idAccounting.value = data.id
+  updateDetailAcountingEntry.value = true
   switch (data.typeOfAccountingEntry) {
     case 1:
       getAccountingEntry(data.id, 1)
@@ -1899,11 +1939,62 @@ const openAccountingEntry = async (id, type) => {
   }
 }
 
+// Trạng thái bút toán
+interface typeStatusAccountingEntry {
+  transactionStatus: any
+  transactionStatusName: any
+  approvedAt: any
+  createdAt: any
+  isActive?: boolean
+}
+const statusAccountingEntry = ref<Array<typeStatusAccountingEntry>>([])
+statusAccountingEntry.value.push({
+  transactionStatus: 1,
+  transactionStatusName: t('formDemo.initializationBookkeeping'),
+  approvedAt: '',
+  createdAt: '',
+  isActive: true
+})
+
+const createStatusAcountingEntry = () => {
+  statusAccountingEntry.value = []
+  statusAccountingEntry.value.push({
+  transactionStatus: 1,
+  transactionStatusName: t('formDemo.initializationBookkeeping'),
+  approvedAt: '',
+  createdAt: '',
+  isActive: true
+})
+}
+
 const getAccountingEntry = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
   tablePawnSlip.value = formAccountingId.value.paidMerchandises
   tableAccountingEntry.value = formAccountingId.value.accountingEntry
+
+  inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
+  moneyDeposit.value = formAccountingId.value.accountingEntry?.deibt
+  tableAccountingEntry.value[0] = formAccountingId.value.accountingEntry
+  tableAccountingEntry.value.forEach((el) => {
+    el.intoMoney = Math.abs(el.paidMoney - el.receiveMoney)
+  })
+  valueMoneyAccoungtingEntry.value = 0
+  tableAccountingEntry.value.map((val) => {
+    if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
+  })
+  alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
+  statusAccountingEntry.value = formAccountingId.value.statusHistorys
+  statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
+  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
+    showCancelAcountingEntry.value = false
+    showCreatedOrUpdateButton.value = false
+
+  } else {
+    showCancelAcountingEntry.value = true
+    showCreatedOrUpdateButton.value = true
+  }
+  checkEditAcountingEntryPaymentType.value = true
 
   if (num == 1) {
     dialogFeePaymentSlip.value = true
@@ -1915,7 +2006,20 @@ const getAccountingEntry = async (index, num) => {
     dialogAccountingEntryAdditional.value = true
   }
 }
+const checkEditAcountingEntryPaymentType = ref(false)
+// Đúng thì hiển thị button Lưu và ghi sổ và hủy bút toán
+const showCreatedOrUpdateButton = ref (false)
+const showCancelAcountingEntry = ref(true)
+const openAdditionalDialog = () => {
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
+  createStatusAcountingEntry()
 
+  dialogAccountingEntryAdditional.value = true
+}
+
+// Thêm mới bút toán bổ sung
 let statusOrder = ref(STATUS_ORDER_PAWN[3].orderStatus)
 interface statusOrderType {
   orderStatusName: string
@@ -2112,6 +2216,17 @@ const openDetailFullyIntegrated = async (props) => {
   }))
   informationWarehouseReceipt.value = true
 }
+const paymentType = ref(0)
+const paymentTypeOptions = ref([
+  {
+    label:'1',
+    value:0
+  },
+  {
+    label:'2',
+    value:1
+  }
+])
 </script>
 
 <template>
@@ -3286,7 +3401,7 @@ const openDetailFullyIntegrated = async (props) => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button text @click="dialogAccountingEntryAdditional = true">+ Thêm bút toán</el-button>
+        <el-button text @click="openAdditionalDialog">+ {{ t('reuse.addAccountingEntry') }}</el-button>
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ Thêm phiếu thu</el-button
         >
@@ -3578,7 +3693,7 @@ const openDetailFullyIntegrated = async (props) => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -3587,17 +3702,54 @@ const openDetailFullyIntegrated = async (props) => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
+          <div class="flex gap-4 pt-2 pb-4">
+            <label class="w-[30%] text-right">{{ t('formDemo.status') }}</label>
+            <div class="w-[100%]">
+              <div class="flex items-center w-[100%] flex-wrap">
+                <div
+                  class="duplicate-status"
+                  v-for="item in statusAccountingEntry"
+                  :key="item.transactionStatus"
+                >
+                  <div
+                    v-if="item.transactionStatus == 1"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                      class="box box_2 text-blue-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_2"> </span>
+                    </span>
+                    <p v-if="item.createdAt">{{
+                      item.createdAt ? dateTimeFormat(item.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                  <div
+                    v-else-if="item.transactionStatus == 0"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_4"> </span>
+                    </span>
+                    <p v-if="item?.createdAt">{{
+                      item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                </div>
+              </div>
+          </div>
           </div>
         </div>
         <template #footer>
@@ -3619,7 +3771,7 @@ const openDetailFullyIntegrated = async (props) => {
                   @click="
                     () => {
                       dialogPawnCouponInfomation = false
-                      postOrderStransaction(2)
+                      updateInfoAcountingEntry(2)
                     }
                   "
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3633,12 +3785,12 @@ const openDetailFullyIntegrated = async (props) => {
         </template>
       </el-dialog>
 
-      <!-- Thông tin phiếu thanh toán phí cầm đồ -->
+      <!-- Thông tin phiếu thanh toán cầm đồ -->
       <el-dialog
       :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogFeePaymentSlip"
-        :title="t('formDemo.pawnFeePaymentInformation')"
-        width="40%"
+        :title="t('reuse.pawnPaymentInformation')"
+        width="50%"
         align-center
       >
         <div>
@@ -3654,19 +3806,26 @@ const openDetailFullyIntegrated = async (props) => {
                 <div class="text-xl">{{ pawnOrderCode }}</div>
               </div>
               <div class="flex gap-4 py-2 items-center">
-                <label class="text-right w-[170px]">{{ t('formDemo.pawnTime') }}</label>
-                <div class="w-[60%] text-black dark:text-light-50"
+                <label class="text-right w-[170px]">{{ t('formDemo.pawnTerm') }}</label>
+                <div class=" text-black dark:text-light-50"
                   >{{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
                   {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}</div
                 >
               </div>
               <div class="flex gap-4 pb-4 items-center">
                 <label class="text-right w-[170px]"
-                  >{{ t('formDemo.pawnFeePaymentTime') }}<span class="text-red-500">*</span></label
+                  >{{ t('reuse.paymentType') }}<span class="text-red-500">*</span></label
                 >
 
                 <div class="">
-                  <div class=""> {{ ruleForm.paymentPeriod }} {{ t('formDemo.day') }} </div>
+                  <el-select v-model="paymentType" class="m-2" placeholder="Select" size="large">
+                    <el-option
+                      v-for="item in paymentTypeOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
                 </div>
               </div>
             </div>
@@ -3710,12 +3869,14 @@ const openDetailFullyIntegrated = async (props) => {
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productCode" :label="t('reuse.productCode')" width="120" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
-
-            <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
-            <el-table-column prop="code" :label="t('formDemo.code')" width="100" />
-
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
-            <el-table-column prop="unitName" :label="t('reuse.unit')" />
+            <el-table-column v-if="paymentType == 1" prop="lastDatePaid" :label="t('reuse.lastDatePaid')" />
+            <el-table-column v-if="paymentType == 1" prop="nextDatePaid" :label="t('reuse.nextDatePaid')" />
+            <el-table-column v-if="paymentType == 1" prop="intoMoneyByday" :label="t('reuse.intoMoneyByday')" />
+            <el-table-column prop="originalDebt" :label="t('reuse.originalDebt')" />
+            <el-table-column prop="paidMoney" :label="t('reuse.paidMoney')" />'reuse.paidMoney')" />
+
+
           </el-table>
 
           <div class="flex justify-end">
@@ -3771,7 +3932,7 @@ const openDetailFullyIntegrated = async (props) => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -3780,17 +3941,54 @@ const openDetailFullyIntegrated = async (props) => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
+          <div class="flex gap-4 pt-2 pb-4">
+            <label class="w-[30%] text-right">{{ t('formDemo.status') }}</label>
+            <div class="w-[100%]">
+              <div class="flex items-center w-[100%] flex-wrap">
+                <div
+                  class="duplicate-status"
+                  v-for="item in statusAccountingEntry"
+                  :key="item.transactionStatus"
+                >
+                  <div
+                    v-if="item.transactionStatus == 1"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                      class="box box_2 text-blue-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_2"> </span>
+                    </span>
+                    <p v-if="item.createdAt">{{
+                      item.createdAt ? dateTimeFormat(item.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                  <div
+                    v-else-if="item.transactionStatus == 0"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_4"> </span>
+                    </span>
+                    <p v-if="item?.createdAt">{{
+                      item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                </div>
+              </div>
+          </div>
           </div>
         </div>
         <template #footer>
@@ -3801,7 +3999,7 @@ const openDetailFullyIntegrated = async (props) => {
               @click="
                 () => {
                   dialogFeePaymentSlip = false
-                  postOrderStransaction(1)
+                  updateInfoAcountingEntry(1)
                 }
               "
               >{{ t('formDemo.saveRecordDebts') }}</el-button
@@ -3978,7 +4176,7 @@ const openDetailFullyIntegrated = async (props) => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option v-for="item in choosePayment" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
@@ -4149,7 +4347,7 @@ const openDetailFullyIntegrated = async (props) => {
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -4158,17 +4356,54 @@ const openDetailFullyIntegrated = async (props) => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">Trạng thái</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
+          <div class="flex gap-4 pt-2 pb-4">
+            <label class="w-[30%] text-right">{{ t('formDemo.status') }}</label>
+            <div class="w-[100%]">
+              <div class="flex items-center w-[100%] flex-wrap">
+                <div
+                  class="duplicate-status"
+                  v-for="item in statusAccountingEntry"
+                  :key="item.transactionStatus"
+                >
+                  <div
+                    v-if="item.transactionStatus == 1"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                      class="box box_2 text-blue-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_2"> </span>
+                    </span>
+                    <p v-if="item.createdAt">{{
+                      item.createdAt ? dateTimeFormat(item.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                  <div
+                    v-else-if="item.transactionStatus == 0"
+                  >
+                    <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span
+                    class="box box_4 text-rose-500 dark:text-black"
+                      :class="{ active: item.isActive }"
+                    >
+                      {{ item.transactionStatusName }}
+                      <span class="triangle-right right_4"> </span>
+                    </span>
+                    <p v-if="item?.createdAt">{{
+                      item?.createdAt ? dateTimeFormat(item?.createdAt) : ''
+                    }}</p>
+                    <p v-else class="text-transparent">s</p>
+                  </div>
+                </div>
+              </div>
+          </div>
           </div>
         </div>
         <template #footer>
@@ -4178,7 +4413,7 @@ const openDetailFullyIntegrated = async (props) => {
                 type="primary"
                 @click="
                   () => {
-                    postOrderStransaction(4)
+                    updateInfoAcountingEntry(4)
                     dialogAccountingEntryAdditional = false
                   }
                 "
@@ -4262,7 +4497,7 @@ const openDetailFullyIntegrated = async (props) => {
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -4382,7 +4617,7 @@ const openDetailFullyIntegrated = async (props) => {
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"
@@ -4599,7 +4834,7 @@ const openDetailFullyIntegrated = async (props) => {
             <label class="w-[30%] text-right"
               >{{ t('formDemo.formPayment') }} <span class="text-red-500">*</span></label
             >
-            <el-select v-model="payment" placeholder="Select">
+            <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
               <el-option
                 v-for="item in choosePayment"
                 :key="item.value"

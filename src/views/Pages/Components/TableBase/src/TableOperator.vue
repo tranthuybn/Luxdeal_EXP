@@ -646,10 +646,4 @@ const approvalProduct = async () => {
   min-height: 40px;
 }
 
-.status--spaService{
-  color: rgb(234 179 8) ; 
-  background-color: #fff0d9 ;
-  width: 126px;
-  padding: 0 10px;
-}
 </style>

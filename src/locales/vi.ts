@@ -956,6 +956,9 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    addAccount: 'Thêm tài khoản', 
+    accountName: 'Tên tài khoản',
+    badgeAccount: 'Số hiệu tài khoản', 
     sourceNewCustomer: 'Nguồn (KH mới)',
     saleCare: 'Sale chăm sóc', 
     change: 'Thay đổi',
@@ -1345,7 +1348,7 @@ export default {
     // account balance
     openingBalance: 'Số dư đầu kỳ',
     arisingInThePeriod: 'Số phát sinh trong kỳ',
-    arisingInTheEndOfPeriod: 'Số phát sinh cuối kỳ',
+    arisingInTheEndOfPeriod: 'Số dư cuối kỳ',
     owed: 'Nợ',
     cash: 'Có',
     //approve management
@@ -1557,6 +1560,7 @@ export default {
     lengthRange: 'Độ dài ký tự không phù hợp',
     notSpace: 'Không được có khoảng trống giữa các ký tự',
     doNotHaveNumber: 'Chỉ nhập chữ',
+    accountNumberDuplicated: 'Số tài khoản đã tồn tại',
     isNotEqual: 'Không bằng nhau',
     phoneNumberFormat: 'Không phải số điện thoại',
     emailFormat: 'Vui lòng nhập đúng định dạng email',

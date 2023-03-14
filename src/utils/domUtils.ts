@@ -301,3 +301,14 @@ export const setImageDisplayInDOm = (
       : h(ElEmpty, { imageSize: 50 }),
     content ? h('h3', { style: 'font-weight:500; margin-left:10px' }, content) : null
   ])
+
+export const setImageDisplayInTable = (
+  _record: Recordable,
+  _column: TableColumn,
+  cellValue: TableSlotDefault,
+) =>
+  h('div', { class: 'flex justify-center items-center custom-empty' }, [
+    cellValue
+      ? h(ElImage, { src: API_URL + cellValue, style: 'width: 70px', fit: 'contain' })
+      : h(ElEmpty, { imageSize: 50 })
+  ])

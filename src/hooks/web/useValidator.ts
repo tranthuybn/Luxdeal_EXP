@@ -77,8 +77,10 @@ export const useValidator = () => {
     }
   }
 
-  const checkAccountNumber = (_, val: any, callback: Callback) => {
-    if (val && val.length > 14) {
+  const checkLengthAccountNumber = (_, val: any, callback: Callback) => {
+    if(isNaN(val)) {
+      callback(new Error(t('reuse.numberFormat')))
+    } else if (val && val.length > 14) {
       callback(new Error(t('reuse.checkAccountNumberMaxLength')))
     } else if(val && val.length < 9 && val.length > 0) {
       callback(new Error(t('reuse.checkAccountNumberMinLength')))
@@ -88,7 +90,7 @@ export const useValidator = () => {
   }
 
   const doNotHaveNumber = (_, val: any, callback: Callback) => {
-    if (/^[^0-9]+$/.test(val) || val.length == 0) {
+     if (/^[^0-9]+$/.test(val) || val.length == 0) {
       callback()
     } else {
       callback(new Error(t('reuse.doNotHaveNumber')))
@@ -394,7 +396,7 @@ export const useValidator = () => {
     ValidService,
     removeVietnameseTones,
     requiredCategory,
-    checkAccountNumber,
+    checkLengthAccountNumber,
     doNotHaveNumber
   }
 }

@@ -45,6 +45,7 @@ const checkStartDate = (_, endDate: any, callback: Callback) => {
     res?.startDate && moment(endDate).isBefore(res?.startDate)
       ? callback(new Error(t('reuse.warningDate')))
       : callback()
+    
   )
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
   elFormRef?.validateField('startDate', () => null)
@@ -55,6 +56,11 @@ const checkEndDate = (_, startDate: any, callback: Callback) => {
       ? callback(new Error(t('reuse.warningDate')))
       : callback()
   )
+}
+
+const disabledDate = async (time: Date) => {
+  const res = await getFormData()
+  return time.getTime() > Date.now() && time.getTime() < res?.startDate
 }
 
 // form data
@@ -69,7 +75,7 @@ const schema = reactive<FormSchema[]>([
       format: dateTimeFormat,
       valueFormat: valueDateFormat,
       type: dateFormType,
-      disabled: dateTimeDisable
+      disabled: dateTimeDisable,
     }
   },
   {
@@ -82,10 +88,12 @@ const schema = reactive<FormSchema[]>([
       format: dateTimeFormat,
       valueFormat: valueDateFormat,
       type: dateFormType,
-      disabled: dateTimeDisable
+      disabled: dateTimeDisable,
+      disabledDate: disabledDate
     }
   }
 ])
+
 const rule = reactive({
   startDate: [{ validator: checkEndDate }],
   endDate: [{ validator: checkStartDate }]
@@ -114,7 +122,7 @@ function periodChange(val): void {
       case '2':
         dateFormType.value = 'date'
         start = moment([new Date().getFullYear(), new Date().getMonth()]).toDate()
-        end = moment().endOf('month').toDate()
+        end = moment().toDate()
         break
       case '3':
         dateFormType.value = 'datetime'

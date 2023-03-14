@@ -2,7 +2,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { filterProductStatus } from '@/utils/filters'
 import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
 import { h } from 'vue'
-import { setImageDisplayInDOm } from '@/utils/domUtils'
+import { setImageDisplayInTable } from '@/utils/domUtils'
 
 const { t } = useI18n()
 export const businessProductLibrary = [
@@ -66,12 +66,12 @@ export const businessProductLibrary = [
     headerAlign: 'left',
     align: 'center',
     formatter: (record: Recordable, column: TableColumn, _: TableSlotDefault) =>
-      setImageDisplayInDOm(record, column, record.photos[0]?.path)
+      setImageDisplayInTable(record, column, record.photos[0]?.path)
   },
   {
     field: 'createdAt',
     label: t('formDemo.createdAtEdit'),
-    minWidth: '150',
+    minWidth: '180',
     align: 'center',
     sortable: true,
     headerAlign: 'left',
@@ -82,7 +82,7 @@ export const businessProductLibrary = [
   {
     field: 'createdBy',
     label: t('formDemo.createdByEdit'),
-    minWidth: '150',
+    minWidth: '180',
     align: 'center',
     headerAlign: 'left',
     headerFilter: 'Name'
@@ -90,7 +90,7 @@ export const businessProductLibrary = [
   {
     field: 'isActive',
     label: t('reuse.status'),
-    minWidth: '150',
+    minWidth: '180',
     headerAlign: 'left',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {

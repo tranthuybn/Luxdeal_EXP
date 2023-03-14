@@ -155,10 +155,17 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'statusSpaService',
+    field: 'approval',
+    label: '',
     colProps: {
       span: 12
     },
+    component: 'Input',
+    componentProps: {
+      value: t('reuse.pendings'),
+      class: 'approval-wrap',
+      readonly: true
+    }
   }
 ])
 const rules = reactive({
@@ -246,7 +253,6 @@ const customPostData = (data) => {
 }
 const { push } = useRouter()
 const editData = async (data) => {
-  //  customPostData(data)
   const payload = {
     Id: id,
     DeletedImages: data.DeleteFileIds.toString(),
@@ -350,5 +356,16 @@ const activeName = ref('information')
   ::v-deep(.el-checkbox-group) {
     display: flex;
   }
-
+  ::v-deep(.approval-wrap) {
+      width: 150px;
+    .el-input__wrapper{
+      padding: 0;
+    }
+    input {
+      border-width: 0;
+      padding: 0 8px ;
+      color: rgb(234 179 8); 
+      background-color: #fff0d9;
+    }
+  } 
 </style>

@@ -72,7 +72,6 @@ export default defineComponent({
       const tableRef = unref(elTableRef)
       emit('register', tableRef?.$parent, elTableRef)
     })
-
     const pageSizeRef = ref(props.pageSize)
 
     const currentPageRef = ref(props.currentPage)

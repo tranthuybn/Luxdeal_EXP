@@ -33,13 +33,13 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'gender',
     label: t('reuse.gender'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterGender
   },
   {
     field: 'birthday',
     label: t('reuse.dateOfBirth'),
-    minWidth: '100',
+    minWidth: '150',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -48,7 +48,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'contact',
     label: t('reuse.contact'),
-    minWidth: '100'
+    minWidth: '150'
   },
   {
     field: 'branchName',
@@ -75,6 +75,12 @@ const columns = reactive<TableColumn[]>([
     filters: filterTypeEmployee
   },
   {
+    field: 'roleName',
+    label: t('reuse.setRole'),
+    minWidth: '150',
+    filters: filterTypeEmployee
+  },
+  {
     field: 'createAt',
     label: t('reuse.createDate'),
     minWidth: '150',
@@ -91,8 +97,8 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'isActive',
-    label: t('reuse.status'),
-    minWidth: '120',
+    label: t('reuse.accountStatus'),
+    minWidth: '200',
     filters: filterDepartment
   }
 ])

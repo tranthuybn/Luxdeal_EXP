@@ -77,6 +77,24 @@ export const useValidator = () => {
     }
   }
 
+  const checkAccountNumber = (_, val: any, callback: Callback) => {
+    if (val && val.length > 14) {
+      callback(new Error(t('reuse.checkAccountNumberMaxLength')))
+    } else if(val && val.length < 9 && val.length > 0) {
+      callback(new Error(t('reuse.checkAccountNumberMinLength')))
+    } else {
+      callback()
+    }
+  }
+
+  const doNotHaveNumber = (_, val: any, callback: Callback) => {
+    if (/^[^0-9]+$/.test(val) || val.length == 0) {
+      callback()
+    } else {
+      callback(new Error(t('reuse.doNotHaveNumber')))
+    }
+  }
+
   const ValidService = {
     checkEmojiValidator: {
       validator: (_rule: any, value: any, callback: any) => {
@@ -375,6 +393,8 @@ export const useValidator = () => {
     checkCode,
     ValidService,
     removeVietnameseTones,
-    requiredCategory
+    requiredCategory,
+    checkAccountNumber,
+    doNotHaveNumber
   }
 }

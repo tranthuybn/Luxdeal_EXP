@@ -675,7 +675,6 @@ const callAPICustomer = async () => {
     accountNumberList.value = res?.data.map((el) => ({
       accountNumber: el.accountNumber
     }))
-    console.log('accountNumberList', accountNumberList.value)
   }
 }
 

@@ -37,7 +37,8 @@ import {
   getBranchList,
   getDepartmentList,
   getRankList,
-  getTypePersonnelList
+  getTypePersonnelList,
+  getRoleList
 } from '@/api/HumanResourceManagement'
 import { useValidator } from '@/hooks/web/useValidator'
 import { getEmployeeById } from '@/api/Accountant'
@@ -441,8 +442,26 @@ const beforeRemove : any = (uploadFile) => {
     })
 }
 
-const optionsRole = [{id: '', label: '', value: ''}]
+const optionsRole = ref()
 
+const callApiGetRoleList = async () => {
+  const params = {
+    Keyword: '',
+    PageIndex: 1,
+    PageSize: 99999,
+  }
+  const res = await getRoleList(params)
+  if (res) {
+    optionsRole.value = res.data.map((el) => ({ label: el.name, value: el.id }))
+    return optionsRole.value
+  } else {
+    ElMessage({
+      message: t('reuse.cantGetData'),
+      type: 'error'
+    })
+    return
+  }
+}
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
     `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
@@ -603,6 +622,7 @@ onBeforeMount(() => {
   CallApiDepartment()
   CallApiPosition()
   CallApiStaff()
+  callApiGetRoleList()
 })
 </script>
 
@@ -840,7 +860,7 @@ onBeforeMount(() => {
                   >
                     <el-option
                       v-for="item in optionsRole"
-                      :key="item.id"
+                      :key="item.value"
                       :label="item.label"
                       :value="item.value"
                     />

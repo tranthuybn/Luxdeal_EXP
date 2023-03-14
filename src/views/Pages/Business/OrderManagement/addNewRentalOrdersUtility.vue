@@ -1041,13 +1041,14 @@ const postData = async (pushBack: boolean) => {
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
     } else {
+      const id = Number(res)
       router.push({
         name: `business.order-management.order-list.${utility}`,
         params: {
           backRoute: 'business.order-management.order-list',
           type: 'detail',
           tab: 'orderRental',
-          id: res
+          id: id
         }
       })
       orderCompletion(res)

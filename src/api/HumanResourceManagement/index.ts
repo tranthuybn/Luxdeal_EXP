@@ -278,3 +278,25 @@ export const getRoleDetail = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+export const editStaffRole = async (id, params): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${ROLE_API.UPDATE_STAFF_ROLE}?id=${id}`,
+      data:params
+    },
+    
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const deleteStaffRole = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${ROLE_API.DELETE_STAFF_ROLE}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

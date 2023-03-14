@@ -686,9 +686,12 @@ export const CampaignType = {
   Voucher: 4,
 
   Combo: 5,
-  Auction: 6
+
+  Auction: 6,
+  
+  AdvertisingBanner: 7
 }
-export const CampaignTypeArr = [CampaignType.Flashsale, CampaignType.BoSuuTap, CampaignType.HangMoiVe, CampaignType.Voucher, CampaignType.Combo, CampaignType.Auction]
+export const CampaignTypeArr = [CampaignType.Flashsale, CampaignType.BoSuuTap, CampaignType.HangMoiVe, CampaignType.Voucher, CampaignType.Combo, CampaignType.Auction, CampaignType.AdvertisingBanner]
 export const Approvement = {
 
   Product: 1,

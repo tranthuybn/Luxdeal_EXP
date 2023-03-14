@@ -17,7 +17,7 @@ import { appModules } from '@/config/app'
 import { useValidator } from '@/hooks/web/useValidator'
 import { asyncRouterMap } from '@/router'
 import { cloneDeep, cloneDeepWith } from 'lodash-es'
-import { getRoleDetail, postCreateNewStaffRole } from '@/api/HumanResourceManagement'
+import { getRoleDetail, postCreateNewStaffRole, editStaffRole } from '@/api/HumanResourceManagement'
 import { useForm } from '@/hooks/web/useForm' 
 import { RouteRecordName, useRouter } from 'vue-router'
 
@@ -35,7 +35,9 @@ const loading = ref(false)
 const { currentRoute, push } = useRouter()
 let roleStatus = ref(true)
 const treeRef = ref<InstanceType<typeof ElTree>>()
-const disableCheckbox = ref(false)
+const { go } = useRouter()
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
 const parentRoute = computed((): RouteRecordName  => {
   const { name } = unref(currentRoute)
   if (typeof name == 'string' && name?.length > 0) {    
@@ -171,10 +173,8 @@ if(Array.isArray(tree) && tree.length > 0)
   return []
 }
 const getRoleDetailEvent = () => {
-
   if (typeof typeOfActivity.value == 'string' && typeOfActivity.value != 'add') {
     loading.value = true
-    disableCheckbox.value = true
     getRoleDetail({ id: RoleId.value }).then((res) => {
       const { data } = res
       if (data) {
@@ -184,8 +184,30 @@ const getRoleDetailEvent = () => {
           description: data.description
         })
         const routerMap = data.router.map((el) => el.url)
-        if (data.router.length > 0)
+        if (data.router.length > 0) {
           treeRef.value?.setCheckedKeys(routerMap)
+          treeRef.value?.data.map((i: any) => i.children?.map(it => it.children?.map(item => data.router.map((el) => {
+            if(el.url == item.url) {
+              item.add = el.addable,
+              item.edit = el.editable,
+              item.delete = el.deletable
+            }
+          }))))
+          treeRef.value?.data.map((i: any) => i.children?.map(it => data.router.map((el) => {
+            if(el.url == it.url) {
+              it.add = el.addable,
+              it.edit = el.editable,
+              it.delete = el.deletable
+            }
+          })))
+          treeRef.value?.data.map((i: any) => data.router.map((el) => {
+            if(el.url == i.url) {
+              i.add = el.addable,
+              i.edit = el.editable,
+              i.delete = el.deletable
+            }
+          }))
+        }
         roleStatus.value = data.isActive
       }
 
@@ -214,9 +236,9 @@ const createNewRoleEvent = (goOut) => {
           isActive: roleStatus.value,
           router: routes?.map(el => ({
             url: el.url,
-            addable: el.addable ?? false,
-            editable: el.editable ?? false,
-            deletable: el.deletable ?? false
+            addable: el.add,
+            editable: el.edit,
+            deletable: el.delete
           }))
         }
         postCreateNewStaffRole(params).then(res => {
@@ -243,6 +265,56 @@ const createNewRoleEvent = (goOut) => {
   })
   
 
+}
+
+const editRoleEvent = () => {
+  const formRef = unref(elFormRef)
+  formRef?.validate(async (isValid) => {
+    if (isValid) {
+      loading.value = true
+      const routes = treeRef.value?.getCheckedNodes() ?? []
+      const { getFormData } = methods
+      const formData = await getFormData()
+      if (routes.length > 0) {
+        const params = {
+          ...formData,
+          isActive: roleStatus.value,
+          router: routes?.map(el => ({
+            url: el.url,
+            addable: el.add,
+            editable: el.edit,
+            deletable: el.delete
+          }))
+        }
+        editStaffRole(id, params).then(res => {
+          ElNotification({
+            message: res.message ?? t('reuse.updateSuccess'),
+            type: res.statusCode == 200 ? 'success' : 'error'
+          })
+          push({name:unref(parentRoute)})
+        }).catch(() => {
+          ElNotification({
+            message: t('reuse.updateFail'),
+            type: 'error'
+          })
+        }).finally(() => {
+          loading.value = false
+        })
+      } else { 
+        loading.value = false
+        ElMessage.error(t('reuse.pleaseChooseTheRole'))
+      } 
+     
+    }else ElMessage.error(t('reuse.notFillAllInformation'))
+  })
+}
+
+
+const openEditRoleEvent = () => {
+  push({
+    name: `human-resource-management.set-role.${utility}`,
+    params: { type: 'edit', id: id }
+  })
 }
 
 </script>
@@ -282,13 +354,13 @@ const createNewRoleEvent = (goOut) => {
                     <div> {{ node.data.label }}</div>
                     <div class="extension-function w-[30%]">
                       <p v-if="node.data.addable" >
-                        <ElCheckbox v-model="node.data.add">Thêm</ElCheckbox>   
+                        <ElCheckbox v-model="node.data.add" :disabled="typeOfActivity === 'detail'">Thêm</ElCheckbox>   
                       </p>
-                      <p  v-if="node.data.editable" > 
-                        <ElCheckbox v-model="node.data.edit">Sửa</ElCheckbox> 
+                      <p  v-if="node.data.editable" >
+                        <ElCheckbox v-model="node.data.edit" :disabled="typeOfActivity === 'detail'">Sửa</ElCheckbox> 
                       </p>
-                      <p  v-if="node.data.deletable"> 
-                        <ElCheckbox v-model="node.data.delete">Xóa</ElCheckbox> 
+                      <p  v-if="node.data.deletable">
+                        <ElCheckbox v-model="node.data.delete" :disabled="typeOfActivity === 'detail'">Xóa</ElCheckbox> 
                       </p>
                     </div>
                   </div>
@@ -306,7 +378,7 @@ const createNewRoleEvent = (goOut) => {
           <p class="mr-5">{{t('formDemo.statusActive')}}</p>          
         </ElCol>
         <ElCol :span="20" >
-         <ElCheckbox v-model = "roleStatus" :disabled="disableCheckbox">{{ t('formDemo.isActive') }}</ElCheckbox>
+         <ElCheckbox v-model = "roleStatus" :disabled="typeOfActivity === 'detail'">{{ t('formDemo.isActive') }}</ElCheckbox>
       </ElCol>
     </ElRow >
     <ElRow justify="space-between">
@@ -320,12 +392,21 @@ const createNewRoleEvent = (goOut) => {
       </ElCol>
     </ElRow>
   
-          <ElButton type="primary" @click="createNewRoleEvent(true)" v-loading.fullscreen.lock="loading" >
-          {{ t('reuse.save') }}
-        </ElButton>
-        <ElButton type="primary" @click="createNewRoleEvent(false)" v-loading.fullscreen.lock="loading">
-          {{ t('reuse.saveAndAdd') }}
-        </ElButton>
+    <ElButton v-if="typeOfActivity == 'add'" type="primary" @click="createNewRoleEvent(true)" v-loading.fullscreen.lock="loading">
+      {{ t('reuse.save') }}
+    </ElButton>
+    <ElButton v-if="typeOfActivity == 'add'" type="primary" @click="createNewRoleEvent(false)" v-loading.fullscreen.lock="loading">
+      {{ t('reuse.saveAndAdd') }}
+    </ElButton>
+    <ElButton v-if="typeOfActivity == 'edit'" type="primary" @click="editRoleEvent()" v-loading.fullscreen.lock="loading" >
+      {{ t('reuse.save') }}
+    </ElButton>
+    <ElButton v-if="typeOfActivity == 'detail'" type="primary" @click="openEditRoleEvent()" v-loading.fullscreen.lock="loading" >
+      {{ t('button.edit') }}
+    </ElButton>
+    <ElButton v-if="typeOfActivity != 'add'" type="danger" @click="go(-1)" >
+      {{ t('button.cancel') }}
+    </ElButton>
   
       
   </section>

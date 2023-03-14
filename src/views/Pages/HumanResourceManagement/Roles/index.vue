@@ -2,7 +2,7 @@
 import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
-import { getRoleList } from '@/api/HumanResourceManagement'
+import { getRoleList, deleteStaffRole } from '@/api/HumanResourceManagement'
 import { filterStatusSettingPoint } from '@/utils/filters'
 import { ElTag } from 'element-plus'
 
@@ -55,5 +55,5 @@ const columns = reactive<TableColumn[]>([
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getRoleList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getRoleList" :delApi="deleteStaffRole" />
 </template>

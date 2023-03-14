@@ -69,7 +69,8 @@ GenerateCodeOrder,
 cancelReturnOrder,
 finishReturnOrder,
 GetWarehouseTransaction,
-updateStatusTransaction
+updateStatusTransaction,
+GetMoneyAndDatePayment
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -1066,11 +1067,29 @@ let payment = ref(choosePayment[0].value)
 const nameDialog = ref('')
 
 const dialogFeePaymentSlip = ref(false)
+const initDataTablePawnSlip = () =>{
+  ListOfProductsForSale.value.forEach(async (row,index)=>{
+    if(index ==0){//Can only show 1 product
+      await GetMoneyAndDatePayment({CustomerOrderId: id, ProductPropertyId:row.productPropertyId})
+      .then((res)=>{
+        tablePawnSlip.value[index].id = row.id
+        tablePawnSlip.value[index].productPropertyId = row.productPropertyId
+        tablePawnSlip.value[index].productName = row.productName
+        tablePawnSlip.value[index].productCode = row.productCode
+        tablePawnSlip.value[index].quantity = row.quantity
+        tablePawnSlip.value[index].interestMoney = row.interestMoney
+        tablePawnSlip.value[index].principalDebt = res.data.principalDebt
+        tablePawnSlip.value[index].lastPaymentDate = res.data.lastPaymentDate
+      })}
+  })
+}
+
 function openDepositDialog() {
+  initDataTablePawnSlip()
   alreadyPaidForTt.value = true
   dialogFeePaymentSlip.value = !dialogFeePaymentSlip.value
-  tablePawnSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'deposit'
+  updateDetailAcountingEntry.value = false
 }
 const dialogPawnCouponInfomation = ref(false)
 function openBillPawnDialog() {
@@ -1265,7 +1284,6 @@ let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
 const checkPTC = ref(0)
-const totalFinalOrder = ref(0)
 let moneyDeposit = ref(0)
 
 const updateDetailAcountingEntry = ref(false)
@@ -1289,12 +1307,14 @@ const updateOrderStransaction = async() => {
 }
 
 // Thêm bút toán cho đơn hàng
-const typeOfMoney = ref(4)
 const moneyToText = ref('')
 const postOrderStransaction = async (index: number) => {
-  childrenTable.value = ListOfProductsForSale.value.map((val) => ({
+  childrenTable.value = tablePawnSlip.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.id),
-    quantity: val.quantity
+    quantity: val.quantity,
+    price: val.pawnPrice,
+    principalDebt: val.principalDebt,
+    nextPaymentDate: val.nextPaymentDate
   }))
 
   if (index == 4) {
@@ -1314,7 +1334,7 @@ const postOrderStransaction = async (index: number) => {
     receiptOrPaymentVoucherId: null,
     receiveMoney:
       index == 1
-        ? totalFinalOrder.value
+        ? intoMoneyPawnGOC.value
         : index == 2
         ? inputDeposit.value
         : tableAccountingEntry.value[0].receiveMoney,
@@ -1327,12 +1347,24 @@ const postOrderStransaction = async (index: number) => {
     paymentMethods: payment.value,
     status: 1,
     isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
-    typeOfMoney: typeOfMoney.value,
+    typeOfMoney: paymentType.value,
     merchadiseTobePayfor: childrenTable.value,
     typeOfAccountingEntry: index,
     returnRequestId: idReturnRequest.value
   }
   objOrderStransaction.value = await addOrderStransaction(payload)
+  .then(()=>{
+    ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+  })
+  .catch(()=>{
+    ElNotification({
+        message: t('reuse.addFail'),
+        type: 'error'
+      })
+  })
   idStransaction.value = objOrderStransaction.value.paymentRequestId
   inputDeposit.value = 0
   getOrderStransactionList()
@@ -1668,10 +1700,11 @@ const totalPrincipalMoney = ref(0)
 const totalPrincipalDebt = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
-  console.log('run here')
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
+
+
     disabledEdit.value = true
     disableCreateOrder.value = true
     const res = await getOrderList({ Id: id, ServiceType: 4 })
@@ -2037,7 +2070,18 @@ const createStatusAcountingEntry = () => {
 const getAccountingEntry = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
-  tablePawnSlip.value = formAccountingId.value.paidMerchandises
+  paymentType.value = formAccountingId.value.accountingEntry?.typeOfMoney
+  tablePawnSlip.value = formAccountingId.value.paidMerchandises.map(
+    (row)=>({
+      productPropertyId: row.productPropertyId,
+      productCode: row.productPropertyCode,
+      productName: row.productName,
+      quantity: row.quantity,
+      principalDebt: row.currentPrincipalDebt,
+      pawnPrice: row.pawnPrice,
+      nextPaymentDate: row.nextPaymentDate
+    })
+  )
   inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
   moneyDeposit.value = formAccountingId.value.accountingEntry?.deibt
   tableAccountingEntry.value[0] = formAccountingId.value.accountingEntry
@@ -2206,6 +2250,11 @@ onBeforeMount(async () => {
     alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
   }
   await callApiCollaborators()
+
+  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProducts.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
 })
 
 //TruongNgo
@@ -2213,10 +2262,7 @@ const rentReturnOrder = ref({} as any)
 let productArray: any = []
 const listOfOrderProduct = ref()
 const setDataForReturnOrder = () => {
-  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
-  listOfOrderProduct.value = listProducts.value.filter((item) => {
-    return productArray.includes(item.productPropertyId)
-  })
+
   rentReturnOrder.value.orderCode = ruleForm.orderCode
   rentReturnOrder.value.period = ruleForm.pawnTerm
   rentReturnOrder.value.extendDate = '16/01/2001'
@@ -2317,6 +2363,26 @@ const paymentTypeOptions = ref([
     value: 4
   }
 ])
+const calculateTotalMoney = () =>{
+  intoMoneyPawnGOC.value = tablePawnSlip.value.reduce( ( sum, { principalDebt, pawnPrice } ) => sum + principalDebt - pawnPrice , 0)
+}
+const intoMoneyPawnGOC = ref(0)
+
+const changeValueTablePawnSlip = async (value, obj, scope) =>{
+  await GetMoneyAndDatePayment({CustomerOrderId: id, ProductPropertyId: scope.row.productPropertyId})
+  .then((res)=>{
+    scope.row.id = value
+    scope.row.principalDebt = res.data.principalDebt
+    scope.row.lastPaymentDate = res.data.lastPaymentDate
+    scope.row.productPropertyId = obj?.productPropertyId
+    scope.row.productCode = obj.value
+    scope.row.productName = obj.name
+  })
+}
+
+const calculatePaidMoney = (row) =>{
+
+}
 </script>
 
 <template>
@@ -3730,7 +3796,11 @@ const paymentTypeOptions = ref([
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tablePawnSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productCode" :label="t('reuse.productCode')" width="120" />
+            <el-table-column
+            :label="t('formDemo.productManagementCode')"
+            min-width="200"
+            prop="productCode"
+          />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
@@ -3948,53 +4018,72 @@ const paymentTypeOptions = ref([
           </div>
         </div>
         <div class="pt-2 pb-2">
+          {{tablePawnSlip}}
           <el-table ref="singleTableRef" :data="tablePawnSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productCode" :label="t('reuse.productCode')" width="120" />
+            <el-table-column
+            :label="t('formDemo.productManagementCode')"
+            min-width="200"
+            prop="productPropertyId"
+          >
+            <template #default="props">
+              <MultipleOptionsBox
+                :fields="[
+                  t('reuse.productCode'),
+                  t('reuse.managementCode'),
+                  t('formDemo.productInformation'),
+                ]"
+                filterable
+                width="650px"
+                :items="listOfOrderProduct"
+                valueKey="productPropertyId"
+                labelKey="productCode"
+                :hiddenKey="['id']"
+                :placeHolder="t('reuse.chooseProductCode')"
+                :defaultValue="props.row.productPropertyId"
+                :clearable="false"
+                @scroll-top="ScrollProductTop"
+                @scroll-bottom="ScrollProductBottom"
+                @update-value="(value, obj) => changeValueTablePawnSlip(value, obj, props)"
+                />
+            </template>
+          </el-table-column>
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
-            <el-table-column v-if="paymentType == 4" prop="lastDatePaid" :label="t('reuse.lastDatePaid')" />
-            <el-table-column v-if="paymentType == 4" prop="nextDatePaid" :label="t('reuse.nextDatePaid')" />
-            <el-table-column v-if="paymentType == 4" prop="intoMoneyByday" :label="t('reuse.intoMoneyByday')" />
-            <el-table-column prop="originalDebt" :label="t('reuse.originalDebt')" />
-            <el-table-column prop="paidMoney" :label="t('reuse.paidMoney')" />'reuse.paidMoney')" />
+            <el-table-column v-if="paymentType == 4" prop="lastDatePaid" :label="t('reuse.lastDatePaid')" width="100" >
+              <template #default="scope">
+                  {{dateTimeFormat(scope.row.lastPaymentDate)}}
+              </template>  
+            </el-table-column>
+            <el-table-column v-if="paymentType == 4" prop="nextPaymentDate" :label="t('reuse.nextDatePaid')" width="100" >
+              <template #default="scope">
+                <el-date-picker
+                  v-model="scope.row.nextPaymentDate"
+                  type="date"
+                  placeholder="Pick a day"
+                />  
+              </template>  
+            </el-table-column>
+            <el-table-column v-if="paymentType == 4" prop="interestMoney" :label="t('reuse.intoMoneyByday')" width="100" />
+            <el-table-column prop="principalDebt" :label="t('reuse.originalDebt')" width="100"/>
+            <el-table-column prop="pawnPrice" :label="t('reuse.paidMoney')" width="100">
+              <template #default="scope">
+                <CurrencyInputComponent v-model="scope.row.pawnPrice" @change="calculateTotalMoney" v-if="paymentType == 3"/>
+                <div v-if="paymentType == 4">
+                  {{calculatePaidMoney(scope.row)}}
+                </div>
+              </template>
+            </el-table-column>
 
 
           </el-table>
 
           <div class="flex justify-end">
             <div class="w-[80%] text-right">
-              <p class="-white">Tổng dư nợ gốc cầm đồ</p>
+              <p class="text-black font-bold dark:text-white">{{ t('formDemo.intoMoneyPawnGOC') }}</p>
             </div>
             <div class="w-[20%] text-right">
-              <p class="pr-2 text-black dark:text-white">{{ '0 đ' }}</p>
-            </div>
-          </div>
-
-          <div class="flex justify-end">
-            <div class="w-[80%] text-right">
-              <p class="text-black dark:text-white">Tiền phí cầm đồ/1tr/ngày</p>
-            </div>
-            <div class="w-[20%] text-right">
-              <p class="pr-2 text-black dark:text-white">{{ '0 đ' }}</p>
-            </div>
-          </div>
-
-          <div class="flex justify-end">
-            <div class="w-[80%] text-right">
-              <p class="text-black dark:text-white">Số ngày cầm đồ thực tế</p>
-            </div>
-            <div class="w-[20%] text-right">
-              <p class="pr-2 text-black dark:text-white">{{ '0 đ' }}</p>
-            </div>
-          </div>
-
-          <div class="flex justify-end">
-            <div class="w-[80%] text-right">
-              <p class="text-black font-bold dark:text-white">{{ t('formDemo.intoMoneyPawn') }}</p>
-            </div>
-            <div class="w-[20%] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ moneyFormat(intoMoneyPawnGOC) }}</p>
             </div>
           </div>
         </div>
@@ -4369,7 +4458,7 @@ const paymentTypeOptions = ref([
               </template>
             </el-table-column>
             <el-table-column prop="content" :label="t('formDemo.kindOfMoney')">
-                <el-select v-model="typeOfMoney" class="m-2" placeholder="Select">
+                <el-select v-model="paymentType" class="m-2" placeholder="Select">
                   <el-option
                     v-for="item in optionsChooseMoneyType"
                     :key="item.value"

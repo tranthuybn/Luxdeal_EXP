@@ -2042,6 +2042,7 @@ let childrenTable = ref()
 let idStransaction = ref()
 let objOrderStransaction = ref()
 const postOrderStransaction = async (index: number) => {
+  console.log('index :>> ', index);
   if (index != 1) {
     tableRentalProducts.value = tableData.value
   }
@@ -2049,7 +2050,7 @@ const postOrderStransaction = async (index: number) => {
     merchadiseTobePayforId: parseInt(val.id),
     quantity: parseInt(val.quantity)
   }))
-
+console.log('feePaymentPeriod.value :>> ', feePaymentPeriod.value);
   const payload = {
     orderId: id,
     content:
@@ -2085,6 +2086,7 @@ const postOrderStransaction = async (index: number) => {
     typeOfMoney: 1,
     merchadiseTobePayfor: childrenTable.value
   }
+  console.log('payload :>> ', payload);
   objOrderStransaction.value = await addOrderStransaction(payload)
   idStransaction.value = objOrderStransaction.value.paymentRequestId
   getOrderStransactionList()
@@ -2888,6 +2890,7 @@ const automaticAcountingEntry = async() => {
 const orderCompletion = async(idOrder) => {
   automaticCouponWareHouse(2, idOrder)
   await updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus, idOrder)
+  editData()
 
   // đang bị lỗi bất đồng bộ dùng hàm automaticAcountingEntry() nó k chạy, k có thời gian fix nên dev sau thấy cái này thì fix hộ vs ạ
   let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')

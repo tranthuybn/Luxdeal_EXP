@@ -98,7 +98,7 @@ const { register, tableObject, methods } = useTable<TableData>({
   },
   props: {
     columns: temporaryColumn,
-    headerAlign: 'center'
+    headerAlign: 'left'
   }
 })
 // get api
@@ -321,7 +321,7 @@ const updateTableColumn = () => {
       @click="drawer = !drawer">
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
-    <ElDrawer v-model="drawer" direction="ttb" size="15%" @close="updateTableColumn">
+    <ElDrawer v-model="drawer" direction="ttb" :size=100 @close="updateTableColumn">
       <template #header>
         <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
       </template>

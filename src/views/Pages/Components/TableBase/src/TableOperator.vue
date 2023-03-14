@@ -174,7 +174,6 @@ const setFormValue = async () => {
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
-    console.log('data', props.formDataCustomize)
     if (props.hasImage && props.multipleImages) {
       // Images tao tu formDataCustomize
       props.formDataCustomize?.Images.map((image) =>
@@ -646,4 +645,5 @@ const approvalProduct = async () => {
   min-width: 150px;
   min-height: 40px;
 }
+
 </style>

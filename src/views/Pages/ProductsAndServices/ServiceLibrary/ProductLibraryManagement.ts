@@ -17,17 +17,20 @@ export const businessProductLibrary = [
   {
     field: 'code',
     label: t('reuse.serviceCode'),
-    minWidth: '150'
+    minWidth: '150',
+    headerAlign: 'left',
   },
   {
     field: 'name',
     label: t('reuse.serviceName'),
-    minWidth: '250'
+    minWidth: '250',
+    headerAlign: 'left',
   },
   {
     field: 'description',
     label: t('reuse.description'),
     minWidth: '250',
+    headerAlign: 'left',
     formatter: (_: Recordable, __: TableColumn, cellValue: any) => {
       return h('span', { innerHTML: cellValue })
     }
@@ -37,54 +40,69 @@ export const businessProductLibrary = [
     label: t('reuse.unitPrice'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    headerAlign: 'left',
   },
   {
     field: 'time',
     label: t('reuse.timeMinute'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    headerAlign: 'left',
   },
   {
     field: 'warranty',
     label: t('reuse.insuranceDate'),
     minWidth: '150',
     align: 'center',
-    sortable: true
+    sortable: true,
+    headerAlign: 'left',
   },
   {
     field: 'photos',
     label: t('reuse.image'),
-    minWidth: '150',
+    minWidth: '120',
+    headerAlign: 'left',
     align: 'center',
     formatter: (record: Recordable, column: TableColumn, _: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, record.photos[0]?.path)
   },
   {
     field: 'createdAt',
-    label: t('reuse.createDate'),
+    label: t('formDemo.createdAtEdit'),
     minWidth: '150',
     align: 'center',
     sortable: true,
+    headerAlign: 'left',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     }
   },
   {
     field: 'createdBy',
-    label: t('reuse.creator'),
+    label: t('formDemo.createdByEdit'),
     minWidth: '150',
     align: 'center',
+    headerAlign: 'left',
     headerFilter: 'Name'
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
+    headerAlign: 'left',
     filters: filterProductStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${productStatusTransferToText(cellValue)}`)
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '220',
+    headerAlign: 'left',
+    align: 'center',
   }
+
 ]

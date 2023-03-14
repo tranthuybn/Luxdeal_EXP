@@ -197,6 +197,8 @@ watch(
     immediate: true
   }
 )
+
+
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData
@@ -490,6 +492,7 @@ const getCodeAndNameSelect = async () => {
     productCode: val.productCode
   }))
   CodeOptions.value = CodeAndNameSelect.value
+  setValues({ ProductCode: productCode.value })
 }
 const remoteProductCode = async (query: string) => {
   if (query) {
@@ -541,7 +544,7 @@ const fillAllInformation = async (data) => {
                   const UnitId = fillValue.categories[2].id
                   const OriginId = fillValue.categories[3].id
                   setValues({
-                    ProductCode: null,
+                    ProductCode: productCode.value,
                     Name: fillValue.name,
                     ShortDescription: fillValue.shortDescription,
                     VerificationInfo: fillValue.verificationInfo,
@@ -565,12 +568,9 @@ const fillAllInformation = async (data) => {
           })
           .catch(() => {})
           .finally(() => {
-            setValues({ ProductCode: null })
+            setValues({ ProductCode: productCode.value })
           })
       : (sameProductCode.value = false)
-    // .finally(() => {
-    //   setValues({ ProductCode: '' })
-    // })
 }
 
 const callApiAttribute = async () => {
@@ -624,6 +624,13 @@ const infiniteProduct = async () => {
 }
 const productCode = ref('')
 const productName = ref('')
+
+watch (productCode, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    productCode.value = newVal
+  }
+})
+
 
 const setProductCode = () => {
   setValues({ ProductCode: productCode.value })

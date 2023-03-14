@@ -219,7 +219,9 @@ export const DEPARTMENT_DIRECTORY = {
   //nhan su
   ADD_NEW_STAFF: '/api/v1/AccountStaff/RegiterStaffAccount',
   GET_STAFF_INFO_BY_ACCOUNT: 'api/v1/AccountStaff/GetStaffByAccountId',
-  GET_ROLE_LIST: 'api/v1/Authorization/GetStaffRoleList'
+  GET_ROLE_LIST: 'api/v1/Authorization/GetStaffRoleList',
+  UPDATE_STAFF_ACCOUNT: 'api/v1/AccountStaff/UpdateStaffAccount',
+  DELETE_STAFF_ACCOUNT: 'api/v1/Authorization/DeleteStaffAccount'
 }
 
 export const APPROVAL_API = {

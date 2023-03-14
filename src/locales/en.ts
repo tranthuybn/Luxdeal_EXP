@@ -1840,5 +1840,6 @@ export default {
     paidMoney:'Paid money',
     lastDatePaid: 'Last date paid',
     nextDatePaid: 'Next date paid',
+    moneyToText: 'Money to text',
   }
 }

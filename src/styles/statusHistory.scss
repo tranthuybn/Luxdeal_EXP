@@ -2,6 +2,10 @@ $yellowWhite: #fff0d9;
 $lightGray: #f4f8fd;
 $darkGray: #d9d9d9;
 $redWhite: #fce5e1;
+$--tw-text-opacity: 1;
+$blue-500: rgba(59, 130, 246);
+$red-500:  rgba(239, 68, 68);
+$yellow-500: rgba(245, 158, 11);
 
 @mixin box($color: #ccc) {
     position: relative;
@@ -12,26 +16,9 @@ $redWhite: #fce5e1;
     border: 1px solid $color;
     opacity: 0.6;
     align-items: center;
-  }
+}
   
-  .box_1 {
-    @include box($yellowWhite);
-  }
-  
-  .box_2 {
-    @include box($lightGray);
-  }
-  
-  .box_3 {
-    @include box($darkGray);
-  }
-  
-  .box_4 {
-    @include box($redWhite);
-  }
-  
-  
- @mixin triangle-right($color:#ccc) {
+@mixin triangle-right($color:#ccc) {
     position: absolute;
     right: -12px;
     width: 0;
@@ -39,23 +26,42 @@ $redWhite: #fce5e1;
     border-top: 13px solid transparent;
     border-bottom: 12px solid transparent;
     border-left: 11px solid $color !important;
-  }
-  .right_1 {
-    @include triangle-right($yellowWhite);
+}
+  
+  .box_1 {
+    color: $yellow-500;
+    @include box($yellowWhite);
+    .right {
+      @include triangle-right($yellowWhite);
+    }
   }
   
-  .right_2 {
-    @include triangle-right($lightGray);
+  .box_2 {
+    color: $blue-500;
+    @include box($lightGray);
+    .right {
+      @include triangle-right($lightGray);
+    }
   }
   
-  .right_3 {
-    @include triangle-right($darkGray);
+  .box_3 {
+    color:black;
+    @include box($darkGray);
+    .right {
+      @include triangle-right($darkGray);
+    }
   }
   
-  .right_4 {
-    @include triangle-right($redWhite);
+  .box_4 {
+    color: $red-500;
+    @include box($redWhite);
+    .right {
+      @include triangle-right($redWhite);
+    }
   }
   
+  
+
   .triangle-left {
     position: absolute;
     z-index: 1998;

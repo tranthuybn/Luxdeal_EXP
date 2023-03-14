@@ -1996,5 +1996,6 @@ export default {
     paidMoney:'Số tiên thanh toán',
     lastDatePaid: 'Ngày chưa thanh toán gần nhất',
     nextDatePaid: 'Ngày thanh toán kế tiếp',
+    moneyToText: 'Số tiền bằng chữ',
   }
 }

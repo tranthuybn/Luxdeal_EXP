@@ -214,6 +214,13 @@ const hideTableCustomer = (data) => {
   valueRadioOjbApply.value = data
 }
 
+const escape = useIcon({ icon: 'quill:escape' })
+const back = async () => {
+  push({
+    name: 'business.promotion-strategy.flash-sale'
+  })
+}
+
 // Change icon in field money | percentage
 const changeSuffixIcon = (data) => {
   if (schema[3].componentProps) {
@@ -485,8 +492,16 @@ const editData = async (data) => {
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <el-collapse-item :name="collapse[0].name">
         <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl">{{ collapse[0].title }}</span>
+          <div class="flex w-full justify-between">
+            <div class="before">
+              <el-button class="header-icon" :icon="collapse[0].icon" link />
+              <span class="text-center text-xl">{{ collapse[0].title }}</span>
+            </div>
+            <div @click="back()" class="after">
+              <span class="text-center text-xl">{{ t('reuse.exit') }}</span>
+              <el-button class="header-icon" :icon="escape" link />
+            </div>
+          </div>
         </template>
         <TableOperatorCollection
           ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"

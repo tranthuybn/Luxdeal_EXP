@@ -58,7 +58,7 @@ const columns = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'condition',
+    field: 'voucherConditionTypeName',
     label: t('formDemo.condition'),
     headerAlign: 'left',
     minWidth: '130',
@@ -136,6 +136,7 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.operator'),
     minWidth: '150',
     headerAlign: 'left',
+    align: 'center',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', { style: 'display:flex;justify-content: center;' }, [
         h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),

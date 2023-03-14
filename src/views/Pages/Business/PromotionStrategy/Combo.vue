@@ -60,6 +60,17 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.spaService'),
     headerAlign: 'left',
     minWidth: '200',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row?.productProperties.map((item) => {
+          if (item.code) {
+            return h('p', `${item.spaServiceNames}`)
+          }
+        })
+      )
+    }
   },
   {
     field: 'condition',
@@ -70,6 +81,37 @@ const columns = reactive<TableColumn[]>([
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${formatSubjectVoucher(cellValue)}`)
     }
+  },
+  {
+    field: 'productCode',
+    label: t('reuse.productCode'),
+    minWidth: '200',
+    headerAlign: 'left',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row?.productProperties.map((item) => {
+          if (item.code) {
+            return h('span', `${item.code}`)
+          }
+        })
+      )
+    }
+  },
+  {
+    field: 'spaService',
+    label: t('reuse.cost'),
+    headerAlign: 'left',
+    sortable: true,
+    minWidth: '200',
+  },
+  {
+    field: 'spaService',
+    label: t('reuse.comboPrice'),
+    headerAlign: 'left',
+    sortable: true,
+    minWidth: '200',
   },
   {
     field: 'fromDate',
@@ -123,6 +165,7 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.operator'),
     minWidth: '150',
     headerAlign: 'left',
+    align: 'center',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', { style: 'display:flex;justify-content: center;' }, [
         h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') }),

@@ -1,6 +1,6 @@
-import { h, reactive } from 'vue'
+import { reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { filterAuctionResult, filterPromotionPrice, filterSubject, filterTableStatus, filterVoucherCondition, filterVoucherType } from '@/utils/filters'
+import { filterAuctionResult, filterPromotionPrice, filterSubject, filterTableStatus, filterVoucherCondition, filterVoucherType, filterApproveCampaign } from '@/utils/filters'
 import { dateTimeFormat, formatStatusVoucher, formatSubjectVoucher, VoucherType } from '@/utils/format'
 
 const { t } = useI18n()
@@ -26,10 +26,21 @@ const combo = reactive<TableColumn[]>([
     headerAlign: 'left',
   },
   {
-    field: 'productCode',
-    label: t('reuse.productCode'),
+    field: 'spaService',
+    label: t('reuse.spaService'),
     headerAlign: 'left',
     minWidth: '200',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row?.productProperties.map((item) => {
+          if (item.code) {
+            return h('p', `${item.spaServiceNames}`)
+          }
+        })
+      )
+    }
   },
   {
     field: 'condition',
@@ -40,6 +51,30 @@ const combo = reactive<TableColumn[]>([
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${formatSubjectVoucher(cellValue)}`)
     }
+  },
+  {
+    field: 'productCode',
+    label: t('reuse.productCode'),
+    headerAlign: 'left',
+    minWidth: '200',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row?.productProperties.map((item) => {
+          if (item.code) {
+            return h('span', `${item.code}`)
+          }
+        })
+      )
+    }
+  },
+  {
+    field: 'spaService',
+    label: t('reuse.comboPrice'),
+    headerAlign: 'left',
+    sortable: true,
+    minWidth: '200',
   },
   {
     field: 'fromDate',
@@ -79,6 +114,13 @@ const combo = reactive<TableColumn[]>([
     headerFilter: 'Name'
   },
   {
+    field: 'approveAction',
+    label: t('reuse.approveCondition'),
+    minWidth: '150',
+    headerAlign: 'left',
+    filters: filterApproveCampaign,
+  },
+  {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
@@ -114,6 +156,17 @@ const auction = reactive<TableColumn[]>([
     label: t('reuse.productCode'),
     minWidth: '200',
     headerAlign: 'left',
+    formatter: (row, _column, _cellValue, _index) => {
+      return h(
+        'ul',
+        // assuming `items` is a ref with array value
+        row?.productProperties.map((item) => {
+          if (item.code) {
+            return h('span', `${item.code}`)
+          }
+        })
+      )
+    }
   },
   {
     field: 'floorPrice',
@@ -183,11 +236,18 @@ const auction = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'creator',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '130',
     headerAlign: 'left',
     headerFilter: 'Name'
+  },
+  {
+    field: 'approveAction',
+    label: t('reuse.approveCondition'),
+    minWidth: '150',
+    headerAlign: 'left',
+    filters: filterApproveCampaign,
   },
   {
     field: 'status',
@@ -238,9 +298,6 @@ const flashSale =  reactive<TableColumn[]>([
     minWidth: '150',
     headerAlign: 'left',
     filters: filterPromotionPrice,
-    formatter: (row: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', `${cellValue}(${row['maximumReduce']} đ)`)
-    }
   },
   {
     field: 'fromDate',
@@ -278,6 +335,13 @@ const flashSale =  reactive<TableColumn[]>([
     minWidth: '130',
     headerAlign: 'left',
     headerFilter: 'Name'
+  },
+  {
+    field: 'approveAction',
+    label: t('reuse.approveCondition'),
+    minWidth: '150',
+    headerAlign: 'left',
+    filters: filterApproveCampaign,
   },
   {
     field: 'status',
@@ -365,6 +429,13 @@ const newProduct = reactive<TableColumn[]>([
     headerFilter: 'Name'
   },
   {
+    field: 'approveAction',
+    label: t('reuse.approveCondition'),
+    minWidth: '150',
+    headerAlign: 'left',
+    filters: filterApproveCampaign,
+  },
+  {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
@@ -406,7 +477,7 @@ const voucher = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'condition',
+    field: 'voucherConditionTypeName',
     label: t('formDemo.condition'),
     headerAlign: 'left',
     minWidth: '130',
@@ -468,6 +539,13 @@ const voucher = reactive<TableColumn[]>([
     minWidth: '130',
     headerAlign: 'left',
     headerFilter: 'Name'
+  },
+  {
+    field: 'approveAction',
+    label: t('reuse.approveCondition'),
+    minWidth: '150',
+    headerAlign: 'left',
+    filters: filterApproveCampaign,
   },
   {
     field: 'status',
@@ -552,6 +630,13 @@ const collection = reactive<TableColumn[]>([
     minWidth: '130',
     headerAlign: 'left',
     headerFilter: 'Name'
+  },
+  {
+    field: 'approveAction',
+    label: t('reuse.approveCondition'),
+    minWidth: '150',
+    headerAlign: 'left',
+    filters: filterApproveCampaign,
   },
   {
     field: 'status',

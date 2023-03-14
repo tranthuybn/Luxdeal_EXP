@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { ElPopover, ElButton, ElSelect, ElOption } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { getSpaLibrary } from '@/api/LibraryAndSetting';
 
 const { t } = useI18n()
 const ArrowDown = useIcon({ icon: 'ic:sharp-keyboard-arrow-down' })
@@ -22,21 +21,6 @@ const options = ref([
     label:'', 
     value:''
   }])
-
-const callApi = async () => {
-  await getSpaLibrary({PageIndex:1,PageSize:999})
-  .then((res)=>
-  {
-    options.value = res.data.map(e=>({
-      label: e.createdBy,
-      value: e.id
-    }))
-  })
-}
-
-onMounted(()=>{
-  callApi()
-})
 
 watch(value, (newValue) => {
   if (newValue !== '') {

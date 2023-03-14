@@ -98,13 +98,6 @@ const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const getData = (data) => {
   unref(tableBase01)!.getData(data)
-  console.log()
-  console.log(
-    'NoahKhalifa',
-    unref(tableBase01)!.tableObject.tableList,
-    'dynamicColumns',
-    dynamicColumns.value
-  )
 }
 
 //add operator for every table

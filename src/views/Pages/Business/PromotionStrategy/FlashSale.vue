@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, provide, reactive } from 'vue'
+import { provide, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getCampaignList } from '@/api/Business'
@@ -51,9 +51,6 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150',
     headerAlign: 'left',
     filters: filterPromotionPrice,
-    formatter: (row: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', `${cellValue}(${row['maximumReduce']} đ)`)
-    }
   },
   {
     field: 'fromDate',
@@ -106,6 +103,7 @@ const columns = reactive<TableColumn[]>([
     field: 'operator',
     label: t('reuse.operator'),
     minWidth: '150',
+    align: 'center',
     headerAlign: 'left',
   }
 ])

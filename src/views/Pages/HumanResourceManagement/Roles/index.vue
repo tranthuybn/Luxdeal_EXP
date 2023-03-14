@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getRoleList } from '@/api/HumanResourceManagement'
 import { filterStatusSettingPoint } from '@/utils/filters'
+import { ElTag } from 'element-plus'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -37,10 +38,19 @@ const columns = reactive<TableColumn[]>([
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'active',
     label: t('reuse.roleStatus'),
     minWidth: '120',
-    filters: filterStatusSettingPoint
+    filters: filterStatusSettingPoint,
+    formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
+      return h(
+        ElTag,
+        {
+          type: cellValue === filterStatusSettingPoint[0].value ? 'success' : cellValue === filterStatusSettingPoint[1].value ? 'danger':'warning'
+        },
+        () =>filterStatusSettingPoint.find((el)=>el.value === cellValue)?.text ?? ''
+      )
+    }
   }
 ])
 </script>

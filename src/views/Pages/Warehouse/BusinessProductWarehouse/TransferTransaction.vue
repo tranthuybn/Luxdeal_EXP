@@ -16,8 +16,8 @@ import {
 } from '@/api/Warehouse'
 import { addOrderStransaction, getWareHouseTransactionList } from '@/api/Business'
 import moment from 'moment'
-import { dateTimeFormat } from '@/utils/format'
-import { statusWhType, TicketStatusHistory } from './TicketEnum'
+import { statusWhType } from './TicketEnum'
+import StatusWarehouse from './StatusWarehouse.vue'
 
 const { t } = useI18n()
 
@@ -445,73 +445,9 @@ const updateTicket = (warehouse, type) => {
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
-        <div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
-          <label class="ml-10">{{ t('reuse.transferTicketStatus')}}</label>
-          <div class="w-[75%]">
-          <div class="flex items-cumter w-[100%]">
-            <div
-              class="duplicate-status"
-              v-for="item in arrayStatusWH"
-              :key="item.value"
-            >
-              <div v-if="item.value == TicketStatusHistory.NewCreate">
-                <span
-                  class="box custom-after bg-gray-300 dark:text-gray-300"
-                  :class="{ active: item.isActive }"
-                >
-                  {{ item.name }}
 
-                  <span class="triangle-right right_1"> </span>
-                </span>
-                <p v-if="item?.approveAt">{{
-                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-                }}</p>
-                <p v-else class="text-transparent">s</p>
-              </div>
-              <div v-else-if="item.value == TicketStatusHistory.Approve">
-                <span
-                  class="box box_3 custom-after text-orange-400 dark:text-black"
-                  :class="{ active: item.isActive }"
-                >
-                  {{ item.name }}
-                  <span class="triangle-right right_3"> </span>
-                </span>
-                <p v-if="item?.approveAt">{{
-                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-                }}</p>
-                <p v-else class="text-transparent">s</p>
-              </div>
-              <div v-else-if="item.value == TicketStatusHistory.Transfered || item.value == TicketStatusHistory.Depositing">
-                <span
-                  class="box box_2 custom-after text-blue-500 dark:text-black"
-                  :class="{ active: item.isActive }"
-                >
-                  {{ item.name }}
-                  <span class="triangle-right right_2"> </span>
-                </span>
-                <p v-if="item?.approveAt">{{
-                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-                }}</p>
-                <p v-else class="text-transparent">s</p>
-              </div>
-              <div v-else-if="item.value == TicketStatusHistory.CancelTransfer">
-                
-                <span
-                  class="box box_4 custom-after text-rose-500 dark:text-black"
-                  :class="{ active: item.isActive }"
-                >
-                  {{ item.name }}
-                  <span class="triangle-right right_4"> </span>
-                </span>
-                <p v-if="item?.approveAt">{{
-                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-                }}</p>
-                <p v-else class="text-transparent">s</p>
-              </div>
-            </div>
-          </div>
-          </div>
-        </div>
+        <StatusWarehouse :arrayStatusWH="arrayStatusWH" :label="t('reuse.transferTicketStatus')"/>
+
         <div class="ml-[170px] flex">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
             t('reuse.printTransferTicket')

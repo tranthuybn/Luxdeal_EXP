@@ -1992,5 +1992,12 @@ export default {
     totalPrincipalDebt: 'Tổng dư nợ gốc',
     pawnTime: 'Thời gian cầm đồ',
     importWarehouseMoney: 'Tiền nhập kho',
+    pawnPaymentInformation: 'Thông tin phiếu thanh toán cầm đồ',
+    paymentType: 'Loại hình thanh toán',
+    originalDebt: 'Dư nợ gốc',
+    paidMoney:'Số tiên thanh toán',
+    lastDatePaid: 'Ngày chưa thanh toán gần nhất',
+    nextDatePaid: 'Ngày thanh toán kế tiếp',
+    moneyToText: 'Số tiền bằng chữ',
   }
 }

@@ -904,6 +904,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    plusLabel: 'Plus', 
     addAccount: 'Add Account', 
     accountName: 'Account Name',
     badgeAccount: 'Badge Account', 

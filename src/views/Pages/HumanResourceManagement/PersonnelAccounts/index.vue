@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getEmployeeList } from '@/api/Accountant'
@@ -8,9 +8,11 @@ import {
   filterDepartment,
   filterBranch,
   filterRankEmployee,
-  filterTypeEmployee
+  filterTypeEmployee,
+  filterStatusSettingPoint
 } from '@/utils/filters'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, productStatusTransferToText } from '@/utils/format'
+import { deleteStaffAccount } from '@/api/HumanResourceManagement'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -34,7 +36,14 @@ const columns = reactive<TableColumn[]>([
     field: 'gender',
     label: t('reuse.gender'),
     minWidth: '150',
-    filters: filterGender
+    filters: filterGender,
+    formatter: (row: Recordable, __: TableColumn, cellValue: boolean) => {
+      return row['isOrganization']
+        ? ''
+        : cellValue
+        ? h('div', t('reuse.male'))
+        : h('div', t('reuse.female'))
+    }
   },
   {
     field: 'birthday',
@@ -97,12 +106,15 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'isActive',
-    label: t('reuse.accountStatus'),
+    label: t('reuse.status'),
     minWidth: '200',
-    filters: filterDepartment
+    filters: filterStatusSettingPoint,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${productStatusTransferToText(cellValue)}`)
+    }
   }
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getEmployeeList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getEmployeeList" :delApi="deleteStaffAccount" />
 </template>

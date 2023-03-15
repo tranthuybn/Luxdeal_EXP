@@ -200,6 +200,29 @@ export const addNewStaff = async (params: any): Promise<IResponse> => {
   )
   return res.data && res.data.data
 }
+
+export const updeteStaffAccount = async (params): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${DEPARTMENT_DIRECTORY.UPDATE_STAFF_ACCOUNT}`,
+      data:params
+    },
+    
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const deleteStaffAccount = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${DEPARTMENT_DIRECTORY.DELETE_STAFF_ACCOUNT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getTypePersonnelList = async (_params?: Params): Promise<IResponse> => {
   const res = await request.get(
     {

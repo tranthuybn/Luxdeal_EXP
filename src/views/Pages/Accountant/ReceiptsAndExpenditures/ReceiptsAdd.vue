@@ -908,7 +908,7 @@ onBeforeMount(async () => {
                   t('formDemo.billingInformation')
                 }}</el-divider>
               </div>
-              <ElFormItem :label="lableReceiptsPayment.lableAmount" prop="Price">
+              <ElFormItem :label="lableReceiptsPayment.lableAmount">
                 <el-input
                   size="default"
                   :disabled="checkDisabelDetail"
@@ -918,7 +918,6 @@ onBeforeMount(async () => {
                   :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                   :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
                   :clearable="true"
-                  type="number" 
                 />
               </ElFormItem>
               <ElFormItem :label="t('formDemo.writtenWords')" prop="Price">

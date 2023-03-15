@@ -10,7 +10,7 @@ import {
   FormInstance,
   ElInput
 } from 'element-plus'
-import { reactive, ref, unref } from 'vue'
+import { reactive, ref, unref, toRefs, watch } from 'vue'
 import moment from 'moment'
 import { IDatePickerType } from 'element-plus/lib/components/date-picker/src/date-picker.type'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -93,6 +93,41 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
+
+const state = reactive({
+  startDate: null,
+  endDate: null,
+})
+
+// Define the disabledDate function for the startDate picker
+const disabledStartDate = (date) => {
+  const { endDate } = toRefs(state)
+  if (endDate.value) {
+    console.log('endDate.value', endDate.value)
+    return date.isAfter(endDate.value)
+  }
+  return false
+}
+
+// Define the disabledDate function for the endDate picker
+const disabledEndDate = (date) => {
+  const { startDate } = toRefs(state)
+  if (startDate.value) {
+    console.log('startDate.value', startDate.value)
+    return date.isBefore(startDate.value)
+  }
+  return false
+}
+
+watch(
+  () => [state.startDate, state.endDate],
+  () => {
+    if(schema[0].componentProps && schema[1].componentProps) {
+      schema[0].componentProps.disabledDate = disabledStartDate
+      schema[1].componentProps.disabledDate = disabledEndDate
+    }
+  }
+)
 
 const rule = reactive({
   startDate: [{ validator: checkEndDate }],

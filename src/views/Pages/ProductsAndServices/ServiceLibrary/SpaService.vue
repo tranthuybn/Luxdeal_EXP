@@ -23,8 +23,4 @@ const deleteOrigin = t('reuse.deleteService')
 </template>
 
 <style scope lang="less">
-  .el-table_1_column_9 .cell{
-    display: flex;
-    justify-content: center;
-  }
 </style>

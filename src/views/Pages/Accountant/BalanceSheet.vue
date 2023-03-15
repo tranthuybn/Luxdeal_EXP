@@ -10,29 +10,33 @@ const { t } = useI18n()
 const unitCategories = [
   { field: '', width: '50' },
   {
-    field: 'accountName',
-    label: t('reuse.accountCode'),
-    minWidth: '100'
+    field: 'accountNumber',
+    label: t('reuse.badgeAccount'),
+    minWidth: '130'
   },
   {
-    field: 'accountNumber',
-    label: t('userDemo.username'),
-    minWidth: '350'
+    field: 'accountName',
+    label: t('reuse.accountName'),
+    minWidth: '337'
   },
   {
     field: 'beginningPeriodRevenue',
     label: t('reuse.openingBalance'),
+    minWidth: '300',
+    headerAlign: 'center',
     children: [
       {
         field: 'beginningPeriodRevenue',
         label: t('reuse.owed'),
         minWidth: '100',
+        headerAlign: 'center',
         align: 'right'
       },
       {
         field: 'beginningPeriodPayment',
         label: t('reuse.cash'),
         minWidth: '100',
+        headerAlign: 'center',
         align: 'right'
       }
     ]
@@ -40,17 +44,21 @@ const unitCategories = [
   {
     field: 'arisingInThePeriod',
     label: t('reuse.arisingInThePeriod'),
+    minWidth: '300',
+    headerAlign: 'center',
     children: [
       {
         field: 'duringPeriodRevenue',
         label: t('reuse.owed'),
         minWidth: '100',
+        headerAlign: 'center',
         align: 'right'
       },
       {
         field: 'duringPeriodPayment',
         label: t('reuse.cash'),
         minWidth: '100',
+        headerAlign: 'center',
         align: 'right'
       }
     ]
@@ -58,17 +66,21 @@ const unitCategories = [
   {
     field: 'arisingInTheEndOfPeriod',
     label: t('reuse.arisingInTheEndOfPeriod'),
+    headerAlign: 'center',
+    minWidth: '300',
     children: [
       {
         field: 'endPeriodRevenue',
         label: t('reuse.owed'),
         minWidth: '100',
+        headerAlign: 'center',
         align: 'right'
       },
       {
         field: 'endPeriodpayment',
         label: t('reuse.cash'),
         minWidth: '100',
+        headerAlign: 'center',
         align: 'right'
       }
     ]
@@ -76,7 +88,7 @@ const unitCategories = [
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '150',
+    minWidth: '130',
     filters: filterStatusRevenueExpenditure,
     formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
       if (record.pepopleType == false) {
@@ -85,14 +97,24 @@ const unitCategories = [
         return h('div', STATUS[1].label)
       }
     }
+  },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '80',
+    align: 'center',
   }
 ]
+
 </script>
 <template>
   <TableType01
     :columns="unitCategories"
     :api="getBalanceList"
-    :selection="false"
     :customOperator="4"
-  />
+    :pagination="false"
+    :titleAdd="t('reuse.addAccount')"
+  >
+  <template #expand>hello</template>
+  </TableType01>
 </template>

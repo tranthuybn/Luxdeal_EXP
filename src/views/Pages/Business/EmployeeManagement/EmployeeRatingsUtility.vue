@@ -17,7 +17,7 @@ import { moneyFormat } from '@/utils/format'
 const escape = useIcon({ icon: 'quill:escape' })
 const back = async () => {
   push({
-    name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+    name: 'business.employee-management.employeeRatings'
   })
 }
 

@@ -10,7 +10,7 @@ import {
   FormInstance,
   ElInput
 } from 'element-plus'
-import { reactive, ref, unref } from 'vue'
+import { reactive, ref, unref, toRefs, watch } from 'vue'
 import moment from 'moment'
 import { IDatePickerType } from 'element-plus/lib/components/date-picker/src/date-picker.type'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -45,6 +45,7 @@ const checkStartDate = (_, endDate: any, callback: Callback) => {
     res?.startDate && moment(endDate).isBefore(res?.startDate)
       ? callback(new Error(t('reuse.warningDate')))
       : callback()
+    
   )
   const elFormRef = unref(dateFilterFormRefer)?.getElFormRef()
   elFormRef?.validateField('startDate', () => null)
@@ -55,6 +56,11 @@ const checkEndDate = (_, startDate: any, callback: Callback) => {
       ? callback(new Error(t('reuse.warningDate')))
       : callback()
   )
+}
+
+const disabledDate = async (time: Date) => {
+  const res = await getFormData()
+  return time.getTime() > Date.now() && time.getTime() < res?.startDate
 }
 
 // form data
@@ -69,7 +75,7 @@ const schema = reactive<FormSchema[]>([
       format: dateTimeFormat,
       valueFormat: valueDateFormat,
       type: dateFormType,
-      disabled: dateTimeDisable
+      disabled: dateTimeDisable,
     }
   },
   {
@@ -82,10 +88,47 @@ const schema = reactive<FormSchema[]>([
       format: dateTimeFormat,
       valueFormat: valueDateFormat,
       type: dateFormType,
-      disabled: dateTimeDisable
+      disabled: dateTimeDisable,
+      disabledDate: disabledDate
     }
   }
 ])
+
+const state = reactive({
+  startDate: null,
+  endDate: null,
+})
+
+// Define the disabledDate function for the startDate picker
+const disabledStartDate = (date) => {
+  const { endDate } = toRefs(state)
+  if (endDate.value) {
+    console.log('endDate.value', endDate.value)
+    return date.isAfter(endDate.value)
+  }
+  return false
+}
+
+// Define the disabledDate function for the endDate picker
+const disabledEndDate = (date) => {
+  const { startDate } = toRefs(state)
+  if (startDate.value) {
+    console.log('startDate.value', startDate.value)
+    return date.isBefore(startDate.value)
+  }
+  return false
+}
+
+watch(
+  () => [state.startDate, state.endDate],
+  () => {
+    if(schema[0].componentProps && schema[1].componentProps) {
+      schema[0].componentProps.disabledDate = disabledStartDate
+      schema[1].componentProps.disabledDate = disabledEndDate
+    }
+  }
+)
+
 const rule = reactive({
   startDate: [{ validator: checkEndDate }],
   endDate: [{ validator: checkStartDate }]
@@ -114,7 +157,7 @@ function periodChange(val): void {
       case '2':
         dateFormType.value = 'date'
         start = moment([new Date().getFullYear(), new Date().getMonth()]).toDate()
-        end = moment().endOf('month').toDate()
+        end = moment().toDate()
         break
       case '3':
         dateFormType.value = 'datetime'

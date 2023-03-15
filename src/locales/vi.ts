@@ -2005,5 +2005,7 @@ export default {
     lastDatePaid: 'Ngày chưa thanh toán gần nhất',
     nextDatePaid: 'Ngày thanh toán kế tiếp',
     moneyToText: 'Số tiền bằng chữ',
+    totalPawnMoneyPaid: 'Tổng tiền gốc thanh toán',
+    totalPawnFeePaid: 'Tổng tiền phí thanh toán',
   }
 }

@@ -904,6 +904,10 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    plusLabel: 'Plus', 
+    addAccount: 'Add Account', 
+    accountName: 'Account Name',
+    badgeAccount: 'Badge Account', 
     sourceNewCustomer: 'Source (New Customer)',
     saleCare: 'Sale Care', 
     change: 'Change',
@@ -1423,6 +1427,7 @@ export default {
     dateTimeFormat: 'Date and time format is incorrect',
     dateFormat: 'Date format is incorrect',
     doNotHaveNumber: 'Do not enter number',
+    accountNumberDuplicated: 'The account number already exists',
     monthFormat: 'Month format is incorrect',
     yearFormat: 'Year format is incorrect',
     stringFormat: 'Please just enter characters',

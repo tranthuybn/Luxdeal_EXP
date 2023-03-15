@@ -62,8 +62,9 @@ const customerClassification = ref('Khách hàng')
 
 const escape = useIcon({ icon: 'quill:escape' })
 
-const { ValidService, notSpace, removeVietnameseTones, checkAccountNumber, doNotHaveNumber } = useValidator()
+const { ValidService, notSpace, removeVietnameseTones, checkLengthAccountNumber, doNotHaveNumber } = useValidator()
 
+type Callback = (error?: string | Error | undefined) => void
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const rules = reactive<FormRules>({
@@ -91,7 +92,7 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     },
     {
-      validator: (_rule: any, value: any, callback: any) => {
+      validator: (_rule: any, value: any, callback: Callback) => {
         if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
         else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
         callback()
@@ -113,7 +114,7 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     },
     {
-      validator: (_rule: any, value: any, callback: any) => {
+      validator: (_rule: any, value: any, callback: Callback) => {
         if (value !== ruleForm.password) {
           callback(new Error(t('reuse.confirmPasswordError')))
         }
@@ -125,7 +126,7 @@ const rules = reactive<FormRules>({
   ],
   cccd: [
     {
-      validator: (_rule: any, value: any, callback: any) => {
+      validator: (_rule: any, value: any, callback: Callback) => {
         if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
         else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
         callback()
@@ -145,10 +146,22 @@ const rules = reactive<FormRules>({
   ],
   cccdPlaceOfGrant: [{ required: false }],
   accountName: [
-  {validator: doNotHaveNumber},
+    {validator: doNotHaveNumber},
   ],
   accountNumber: [
-    {validator: checkAccountNumber}
+    {validator: checkLengthAccountNumber},
+    {
+      validator:  (_rules, val: any, callback: Callback) => {
+        const duplicateList = accountNumberList.value.filter(item => val == item.accountNumber)
+        if (val && duplicateList.length > 0) {
+          callback(new Error(t('reuse.accountNumberDuplicated')))
+        } else {
+          callback()
+        }
+      },
+      required: true,
+      trigger: 'blur'
+    }
   ],
 })
 

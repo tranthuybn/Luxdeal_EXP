@@ -2049,7 +2049,6 @@ const postOrderStransaction = async (index: number) => {
     merchadiseTobePayforId: parseInt(val.id),
     quantity: parseInt(val.quantity)
   }))
-
   const payload = {
     orderId: id,
     content:
@@ -2888,6 +2887,7 @@ const automaticAcountingEntry = async() => {
 const orderCompletion = async(idOrder) => {
   automaticCouponWareHouse(2, idOrder)
   await updateStatusOrders(STATUS_ORDER_RENTAL[5].orderStatus, idOrder)
+  editData()
 
   // đang bị lỗi bất đồng bộ dùng hàm automaticAcountingEntry() nó k chạy, k có thời gian fix nên dev sau thấy cái này thì fix hộ vs ạ
   let start = moment(ruleForm.rentalPeriod[0], 'YYYY-MM-DD')

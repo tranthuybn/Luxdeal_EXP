@@ -5,8 +5,6 @@ import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getEmployeeRatingList } from '@/api/Business'
 import {
   filterStatusRatingEmployee,
-  filterRankEmployee,
-  filterTypeEmployee
 } from '@/utils/filters'
 
 import {
@@ -116,28 +114,28 @@ const columns = reactive<TableColumn[]>([
     field: 'branch',
     label: t('reuse.branch'),
     minWidth: '110',
-    filters: [],
+    filters: branchList.value, 
     headerAlign: 'left'
   },
   {
     field: 'department',
     label: t('reuse.department'),
     minWidth: '110',
-    filters: [],
+    filters: departmentList.value,
     headerAlign: 'left'
   },
   {
     field: 'rankEmployee',
     label: t('reuse.rank'),
     minWidth: '110',
-    filters: filterRankEmployee,
+    filters: rankList.value,
     headerAlign: 'left'
   },
   {
     field: 'typeEmployee',
     label: t('reuse.type'),
     minWidth: '110',
-    filters: filterTypeEmployee,
+    filters: typeEmployeeList.value,
     headerAlign: 'left'
   },
   {

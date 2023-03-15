@@ -479,6 +479,7 @@ let CodeAndNameSelect = ref()
 let CodeOptions = ref()
 let NameAndCodeSelect = ref()
 const getCodeAndNameSelect = async () => {
+  setValues({ ProductCode: productCode.value })
   const res = await getCodeAndNameProductLibrary({ pageIndex: 1, pageSize: 20 })
   CodeAndNameSelect.value = res.data.map((val) => ({
     label: val.productCode,
@@ -492,7 +493,6 @@ const getCodeAndNameSelect = async () => {
     productCode: val.productCode
   }))
   CodeOptions.value = CodeAndNameSelect.value
-  setValues({ ProductCode: productCode.value })
 }
 const remoteProductCode = async (query: string) => {
   if (query) {
@@ -624,13 +624,6 @@ const infiniteProduct = async () => {
 }
 const productCode = ref('')
 const productName = ref('')
-
-watch (productCode, (newVal) => {
-  if (newVal && newVal.length > 0) {
-    productCode.value = newVal
-  }
-})
-
 
 const setProductCode = () => {
   setValues({ ProductCode: productCode.value })

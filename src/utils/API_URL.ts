@@ -221,7 +221,7 @@ export const DEPARTMENT_DIRECTORY = {
   GET_STAFF_INFO_BY_ACCOUNT: 'api/v1/AccountStaff/GetStaffByAccountId',
   GET_ROLE_LIST: 'api/v1/Authorization/GetStaffRoleList',
   UPDATE_STAFF_ACCOUNT: 'api/v1/AccountStaff/UpdateStaffAccount',
-  DELETE_STAFF_ACCOUNT: 'api/v1/Authorization/DeleteStaffAccount'
+  DELETE_STAFF_ACCOUNT: 'api/v1/AccountStaff/DeleteStaffAccount'
 }
 
 export const APPROVAL_API = {

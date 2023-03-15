@@ -20,6 +20,8 @@ const { wsCache } = useCache()
 
 const { replace } = useRouter()
 
+const userData = JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO')?.toString() || '').v)
+
 const loginOut = () => {
   ElMessageBox.confirm(t('common.loginOutMessage'), t('common.reminder'), {
     confirmButtonText: t('common.ok'),
@@ -52,7 +54,7 @@ const toDocument = () => {
         class="w-[calc(var(--logo-height)-25px)] rounded-[50%]"
       />
       <span class="<lg:hidden text-14px pl-[5px] text-[var(--top-header-text-color)]"
-        >Nguyễn Thuỳ Chi</span
+        >{{ userData.name }}</span
       >
     </div>
     <template #dropdown>

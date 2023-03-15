@@ -73,7 +73,6 @@ switch (currentRoute.value.meta.title) {
     default:
       return ''
   }
-
 })
  
 
@@ -103,11 +102,10 @@ const setTableColumn = (arr:Array<TableColumn>) => {
 } 
 
 const action = (row: any, _type: string) => {
-  console.log(row)
-      push({
-        name: routeToDetailScreen.value ?? '',
-        params: { type:'approval',id:row.targetId}
-      })
+  push({
+    name: routeToDetailScreen.value ?? '',
+    params: { type:'approval', id: row.targetId, targetId: row.id}
+  })
   }
 </script>
 <template>

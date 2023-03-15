@@ -57,11 +57,29 @@ const checkEndDate = (_, startDate: any, callback: Callback) => {
       : callback()
   )
 }
-
-const disabledDate = async (time: Date) => {
-  const res = await getFormData()
-  return time.getTime() > Date.now() && time.getTime() < res?.startDate
+// Define the disabledDate function for the startDate picker
+const disabledStartDate = (date) => {
+  const { endDate } = toRefs(state)
+  if (endDate.value) {
+    return date.getTime() > endDate.value
+  }
+  return false
 }
+
+// Define the disabledDate function for the endDate picker
+const disabledEndDate = (date) => {
+  const { startDate } = toRefs(state)
+  if (startDate.value) {
+    return date.getTime() < startDate.value || date.getTime() > Date.now()
+  } else {
+    return date.getTime() > Date.now()
+  }
+}
+
+const state = reactive({
+  startDate: 0,
+  endDate: 0,
+})
 
 // form data
 const schema = reactive<FormSchema[]>([
@@ -76,6 +94,8 @@ const schema = reactive<FormSchema[]>([
       valueFormat: valueDateFormat,
       type: dateFormType,
       disabled: dateTimeDisable,
+      disabledDate: disabledStartDate,
+      onChange: (date)=>{state.startDate =  moment(date, "YYYY-MM-DD HH:mm:ss").valueOf() }
     }
   },
   {
@@ -89,35 +109,12 @@ const schema = reactive<FormSchema[]>([
       valueFormat: valueDateFormat,
       type: dateFormType,
       disabled: dateTimeDisable,
-      disabledDate: disabledDate
+      disabledDate: disabledEndDate,
+      onChange: (date)=>{state.endDate =  moment(date, "YYYY-MM-DD HH:mm:ss").valueOf() }
     }
   }
 ])
 
-const state = reactive({
-  startDate: null,
-  endDate: null,
-})
-
-// Define the disabledDate function for the startDate picker
-const disabledStartDate = (date) => {
-  const { endDate } = toRefs(state)
-  if (endDate.value) {
-    console.log('endDate.value', endDate.value)
-    return date.isAfter(endDate.value)
-  }
-  return false
-}
-
-// Define the disabledDate function for the endDate picker
-const disabledEndDate = (date) => {
-  const { startDate } = toRefs(state)
-  if (startDate.value) {
-    console.log('startDate.value', startDate.value)
-    return date.isBefore(startDate.value)
-  }
-  return false
-}
 
 watch(
   () => [state.startDate, state.endDate],
@@ -204,6 +201,8 @@ const setStartDateAndEndDate = (start: momentDateType, end: momentDateType) => {
 function reLoadEvent() {
   validateHeaderInput.searchingKey = ''
   periodSelected.value = ''
+  state.startDate = 0
+  state.endDate = 0
   dateTimeDisable.value = false
   verifyReset()
   emit('refreshData', { Keyword: null, startDate: null, endDate: null })

@@ -83,6 +83,10 @@ const props = defineProps({
     type: Number,
     default: NaN
   },
+  targetId: {
+    type: Number,
+    default: NaN
+  },
   //type = 'add' || 'detail' || 'edit'
   //có sự kiện watch để bắt xem đang ở type nào
   type: {
@@ -988,7 +992,7 @@ onBeforeMount(async () => {
 })
 
 const approvisionnement = async (val: boolean) => {
-  const payload = { ItemType: Approvement.Campaign, Id: props.id ?? null, IsApprove: val }
+  const payload = { ItemType: Approvement.Campaign, Id: props.targetId ?? null, IsApprove: val }
   await approvalProducts(FORM_IMAGES(payload))
     .then(() => {
       ElNotification({
@@ -1307,7 +1311,7 @@ class="flex"
       <div v-else-if="props.type === 'edit'" class="flex">
         <!-- If its pending for approving(approved == false) then hide all button -->
         <div
-class="flex"
+              class="flex"
               v-if="(lastStatus != CampaignStatusV2.DuyetKhoiTao && approved != false)
                 || (lastStatus != CampaignStatusV2.SuaChuongTrinh && approved != false)">
           <ElButton type="primary" :loading="loading" @click="save('edit')">

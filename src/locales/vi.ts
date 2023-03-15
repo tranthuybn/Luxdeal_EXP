@@ -956,6 +956,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    plusLabel: 'Cộng',
     addAccount: 'Thêm tài khoản', 
     accountName: 'Tên tài khoản',
     badgeAccount: 'Số hiệu tài khoản', 

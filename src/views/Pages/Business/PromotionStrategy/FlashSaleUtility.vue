@@ -281,8 +281,8 @@ const activeName = ref(collapse[0].name)
 //
 
 const id = Number(router.currentRoute.value.params.id)
+const targetId = Number(router.currentRoute.value.params.targetId)
 const type = String(router.currentRoute.value.params.type)
-
 
 
 //post data api
@@ -434,7 +434,6 @@ const setFormData = reactive(emptyFormData)
 
 
 const customizeData = async (data) => {
-  console.log('data nhận vào để customize', data)
   if (data[0].reduce) {
     const moneyType = data[0].reduce.split(' ')
     moneyType[1] == '%'
@@ -506,7 +505,7 @@ const editData = async (data) => {
         <TableOperatorCollection
           ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
           :apiId="getCampaignList" @post-data="postData" :params="params" :rules="rules"
-          @customize-form-data="customizeData" :formDataCustomize="setFormData" @edit-data="editData"
+          :targetId="targetId" @customize-form-data="customizeData" :formDataCustomize="setFormData" @edit-data="editData"
           :show-product="true"
           :campaignAndStrategyType="1"
           />

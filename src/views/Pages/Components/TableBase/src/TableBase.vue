@@ -87,7 +87,7 @@ const props = defineProps({
   },
   currentT: [String, Number]
 })
-const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
+const emit = defineEmits(['TotalRecord', 'SelectedRecord', 'GetDataTable'])
 // using table's function
 const temporaryColumn = ref<any>(props.fullColumns)
 const { register, tableObject, methods } = useTable<TableData>({
@@ -107,8 +107,6 @@ let paginationObj = ref<Pagination>()
 const getData = (data = {}) => {
   methods.setSearchParams({ ...unref(params), ...data })
 }
-
-
 onBeforeMount(() => {
   getData()
 })
@@ -161,7 +159,6 @@ const filterChange = (filterValue) => {
       if (typeof unref(filterValue[key]) === 'object')
         filterValue[key] = Object.values(filterValue[key]).toString()
 
-      console.log('filterValue', filterValue)
     }
   setSearchParams(filterValue)
 }
@@ -217,7 +214,6 @@ const router = useRouter()
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {
-  console.log('row', row)
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${utility}`,
@@ -313,6 +309,10 @@ const updateTableColumn = () => {
     showingColumnList.value.includes(el.field)
   )
 }
+watch (() => tableObject.tableList, (newVal) => {
+  emit('GetDataTable', newVal)
+})
+
 </script>
 <template>
   <ContentWrap class="relative">
@@ -385,6 +385,7 @@ const updateTableColumn = () => {
         <slot name="expand"></slot>
       </template>
     </Table>
+    <slot name="totalBalanceSheet"></slot>
     <ElButton v-if="!(props.titleButtons === '')" @click="handleClickAdd" id="bt-add" :icon="plusIcon" class="mx-12">
       {{ props.titleButtons }}</ElButton>
   </ContentWrap>

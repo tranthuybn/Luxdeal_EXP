@@ -793,7 +793,6 @@ const approvalProduct = async () => {
             <div class="break" v-if="form['ProductStatus'] == 1">
               <span class="bg-orange-100 text-orange-300 px-2">{{ t('reuse.pendings') }}</span>
               </div>
-              {{ form }}
           </template>
         </Form>
       </ElCol>

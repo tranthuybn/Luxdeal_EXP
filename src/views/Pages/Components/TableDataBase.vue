@@ -169,9 +169,9 @@ const initMappingObject = (el) => {
           </el-button>
         </template>
     </HeaderFiler>
-      <TableExtension
-       v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
-        @export-excel-event="ExportExcelEvent" />
+    <TableExtension
+      v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
+      @export-excel-event="ExportExcelEvent" />
     <TableBase
       :removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
       :typeButton="props.typeButton" :customOperator="customOperator" :apiTableChild="apiTableChild" :delApi="delApi"
@@ -180,6 +180,9 @@ const initMappingObject = (el) => {
       @selected-record="fnGetSelectedRecord" :selection="selection" :titleChilden="props.titleChilden">
       <template #expand>
         <slot name="expand"></slot>
+      </template>
+      <template #totalBalanceSheet>
+        <slot name="totalBalanceSheet"></slot>
       </template>
     </TableBase>
   </section>

@@ -1498,7 +1498,7 @@ const testList: string[] = [
   '/accountant/receipts-expenditures/receipts-expenditures-list/:type?/:id?',
   '/accountant/receipts-expenditures/payment-add',
   '/accountant/balanceSheet',
-  `/accountant/balanceSheet-utility`,
+  `/accountant/balanceSheet-utility/:type?/:id?`,
   '/approve',
   '/approve/products-approval',
   '/approve/products-approval/newly-initialized',

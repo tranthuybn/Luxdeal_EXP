@@ -96,7 +96,7 @@ export default {
       }
     },
     {
-      path: 'balanceSheet-utility',
+      path: 'balanceSheet-utility/:type?/:id?',
       component: () => import('@/views/Pages/Accountant/BalanceSheetUtility.vue'),
       name: `accountant.balanceSheet.${utility}`,
       meta: {

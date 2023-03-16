@@ -2275,6 +2275,7 @@ const UpdateStatusTransaction = async() => {
   updateStatusTransaction(FORM_IMAGES(payload))
     // Cập nhật lại bảng lịch sử công nợ
     getOrderStransactionList()
+  editData()
 }
 
 const listOfOrderProduct = ref()
@@ -5445,7 +5446,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled || disabledPhieu|| disabledPhieuDatCoc"
+              :disabled="doubleDisabled || disabledPhieu"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5491,7 +5492,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled|| disabledPhieuDatCoc"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5544,7 +5545,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled|| disabledPhieuDatCoc"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5611,7 +5612,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled|| disabledPhieuDatCoc"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5670,7 +5671,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled|| disabledPhieuDatCoc"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5693,7 +5694,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled|| disabledPhieuDatCoc"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
@@ -5719,7 +5720,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled || disabledPhieuDatCoc"
+              :disabled="doubleDisabled"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >

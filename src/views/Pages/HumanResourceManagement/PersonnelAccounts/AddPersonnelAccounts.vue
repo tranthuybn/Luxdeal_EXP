@@ -496,9 +496,9 @@ const postData = async (typebtn) => {
       PhoneNumber: ruleForm.phoneNumber,
       Email: ruleForm.email,
       CCCD: ruleForm.cccd,
-      LicenseDate: ruleForm.cccdCreateAt,
+      LicenseDate: moment(ruleForm.cccdCreateAt).format('DD/MM/YYYY'),
       LicensePlace: ruleForm.cccdPlaceOfGrant,
-      Birthday: ruleForm.doB,
+      Birthday: moment(ruleForm.doB).format('YYYY/MM/DD'),
       IsActive: true,
       Gender: ruleForm.sex,
       Contact: ruleForm.link,
@@ -517,7 +517,7 @@ const postData = async (typebtn) => {
       User: ruleForm.userName,
       Password: ruleForm.password,
       ConfirmPassword: ruleForm.confirmPassword,
-      RoleId: ruleForm.roleAcces,
+      RoleId: ruleForm.roleAcces || 0,
     }
     const formDataPayLoad = FORM_IMAGES(payload)
     await addNewStaff(formDataPayLoad)

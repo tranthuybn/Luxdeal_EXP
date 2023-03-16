@@ -7,25 +7,35 @@ import { getBadgeAccount1List } from '@/utils/get_filterList'
 import { getAccountantList,getAccountantById, addNewAccountant, updateAccountant, deleteAccountant } from '@/api/Business'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElNotification } from 'element-plus'
+import { FormDataPostAndEdit, FormData } from './types/BalanceSheet.d'
 
+const badgeAccount1List = ref()
 const { t } = useI18n()
 const router = useRouter()
 const { push } = useRouter()
-
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const { checkNumber, checkLength5, checkLength255 } = useValidator()
+const currentRoute = String(router.currentRoute.value.params.backRoute)
+const title = router.currentRoute.value.meta.title
+const setFormData = reactive({} as FormData)
+const disabledCancelBtn = ref(false)
+
+onBeforeMount(async() => {
+  badgeAccount1List.value = await getBadgeAccount1List(getAccountantList, t('reuse.cantBadgeAccount1List'))
+})
+const { checkNumber, checkLength, checkDuplicate} = useValidator()
 const rules = reactive({
   accountNumber1: [
     { validator: checkNumber }, 
-    { validator: checkLength5 }
+    { validator: (...config) =>  checkLength(config, undefined, 5) },
+    { validator: (...config) => checkDuplicate(config, badgeAccount1List.value, t('reuse.accountanceDuplicated'))}
   ],
   accountNumber2: [
     { validator: checkNumber }, 
-    { validator: checkLength5 }
+    { validator: (...config) =>  checkLength(config, undefined, 5) }
   ],
   accountName: [
-  { validator: checkLength255 }
+    { validator: (...config) =>  checkLength(config, undefined, 255)}
   ]
 })
 
@@ -134,10 +144,7 @@ const schema = reactive<FormSchema[]>([
   }
   
 ])
-const badgeAccount1List = ref()
-onBeforeMount(async() => {
-  badgeAccount1List.value = await getBadgeAccount1List(getAccountantList, t('reuse.cantBadgeAccount1List'))
-})
+
 const changeValueClassify = (data) => {
   if(data === '2') {
     schema[3].component= 'Select'
@@ -152,17 +159,7 @@ const changeValueClassify = (data) => {
   schema[5].hidden = false
   schema[6].hidden = true
 }
-const currentRoute = String(router.currentRoute.value.params.backRoute)
-const title = router.currentRoute.value.meta.title
 
-interface FormDataPostAndEdit {
-  ParentId: number | null
-  AccountNumber: number
-  AccountNumber2? : number
-  AccountName: string
-  Status: 0 | 1
-  Id?: number
-}
 
 // Custom data before post or edit
 const customData = (data) => {
@@ -200,7 +197,7 @@ const postData = async (data) => {
     })
   )
 }
-const disabledCancelBtn = ref(false)
+
 const editData = async (data) => {
   if(data.status) {
     schema[1].disabled = true
@@ -229,16 +226,8 @@ const editData = async (data) => {
   )
 }
 
-interface FormData {
-  typeAccount: null | 1
-  accountNumber2?: number
-  accountNumber1: number
-  accountName: string
-  status: boolean
-}
 
-// Đợi api trả về từ back end
-const setFormData = reactive({} as FormData)
+// Assign value for form
 const customizeData = async (data) => {
   setFormData.typeAccount = data.typeAccount
 }
@@ -261,4 +250,5 @@ const customizeData = async (data) => {
     :formDataCustomize="setFormData"
     :delApi="deleteAccountant"
     :disabledCancelBtn="disabledCancelBtn"
-/></template>
+  />
+</template>

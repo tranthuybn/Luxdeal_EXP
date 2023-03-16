@@ -1435,6 +1435,7 @@ export default {
     dateFormat: 'Date format is incorrect',
     doNotHaveNumber: 'Do not enter number',
     accountNumberDuplicated: 'The account number already exists',
+    accountanceDuplicated: 'The accountance already exists',
     monthFormat: 'Month format is incorrect',
     yearFormat: 'Year format is incorrect',
     stringFormat: 'Please just enter characters',

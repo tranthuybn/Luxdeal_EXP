@@ -121,7 +121,11 @@ const props = defineProps({
   showSaveAndAddBtnOnTypeEdit: {
     type: Boolean,
     default: false
-  }
+  },
+  disabledCancelBtn: {
+    type: Boolean,
+    default: false
+  },
 })
 const formValue = ref()
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -580,7 +584,7 @@ const approvalProduct = async () => {
           <ElButton v-if="props.showSaveAndAddBtnOnTypeEdit" :loading="loading" type="primary" @click="save('saveAndAdd')">
             {{ t('reuse.saveAndAdd') }}
           </ElButton>
-          <ElButton disabled :loading="loading" @click="cancel">
+          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="cancel">
             {{ t('reuse.cancel') }}
           </ElButton>
         </div>

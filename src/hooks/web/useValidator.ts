@@ -4,12 +4,6 @@ const { t } = useI18n()
 
 type Callback = (error?: string | Error | undefined) => void
 
-interface LengthRange {
-  min: number
-  max: number
-  message: string
-}
-
 export const useValidator = () => {
   const required = (message?: string) => {
     return {
@@ -24,15 +18,6 @@ export const useValidator = () => {
       required: true,
       message: message || t('common.required'),
       trigger: 'change'
-    }
-  }
-
-  const lengthRange = (val: any, callback: Callback, options: LengthRange) => {
-    const { min, max } = options
-    if (val.length < min || val.length > max) {
-      callback(new Error(t('reuse.lengthRange')))
-    } else {
-      callback()
     }
   }
 
@@ -77,20 +62,6 @@ export const useValidator = () => {
     }
   }
 
-  const checkLengthAccountNumber = (_, val: any, callback: Callback) => {
-    if(isNaN(val)) {
-      callback(new Error(t('reuse.numberFormat')))
-    } else if (val && val.length > 14) {
-      callback(new Error(t('reuse.checkAccountNumberMaxLength')))
-    } else if(val && val.length < 9 && val.length > 0) {
-      callback(new Error(t('reuse.checkAccountNumberMinLength')))
-    } else {
-      callback()
-    }
-  }
-
-  
-
   const checkNumber = (_, val: any, callback: Callback) => {
     if(isNaN(val)) {
       callback(new Error(t('reuse.numberFormat')))
@@ -99,16 +70,23 @@ export const useValidator = () => {
     }
   }
 
-  const checkLength5 = (_, val: any, callback: Callback) => {
-    if(val.toString().length > 5) {
-      callback(new Error(t('reuse.lengthMax5')))
-    } else {
+  const checkLength = (config, minLength, maxLength) => {
+    const [_, val, callback] = config
+    if (minLength && val && val.length < minLength) {
+      callback(new Error(`Nhập tối thiếu ${minLength} ký tự`))
+    } else if (maxLength && val && val.length > maxLength) {
+      callback(new Error(`Nhập tối đa ${maxLength} ký tự`))
+    }
+     else {
       callback()
     }
   }
-  const checkLength255 = (_, val: any, callback: Callback) => {
-    if(val && val.toString().length > 255) {
-      callback(new Error(t('reuse.lengthMax255')))
+
+  const checkDuplicate = (config, listToCheck, message) => {
+    const [_, val, callback] = config
+    const duplicateValue = listToCheck.find(item => val == item.value)
+    if (val && duplicateValue) {
+      callback(new Error(message))
     } else {
       callback()
     }
@@ -413,7 +391,6 @@ export const useValidator = () => {
   return {
     required,
     requiredOption,
-    lengthRange,
     notSpace,
     notSpecialCharacters,
     isEqual,
@@ -421,10 +398,9 @@ export const useValidator = () => {
     ValidService,
     removeVietnameseTones,
     requiredCategory,
-    checkLengthAccountNumber,
     doNotHaveNumber,
     checkNumber,
-    checkLength5,
-    checkLength255
+    checkLength,
+    checkDuplicate
   }
 }

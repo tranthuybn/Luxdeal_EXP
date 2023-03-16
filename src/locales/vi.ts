@@ -1569,6 +1569,7 @@ export default {
     lengthMax5: 'Nhập tối đa 5 số',
     lengthMax255: 'Nhập tối đa 255 ký tự ',
     accountNumberDuplicated: 'Số tài khoản đã tồn tại',
+    accountanceDuplicated: 'Số hiệu tài khoản đã tồn tại',
     isNotEqual: 'Không bằng nhau',
     phoneNumberFormat: 'Không phải số điện thoại',
     emailFormat: 'Vui lòng nhập đúng định dạng email',

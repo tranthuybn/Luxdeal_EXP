@@ -165,6 +165,7 @@ const activeName = ref(collapse[0].name)
 
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
+const targetId = Number(router.currentRoute.value.params.targetId)
 const type = String(router.currentRoute.value.params.type)
 
 //post data api
@@ -380,7 +381,7 @@ const back = async () => {
         </template>
         <TableOperatorCollection
           ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
-          :params="params" :apiId="getCampaignList" @post-data="postData" :formDataCustomize="setFormData"
+          :params="params" :apiId="getCampaignList" @post-data="postData" :formDataCustomize="setFormData" :targetId="targetId"
           @customize-form-data="customizeData" @edit-data="editData" 
           :campaignAndStrategyType="5"
           />

@@ -9,6 +9,27 @@ import {
   ElTable,
   ElTableColumn,
 } from 'element-plus'
+import { ElButton } from 'element-plus'
+import { useIcon } from '@/hooks/web/useIcon'
+import { useAppStore } from '@/store/modules/app'
+import { useRouter } from 'vue-router'
+
+const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+const appStore = useAppStore()
+const Utility = appStore.getUtility
+const { push } = useRouter()
+const router = useRouter()
+
+const action = (row: any, type: string) => {
+  console.log('234')
+  if (type === 'detail' || !type) {
+    push({
+      name: `${String(router.currentRoute.value.name)}.${Utility}`,
+      params: { id: row.id, type: type }
+    })
+  }
+}
+
 
 const { t } = useI18n()
 
@@ -108,6 +129,11 @@ const columns = [
     label: t('reuse.operator'),
     minWidth: '80',
     align: 'center',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', { style: 'display:flex;justify-content: center;' }, [
+        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') })
+      ])
+    }
   }
 ]
 const totalBalance = reactive([

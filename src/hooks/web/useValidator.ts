@@ -89,6 +89,31 @@ export const useValidator = () => {
     }
   }
 
+  
+
+  const checkNumber = (_, val: any, callback: Callback) => {
+    if(isNaN(val)) {
+      callback(new Error(t('reuse.numberFormat')))
+    } else {
+      callback()
+    }
+  }
+
+  const checkLength5 = (_, val: any, callback: Callback) => {
+    if(val.toString().length > 5) {
+      callback(new Error(t('reuse.lengthMax5')))
+    } else {
+      callback()
+    }
+  }
+  const checkLength255 = (_, val: any, callback: Callback) => {
+    if(val.toString().length > 255) {
+      callback(new Error(t('reuse.lengthMax255')))
+    } else {
+      callback()
+    }
+  }
+
   const doNotHaveNumber = (_, val: any, callback: Callback) => {
      if (/^[^0-9]+$/.test(val) || val.length == 0) {
       callback()
@@ -397,6 +422,9 @@ export const useValidator = () => {
     removeVietnameseTones,
     requiredCategory,
     checkLengthAccountNumber,
-    doNotHaveNumber
+    doNotHaveNumber,
+    checkNumber,
+    checkLength5,
+    checkLength255
   }
 }

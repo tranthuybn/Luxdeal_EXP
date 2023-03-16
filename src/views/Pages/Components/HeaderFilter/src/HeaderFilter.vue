@@ -62,8 +62,9 @@ const disabledStartDate = (date) => {
   const { endDate } = toRefs(state)
   if (endDate.value) {
     return date.getTime() > endDate.value
+  } else {
+    return date.getTime() > Date.now()
   }
-  return false
 }
 
 // Define the disabledDate function for the endDate picker

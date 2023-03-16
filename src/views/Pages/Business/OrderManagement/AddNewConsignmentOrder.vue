@@ -3867,7 +3867,7 @@ const openDetailOrder = (id, type) => {
                 :items="listProducts"
                 valueKey="productPropertyId"
                 :disabled="disabledEdit || props.row.newProduct"
-                labelKey="productCode"
+                labelKey="value"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
                 :defaultValue="props.row.productPropertyId"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
-import { getBalanceList } from '@/api/Business'
+import { getAccountantList } from '@/api/Business'
 import TableType01 from '@/views/Pages/Components/TableDataBase.vue'
 import { h, reactive } from 'vue'
 import { filterStatusRevenueExpenditure } from '@/utils/filters'
@@ -9,27 +9,6 @@ import {
   ElTable,
   ElTableColumn,
 } from 'element-plus'
-import { ElButton } from 'element-plus'
-import { useIcon } from '@/hooks/web/useIcon'
-import { useAppStore } from '@/store/modules/app'
-import { useRouter } from 'vue-router'
-
-const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
-const appStore = useAppStore()
-const Utility = appStore.getUtility
-const { push } = useRouter()
-const router = useRouter()
-
-const action = (row: any, type: string) => {
-  console.log('234')
-  if (type === 'detail' || !type) {
-    push({
-      name: `${String(router.currentRoute.value.name)}.${Utility}`,
-      params: { id: row.id, type: type }
-    })
-  }
-}
-
 
 const { t } = useI18n()
 
@@ -53,14 +32,14 @@ const columns = [
     children: [
       {
         field: 'beginningPeriodRevenue',
-        label: t('reuse.owed'),
+        label: t('reuse.get'),
         minWidth: '100',
         headerAlign: 'center',
         align: 'right'
       },
       {
         field: 'beginningPeriodPayment',
-        label: t('reuse.cash'),
+        label: t('reuse.spend'),
         minWidth: '100',
         headerAlign: 'center',
         align: 'right'
@@ -75,14 +54,14 @@ const columns = [
     children: [
       {
         field: 'duringPeriodRevenue',
-        label: t('reuse.owed'),
+        label: t('reuse.get'),
         minWidth: '100',
         headerAlign: 'center',
         align: 'right'
       },
       {
         field: 'duringPeriodPayment',
-        label: t('reuse.cash'),
+        label: t('reuse.spend'),
         minWidth: '100',
         headerAlign: 'center',
         align: 'right'
@@ -97,14 +76,14 @@ const columns = [
     children: [
       {
         field: 'endPeriodRevenue',
-        label: t('reuse.owed'),
+        label: t('reuse.get'),
         minWidth: '100',
         headerAlign: 'center',
         align: 'right'
       },
       {
         field: 'endPeriodpayment',
-        label: t('reuse.cash'),
+        label: t('reuse.spend'),
         minWidth: '100',
         headerAlign: 'center',
         align: 'right'
@@ -129,13 +108,9 @@ const columns = [
     label: t('reuse.operator'),
     minWidth: '80',
     align: 'center',
-    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('div', { style: 'display:flex;justify-content: center;' }, [
-        h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') })
-      ])
-    }
   }
 ]
+
 const totalBalance = reactive([
   {
     label: t('reuse.plusLabel'),
@@ -148,25 +123,17 @@ const totalBalance = reactive([
   },
 ])
 
-// const tableType01Ref = ref();
-
-// watch(tableType01Ref, (newVal) => {
-//   const data = newVal.value.$refs.totalBalanceSheet.tableObject;
-//   console.log('data', data)
-
-// })
-
 
 </script>
 <template>
   <TableType01
     :columns="columns"
-    :api="getBalanceList"
-    :customOperator="4"
+    :api="getAccountantList"
+    :customOperator="6"
     :pagination="false"
     :titleAdd="t('reuse.addAccount')"
   >
-    <template  #totalBalanceSheet="tableObject">
+    <template  #totalBalanceSheet>
       <el-table :data="totalBalance">
         <el-table-column prop="label"/>
         <el-table-column prop="beginningPeriodRevenue"/>
@@ -176,7 +143,6 @@ const totalBalance = reactive([
         <el-table-column prop="endPeriodRevenue"/>
         <el-table-column prop="endPeriodpayment"/>
       </el-table>
-      {{ tableObject }}
     </template>
   </TableType01>
 </template>

@@ -107,7 +107,7 @@ export const useValidator = () => {
     }
   }
   const checkLength255 = (_, val: any, callback: Callback) => {
-    if(val.toString().length > 255) {
+    if(val && val.toString().length > 255) {
       callback(new Error(t('reuse.lengthMax255')))
     } else {
       callback()

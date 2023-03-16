@@ -956,6 +956,8 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    spend: 'Chi',
+    get: 'Thu',
     plusLabel: 'Cộng',
     addAccount: 'Thêm tài khoản', 
     accountName: 'Tên tài khoản',
@@ -1367,6 +1369,7 @@ export default {
     badgeAccount1: 'Số hiệu tài khoản cấp 1',
     badgeAccount2: 'Số hiệu tài khoản cấp 2',
     nameAccount1: 'Tên tài khoản cấp 1',
+    nameAccount2: 'Tên tài khoản cấp 2',
     closeAccount: 'Đóng tài khoản',
     typeAccount: 'Loại tài khoản',
     saveAndAdd: 'Lưu & thêm mới',

@@ -19,7 +19,7 @@ export const getFilterList = async (getListFunc, errorMessage) => {
 export const getBadgeAccount1List = async (getListFunc, errorMessage) => {
   const res = await getListFunc()
   if (res) {
-    return res.data.map((item) => ({ label: item.accountNumber, value: item.accountNumber}))
+    return res.data.map((item) => ({ label: item.accountNumber, value: item.accountNumber, id: item.id}))
   } else {
     ElMessage({
       message: t(errorMessage),

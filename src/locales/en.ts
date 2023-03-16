@@ -1854,5 +1854,7 @@ export default {
     lastDatePaid: 'Last date paid',
     nextDatePaid: 'Next date paid',
     moneyToText: 'Money to text',
+    totalPawnMoneyPaid: 'Total pawn money paid',
+    totalPawnFeePaid: 'Total pawn fee paid',
   }
 }

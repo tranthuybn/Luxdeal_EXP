@@ -272,6 +272,7 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const tab = Number(router.currentRoute.value.params.tab)
+const targetId = Number(router.currentRoute.value.params.targetId)
 
 //post data api
 type FormDataPost = {
@@ -500,7 +501,7 @@ const back = async () => {
         </template>
         <TableOperatorCollection
 ref="formRef" :schema="schema" :apiId="getCampaignList" :delApi="deleteCampaign"
-          :type="type" :id="id" @post-data="postData" :multipleImages="false" :params="params"
+          :type="type" :id="id" @post-data="postData" :multipleImages="false" :params="params" :targetId="targetId"
           :formDataCustomize="setFormData" :rules="rules" @customize-form-data="customizeData" @edit-data="editData"
           :show-product="true" :tabActive="tab" 
           :campaignAndStrategyType="3"

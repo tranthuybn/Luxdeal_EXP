@@ -236,7 +236,6 @@ const calculateExportQuantity = (index,curRow) =>{
         return
       }
     } else {
-      console.log('selectedRow', selectedRow)
       multipleTableRef.value!.toggleRowSelection(curRow, false)
       selectedRow.splice(selectedRow.findIndex((select) => select == index),1)
       totalExport.value -= Number(curRow.exportQuantity)
@@ -335,7 +334,6 @@ const initDataExport = () =>{
       </div>
     </el-form>
     <div>{{ t('reuse.lotList') }}</div>
-    {{lotData}}
     <el-table
       :data="lotData"
       ref="multipleTableRef"

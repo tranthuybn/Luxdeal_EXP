@@ -275,15 +275,12 @@ const cancelTicketWarehouse = async () => {
 onBeforeMount(async () => await callApiForData())
 
 const exportNow = async () => {
-  console.log('id', id.value)
   if(Number(ticketData.value.orderId) !== 0){//ticket from order
     await updateInventoryOrder()
   }
   else{
     if(isNaN(id.value) || id.value == 0){
-      console.log('run here')
       const res = await addTransaction()
-      console.log('res', res)
       if(res != 0){
         await updateInventory()
       }

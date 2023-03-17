@@ -361,7 +361,6 @@ const callApiCity = async () => {
 }
 
 watch(() => valueProvince.value, async val => {
-  console.log('val :>> ', val);
   if (val) {
     district.value = await getDistrict(val)
     // valueCommune.value = ''
@@ -589,9 +588,9 @@ const getTableValue = async () => {
     ruleForm.doB = formValue.value.birthday
     ruleForm.sex = formValue.value.gender
     ruleForm.link = formValue.value.contact
-    ruleForm.accountName = formValue.value.bankName
+    ruleForm.accountName = formValue.value.bankAccountName
     ruleForm.bankName = formValue.value.bankId
-    ruleForm.accountNumber = formValue.value.bankNumber
+    ruleForm.accountNumber = formValue.value.bankAccountNumber
     ruleForm.Address = formValue.value.address
     ruleForm.ProvinceId = formValue.value.provinceId
     ruleForm.DistrictId = formValue.value.districtId
@@ -620,13 +619,13 @@ const editData = async (typebtn) => {
       Name: ruleForm.name,
       PhoneNumber: ruleForm.phoneNumber,
       Email: ruleForm.email,
-      Birthday: ruleForm.doB,
+      Birthday: moment(ruleForm.doB).format('YYYY/MM/DD'),
       CCCD: ruleForm.cccd,
-      LicenseDate: ruleForm.cccdCreateAt,
+      LicenseDate: moment(ruleForm.cccdCreateAt).format('DD/MM/YYYY'),
       LicensePlace: ruleForm.cccdPlaceOfGrant,
       Gender: ruleForm.sex,
       Contact: ruleForm.link,
-      FileId: ListFileUpload.value,
+      FileId: ListFileUpload.value || [],
       IsActive: true,
       BranchId: ruleForm.branch,
       DepartmentId: ruleForm.department,
@@ -641,7 +640,7 @@ const editData = async (typebtn) => {
       BankId: ruleForm.bankName,
       RoleId: ruleForm.roleAcces,
 
-      User: ruleForm.userName,
+      OldPassword: ruleForm.userName,
       Password: ruleForm.password,
       ConfirmPassword: ruleForm.confirmPassword,
     }

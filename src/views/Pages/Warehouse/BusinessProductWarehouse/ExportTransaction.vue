@@ -270,11 +270,15 @@ const updateInventory = async () => {
   //const id =
   //trả về id dùng tiếp ko cần đẩy ra ngoài
   await UpdateInventory(JSON.stringify(payload))
-    .then(() => {
+    .then(async (res) => {
       ElNotification({
         message: t('reuse.success'),
         type: 'success'
-      }),
+      })
+      if(type.value=='add'){
+        id.value = res.data
+        await exportInventoryNow()
+      }
         push({
           name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
         })
@@ -290,14 +294,16 @@ const updateInventory = async () => {
 let childrenTable: any[] = []
 const callButToan = async (data) => {
   data.forEach((product) => {
+
+    const orderDetail = orderData.value.find((row) => row.productPropertyId == product.productPropertyId)
+    
     product.exportLots.forEach(async lot => {
       if (lot.serviceType == 2 || lot.serviceType == 4) {
         childrenTable[0] = {
-          merchadiseTobePayforId: product.productPropertyId,
+          merchadiseTobePayforId: orderDetail.id,
           quantity: lot.quantity
         }
 
-        const orderDetail = orderData.value.find((row) => row.productPropertyId == product.productPropertyId)
 
         const payload = {
           orderId: lot.consignmentOrderId,
@@ -473,7 +479,6 @@ const updateTicket = (warehouse) => {
               v-if="status == 2"
               class="w-[150px]"
               type="primary"
-              :disabled="type == 'add' || type == 'edit'"
               @click="updateInventory"
               >{{ t('reuse.outStockNow') }}</ElButton
             >

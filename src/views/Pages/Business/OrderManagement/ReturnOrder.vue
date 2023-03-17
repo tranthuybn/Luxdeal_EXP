@@ -1180,9 +1180,9 @@ onBeforeMount(()=>{
             <div> {{scope.row.quantity}} </div>
           </template>
         </el-table-column>
-        <el-table-column prop="importMoney" :label="t('reuse.importWarehouseMoney')">
+        <el-table-column prop="importWarehousePrice" :label="t('reuse.importWarehouseMoney')">
           <template #default="scope">
-            <div>{{scope.row.importMoney}}</div>
+            <div>{{scope.row.importWarehousePrice}}</div>
           </template>
         </el-table-column>
       </el-table>

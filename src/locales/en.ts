@@ -1864,5 +1864,6 @@ export default {
     moneyToText: 'Money to text',
     totalPawnMoneyPaid: 'Total pawn money paid',
     totalPawnFeePaid: 'Total pawn fee paid',
+    paymentRequestInformationTicket: 'Payment request information ticket',
   }
 }

@@ -203,14 +203,13 @@ const rowClick = (selection, curRow) => {
   multipleSelection.value = curRow
   const index: number = lotData.value.findIndex((lot) => lot == curRow)
 
-
   //Kiểm tra xem đã check chưa
   if (!selectedRow.includes(index)) {
     //nếu chưa check thì +
     selectedRow.push(index)
 
     //nếu lấy hết mà vẫn chưa đủ số lượng
-    if (warehouseForm.value.quantity > curRow.inventory + totalExport.value) {
+    if (warehouseForm.value.quantity >= curRow.inventory + totalExport.value) {
       lotData.value[index].exportQuantity = curRow.inventory
       totalExport.value += Number(lotData.value[index].exportQuantity)
       return

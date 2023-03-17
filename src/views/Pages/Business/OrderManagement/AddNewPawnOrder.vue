@@ -1011,8 +1011,8 @@ const reloadStatusOrder = async () => {
   }
 }
 
-const approvalFunction = async () => {
-  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: true }
+const approvalFunction = async (isApprove) => {
+  const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: isApprove }
   await approvalOrder(FORM_IMAGES(payload))
   push({
     name: `approve.orders-approval.orders-new`
@@ -3484,10 +3484,10 @@ const totalPawnFee = ref(0)
             >
 
             <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
-              <el-button @click="approvalFunction" type="warning" class="min-w-42 min-h-11">{{
+              <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
                 t('router.approve')
               }}</el-button>
-              <el-button class="min-w-42 min-h-11 rounded font-bold">{{
+              <el-button @click="approvalFunction(false)" class="min-w-42 min-h-11 rounded font-bold">{{
                 t('router.notApproval')
               }}</el-button>
             </div>

@@ -54,15 +54,11 @@ import {
   getDetailAccountingEntryById,
   addQuickCustomer,
   GetProductPropertyInventory,
-  postAutomaticWarehouse,
-  updateStatusOrder,
   updateOrderInfo,
-  cancelOrder,
   finishOrder,
   getListWareHouse,
   approvalOrder,
   updateOrderTransaction,
-  finishStatusOrder,
   GetPaymentRequestDetail,
   getDetailReceiptPaymentVoucher,
   finishReturnOrder,
@@ -85,6 +81,8 @@ import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, ge
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
 import AddQuickProduct from './AddQuickProduct.vue'
 
+import * as orderUtility from './OrderFixbug'
+import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
 
 const { utility } = appModules
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -746,17 +744,17 @@ interface statusOrderType {
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
 
-const updateOrderStatus = async (status: number, idOrder: any) => {
-  const payload = {
-    OrderId: idOrder ? idOrder : id,
-    ServiceType: 2,
-    OrderStatus: status
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  await updateStatusOrder(formDataPayLoad)
-  statusOrder.value = status
-  reloadStatusOrder()
-}
+// const updateOrderStatus = async (status: number, idOrder: any) => {
+//   const payload = {
+//     OrderId: idOrder ? idOrder : id,
+//     ServiceType: 2,
+//     OrderStatus: status
+//   }
+//   const formDataPayLoad = FORM_IMAGES(payload)
+//   await updateStatusOrder(formDataPayLoad)
+//   statusOrder.value = status
+//   reloadStatusOrder()
+// }
 
 const duplicateStatusButton = ref(false)
 // load lại trạng thái đơn hàng
@@ -784,35 +782,43 @@ const approvalFunction = async (isApprove) => {
   })
 }
 
-const addStatusOrder = (index) => {
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-  arrayStatusOrder.value?.push(STATUS_ORDER_DEPOSIT[index])
-  statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-  updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
-}
+// const addStatusOrder = (index) => {
+//   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
+//   arrayStatusOrder.value?.push(STATUS_ORDER_DEPOSIT[index])
+//   statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
+//   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
+//   updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
+// }
 // Cập nhật trạng thái đơn hàng
-const updateStatusOrders = async (typeState) => {
-  // 13 hoàn thành đơn hàng
-  await deleteTempCode(ruleForm.orderCode)
-  if (typeState == STATUS_ORDER_DEPOSIT[0].orderStatus) {
-    let payload = {
-      OrderId: id
+const cancelOrder = async () =>{
+  const res = await orderUtility.cancelOrderAPI(id, orderUtility.ServiceType.KyGui)
+   if(res){
+    await deleteTempCode({
+     Code:ruleForm.orderCode
+      })
     }
-    await cancelOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else if (typeState == STATUS_ORDER_DEPOSIT[2].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await finishStatusOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else {
-    let paylpad = { OrderId: id, ServiceType: 2, OrderStatus: typeState }
-    await updateStatusOrder(FORM_IMAGES(paylpad))
-    reloadStatusOrder()
-  }
 }
+// const updateStatusOrders = async (typeState) => {
+//   // 13 hoàn thành đơn hàng
+//   await deleteTempCode(ruleForm.orderCode)
+//   if (typeState == STATUS_ORDER_DEPOSIT[0].orderStatus) {
+//     let payload = {
+//       OrderId: id
+//     }
+//     await cancelOrder(FORM_IMAGES(payload))
+//     reloadStatusOrder()
+//   } else if (typeState == STATUS_ORDER_DEPOSIT[2].orderStatus) {
+//     let payload = {
+//       OrderId: id
+//     }
+//     await finishStatusOrder(FORM_IMAGES(payload))
+//     reloadStatusOrder()
+//   } else {
+//     let paylpad = { OrderId: id, ServiceType: 2, OrderStatus: typeState }
+//     await updateStatusOrder(FORM_IMAGES(paylpad))
+//     reloadStatusOrder()
+//   }
+// }
 
 const chooseDelivery = [
   {
@@ -1154,14 +1160,11 @@ const postData = async () => {
   }
 }
 
-// Phiếu nhap kho tự động
-const automaticCouponWareHouse = async (index) => {
-  const payload = {
-    OrderId: id,
-    Type: index
+const batDauKyGui = async () =>{
+  const res = await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
+  if(res){
+    await orderUtility.startOrder(id,orderUtility.ServiceType.KyGui)
   }
-
-  await postAutomaticWarehouse(JSON.stringify(payload))
 }
 
 function printPage(id: string, { url, title, w, h }) {
@@ -1573,7 +1576,6 @@ const editButton = ref(false)
 let changeButtonEdit = ref(false)
 const disableEditData = ref(false)
 const disableCreateOrder = ref(false)
-const checkGiahan = ref(false)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
@@ -1639,9 +1641,9 @@ const editData = async () => {
       ListOfProductsForSale.value = orderObj.orderDetails
       getTotalWarehouse()
 
-      moment(orderObj.toDate).format('DD/MM/YYYY') == moment().format('L')
-        ? (checkGiahan.value = true)
-        : (checkGiahan.value = false)
+      // moment(orderObj.toDate).format('DD/MM/YYYY') == moment().format('L')
+      //   ? (checkGiahan.value = true)
+      //   : (checkGiahan.value = false)
 
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
@@ -2276,7 +2278,7 @@ const doneReturnGoods = async () => {
   })
   completeThePayment.value = true
 }
-const disabledDate = (time: Date) => {
+const disabledDate = (_time: Date) => {
   return false
   // return time.getTime() <= Date.now()
 }
@@ -3990,7 +3992,8 @@ const openDetailOrder = (id, type) => {
                   <el-button
                     text
                     border 
-                    class="text-blue-500" 
+                    class="text-blue-500"
+                    :disabled="checkDisabled" 
                     @click="
                       () => {
                         indexRow = data.$index
@@ -4068,6 +4071,7 @@ const openDetailOrder = (id, type) => {
                     item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[5].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[12].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[11].orderStatus
                   "
                 >
@@ -4189,6 +4193,8 @@ const openDetailOrder = (id, type) => {
           <div class="w-[100%] flex ml-1 gap-4" v-if="!editButton">
             <el-button
               v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[12].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
                 (statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus &&
@@ -4202,7 +4208,7 @@ const openDetailOrder = (id, type) => {
               class="min-w-42 min-h-11"
               :disabled="billLiquidationDis"
               @click="dialogBillLiquidation = true"
-              >{{ t('formDemo.printConsignmentContract') }}</el-button
+              >{{ t('formDemo.printLiquidationContract') }}</el-button
             >
 
             <el-button 
@@ -4216,10 +4222,7 @@ const openDetailOrder = (id, type) => {
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[1].orderStatus"
               type="primary"
               @click="
-                () => {
-                  addStatusOrder(4)
-                  automaticCouponWareHouse(1)
-                }
+                  batDauKyGui
               "
               class="min-w-42 min-h-11"
               >{{ t('formDemo.startRentingTermDeposit') }}</el-button
@@ -4249,7 +4252,7 @@ const openDetailOrder = (id, type) => {
               "
               @click="
                 () => {
-                  updateStatusOrders(STATUS_ORDER_DEPOSIT[0].orderStatus)
+                  cancelOrder()
                 }
               "
               type="danger"
@@ -4333,8 +4336,9 @@ const openDetailOrder = (id, type) => {
                 >{{ t('formDemo.cancelReturn') }}</el-button
               >
               <el-button
-                v-if="statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
-                !isPartialReturn"
+                v-if="
+                (statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
+                !isPartialReturn)"
                 @click="
                   () => {
                     finishOrderDeposit()
@@ -4365,6 +4369,7 @@ const openDetailOrder = (id, type) => {
             </div>
             <el-button
               v-if="
+              statusOrder == STATUS_ORDER_DEPOSIT[12].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
                 (statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus &&
                   completeThePayment &&
@@ -4381,8 +4386,8 @@ const openDetailOrder = (id, type) => {
             >
             <el-button
               v-if="
-                (checkGiahan && statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus) ||
-                (checkGiahan && statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus)
+                statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus
               "
               @click="
                 () => {

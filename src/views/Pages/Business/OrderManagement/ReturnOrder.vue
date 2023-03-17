@@ -14,7 +14,7 @@ ElNotification,
   ElMessage
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, moneyFormat } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
@@ -1182,7 +1182,7 @@ onBeforeMount(()=>{
         </el-table-column>
         <el-table-column prop="importWarehousePrice" :label="t('reuse.importWarehouseMoney')">
           <template #default="scope">
-            <div>{{scope.row.importWarehousePrice}}</div>
+            <div>{{moneyFormat(scope.row.importWarehousePrice)}}</div>
           </template>
         </el-table-column>
       </el-table>

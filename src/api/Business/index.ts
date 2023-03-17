@@ -1204,3 +1204,13 @@ export const GetMoneyAndDatePayment = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+//Bắt đầu đơn hàng
+export const StartOrder = async (params): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${ORDER_API.START_ORDER}?${objectToQueryParams(params)}`
+    }, fixedBaseURL
+  )
+  return res && res.data
+}

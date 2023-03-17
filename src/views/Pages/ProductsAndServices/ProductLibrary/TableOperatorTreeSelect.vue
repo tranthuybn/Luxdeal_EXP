@@ -454,7 +454,7 @@ const listType = ref<ListImages>('text')
 let timeCallAPI = 0
 const apiTreeSelect = async () => {
   if (timeCallAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key, pageSize: 1000, pageIndex: 1 })
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key, pageSize: 20, pageIndex: 1 })
       .then((res) => {
         if (res.data) {
           treeSelectData.value = res.data.map((index) => ({

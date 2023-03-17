@@ -132,7 +132,8 @@ export const ORDER_API = {
   GET_ORDER_BY_COLLABOLATOR: '/api/v1/Order/GetOrderByCollabolatorId',
   UPDATE_SPA_SERVICE: '/api/v1/Order/UpdateSpaService',
   CANCEL_UPDATE_SPA_SERVICE: '/api/v1/Order/CancelUpdateSpaService',
-  FINISH_UPDATE_SPA_SERVICE: '/api/v1/Order/FinishUpdateSpaService'
+  FINISH_UPDATE_SPA_SERVICE: '/api/v1/Order/FinishUpdateSpaService',
+  GET_ACCOUNTING_MONEY_AND_DATE: '/api/v1/Accountant/GetMoneyAndDatePayment'
 }
 
 export const ADDRESS_API = {
@@ -225,7 +226,7 @@ export const DEPARTMENT_DIRECTORY = {
   GET_STAFF_INFO_BY_ACCOUNT: 'api/v1/AccountStaff/GetStaffByAccountId',
   GET_ROLE_LIST: 'api/v1/Authorization/GetStaffRoleList',
   UPDATE_STAFF_ACCOUNT: 'api/v1/AccountStaff/UpdateStaffAccount',
-  DELETE_STAFF_ACCOUNT: 'api/v1/Authorization/DeleteStaffAccount'
+  DELETE_STAFF_ACCOUNT: 'api/v1/AccountStaff/DeleteStaffAccount'
 }
 
 export const APPROVAL_API = {

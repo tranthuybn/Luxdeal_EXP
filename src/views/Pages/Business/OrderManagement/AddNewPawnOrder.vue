@@ -69,7 +69,8 @@ GenerateCodeOrder,
 cancelReturnOrder,
 finishReturnOrder,
 GetWarehouseTransaction,
-updateStatusTransaction
+updateStatusTransaction,
+GetMoneyAndDatePayment
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -228,7 +229,7 @@ interface ListOfProductsForSaleType {
   description: string | undefined
   warehouseInfo: {}
   unitName: string
-  interestMoney: string | number | undefined
+  interestMoney: number
   TotalPrice: number
   price: string | number | undefined
   finalPrice: string
@@ -1066,11 +1067,30 @@ let payment = ref(choosePayment[0].value)
 const nameDialog = ref('')
 
 const dialogFeePaymentSlip = ref(false)
+const initDataTablePawnSlip = () =>{
+  ListOfProductsForSale.value.forEach(async (row,index)=>{
+    if(index ==0){//Can only show 1 product
+      await GetMoneyAndDatePayment({CustomerOrderId: id, ProductPropertyId:row.productPropertyId})
+      .then((res)=>{
+        tablePawnSlip.value[index].id = row.id
+        tablePawnSlip.value[index].productPropertyId = row.productPropertyId
+        tablePawnSlip.value[index].productName = row.productName
+        tablePawnSlip.value[index].productCode = row.productCode
+        tablePawnSlip.value[index].quantity = row.quantity
+        tablePawnSlip.value[index].interestMoney = row.interestMoney
+        tablePawnSlip.value[index].principalDebt = res.data.principalDebt
+        tablePawnSlip.value[index].lastPaymentDate = res.data.lastPaymentDate
+        tablePawnSlip.value[index].nextPaymentDate = moment().isBefore(moment(res.data.lastPaymentDate), 'day') ? moment(res.data.lastPaymentDate).format() : moment().format()
+      })}
+  })
+}
+
 function openDepositDialog() {
+  initDataTablePawnSlip()
   alreadyPaidForTt.value = true
   dialogFeePaymentSlip.value = !dialogFeePaymentSlip.value
-  tablePawnSlip.value = ListOfProductsForSale.value
   nameDialog.value = 'deposit'
+  updateDetailAcountingEntry.value = false
 }
 const dialogPawnCouponInfomation = ref(false)
 function openBillPawnDialog() {
@@ -1109,7 +1129,6 @@ const postReturnRequest = async (reason) => {
     editData()
   })
   .catch((err) => {
-    console.log('err', err)
       ElNotification({
       message: err.response.data.message,
       type: 'warning'
@@ -1195,6 +1214,10 @@ const giaHan = ref(false)
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
+  
+  if(transaction.data.length > 0){
+      DoiPhieuCamDo.value = false
+    }
 }
 // Thêm mã phiếu thu/chi vào debtTable
 const handleChangeReceipts = async () => {
@@ -1263,9 +1286,7 @@ var autoCodeReturnRequest = 'DT' + moment().format('hms')
 
 let childrenTable = ref()
 let objOrderStransaction = ref()
-let idStransaction = ref()
 const checkPTC = ref(0)
-const totalFinalOrder = ref(0)
 let moneyDeposit = ref(0)
 
 const updateDetailAcountingEntry = ref(false)
@@ -1289,13 +1310,20 @@ const updateOrderStransaction = async() => {
 }
 
 // Thêm bút toán cho đơn hàng
-const typeOfMoney = ref(4)
 const moneyToText = ref('')
 const postOrderStransaction = async (index: number) => {
-  childrenTable.value = ListOfProductsForSale.value.map((val) => ({
+  childrenTable.value = tablePawnSlip.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.id),
-    quantity: val.quantity
+    quantity: val.quantity,
+    price: val.pawnPrice,
+    principalDebt: val.principalDebt,
+    lastPaymentDate: val.lastPaymentDate,
+    nextPaymentDate: val.nextPaymentDate
   }))
+  let deibtPawnFee = 0
+  if(paymentType.value == 4){
+    deibtPawnFee =  daysDiff(ruleForm.pawnTerm[0],ruleForm.pawnTerm[1]) * (tablePawnSlip.value[0]?.interestMoney) * (tablePawnSlip.value[0]?.principalDebt/ 1000000) - tablePawnSlip.value[0]?.pawnPrice
+  }
 
   if (index == 4) {
     tableAccountingEntry.value[0].receiveMoney > tableAccountingEntry.value[0].paidMoney
@@ -1314,26 +1342,40 @@ const postOrderStransaction = async (index: number) => {
     receiptOrPaymentVoucherId: null,
     receiveMoney:
       index == 1
-        ? totalFinalOrder.value
+        ? tablePawnSlip.value[0].pawnPrice
         : index == 2
-        ? inputDeposit.value
+        ? 0
         : tableAccountingEntry.value[0].receiveMoney,
     paidMoney:
-      index == 1 || index == 2
+      index == 1 
         ? 0
+        : 
+      index == 2
+        ? totalPrincipalMoney.value
         : tableAccountingEntry.value[0].paidMoney,
-    deibt: index == 1 || index == 3 || index == 4 ? 0 : moneyDeposit.value,
+    deibt: index == 1 ? deibtPawnFee : index == 2 ? totalPrincipalMoney.value : index == 3 || index == 4 ? 0 : moneyDeposit.value,
     typeOfPayment: index == 1 || index == 2 ? 1 : index == 3 || index == 4 ? checkPTC.value : 0,
     paymentMethods: payment.value,
     status: 1,
     isReceiptedMoney: alreadyPaidForTt.value ? 1 : 0,
-    typeOfMoney: typeOfMoney.value,
+    typeOfMoney: paymentType.value,
     merchadiseTobePayfor: childrenTable.value,
     typeOfAccountingEntry: index,
     returnRequestId: idReturnRequest.value
   }
   objOrderStransaction.value = await addOrderStransaction(payload)
-  idStransaction.value = objOrderStransaction.value.paymentRequestId
+  .then(()=>{
+    ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+  })
+  .catch(()=>{
+    ElNotification({
+        message: t('reuse.addFail'),
+        type: 'error'
+      })
+  })
   inputDeposit.value = 0
   getOrderStransactionList()
 }
@@ -1662,16 +1704,17 @@ const fileList = ref<UploadUserFile[]>([])
 
 const disableCreateOrder = ref(false)
 const disabledDate = (time: Date) => {
-  return time.getTime() <= Date.now()
+  return time.getTime() <= Date.now() - 86400000
 }
 const totalPrincipalMoney = ref(0)
 const totalPrincipalDebt = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
-  console.log('run here')
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
+
+
     disabledEdit.value = true
     disableCreateOrder.value = true
     const res = await getOrderList({ Id: id, ServiceType: 4 })
@@ -1679,6 +1722,9 @@ const editData = async () => {
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
 
+    if(transaction.data.length > 0){
+      DoiPhieuCamDo.value = false
+    }
     getReturnRequestTable()
 
     const orderObj = { ...res.data[0] }
@@ -1725,10 +1771,10 @@ const editData = async () => {
       totalPrincipalMoney.value = orderObj.totalPrice
       ruleForm.paymentPeriod = orderObj.days
       priceintoMoneyByday.value = orderObj.interestMoney
-      customerID.value = orderObj.customer.id
+      customerID.value = orderObj?.customer?.id
       ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.collaboratorCommission = orderObj.collaboratorCommission
-      ruleForm.customerName = orderObj.customer.id
+      ruleForm.customerName = orderObj.customer?.id
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj?.warehouseId
 
@@ -1739,24 +1785,29 @@ const editData = async () => {
       totalPrincipalMoney.value = orderObj?.principalMoney
       totalPrincipalDebt.value = orderObj?.principalDebt
 
+      totalPawnFee.value = ListOfProductsForSale.value.reduce(function (acc, {principalDebt, interestMoney}) { 
+        return acc + (principalDebt/1000000) * interestMoney * daysDiff(ruleForm.pawnTerm[0],ruleForm.pawnTerm[1]); }
+        , 0)
+
       getTotalWarehouse()
 
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
-
-      if (orderObj.customer.isOrganization) {
-        infoCompany.name = orderObj.customer.name
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
-        infoCompany.email = 'Email: ' + orderObj.customer.email
-      } else {
-        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
-        infoCompany.email = 'Email: ' + orderObj.customer.email
+      if(orderObj.customer != null){
+        if (orderObj.customer.isOrganization) {
+          infoCompany.name = orderObj.customer.name
+          infoCompany.taxCode = orderObj.customer.taxCode
+          infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+          infoCompany.email = 'Email: ' + orderObj.customer.email
+        } else {
+          infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
+          infoCompany.taxCode = orderObj.customer.taxCode
+          infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
+          infoCompany.email = 'Email: ' + orderObj.customer.email
+        }
       }
     }
-    orderObj.orderFiles.map((element) => {
+    orderObj?.orderFiles?.map((element) => {
       if (element !== null) {
         ListFileUpload.value.push({
           url: `${element?.domainUrl}${element?.path}`,
@@ -1890,7 +1941,6 @@ const getDetailPayment = async (_index, scope) => {
   formDetailPaymentReceipt.value = await getDetailReceiptPaymentVoucher({
     id: scope.row.receiptOrPaymentVoucherId
   })
-  console.log('formDetailPaymentReceipt', formDetailPaymentReceipt.value)
   nameDialog.value = 'Phiếu thu'
   codeReceipts.value = formDetailPaymentReceipt.value.data?.code
   codeExpenditures.value = formDetailPaymentReceipt.value.data?.code
@@ -2037,7 +2087,20 @@ const createStatusAcountingEntry = () => {
 const getAccountingEntry = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
   formAccountingId.value = { ...res.data }
-  tablePawnSlip.value = formAccountingId.value.paidMerchandises
+  paymentType.value = formAccountingId.value.accountingEntry?.typeOfMoney
+  tablePawnSlip.value = formAccountingId.value.paidMerchandises.map(
+    (row)=>({
+      productPropertyId: row.productPropertyId,
+      productCode: row.productPropertyCode,
+      productName: row.productName,
+      quantity: row.quantity,
+      principalDebt: row.currentPrincipalDebt,
+      pawnPrice: row.pawnPrice,
+      nextPaymentDate: row.nextPaymentDate,
+      lastPaymentDate: row.lastPaymentDate,
+      interestMoney: row.interestMoney
+    })
+  )
   inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
   moneyDeposit.value = formAccountingId.value.accountingEntry?.deibt
   tableAccountingEntry.value[0] = formAccountingId.value.accountingEntry
@@ -2206,6 +2269,11 @@ onBeforeMount(async () => {
     alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
   }
   await callApiCollaborators()
+
+  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
+  listOfOrderProduct.value = listProducts.value.filter((item) => {
+    return productArray.includes(item.productPropertyId)
+  })
 })
 
 //TruongNgo
@@ -2213,10 +2281,7 @@ const rentReturnOrder = ref({} as any)
 let productArray: any = []
 const listOfOrderProduct = ref()
 const setDataForReturnOrder = () => {
-  productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
-  listOfOrderProduct.value = listProducts.value.filter((item) => {
-    return productArray.includes(item.productPropertyId)
-  })
+
   rentReturnOrder.value.orderCode = ruleForm.orderCode
   rentReturnOrder.value.period = ruleForm.pawnTerm
   rentReturnOrder.value.extendDate = '16/01/2001'
@@ -2280,9 +2345,6 @@ const cancelReturnRequest = async () =>{
 const changePrincipalMoney = () =>{
   totalPrincipalMoney.value = ListOfProductsForSale.value.reduce( ( sum, { principalMoney } ) => sum + principalMoney , 0)
 }
-const changePrincipalDebt = () =>{
-  totalPrincipalDebt.value = ListOfProductsForSale.value.reduce( ( sum, { principalDebt } ) => sum + principalDebt , 0)
-}
 const warehouseTicketCode = ref()
 const arrayStatusWH = ref()
 const staffId = ref()
@@ -2317,6 +2379,49 @@ const paymentTypeOptions = ref([
     value: 4
   }
 ])
+const calculateTotalMoney = () =>{
+  intoMoneyPawnGOC.value = tablePawnSlip.value.reduce( ( sum, { principalDebt, pawnPrice } ) => sum + principalDebt - pawnPrice , 0)
+  return intoMoneyPawnGOC.value
+}
+const intoMoneyPawnGOC = ref(0)
+
+const changeValueTablePawnSlip = async (value, obj, scope) =>{
+  await GetMoneyAndDatePayment({CustomerOrderId: id, ProductPropertyId: scope.row.productPropertyId})
+  .then((res)=>{
+    scope.row.id = value
+    scope.row.principalDebt = res.data.principalDebt
+    scope.row.lastPaymentDate = dateTimeFormat(res.data.lastPaymentDate)
+    scope.row.productPropertyId = obj?.productPropertyId
+    scope.row.productCode = obj.value
+    scope.row.productName = obj.name
+  })
+}
+
+//Difference in number of days
+const daysDiff = (startDate, endDate)=>{
+  var start = moment(moment(startDate).format('YYYY-MM-DD'), "YYYY-MM-DD");
+  var end = moment(moment(endDate).format('YYYY-MM-DD'), "YYYY-MM-DD");
+  var days = Math.abs(start.diff(end, 'days'))
+  if(days == 0){
+    days = 1
+  }
+  return days
+}
+
+const calculatePaidMoney = (row) =>{
+  const days = daysDiff(row.lastPaymentDate,row.nextPaymentDate)
+  row.pawnPrice = row.interestMoney * (row.principalDebt / 1000000) * days;
+  return row.pawnPrice
+}
+
+const disabledDatePawnFee= (time : Date,row) =>{
+  if(moment(time) >= moment(row.lastPaymentDate) && moment(time) <= moment(ruleForm.pawnTerm[1])){
+    return false
+  }
+  return true
+}
+const DoiPhieuCamDo = ref(true)
+const totalPawnFee = ref(0)
 </script>
 
 <template>
@@ -2920,13 +3025,7 @@ const paymentTypeOptions = ref([
 
           <el-table-column prop="principalDebt" :label="t('reuse.originalDebtMoney')" width="150">
             <template #default="data">
-              <div v-if="type === 'detail'">{{ changeMoney.format(data.row.principalDebt) }}</div>
-              <CurrencyInputComponent 
-                v-else 
-                @change="changePrincipalDebt"
-                v-model="data.row.principalDebt" 
-                :disabled="disabledEdit"
-                style="width: 100%" />
+              <div>{{ changeMoney.format(data.row.principalDebt) }}</div>
             </template>
           </el-table-column>
 
@@ -3191,7 +3290,7 @@ const paymentTypeOptions = ref([
               "
               class="min-w-42 min-h-11"
               @click="openDepositDialog"
-              :disabled="disabledPhieu"
+              :disabled="disabledPhieu || DoiPhieuCamDo"
               >{{ t('formDemo.bill') }}</el-button
             >
 
@@ -3557,7 +3656,11 @@ const paymentTypeOptions = ref([
             :label="t('formDemo.kindOfMoney')"
             align="left"
             min-width="150"
-          />
+          >
+          <template #default="props">
+              <div>{{ props.row.paidMoney == 0 ? moneyFormat(props.row.receiveMoney) : moneyFormat(props.row.paidMoney) }}</div>
+            </template>
+          </el-table-column>
 
           <el-table-column
             prop="receiveMoney"
@@ -3588,13 +3691,8 @@ const paymentTypeOptions = ref([
 
           <el-table-column prop="deibt" :label="t('formDemo.pawnFeeDebt')" min-width="150">
             <template #default="data">
-              <el-input
-                v-model="data.row.deibt"
-                v-if="type != 'detail'"
-                style="width: 100%; border: none; outline: none"
-              />
-              <div v-else class="text-right">
-                {{ data.row.deibt }}
+              <div>
+                {{ moneyFormat(data.row.currentDebt) }}
               </div>
             </template>
           </el-table-column>
@@ -3654,6 +3752,18 @@ const paymentTypeOptions = ref([
             </template>
           </el-table-column>
         </el-table>
+
+
+        <div class="flex justify-center pt-4">
+          <div>
+            <div class="flex justify-between">
+              <div class="text-black font-bold dark:text-[#fff]"
+                >{{ t('reuse.totalPawnFee') }}</div
+              >
+              <div class="pl-20px font-bold"> {{ changeMoney.format(totalPawnFee) }} </div>
+            </div>
+          </div>
+        </div>
       </el-collapse-item>
 
       <!-- Thông tin phiếu cầm đồ -->
@@ -3730,7 +3840,11 @@ const paymentTypeOptions = ref([
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tablePawnSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productCode" :label="t('reuse.productCode')" width="120" />
+            <el-table-column
+            :label="t('formDemo.productManagementCode')"
+            min-width="200"
+            prop="productCode"
+          />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
@@ -3950,53 +4064,81 @@ const paymentTypeOptions = ref([
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tablePawnSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column prop="productCode" :label="t('reuse.productCode')" width="120" />
+            <el-table-column
+            :label="t('formDemo.productManagementCode')"
+            min-width="200"
+            prop="productPropertyId"
+          >
+            <template #default="props">
+              <MultipleOptionsBox
+                :fields="[
+                  t('reuse.productCode'),
+                  t('reuse.managementCode'),
+                  t('formDemo.productInformation'),
+                ]"
+                filterable
+                width="650px"
+                :items="listOfOrderProduct"
+                valueKey="productPropertyId"
+                labelKey="productCode"
+                :hiddenKey="['id']"
+                :placeHolder="t('reuse.chooseProductCode')"
+                :defaultValue="props.row.productPropertyId"
+                :clearable="false"
+                @scroll-top="ScrollProductTop"
+                @scroll-bottom="ScrollProductBottom"
+                @update-value="(value, obj) => changeValueTablePawnSlip(value, obj, props)"
+                />
+            </template>
+          </el-table-column>
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
-            <el-table-column v-if="paymentType == 4" prop="lastDatePaid" :label="t('reuse.lastDatePaid')" />
-            <el-table-column v-if="paymentType == 4" prop="nextDatePaid" :label="t('reuse.nextDatePaid')" />
-            <el-table-column v-if="paymentType == 4" prop="intoMoneyByday" :label="t('reuse.intoMoneyByday')" />
-            <el-table-column prop="originalDebt" :label="t('reuse.originalDebt')" />
-            <el-table-column prop="paidMoney" :label="t('reuse.paidMoney')" />'reuse.paidMoney')" />
-
-
+            <el-table-column v-if="paymentType == 4" prop="lastDatePaid" :label="t('reuse.lastDatePaid')" width="100" >
+              <template #default="scope">
+                  {{dateTimeFormat(scope.row.lastPaymentDate)}}
+              </template>  
+            </el-table-column>
+            <el-table-column v-if="paymentType == 4" prop="nextPaymentDate" :label="t('reuse.nextDatePaid')" width="100" >
+              <template #default="scope">
+                <el-date-picker
+                  v-model="scope.row.nextPaymentDate"
+                  type="date"
+                  placeholder="Pick a day"
+                  format="DD/MM/YYYY"
+                  value-format="YYYY-MM-DD"
+                  :disabled-date="(time)=>disabledDatePawnFee(time,scope.row)"
+                />  
+              </template>  
+            </el-table-column>
+            <el-table-column v-if="paymentType == 4" prop="interestMoney" :label="t('reuse.intoMoneyByday')" width="100" />
+            <el-table-column prop="principalDebt" :label="t('reuse.originalDebt')" width="100"/>
+            <el-table-column prop="pawnPrice" :label="t('reuse.paidMoney')" width="100">
+              <template #default="scope">
+                <CurrencyInputComponent v-model="scope.row.pawnPrice" v-if="paymentType == 3"/>
+                <div v-if="paymentType == 4">
+                  {{calculatePaidMoney(scope.row)}}
+                </div>
+              </template>
+            </el-table-column>
           </el-table>
 
-          <div class="flex justify-end">
+          <div class="flex justify-end" v-if="paymentType == 3">
             <div class="w-[80%] text-right">
-              <p class="-white">Tổng dư nợ gốc cầm đồ</p>
+              <p class="text-black font-bold dark:text-white">{{ t('reuse.totalPawnMoneyPaid') }}</p>
             </div>
             <div class="w-[20%] text-right">
-              <p class="pr-2 text-black dark:text-white">{{ '0 đ' }}</p>
+              <p class="pr-2 text-black font-bold dark:text-white">{{ moneyFormat(calculateTotalMoney()) }}</p>
+            </div>
+          </div>
+          <div class="flex justify-end" v-if="paymentType == 4">
+            <div class="w-[80%] text-right">
+              <p class="text-black font-bold dark:text-white">{{ t('reuse.totalPawnMoneyPaid') }}</p>
+            </div>
+            <div class="w-[20%] text-right">
+              <p class="pr-2 text-black font-bold dark:text-white">{{ moneyFormat(tablePawnSlip[0]?.pawnPrice) }}</p>
             </div>
           </div>
 
-          <div class="flex justify-end">
-            <div class="w-[80%] text-right">
-              <p class="text-black dark:text-white">Tiền phí cầm đồ/1tr/ngày</p>
-            </div>
-            <div class="w-[20%] text-right">
-              <p class="pr-2 text-black dark:text-white">{{ '0 đ' }}</p>
-            </div>
-          </div>
-
-          <div class="flex justify-end">
-            <div class="w-[80%] text-right">
-              <p class="text-black dark:text-white">Số ngày cầm đồ thực tế</p>
-            </div>
-            <div class="w-[20%] text-right">
-              <p class="pr-2 text-black dark:text-white">{{ '0 đ' }}</p>
-            </div>
-          </div>
-
-          <div class="flex justify-end">
-            <div class="w-[80%] text-right">
-              <p class="text-black font-bold dark:text-white">{{ t('formDemo.intoMoneyPawn') }}</p>
-            </div>
-            <div class="w-[20%] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
-            </div>
-          </div>
         </div>
         <div class="flex items-center">
           <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
@@ -4369,7 +4511,7 @@ const paymentTypeOptions = ref([
               </template>
             </el-table-column>
             <el-table-column prop="content" :label="t('formDemo.kindOfMoney')">
-                <el-select v-model="typeOfMoney" class="m-2" placeholder="Select">
+                <el-select v-model="paymentType" class="m-2" placeholder="Select">
                   <el-option
                     v-for="item in optionsChooseMoneyType"
                     :key="item.value"
@@ -5119,6 +5261,7 @@ const paymentTypeOptions = ref([
             <el-table-column prop="warehouseTicketStatusName" :label="t('formDemo.status')" />
           </el-table>
         </div>
+
       </el-collapse-item>
     </el-collapse>
   </div>

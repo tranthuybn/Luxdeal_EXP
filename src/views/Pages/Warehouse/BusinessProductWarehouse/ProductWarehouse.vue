@@ -233,6 +233,7 @@ const openDialogWarehouse = (props) => {
 const closeDialogWarehouse = (warehouseData) => {
   if (warehouseData != null) {
     ListOfProductsForSale.value[currentRow.value].lot = warehouseData.lot
+    ListOfProductsForSale.value[currentRow.value].location = warehouseData.location
   }
   dialogWarehouse.value = false
 }
@@ -285,6 +286,9 @@ const warehouseFormat = (props) => {
   if (prop.warehouse !== undefined && prop?.warehouse?.label !== undefined) {
     if (props.row?.lot !== undefined) {
       if (props.row?.lot.lotCode == null) {
+        if(props.row?.lot.label != null){
+          return `${prop?.warehouse?.label}/${props.row?.location.label}/${props.row?.lot.label}`
+        }
         return `${prop?.warehouse?.label}`
       } else {
         return `${prop?.warehouse?.label}/${props.row?.lot.location}/${props.row?.lot.lotCode}`

@@ -33,7 +33,7 @@ const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
     type: Function as PropType<any>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
+    default: null
   },
   // api xpas dữ liệu sản phẩm
   delApi: {
@@ -132,6 +132,9 @@ const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 
 //get data from table
 const getTableValue = async () => {
+  if(props.apiId == null){
+    return
+  }
   if (!isNaN(props.id)) {
     const res = await props.apiId({ ...props.params, Id: props.id })
     if (res) {

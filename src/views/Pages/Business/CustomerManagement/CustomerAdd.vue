@@ -62,7 +62,7 @@ const customerClassification = ref('Khách hàng')
 
 const escape = useIcon({ icon: 'quill:escape' })
 
-const { ValidService, notSpace, removeVietnameseTones, checkLengthAccountNumber, doNotHaveNumber } = useValidator()
+const { ValidService, notSpace, removeVietnameseTones, checkLength, doNotHaveNumber, checkNumber, checkDuplicate } = useValidator()
 
 type Callback = (error?: string | Error | undefined) => void
 const ruleFormRef = ref<FormInstance>()
@@ -149,19 +149,9 @@ const rules = reactive<FormRules>({
     {validator: doNotHaveNumber},
   ],
   accountNumber: [
-    {validator: checkLengthAccountNumber},
-    {
-      validator:  (_rules, val: any, callback: Callback) => {
-        const duplicateList = accountNumberList.value.filter(item => val == item.accountNumber)
-        if (val && duplicateList.length > 0) {
-          callback(new Error(t('reuse.accountNumberDuplicated')))
-        } else {
-          callback()
-        }
-      },
-      required: true,
-      trigger: 'blur'
-    }
+    {validator: checkNumber},
+    {validator: (...config) =>  checkLength(config, 9, 14)},
+    { validator: (...config) => checkDuplicate(config, accountNumberList.value, t('reuse.accountNumberDuplicated'))}
   ],
 })
 
@@ -686,7 +676,7 @@ const callAPICustomer = async () => {
         })
     })
     accountNumberList.value = res?.data.map((el) => ({
-      accountNumber: el.accountNumber
+      value: el.accountNumber
     }))
   }
 }

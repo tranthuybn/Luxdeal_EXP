@@ -117,7 +117,15 @@ const props = defineProps({
   tab: {
     type: String,
     default: ''
-  }
+  },
+  showSaveAndAddBtnOnTypeEdit: {
+    type: Boolean,
+    default: false
+  },
+  disabledCancelBtn: {
+    type: Boolean,
+    default: false
+  },
 })
 const formValue = ref()
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -576,12 +584,12 @@ const approvalProduct = async () => {
           <ElButton :loading="loading" type="primary" @click="save('edit')">
             {{ t('reuse.save') }}
           </ElButton>
-          <ElButton :loading="loading" @click="cancel">
+          <ElButton v-if="props.showSaveAndAddBtnOnTypeEdit" :loading="loading" type="primary" @click="save('saveAndAdd')">
+            {{ t('reuse.saveAndAdd') }}
+          </ElButton>
+          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="cancel">
             {{ t('reuse.cancel') }}
           </ElButton>
-          <!-- <ElButton type="danger" :loading="loading" @click="delAction">
-          {{ t('reuse.delete') }}
-        </ElButton> -->
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'detail'">

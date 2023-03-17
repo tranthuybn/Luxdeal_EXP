@@ -377,6 +377,9 @@ watch (() => tableObject.tableList, (newVal) => {
           <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
           <ElButton @click="action(row, 'edit')" :icon="editIcon" />
         </div>
+        <div v-if="customOperator === 6">
+          <ElButton @click="action(row, 'edit')" :icon="eyeIcon" />
+        </div>
       </template>
       <template #switch="data">
         <ElSwitch v-model="data.row.switch" @change="localeChange" />

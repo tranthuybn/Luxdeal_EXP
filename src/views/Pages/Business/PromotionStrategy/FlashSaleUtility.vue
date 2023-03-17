@@ -458,7 +458,6 @@ const customizeData = async (data) => {
   setFormData.target = data[0].targetType
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
   setFormData.statusHistory = data[0].statusHistory
-
   hideTableCustomer(data[0].targetType)
 }
 const { push } = useRouter()

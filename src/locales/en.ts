@@ -912,6 +912,7 @@ export default {
     saleCare: 'Sale Care', 
     change: 'Change',
     initialization: 'initialization',
+    cantBadgeAccount1List: 'Can\'t get badge account 1 list',
     cantGetBrandList: 'Can\'t get brand list',
     cantGetDepartmentList: 'Can\'t get department List',
     cantGetRankList: 'Can\'t get rank list',
@@ -1264,6 +1265,7 @@ export default {
     rank1Account: 'Account Rank 1',
     rank2Account: 'Account Rank 2',
     badgeAccount1: 'Account 1 Badge',
+    badgeAccount2: 'Account 2 Badge',
     nameAccount1: 'Account 1 Name',
     closeAccount: 'Close Account',
     typeAccount: 'Type of Account',
@@ -1421,6 +1423,8 @@ export default {
     notSpecialCharacters: 'Do not enter special characters',
     lengthRange: 'Inappropriate character length',
     notSpace: 'No spaces between characters',
+    lengthMax5: 'Maximum 5 number',
+    lengthMax255: 'Maximum 255 characters',
     isNotEqual: 'It is not equal',
     phoneNumberFormat: 'It is not phone number format',
     emailFormat: 'Please enter correct email format',
@@ -1854,5 +1858,7 @@ export default {
     lastDatePaid: 'Last date paid',
     nextDatePaid: 'Next date paid',
     moneyToText: 'Money to text',
+    totalPawnMoneyPaid: 'Total pawn money paid',
+    totalPawnFeePaid: 'Total pawn fee paid',
   }
 }

@@ -259,6 +259,7 @@ const rules = reactive({})
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const targetId = Number(router.currentRoute.value.params.targetId)
 const tab = Number(router.currentRoute.value.params.tab)
 
 //post data api
@@ -439,6 +440,7 @@ const back = async () => {
           :multipleImages="false"
           @edit-data="editData"
           :tabActive="tab"
+          :targetId="targetId"
           :campaignAndStrategyType="4"
         />
       </el-collapse-item>

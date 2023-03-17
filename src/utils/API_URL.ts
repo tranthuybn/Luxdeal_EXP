@@ -132,7 +132,8 @@ export const ORDER_API = {
   GET_ORDER_BY_COLLABOLATOR: '/api/v1/Order/GetOrderByCollabolatorId',
   UPDATE_SPA_SERVICE: '/api/v1/Order/UpdateSpaService',
   CANCEL_UPDATE_SPA_SERVICE: '/api/v1/Order/CancelUpdateSpaService',
-  FINISH_UPDATE_SPA_SERVICE: '/api/v1/Order/FinishUpdateSpaService'
+  FINISH_UPDATE_SPA_SERVICE: '/api/v1/Order/FinishUpdateSpaService',
+  GET_ACCOUNTING_MONEY_AND_DATE: '/api/v1/Accountant/GetMoneyAndDatePayment'
 }
 
 export const ADDRESS_API = {

@@ -147,7 +147,7 @@ const brandSelect = ref<Options[]>([{
   label: ''
 }])
 export const getBrandSelectOptions = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key, pageSize: 10000, pageIndex: 1 })
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[7].key, pageSize: 20, pageIndex: 1 })
     .then((res) => {
       if (res.data) {
         brandSelect.value = res.data
@@ -168,7 +168,7 @@ const unitSelect = ref<Options[]>([{
   label: ''
 }])
 export const getUnitSelectOptions = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key, pageSize: 10000, pageIndex: 1 })
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[6].key, pageSize: 20, pageIndex: 1 })
     .then((res) => {
       if (res.data) {
         unitSelect.value = res.data
@@ -189,7 +189,7 @@ const originSelect = ref<Options[]>([{
   label: ''
 }])
 export const getOriginSelectOptions = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key, pageSize: 10000, pageIndex: 1 })
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[8].key, pageSize: 20, pageIndex: 1 })
     .then((res) => {
       if (res.data) {
         originSelect.value = res.data
@@ -210,7 +210,7 @@ const optionsCategory = ref()
 export const getCategory = async () => {
     const res = await getCategories({
       TypeName: PRODUCTS_AND_SERVICES[0].key,
-      pageSize: 100,
+      pageSize: 20,
       pageIndex: 1
     })
     optionsCategory.value = res.data.map((product) => ({
@@ -961,7 +961,7 @@ export const getCategoriesData = async () => {
   if (callAttribute == 0) {
     await getCategories({
       TypeName: PRODUCTS_AND_SERVICES[1].key,
-      pageSize: 1000,
+      pageSize: 20,
       pageIndex: 1
     }).then(
       (res) =>
@@ -973,7 +973,7 @@ export const getCategoriesData = async () => {
     )
     await getCategories({
       TypeName: PRODUCTS_AND_SERVICES[2].key,
-      pageSize: 1000,
+      pageSize: 20,
       pageIndex: 1
     }).then(
       (res) =>
@@ -981,7 +981,7 @@ export const getCategoriesData = async () => {
     )
     await getCategories({
       TypeName: PRODUCTS_AND_SERVICES[3].key,
-      pageSize: 1000,
+      pageSize: 20,
       pageIndex: 1
     }).then(
       (res) =>
@@ -993,7 +993,7 @@ export const getCategoriesData = async () => {
     )
     await getCategories({
       TypeName: PRODUCTS_AND_SERVICES[4].key,
-      pageSize: 1000,
+      pageSize: 20,
       pageIndex: 1
     }).then(
       (res) =>
@@ -1005,7 +1005,7 @@ export const getCategoriesData = async () => {
     )
     await getCategories({
       TypeName: PRODUCTS_AND_SERVICES[5].key,
-      pageSize: 1000,
+      pageSize: 20,
       pageIndex: 1
     }).then(
       (res) =>

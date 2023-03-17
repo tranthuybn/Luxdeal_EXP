@@ -1157,3 +1157,14 @@ export const SendVoucher = async (params: any): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+// Lấy dư nợ gốc và ngày cuối thanh toán
+export const GetMoneyAndDatePayment = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ACCOUNTING_MONEY_AND_DATE}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

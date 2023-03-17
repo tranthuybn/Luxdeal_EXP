@@ -282,6 +282,7 @@ const activeName = ref(collapse[0].name)
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const targetId = Number(router.currentRoute.value.params.targetId)
 
 //post data api
 type FormDataPost = {
@@ -492,7 +493,7 @@ const back = async () => {
         <TableOperatorCollection
            ref="formRef" :apiId="getCampaignList" :schema="schema" :type="type"
           :multipleImages="false" :id="id" :params="params" @post-data="postData" :formDataCustomize="setFormData"
-          @customize-form-data="customizeData" @edit-data="editData" :show-product="true"
+          @customize-form-data="customizeData" @edit-data="editData" :show-product="true" :targetId="targetId"
           :campaignAndStrategyType="6" />
       </el-collapse-item>
 

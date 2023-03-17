@@ -214,6 +214,13 @@ const hideTableCustomer = (data) => {
   valueRadioOjbApply.value = data
 }
 
+const escape = useIcon({ icon: 'quill:escape' })
+const back = async () => {
+  push({
+    name: 'business.promotion-strategy.flash-sale'
+  })
+}
+
 // Change icon in field money | percentage
 const changeSuffixIcon = (data) => {
   if (schema[3].componentProps) {
@@ -274,8 +281,8 @@ const activeName = ref(collapse[0].name)
 //
 
 const id = Number(router.currentRoute.value.params.id)
+const targetId = Number(router.currentRoute.value.params.targetId)
 const type = String(router.currentRoute.value.params.type)
-
 
 
 //post data api
@@ -427,7 +434,6 @@ const setFormData = reactive(emptyFormData)
 
 
 const customizeData = async (data) => {
-  console.log('data nhận vào để customize', data)
   if (data[0].reduce) {
     const moneyType = data[0].reduce.split(' ')
     moneyType[1] == '%'
@@ -452,7 +458,6 @@ const customizeData = async (data) => {
   setFormData.target = data[0].targetType
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
   setFormData.statusHistory = data[0].statusHistory
-
   hideTableCustomer(data[0].targetType)
 }
 const { push } = useRouter()
@@ -485,13 +490,21 @@ const editData = async (data) => {
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <el-collapse-item :name="collapse[0].name">
         <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl">{{ collapse[0].title }}</span>
+          <div class="flex w-full justify-between">
+            <div class="before">
+              <el-button class="header-icon" :icon="collapse[0].icon" link />
+              <span class="text-center text-xl">{{ collapse[0].title }}</span>
+            </div>
+            <div @click="back()" class="after">
+              <span class="text-center text-xl">{{ t('reuse.exit') }}</span>
+              <el-button class="header-icon" :icon="escape" link />
+            </div>
+          </div>
         </template>
         <TableOperatorCollection
           ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
           :apiId="getCampaignList" @post-data="postData" :params="params" :rules="rules"
-          @customize-form-data="customizeData" :formDataCustomize="setFormData" @edit-data="editData"
+          :targetId="targetId" @customize-form-data="customizeData" :formDataCustomize="setFormData" @edit-data="editData"
           :show-product="true"
           :campaignAndStrategyType="1"
           />

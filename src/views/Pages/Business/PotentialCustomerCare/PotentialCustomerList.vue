@@ -30,7 +30,7 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'potentialCustomerHistorys[0].staffName',
-    label: t('reuse.sale'),
+    label: t('reuse.saleCare'),
     minWidth: '150',
     headerFilter: 'Name'
   },
@@ -68,7 +68,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'isOnline',
     label: t('reuse.transactionStatus'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterTransactionStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${onlineToText(cellValue)}`)
@@ -77,7 +77,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'accessChannelName',
     label: t('reuse.approachingChannel'),
-    minWidth: '100',
+    minWidth: '150',
     filters: filterApproaching
   },
   {
@@ -87,7 +87,7 @@ const columns = reactive<TableColumn[]>([
   },
   {
     field: 'sourceName',
-    label: t('reuse.originated'),
+    label: t('reuse.sourceNewCustomer'),
     minWidth: '100',
     filters: filterSource
   },
@@ -141,7 +141,6 @@ const columns = reactive<TableColumn[]>([
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)

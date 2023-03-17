@@ -21,3 +21,6 @@ const deleteOrigin = t('reuse.deleteService')
     :titleAdd="'reuse.newInitialization'"
   />
 </template>
+
+<style scope lang="less">
+</style>

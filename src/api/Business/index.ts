@@ -1028,10 +1028,46 @@ export const getReceiptsExpendituresList = async (params: any): Promise<IRespons
   return res && res.data
 }
 
-export const getBalanceList = async (params: any): Promise<IResponse> => {
+export const getAccountantList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
       url: `${ACCOUNTANT_API.BALANCE_SHEET_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const getAccountantById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ACCOUNTANT_API.GET_BALANCE_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const addNewAccountant = async (params: any): Promise<IResponse> => {
+  console.log(params)
+  const res = await request.post(
+    {
+      url: `${ACCOUNTANT_API.ADD_NEW_BALANCE}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const updateAccountant = async (data): Promise<IResponse> => {
+  const res = await request.put({ url: `${ACCOUNTANT_API.UPDATE_BALANCE}?${objectToQueryParams(data)}` }, fixedBaseURL)
+  return res && res.data
+}
+
+export const deleteAccountant = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${ACCOUNTANT_API.DELETE_ACCOUNTANT}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -1152,6 +1188,17 @@ export const SendVoucher = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     {
       url: `${CAMPAIGN_API.SEND_VOUCHER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+// Lấy dư nợ gốc và ngày cuối thanh toán
+export const GetMoneyAndDatePayment = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ACCOUNTING_MONEY_AND_DATE}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

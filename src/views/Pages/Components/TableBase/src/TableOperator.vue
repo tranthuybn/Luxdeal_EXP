@@ -33,7 +33,7 @@ const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
     type: Function as PropType<any>,
-    default: () => Promise<IResponse<TableResponse<TableData>>>
+    default: null
   },
   // api xpas dữ liệu sản phẩm
   delApi: {
@@ -117,13 +117,24 @@ const props = defineProps({
   tab: {
     type: String,
     default: ''
-  }
+  },
+  showSaveAndAddBtnOnTypeEdit: {
+    type: Boolean,
+    default: false
+  },
+  disabledCancelBtn: {
+    type: Boolean,
+    default: false
+  },
 })
 const formValue = ref()
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 
 //get data from table
 const getTableValue = async () => {
+  if(props.apiId == null){
+    return
+  }
   if (!isNaN(props.id)) {
     const res = await props.apiId({ ...props.params, Id: props.id })
     if (res) {
@@ -174,7 +185,6 @@ const setFormValue = async () => {
     if (props.hasImage && !props.multipleImages) {
       imageUrl.value = props.formDataCustomize.imageurl
     }
-    console.log('data', props.formDataCustomize)
     if (props.hasImage && props.multipleImages) {
       // Images tao tu formDataCustomize
       props.formDataCustomize?.Images.map((image) =>
@@ -574,12 +584,12 @@ const approvalProduct = async () => {
           <ElButton :loading="loading" type="primary" @click="save('edit')">
             {{ t('reuse.save') }}
           </ElButton>
-          <ElButton :loading="loading" @click="cancel">
+          <ElButton v-if="props.showSaveAndAddBtnOnTypeEdit" :loading="loading" type="primary" @click="save('saveAndAdd')">
+            {{ t('reuse.saveAndAdd') }}
+          </ElButton>
+          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="cancel">
             {{ t('reuse.cancel') }}
           </ElButton>
-          <!-- <ElButton type="danger" :loading="loading" @click="delAction">
-          {{ t('reuse.delete') }}
-        </ElButton> -->
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'detail'">
@@ -646,4 +656,5 @@ const approvalProduct = async () => {
   min-width: 150px;
   min-height: 40px;
 }
+
 </style>

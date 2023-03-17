@@ -5,14 +5,22 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton, ElRow, ElCol, ElDivider } from 'element-plus'
 import { useRouter } from 'vue-router'
+// import TableDataBase from '../../Components/TableDataBase.vue'
 import {
   ElTable,
   ElTableColumn,
   ElNotification
 } from 'element-plus'
 import { getEmployeeRatingList, getEmployeeSaleTrackingList } from '@/api/Business'
+import { moneyFormat } from '@/utils/format'
 
 const escape = useIcon({ icon: 'quill:escape' })
+const back = async () => {
+  push({
+    name: 'business.employee-management.employeeRatings'
+  })
+}
+
 const { t } = useI18n()
 const { push } = useRouter()
 const router = useRouter()
@@ -28,37 +36,11 @@ const collapse: Array<Collapse> = [
     icon: minusIcon,
     name: 'generalInformation',
     title: t('formDemo.employeeDetail'),
-    columns: [],
-    api: undefined,
-    buttonAdd: '',
-    typeForm: 'form',
-    typeButton: 'form01',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 1
   },
   {
     icon: minusIcon,
-    name: 'generalInformation',
+    name: 'salesTrackingInformation',
     title: t('formDemo.salesTrackingTable'),
-    columns: [],
-    api: undefined,
-    buttonAdd: '',
-    typeForm: 'form',
-    typeButton: 'form01',
-    expand: false,
-    apiTableChild: undefined,
-    columnsTableChild: undefined,
-    pagination: false,
-    removeHeaderFilter: true,
-    removeDrawer: true,
-    selection: false,
-    customOperator: 3
   },
 
 ]
@@ -79,11 +61,15 @@ onBeforeMount(() => {
   callAPIInfoEmployee()
   callAPISalesTracking()
 })
-
-const back = async () => {
-  push({
-    name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-  })
+interface InfoEmployee {
+  employeeCode: string
+  employeeName: string
+  phoneNumber: string
+  email: string
+  branch: string
+  department: string
+  typeEmployee: string
+  rankEmployee:string
 }
 
 //get data
@@ -117,7 +103,7 @@ const callAPISalesTracking= async () => {
       } else {
         saleTrackingRes = res
       }
-      await setInfoEmployeeTableValue()
+      await setSalesTrackingTableValue()
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),
@@ -126,23 +112,23 @@ const callAPISalesTracking= async () => {
     }
   }
 }
-interface InfoEmployee {
-  employeeCode: string
-  employeeName: string
-  phoneNumber: string
-  email: string
-  branch: string
-  department: string
-  typeEmployee: string
-  rankEmployee:string
+
+
+interface SaleTracking {
+  dateOrder: string
+  orderCode: string
+  orderValue: number
+  sales: number
+  percentageSale: number
 }
+
 const infoEmployeeTable = reactive({
   generalInfo: {},
   positionInfo: {} 
-} )
-let salesTrackingTable = reactive([])
+})
+const salesTrackingTable = reactive([] as Array<SaleTracking>)
+const totalSales = ref()
 const setInfoEmployeeTableValue = () => {
-  if(infoEmployeeRes) {
     infoEmployeeTable.generalInfo[t('reuse.employeeCode')] = infoEmployeeRes.employeeCode
     infoEmployeeTable.generalInfo[t('reuse.employeeName')] = infoEmployeeRes.employeeName
     infoEmployeeTable.generalInfo[t('reuse.phoneNumber')] = infoEmployeeRes.phoneNumber
@@ -152,13 +138,56 @@ const setInfoEmployeeTableValue = () => {
     infoEmployeeTable.positionInfo[t('reuse.department')] = infoEmployeeRes.department
     infoEmployeeTable.positionInfo[t('reuse.type')] = infoEmployeeRes.typeEmployee
     infoEmployeeTable.positionInfo[t('reuse.rank')] = infoEmployeeRes.rankEmployee
-  }
-  if(salesTrackingTable.length == 0) {
-    saleTrackingRes.forEach(item => salesTrackingTable.push(item))
-  }
-
 }
 
+const setSalesTrackingTableValue = () => {
+  const newArr = saleTrackingRes.map(item => 
+    ({
+      dateOrder: item.dateOrder,
+      orderCode: item.orderCode,
+      orderValue: moneyFormat(item.orderValue),
+      sales: moneyFormat(item.sales),
+      percentageSale: item.percentageSale,
+    })
+  )
+  salesTrackingTable.push(...newArr)
+  totalSales.value = moneyFormat(saleTrackingRes.reduce((total, item) => {
+    return total + item.sales
+  }, 0))
+}
+
+// const columns = reactive<TableColumn[]>([
+//   {
+//     field: 'orderCode',
+//     label: t('formDemo.orderCode'),
+//     minWidth: '794',
+//     align: 'center',
+//   },
+//   {
+//     field: 'orderValue',
+//     label: t('formDemo.orderValue'),
+//     minWidth: '200',
+//     headerAlign: 'left',
+//   },
+//   {
+//     field: 'percentageSale',
+//     label: t('formDemo.percentageSales'),
+//     minWidth: '200',
+//     headerAlign: 'left',
+//   },
+//   {
+//     field: 'sales',
+//     label: t('formDemo.sales'),
+//     minWidth: '200',
+//     headerAlign: 'left',
+//   },
+//   {
+//     field: 'dateOrder',
+//     label: t('formDemo.day'),
+//     minWidth: '200',
+//     headerAlign: 'left',
+//   } 
+// ])
 </script>
 
 <template>
@@ -181,18 +210,16 @@ const setInfoEmployeeTableValue = () => {
         <ElRow class="pl-8" :gutter="20" justify="space-between">
            <ElCol :span="12">
               <ElDivider contentPosition="left">{{ t('formDemo.generalInformation') }}</ElDivider>
-              <el-row v-for="(infoValue, label) in infoEmployeeTable.generalInfo" :key="infoValue">
+              <el-row v-for="(infoValue, label, index) in infoEmployeeTable.generalInfo" :key="infoValue">
                 <el-col :span="4" class="flex justify-end pr-2">{{ label }}</el-col>
-                <el-col :span="20" class="">{{ infoValue }}</el-col>
+                <el-col :class="{'font-bold': index === 0}" :span="20" class="">{{ infoValue }}</el-col>
               </el-row>
-
-
            </ElCol>
            <ElCol :span="12">
               <ElDivider contentPosition="left">{{ t('formDemo.jobPosition') }}</ElDivider>
-              <el-row v-for="(infoValue, label) in infoEmployeeTable.positionInfo" :key="infoValue">
+              <el-row v-for="(infoValue, label, index) in infoEmployeeTable.positionInfo" :key="infoValue">
                 <el-col :span="4" class="flex justify-end pr-2">{{ label }}</el-col>
-                <el-col :span="20" class="">{{ infoValue }}</el-col>
+                <el-col :class="{'font-bold': index === 0}" :span="20" class="bold">{{ infoValue }}</el-col>
               </el-row>
            </ElCol>
         </ElRow>
@@ -203,12 +230,22 @@ const setInfoEmployeeTableValue = () => {
           <span class="text-center text-xl ml-3">{{ collapse[1].title }}</span>
         </template>
         <el-table :data="salesTrackingTable" border>
+          <template #append >
+            <span v-if="totalSales"  class="p-[1500px] font-bold">{{ totalSales }}</span>
+          </template>
           <el-table-column prop="orderCode" :label="t('formDemo.orderCode')" min-width="794" />
           <el-table-column prop="orderValue" :label="t('formDemo.orderValue')" min-width="200" />
           <el-table-column prop="percentageSale" :label="t('formDemo.percentageSales')" min-width="200"/>
           <el-table-column prop="sales" :label="t('formDemo.sales')"  min-width="200"/>
           <el-table-column prop="dateOrder" :label="t('formDemo.day')" min-width="200"/>
         </el-table>
+        <!-- <TableDataBase 
+          :removeHeaderFilter="true" 
+          :selection="false"
+          :api="getEmployeeSaleTrackingList"
+          :columns="columns" 
+          :removeDrawer="true"
+          /> -->
       </el-collapse-item>
     </el-collapse>
   </div>

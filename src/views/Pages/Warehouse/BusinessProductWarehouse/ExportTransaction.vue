@@ -16,9 +16,9 @@ import {
   updateTicketManually
 } from '@/api/Warehouse'
 import { getWareHouseTransactionList, addOrderStransaction } from '@/api/Business'
-import { dateTimeFormat } from '@/utils/format'
 import moment from 'moment'
-import {statusWhType, TicketStatusHistory} from "./TicketEnum"
+import { statusWhType } from "./TicketEnum"
+import StatusWarehouse from './StatusWarehouse.vue'
 
 const { t } = useI18n()
 
@@ -270,11 +270,15 @@ const updateInventory = async () => {
   //const id =
   //trả về id dùng tiếp ko cần đẩy ra ngoài
   await UpdateInventory(JSON.stringify(payload))
-    .then(() => {
+    .then(async (res) => {
       ElNotification({
         message: t('reuse.success'),
         type: 'success'
-      }),
+      })
+      if(type.value=='add'){
+        id.value = res.data
+        await exportInventoryNow()
+      }
         push({
           name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
         })
@@ -290,14 +294,16 @@ const updateInventory = async () => {
 let childrenTable: any[] = []
 const callButToan = async (data) => {
   data.forEach((product) => {
+
+    const orderDetail = orderData.value.find((row) => row.productPropertyId == product.productPropertyId)
+    
     product.exportLots.forEach(async lot => {
       if (lot.serviceType == 2 || lot.serviceType == 4) {
         childrenTable[0] = {
-          merchadiseTobePayforId: product.productPropertyId,
+          merchadiseTobePayforId: orderDetail.id,
           quantity: lot.quantity
         }
 
-        const orderDetail = orderData.value.find((row) => row.productPropertyId == product.productPropertyId)
 
         const payload = {
           orderId: lot.consignmentOrderId,
@@ -453,98 +459,8 @@ const updateTicket = (warehouse) => {
         <div class="w-[100%]">
           <el-divider content-position="left">{{ t('formDemo.statusAndManipulation') }}</el-divider>
         </div>
-        <!-- <div class="flex gap-4 w-[100%] ml-1 items-center pb-3">
-          <label class="w-[12%] text-right">{{ t('reuse.importTicketStatus') }}</label> -->
-          <!-- <div>
-            <p class="status bg-gray-300 day-updated">{{ t('reuse.initializeAndWrite') }}</p>
-            <p class="date text-gray-300">
-              {{
-                ticketData.createdAt
-                  ? dateTimeFormat(ticketData.createdAt)
-                  : dateTimeFormat(moment())
-              }}
-            </p>
-          </div>
-          <div v-if="status == 3">
-            <p class="status bg-gray-300 day-updated text-red-500">{{ t('reuse.cancelImport') }}</p>
-            <p class="date text-gray-300">
-              {{ dateTimeFormat(ticketData.updatedAt) }}
-            </p>
-          </div>
-          <div v-if="status == 4">
-            <p class="status bg-gray-300 day-updated text-blue-500">{{ t('reuse.import') }}</p>
-            <p class="date text-gray-300">
-              {{ dateTimeFormat(ticketData.updatedAt) }}
-            </p>
-          </div>
-        </div> -->
-        <div class="flex gap-4 w-[100%] ml-1 pb-3 mb-2">
-          <label class="ml-10">{{ t('reuse.exportTicketStatus')}}</label>
-          <div class="w-[75%]">
-          <div class="flex items-cumter w-[100%]">
-            <div
-              class="duplicate-status"
-              v-for="item in arrayStatusWH"
-              :key="item.value"
-            >
-              <div v-if="item.value == TicketStatusHistory.NewCreate">
-                <span
-                  class="box custom-after bg-gray-300 dark:text-gray-300"
-                  :class="{ active: item.isActive }"
-                >
-                  {{ item.name }}
 
-                  <span class="triangle-right right_1"> </span>
-                </span>
-                <p v-if="item?.approveAt">{{
-                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-                }}</p>
-                <p v-else class="text-transparent">s</p>
-              </div>
-              <div v-else-if="item.value == TicketStatusHistory.Approve">
-                <span
-                  class="box box_3 custom-after text-orange-400 dark:text-black"
-                  :class="{ active: item.isActive }"
-                >
-                  {{ item.name }}
-                  <span class="triangle-right right_3"> </span>
-                </span>
-                <p v-if="item?.approveAt">{{
-                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-                }}</p>
-                <p v-else class="text-transparent">s</p>
-              </div>
-              <div v-else-if="item.value == TicketStatusHistory.Exported || item.value == TicketStatusHistory.Depositing">
-                <span
-                  class="box box_2 custom-after text-blue-500 dark:text-black"
-                  :class="{ active: item.isActive }"
-                >
-                  {{ item.name }}
-                  <span class="triangle-right right_2"> </span>
-                </span>
-                <p v-if="item?.approveAt">{{
-                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-                }}</p>
-                <p v-else class="text-transparent">s</p>
-              </div>
-              <div v-else-if="item.value == TicketStatusHistory.CancelExport">
-                
-                <span
-                  class="box box_4 custom-after text-rose-500 dark:text-black"
-                  :class="{ active: item.isActive }"
-                >
-                  {{ item.name }}
-                  <span class="triangle-right right_4"> </span>
-                </span>
-                <p v-if="item?.approveAt">{{
-                  item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
-                }}</p>
-                <p v-else class="text-transparent">s</p>
-              </div>
-            </div>
-          </div>
-          </div>
-        </div>
+        <StatusWarehouse :arrayStatusWH="arrayStatusWH" :label="t('reuse.exportTicketStatus')"/>
 
         <div class="ml-[170px] flex">
           <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
@@ -563,7 +479,6 @@ const updateTicket = (warehouse) => {
               v-if="status == 2"
               class="w-[150px]"
               type="primary"
-              :disabled="type == 'add' || type == 'edit'"
               @click="updateInventory"
               >{{ t('reuse.outStockNow') }}</ElButton
             >
@@ -619,96 +534,12 @@ const updateTicket = (warehouse) => {
   </div>
 </template>
 <style scoped>
+
 ::deep(.el-select) {
     width: 100%;
   }
   
   :deep(.cell) {
     word-break: break-word;
-  }
-  
-  .box {
-    position: relative;
-    display: flex;
-    width: fit-content;
-    padding: 0 10px 0 20px;
-    background-color: #ccc;
-    border: 1px solid #ccc;
-    opacity: 0.6;
-    align-items: center;
-  }
-  
-  .box_1 {
-    --tw-bg-opacity: 1;
-
-    background-color: rgb(209 213 219 / var(--tw-bg-opacity));
-    border: 1px solid rgb(209 213 219 / var(--tw-bg-opacity));
-  
-  }
-  
-  .box_2 {
-    background-color: #f4f8fd;
-    border: 1px solid #f4f8fd;
-  }
-  
-  .box_3 {
-    background-color: #f8dec9;
-    border: 1px solid #f8dec9;
-  }
-  
-  .box_4 {
-    background-color: #fce5e1;
-    border: 1px solid #fce5e1;
-  }
-
-  .duplicate-status + .duplicate-status {
-    margin-left: 10px;
-  }
-
-  .active {
-    opacity: 1 !important;
-  }
-
-  .right_1 {
-    border-left: 11px solid rgb(209 213 219 / var(--tw-bg-opacity)) !important;
-  }
-
-  .right_2 {
-    border-left: 11px solid #f4f8fd !important;
-  }
-  
-  .right_3 {
-    border-left: 11px solid #f8dec9 !important;
-  }
-  
-  .right_4 {
-    border-left: 11px solid #fce5e1 !important;
-  }
-
-  .triangle-right {
-    position: absolute;
-    right: -12px;
-    width: 0;
-    height: 0;
-    border-top: 13px solid transparent;
-    border-bottom: 12px solid transparent;
-    border-left: 11px solid #ccc;
-  }
-
-  .custom-after::after {
-    --tw-border-opacity: 1;
-
-    position: absolute;
-    left: -1px;
-    z-index: 1998;
-    width: 11px;
-    height: 100%;border-top-color: transparent;
-    border-bottom-color: transparent;
-    border-left-color: rgb(255 255 255 / var(--tw-border-opacity));
-    border-style: solid;
-    border-top-width: 12px;
-    border-bottom-width: 12px;
-    border-left-width: 10px;
-    content: '';
   }
 </style>

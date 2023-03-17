@@ -132,7 +132,8 @@ export const ORDER_API = {
   GET_ORDER_BY_COLLABOLATOR: '/api/v1/Order/GetOrderByCollabolatorId',
   UPDATE_SPA_SERVICE: '/api/v1/Order/UpdateSpaService',
   CANCEL_UPDATE_SPA_SERVICE: '/api/v1/Order/CancelUpdateSpaService',
-  FINISH_UPDATE_SPA_SERVICE: '/api/v1/Order/FinishUpdateSpaService'
+  FINISH_UPDATE_SPA_SERVICE: '/api/v1/Order/FinishUpdateSpaService',
+  GET_ACCOUNTING_MONEY_AND_DATE: '/api/v1/Accountant/GetMoneyAndDatePayment'
 }
 
 export const ADDRESS_API = {
@@ -149,6 +150,10 @@ export const ACCOUNTANT_API = {
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
   PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment',
   BALANCE_SHEET_LIST: '/api/v1/Accountant/GetListOfAccountingAccounts',
+  GET_BALANCE_BY_ID: '',
+  DELETE_ACCOUNTANT: '/api/v1/Accountant/DeleteAccountingAccount',
+  UPDATE_BALANCE: '/api/v1/Accountant/UpdateAccountingAccount', 
+  ADD_NEW_BALANCE: 'api/v1/Accountant/CreateAccountingAccounts',
   POST_ACCOUNTANT_CREATEANEWPAYMENTREQUEST:'/api/v1/Accountant/CreateANewPaymentRequest',
   CREATE_NEW_RECEIPT_OR_PAYMENT_VOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
   EDIT_RECEIPT_OR_PAYMENT_VOUCHER: '/api/v1/Accountant/EditAReceiptOrPaymentVoucher',
@@ -219,7 +224,9 @@ export const DEPARTMENT_DIRECTORY = {
   //nhan su
   ADD_NEW_STAFF: '/api/v1/AccountStaff/RegiterStaffAccount',
   GET_STAFF_INFO_BY_ACCOUNT: 'api/v1/AccountStaff/GetStaffByAccountId',
-  GET_ROLE_LIST: 'api/v1/Authorization/GetStaffRoleList'
+  GET_ROLE_LIST: 'api/v1/Authorization/GetStaffRoleList',
+  UPDATE_STAFF_ACCOUNT: 'api/v1/AccountStaff/UpdateStaffAccount',
+  DELETE_STAFF_ACCOUNT: 'api/v1/AccountStaff/DeleteStaffAccount'
 }
 
 export const APPROVAL_API = {
@@ -232,7 +239,9 @@ export const APPROVAL_API = {
 
 export const ROLE_API = {
   CREATE_NEW_STAFF_ROLE: 'api/v1/Authorization/AddNewStaffRole',
-  GET_ROLE_DETAIL:'api/v1/Authorization/StaffRoleInDetail'
+  GET_ROLE_DETAIL:'api/v1/Authorization/StaffRoleInDetail',
+  UPDATE_STAFF_ROLE: 'api/v1/Authorization/EditStaffRole',
+  DELETE_STAFF_ROLE: 'api/v1/Authorization/DeleteStaffRoleList'
 }
 
 export const TOOL_API = {

@@ -168,6 +168,12 @@ export const filterGender: Array<Filter> = [
   { text: t('reuse.male'), value: true },
   { text: t('reuse.female'), value: false }
 ]
+export const filterApproveCampaign: Array<Filter> = [
+  { text: t('reuse.initialization'), value: 0 },
+  { text: t('reuse.cancel'), value: 1 },
+  { text: t('reuse.change'), value: 2 }
+]
+
 export const filterStatusCustomer: Array<Filter> = [
   { text: t('reuse.pending'), value: 2 },
   { text: t('reuse.active'), value: 1 }

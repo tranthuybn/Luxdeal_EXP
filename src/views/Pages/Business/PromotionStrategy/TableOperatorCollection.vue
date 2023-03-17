@@ -83,6 +83,10 @@ const props = defineProps({
     type: Number,
     default: NaN
   },
+  targetId: {
+    type: Number,
+    default: NaN
+  },
   //type = 'add' || 'detail' || 'edit'
   //có sự kiện watch để bắt xem đang ở type nào
   type: {
@@ -988,7 +992,7 @@ onBeforeMount(async () => {
 })
 
 const approvisionnement = async (val: boolean) => {
-  const payload = { ItemType: Approvement.Campaign, Id: props.id ?? null, IsApprove: val }
+  const payload = { ItemType: Approvement.Campaign, Id: props.targetId ?? null, IsApprove: val }
   await approvalProducts(FORM_IMAGES(payload))
     .then(() => {
       ElNotification({
@@ -1071,7 +1075,7 @@ const spaMoney = ref(0)
               </el-table-column>
               <el-table-column :label="t('reuse.operator')" fixed="right" min-width="86">
                 <template #default="scope">
-                  <el-button type="danger" v-if="scope.row.code" @click="removeProduct(scope)">{{
+                  <el-button type="danger" @click="removeProduct(scope)">{{
                     t('reuse.delete')
                   }}</el-button>
                 </template>
@@ -1194,33 +1198,36 @@ const spaMoney = ref(0)
              t('reuse.voucherStatusExplain') }})</span></template></el-checkbox>
           </template>
           <template #statusValue="form">
-            <div class="status_wrap" v-if="type=='add'">
-              <span
+            <div class="mr-5 flex flex-col justify-start gap-2" v-if="type=='add'">
+              <div>
+                <span
                     class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                   ></span>
-                  <span class="box status-initial dark:text-divck" >
+                  <span class="box status--initial dark:text-divck" >
                     {{ t('reuse.newInitialization') }}
                     <span class="triangle-right"></span>
                   </span>
-              <div class="status_wrap-date ">{{ currentDate }}</div>
+              </div>
+              <div class="italic text-xs text-gray-500">{{ currentDate }}</div>
             </div>
-            <div
-                v-else
-                class="duplicate-status"
-                v-for="item, index in form['statusHistory']"
-                :key="index"
-            >
-              <div class="mr-5 flex flex-col justify-start align-top gap-2">
-                  <div class="align-top">
-                    <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span class="box dark:text-divck" :class="statusClass(item.campaignStatus)" >
-                      {{item.campaignStatusName }}    
-                      <span class="triangle-right"></span>
-                    </span>
-                  </div>
-                  <div class="italic text-xs text-gray-500">{{ item.campaignStatus === 0 ? dateTimeFormat(form.statusHistory[0].createdAt) : dateTimeFormat(form.statusHistory[0].approvedAt) }}</div>
+            <div v-else class="flex items-start" >
+              <div          
+                  class="duplicate-status align-top"
+                  v-for="item, index in form['statusHistory']"
+                  :key="index"
+              >
+                <div class="mr-5 flex flex-col justify-start gap-2">
+                    <div>
+                      <span
+                        class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                      ></span>
+                      <span class="box dark:text-divck" :class="statusClass(item.campaignStatus)" >
+                        {{item.campaignStatusName }}    
+                        <span class="triangle-right"></span>
+                      </span>
+                    </div>
+                    <div class="italic text-xs text-gray-500">{{dateTimeFormat(item.approvedAt)}}</div>
+                </div>
               </div>
             </div>
           </template>
@@ -1282,7 +1289,7 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
       </div>
       <div v-else-if="props.type === 'detail'" class="flex">
         <div
-class="flex"
+              class="flex"
               v-if="(lastStatus != CampaignStatusV2.DuyetKhoiTao && approved != false)
                 || (lastStatus != CampaignStatusV2.SuaChuongTrinh && approved != false)">
           <ElButton :loading="loading" @click="edit">
@@ -1304,7 +1311,7 @@ class="flex"
       <div v-else-if="props.type === 'edit'" class="flex">
         <!-- If its pending for approving(approved == false) then hide all button -->
         <div
-class="flex"
+              class="flex"
               v-if="(lastStatus != CampaignStatusV2.DuyetKhoiTao && approved != false)
                 || (lastStatus != CampaignStatusV2.SuaChuongTrinh && approved != false)">
           <ElButton type="primary" :loading="loading" @click="save('edit')">
@@ -1392,7 +1399,7 @@ v-model="radioSelected" :label="scope.$index + 1"
 <style lang="scss" scoped>
 .triangle-left {
   position: absolute;
-  z-index: 1998;
+  z-index: 100;
   width: 0;
   height: 0;
 }
@@ -1417,7 +1424,7 @@ v-model="radioSelected" :label="scope.$index + 1"
   align-items: center;
 }
 
-.status--initial {
+.status--initial, .status--active {
   color: rgb(59 130 246);
   background-color: #f4f8fd;
   border: 1px solid #f4f8fd;
@@ -1425,7 +1432,7 @@ v-model="radioSelected" :label="scope.$index + 1"
     border-left: 11px solid #f4f8fd !important;
   }
 }
-.status--pending, .status--active {
+.status--pending, .status--pending-edit {
   color: rgb(234 179 8); 
   background-color: #fff0d9;
   border: 1px solid #fff0d9;
@@ -1434,18 +1441,13 @@ v-model="radioSelected" :label="scope.$index + 1"
   }
 }
 
-.status--cancel, .status--ending{
+.status--cancel{
   color: rgb(238, 48, 15); 
   background-color: #fce5e1;
   border: 1px solid #fce5e1;
   .triangle-right{
     border-left: 11px solid #fce5e1 !important;
   }
-}
-
-
-.status--pending-edit{
-
 }
 
 .explainText {

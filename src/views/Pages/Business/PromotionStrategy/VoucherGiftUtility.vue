@@ -259,6 +259,7 @@ const rules = reactive({})
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const targetId = Number(router.currentRoute.value.params.targetId)
 const tab = Number(router.currentRoute.value.params.tab)
 
 //post data api
@@ -398,15 +399,32 @@ const editData = async (data) => {
       })
     )
 }
+
+const escape = useIcon({ icon: 'quill:escape' })
+const back = async () => {
+  push({
+    name: 'business.promotion-strategy.voucher'
+  })
+}
+
 </script>
+
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <el-collapse-item :name="collapse[0].name">
         <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl">{{ collapse[0].title }}</span>
+          <div class="flex w-full justify-between">
+            <div class="before">
+              <el-button class="header-icon" :icon="collapse[0].icon" link />
+              <span class="text-center text-xl ml-3">{{ collapse[0].title }}</span>
+            </div>
+            <div @click="back()" class="after">
+              <span class="text-center text-xl">{{ t('reuse.exit') }}</span>
+              <el-button class="header-icon" :icon="escape" link />
+            </div>
+          </div>
         </template>
         <TableOperatorCollection
           ref="formRef"
@@ -422,6 +440,7 @@ const editData = async (data) => {
           :multipleImages="false"
           @edit-data="editData"
           :tabActive="tab"
+          :targetId="targetId"
           :campaignAndStrategyType="4"
         />
       </el-collapse-item>

@@ -2841,8 +2841,6 @@ const postReturnRequest = async (reason) => {
             message: t('reuse.addSuccess'),
             type: 'success'
           })
-       
-    console.log('res', res)
   createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
       .then((res) => {
         if(res.statusCode == 400) {

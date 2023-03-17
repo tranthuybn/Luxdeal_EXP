@@ -37,7 +37,9 @@ import {
   getBranchList,
   getDepartmentList,
   getRankList,
-  getTypePersonnelList
+  getTypePersonnelList,
+  getRoleList,
+  updeteStaffAccount
 } from '@/api/HumanResourceManagement'
 import { useValidator } from '@/hooks/web/useValidator'
 import { getEmployeeById } from '@/api/Accountant'
@@ -358,21 +360,21 @@ const callApiCity = async () => {
   cities.value = await getCity()
 }
 
-const CityChange = async (value) => {
-  ruleForm.ProvinceId = value
-  district.value = await getDistrict(value)
-  valueCommune.value = ''
-  valueDistrict.value = ''
-  ruleForm.Address = ''
-}
+watch(() => valueProvince.value, async val => {
+  console.log('val :>> ', val);
+  if (val) {
+    district.value = await getDistrict(val)
+    // valueCommune.value = ''
+    // valueDistrict.value = ''
+  }
+})
 
-const districtChange = async (value) => {
-  ruleForm.DistrictId = value
-  ward.value = await getWard(value)
-}
-const wardChange = async (value) => {
-  ruleForm.WardId = value
-}
+watch(() => valueDistrict.value, async val => {
+  if (val) {
+    ward.value = await getWard(val)
+    // valueCommune.value = ''
+  }
+})
 
 const disabledDate = (time: Date) => {
   return time.getTime() > Date.now()
@@ -414,7 +416,6 @@ const cancel = async () => {
 //   if (!formEl) return
 //   formEl.resetFields()
 // }
-const disabledForm = ref(false)
 
 let FileDeleteIds: any = []
 
@@ -441,8 +442,26 @@ const beforeRemove : any = (uploadFile) => {
     })
 }
 
-const optionsRole = [{id: '', label: '', value: ''}]
+const optionsRole = ref()
 
+const callApiGetRoleList = async () => {
+  const params = {
+    Keyword: '',
+    PageIndex: 1,
+    PageSize: 99999,
+  }
+  const res = await getRoleList(params)
+  if (res) {
+    optionsRole.value = res.data.map((el) => ({ label: el.name, value: el.id }))
+    return optionsRole.value
+  } else {
+    ElMessage({
+      message: t('reuse.cantGetData'),
+      type: 'error'
+    })
+    return
+  }
+}
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
     `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
@@ -483,6 +502,7 @@ const postData = async (typebtn) => {
       IsActive: true,
       Gender: ruleForm.sex,
       Contact: ruleForm.link,
+      FileId: ListFileUpload.value,
       BranchId: ruleForm.branch,
       DepartmentId: ruleForm.department,
       PositionId: ruleForm.jobPosition,
@@ -497,9 +517,8 @@ const postData = async (typebtn) => {
       User: ruleForm.userName,
       Password: ruleForm.password,
       ConfirmPassword: ruleForm.confirmPassword,
-      RoleId: ruleForm.roleAcces
+      RoleId: ruleForm.roleAcces,
     }
-
     const formDataPayLoad = FORM_IMAGES(payload)
     await addNewStaff(formDataPayLoad)
       .then(() => {
@@ -522,8 +541,8 @@ const postData = async (typebtn) => {
       )
   }
 }
-
 const formValue = ref()
+const isDisable = ref(false)
 //get data from table
 const getTableValue = async () => {
   if (!isNaN(id)) {
@@ -542,6 +561,8 @@ const getTableValue = async () => {
     }
   }
   if (type == 'detail' || type == 'edit') {
+    if (type == 'detail') isDisable.value = true
+    else isDisable.value = false
     ruleForm.isActive = formValue.value?.isActive
     ruleForm.customerCode = formValue.value?.code
     if (formValue.value?.sex) {
@@ -558,18 +579,19 @@ const getTableValue = async () => {
         })
       }
     })
+    ruleForm.staffCode = formValue.value.code
     ruleForm.name = formValue.value.name
-    ruleForm.accountName = formValue.value.accountName
+    ruleForm.phoneNumber = formValue.value.phone
+    ruleForm.email = formValue.value.email
     ruleForm.cccd = formValue.value.cccd
     ruleForm.cccdCreateAt = formValue.value.cccdNgayCap
     ruleForm.cccdPlaceOfGrant = formValue.value.cccdNoiCap
-    ruleForm.email = formValue.value.email
-    ruleForm.phoneNumber = formValue.value.phone
-    ruleForm.link = formValue.value.link
-    ruleForm.bankName = formValue.value.bank?.name
-    ruleForm.accountNumber = formValue.value.accountNumber
     ruleForm.doB = formValue.value.birthday
-    ruleForm.userName = formValue.value.userName
+    ruleForm.sex = formValue.value.gender
+    ruleForm.link = formValue.value.contact
+    ruleForm.accountName = formValue.value.bankName
+    ruleForm.bankName = formValue.value.bankId
+    ruleForm.accountNumber = formValue.value.bankNumber
     ruleForm.Address = formValue.value.address
     ruleForm.ProvinceId = formValue.value.provinceId
     ruleForm.DistrictId = formValue.value.districtId
@@ -578,20 +600,71 @@ const getTableValue = async () => {
     ruleForm.department = formValue.value.departmentId
     ruleForm.jobPosition = formValue.value.positionId
     ruleForm.typeOfEmployee = formValue.value.typeStaffId
-    ruleForm.Address = formValue.value.address
-    valueCommune.value = formValue.value.addressDistrictId
     valueProvince.value = formValue.value.addressProvinceId
     valueDistrict.value = formValue.value.addressDistrictId
-    await callApiCity()
-    await CityChange(formValue.value.provinceId)
-    await districtChange(formValue.value.districtId)
-    const result1 = cities.value.find((e) => e.value == formValue.value.provinceId)
-    valueProvince.value = result1?.label
-    const result2 = district.value.find((e) => e.value == formValue.value.districtId)
-    valueDistrict.value = result2?.label
+    valueCommune.value = formValue.value.wardId
+    ruleForm.Address = formValue.value.address
+    ruleForm.userName = formValue.value.userName
+    ruleForm.roleAcces = formValue.value.roleId
+    // ListFileUpload.value = formValue.value.fieldId
+  }
+}
 
-    const result3 = ward.value.find((e) => e.value == formValue.value.wardId)
-    valueCommune.value = result3?.label
+
+const editData = async (typebtn) => {
+  await submitForm(ruleFormRef.value, ruleFormRef2.value)
+  if (checkValidate.value) {
+    const payload = {
+      Id: formValue.value.id,
+      Code: ruleForm.staffCode,
+      Name: ruleForm.name,
+      PhoneNumber: ruleForm.phoneNumber,
+      Email: ruleForm.email,
+      Birthday: ruleForm.doB,
+      CCCD: ruleForm.cccd,
+      LicenseDate: ruleForm.cccdCreateAt,
+      LicensePlace: ruleForm.cccdPlaceOfGrant,
+      Gender: ruleForm.sex,
+      Contact: ruleForm.link,
+      FileId: ListFileUpload.value,
+      IsActive: true,
+      BranchId: ruleForm.branch,
+      DepartmentId: ruleForm.department,
+      PositionId: ruleForm.jobPosition,
+      TypeOfStaffId: ruleForm.typeOfEmployee,
+      AddressProvinceId: valueProvince.value,
+      AddressDistrictId: valueDistrict.value,
+      WardId: valueCommune.value,
+      Address: ruleForm.Address,
+      BankAccountName: ruleForm.accountName,
+      BankAccountNumber: ruleForm.accountNumber,
+      BankId: ruleForm.bankName,
+      RoleId: ruleForm.roleAcces,
+
+      User: ruleForm.userName,
+      Password: ruleForm.password,
+      ConfirmPassword: ruleForm.confirmPassword,
+    }
+    const formDataPayLoad = FORM_IMAGES(payload)
+    await updeteStaffAccount(formDataPayLoad)
+      .then(() => {
+        ElNotification({
+          message: t('reuse.updateSuccess'),
+          type: 'success'
+        })
+        if (typebtn === 'save') {
+          push({
+            name: 'human-resource-management.personnel-accounts',
+            params: { backRoute: 'human-resource-management.personnel-accounts' }
+          })
+        }
+      })
+      .catch((error) =>
+        ElNotification({
+          message: error || t('reuse.updateFail'),
+          type: 'warning'
+        })
+      )
   }
 }
 
@@ -603,6 +676,7 @@ onBeforeMount(() => {
   CallApiDepartment()
   CallApiPosition()
   CallApiStaff()
+  callApiGetRoleList()
 })
 </script>
 
@@ -644,7 +718,7 @@ onBeforeMount(() => {
                 </el-form-item>
 
                 <el-form-item label="Tên nhân viên" prop="name">
-                  <el-input v-model="ruleForm.name" placeholder="Họ và tên" />
+                  <el-input v-model="ruleForm.name" placeholder="Họ và tên" :disabled="isDisable" />
                 </el-form-item>
 
                 <el-form-item :label="t('reuse.phoneNumber')" prop="phoneNumber">
@@ -652,11 +726,12 @@ onBeforeMount(() => {
                     v-model="ruleForm.phoneNumber"
                     type="text"
                     :placeholder="t('reuse.enterPhoneNumber')"
+                    :disabled="isDisable"
                   />
                 </el-form-item>
 
                 <el-form-item label="Email" prop="email">
-                  <el-input v-model="ruleForm.email" placeholder="Nhập email" />
+                  <el-input v-model="ruleForm.email" placeholder="Nhập email" :disabled="isDisable" />
                 </el-form-item>
 
                 <el-form-item :label="t('reuse.cmnd')">
@@ -668,6 +743,7 @@ onBeforeMount(() => {
                           class="w-[25%] outline-none dark:bg-transparent"
                           type="text"
                           :placeholder="t('formDemo.enterCCCD')"
+                          :disabled="isDisable"
                         />
                       </el-form-item>
                     </div>
@@ -684,6 +760,7 @@ onBeforeMount(() => {
                           format="DD/MM/YYYY"
                           value-format="YYYY-MM-DD"
                           class="w-[25%] min-w-[203px] cccd-createAt outline-none dark:bg-transparent"
+                          :disabled="isDisable"
                         />
                       </el-form-item>
                     </div>
@@ -695,6 +772,7 @@ onBeforeMount(() => {
                           class="w-[25%] outline-none dark:bg-transparent"
                           type="text"
                           :placeholder="t('formDemo.supplyAddress')"
+                          :disabled="isDisable"
                         />
                       </el-form-item>
                     </div>
@@ -718,12 +796,13 @@ onBeforeMount(() => {
                           format="DD/MM/YYYY"
                           value-format="YYYY-MM-DD"
                           @change="formatDate"
+                          :disabled="isDisable"
                         />
                       </el-form-item>
                     </div>
                     <div class="flex-1">
                       <el-form-item prop="sex">
-                        <el-select v-model="ruleForm.sex" clearable placeholder="Chọn giới tính">
+                        <el-select v-model="ruleForm.sex" clearable placeholder="Chọn giới tính" :disabled="isDisable">
                           <el-option
                             v-for="item in optionsGender"
                             :key="item.label"
@@ -744,6 +823,7 @@ onBeforeMount(() => {
                     type="text"
                     :placeholder="t('reuse.enterFacebookZaloLink')"
                     :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                     :disabled="isDisable"
                   />
                 </el-form-item>
 
@@ -756,7 +836,7 @@ onBeforeMount(() => {
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
                       <el-form-item prop="branch">
-                        <el-select v-model="ruleForm.branch" clearable placeholder="Chọn chi nhánh">
+                        <el-select v-model="ruleForm.branch" clearable placeholder="Chọn chi nhánh" :disabled="isDisable">
                           <el-option
                             v-for="item in listBranchs"
                             :key="item.label"
@@ -772,6 +852,7 @@ onBeforeMount(() => {
                           v-model="ruleForm.department"
                           clearable
                           placeholder="Chọn phòng ban"
+                          :disabled="isDisable"
                         >
                           <el-option
                             v-for="item in listDepartments"
@@ -796,6 +877,7 @@ onBeforeMount(() => {
                           v-model="ruleForm.jobPosition"
                           clearable
                           placeholder="Chọn cấp bậc làm việc"
+                          :disabled="isDisable"
                         >
                           <el-option
                             v-for="item in listPosition"
@@ -812,6 +894,7 @@ onBeforeMount(() => {
                           v-model="ruleForm.typeOfEmployee"
                           clearable
                           placeholder="Chọn loại hình nhân viên"
+                          :disabled="isDisable"
                         >
                           <el-option
                             v-for="item in listTypeOfStaff"
@@ -837,10 +920,11 @@ onBeforeMount(() => {
                     clearable
                     placeholder="Chọn quyền"
                     prop="role"
+                    :disabled="isDisable"
                   >
                     <el-option
                       v-for="item in optionsRole"
-                      :key="item.id"
+                      :key="item.value"
                       :label="item.label"
                       :value="item.value"
                     />
@@ -848,18 +932,19 @@ onBeforeMount(() => {
                 </el-form-item>
 
                 <el-form-item label="Mật khẩu" prop="password">
-                  <el-input v-model="ruleForm.password" placeholder="Nhập mật khẩu" />
+                  <el-input v-model="ruleForm.password" placeholder="Nhập mật khẩu" :disabled="isDisable" />
                 </el-form-item>
 
                 <el-form-item label="Nhập lại mật khẩu" prop="confirmPassword">
                   <el-input
                     v-model="ruleForm.confirmPassword"
                     placeholder="Xác nhận lại mật khẩu"
+                    :disabled="isDisable"
                   />
                 </el-form-item>
 
                 <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">
-                  <el-checkbox class="ml-4" :disabled="alwayShowAdd" v-model="ruleForm.isActive">{{
+                  <el-checkbox class="ml-4" :disabled="alwayShowAdd || isDisable" v-model="ruleForm.isActive">{{
                     t('formDemo.isActive')
                   }}</el-checkbox>
                 </ElFormItem>
@@ -893,7 +978,7 @@ onBeforeMount(() => {
                       >{{ t('formDemo.cancelAccount') }}</el-button
                     >
                     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+                      :close-on-click-modal="doCloseOnClickModal"
                       v-model="centerDialogCancelAccount"
                       :title="t('formDemo.cancelAccount')"
                       width="30%"
@@ -921,7 +1006,7 @@ onBeforeMount(() => {
                     </el-dialog>
                   </div>
                   <div v-else-if="type === 'edit'" class="flex justify-center">
-                    <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
+                    <el-button @click="editData('save')" type="primary" class="min-w-42 min-h-11">{{
                       t('reuse.save')
                     }}</el-button>
                     <el-button @click="cancel()" type="danger" class="min-w-42 min-h-11">{{
@@ -964,7 +1049,7 @@ onBeforeMount(() => {
                     :on-exceed="handleExceed"
                     :multiple="true"
                     v-model:fileList="ListFileUpload"
-                    :disabled="disabledForm"
+                    :disabled="isDisable"
                   >
                     <el-button class="text-[#303133] font-medium dark:text-[#fff]"
                       >+ {{ t('formDemo.addPhotosOrFiles') }}
@@ -994,7 +1079,7 @@ onBeforeMount(() => {
                       style="width: 96%"
                       class="m-2 fix-full-width"
                       :placeholder="t('reuse.selectProvinceCity')"
-                      @change="(data) => CityChange(data)"
+                      :disabled="isDisable"
                     >
                       <el-option
                         v-for="item in cities"
@@ -1013,7 +1098,7 @@ onBeforeMount(() => {
                       style="width: 96%"
                       class="m-2 fix-full-width"
                       :placeholder="t('reuse.selectCountyOrDistrict')"
-                      @change="(data) => districtChange(data)"
+                      :disabled="isDisable"
                     >
                       <el-option
                         v-for="item in district"
@@ -1032,7 +1117,7 @@ onBeforeMount(() => {
                       style="width: 96%"
                       class="m-2 fix-full-width"
                       :placeholder="t('reuse.selectWardOrCommune')"
-                      @change="(data) => wardChange(data)"
+                      :disabled="isDisable"
                     >
                       <el-option
                         v-for="item in ward"
@@ -1055,6 +1140,7 @@ onBeforeMount(() => {
                       clearable
                       filterable
                       allow-create
+                      :disabled="isDisable"
                     />
                   </ElFormItem>
                 </div>
@@ -1072,6 +1158,7 @@ onBeforeMount(() => {
                       type="text"
                       :placeholder="t('formDemo.enterAccountName')"
                       :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                      :disabled="isDisable"
                     />
                   </ElFormItem>
 
@@ -1086,6 +1173,7 @@ onBeforeMount(() => {
                       type="text"
                       :placeholder="t('formDemo.enterAccountNumber')"
                       :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                      :disabled="isDisable"
                     />
                   </ElFormItem>
 
@@ -1099,6 +1187,7 @@ onBeforeMount(() => {
                       class="w-[80%] outline-none pl-2 dark:bg-transparent"
                       type="text"
                       :placeholder="t('reuse.selectBank')"
+                      :disabled="isDisable"
                     >
                       <el-option
                         v-for="item in bankList"

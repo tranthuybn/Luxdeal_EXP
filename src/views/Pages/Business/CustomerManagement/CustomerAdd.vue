@@ -57,21 +57,17 @@ const disabledDate = (time: Date) => {
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const approvalId = Number(router.currentRoute.value.params.approvalId)
-
+const accountNumberList = ref()
 const customerClassification = ref('Khách hàng')
 
 const escape = useIcon({ icon: 'quill:escape' })
 
-const { ValidService, notSpace, removeVietnameseTones } = useValidator()
+const { ValidService, notSpace, removeVietnameseTones, checkLength, doNotHaveNumber, checkNumber, checkDuplicate } = useValidator()
 
+type Callback = (error?: string | Error | undefined) => void
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const rules = reactive<FormRules>({
-  //referralCode: [
-  //{ required: false }
-  //   { validator: ValidService.checkNameLength.validator },
-  //   { validator: notSpecialCharacters }
-  //],
   name: [{ required: true, message: t('common.required'), trigger: 'blur' }],
   businessClassification: [
     {
@@ -96,7 +92,7 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     },
     {
-      validator: (_rule: any, value: any, callback: any) => {
+      validator: (_rule: any, value: any, callback: Callback) => {
         if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
         else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
         callback()
@@ -118,7 +114,7 @@ const rules = reactive<FormRules>({
       trigger: 'blur'
     },
     {
-      validator: (_rule: any, value: any, callback: any) => {
+      validator: (_rule: any, value: any, callback: Callback) => {
         if (value !== ruleForm.password) {
           callback(new Error(t('reuse.confirmPasswordError')))
         }
@@ -130,7 +126,7 @@ const rules = reactive<FormRules>({
   ],
   cccd: [
     {
-      validator: (_rule: any, value: any, callback: any) => {
+      validator: (_rule: any, value: any, callback: Callback) => {
         if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
         else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
         callback()
@@ -148,8 +144,17 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  cccdPlaceOfGrant: [{ required: false }]
+  cccdPlaceOfGrant: [{ required: false }],
+  accountName: [
+    {validator: doNotHaveNumber},
+  ],
+  accountNumber: [
+    {validator: checkNumber},
+    {validator: (...config) =>  checkLength(config, 9, 14)},
+    { validator: (...config) => checkDuplicate(config, accountNumberList.value, t('reuse.accountNumberDuplicated'))}
+  ],
 })
+
 
 // let customerCode = ref()
 let ruleForm = reactive({
@@ -670,6 +675,9 @@ const callAPICustomer = async () => {
           label: el.code
         })
     })
+    accountNumberList.value = res?.data.map((el) => ({
+      value: el.accountNumber
+    }))
   }
 }
 

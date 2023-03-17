@@ -85,25 +85,28 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'cost',
     label: t('formDemo.serviceUnitPrice'),
-    component: 'Input',
+    component: 'InputPrice',
+    value: '',
     colProps: {
       span: 18
     },
     componentProps: {
+      showCurrency: false,
       placeholder: t('formDemo.enterPrice'),
-      suffixIcon: h('div', 'đ')
+      suffixIcon: h('div', 'đ'),
     }
   },
   {
     field: 'promotePrice',
     label: t('formDemo.promotionalPrice'),
-    component: 'Input',
+    component: 'InputPrice',
     colProps: {
       span: 18
     },
     componentProps: {
+      showCurrency: false,
       placeholder: t('formDemo.enterPrice'),
-      suffixIcon: h('div', 'đ')
+      suffixIcon: h('div', 'đ'),
     }
   },
   {
@@ -138,8 +141,7 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'status',
     label: t('formDemo.status'),
-    component: 'Checkbox',
-    disabled: type === 'add',
+    component: 'Radio',
     colProps: {
       span: 18
     },
@@ -154,12 +156,15 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'approval',
-    label: 'Đang chờ duyệt',
+    label: '',
     colProps: {
       span: 12
     },
-    formItemProps: {
-      labelWidth: '250px'
+    component: 'Input',
+    componentProps: {
+      value: t('reuse.pendings'),
+      class: 'approval-wrap',
+      readonly: true
     }
   }
 ])
@@ -175,9 +180,9 @@ const rules = reactive({
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkDescriptionLength.validator }
   ],
-  cost: [required(), { validator: ValidService.checkPositiveNumber.validator }],
-  time: [required()],
-  promotePrice: [required(), { validator: ValidService.checkPositiveNumber.validator }],
+  cost: [{ validator: ValidService.checkPositiveNumber.validator }],
+  time: [],
+  promotePrice: [{ validator: ValidService.checkPositiveNumber.validator }],
   warranty: [
     {
       validator: (_rule: any, value: any, callback: any) => {
@@ -248,7 +253,6 @@ const customPostData = (data) => {
 }
 const { push } = useRouter()
 const editData = async (data) => {
-  //  customPostData(data)
   const payload = {
     Id: id,
     DeletedImages: data.DeleteFileIds.toString(),
@@ -348,8 +352,20 @@ const activeName = ref('information')
     </el-collapse>
   </div>
 </template>
-<style scoped>
-::v-deep(.el-checkbox-group) {
-  display: flex;
-}
+<style lang="less" scoped>
+  ::v-deep(.el-checkbox-group) {
+    display: flex;
+  }
+  ::v-deep(.approval-wrap) {
+      width: 150px;
+    .el-input__wrapper{
+      padding: 0;
+    }
+    input {
+      border-width: 0;
+      padding: 0 8px ;
+      color: rgb(234 179 8); 
+      background-color: #fff0d9;
+    }
+  } 
 </style>

@@ -64,15 +64,15 @@ let materialData = reactive([])
 // call api for color, size, material
 // get called when open the second collase
 const getAttributeData = async () => {
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[1].key, pageSize: 100, pageIndex: 1 }).then(
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[1].key, pageSize: 20, pageIndex: 1 }).then(
     (res) =>
       (colorData = res.data.map((color) => ({ label: color.name, value: color.id, parentid: 1 })))
   )
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[2].key, pageSize: 100, pageIndex: 1 }).then(
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[2].key, pageSize: 20, pageIndex: 1 }).then(
     (res) =>
       (sizeData = res.data.map((size) => ({ label: size.name, value: size.id, parentid: 2 })))
   )
-  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[3].key, pageSize: 100, pageIndex: 1 }).then(
+  await getCategories({ TypeName: PRODUCTS_AND_SERVICES[3].key, pageSize: 20, pageIndex: 1 }).then(
     (res) =>
       (materialData = res.data.map((material) => ({
         label: material.name,
@@ -241,13 +241,13 @@ const addLastRowAttribute = async () => {
         value: false,
         hasPrice: false
       },
-      // {
-      //   id: 2,
-      //   serviceType: 3,
-      //   key: 'KyGui',
-      //   value: false,
-      //   hasPrice: false
-      // },
+      {
+        id: 2,
+        serviceType: 3,
+        key: 'KyGui',
+        value: false,
+        hasPrice: false
+      },
       {
         id: 3,
         serviceType: 2,
@@ -255,13 +255,13 @@ const addLastRowAttribute = async () => {
         value: false,
         hasPrice: false
       },
-      // {
-      //   id: 4,
-      //   serviceType: 4,
-      //   key: 'TheChap',
-      //   value: false,
-      //   hasPrice: false
-      // },
+      {
+        id: 4,
+        serviceType: 4,
+        key: 'TheChap',
+        value: false,
+        hasPrice: false
+      },
       {
         id: 5,
         serviceType: 5,
@@ -498,7 +498,7 @@ const router = useRouter()
 let id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
-const { required, notSpecialCharacters, ValidService, notSpace } = useValidator()
+const { required, ValidService, notSpace } = useValidator()
 const rules = reactive({
   ProductTypeId: [required()],
   BrandId: [required()],
@@ -511,7 +511,6 @@ const rules = reactive({
   ],
   Name: [
     required(),
-    { validator: notSpecialCharacters },
     { validator: ValidService.checkNameLength.validator },
     { validator: ValidService.checkSpaceBeforeAndAfter.validator }
   ],
@@ -740,7 +739,7 @@ const openSpaTable = async (scope) => {
     })
   } else {
     spaTableVisible.value = true
-    await getSpaLibrary({ PageIndex: 1, PageSize: 100 }).then(
+    await getSpaLibrary({ PageIndex: 1, PageSize: 20 }).then(
       (res) =>
         (SpaSelectOptions.value = res.data.map((spa) => ({
           label: spa.name,

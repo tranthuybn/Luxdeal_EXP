@@ -98,13 +98,6 @@ const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const getData = (data) => {
   unref(tableBase01)!.getData(data)
-  console.log()
-  console.log(
-    'NoahKhalifa',
-    unref(tableBase01)!.tableObject.tableList,
-    'dynamicColumns',
-    dynamicColumns.value
-  )
 }
 
 //add operator for every table
@@ -176,9 +169,9 @@ const initMappingObject = (el) => {
           </el-button>
         </template>
     </HeaderFiler>
-      <TableExtension
-       v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
-        @export-excel-event="ExportExcelEvent" />
+    <TableExtension
+      v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
+      @export-excel-event="ExportExcelEvent" />
     <TableBase
       :removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
       :typeButton="props.typeButton" :customOperator="customOperator" :apiTableChild="apiTableChild" :delApi="delApi"
@@ -187,6 +180,9 @@ const initMappingObject = (el) => {
       @selected-record="fnGetSelectedRecord" :selection="selection" :titleChilden="props.titleChilden">
       <template #expand>
         <slot name="expand"></slot>
+      </template>
+      <template #totalBalanceSheet>
+        <slot name="totalBalanceSheet"></slot>
       </template>
     </TableBase>
   </section>

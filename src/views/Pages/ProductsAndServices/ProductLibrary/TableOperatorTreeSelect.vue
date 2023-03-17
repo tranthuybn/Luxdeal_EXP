@@ -197,6 +197,8 @@ watch(
     immediate: true
   }
 )
+
+
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData
@@ -452,7 +454,7 @@ const listType = ref<ListImages>('text')
 let timeCallAPI = 0
 const apiTreeSelect = async () => {
   if (timeCallAPI == 0) {
-    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key, pageSize: 1000, pageIndex: 1 })
+    await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key, pageSize: 20, pageIndex: 1 })
       .then((res) => {
         if (res.data) {
           treeSelectData.value = res.data.map((index) => ({
@@ -477,6 +479,7 @@ let CodeAndNameSelect = ref()
 let CodeOptions = ref()
 let NameAndCodeSelect = ref()
 const getCodeAndNameSelect = async () => {
+  setValues({ ProductCode: productCode.value })
   const res = await getCodeAndNameProductLibrary({ pageIndex: 1, pageSize: 20 })
   CodeAndNameSelect.value = res.data.map((val) => ({
     label: val.productCode,
@@ -541,7 +544,7 @@ const fillAllInformation = async (data) => {
                   const UnitId = fillValue.categories[2].id
                   const OriginId = fillValue.categories[3].id
                   setValues({
-                    ProductCode: null,
+                    ProductCode: productCode.value,
                     Name: fillValue.name,
                     ShortDescription: fillValue.shortDescription,
                     VerificationInfo: fillValue.verificationInfo,
@@ -565,12 +568,9 @@ const fillAllInformation = async (data) => {
           })
           .catch(() => {})
           .finally(() => {
-            setValues({ ProductCode: null })
+            setValues({ ProductCode: productCode.value })
           })
       : (sameProductCode.value = false)
-    // .finally(() => {
-    //   setValues({ ProductCode: '' })
-    // })
 }
 
 const callApiAttribute = async () => {
@@ -757,7 +757,6 @@ const approvalProduct = async () => {
               allow-create
               filterable
               clearable
-              remote
               :remote-method="remoteProductName"
               default-first-option
               popper-class="max-w-600px"
@@ -775,7 +774,7 @@ const approvalProduct = async () => {
           <template #Name-label>
             <div class="w-full text-right ml-2 leading-5">
               <label>{{ t('reuse.productName') }}</label>
-              <p class="text-[#FECB80]">{{ t('reuse.under256Characters') }}</p>
+              <p class="text-[#FECB80]">{{ t('reuse.under50Characters') }}</p>
             </div>
           </template>
           <template #ShortDescription-label>

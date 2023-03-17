@@ -4,12 +4,6 @@ const { t } = useI18n()
 
 type Callback = (error?: string | Error | undefined) => void
 
-interface LengthRange {
-  min: number
-  max: number
-  message: string
-}
-
 export const useValidator = () => {
   const required = (message?: string) => {
     return {
@@ -24,15 +18,6 @@ export const useValidator = () => {
       required: true,
       message: message || t('common.required'),
       trigger: 'change'
-    }
-  }
-
-  const lengthRange = (val: any, callback: Callback, options: LengthRange) => {
-    const { min, max } = options
-    if (val.length < min || val.length > max) {
-      callback(new Error(t('reuse.lengthRange')))
-    } else {
-      callback()
     }
   }
 
@@ -74,6 +59,44 @@ export const useValidator = () => {
       callback()
     } else {
       callback(new Error(t('reuse.isNotEqual')))
+    }
+  }
+
+  const checkNumber = (_, val: any, callback: Callback) => {
+    if(isNaN(val)) {
+      callback(new Error(t('reuse.numberFormat')))
+    } else {
+      callback()
+    }
+  }
+
+  const checkLength = (config, minLength, maxLength) => {
+    const [_, val, callback] = config
+    if (minLength && val && val.length < minLength) {
+      callback(new Error(`Nhập tối thiếu ${minLength} ký tự`))
+    } else if (maxLength && val && val.length > maxLength) {
+      callback(new Error(`Nhập tối đa ${maxLength} ký tự`))
+    }
+     else {
+      callback()
+    }
+  }
+
+  const checkDuplicate = (config, listToCheck, message) => {
+    const [_, val, callback] = config
+    const duplicateValue = listToCheck.find(item => val == item.value)
+    if (val && duplicateValue) {
+      callback(new Error(message))
+    } else {
+      callback()
+    }
+  }
+
+  const doNotHaveNumber = (_, val: any, callback: Callback) => {
+     if (/^[^0-9]+$/.test(val) || val.length == 0) {
+      callback()
+    } else {
+      callback(new Error(t('reuse.doNotHaveNumber')))
     }
   }
 
@@ -368,13 +391,16 @@ export const useValidator = () => {
   return {
     required,
     requiredOption,
-    lengthRange,
     notSpace,
     notSpecialCharacters,
     isEqual,
     checkCode,
     ValidService,
     removeVietnameseTones,
-    requiredCategory
+    requiredCategory,
+    doNotHaveNumber,
+    checkNumber,
+    checkLength,
+    checkDuplicate
   }
 }

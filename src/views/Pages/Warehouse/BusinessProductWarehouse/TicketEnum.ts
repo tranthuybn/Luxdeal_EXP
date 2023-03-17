@@ -7,7 +7,7 @@ export enum TicketStatusHistory {
   CancelExport = 7,
   CancelImport = 8,
   CancelTransfer = 9,
-  Transfered = 10
+  Transferred = 10
 }
 export interface statusWhType {
   name: string

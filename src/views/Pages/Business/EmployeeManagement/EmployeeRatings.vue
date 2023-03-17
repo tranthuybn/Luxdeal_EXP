@@ -5,8 +5,6 @@ import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getEmployeeRatingList } from '@/api/Business'
 import {
   filterStatusRatingEmployee,
-  filterRankEmployee,
-  filterTypeEmployee
 } from '@/utils/filters'
 
 import {
@@ -15,14 +13,12 @@ import {
       getRankList,
       getTypePersonnelList
 } from '@/api/HumanResourceManagement'
-
-
-
 import { formatStatusRatingEmployee } from '@/utils/format'
-import { ElButton, ElMessage } from 'element-plus'
+import { ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useAppStore } from '@/store/modules/app'
 import { useRouter } from 'vue-router'
+import { getFilterList } from '@/utils/get_filterList'
 
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const { t } = useI18n()
@@ -31,45 +27,17 @@ const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 
-// API call branch, department, rank list to filter
-const callAPIList = async (getListFunc, errorMessage) => {
-  const res = await getListFunc()
-  if (res) {
-    return res.data.map((item) => ({ text: item.name, value: item.id }))
-  } else {
-    ElMessage({
-      message: t(errorMessage),
-      type: 'error'
-    })
-    return
-  }
-}
-
 const branchList = ref([]) 
 const departmentList = ref([]) ;
 const rankList = ref([]) ;
 const typeEmployeeList = ref([]) ;
 
-onBeforeMount(() => {
-  (async () => {
-  const list = await callAPIList(getBranchList, t('reuse.cantGetBrandList'))
-  branchList.value = list 
-  })() ;
-
-  (async () => {
-  const list = await callAPIList(getDepartmentList, t('reuse.cantGetDepartmentList'))
-  departmentList.value = list
-  })() ;
-
-  (async () => {
-  const list = await callAPIList(getRankList, t('reuse.cantGetRankList'))
-  rankList.value = list
-  })() ;
-
-  (async () => {
-  const list = await callAPIList(getTypePersonnelList, t('reuse.cantGetTypeEmployeeList'))
-  typeEmployeeList.value = list
-  })() ;
+// API call branch, department, rank list to filter
+onBeforeMount(async () => {
+  branchList.value = await getFilterList(getBranchList, t('reuse.cantGetBrandList'))
+  departmentList.value = await getFilterList(getDepartmentList, t('reuse.cantGetDepartmentList'))
+  rankList.value = await getFilterList(getRankList, t('reuse.cantGetRankList'))
+  typeEmployeeList.value = await getFilterList(getTypePersonnelList, t('reuse.cantGetTypeEmployeeList'))
 })
 
 // Watch for changes to the list and update the filter accordingly
@@ -89,7 +57,7 @@ watch (rankList, (newVal) => {
   }
 })
 
-watch (rankList, (newVal) => {
+watch (typeEmployeeList, (newVal) => {
   if (newVal && newVal.length > 0) {
     columns[8].filters = newVal
   }
@@ -103,6 +71,12 @@ const action = (row: any, type: string) => {
     })
   }
 }
+
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
 
 const columns = reactive<TableColumn[]>([
   {
@@ -140,28 +114,28 @@ const columns = reactive<TableColumn[]>([
     field: 'branch',
     label: t('reuse.branch'),
     minWidth: '110',
-    filters: [],
+    filters: branchList.value, 
     headerAlign: 'left'
   },
   {
     field: 'department',
     label: t('reuse.department'),
     minWidth: '110',
-    filters: [],
+    filters: departmentList.value,
     headerAlign: 'left'
   },
   {
     field: 'rankEmployee',
     label: t('reuse.rank'),
     minWidth: '110',
-    filters: filterRankEmployee,
+    filters: rankList.value,
     headerAlign: 'left'
   },
   {
     field: 'typeEmployee',
     label: t('reuse.type'),
     minWidth: '110',
-    filters: filterTypeEmployee,
+    filters: typeEmployeeList.value,
     headerAlign: 'left'
   },
   {
@@ -170,7 +144,11 @@ const columns = reactive<TableColumn[]>([
     minWidth: '120',
     align: 'right',
     sortable: true,
-    headerAlign: 'left'
+    headerAlign: 'left',
+    formatter: (row, _column, _cellValue) => {
+      const x = changeMoney.format(parseInt(row.sales))
+      return x
+    }
   },
   {
     field: 'statusRatingEmployee',
@@ -185,7 +163,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'operator',
     label: t('reuse.operator'),
-    minWidth: '110',
+    minWidth: '70',
     headerAlign: 'left',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', { style: 'display:flex;justify-content: center;' }, [
@@ -205,3 +183,5 @@ const columns = reactive<TableColumn[]>([
   :customOperator="3" 
   />
 </template>
+
+

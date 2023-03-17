@@ -2690,6 +2690,7 @@ const UpdateStatusTransaction = async() => {
   updateStatusTransaction(FORM_IMAGES(payload))
   // Cập nhật lại bảng lịch sử công nợ
   getOrderStransactionList()
+  editData()
 }
 
 // Giữ hàng đang đặt cọc

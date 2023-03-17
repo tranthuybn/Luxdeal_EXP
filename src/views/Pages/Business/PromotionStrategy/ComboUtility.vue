@@ -165,6 +165,7 @@ const activeName = ref(collapse[0].name)
 
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
+const targetId = Number(router.currentRoute.value.params.targetId)
 const type = String(router.currentRoute.value.params.type)
 
 //post data api
@@ -354,6 +355,12 @@ const editData = async (data) => {
       })
     )
 }
+const escape = useIcon({ icon: 'quill:escape' })
+const back = async () => {
+  push({
+    name: 'business.promotion-strategy.combo'
+  })
+}
 </script>
 
 <template>
@@ -361,12 +368,20 @@ const editData = async (data) => {
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <el-collapse-item :name="collapse[0].name">
         <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl">{{ collapse[0].title }}</span>
+          <div class="flex w-full justify-between">
+            <div class="before">
+              <el-button class="header-icon" :icon="collapse[0].icon" link />
+              <span class="text-center text-xl ml-3">{{ collapse[0].title }}</span>
+            </div>
+            <div @click="back()" class="after">
+              <span class="text-center text-xl">{{ t('reuse.exit') }}</span>
+              <el-button class="header-icon" :icon="escape" link />
+            </div>
+          </div>
         </template>
         <TableOperatorCollection
           ref="formRef" :schema="schema" :type="type" :id="id" :multipleImages="false"
-          :params="params" :apiId="getCampaignList" @post-data="postData" :formDataCustomize="setFormData"
+          :params="params" :apiId="getCampaignList" @post-data="postData" :formDataCustomize="setFormData" :targetId="targetId"
           @customize-form-data="customizeData" @edit-data="editData" 
           :campaignAndStrategyType="5"
           />

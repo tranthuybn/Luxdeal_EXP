@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getEmployeeList } from '@/api/Accountant'
@@ -8,9 +8,11 @@ import {
   filterDepartment,
   filterBranch,
   filterRankEmployee,
-  filterTypeEmployee
+  filterTypeEmployee,
+  filterStatusSettingPoint
 } from '@/utils/filters'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, productStatusTransferToText } from '@/utils/format'
+import { deleteStaffAccount } from '@/api/HumanResourceManagement'
 
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
@@ -33,13 +35,20 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'gender',
     label: t('reuse.gender'),
-    minWidth: '100',
-    filters: filterGender
+    minWidth: '150',
+    filters: filterGender,
+    formatter: (row: Recordable, __: TableColumn, cellValue: boolean) => {
+      return row['isOrganization']
+        ? ''
+        : cellValue
+        ? h('div', t('reuse.male'))
+        : h('div', t('reuse.female'))
+    }
   },
   {
     field: 'birthday',
     label: t('reuse.dateOfBirth'),
-    minWidth: '100',
+    minWidth: '150',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
@@ -48,7 +57,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'contact',
     label: t('reuse.contact'),
-    minWidth: '100'
+    minWidth: '150'
   },
   {
     field: 'branchName',
@@ -75,6 +84,12 @@ const columns = reactive<TableColumn[]>([
     filters: filterTypeEmployee
   },
   {
+    field: 'roleName',
+    label: t('reuse.setRole'),
+    minWidth: '150',
+    filters: filterTypeEmployee
+  },
+  {
     field: 'createAt',
     label: t('reuse.createDate'),
     minWidth: '150',
@@ -92,11 +107,14 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'isActive',
     label: t('reuse.status'),
-    minWidth: '120',
-    filters: filterDepartment
+    minWidth: '200',
+    filters: filterStatusSettingPoint,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${productStatusTransferToText(cellValue)}`)
+    }
   }
 ])
 </script>
 <template>
-  <tableDatetimeFilterBasicVue :columns="columns" :api="getEmployeeList" />
+  <tableDatetimeFilterBasicVue :columns="columns" :api="getEmployeeList" :delApi="deleteStaffAccount" />
 </template>

@@ -276,6 +276,7 @@ const activeName = ref(collapse[0].name)
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+const targetId = Number(router.currentRoute.value.params.targetId)
 
 
 //post data api
@@ -353,7 +354,7 @@ type FormDataEdit = {
   CampaignType: number
 }
 
-const customEditDataFlashSale = (data) => {
+const customEditDataCollection = (data) => {
   const customData = {} as FormDataEdit
   customData.Id = id
   customData.Name = data.code
@@ -455,7 +456,7 @@ const customizeData = async (data) => {
 const { push } = useRouter()
 
 const editData = async (data) => {
-  data = customEditDataFlashSale(data)
+  data = customEditDataCollection(data)
 
   await updateCampaign(FORM_IMAGES(data))
     .then(() => {
@@ -475,7 +476,12 @@ const editData = async (data) => {
       })
     )
 }
-
+const escape = useIcon({ icon: 'quill:escape' })
+const back = async () => {
+  push({
+    name: 'business.promotion-strategy.collection'
+  })
+}
 
 
 </script>
@@ -485,14 +491,23 @@ const editData = async (data) => {
     <el-collapse v-model="activeName" @change="collapseChangeEvent">
       <el-collapse-item :name="collapse[0].name">
         <template #title>
-          <el-button class="header-icon" :icon="collapse[0].icon" link />
-          <span class="text-center text-xl">{{ collapse[0].title }}</span>
+          <div class="flex w-full justify-between">
+            <div class="before">
+              <el-button class="header-icon" :icon="collapse[0].icon" link />
+              <span class="text-center text-xl ml-3">{{ collapse[0].title }}</span>
+            </div>
+            <div @click="back()" class="after">
+              <span class="text-center text-xl">{{ t('reuse.exit') }}</span>
+              <el-button class="header-icon" :icon="escape" link />
+            </div>
+          </div>
         </template>
         <TableOperatorCollection
-ref="formRef" :schema="schema" :type="type" :apiId="getCampaignList" :id="id"
+          ref="formRef" :schema="schema" :type="type" :apiId="getCampaignList" :id="id"
           :delApi="deleteCampaign" :multipleImages="false" @post-data="postData" :params="params" :rules="rules"
           @customize-form-data="customizeData" @edit-data="editData" :formDataCustomize="setFormData"
           :show-product="true"
+          :targetId="targetId"
           :campaignAndStrategyType="2"
           />
       </el-collapse-item>

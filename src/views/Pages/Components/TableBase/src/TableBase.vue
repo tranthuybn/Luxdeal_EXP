@@ -87,7 +87,7 @@ const props = defineProps({
   },
   currentT: [String, Number]
 })
-const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
+const emit = defineEmits(['TotalRecord', 'SelectedRecord', 'GetDataTable'])
 // using table's function
 const temporaryColumn = ref<any>(props.fullColumns)
 const { register, tableObject, methods } = useTable<TableData>({
@@ -98,7 +98,7 @@ const { register, tableObject, methods } = useTable<TableData>({
   },
   props: {
     columns: temporaryColumn,
-    headerAlign: 'center'
+    headerAlign: 'left'
   }
 })
 // get api
@@ -107,8 +107,6 @@ let paginationObj = ref<Pagination>()
 const getData = (data = {}) => {
   methods.setSearchParams({ ...unref(params), ...data })
 }
-
-
 onBeforeMount(() => {
   getData()
 })
@@ -160,6 +158,7 @@ const filterChange = (filterValue) => {
     for (let key in filterValue) {
       if (typeof unref(filterValue[key]) === 'object')
         filterValue[key] = Object.values(filterValue[key]).toString()
+
     }
   setSearchParams(filterValue)
 }
@@ -215,7 +214,6 @@ const router = useRouter()
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {
-  console.log('row', row)
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${utility}`,
@@ -311,6 +309,10 @@ const updateTableColumn = () => {
     showingColumnList.value.includes(el.field)
   )
 }
+watch (() => tableObject.tableList, (newVal) => {
+  emit('GetDataTable', newVal)
+})
+
 </script>
 <template>
   <ContentWrap class="relative">
@@ -319,7 +321,7 @@ const updateTableColumn = () => {
       @click="drawer = !drawer">
       <Icon icon="ic:baseline-keyboard-double-arrow-down" />
     </div>
-    <ElDrawer v-model="drawer" direction="ttb" size="15%" @close="updateTableColumn">
+    <ElDrawer v-model="drawer" direction="ttb" :size=100 @close="updateTableColumn">
       <template #header>
         <h3 class="text-center text-[var(--el-color-primary)]">{{ t(`${route.meta.title}`) }}</h3>
       </template>
@@ -375,6 +377,9 @@ const updateTableColumn = () => {
           <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
           <ElButton @click="action(row, 'edit')" :icon="editIcon" />
         </div>
+        <div v-if="customOperator === 6">
+          <ElButton @click="action(row, 'edit')" :icon="eyeIcon" />
+        </div>
       </template>
       <template #switch="data">
         <ElSwitch v-model="data.row.switch" @change="localeChange" />
@@ -383,6 +388,7 @@ const updateTableColumn = () => {
         <slot name="expand"></slot>
       </template>
     </Table>
+    <slot name="totalBalanceSheet"></slot>
     <ElButton v-if="!(props.titleButtons === '')" @click="handleClickAdd" id="bt-add" :icon="plusIcon" class="mx-12">
       {{ props.titleButtons }}</ElButton>
   </ContentWrap>

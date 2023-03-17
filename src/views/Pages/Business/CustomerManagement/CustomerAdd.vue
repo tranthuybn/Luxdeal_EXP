@@ -652,6 +652,7 @@ const change = () => {
 
 const formatDate = () => {
   console.log(ruleForm.doB)
+
 }
 
 interface typeCustomer {
@@ -675,10 +676,10 @@ const callAPICustomer = async () => {
           label: el.code
         })
     })
-    accountNumberList.value = res?.data.map((el) => ({
-      value: el.accountNumber
-    }))
   }
+  accountNumberList.value = res?.data.map((el) => ({
+      value: el.accountNumber
+  }))
 }
 
 const ScrollCustomerBottom = () => {

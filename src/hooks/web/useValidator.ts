@@ -84,6 +84,7 @@ export const useValidator = () => {
 
   const checkDuplicate = (config, listToCheck, message) => {
     const [_, val, callback] = config
+    console.log('listToCheck', listToCheck)
     const duplicateValue = listToCheck.find(item => val == item.value)
     if (val && duplicateValue) {
       callback(new Error(message))

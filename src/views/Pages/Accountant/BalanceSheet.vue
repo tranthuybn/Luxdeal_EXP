@@ -9,8 +9,13 @@ import {
   ElTable,
   ElTableColumn,
 } from 'element-plus'
-
 const { t } = useI18n()
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
+
 
 const columns = [
   { field: '', width: '50' },
@@ -35,14 +40,22 @@ const columns = [
         label: t('reuse.get'),
         minWidth: '100',
         headerAlign: 'center',
-        align: 'right'
+        align: 'right',
+        formatter: (row, _column, _cellValue) => {
+        const x = changeMoney.format(parseInt(row.beginningPeriodRevenue))
+        return x
+        }
       },
       {
         field: 'beginningPeriodPayment',
         label: t('reuse.spend'),
         minWidth: '100',
         headerAlign: 'center',
-        align: 'right'
+        align: 'right',
+        formatter: (row, _column, _cellValue) => {
+          const x = changeMoney.format(parseInt(row.beginningPeriodPayment))
+          return x
+        }
       }
     ]
   },
@@ -130,11 +143,14 @@ const totalBalance = reactive([
     :columns="columns"
     :api="getAccountantList"
     :customOperator="6"
-    :pagination="false"
     :titleAdd="t('reuse.addAccount')"
+    :addLastRow="true"
   >
-    <template  #totalBalanceSheet>
-      <el-table :data="totalBalance">
+  <template #sumInBalanceSheet>
+    <el-table :show-header="false" border :data="totalBalance">
+        <el-table-column prop=""/>
+        <el-table-column prop=""/>
+        <el-table-column prop=""/>
         <el-table-column prop="label"/>
         <el-table-column prop="beginningPeriodRevenue"/>
         <el-table-column prop="beginningPeriodPayment"/>
@@ -143,6 +159,7 @@ const totalBalance = reactive([
         <el-table-column prop="endPeriodRevenue"/>
         <el-table-column prop="endPeriodpayment"/>
       </el-table>
-    </template>
+  </template>
   </TableType01>
+  
 </template>

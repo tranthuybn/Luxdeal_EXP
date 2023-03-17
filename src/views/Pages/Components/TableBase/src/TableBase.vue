@@ -12,7 +12,7 @@ import {
   ElSwitch,
   ElNotification
 } from 'element-plus'
-import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
+import { InputMoneyRange, InputDateRange, InputNumberRange, InputName, InputSearch } from '../index'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -85,9 +85,13 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  currentT: [String, Number]
+  currentT: [String, Number],
+  addLastRow: {
+    type: Boolean,
+    default: false,
+  }
 })
-const emit = defineEmits(['TotalRecord', 'SelectedRecord', 'GetDataTable'])
+const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
 const temporaryColumn = ref<any>(props.fullColumns)
 const { register, tableObject, methods } = useTable<TableData>({
@@ -309,9 +313,6 @@ const updateTableColumn = () => {
     showingColumnList.value.includes(el.field)
   )
 }
-watch (() => tableObject.tableList, (newVal) => {
-  emit('GetDataTable', newVal)
-})
 
 </script>
 <template>
@@ -348,6 +349,9 @@ watch (() => tableObject.tableList, (newVal) => {
         <InputDateRange v-if="header.headerFilter === 'Date'" :field="header.field" @confirm="confirm" @cancel="cancel" />
         <InputNumberRange
           v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
+          @cancel="cancel" />
+        <InputSearch
+          v-if="header.headerFilter === 'Search'" :field="header.field" @confirm="confirm"
           @cancel="cancel" />
         <InputName
           v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"
@@ -387,8 +391,10 @@ watch (() => tableObject.tableList, (newVal) => {
       <template #expand>
         <slot name="expand"></slot>
       </template>
+      <template v-if="props.addLastRow" #append>
+        <slot name='sumInBalanceSheet' ></slot>
+      </template>
     </Table>
-    <slot name="totalBalanceSheet"></slot>
     <ElButton v-if="!(props.titleButtons === '')" @click="handleClickAdd" id="bt-add" :icon="plusIcon" class="mx-12">
       {{ props.titleButtons }}</ElButton>
   </ContentWrap>

@@ -126,6 +126,12 @@ export const filterTableStatus: Array<Filter> = [
   { text: t('reuse.pending'), value: 3 },
   { text: t('reuse.finishPending'), value: 4 }
 ]
+export const filterCampaignStatus: Array<Filter> = [
+  { text: t('reuse.pending'), value: 0 },
+  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.inactive'), value: 2 },
+  { text: t('reuse.lock'), value: 3 }
+]
 export const filterTableCategory: Array<Filter> = [
   { text: t('reuse.bag'), value: 1 },
   { text: t('reuse.wallet'), value: 2 },

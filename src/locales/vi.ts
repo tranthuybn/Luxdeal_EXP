@@ -1136,7 +1136,7 @@ export default {
     wallet: 'Ví',
     balo: 'Balo',
     active: 'Đang hoạt động',
-    inactive: 'Ngưng hoạt động',
+    inactive: 'Ngừng hoạt động',
     pending: 'Chờ duyệt',
     closedTheOrder: 'Đã chốt đơn',
     delivery: 'Đang giao hàng',

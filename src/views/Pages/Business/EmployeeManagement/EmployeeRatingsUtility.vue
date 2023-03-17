@@ -38,7 +38,7 @@ const collapse: Array<Collapse> = [
     title: t('formDemo.employeeDetail'),
   },
   {
-    icon: minusIcon,
+    icon: plusIcon,
     name: 'salesTrackingInformation',
     title: t('formDemo.salesTrackingTable'),
   },
@@ -231,12 +231,12 @@ const setSalesTrackingTableValue = () => {
         </template>
         <el-table :data="salesTrackingTable" border>
           <template #append >
-            <span v-if="totalSales"  class="p-[1500px] font-bold">{{ totalSales }}</span>
+            <span v-if="totalSales"  class="p-[1486px] pt-3 font-bold">{{ totalSales }}</span>
           </template>
           <el-table-column prop="orderCode" :label="t('formDemo.orderCode')" min-width="794" />
-          <el-table-column prop="orderValue" :label="t('formDemo.orderValue')" min-width="200" />
-          <el-table-column prop="percentageSale" :label="t('formDemo.percentageSales')" min-width="200"/>
-          <el-table-column prop="sales" :label="t('formDemo.sales')"  min-width="200"/>
+          <el-table-column prop="orderValue" header-align="left" align="right" :label="t('formDemo.orderValue')" min-width="200" />
+          <el-table-column prop="percentageSale"  header-align="left" align="center" :label="t('formDemo.percentageSales')" min-width="200"/>
+          <el-table-column prop="sales"  header-align="left" align="right" :label="t('formDemo.sales')"  min-width="200"/>
           <el-table-column prop="dateOrder" :label="t('formDemo.day')" min-width="200"/>
         </el-table>
         <!-- <TableDataBase 
@@ -255,5 +255,8 @@ const setSalesTrackingTableValue = () => {
   ::v-deep(.el-divider__text){
     font-size: 15px;
     font-weight: 700;
+  }
+  ::v-deep(.el-table__append-wrapper){
+    padding: 10px 0;
   }
 </style>

@@ -904,6 +904,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    lock: 'Lock',
     spend: 'Spend',
     get: 'Get',
     plusLabel: 'Plus', 

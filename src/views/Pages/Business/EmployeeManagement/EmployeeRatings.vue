@@ -31,6 +31,12 @@ const branchList = ref([])
 const departmentList = ref([]) ;
 const rankList = ref([]) ;
 const typeEmployeeList = ref([]) ;
+const filterHandle = ( config, columnName ) => {
+  const [value, row, column]  = config 
+  const property = column[columnName]
+  return row[property] === value
+}
+
 
 // API call branch, department, rank list to filter
 onBeforeMount(async () => {
@@ -39,6 +45,8 @@ onBeforeMount(async () => {
   rankList.value = await getFilterList(getRankList, t('reuse.cantGetRankList'))
   typeEmployeeList.value = await getFilterList(getTypePersonnelList, t('reuse.cantGetTypeEmployeeList'))
 })
+
+
 
 // Watch for changes to the list and update the filter accordingly
 watch (branchList, (newVal) => {
@@ -115,28 +123,32 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.branch'),
     minWidth: '110',
     filters: branchList.value, 
-    headerAlign: 'left'
+    headerAlign: 'left',
+    filterMethod: (...config) => filterHandle(config, 'branch')
   },
   {
     field: 'department',
     label: t('reuse.department'),
     minWidth: '110',
     filters: departmentList.value,
-    headerAlign: 'left'
+    headerAlign: 'left',
+    filterMethod: (...config) => filterHandle(config, 'department')
   },
   {
     field: 'rankEmployee',
     label: t('reuse.rank'),
     minWidth: '110',
     filters: rankList.value,
-    headerAlign: 'left'
+    headerAlign: 'left',
+    filterMethod: (...config) => filterHandle(config, 'rankEmployee')
   },
   {
     field: 'typeEmployee',
     label: t('reuse.type'),
     minWidth: '110',
     filters: typeEmployeeList.value,
-    headerAlign: 'left'
+    headerAlign: 'left',
+    filterMethod: (...config) => filterHandle(config, 'typeEmployee')
   },
   {
     field: 'sales',

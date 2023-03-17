@@ -91,6 +91,10 @@ const props = defineProps({
   removeButtonAdd: {
     type: Boolean,
     default: false
+  },
+  addLastRow: {
+    type: Boolean,
+    default: false,
   }
 })
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
@@ -176,13 +180,13 @@ const initMappingObject = (el) => {
       :removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
       :typeButton="props.typeButton" :customOperator="customOperator" :apiTableChild="apiTableChild" :delApi="delApi"
       :deleteTitle="deleteTitle" :columnsTableChild="columnsTableChild" :paginationType="pagination" ref="tableBase01"
-      :api="dynamicApi" :maxHeight="'69vh'" :fullColumns="dynamicColumns" @total-record="fnGetTotalRecord"
+      :api="dynamicApi" :maxHeight="'69vh'" :fullColumns="dynamicColumns" @total-record="fnGetTotalRecord" :addLastRow="props.addLastRow"
       @selected-record="fnGetSelectedRecord" :selection="selection" :titleChilden="props.titleChilden">
       <template #expand>
         <slot name="expand"></slot>
       </template>
-      <template #totalBalanceSheet>
-        <slot name="totalBalanceSheet"></slot>
+      <template #sumInBalanceSheet>
+        <slot name="sumInBalanceSheet"></slot>
       </template>
     </TableBase>
   </section>

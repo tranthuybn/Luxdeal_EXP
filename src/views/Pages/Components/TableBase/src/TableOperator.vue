@@ -587,7 +587,7 @@ const approvalProduct = async () => {
           <ElButton v-if="props.showSaveAndAddBtnOnTypeEdit" :loading="loading" type="primary" @click="save('saveAndAdd')">
             {{ t('reuse.saveAndAdd') }}
           </ElButton>
-          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="cancel">
+          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="props.showSaveAndAddBtnOnTypeEdit ? delAction : cancel">
             {{ t('reuse.cancel') }}
           </ElButton>
         </div>

@@ -1,0 +1,17 @@
+export interface FormDataPostAndEdit {
+    ParentId: number | null
+    AccountNumber: number
+    AccountNumber2? : number
+    AccountName: string
+    Status: 0 | 1
+    Id?: number
+}
+export interface FormData {
+    typeAccount: null | 1
+    accountNumber2?: number
+    accountNumber1: number
+    accountName: string
+    status: boolean
+  }
+
+export default {}

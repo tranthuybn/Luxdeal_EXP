@@ -905,6 +905,8 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    spend: 'Spend',
+    get: 'Get',
     plusLabel: 'Plus', 
     addAccount: 'Add Account', 
     accountName: 'Account Name',
@@ -1268,6 +1270,7 @@ export default {
     badgeAccount1: 'Account 1 Badge',
     badgeAccount2: 'Account 2 Badge',
     nameAccount1: 'Account 1 Name',
+    nameAccount2: 'Account 2 Name',
     closeAccount: 'Close Account',
     typeAccount: 'Type of Account',
     saveAndAdd: 'Save and Add',
@@ -1433,6 +1436,7 @@ export default {
     dateFormat: 'Date format is incorrect',
     doNotHaveNumber: 'Do not enter number',
     accountNumberDuplicated: 'The account number already exists',
+    accountanceDuplicated: 'The accountance already exists',
     monthFormat: 'Month format is incorrect',
     yearFormat: 'Year format is incorrect',
     stringFormat: 'Please just enter characters',
@@ -1861,5 +1865,6 @@ export default {
     moneyToText: 'Money to text',
     totalPawnMoneyPaid: 'Total pawn money paid',
     totalPawnFeePaid: 'Total pawn fee paid',
+    paymentRequestInformationTicket: 'Payment request information ticket',
   }
 }

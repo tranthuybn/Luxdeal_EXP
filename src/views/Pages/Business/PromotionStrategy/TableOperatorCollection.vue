@@ -1289,7 +1289,7 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
       </div>
       <div v-else-if="props.type === 'detail'" class="flex">
         <div
-class="flex"
+              class="flex"
               v-if="(lastStatus != CampaignStatusV2.DuyetKhoiTao && approved != false)
                 || (lastStatus != CampaignStatusV2.SuaChuongTrinh && approved != false)">
           <ElButton :loading="loading" @click="edit">

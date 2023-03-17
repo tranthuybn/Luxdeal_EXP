@@ -957,6 +957,8 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    spend: 'Chi',
+    get: 'Thu',
     plusLabel: 'Cộng',
     addAccount: 'Thêm tài khoản', 
     accountName: 'Tên tài khoản',
@@ -1368,6 +1370,7 @@ export default {
     badgeAccount1: 'Số hiệu tài khoản cấp 1',
     badgeAccount2: 'Số hiệu tài khoản cấp 2',
     nameAccount1: 'Tên tài khoản cấp 1',
+    nameAccount2: 'Tên tài khoản cấp 2',
     closeAccount: 'Đóng tài khoản',
     typeAccount: 'Loại tài khoản',
     saveAndAdd: 'Lưu & thêm mới',
@@ -1567,6 +1570,7 @@ export default {
     lengthMax5: 'Nhập tối đa 5 số',
     lengthMax255: 'Nhập tối đa 255 ký tự ',
     accountNumberDuplicated: 'Số tài khoản đã tồn tại',
+    accountanceDuplicated: 'Số hiệu tài khoản đã tồn tại',
     isNotEqual: 'Không bằng nhau',
     phoneNumberFormat: 'Không phải số điện thoại',
     emailFormat: 'Vui lòng nhập đúng định dạng email',
@@ -2017,5 +2021,6 @@ export default {
     moneyToText: 'Số tiền bằng chữ',
     totalPawnMoneyPaid: 'Tổng tiền gốc thanh toán',
     totalPawnFeePaid: 'Tổng tiền phí thanh toán',
+    paymentRequestInformationTicket: 'Thông tin phiếu đề nghị thanh toán',
   }
 }

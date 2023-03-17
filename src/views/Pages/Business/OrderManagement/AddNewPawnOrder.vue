@@ -1725,7 +1725,8 @@ const fileList = ref<UploadUserFile[]>([])
 
 const disableCreateOrder = ref(false)
 const disabledDate = (time: Date) => {
-  return time.getTime() <= Date.now() - 86400000
+  return false
+  // return time.getTime() <= Date.now() - 86400000
 }
 const totalPrincipalMoney = ref(0)
 const totalPrincipalDebt = ref(0)
@@ -2319,23 +2320,33 @@ const setDataForReturnOrder = () => {
   rentReturnOrder.value.customerAddress = customerAddress
   rentReturnOrder.value.phone = infoCompany.phone
   rentReturnOrder.value.inputReturnReason = inputReasonReturn
-  ListOfProductsForSale.value.forEach(async (row)=>{
+  rentReturnOrder.value.tableData = [{
+    productPropertyId : '',
+    accessory : '',
+    quantity : '',
+    maxQuantity : '',
+    productPropertyCode : '',
+    description : '',
+    code : ''
+  }]
+  ListOfProductsForSale.value.forEach(async (row,index)=>{
 
     if(giaHan.value){
       await GetMoneyAndDatePayment({CustomerOrderId: id, ProductPropertyId: row.productPropertyId})
       .then((res)=>{
-        rentReturnOrder.value.tableData.importWarehousePrice = res.data.principalDebt - res.data.principalFeeDebt
+        rentReturnOrder.value.tableData[index].importWarehousePrice = res.data.principalDebt - res.data.principalFeeDebt
       })
     }
 
-    rentReturnOrder.value.tableData.productPropertyId =row.productPropertyId,
-    rentReturnOrder.value.tableData.accessory =row.accessory,
-    rentReturnOrder.value.tableData.quantity =row.quantity,
-    rentReturnOrder.value.tableData.maxQuantity = row.quantity - row.returnedQuantity,
-    rentReturnOrder.value.tableData.productPropertyCode = row.productPropertyCode,
-    rentReturnOrder.value.tableData.description = row.description,
-    rentReturnOrder.value.tableData.code = row.code
+    rentReturnOrder.value.tableData[index].productPropertyId =row.productPropertyId,
+    rentReturnOrder.value.tableData[index].accessory =row.accessory,
+    rentReturnOrder.value.tableData[index].quantity =row.quantity,
+    rentReturnOrder.value.tableData[index].maxQuantity = row.quantity - row.returnedQuantity,
+    rentReturnOrder.value.tableData[index].productPropertyCode = row.productPropertyCode,
+    rentReturnOrder.value.tableData[index].description = row.description,
+    rentReturnOrder.value.tableData[index].code = row.code
   })
+  console.log('rent', rentReturnOrder.value.tableData)
 }
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })

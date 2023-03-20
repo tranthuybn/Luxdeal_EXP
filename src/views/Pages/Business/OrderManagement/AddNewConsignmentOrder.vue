@@ -4,7 +4,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
   ElCollapseItem,
-  ElUpload,
   ElSelect,
   ElOption,
   ElCheckbox,
@@ -23,10 +22,8 @@ import {
   FormRules,
   UploadUserFile,
   ElMessage,
-  ElNotification,
-  UploadProps
+  ElNotification
 } from 'element-plus'
-import type { UploadFile } from 'element-plus'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { useIcon } from '@/hooks/web/useIcon'
 import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
@@ -83,6 +80,7 @@ import AddQuickProduct from './AddQuickProduct.vue'
 
 import * as orderUtility from './OrderFixbug'
 import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
+import UploadMultipleImages from './UploadMultipleImages.vue'
 
 const { utility } = appModules
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -91,21 +89,12 @@ const changeMoney = new Intl.NumberFormat('vi', {
   minimumFractionDigits: 0
 })
 const { t } = useI18n()
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
 const doCloseOnClickModal = ref(false)
 
 
 var autoCustomerCode = 'KH' + moment().format('hhmmss')
 
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -1120,7 +1109,7 @@ const postData = async () => {
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
       WarehouseId: ruleForm.warehouse,
-      Files: Files,
+      Files: Files.value,
       CustomerId: customerID.value,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: valueProvince.value ?? 1,
@@ -1615,7 +1604,6 @@ const editData = async () => {
         statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
         }
 
-    Files = orderObj.orderFiles
 
     if (statusOrder.value == 2 && type == 'edit') {
       disableEditData.value = true
@@ -1660,23 +1648,11 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
-    orderObj.orderFiles.map(
-      (element: { domainUrl: any; path: any; fileId: any; id: any } | null) => {
-        if (element !== null) {
-          ListFileUpload.value?.push({
-            url: `${element?.domainUrl}${element?.path}`,
-            name: element?.fileId,
-            uid: element?.id
-          })
-        }
-      }
-    )
-    orderObj.orderFiles.map((element) => {
-      fileList.value.push({
-        url: `${API_URL}${element?.path}`,
-        name: element?.fileId
+    Files.value = orderObj.orderFiles.map((element) => ({
+          url: `${API_URL}${element?.path}`,
+          name: element?.fileId
       })
-    })
+    )
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value?.push({ ...productForSale })
   }
@@ -1699,7 +1675,7 @@ const editOrderInfo = async () => {
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: parseFloat(ruleForm.collaboratorCommission),
     Description: ruleForm.orderNotes,
-    Files: Files,
+    Files: Files.value,
     DeleteFileIds: '',
     DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery
   }
@@ -1926,13 +1902,6 @@ const ckeckChooseProduct = (scope) => {
   }
 }
 
-const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
-  ElMessage.warning(
-    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
-      'reuse.total'
-    )}${files.length + uploadFiles.length}`
-  )
-}
 
 const updateStatusReturnAheadOfTime = (index) => {
   statusOrder.value = index
@@ -2179,76 +2148,7 @@ if (type == 'add' || type == ':type') {
   })
 }
 
-let Files = reactive({})
-const validImageType = ['jpeg', 'png']
-//cái này validate file chỉ cho ảnh tí a sửa lại nhé
-const beforeAvatarUpload = (rawFile, type: string) => {
-  if (rawFile) {
-    //nếu là 1 ảnh
-    if (type === 'single') {
-      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
-        return false
-      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
-        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-        return false
-      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
-        ElMessage.error(t('reuse.imageOver4MB'))
-        return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
-      }
-    }
-    //nếu là 1 list ảnh
-    if (type === 'list') {
-      let inValid = true
-      rawFile.map((file) => {
-        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
-          ElMessage.error(t('reuse.notImageFile'))
-          inValid = false
-        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
-          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-          inValid = false
-          return false
-        } else if (file.size / 1024 / 1024 > 4) {
-          ElMessage.error(t('reuse.imageOver4MB'))
-          inValid = false
-        } else if (file.name?.split('.')[0].length > 100) {
-          ElMessage.error(t('reuse.checkNameImageLength'))
-          inValid = false
-          return false
-        }
-      })
-      return inValid
-    }
-    return true
-  }
-  // else {
-  //   //báo lỗi nếu ko có ảnh
-  //   if (type === 'list' && fileList.value.length > 0) {
-  //     return true
-  //   }
-  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
-  //     return true
-  //   } else {
-  //     ElMessage.warning(t('reuse.notHaveImage'))
-  //     return false
-  //   }
-  // }
-}
-const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
-  console.log(uploadFile, uploadFiles)
-}
-const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
-  uploadFiles.map((file) => {
-    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file, uploadFiles) : ''
-  })
-  Files = ListFileUpload.value.map((el) => el?.raw)
-}
-const fileList = ref<UploadUserFile[]>([])
+const Files = ref<UploadUserFile[]>([])
 
 const addRow = () => {
   rentReturnOrder.value.tableData?.push({ ...productForSale })
@@ -3674,47 +3574,7 @@ const openDetailOrder = (id, type) => {
                 <div class="text-right text-[#FECB80]">{{ t('formDemo.lessThanTenProfiles') }}</div>
               </div>
               <div class="pl-4">
-                <el-upload
-                  action="#"
-                  list-type="picture-card"
-                  v-model:file-list="fileList"
-                  :limit="10"
-                  :multiple="true"
-                  :disabled="disabledEdit"
-                  :on-exceed="handleExceed"
-                  :on-change="handleChange"
-                  :auto-upload="false"
-                  class="relative"
-                  :on-remove="handleRemove"
-                >
-                  <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                      <span class="el-upload-list__item-actions">
-                        <span
-                          class="el-upload-list__item-preview"
-                          @click="handlePictureCardPreview(file)"
-                        >
-                          <ElButton :icon="viewIcon" />
-                        </span>
-                        <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
-                        <span v-if="!disabled" class="el-upload-list__item-delete">
-                          <ElButton :icon="deleteIcon" />
-                        </span>
-                      </span>
-                    </div>
-                  </template>
-                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute">
-                    <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                    >
-                  </el-dialog>
-                </el-upload>
-
-                <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible">
-                  <img w-full :src="dialogImageUrl" alt="Preview Image" />
-                </el-dialog>
+                <UploadMultipleImages v-model="Files" :disabled="disabledEdit" />
               </div>
             </div>
           </div>

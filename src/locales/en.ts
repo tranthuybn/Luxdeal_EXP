@@ -1865,5 +1865,6 @@ export default {
     totalPawnMoneyPaid: 'Total pawn money paid',
     totalPawnFeePaid: 'Total pawn fee paid',
     paymentRequestInformationTicket: 'Payment request information ticket',
+    limitUploads: 'Limit upload',
   }
 }

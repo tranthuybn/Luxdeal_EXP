@@ -15,3 +15,8 @@ export interface statusWhType {
   approveAt?: string
   value: TicketStatusHistory
 }
+export enum TicketType {
+  NhapKho = 1,
+  XuatKho = 2,
+  ChuyenKho = 3
+}

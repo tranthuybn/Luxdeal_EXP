@@ -169,11 +169,21 @@ const calculateQuantity = (scope) => {
   }
 }
 
-const multipleSelection = ref()
 const radioSelected = ref(-1)
 const totalExport = ref(0)
-const selectedRow: number[] = []
-const rowClick = (selection, curRow) => {
+let selectedRow: number[] = []
+const selectAll = ()=>{
+  if(selectedRow.length == lotData.value.length){
+    initDataExport()
+  }
+  else{
+    initDataExport()
+    lotData.value.forEach((row)=>{
+      rowClick(true,row)
+    })
+  }
+}
+const rowClick = (_selection, curRow) => {
   if (warehouseForm.value.quantity == 0 || warehouseForm.value.quantity == null) {
     ElMessage({
       message: t('reuse.pleaseChooseQuantity'),
@@ -190,42 +200,47 @@ const rowClick = (selection, curRow) => {
     multipleTableRef.value!.toggleRowSelection(curRow, false)
     return
   }
-  const select = selection.find(row=>row == curRow)
-  if (select && totalExport.value == warehouseForm.value.quantity) {
-    ElMessage({
-      message: t('reuse.moreOrLessQuantity'),
-      type: 'warning'
-    })
-    multipleTableRef.value!.toggleRowSelection(curRow, false)
-    return
-  }
+  // //check if the function is check or uncheck the box
+  // const select = selection.find(row=>row == curRow)
+  // if (select && totalExport.value == warehouseForm.value.quantity) {
+  //   ElMessage({
+  //     message: t('reuse.moreOrLessQuantity'),
+  //     type: 'warning'
+  //   })
+  //   multipleTableRef.value!.toggleRowSelection(curRow, false)
+  //   return
+  // }
 
-  multipleSelection.value = curRow
   const index: number = lotData.value.findIndex((lot) => lot == curRow)
+  calculateExportQuantity(index,curRow)
 
+  
+}
+const calculateExportQuantity = (index,curRow) =>{
   //Kiểm tra xem đã check chưa
   if (!selectedRow.includes(index)) {
-    //nếu chưa check thì +
-    selectedRow.push(index)
-
-    //nếu lấy hết mà vẫn chưa đủ số lượng
-    if (warehouseForm.value.quantity >= curRow.inventory + totalExport.value) {
-      lotData.value[index].exportQuantity = curRow.inventory
-      totalExport.value += Number(lotData.value[index].exportQuantity)
-      return
+      //nếu chưa check thì +
+      selectedRow.push(index)
+      multipleTableRef.value!.toggleRowSelection(curRow, true)
+      //nếu lấy hết mà vẫn chưa đủ số lượng
+      if (warehouseForm.value.quantity >= curRow.inventory + totalExport.value) {
+        lotData.value[index].exportQuantity = curRow.inventory
+        totalExport.value += Number(lotData.value[index].exportQuantity)
+        return
+      }
+      //nếu lấy hết mà thừa số lượng thì lấy 1 phần
+      if (warehouseForm.value.quantity < curRow.inventory + totalExport.value) {
+        //mong đúng :))
+        lotData.value[index].exportQuantity = warehouseForm.value.quantity - totalExport.value
+        totalExport.value += Number(lotData.value[index].exportQuantity)
+        return
+      }
+    } else {
+      multipleTableRef.value!.toggleRowSelection(curRow, false)
+      selectedRow.splice(selectedRow.findIndex((select) => select == index),1)
+      totalExport.value -= Number(curRow.exportQuantity)
+      lotData.value[index].exportQuantity = 0
     }
-    //nếu lấy hết mà thừa số lượng thì lấy 1 phần
-    if (warehouseForm.value.quantity < curRow.inventory + totalExport.value) {
-      //mong đúng :))
-      lotData.value[index].exportQuantity = warehouseForm.value.quantity - totalExport.value
-      totalExport.value += Number(lotData.value[index].exportQuantity)
-      return
-    }
-  } else {
-    selectedRow.splice(selectedRow.findIndex((select) => select == index))
-    totalExport.value -= Number(curRow.exportQuantity)
-    lotData.value[index].exportQuantity = 0
-  }
 }
 const warehouseData = ref({
   quantity: 0,
@@ -245,6 +260,18 @@ const closeDialogExport = () => {
 onBeforeMount(async () => {
   await changeWarehouseData(props.warehouse?.value)
 })
+const changeQuantity = (data)=>{
+  warehouseForm.value.quantity = Number(data)
+  initDataExport()
+}
+const initDataExport = () =>{
+  lotData.value.forEach((row, index)=>{
+    row.exportQuantity = 0
+    multipleTableRef.value!.toggleRowSelection(lotData.value[index], false)
+  })
+  totalExport.value = 0
+  selectedRow = []
+}
 </script>
 <template>
   <el-dialog
@@ -277,7 +304,7 @@ onBeforeMount(async () => {
           :min="1"
           @change="
             (data) => {
-              warehouseData.quantity = Number(data)
+              changeQuantity(data)
             }
           "
         />
@@ -311,6 +338,7 @@ onBeforeMount(async () => {
       :data="lotData"
       ref="multipleTableRef"
       @select="rowClick"
+      @select-all="selectAll"
       style="width: 100%"
       :loading="loadingLot"
       highlight-current-row

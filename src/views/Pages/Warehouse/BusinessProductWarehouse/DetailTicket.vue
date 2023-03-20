@@ -45,7 +45,6 @@ const rules = reactive<FormRules>({
   staffId: [required(), requiredOption()],
   toWarehouseId: [required()],
   fromWarehouseId: [required()],
-  description: [required()],
   customerId: [required(), requiredOption()]
 })
 let infoCompany = reactive({
@@ -108,7 +107,16 @@ const getDateToday = () => {
 }
 getDateToday()
 
+const currentCreator = ref()
 const getListStaff = async () => {
+  if ( typeof(Storage) !== "undefined") {
+
+  var data:any = localStorage.getItem('STAFF_INFO');
+  const datas = JSON.parse(data)
+  currentCreator.value = JSON.parse(datas.v)
+  } else {
+    alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
+  }
   const res = await getStaff({ pageIndex: 1, pageSize: 20 })
   optionsStaffApi.value = res.data.map((item) => ({
     code: item.code,
@@ -117,6 +125,13 @@ const getListStaff = async () => {
     label: item.name + ' | ' + item.phonenumber,
     id: item.id
   }))
+  optionsStaffApi.value.push({
+    code: currentCreator.value.code,
+    phone: currentCreator.value.phonenumber,
+    name: currentCreator.value.name,
+    label: currentCreator.value.name + ' | ' + currentCreator.value.phonenumber,
+    id: currentCreator.value.id
+  })
   if(FormData.value.staffId){
     const find = optionsStaffApi.value.find(staff => staff.id == FormData.value.staffId)
     if(!find){
@@ -128,6 +143,9 @@ const getListStaff = async () => {
         id: FormData.value?.staffId
       })
     }}
+    else{
+      FormData.value.staffId = currentCreator.value.id
+    }
 }
 const scrollCustomerBottom = ref(false)
 const pageIndexCustomer = ref(1)

@@ -78,7 +78,7 @@ const columns = reactive<TableColumn[]>([
     filters: filterRankEmployee
   },
   {
-    field: 'typeStaffName',
+    field: 'typeName',
     label: t('reuse.type'),
     minWidth: '150',
     filters: filterTypeEmployee

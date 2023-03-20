@@ -129,13 +129,10 @@ export const businessProductLibrary = [
     headerFilter: 'Name'
   },
   {
-    field: 'isActive',
+    field: 'productStatusName',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return t(`${businessStatusTransferToText(cellValue)}`)
-    }
+    filters: filterTableStatus
   }
 ]
 type Options = {

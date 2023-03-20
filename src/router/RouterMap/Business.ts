@@ -80,7 +80,7 @@ export default {
           component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
           name: `business.order-management.order-list.${utility}`,
           meta: {
-            title: t('reuse.order'),
+            title: t('router.addNewOrder'),
             noCache: true,
             showMainRoute: true
           }

@@ -748,6 +748,7 @@ export default {
     promotionCampaign: 'Chiến dịch & Khuyến mại',
     serviceSurvey: 'Khảo sát dịch vụ',
     orderList: 'Danh sách đơn hàng',
+    addNewOrder: 'Thêm mới đơn hàng',
     createANewOrder: 'Tạo mới đơn hàng',
     paymentProposal: 'Đề nghị thanh toán',
     receiptsAndExpenditures: 'Phiếu thu/chi',

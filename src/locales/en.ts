@@ -691,6 +691,7 @@ export default {
     serviceSurvey: 'Service survey',
     employeeInfo: 'Employee Info',
     orderList: 'Order list',
+    addNewOrder: 'Create new order',
     createANewOrder: 'Create a new order',
     paymentProposal: 'Payment proposal',
     receiptsAndExpenditures: 'Receipts and expenditures',

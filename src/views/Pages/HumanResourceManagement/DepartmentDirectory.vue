@@ -48,7 +48,7 @@ const columnsBranch = reactive<TableColumn[]>([
     minWidth: '200'
   },
   {
-    field: 'createAt',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '200',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -56,7 +56,7 @@ const columnsBranch = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'createBy',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '200'
   },
@@ -95,7 +95,7 @@ const columnsDepartment = reactive<TableColumn[]>([
     minWidth: '200'
   },
   {
-    field: 'createAt',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '200',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -103,7 +103,7 @@ const columnsDepartment = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'createBy',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '200'
   },
@@ -142,7 +142,7 @@ const columnsRank = reactive<TableColumn[]>([
     minWidth: '200'
   },
   {
-    field: 'createAt',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '200',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
@@ -150,7 +150,7 @@ const columnsRank = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'createBy',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '200'
   },
@@ -189,7 +189,7 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     minWidth: '200'
   },
   {
-    field: 'createAt',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '200',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {

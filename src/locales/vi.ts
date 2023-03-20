@@ -956,7 +956,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
-
+    choosePayment: 'Chọn thanh toán',
     spend: 'Chi',
     get: 'Thu',
     plusLabel: 'Cộng',

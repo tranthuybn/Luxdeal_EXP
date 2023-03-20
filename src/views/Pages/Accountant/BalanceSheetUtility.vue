@@ -3,13 +3,14 @@ import { reactive, onBeforeMount, ref, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../Components/TableBase'
 import { useRouter } from 'vue-router'
-import { getBadgeAccount1List } from '@/utils/get_filterList'
+import { getBadgeAccountList } from '@/utils/get_filterList'
 import { getAccountantList,getAccountantById, addNewAccountant, updateAccountant, deleteAccountant } from '@/api/Business'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElNotification } from 'element-plus'
 import { FormDataPostAndEdit, FormData } from './types/BalanceSheet.d'
 
 const badgeAccount1List = ref()
+const badgeAccount2List = ref()
 const { t } = useI18n()
 const router = useRouter()
 const { push } = useRouter()
@@ -22,8 +23,11 @@ const disabledCancelBtn = ref(false)
 const currentType = ref('')
 const checkTypeAccount = computed(() => currentType.value)
 
+
+
 onBeforeMount(async() => {
-  badgeAccount1List.value = await getBadgeAccount1List(getAccountantList, t('reuse.cantBadgeAccount1List'))
+  badgeAccount1List.value = await getBadgeAccountList(getAccountantList,'1', t('reuse.cantBadgeAccount1List'))
+  badgeAccount2List.value = await getBadgeAccountList(getAccountantList, '2', t('reuse.cantBadgeAccount1List'))
 })
 
 const { checkNumber, checkLength, checkDuplicate} = useValidator()
@@ -32,12 +36,13 @@ const rules = reactive({
     { validator: checkNumber }, 
     { validator: (...config) =>  checkLength(config, undefined, 5) },
     { validator: (...config) => {
-      if(checkTypeAccount.value == '1') checkDuplicate(config, badgeAccount1List.value, t('reuse.accountanceDuplicated'))
+      if(checkTypeAccount.value == '1') checkDuplicate(config, badgeAccount1List.value, t('reuse.accountanceDuplicated'), type, id)
     }}
   ],
   accountNumber2: [
     { validator: checkNumber }, 
-    { validator: (...config) =>  checkLength(config, undefined, 5) }
+    { validator: (...config) =>  checkLength(config, undefined, 5) },
+    { validator: (...config) => checkDuplicate(config, badgeAccount2List.value, t('reuse.accountanceDuplicated'), type, id)}
   ],
   accountName: [
     { validator: (...config) =>  checkLength(config, undefined, 255)}

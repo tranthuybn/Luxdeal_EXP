@@ -18,6 +18,9 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
+//random field code
+const curDate = 'SPA' + moment().format('hhmmss')
+
 const schema = reactive<FormSchema[]>([
   {
     field: 'generalServiceInformation',
@@ -32,19 +35,14 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterServiceCode'),
-      formatter: (value) =>
-        value
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/đ/g, 'd')
-          .replace(/Đ/g, 'D')
-          .trim()
-    }
+      disabled: true
+    },
+    value: curDate
   },
   {
     field: 'name',
     label: t('formDemo.serviceName'),
+    labelDescription: t('reuse.under50Characters'),
     component: 'Input',
     colProps: {
       span: 18
@@ -57,6 +55,7 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'shortDescription',
     label: t('formDemo.shortDescription'),
+    labelDescription: t('reuse.under256Characters'),
     component: 'Input',
     colProps: {
       span: 18
@@ -118,7 +117,7 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       placeholder: t('formDemo.enterNumberMinute'),
-      suffixIcon: h('div', 'phút')
+      suffixIcon: h('div',{class: 'suffixIcon'}, 'phút')
     }
   },
   {
@@ -149,7 +148,7 @@ const schema = reactive<FormSchema[]>([
       options: [
         {
           label: t('formDemo.isActive'),
-          value: 'active'
+          value: true
         }
       ]
     }
@@ -200,10 +199,7 @@ const customizeData = async (formData) => {
   formDataCustomize.value.Images = formData.photos
   formDataCustomize.value.cost = formData.cost
   formDataCustomize.value.promotePrice = formData.promotePrice
-  formDataCustomize.value['status'] = []
-  if (formData.isActive == true) {
-    formDataCustomize.value['status'].push('active')
-  }
+  formDataCustomize.value.status = formData.isActive
   formDataCustomize.value.imageurl = `${API_URL}${formData.imageurl}`
   formDataCustomize.value.isDelete = false
 }
@@ -228,7 +224,6 @@ type FormDataPost = {
 const customPostData = (data) => {
   const customData = {} as FormDataPost
   var curDate = moment().format()
-  customData.Id = id
   customData.Photo = data.Images
   customData.Cost = data.cost
   customData.PromotePrice = data.promotePrice
@@ -238,16 +233,11 @@ const customPostData = (data) => {
   customData.ShortDescription = data.shortDescription
   customData.Name = data.name
   customData.Code = data.code
+  customData.IsActive = data.status
   customData.UpdatedBy = 'katsuke'
   customData.CreatedBy = 'katnguyen'
   customData.UpdatedAt = curDate.toString()
   customData.CreatedAt = curDate.toString()
-  if (type === 'add') {
-    customData.IsActive = false
-  } else {
-    data.status == '' ? (customData.IsActive = false) : (customData.IsActive = true)
-    data.status == 'active' ? (customData.IsActive = true) : (customData.IsActive = false)
-  }
   customData.IsApproved = false
   return customData
 }
@@ -368,4 +358,10 @@ const activeName = ref('information')
       background-color: #fff0d9;
     }
   } 
+
+  ::v-deep(.el-input__icon){
+    min-width: 30px;
+    justify-content: flex-end;
+  }
+
 </style>

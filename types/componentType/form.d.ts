@@ -77,6 +77,8 @@ declare global {
     label?: string
     // hint
     labelMessage?: string
+    // label Description
+    labelDescription?: string
     // COL component attribute
     colProps?: ColProps
     // Form component attributes, slots correspond to the slot of the form component, rules: $ {field} -xxx, you can view the Element-Plus document

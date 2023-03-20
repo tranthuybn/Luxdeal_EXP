@@ -52,12 +52,9 @@ import {
   getDetailAccountingEntryById,
   GetProductPropertyInventory,
   getListWareHouse,
-  updateStatusOrder,
   updateOrderInfo,
   approvalOrder,
   GetPaymentRequestDetail,
-  cancelOrder,
-  finishStatusOrder,
   updateOrderTransaction,
   postAutomaticWarehouse,
 createTicketFromReturnOrder,
@@ -74,7 +71,6 @@ import moment from 'moment'
 import { useRoute, useRouter } from 'vue-router'
 import { STATUS_ORDER_PAWN } from '@/utils/API.Variables'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
-import { deleteTempCode } from '@/api/common'
 //them nhanh sp
 import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
@@ -83,7 +79,9 @@ import StatusWarehouse from '@/views/Pages/Warehouse/BusinessProductWarehouse/St
 
 import UploadMultipleImages from './UploadMultipleImages.vue'
 import { API_URL } from '@/utils/API_URL'
-
+import * as orderUtility from './OrderFixbug'
+import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
+import { deleteTempCode } from '@/api/common'
 
 const { t } = useI18n()
 const { utility } = appModules
@@ -806,8 +804,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
 }
 
 const checkPercent = (_rule: any, value: any, callback: any) => {
-  if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
-  else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+  if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
   else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
   else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
   else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
@@ -2118,48 +2115,7 @@ if (type == 'add' || type == ':type')
     isActive: true
   })
 
-const updateOrderStatus = async (status: number, idOrder: any) => {
-  const payload = {
-    OrderId: idOrder ? idOrder : id,
-    ServiceType: 4,
-    OrderStatus: status
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  await updateStatusOrder(formDataPayLoad)
-  statusOrder.value = status
-}
 
-const addStatusOrder = async(index) => {
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-  arrayStatusOrder.value.push(STATUS_ORDER_PAWN[index])
-  statusOrder.value = STATUS_ORDER_PAWN[index].orderStatus
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-  await updateOrderStatus(STATUS_ORDER_PAWN[index].orderStatus, id)
-  await reloadStatusOrder()
-}
-
-// Cập nhật trạng thái đơn hàng
-const updateStatusOrders = async (typeState) => {
-  await deleteTempCode(ruleForm.orderCode)
-  // 13 hoàn thành đơn hàng
-  if (typeState == STATUS_ORDER_PAWN[0].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await cancelOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else if (typeState == STATUS_ORDER_PAWN[2].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await finishStatusOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else {
-    let paylpad = { OrderId: id, ServiceType: 4, OrderStatus: typeState }
-    await updateStatusOrder(FORM_IMAGES(paylpad))
-    reloadStatusOrder()
-  }
-}
 
 const codeReceipts = ref()
 const codeExpenditures = ref()
@@ -2384,6 +2340,21 @@ const disabledDatePawnFee= (time : Date,row) =>{
 }
 const DoiPhieuCamDo = ref(true)
 const totalPawnFee = ref(0)
+
+const startOrder = async () =>{
+  const res = await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
+  if(res){
+    await orderUtility.startOrder(id,orderUtility.ServiceType.CamDo)
+  }
+}
+const cancelOrder = async () =>{
+  const res = await orderUtility.cancelOrderAPI(id, orderUtility.ServiceType.CamDo)
+   if(res){
+    await deleteTempCode({
+     Code:ruleForm.orderCode
+      })
+    }
+}
 </script>
 
 <template>
@@ -3223,12 +3194,7 @@ const totalPawnFee = ref(0)
                 statusOrder == STATUS_ORDER_PAWN[1].orderStatus
               "
               type="primary"
-              @click="
-                () => {
-                  // addStatusOrder(3)
-                  addStatusOrder(5)
-                }
-              "
+              @click="startOrder"
               class="min-w-43 min-h-11"
               >Bắt đầu cầm đồ theo kỳ hạn</el-button
             >
@@ -3257,11 +3223,7 @@ const totalPawnFee = ref(0)
                   !duplicateStatusButton &&
                   type != 'add')
               "
-              @click="
-                () => {
-                  updateStatusOrders(STATUS_ORDER_PAWN[0].orderStatus)
-                }
-              "
+              @click="cancelOrder"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
@@ -3312,8 +3274,7 @@ const totalPawnFee = ref(0)
               "
               @click="
                 () => {
-                  addStatusOrder(2)
-                  // setDataForReturnOrder()
+                  orderUtility.finishOrderAPI(id)
                 }
               "
               type="info"

@@ -733,17 +733,6 @@ interface statusOrderType {
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
 
-// const updateOrderStatus = async (status: number, idOrder: any) => {
-//   const payload = {
-//     OrderId: idOrder ? idOrder : id,
-//     ServiceType: 2,
-//     OrderStatus: status
-//   }
-//   const formDataPayLoad = FORM_IMAGES(payload)
-//   await updateStatusOrder(formDataPayLoad)
-//   statusOrder.value = status
-//   reloadStatusOrder()
-// }
 
 const duplicateStatusButton = ref(false)
 // load lại trạng thái đơn hàng
@@ -771,14 +760,6 @@ const approvalFunction = async (isApprove) => {
   })
 }
 
-// const addStatusOrder = (index) => {
-//   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-//   arrayStatusOrder.value?.push(STATUS_ORDER_DEPOSIT[index])
-//   statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
-//   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-//   updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
-// }
-// Cập nhật trạng thái đơn hàng
 const cancelOrder = async () =>{
   const res = await orderUtility.cancelOrderAPI(id, orderUtility.ServiceType.KyGui)
    if(res){

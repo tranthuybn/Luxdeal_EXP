@@ -24,7 +24,8 @@ import {
   UploadUserFile,
   ElNotification,
   ElMessage,
-  UploadProps
+  UploadProps,
+  ElImage
 } from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { appModules } from '@/config/app'
@@ -85,6 +86,8 @@ import { deleteProductProperty } from '@/api/LibraryAndSetting'
 import AddQuickProduct from './AddQuickProduct.vue'
 import StatusWarehouse from '@/views/Pages/Warehouse/BusinessProductWarehouse/StatusWarehouse.vue'
 
+import * as orderUtility from './OrderFixbug'
+
 const { t } = useI18n()
 const { utility } = appModules
 
@@ -95,7 +98,7 @@ const doCloseOnClickModal = ref(false)
 
 
 const handleRemove = (file: UploadFile) => {
-  return file
+  fileList.value = fileList.value?.filter((image) => image.url !== file.url)
 }
 
 const handlePictureCardPreview = (file: UploadFile) => {
@@ -1086,6 +1089,8 @@ const initDataTablePawnSlip = () =>{
 }
 
 function openDepositDialog() {
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
   initDataTablePawnSlip()
   alreadyPaidForTt.value = true
   dialogFeePaymentSlip.value = !dialogFeePaymentSlip.value
@@ -1095,6 +1100,8 @@ function openDepositDialog() {
 const dialogPawnCouponInfomation = ref(false)
 function openBillPawnDialog() {
   alreadyPaidForTt.value = true
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
   dialogPawnCouponInfomation.value = !dialogPawnCouponInfomation.value
   nameDialog.value = 'billPawn'
   tablePawnSlip.value = ListOfProductsForSale.value
@@ -1124,7 +1131,7 @@ const postReturnRequest = async (reason) => {
   }
   await createReturnRequest(payload).then(async (res)=>{
     idReturnRequest.value = res
-    await createTicketFromReturnOrders()
+    if(reason != 5) {await createTicketFromReturnOrders()}
     getReturnRequestTable()
     editData()
   })
@@ -1724,8 +1731,9 @@ const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) =
 const fileList = ref<UploadUserFile[]>([])
 
 const disableCreateOrder = ref(false)
-const disabledDate = (time: Date) => {
-  return time.getTime() <= Date.now() - 86400000
+const disabledDate = (_time: Date) => {
+  return false
+  // return time.getTime() <= Date.now() - 86400000
 }
 const totalPrincipalMoney = ref(0)
 const totalPrincipalDebt = ref(0)
@@ -2319,23 +2327,34 @@ const setDataForReturnOrder = () => {
   rentReturnOrder.value.customerAddress = customerAddress
   rentReturnOrder.value.phone = infoCompany.phone
   rentReturnOrder.value.inputReturnReason = inputReasonReturn
-  ListOfProductsForSale.value.forEach(async (row)=>{
+  rentReturnOrder.value.tableData = [{
+    productPropertyId : '',
+    accessory : '',
+    quantity : '',
+    maxQuantity : '',
+    productPropertyCode : '',
+    description : '',
+    code : '',
+    importWarehousePrice: ''
+  }]
+  ListOfProductsForSale.value.forEach(async (row,index)=>{
 
-    if(giaHan.value){
+    if(dutHang.value){
       await GetMoneyAndDatePayment({CustomerOrderId: id, ProductPropertyId: row.productPropertyId})
       .then((res)=>{
-        rentReturnOrder.value.tableData.importWarehousePrice = res.data.principalDebt - res.data.principalFeeDebt
+        rentReturnOrder.value.tableData[index].importWarehousePrice = res.data.principalDebt - res.data.principalFeeDebt
       })
     }
 
-    rentReturnOrder.value.tableData.productPropertyId =row.productPropertyId,
-    rentReturnOrder.value.tableData.accessory =row.accessory,
-    rentReturnOrder.value.tableData.quantity =row.quantity,
-    rentReturnOrder.value.tableData.maxQuantity = row.quantity - row.returnedQuantity,
-    rentReturnOrder.value.tableData.productPropertyCode = row.productPropertyCode,
-    rentReturnOrder.value.tableData.description = row.description,
-    rentReturnOrder.value.tableData.code = row.code
+    rentReturnOrder.value.tableData[index].productPropertyId =row.productPropertyId,
+    rentReturnOrder.value.tableData[index].accessory =row.accessory,
+    rentReturnOrder.value.tableData[index].quantity =row.quantity,
+    rentReturnOrder.value.tableData[index].maxQuantity = row.quantity - row.returnedQuantity,
+    rentReturnOrder.value.tableData[index].productPropertyCode = row.productPropertyCode,
+    rentReturnOrder.value.tableData[index].description = row.description,
+    rentReturnOrder.value.tableData[index].code = row.code
   })
+  console.log('rent', rentReturnOrder.value.tableData)
 }
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
@@ -2749,6 +2768,7 @@ const totalPawnFee = ref(0)
               <div class="pl-4">
                 <el-upload
                   action="#"
+                  :disabled="fileList.length > 9"
                   list-type="picture-card"
                   :limit="10"
                   :on-exceed="handleExceed"
@@ -2758,7 +2778,7 @@ const totalPawnFee = ref(0)
                   :on-change="handleChange"
                   v-model:file-list="fileList"
                 >
-                  <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
+                  <el-button size="large" :disabled="fileList.length > 9">+ {{ t('formDemo.addPhotosOrFiles') }}</el-button>
                   <template #file="{ file }">
                     <div>
                       <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -2767,6 +2787,7 @@ const totalPawnFee = ref(0)
                           class="el-upload-list__item-preview"
                           @click="handlePictureCardPreview(file)"
                         >
+                          <el-button :icon="orderUtility.viewIcon" />
                         </span>
                         <span
                           v-if="!disabled"
@@ -2779,14 +2800,13 @@ const totalPawnFee = ref(0)
                           class="el-upload-list__item-delete"
                           @click="handleRemove(file)"
                         >
+                          <el-button :icon="orderUtility.deleteIcon" />
                         </span>
                       </span>
                     </div>
                   </template>
-                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute">
-                    <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                    >
+                  <el-dialog top="5vh" v-model="dialogVisible" width="130vh">
+                    <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
                   </el-dialog>
                 </el-upload>
               </div>
@@ -3336,8 +3356,7 @@ const totalPawnFee = ref(0)
 
             <el-button
               v-if="
-                statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[2].orderStatus
+                statusOrder == STATUS_ORDER_PAWN[1].orderStatus
               "
               type="primary"
               @click="
@@ -3429,7 +3448,7 @@ const totalPawnFee = ref(0)
               "
               @click="
                 () => {
-                  addStatusOrder(-1)
+                  addStatusOrder(2)
                   // setDataForReturnOrder()
                 }
               "

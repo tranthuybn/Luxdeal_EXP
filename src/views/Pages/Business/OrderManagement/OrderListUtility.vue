@@ -60,14 +60,10 @@ import {
   addOrderStransaction,
   updateOrderTransaction,
   getDetailAccountingEntryById,
-  postAutomaticWarehouse,
   GetProductPropertyInventory,
   getListWareHouse,
   updateOrderInfo,
-  finishStatusOrder,
-  updateStatusOrder,
   approvalOrder,
-  cancelOrder,
   createTicketFromReturnOrder,
   GetWarehouseTransaction,
   getAllStaffList,
@@ -88,6 +84,9 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
+
+import * as orderUtility from './OrderFixbug'
+import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
 
 const { utility } = appModules
 const { t } = useI18n()
@@ -1043,7 +1042,6 @@ const checkDisabled = ref(false)
 
 let orderDetailsTable = reactive([{}])
 
-let idOrderPost = ref()
 // Tạo đơn hàng
 const postData = async (pushBack: boolean) => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
@@ -1122,25 +1120,20 @@ const postData = async (pushBack: boolean) => {
   }
 }
 
-// Phiếu xuất kho tự động
-const automaticCouponWareHouse = async (index) => {
-  const payload = {
-    OrderId: id,
-    Type: index
-  }
-
-  await postAutomaticWarehouse(payload)
-}
 
 // Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
-const backToListOrder = () => {
-  router.push({
-    name: 'business.order-management.order-list',
-    params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-  })
-  deleteTempCode({
+const backToListOrder = async () => {
+
+   const res = await orderUtility.cancelOrderAPI(id, orderUtility.ServiceType.Ban)
+   if(res){
+    await deleteTempCode({
      Code:ruleForm.orderCode
    })
+      router.push({
+      name: 'business.order-management.order-list',
+      params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+    })
+   }
 }
 
 // total order
@@ -1306,8 +1299,10 @@ const updateInfoAcountingEntry = async(index) => {
         orderId: id,
         status: 5
       }
-      await automaticCouponWareHouse(2)
-      await UpdateStatusTicketFromOrder(payload)
+      const res = await orderUtility.automaticCouponWareHouse(2,id)
+      if(res){
+        await UpdateStatusTicketFromOrder(payload)
+      }
     }
   }
 }
@@ -2559,35 +2554,35 @@ const updateOrderInfomation = async () => {
 
 const { push } = useRouter()
 // Cập nhật trạng thái đơn hàng
-const updateStatusOrders = async (typeState) => {
-  if (typeState == STATUS_ORDER_SELL[0].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await cancelOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else if (typeState == STATUS_ORDER_SELL[4].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await finishStatusOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else {
-    if (type == 'add' || type == ':type') {
-      let payload = {
-        OrderId: idOrderPost.value,
-        ServiceType: 1,
-        OrderStatus: typeState
-      }
-      submitForm(ruleFormRef, ruleFormRef2, true)
-      updateStatusOrder(FORM_IMAGES(payload))
-    } else {
-      let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
-      await updateStatusOrder(FORM_IMAGES(paylpad))
-      reloadStatusOrder()
-    }
-  }
-}
+// const updateStatusOrders = async (typeState) => {
+//   if (typeState == STATUS_ORDER_SELL[0].orderStatus) {
+//     let payload = {
+//       OrderId: id
+//     }
+//     await cancelOrder(FORM_IMAGES(payload))
+//     reloadStatusOrder()
+//   } else if (typeState == STATUS_ORDER_SELL[4].orderStatus) {
+//     let payload = {
+//       OrderId: id
+//     }
+//     await finishStatusOrder(FORM_IMAGES(payload))
+//     reloadStatusOrder()
+//   } else {
+//     if (type == 'add' || type == ':type') {
+//       let payload = {
+//         OrderId: idOrderPost.value,
+//         ServiceType: 1,
+//         OrderStatus: typeState
+//       }
+//       submitForm(ruleFormRef, ruleFormRef2, true)
+//       updateStatusOrder(FORM_IMAGES(payload))
+//     } else {
+//       let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
+//       await updateStatusOrder(FORM_IMAGES(paylpad))
+//       reloadStatusOrder()
+//     }
+//   }
+// }
 
 // Duyệt đơn hàng
 const approvalFunction = async (checkApproved) => {
@@ -2707,9 +2702,11 @@ const UpdateStatusTransaction = async() => {
 const keepGoodsOnDeposit = ref(false)
 
 // Hoàn thành đơn hàng -> call api phiếu nhập kho tự động
-const orderCompletion = () => {
-  automaticCouponWareHouse(2)
-  updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
+const orderCompletion = async () => {
+  const status = await orderUtility.startOrder(id,orderUtility.ServiceType.Ban)
+  if(status){
+    await orderUtility.automaticCouponWareHouse(TicketType.XuatKho,id)
+  }
 }
 
 onBeforeMount(async () => {
@@ -5301,7 +5298,6 @@ const disabledPhieu = ref(false)
               <div class="flex w-[100%] items-center">
                 <el-button
                   text
-                  :disabled="disabledEdit"
                   @click="
                     () => {
                       callApiWarehouse(props)
@@ -5634,11 +5630,7 @@ const disabledPhieu = ref(false)
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
-              @click="
-                () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)
-                }
-              "
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5673,7 +5665,7 @@ const disabledPhieu = ref(false)
               >{{ t('formDemo.editOrder') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)"
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5729,7 +5721,7 @@ const disabledPhieu = ref(false)
               :disabled="statusButtonDetail"
               @click="
                 () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)
+                  orderUtility.finishOrderAPI(id)
                 }
               "
               class="min-w-42 min-h-11 bg-[#D9D9D9]"
@@ -5772,7 +5764,7 @@ const disabledPhieu = ref(false)
               t('formDemo.depositSlipAdvance')
             }}</el-button>
             <button
-              @click="updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)"
+              @click="orderUtility.finishOrderAPI(id)"
               :disabled="checkDisabled"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button

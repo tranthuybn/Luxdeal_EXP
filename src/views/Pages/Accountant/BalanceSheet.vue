@@ -19,6 +19,10 @@ const getSummaries = (param) => {
       sums[index] = 'Cộng'
       return
     }
+    if (index === 3 || index === 10) {
+      sums[index] = ''
+      return
+    }
     const values = data.map((item) => Number(item[column.property]))
     if (!values.every((value) => Number.isNaN(value))) {
       sums[index] = `${values.reduce((prev, curr) => {

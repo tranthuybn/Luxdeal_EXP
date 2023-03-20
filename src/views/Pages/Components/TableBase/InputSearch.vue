@@ -49,7 +49,7 @@ const remoteMethod = (query: string) => {
     loading.value = true
     setTimeout(async () => {
       loading.value = false
-      if(props.apiHasPagination) params.push({pageIndex: pageIndex.value, pageSize: pageSize.value})
+      if(props.apiHasPagination && params.length === 2 ) params.push({pageIndex: pageIndex.value, pageSize: pageSize.value})
       filterList.value = await getFilterList(...params)
       options.value = filterList.value.filter((item) => {
         return item.text?.toLowerCase().includes(query.toLowerCase())
@@ -60,17 +60,18 @@ const remoteMethod = (query: string) => {
   }
 }
 
+
 const handleScroll = async (event) => {
-  console.log('run')
   if(props.apiHasPagination) {
     const target = event.target;
     const bottomReached = target.scrollHeight - target.scrollTop === target.clientHeight;
-    console.log('bottomReached',bottomReached)
     if (bottomReached) {
       // Increase pageIndex and fetch more data
       pageIndex.value += 1;
+
       const response = await getFilterList(...params)
-      options.value.push(...response.items); // Append new items to options
+      options.value.push(...response); 
+      // Append new items to options
       // filteredOptions.value = options.value.slice(0, pageSize.value * pageIndex.value); // Update filtered options
     }
   }
@@ -79,7 +80,7 @@ const handleScroll = async (event) => {
 
 </script>
 <template>
-  <el-popover @scroll="handleScroll" placement="bottom" trigger="click" width="fit-content">
+  <el-popover placement="bottom" trigger="click" width="fit-content">
     <template #reference>
       <el-button :icon="ArrowDown" text style="padding: 0" />
     </template>
@@ -94,15 +95,22 @@ const handleScroll = async (event) => {
       :placeholder="t('reuse.inputName')"
       :loading="loading"
       @clear="clear"
-      @scroll="handleScroll"
     >
+    <div @scroll="handleScroll" id="option-wrap">
       <el-option
         v-for="item in options"
         :key="item.value"
         :label="item.text"
         :value="item.value"
-        @scroll="handleScroll"
       />
+    </div>
     </el-select>
   </el-popover>
 </template>
+<style lang="css" scoped>
+  #option-wrap {
+    height: 200px;
+    padding: 0 10px;
+    overflow: auto;
+  }
+</style>

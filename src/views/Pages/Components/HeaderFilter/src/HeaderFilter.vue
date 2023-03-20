@@ -226,12 +226,11 @@ async function getDataEvent() {
       getFormData()
         .then((res) => {
           res?.endDate
-            ? (res['endDate'] = moment(res?.endDate)
-                .set('hour', 23)
-                .set('minute', 59)
-                .set('second', 59)
-                .format('YYYY-MM-DD HH:mm:ss'))
+            ? (res['endDate'] = moment(res?.endDate).format('YYYY-MM-DD'))
             : ''
+          res?.startDate
+          ? (res['startDate'] = moment(res?.endDate).format('YYYY-MM-DD'))
+          : '' 
           emit('getData', { ...res, Keyword: validateHeaderInput.searchingKey })
         })
         .catch((error) => {

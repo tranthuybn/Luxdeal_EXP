@@ -10,7 +10,7 @@ import {
   filterSubject,
   filterVoucherType,
   filterVoucherCondition,
-  filterTableStatus
+  filterCampaignStatus
 } from '@/utils/filters'
 import {
   dateTimeFormat,
@@ -126,7 +126,7 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.status'),
     minWidth: '150',
     headerAlign: 'left',
-    filters: filterTableStatus,
+    filters: filterCampaignStatus,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
      return t(`${formatStatusVoucher(cellValue)}`)
     }

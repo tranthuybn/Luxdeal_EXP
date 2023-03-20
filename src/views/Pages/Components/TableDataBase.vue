@@ -91,6 +91,22 @@ const props = defineProps({
   removeButtonAdd: {
     type: Boolean,
     default: false
+  },
+  apiHasPagination: {
+    type: Boolean,
+    default: false,
+  },
+  apiToFilter: {
+    type: Object,
+    default: () => {}
+  },
+  showSummary: {
+    type: Boolean,
+    default: false
+  },
+  getSummaries: {
+    type: Function,
+    default: () => []
   }
 })
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
@@ -173,16 +189,33 @@ const initMappingObject = (el) => {
       v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
       @export-excel-event="ExportExcelEvent" />
     <TableBase
-      :removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
-      :typeButton="props.typeButton" :customOperator="customOperator" :apiTableChild="apiTableChild" :delApi="delApi"
-      :deleteTitle="deleteTitle" :columnsTableChild="columnsTableChild" :paginationType="pagination" ref="tableBase01"
-      :api="dynamicApi" :maxHeight="'69vh'" :fullColumns="dynamicColumns" @total-record="fnGetTotalRecord"
-      @selected-record="fnGetSelectedRecord" :selection="selection" :titleChilden="props.titleChilden">
+      :removeDrawer="removeDrawer" 
+      :expand="expand" 
+      :titleButtons="props.titleButtons"
+      :typeButton="props.typeButton" 
+      :customOperator="customOperator" 
+      :apiTableChild="apiTableChild" 
+      :delApi="delApi"
+      :deleteTitle="deleteTitle" 
+      :columnsTableChild="columnsTableChild" 
+      :paginationType="pagination" 
+      ref="tableBase01" 
+      :apiHasPagination="props.apiHasPagination"
+      :api="dynamicApi" 
+      :maxHeight="'69vh'" 
+      :fullColumns="dynamicColumns" 
+      @total-record="fnGetTotalRecord" 
+      @selected-record="fnGetSelectedRecord" 
+      :selection="selection" 
+      :showSummary="props.showSummary"
+      :getSummaries="getSummaries"
+      :apiToFilter="props.apiToFilter"
+      :titleChilden="props.titleChilden">
       <template #expand>
         <slot name="expand"></slot>
       </template>
-      <template #totalBalanceSheet>
-        <slot name="totalBalanceSheet"></slot>
+      <template #sumInBalanceSheet>
+        <slot name="sumInBalanceSheet"></slot>
       </template>
     </TableBase>
   </section>

@@ -63,7 +63,7 @@ export const businessProductLibrary = [
     field: 'photos',
     label: t('reuse.image'),
     minWidth: '120',
-    headerAlign: 'left',
+    headerAlign: 'center',
     align: 'center',
     formatter: (record: Recordable, column: TableColumn, _: TableSlotDefault) =>
       setImageDisplayInTable(record, column, record.photos[0]?.path)

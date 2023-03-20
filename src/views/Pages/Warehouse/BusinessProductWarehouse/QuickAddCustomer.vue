@@ -127,7 +127,7 @@ const customerFormRef = ref<FormInstance>()
 </script>
 <template>
   <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+    :close-on-click-modal="doCloseOnClickModal"
     :model-value="showDialog"
     width="40%"
     align-center

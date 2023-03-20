@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, onBeforeMount, ref } from 'vue'
+import { reactive, onBeforeMount, ref, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -19,16 +19,21 @@ const currentRoute = String(router.currentRoute.value.params.backRoute)
 const title = router.currentRoute.value.meta.title
 const setFormData = reactive({} as FormData)
 const disabledCancelBtn = ref(false)
+const currentType = ref('')
+const checkTypeAccount = computed(() => currentType.value)
 
 onBeforeMount(async() => {
   badgeAccount1List.value = await getBadgeAccount1List(getAccountantList, t('reuse.cantBadgeAccount1List'))
 })
+
 const { checkNumber, checkLength, checkDuplicate} = useValidator()
 const rules = reactive({
   accountNumber1: [
     { validator: checkNumber }, 
     { validator: (...config) =>  checkLength(config, undefined, 5) },
-    { validator: (...config) => checkDuplicate(config, badgeAccount1List.value, t('reuse.accountanceDuplicated'))}
+    { validator: (...config) => {
+      if(checkTypeAccount.value == '1') checkDuplicate(config, badgeAccount1List.value, t('reuse.accountanceDuplicated'))
+    }}
   ],
   accountNumber2: [
     { validator: checkNumber }, 
@@ -129,7 +134,7 @@ const schema = reactive<FormSchema[]>([
     field: 'status',
     label: t('reuse.status'),
     component: 'Radio',
-    value: [],
+    value: false,
     colProps: {
       span: 24
     },
@@ -152,8 +157,10 @@ const changeValueClassify = (data) => {
     schema[4].hidden = false
     schema[5].hidden = true
     schema[6].hidden = false
+    currentType.value = '2'
     return
   } 
+  currentType.value = '1'
   schema[3].component= 'Input'
   schema[4].hidden = true
   schema[5].hidden = false
@@ -169,26 +176,28 @@ const customData = (data) => {
     customData.ParentId = null
   } else {
     customData.AccountNumber = data.accountNumber2
-    customData.ParentId = data.accountNumber1
+    const id = badgeAccount1List.value.find(item => item.value == Number(data.accountNumber1)).id
+    customData.ParentId = id
   }
   customData.AccountName = data.accountName
   customData.Status = data.status
-  customData.Id = Number(data.id)
   return customData
 }
 
 const postData = async (data) => {
-  data = customData(data)
+  console.log('data', data)
+  const typeBtn = data.typeBtn
+  data = typeBtn ? customData(data.data) : customData(data)
   await addNewAccountant(data)
   .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      }),
-        push({
-          name: 'accountant.balanceSheet',
-          params: { backRoute: 'accountant.balanceSheet' }
-        })
+      })
+      !typeBtn ? push({
+        name: 'accountant.balanceSheet',
+        params: { backRoute: 'accountant.balanceSheet' }
+      }) : null
     })
   .catch(() =>
     ElNotification({

@@ -4403,9 +4403,6 @@ const createStatusAcountingEntry = () => {
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
-              >{{ t('reuse.save') }}
-            </el-button>
             <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
               t('reuse.exit')
             }}</el-button>

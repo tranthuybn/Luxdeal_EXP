@@ -72,6 +72,7 @@ import {
   finishReturnOrder,
 GenerateCodeOrder
 } from '@/api/Business'
+// import QuickAddCustomer from '@/views/Pages/Warehouse/BusinessProductWarehouse/QuickAddCustomer.vue'
 import { FORM_IMAGES } from '@/utils/format'
 import { UpdateStatusTicketFromOrder } from '@/api/Warehouse'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -492,7 +493,7 @@ const handleSelectionChange = (val: tableDataType[]) => {
 // Dialog change address
 
 const dialogFormVisible = ref(false)
-let dialogAddQuick = ref(false)
+const dialogAddQuick = ref()
 const openDialogChooseWarehouse = ref(false)
 const openDialogChoosePromotion = ref(false)
 
@@ -831,6 +832,15 @@ const quickRepresentative = ref()
 const quickPhoneNumber = ref()
 const quickEmail = ref()
 
+// const customerData = ref({
+//   valueSelectCustomer: 1,
+//   addQuickCustomerName: '',
+//   quickTaxCode: '',
+//   quickRepresentative: '',
+//   quickPhoneNumber: '',
+//   quickEmail: ''
+// })
+
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
@@ -1088,7 +1098,6 @@ const postData = async (pushBack: boolean) => {
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
-    id = res
     // updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
     // reloadStatusOrder()
     ElNotification({
@@ -1100,6 +1109,18 @@ const postData = async (pushBack: boolean) => {
         name: 'business.order-management.order-list',
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
+    } else {
+      const id = Number(res)
+      router.push({
+        name: `business.order-management.order-list.${utility}`,
+        params: {
+          backRoute: 'business.order-management.order-list',
+          type: 'detail',
+          tab: 'orderSell',
+          id: id
+        }
+      })
+      orderCompletion(res)
     }
   disabledPhieu.value = false
   } else {
@@ -1109,7 +1130,6 @@ const postData = async (pushBack: boolean) => {
     })
   }
 }
-
 
 // Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
 const backToListOrder = async () => {
@@ -1279,7 +1299,7 @@ const createStatusAcountingEntry = () => {
 }
 
 const updateDetailAcountingEntry = ref(false)
-const updateInfoAcountingEntry = async(index) => {
+const updateInfoAcountingEntry = async(index, id) => {
   if (updateDetailAcountingEntry.value) {
     updateOrderStransaction()
   }else {
@@ -2005,6 +2025,15 @@ const postReturnRequest = async () => {
     isPaid: alreadyPaidForTt.value
   }
   idReturnRequest.value = await createReturnRequest(payload)
+  if (idReturnRequest.value) {
+    ElNotification({
+      message: 'Đổi trả đơn hàng thành công',
+      type: 'success'
+    })
+  } else ElNotification({
+      message: 'Đơn hàng chưa được xuất kho',
+      type: 'warning'
+    })
   postOrderStransaction(3)
   createTicketFromReturnOrders()
   getReturnRequestTable()
@@ -2153,7 +2182,6 @@ const clearData = () => {
 // Bật dialog thêm nhanh khách hàng
 const openDialogAddQuickCustomer = () => {
   clearFormPostCustomer()
-
   dialogAddQuick.value = true
 }
 
@@ -2544,36 +2572,6 @@ const updateOrderInfomation = async () => {
 }
 
 const { push } = useRouter()
-// Cập nhật trạng thái đơn hàng
-// const updateStatusOrders = async (typeState) => {
-//   if (typeState == STATUS_ORDER_SELL[0].orderStatus) {
-//     let payload = {
-//       OrderId: id
-//     }
-//     await cancelOrder(FORM_IMAGES(payload))
-//     reloadStatusOrder()
-//   } else if (typeState == STATUS_ORDER_SELL[4].orderStatus) {
-//     let payload = {
-//       OrderId: id
-//     }
-//     await finishStatusOrder(FORM_IMAGES(payload))
-//     reloadStatusOrder()
-//   } else {
-//     if (type == 'add' || type == ':type') {
-//       let payload = {
-//         OrderId: idOrderPost.value,
-//         ServiceType: 1,
-//         OrderStatus: typeState
-//       }
-//       submitForm(ruleFormRef, ruleFormRef2, true)
-//       updateStatusOrder(FORM_IMAGES(payload))
-//     } else {
-//       let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
-//       await updateStatusOrder(FORM_IMAGES(paylpad))
-//       reloadStatusOrder()
-//     }
-//   }
-// }
 
 // Duyệt đơn hàng
 const approvalFunction = async (checkApproved) => {
@@ -2693,7 +2691,7 @@ const UpdateStatusTransaction = async() => {
 const keepGoodsOnDeposit = ref(false)
 
 // Hoàn thành đơn hàng -> call api phiếu nhập kho tự động
-const orderCompletion = async () => {
+const orderCompletion = async (id) => {
   const status = await orderUtility.startOrder(id,orderUtility.ServiceType.Ban)
   if(status){
     await orderUtility.automaticCouponWareHouse(TicketType.XuatKho,id)
@@ -2808,147 +2806,150 @@ const disabledPhieu = ref(false)
         align-center
         :title="t('formDemo.QuicklyAddCustomers')"
       >
-        <div v-if="valueClassify == true">
-          <el-divider />
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right max-w-[162.73px]"
-                >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-              >
-              <div class="w-[80%] flex gap-2">
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueClassify" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsCustomer"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-              </div>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.companyName') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="addQuickCustomerName"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterCompanyName')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.taxCode') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickTaxCode"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterTaxCode')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('formDemo.representative') }}</label>
-              <el-input
-                v-model="quickRepresentative"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterRepresentative')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickPhoneNumber"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterPhoneNumber')"
-
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-              <el-input
-                v-model="quickEmail"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterEmail')"
-              />
-            </div>
-          </div>
-        </div>
-        <div v-else>
-          <el-divider />
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right max-w-[162.73px]"
-                >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-              >
-              <div class="w-[80%] flex gap-2">
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueClassify" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsCustomer"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
+        <el-form>
+          <div v-if="valueClassify == true">
+            <el-divider />
+            <div>
+              <div class="flex gap-4 pt-4 pb-4 items-center">
+                <label class="w-[30%] text-right max-w-[162.73px]"
+                  >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
+                >
+                <div class="w-[80%] flex gap-2">
+                  <div class="w-[50%] fix-full-width">
+                    <el-select v-model="valueClassify" placeholder="Select">
+                      <el-option
+                        v-for="item in optionsClassify"
+                        :key="item.id"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </div>
+                  <div class="w-[50%] fix-full-width">
+                    <el-select v-model="valueSelectCustomer" placeholder="Select">
+                      <el-option
+                        v-for="item in optionsCustomer"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="addQuickCustomerName"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterCustomerName')"
-              />
-            </div>
-
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickPhoneNumber"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterPhoneNumber')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
-              <el-input
-                v-model="quickEmail"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterEmail')"
-              />
+              <div class="flex gap-4 pt-4 pb-4">
+                <label class="w-[30%] text-right"
+                  >{{ t('formDemo.companyName') }} <span class="text-red-500">*</span></label
+                >
+                <el-input
+                  v-model="addQuickCustomerName"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterCompanyName')"
+                />
+              </div>
+              <div class="flex gap-4 pt-4 pb-4">
+                <label class="w-[30%] text-right"
+                  >{{ t('formDemo.taxCode') }} <span class="text-red-500">*</span></label
+                >
+                <el-input
+                  v-model="quickTaxCode"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterTaxCode')"
+                />
+              </div>
+              <div class="flex gap-4 pt-4 pb-4">
+                <label class="w-[30%] text-right">{{ t('formDemo.representative') }}</label>
+                <el-input
+                  v-model="quickRepresentative"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterRepresentative')"
+                />
+              </div>
+              <div class="flex gap-4 pt-4 pb-4">
+                <label class="w-[30%] text-right"
+                  >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
+                >
+                <el-input
+                  v-model="quickPhoneNumber"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterPhoneNumber')"
+  
+                />
+              </div>
+              <div class="flex gap-4 pt-4 pb-4">
+                <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
+                <el-input
+                  v-model="quickEmail"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterEmail')"
+                />
+              </div>
             </div>
           </div>
-        </div>
+          <div v-else>
+            <el-divider />
+            <div>
+              <div class="flex gap-4 pt-4 pb-4 items-center">
+                <label class="w-[30%] text-right max-w-[162.73px]"
+                  >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
+                >
+                <div class="w-[80%] flex gap-2">
+                  <div class="w-[50%] fix-full-width">
+                    <el-select v-model="valueClassify" placeholder="Select">
+                      <el-option
+                        v-for="item in optionsClassify"
+                        :key="item.id"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </div>
+                  <div class="w-[50%] fix-full-width">
+                    <el-select v-model="valueSelectCustomer" placeholder="Select">
+                      <el-option
+                        v-for="item in optionsCustomer"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </div>
+                </div>
+              </div>
+  
+              <div class="flex gap-4 pt-4 pb-4">
+                <label class="w-[30%] text-right"
+                  >{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label
+                >
+                <el-input
+                  v-model="addQuickCustomerName"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterCustomerName')"
+                />
+              </div>
+  
+              <div class="flex gap-4 pt-4 pb-4">
+                <label class="w-[30%] text-right"
+                  >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
+                >
+                <el-input
+                  v-model="quickPhoneNumber"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterPhoneNumber')"
+                />
+              </div>
+              <div class="flex gap-4 pt-4 pb-4">
+                <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
+                <el-input
+                  v-model="quickEmail"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterEmail')"
+                />
+              </div>
+            </div>
+          </div>
+        </el-form>
+
         <template #footer>
           <span class="dialog-footer">
             <el-button
@@ -2969,6 +2970,8 @@ const disabledPhieu = ref(false)
           </span>
         </template>
       </el-dialog>
+
+      <!-- <QuickAddCustomer :showDialog="dialogAddQuick.value"/>  -->
 
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
@@ -3649,7 +3652,7 @@ const disabledPhieu = ref(false)
                   @click="
                     () => {
                       dialogSalesSlipInfomation = false
-                      updateInfoAcountingEntry(1)
+                      updateInfoAcountingEntry(1, id)
                     }
                   "
                   >
@@ -3889,7 +3892,7 @@ const disabledPhieu = ref(false)
                   @click="
                     () => {
                       dialogDepositSlipAdvance = false
-                      updateInfoAcountingEntry(2)
+                      updateInfoAcountingEntry(2, id)
                     }
                   "
                   >
@@ -4333,7 +4336,7 @@ const disabledPhieu = ref(false)
               v-if="showCreatedOrUpdateButton"
               @click="
                 () => {
-                  updateInfoAcountingEntry(4)
+                  updateInfoAcountingEntry(4, id)
                   dialogAccountingEntryAdditional = false
                 }
               "
@@ -4744,9 +4747,6 @@ const disabledPhieu = ref(false)
         <div class="flex justify-end mr-[156px] text-right font-medium">{{ totalWarehouse }}</div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
-              >{{ t('reuse.save') }}
-            </el-button>
             <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -5644,7 +5644,7 @@ const disabledPhieu = ref(false)
             }}</el-button>
             <el-button
               :disabled="statusButtonDetail"
-              @click="orderCompletion"
+              @click="orderCompletion(id)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button

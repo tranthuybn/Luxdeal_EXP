@@ -691,6 +691,7 @@ export default {
     serviceSurvey: 'Service survey',
     employeeInfo: 'Employee Info',
     orderList: 'Order list',
+    addNewOrder: 'Create new order',
     createANewOrder: 'Create a new order',
     paymentProposal: 'Payment proposal',
     receiptsAndExpenditures: 'Receipts and expenditures',
@@ -904,6 +905,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    lock: 'Lock',
     spend: 'Spend',
     get: 'Get',
     plusLabel: 'Plus', 
@@ -914,7 +916,9 @@ export default {
     saleCare: 'Sale Care', 
     change: 'Change',
     initialization: 'initialization',
+    cantGetFilterList: 'Can\'t get filter list', 
     cantBadgeAccount1List: 'Can\'t get badge account 1 list',
+    cantGetCustomerTypeList: 'Can\'t get customer type list',
     cantGetBrandList: 'Can\'t get brand list',
     cantGetDepartmentList: 'Can\'t get department List',
     cantGetRankList: 'Can\'t get rank list',

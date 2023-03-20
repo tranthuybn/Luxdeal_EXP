@@ -368,9 +368,15 @@ export const lotBusinessSetup = (val) => {
     case 1:
       return t('reuse.sell')
     case 2:
-      return t('reuse.rent')
+      return t('workplace.deposit')
     case 3:
-      return 'Spa'
+      return t('reuse.rent')
+    case 4:
+      return t('workplace.mortgage')
+    case 5:
+      return t('workplace.spa')
+    case 6:
+      return 'Mua'
     default:
       return ' '
   }

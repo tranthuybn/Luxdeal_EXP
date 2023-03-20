@@ -748,6 +748,7 @@ export default {
     promotionCampaign: 'Chiến dịch & Khuyến mại',
     serviceSurvey: 'Khảo sát dịch vụ',
     orderList: 'Danh sách đơn hàng',
+    addNewOrder: 'Thêm mới đơn hàng',
     createANewOrder: 'Tạo mới đơn hàng',
     paymentProposal: 'Đề nghị thanh toán',
     receiptsAndExpenditures: 'Phiếu thu/chi',
@@ -956,6 +957,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+
     spend: 'Chi',
     get: 'Thu',
     plusLabel: 'Cộng',
@@ -966,7 +968,9 @@ export default {
     saleCare: 'Sale chăm sóc', 
     change: 'Thay đổi',
     initialization: 'Khởi tạo',
+    cantGetFilterList: 'Không thể lấy danh sách lọc',
     cantBadgeAccount1List: 'Không thể lấy danh sách số hiệu tài khoản cấp 1',
+    cantGetCustomerTypeList: 'Không thể lấy danh sách đối tượng',
     cantGetBrandList: 'Không thể lấy danh sách chi nhánh',
     cantGetDepartmentList: 'Không thể lấy danh sách phòng ban',
     cantGetRankList: 'Không thể lấy danh sách cấp bậc',
@@ -1136,7 +1140,7 @@ export default {
     wallet: 'Ví',
     balo: 'Balo',
     active: 'Đang hoạt động',
-    inactive: 'Ngưng hoạt động',
+    inactive: 'Ngừng hoạt động',
     pending: 'Chờ duyệt',
     closedTheOrder: 'Đã chốt đơn',
     delivery: 'Đang giao hàng',

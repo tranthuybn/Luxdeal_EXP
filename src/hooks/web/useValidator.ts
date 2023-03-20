@@ -72,9 +72,9 @@ export const useValidator = () => {
 
   const checkLength = (config, minLength, maxLength) => {
     const [_, val, callback] = config
-    if (minLength && val && val.length < minLength) {
+    if (val && minLength && val.length < minLength) {
       callback(new Error(`Nhập tối thiếu ${minLength} ký tự`))
-    } else if (maxLength && val && val.length > maxLength) {
+    } else if (val && maxLength && val.length > maxLength) {
       callback(new Error(`Nhập tối đa ${maxLength} ký tự`))
     }
      else {
@@ -84,7 +84,7 @@ export const useValidator = () => {
 
   const checkDuplicate = (config, listToCheck, message) => {
     const [_, val, callback] = config
-    const duplicateValue = listToCheck.find(item => val == item.value)
+    const duplicateValue = listToCheck ? listToCheck.find(item => val == item.value) : 0
     if (val && duplicateValue) {
       callback(new Error(message))
     } else {

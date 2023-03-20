@@ -16,6 +16,15 @@ export enum ServiceType {
     Spa =5,
     MuaHang = 6
 }
+
+export type TransactionStatusHistory = {
+  transactionStatus: number,
+  isActive: Boolean,
+  createdAt: string,
+  transactionStatusName: string,
+  approvedAt: string
+}
+
 // Phiếu xuất kho tự động
 export const automaticCouponWareHouse = async (type,id) => {
     let success = false

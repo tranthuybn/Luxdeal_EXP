@@ -2413,7 +2413,6 @@ const openAcountingEntryDialog = async (index, num) => {
   tableAccountingEntry.value[0] = formAccountingId.value.accountingEntry
 
   //trạng thái bút toán
-  console.log('formAccountingId', formAccountingId.value)
   statusAccountingEntry.value = formAccountingId.value.statusHistorys
   statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
   if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {

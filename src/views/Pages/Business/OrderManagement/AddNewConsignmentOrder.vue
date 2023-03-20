@@ -32,7 +32,7 @@ import { dateTimeFormat } from '@/utils/format'
 import { appModules } from '@/config/app'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
-import {GenerateCodeOrder} from '@/api/Business'
+import {GenerateCodeOrder, updateStatusTransaction} from '@/api/Business'
 import {
   getProductsList,
   getCustomerById,
@@ -81,6 +81,7 @@ import AddQuickProduct from './AddQuickProduct.vue'
 import * as orderUtility from './OrderFixbug'
 import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
 import UploadMultipleImages from './UploadMultipleImages.vue'
+import EntryTransactionStatus from './EntryTransactionStatus.vue'
 
 const { utility } = appModules
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -1439,10 +1440,30 @@ const checkPTC = ref(0)
 let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
+
+const updateDetailAcountingEntry = ref(false)
+const updateInfoAcountingEntry = async(index) => {
+  if (updateDetailAcountingEntry.value) {
+    updateOrderStransaction()
+  }else {
+    postOrderStransaction(index)
+  }
+}
+// cập nhật bút toán
+const updateOrderStransaction = async() => {
+  const payload = {
+    accountingEntryId: idAcountingEntry.value,
+    isReceiptedMoney: alreadyPaidForTt.value,
+    paymentMethods: 1
+  }
+  await updateOrderTransaction(payload)
+  getOrderStransactionList()
+}
+const idAcountingEntry = ref()
 // Thêm bút toán cho đơn hàng
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
-    merchadiseTobePayforId: parseInt(val.productPropertyId),
+    merchadiseTobePayforId: parseInt(val.id),
     quantity: parseInt(val.quantity)
   }))
 
@@ -1789,6 +1810,9 @@ let formAccountingId = ref()
 let tableSalesSlip = ref()
 const openAcountingEntryDialog = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
+
+  idAcountingEntry.value = index
+
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value?.paidMerchandises
   tableSalesSlip.value.forEach((e) => {
@@ -1805,6 +1829,18 @@ const openAcountingEntryDialog = async (index, num) => {
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
 
+  //trạng thái bút toán
+  statusAccountingEntry.value = formAccountingId.value.statusHistorys
+  statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
+  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
+    showCancelAcountingEntry.value = false
+    showCreatedOrUpdateButton.value = false
+
+  } else {
+    showCancelAcountingEntry.value = true
+    showCreatedOrUpdateButton.value = true
+  }
+
   getReturnOrder()
   if (num == 4) {
     dialogAccountingEntryAdditional.value = true
@@ -1819,6 +1855,11 @@ const openAcountingEntryDialog = async (index, num) => {
     changeReturnGoods.value = true
   }
 }
+
+// Đúng thì hiển thị button Lưu và ghi sổ và hủy bút toán
+const showCreatedOrUpdateButton = ref (false)
+const showCancelAcountingEntry = ref(true)
+const statusAccountingEntry = ref<orderUtility.TransactionStatusHistory[]>([])
 
 const addProductInformationExportChange = () => {
   tableProductInformationExportChange.value.push({
@@ -2234,7 +2275,35 @@ const openDetailOrder = (id, type) => {
     })
 }
 
-</script>nhanh khách
+const UpdateStatusTransaction = async() => {
+  const payload = {
+    AccountingEntryId: idAcountingEntry.value,
+    OrderTransactionStatus: 0
+  }
+
+  updateStatusTransaction(FORM_IMAGES(payload))
+  // Cập nhật lại bảng lịch sử công nợ
+  getOrderStransactionList()
+}
+const openAdditionalDialog = () => {
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
+  createStatusAcountingEntry()
+
+  dialogAccountingEntryAdditional.value = true
+}
+const createStatusAcountingEntry = () => {
+  statusAccountingEntry.value = []
+  statusAccountingEntry.value.push({
+    transactionStatus: 1,
+    transactionStatusName: t('formDemo.initializationBookkeeping'),
+    approvedAt: '',
+    createdAt: '',
+    isActive: true
+  })
+}
+</script>
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -3037,31 +3106,33 @@ const openDetailOrder = (id, type) => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
-          </div>
+          <EntryTransactionStatus :statusAccountingEntry="statusAccountingEntry"/>
         </div>
         <template #footer>
           <span class="dialog-footer">
             <el-button
+              v-if="showCreatedOrUpdateButton"
               type="primary"
               @click="
                 () => {
-                  postOrderStransaction(4)
+                  updateInfoAcountingEntry(4)
                   dialogAccountingEntryAdditional = false
                 }
               "
               >{{ t('formDemo.saveRecordDebts') }}</el-button
             >
+            <el-button
+              type="danger"
+              v-if="showCancelAcountingEntry"
+              @click="
+                () => {
+                  UpdateStatusTransaction()
+                  dialogAccountingEntryAdditional = false
+                }
+              "
+                > 
+                 {{t('formDemo.cancelAccountingEntry')}}
+              </el-button>
             <el-button @click="dialogAccountingEntryAdditional = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -4350,12 +4421,7 @@ const openDetailOrder = (id, type) => {
 
         <el-button
           text
-          @click="
-            () => {
-              alreadyPaidForTt = false
-              dialogAccountingEntryAdditional = true
-            }
-          "
+          @click="openAdditionalDialog"
           >+ {{ t('reuse.addAccountingEntry') }}</el-button
         >
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text

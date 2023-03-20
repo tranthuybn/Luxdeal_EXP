@@ -156,9 +156,9 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'approval',
-    label: '',
+    label: ' ',
     colProps: {
-      span: 12
+      span: 18
     },
     component: 'Input',
     componentProps: {

@@ -12,7 +12,7 @@ import {
   ElSwitch,
   ElNotification
 } from 'element-plus'
-import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
+import { InputMoneyRange, InputDateRange, InputNumberRange, InputName, InputSearch } from '../index'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -85,9 +85,25 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  currentT: [String, Number]
+  currentT: [String, Number],
+  apiHasPagination: {
+    type: Boolean,
+    default: false,
+  },
+  apiToFilter: {
+    type: Object,
+    default: () => {}
+  },
+  showSummary: {
+    type: Boolean,
+    default: false
+  },
+  getSummaries: {
+    type: Function,
+    default: () => []
+  }
 })
-const emit = defineEmits(['TotalRecord', 'SelectedRecord', 'GetDataTable'])
+const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
 // using table's function
 const temporaryColumn = ref<any>(props.fullColumns)
 const { register, tableObject, methods } = useTable<TableData>({
@@ -316,9 +332,6 @@ const updateTableColumn = () => {
     showingColumnList.value.includes(el.field)
   )
 }
-watch (() => tableObject.tableList, (newVal) => {
-  emit('GetDataTable', newVal)
-})
 
 </script>
 <template>
@@ -341,8 +354,8 @@ watch (() => tableObject.tableList, (newVal) => {
     </ElDrawer>
     <Table
       ref="tableRef" :expand="expand" v-model:pageSize="tableObject.pageSize"
-      v-model:currentPage="tableObject.currentPage" row-key="id" :data="tableObject.tableList"
-      :loading="tableObject.loading" :pagination="paginationObj" :showOverflowTooltip="false" reserveIndex
+      v-model:currentPage="tableObject.currentPage" row-key="id" :data="tableObject.tableList" :showSummary="props.showSummary"
+      :loading="tableObject.loading" :pagination="paginationObj" :showOverflowTooltip="false" reserveIndex :getSummaries="getSummaries"
       :maxHeight="maxHeight" @mouseenter="operatorColumnToggle('right')" @mouseleave="operatorColumnToggle(false)"
       @select="getTableSelected" @select-all="getTableSelected" @register="register" @filter-change="filterChange"
       @sort-change="sortChange" :selection="selection" @update:page-size="handleSizeChange"
@@ -356,6 +369,9 @@ watch (() => tableObject.tableList, (newVal) => {
         <InputNumberRange
           v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
           @cancel="cancel" />
+        <InputSearch
+            v-if="header.headerFilter === 'Search'" :apiToFilter="props.apiToFilter[header.field]" :apiHasPagination="props.apiHasPagination" :field="header.field" @filter-select="filterSelect"
+            @cancel="cancel" />
         <InputName
           v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"
           @cancel="cancel" />
@@ -395,7 +411,6 @@ watch (() => tableObject.tableList, (newVal) => {
         <slot name="expand"></slot>
       </template>
     </Table>
-    <slot name="totalBalanceSheet"></slot>
     <ElButton v-if="!(props.titleButtons === '')" @click="handleClickAdd" id="bt-add" :icon="plusIcon" class="mx-12">
       {{ props.titleButtons }}</ElButton>
   </ContentWrap>

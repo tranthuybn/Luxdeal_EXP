@@ -60,7 +60,15 @@ export default defineComponent({
       default: () => [] || {}
     },
     border: propTypes.bool.def(true),
-    maxHeight: propTypes.string.def('auto')
+    maxHeight: propTypes.string.def('auto'),
+    showSummary: {
+      type: Boolean,
+      default: false
+    },
+    getSummaries: {
+      type: Function,
+      default: () => []
+    }
   },
 
   emits: ['update:pageSize', 'update:currentPage', 'register'],
@@ -324,6 +332,8 @@ export default defineComponent({
           onSelection-change={selectionChange}
           {...unref(getBindValue)}
           headerRowClassName="header-Table-customize header-Table-promotion-strategy"
+          show-summary={props.showSummary}
+          summary-method={props.getSummaries}
         >
           {{
             default: () => renderTableColumn(),

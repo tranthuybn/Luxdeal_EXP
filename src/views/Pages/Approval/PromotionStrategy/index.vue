@@ -102,9 +102,11 @@ const setTableColumn = (arr:Array<TableColumn>) => {
 } 
 
 const action = (row: any, _type: string) => {
+  const params: any =  { type:'approval', id: row.targetId, targetId: row.id}
+  if(row.approveActionType == 2) params.approveRequestId = row.id
   push({
-    name: routeToDetailScreen.value ?? '',
-    params: { type:'approval', id: row.targetId, targetId: row.id}
+    path: routeToDetailScreen.value ?? '',
+    params: params
   })
   }
 </script>

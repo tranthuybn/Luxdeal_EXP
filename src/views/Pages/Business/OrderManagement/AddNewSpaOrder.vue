@@ -496,7 +496,6 @@ const totalPriceSpa = (scope) => {
   scope.row.totalPrice = quantityInput * totalSettingSpa.value
 }
 
-const inputDeposit = ref(0)
 const inputPaymentBill = ref(0)
 // Call api danh sách sản phẩm
 const listProducts = ref()
@@ -1737,7 +1736,6 @@ const callApiStaffList = async () => {
     value: el.id,
     label: el.name + ' | ' + el.contact
   }))
-  console.log('currentCreator', currentCreator.value)
   getStaffList.value.push(
     {
       value: currentCreator.value.id,
@@ -1754,7 +1752,20 @@ function openBillSpaDialog() {
   dialogBillSpaInfomation.value = !dialogBillSpaInfomation.value
   ListInfoSpa.value = ListOfProductsForSale.value
   nameDialog.value = 'billPawn'
+  getDebt()
 }
+
+const getDebt = () =>{
+  totalFee.value = totalFinalOrder.value
+  if(debtTable.value.length > 0){
+    debtTable.value.forEach((row)=>{
+    if(row.typeOfAccountingEntry == 1){
+      totalFee.value = row.deibt
+    }
+  })
+}
+}
+
 const clearData = () => {
   totalPayment.value = 0
   depositePayment.value = 0
@@ -1866,9 +1877,9 @@ const postOrderStransaction = async (num: number) => {
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
     receiveMoney:
-      num == 1 ? inputPaymentBill.value : num == 2 ? tableAccountingEntry.value[0].receiveMoney : 0,
+      num == 1 ? inputPaymentBill.value : num == 4 ? tableAccountingEntry.value[0].receiveMoney : 0,
 
-    paidMoney: num == 1 ? 0 : num == 2 ? tableAccountingEntry.value[0].paidMoney : 0,
+    paidMoney: num == 1 ? 0 : num == 4 ? tableAccountingEntry.value[0].paidMoney : 0,
     deibt: num == 1 ? remainingMoney.value : 0,
     typeOfPayment: num == 1 
                   ? 1 
@@ -2397,7 +2408,7 @@ const updateOrderStransaction = async() => {
   getOrderStransactionList()
 }
 const idAcountingEntry = ref()
-
+const totalFee = ref(0)
 const openAcountingEntryDialog = async (index, num) => {
   idAcountingEntry.value = index
   createStatusAcountingEntry()
@@ -2408,9 +2419,13 @@ const openAcountingEntryDialog = async (index, num) => {
   tableSalesSlip.value.forEach((e) => {
     e.totalPrice = e.unitPrice * e.quantity
   })
-  inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
   remainingMoney.value = formAccountingId.value.accountingEntry?.deibt
   tableAccountingEntry.value[0] = formAccountingId.value.accountingEntry
+
+  //tien but toan
+  ListInfoSpa.value = formAccountingId.value.paidMerchandises
+  totalFee.value = formAccountingId.value.accountingEntry.deibt
+  inputPaymentBill.value = formAccountingId.value.accountingEntry?.receiveMoney
 
   //trạng thái bút toán
   statusAccountingEntry.value = formAccountingId.value.statusHistorys
@@ -2655,9 +2670,10 @@ onBeforeMount(async () => {
 })
 
 const remainingMoney = ref(0)
-const priceBillPayment = () => {
-  remainingMoney.value = totalPriceOrder.value - inputPaymentBill.value
-}
+watch(()=> [totalFee.value, inputPaymentBill.value],
+()=>{
+  remainingMoney.value = totalFee.value - inputPaymentBill.value
+})
 
 // trả hàng spa
 
@@ -4384,7 +4400,7 @@ const finishOrder = async () =>{
                 <p class="text-black dark:text-white">{{ t('reuse.totalSpaFeeDebt2') }} </p>
               </div>
               <div class="text-right">
-                <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
+                <p class="pr-2 text-black font-bold dark:text-white">{{ changeMoney.format(totalFee) }}</p>
               </div>
             </div>
             <div class="price-c flex gap-3 mb-2">
@@ -4395,7 +4411,6 @@ const finishOrder = async () =>{
                 <CurrencyInputComponent
                   class="handle-fix"
                   v-model="inputPaymentBill"
-                  @change="priceBillPayment"
                   :max="totalPriceOrder"
                   :min="0"
                 />
@@ -5472,7 +5487,7 @@ const finishOrder = async () =>{
           >
             <template #default="props">
               <div>{{
-                props.row.status == 0 ? t('formDemo.recorded') : t('formDemo.cancelled')
+                props.row.status == 1 ? t('formDemo.recorded') : t('formDemo.cancelled')
               }}</div>
             </template>
           </el-table-column>

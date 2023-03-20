@@ -54,11 +54,8 @@ import {
   getDetailAccountingEntryById,
   updateOrderTransaction,
   GetPaymentRequestDetail,
-  updateStatusOrder,
   updateOrderInfo,
   getListWareHouse,
-  cancelOrder,
-  finishStatusOrder,
   approvalOrder,
   getReturnRequestForOrder,
   GetWarehouseTransaction,
@@ -89,6 +86,7 @@ import { deleteProductProperty } from '@/api/LibraryAndSetting'
 import { GenerateCodeOrder } from '@/api/common'
 
 import UploadMultipleImages from './UploadMultipleImages.vue'
+import * as orderUtility from './OrderFixbug'
 
 
 const { t } = useI18n()
@@ -1295,7 +1293,8 @@ const postData = async (pushBack: boolean) => {
     }
     startSpa.value = false
   if (clickStarSpa.value == true) {
-    addStatusOrder(5)
+    orderUtility.startOrder(id,orderUtility.ServiceType.Spa)
+    await reloadStatusOrder()
   }}
 
 }
@@ -2115,17 +2114,7 @@ const postPC = async () => {
   handleChangeReceipts()
 }
 
-const updateOrderStatus = async (status: number, idOrder: any) => {
-  const payload = {
-    OrderId: idOrder ? idOrder : id,
-    ServiceType: 5,
-    OrderStatus: status
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  await updateStatusOrder(formDataPayLoad)
-  statusOrder.value = status
-  reloadStatusOrder()
-}
+
 const approvalFunction = async (checkApproved) => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
@@ -2147,37 +2136,7 @@ const approvalFunction = async (checkApproved) => {
       })
     }
 }
-const addStatusOrder = (index) => {
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-  arrayStatusOrder.value.push(STATUS_ORDER_SPA[index])
-  statusOrder.value = STATUS_ORDER_SPA[index].orderStatus
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-  updateOrderStatus(STATUS_ORDER_SPA[index].orderStatus, id)
-}
-// const addStatusOrderByStatusValue = (statusValue) => {
-//   addStatusOrder(STATUS_ORDER_SPA.findIndex(status=>status.orderStatus == statusValue))
-// }
-// Cập nhật trạng thái đơn hàng
-const updateStatusOrders = async (typeState) => {
-  // 13 hoàn thành đơn hàng
-  if (typeState == STATUS_ORDER_SPA[0].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await cancelOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else if (typeState == STATUS_ORDER_SPA[2].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await finishStatusOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else {
-    let paylpad = { OrderId: id, ServiceType: 5, OrderStatus: typeState }
-    await updateStatusOrder(FORM_IMAGES(paylpad))
-    reloadStatusOrder()
-  }
-}
+
 
 // load lại trạng thái đơn hàng
 const reloadStatusOrder = async () => {
@@ -2563,11 +2522,11 @@ const editor = ref()
 
 const indexSpa = ref()
 
-const addStatusDelay = () => {
-  setTimeout(() => {
-    addStatusOrder(0)
-  }, 4000)
-}
+// const addStatusDelay = () => {
+//   setTimeout(() => {
+//     addStatusOrder(0)
+//   }, 4000)
+// }
 const valueMoneyAccoungtingEntry = ref(0)
 
 const lotData = ref()
@@ -2760,37 +2719,22 @@ const postReturnRequest = async (reason) => {
     isPaid: true
   }
 
-  await createReturnRequest(payload).then((res) => {
+  await createReturnRequest(payload)
+  .then(async(res) => {
           ElNotification({
             message: t('reuse.addSuccess'),
             type: 'success'
           })
-  createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
-      .then((res) => {
-        if(res.statusCode == 400) {
-          ElNotification({
-            message: 'Đơn hàng chưa được nhập kho',
-            type: 'warning'
-          })
-        }
-       }).catch(() => {
+  await createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
+  await getReturnRequestTable()
+  await reloadStatusOrder()
+  })
+  .catch((err) => {
       ElNotification({
-      message: 'Đơn hàng chưa được nhập kho',
+      message: err.response.data.message,
       type: 'warning'
     })
-    })
   })
-  await getReturnRequestTable()
-  // let ISSPA = true
-  // rentReturnOrder.value.tableData.forEach((row)=>{
-  //   if(row.isSpa == false){
-  //     ISSPA = false
-  //   }
-  // })
-  await reloadStatusOrder()
-  // ISSPA 
-  // ? addStatusOrder(6) //Ko duyệt
-  // : addStatusOrder(10) // Duyệt trả hàng spa
 }
 
 //Truong ngo SPA :(
@@ -2886,6 +2830,20 @@ const postReturnRequest = async (reason) => {
     )
     if(res) await editData()
   }  
+
+const cancelOrder = async () =>{
+  await orderUtility.cancelOrderAPI(id,orderUtility.ServiceType.Spa)
+  await reloadStatusOrder()
+}
+const startOrder = async () =>{
+  await orderUtility.startOrder(id,orderUtility.ServiceType.Spa)
+  await reloadStatusOrder()
+  spaNotChange.value = true
+}
+const finishOrder = async () =>{
+  await orderUtility.finishOrderAPI(id)
+  await reloadStatusOrder()
+}
 </script>
 
 <template>
@@ -4072,7 +4030,7 @@ const postReturnRequest = async (reason) => {
               <el-button
                 @click="
                   () => {
-                    addStatusDelay()
+                    cancelOrder()
                   }
                 "
                 :disabled="checkDisabled"
@@ -4150,8 +4108,7 @@ const postReturnRequest = async (reason) => {
                 v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type != 'add'"
                 @click="
                   () => {
-                    addStatusOrder(5)
-                    spaNotChange = true
+                    startOrder()
                   }
                 "
                 type="primary"
@@ -4169,7 +4126,7 @@ const postReturnRequest = async (reason) => {
                 v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus"
                 @click="
                   () => {
-                    updateStatusOrders(STATUS_ORDER_SPA[0].orderStatus)
+                    cancelOrder()
                   }
                 "
                 type="danger"
@@ -4240,31 +4197,6 @@ const postReturnRequest = async (reason) => {
                 Đối soát & kết thúc
               </el-button> -->
             </div>
-            <div v-if="changeServiceSpa" class="w-[100%] flex ml-1 gap-3">
-              <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
-                @click="
-                  () => {
-                    addStatusOrder(8)
-                  }
-                "
-                type="primary"
-                class="min-w-42 min-h-11"
-                >{{ t('reuse.saveAndPending') }}</el-button
-              >
-              <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
-                @click="
-                  () => {
-                    router.go(-1)
-                    changeServiceSpa = false
-                  }
-                "
-                type="danger"
-                class="min-w-42 min-h-11"
-                >{{ t('button.cancel') }}</el-button
-              >
-            </div>
             <div v-if="!changeServiceSpa">
               <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
@@ -4318,7 +4250,7 @@ const postReturnRequest = async (reason) => {
                 type="info"
                 @click="
                   () => {
-                    updateStatusOrders(STATUS_ORDER_SPA[2].orderStatus)
+                    finishOrder()
                   }
                 "
                 class="min-w-42 min-h-11"

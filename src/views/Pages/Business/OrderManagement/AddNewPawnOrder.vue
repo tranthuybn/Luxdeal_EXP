@@ -1114,7 +1114,7 @@ const postReturnRequest = async (reason) => {
       message: err.response.data.message,
       type: 'warning'
     })
-    })
+  })
 }
 
 const idReturnRequest = ref()
@@ -2345,6 +2345,7 @@ const startOrder = async () =>{
   const res = await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
   if(res){
     await orderUtility.startOrder(id,orderUtility.ServiceType.CamDo)
+    await reloadStatusOrder()
   }
 }
 const cancelOrder = async () =>{
@@ -2354,7 +2355,13 @@ const cancelOrder = async () =>{
      Code:ruleForm.orderCode
       })
     }
+    await reloadStatusOrder()
 }
+const finishOrder = async () =>{
+  await orderUtility.finishOrderAPI(id)
+  await reloadStatusOrder()
+}
+
 </script>
 
 <template>
@@ -3274,7 +3281,7 @@ const cancelOrder = async () =>{
               "
               @click="
                 () => {
-                  orderUtility.finishOrderAPI(id)
+                  finishOrder()
                 }
               "
               type="info"

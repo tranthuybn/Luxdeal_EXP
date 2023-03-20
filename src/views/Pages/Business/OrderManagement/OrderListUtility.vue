@@ -2697,7 +2697,12 @@ const orderCompletion = async () => {
   const status = await orderUtility.startOrder(id,orderUtility.ServiceType.Ban)
   if(status){
     await orderUtility.automaticCouponWareHouse(TicketType.XuatKho,id)
+    await reloadStatusOrder()
   }
+}
+const finishOrder = async () =>{
+  await orderUtility.finishOrderAPI(id)
+  await reloadStatusOrder()
 }
 
 onBeforeMount(async () => {
@@ -5707,7 +5712,7 @@ const disabledPhieu = ref(false)
               :disabled="statusButtonDetail"
               @click="
                 () => {
-                  orderUtility.finishOrderAPI(id)
+                  finishOrder()
                 }
               "
               class="min-w-42 min-h-11 bg-[#D9D9D9]"
@@ -5750,7 +5755,7 @@ const disabledPhieu = ref(false)
               t('formDemo.depositSlipAdvance')
             }}</el-button>
             <button
-              @click="orderUtility.finishOrderAPI(id)"
+              @click="finishOrder"
               :disabled="checkDisabled"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button

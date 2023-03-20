@@ -767,6 +767,7 @@ const cancelOrder = async () =>{
      Code:ruleForm.orderCode
       })
     }
+    await reloadStatusOrder()
 }
 // const updateStatusOrders = async (typeState) => {
 //   // 13 hoàn thành đơn hàng
@@ -1135,6 +1136,8 @@ const batDauKyGui = async () =>{
   if(res){
     await orderUtility.startOrder(id,orderUtility.ServiceType.KyGui)
   }
+  await reloadStatusOrder()
+
 }
 
 function printPage(id: string, { url, title, w, h }) {
@@ -2005,10 +2008,17 @@ const postReturnRequest = async (reason) => {
     xuatDetails: [],
     isPaid: true
   }
-  await createReturnRequest(payload).then(async (res)=>{
+  await createReturnRequest(payload)
+  .then(async (res)=>{
     idReturnRequest.value = res
     await createTicketFromReturnOrders()
     getReturnRequestTable()
+  })
+  .catch((err) => {
+      ElNotification({
+      message: err.response.data.message,
+      type: 'warning'
+    })
   })
 }
 
@@ -2060,8 +2070,8 @@ const paymentExpired = async (status) => {
     xuatDetails: tableReturnPost,
     isPaid: true
   }
-  const res = await createReturnRequest(payload)
-  if (res) {
+  await createReturnRequest(payload)
+  .then(async (res)=>{
     ElNotification({
       message: 'Đã trả hàng hết hạn thành công!',
       type: 'success'
@@ -2070,12 +2080,13 @@ const paymentExpired = async (status) => {
     await createTicketFromReturnOrders()
     getReturnRequestTable()
     reloadStatusOrder()
-  } else {
-    ElNotification({
-      message: 'Trả hàng thất bại!',
+  })
+  .catch((err) => {
+      ElNotification({
+      message: err.response.data.message,
       type: 'warning'
     })
-  }
+  })
 }
 
 // Trả hàng trước thời hạn
@@ -2102,8 +2113,8 @@ const returnGoodsAheadOfTime = async (status, data) => {
     xuatDetails: tableReturnPost,
     isPaid: true
   }
-  const res = await createReturnRequest(payload)
-  if (res) {
+  await createReturnRequest(payload)
+  .then(async (res)=>{
     ElNotification({
       message: 'Tạo phiếu trả thành công',
       type: 'success'
@@ -2112,12 +2123,13 @@ const returnGoodsAheadOfTime = async (status, data) => {
     await createTicketFromReturnOrders()
     getReturnRequestTable()
     reloadStatusOrder()
-  } else {
-    ElNotification({
-      message: 'Yêu cầu trả hàng thất bại!',
+  })
+  .catch((err) => {
+      ElNotification({
+      message: err.response.data.message,
       type: 'warning'
     })
-  }
+  })
 }
 // hoàn thành trả hàng
 

@@ -8,7 +8,7 @@ import {
   filtersCustomerType
 } from '@/utils/filters'
 import { h } from 'vue'
-import { dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat, moneyFormat } from '@/utils/format'
 import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton } from 'element-plus'
 import { useAppStore } from '@/store/modules/app'
@@ -418,76 +418,85 @@ export const depositOrder = [
     }
   },
   {
-    field: 'depositNumber',
+    field: 'orderStat.kyGui',
     label: t('reuse.depositNumber'),
     minWidth: '200',
     align: 'right',
     sortable: true
   },
   {
-    field: 'soldNumber',
+    field: 'orderStat.ban',
     label: t('reuse.soldNumber'),
     minWidth: '170',
     align: 'right',
     sortable: true
   },
   {
-    field: 'rentedTimes',
+    field: 'orderStat.choThue',
     label: t('reuse.rentedTimes'),
     minWidth: '180',
     align: 'right',
     sortable: true
   },
   {
-    field: 'spaTimes',
+    field: 'orderStat.spa',
     label: t('reuse.spaTimesDone'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
-    field: 'rentingNumber',
+    field: 'orderStat.dangThue',
     label: t('reuse.rentingNumber'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
-    field: 'returnedNumber',
+    field: 'orderStat.traLai',
     label: t('reuse.returnedNumber'),
     minWidth: '150',
     align: 'right',
     sortable: true
   },
   {
-    field: 'totalDepositRevenue',
+    field: 'orderMoneyStat',
     label: t('reuse.totalAmountOfNetSales'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('div', moneyFormat(row.orderMoneyStat.tongTienBan + row.orderMoneyStat.tongPhiThue))
+    }
   },
   {
-    field: 'totalNegotiateMoney',
+    field: 'orderMoneyStat.tongDamPhan',
     label: t('reuse.totalAmountNegotiationDeposit'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', moneyFormat(cellValue))
+    }
   },
   {
-    field: 'totalFeeMoney',
+    field: 'orderMoneyStat.tongCongNo',
     label: t('reuse.totalDepositDebt'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('div', moneyFormat(cellValue))
+    }
   },
   {
-    field: 'receiptAndExpenditure',
+    field: 'thuChi',
     label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
     minWidth: '170',
     filters: filtersReceiptExpenditure
   },
   {
-    field: 'depositManagement',
+    field: 'orderDetails[0]?.businessSetupName',
     label: t('reuse.depositManagement'),
     minWidth: '150',
     filters: filterDeposit

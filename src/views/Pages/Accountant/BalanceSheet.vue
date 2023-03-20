@@ -2,21 +2,40 @@
 import { useI18n } from '@/hooks/web/useI18n'
 import { getAccountantList } from '@/api/Business'
 import TableType01 from '@/views/Pages/Components/TableDataBase.vue'
-import { h, reactive } from 'vue'
-import { filterStatusRevenueExpenditure } from '@/utils/filters'
-import { STATUS } from '@/utils/API.Variables'
-import {
-  ElTable,
-  ElTableColumn,
-} from 'element-plus'
+import { h } from 'vue'
+import { filterStatusBalance } from '@/utils/filters'
+
 const { t } = useI18n()
 const changeMoney = new Intl.NumberFormat('vi', {
   style: 'currency',
   currency: 'vnd',
   minimumFractionDigits: 0
 })
+const getSummaries = (param) => {
+  const { columns, data } = param
+  const sums: string[] = []
+  columns.forEach((column, index) => {
+    if (index === 2) {
+      sums[index] = 'Cộng'
+      return
+    }
+    const values = data.map((item) => Number(item[column.property]))
+    if (!values.every((value) => Number.isNaN(value))) {
+      sums[index] = `${values.reduce((prev, curr) => {
+        const value = Number(curr)
+        if (!Number.isNaN(value)) {
+          return prev + curr
+        } else {
+          return prev
+        }
+      }, 0)} đ`
+    } else {
+      sums[index] = ''
+    }
+  })
 
-
+  return sums
+}
 const columns = [
   { field: '', width: '50' },
   {
@@ -104,15 +123,15 @@ const columns = [
     ]
   },
   {
-    field: 'status',
+    field: 'isActive',
     label: t('reuse.status'),
     minWidth: '130',
-    filters: filterStatusRevenueExpenditure,
+    filters: filterStatusBalance,
     formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
-      if (record.pepopleType == false) {
-        return h('div', STATUS[0].label)
+      if (record.isActive == false) {
+        return h('div', t('reuse.stopActive'))
       } else {
-        return h('div', STATUS[1].label)
+        return h('div', t('reuse.active'))
       }
     }
   },
@@ -124,19 +143,6 @@ const columns = [
   }
 ]
 
-const totalBalance = reactive([
-  {
-    label: t('reuse.plusLabel'),
-    beginningPeriodRevenue: 1,
-    beginningPeriodPayment: 2,
-    duringPeriodRevenue: 1,
-    duringPeriodPayment: 1,
-    endPeriodRevenue: 1,
-    endPeriodpayment: 1,
-  },
-])
-
-
 </script>
 <template>
   <TableType01
@@ -144,22 +150,11 @@ const totalBalance = reactive([
     :api="getAccountantList"
     :customOperator="6"
     :titleAdd="t('reuse.addAccount')"
-    :addLastRow="true"
-  >
-  <template #sumInBalanceSheet>
-    <el-table :show-header="false" border :data="totalBalance">
-        <el-table-column prop=""/>
-        <el-table-column prop=""/>
-        <el-table-column prop=""/>
-        <el-table-column prop="label"/>
-        <el-table-column prop="beginningPeriodRevenue"/>
-        <el-table-column prop="beginningPeriodPayment"/>
-        <el-table-column prop="duringPeriodRevenue"/>
-        <el-table-column prop="duringPeriodPayment"/>
-        <el-table-column prop="endPeriodRevenue"/>
-        <el-table-column prop="endPeriodpayment"/>
-      </el-table>
-  </template>
-  </TableType01>
+    :showSummary="true"
+    :getSummaries="getSummaries"
+  />
   
 </template>
+
+<style lang="less" scoped>
+</style>

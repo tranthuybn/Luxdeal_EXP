@@ -86,9 +86,21 @@ const props = defineProps({
     default: ''
   },
   currentT: [String, Number],
-  addLastRow: {
+  apiHasPagination: {
     type: Boolean,
     default: false,
+  },
+  apiToFilter: {
+    type: Object,
+    default: () => {}
+  },
+  showSummary: {
+    type: Boolean,
+    default: false
+  },
+  getSummaries: {
+    type: Function,
+    default: () => []
   }
 })
 const emit = defineEmits(['TotalRecord', 'SelectedRecord'])
@@ -335,8 +347,8 @@ const updateTableColumn = () => {
     </ElDrawer>
     <Table
       ref="tableRef" :expand="expand" v-model:pageSize="tableObject.pageSize"
-      v-model:currentPage="tableObject.currentPage" row-key="id" :data="tableObject.tableList"
-      :loading="tableObject.loading" :pagination="paginationObj" :showOverflowTooltip="false" reserveIndex
+      v-model:currentPage="tableObject.currentPage" row-key="id" :data="tableObject.tableList" :showSummary="props.showSummary"
+      :loading="tableObject.loading" :pagination="paginationObj" :showOverflowTooltip="false" reserveIndex :getSummaries="getSummaries"
       :maxHeight="maxHeight" @mouseenter="operatorColumnToggle('right')" @mouseleave="operatorColumnToggle(false)"
       @select="getTableSelected" @select-all="getTableSelected" @register="register" @filter-change="filterChange"
       @sort-change="sortChange" :selection="selection" @update:page-size="handleSizeChange"
@@ -351,8 +363,8 @@ const updateTableColumn = () => {
           v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
           @cancel="cancel" />
         <InputSearch
-          v-if="header.headerFilter === 'Search'" :field="header.field" @confirm="confirm"
-          @cancel="cancel" />
+            v-if="header.headerFilter === 'Search'" :apiToFilter="props.apiToFilter[header.field]" :apiHasPagination="props.apiHasPagination" :field="header.field" @filter-select="filterSelect"
+            @cancel="cancel" />
         <InputName
           v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"
           @cancel="cancel" />
@@ -390,9 +402,6 @@ const updateTableColumn = () => {
       </template>
       <template #expand>
         <slot name="expand"></slot>
-      </template>
-      <template v-if="props.addLastRow" #append>
-        <slot name='sumInBalanceSheet' ></slot>
       </template>
     </Table>
     <ElButton v-if="!(props.titleButtons === '')" @click="handleClickAdd" id="bt-add" :icon="plusIcon" class="mx-12">

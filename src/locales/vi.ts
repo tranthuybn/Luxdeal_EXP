@@ -956,6 +956,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+
     spend: 'Chi',
     get: 'Thu',
     plusLabel: 'Cộng',
@@ -966,7 +967,9 @@ export default {
     saleCare: 'Sale chăm sóc', 
     change: 'Thay đổi',
     initialization: 'Khởi tạo',
+    cantGetFilterList: 'Không thể lấy danh sách lọc',
     cantBadgeAccount1List: 'Không thể lấy danh sách số hiệu tài khoản cấp 1',
+    cantGetCustomerTypeList: 'Không thể lấy danh sách đối tượng',
     cantGetBrandList: 'Không thể lấy danh sách chi nhánh',
     cantGetDepartmentList: 'Không thể lấy danh sách phòng ban',
     cantGetRankList: 'Không thể lấy danh sách cấp bậc',

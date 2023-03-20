@@ -185,17 +185,19 @@ const customData = (data) => {
 }
 
 const postData = async (data) => {
-  data = customData(data)
+  console.log('data', data)
+  const typeBtn = data.typeBtn
+  data = typeBtn ? customData(data.data) : customData(data)
   await addNewAccountant(data)
   .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
-      }),
-        push({
-          name: 'accountant.balanceSheet',
-          params: { backRoute: 'accountant.balanceSheet' }
-        })
+      })
+      !typeBtn ? push({
+        name: 'accountant.balanceSheet',
+        params: { backRoute: 'accountant.balanceSheet' }
+      }) : null
     })
   .catch(() =>
     ElNotification({

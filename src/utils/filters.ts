@@ -328,3 +328,8 @@ export const filterStatusSettingPoint: Array<Filter> = [
   { text: t('reuse.active'), value: 1 },
   { text: t('reuse.inactive'), value: 0 }
 ]
+
+export const filterStatusBalance: Array<Filter> = [
+  { text: t('reuse.active'), value: true},
+  { text: t('reuse.stopActive'), value: false }
+]

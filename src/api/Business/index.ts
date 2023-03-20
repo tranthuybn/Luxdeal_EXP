@@ -1049,7 +1049,6 @@ export const getAccountantById = async (params: any): Promise<IResponse> => {
 }
 
 export const addNewAccountant = async (params: any): Promise<IResponse> => {
-  console.log(params)
   const res = await request.post(
     {
       url: `${ACCOUNTANT_API.ADD_NEW_BALANCE}?${objectToQueryParams(params)}`

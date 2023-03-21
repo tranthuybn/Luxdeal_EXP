@@ -60,7 +60,6 @@ const columns = reactive<TableColumn[]>([
     field: 'employeeCode',
     label: t('reuse.employeeCode'),
     minWidth: '100',
-    headerAlign: 'left',
   },
   {
     field: 'employeeName',
@@ -85,13 +84,11 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.branch'),
     minWidth: '110',
     headerFilter: 'Search',
-    headerAlign: 'left',
   },
   {
     field: 'department',
     label: t('reuse.department'),
     minWidth: '110',
-    headerAlign: 'left',
     headerFilter: 'Search',
   },
   {
@@ -99,13 +96,11 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.rank'),
     minWidth: '110',
     headerFilter: 'Search',
-    headerAlign: 'left',
   },
   {
     field: 'typeEmployee',
     label: t('reuse.type'),
     minWidth: '110',
-    headerAlign: 'left',
     headerFilter: 'Search',
   },
   {
@@ -114,7 +109,6 @@ const columns = reactive<TableColumn[]>([
     minWidth: '120',
     align: 'right',
     sortable: true,
-    headerAlign: 'left',
     formatter: (row, _column, _cellValue) => {
       const x = changeMoney.format(parseInt(row.sales))
       return x
@@ -125,7 +119,6 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.status'),
     minWidth: '110',
     filters: filterStatusRatingEmployee,
-    headerAlign: 'left',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return formatStatusRatingEmployee(cellValue)
     }
@@ -134,7 +127,6 @@ const columns = reactive<TableColumn[]>([
     field: 'operator',
     label: t('reuse.operator'),
     minWidth: '70',
-    headerAlign: 'left',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
       return h('div', { style: 'display:flex;justify-content: center;' }, [
         h(ElButton, { icon: eyeIcon, onClick: () => action(row, 'detail') })

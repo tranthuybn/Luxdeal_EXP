@@ -13,32 +13,39 @@ import {
 import { dateTimeFormat, formatStatusAccounting } from '@/utils/format'
 
 const { t } = useI18n()
-
+const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})
 const columns = reactive<TableColumn[]>([
   {
     field: 'id',
     label: t('reuse.index'),
     type: 'index',
+    sortable: true,
     align: 'center'
   },
   {
     field: 'code',
     label: t('reuse.formCode'),
     minWidth: '110',
-    headerAlign: 'left',
   },
   {
     field: 'description',
     label: t('reuse.reasonRevenueExpenditure'),
     minWidth: '200',
-    headerAlign: 'left',
   },
   {
     field: 'totalMoney',
     label: t('reuse.amountOfMoney'),
-    minWidth: '120',
+    minWidth: '110',
     sortable: true,
-    headerAlign: 'left',
+    align: 'right',
+    formatter: (row, _column, _cellValue) => {
+      const x = changeMoney.format(parseInt(row.totalMoney))
+      return x
+    }
   },
   {
     field: 'typeOfPayment',
@@ -52,14 +59,12 @@ const columns = reactive<TableColumn[]>([
         return h('div', PAYMENT[1].label)
       }
     },
-    headerAlign: 'left',
   },
   {
     field: 'peopleName',
     label: t('reuse.subject'),
     minWidth: '200',
     headerFilter: 'Name',
-    headerAlign: 'left',
   },
   {
     field: 'attachDocument',
@@ -69,73 +74,77 @@ const columns = reactive<TableColumn[]>([
     formatter: (_record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
       return h(cellValue ? h('div', ATTACH_DOCUMENT[1].label) : h('div', ATTACH_DOCUMENT[0].label))
     },
-    headerAlign: 'left',
   },
   {
     field: 'accountNumber',
     label: t('reuse.accountCode'),
     minWidth: '140',
     headerFilter: 'Name',
-    headerAlign: 'left',
   },
   {
     field: 'accountName',
     label: t('reuse.accountingAccountName'),
     minWidth: '140',
     headerFilter: 'Name',
-    headerAlign: 'left',
   },
   {
     field: 'accountingDate',
     label: t('reuse.accountingDate'),
     minWidth: '150',
     sortable: true,
-    headerAlign: 'left',
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
-    minWidth: '130',
+    minWidth: '150',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     },
-    headerAlign: 'left',
   },
   {
     field: 'createdBy',
     label: t('reuse.creator'),
-    minWidth: '130',
+    minWidth: '150',
     headerFilter: 'Name',
-    headerAlign: 'left',
   },
   {
     field: 'paymentMethod',
     label: t('reuse.choosePayment'),
-    minWidth: '130',
+    minWidth: '150',
     headerFilter: 'Name',
   },
   {
     field: 'paymentType',
     label: t('reuse.alreadyPaid'),
-    minWidth: '130',
+    minWidth: '100',
     filters: [],
+    align: 'center',
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return h('input', {type: 'checkbox', checked: cellValue})
+    },
   },
   {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterStatusAccouting,
-    headerAlign: 'left',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${formatStatusAccounting(cellValue)}`)
     },
   },
+  {
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '90',
+    align: 'center',
+  }
 ])
 </script>
 <template>
   <tableDatetimeFilterBasicVue 
   :columns="columns" 
+  :customOperator="4" 
   :delApi="deleteAReceiptOrPaymentVoucher" 
   :api="getReceiptsExpendituresList" 
   />

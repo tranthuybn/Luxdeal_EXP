@@ -3,7 +3,10 @@ import { reactive, ref, watch, unref, onBeforeMount, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
+import { useValidator } from '@/hooks/web/useValidator'
 import {
+  ElRow,
+  ElCol,
   ElCollapse,
   ElCollapseItem,
   ElUpload,
@@ -18,6 +21,7 @@ import {
   ElRadioGroup,
   ElRadio,
   ElDialog,
+  ElMessageBox,
   // ElDropdown,
   // ElDropdownMenu,
   // ElDropdownItem,
@@ -106,6 +110,7 @@ const checkPercent = (_rule: any, value: any, callback: any) => {
 }
 
 const ruleFormRef = ref<FormInstance>()
+const ruleAddQuickCustomerFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
 // var curDate = 'DHB' + moment().format('hhmmss')
@@ -811,7 +816,6 @@ const getValueOfCustomerSelected = (value, obj) => {
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
-const valueClassify = ref(false)
 const optionsClassify = [
   {
     value: true,
@@ -825,6 +829,8 @@ const optionsClassify = [
   }
 ]
 
+const { ValidService } = useValidator()
+
 // form add quick customer
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
@@ -832,26 +838,61 @@ const quickRepresentative = ref()
 const quickPhoneNumber = ref()
 const quickEmail = ref()
 
-// const customerData = ref({
-//   valueSelectCustomer: 1,
-//   addQuickCustomerName: '',
-//   quickTaxCode: '',
-//   quickRepresentative: '',
-//   quickPhoneNumber: '',
-//   quickEmail: ''
-// })
+const ruleAddQuickCustomerForm = reactive({
+  valueClassify: false,
+  valueSelectCustomer: 1,
+  addQuickCustomerName: '',
+  quickTaxCode: '',
+  quickRepresentative: '',
+  quickPhoneNumber: '',
+  quickEmail: ''
+})
+const rulesAddQuickCustomer = reactive<FormRules>({
+  classify: [
+    {
+      required: true,
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+  ],
+  addQuickCustomerName: [
+    {
+      required: true,
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+  ],
+  quickTaxCode: [
+    {
+      required: true,
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+  ],
+  quickPhoneNumber: [
+    {
+      required: true,
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+    ValidService.checkPhone
+  ],
+  quickEmail: [
+    ValidService.checkEmail
+  ]
+})
 
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
     Code: autoCustomerCode,
-    IsOrganization: valueClassify.value,
-    Name: addQuickCustomerName.value,
-    TaxCode: quickTaxCode.value,
-    Representative: quickRepresentative.value,
-    Phonenumber: quickPhoneNumber.value,
-    Email: quickEmail.value,
-    CustomerType: valueSelectCustomer.value
+    IsOrganization: ruleAddQuickCustomerForm.valueClassify,
+    Name: ruleAddQuickCustomerForm.addQuickCustomerName,
+    TaxCode: ruleAddQuickCustomerForm.quickTaxCode,
+    Representative: ruleAddQuickCustomerForm.quickRepresentative,
+    Phonenumber: ruleAddQuickCustomerForm.quickPhoneNumber,
+    Email: ruleAddQuickCustomerForm.quickEmail,
+    CustomerType: ruleAddQuickCustomerForm.valueSelectCustomer
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
   const res = await addQuickCustomer(formCustomerPayLoad)
@@ -870,7 +911,6 @@ const createQuickCustomer = async () => {
 }
 
 // select khách hàng
-const valueSelectCustomer = ref(1)
 const optionsCustomer = [
   {
     value: 1,
@@ -2740,6 +2780,21 @@ onBeforeMount(async () => {
 })
 
 const disabledPhieu = ref(false)
+const resetForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.resetFields()
+}
+
+const handleClose = (done: () => void) => {
+  ElMessageBox.confirm(t('reuse.confirmClose'))
+    .then(() => {
+      done()
+    })
+    .catch(() => {
+      // catch error
+    })
+}
+
 </script>
 
 <template>
@@ -2806,154 +2861,99 @@ const disabledPhieu = ref(false)
 
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
+        class="pb-3"
         :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAddQuick"
         width="40%"
         align-center
         :title="t('formDemo.QuicklyAddCustomers')"
+        :before-close="(done) => {
+          handleClose(done)
+          resetForm(ruleAddQuickCustomerFormRef)
+        }"
       >
-        <el-form>
-          <div v-if="valueClassify == true">
-            <el-divider />
-            <div>
-              <div class="flex gap-4 pt-4 pb-4 items-center">
-                <label class="w-[30%] text-right max-w-[162.73px]"
-                  >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-                >
-                <div class="w-[80%] flex gap-2">
-                  <div class="w-[50%] fix-full-width">
-                    <el-select v-model="valueClassify" placeholder="Select">
-                      <el-option
-                        v-for="item in optionsClassify"
-                        :key="item.id"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </div>
-                  <div class="w-[50%] fix-full-width">
-                    <el-select v-model="valueSelectCustomer" placeholder="Select">
-                      <el-option
-                        v-for="item in optionsCustomer"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </div>
-                </div>
-              </div>
-              <div class="flex gap-4 pt-4 pb-4">
-                <label class="w-[30%] text-right"
-                  >{{ t('formDemo.companyName') }} <span class="text-red-500">*</span></label
-                >
+        <el-form
+          ref="ruleAddQuickCustomerFormRef"
+          :model="ruleAddQuickCustomerForm"
+          :rules="rulesAddQuickCustomer"
+          label-width="180px"
+        >
+        <el-divider />
+          <div class="py-2">
+            <el-form-item :label="t('formDemo.classify')" prop="classify">
+              <el-row :gutter="10">
+                <el-col :span="12">
+                  <el-form-item  prop="valueClassify">
+                      <el-select v-model="ruleAddQuickCustomerForm.valueClassify" placeholder="Select">
+                        <el-option
+                          v-for="item in optionsClassify"
+                          :key="item.id"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item prop="valueSelectCustomer">
+                      <el-select v-model="ruleAddQuickCustomerForm.valueSelectCustomer" placeholder="Select">
+                        <el-option
+                          v-for="item in optionsCustomer"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-form-item>
+            <el-form-item v-if="ruleAddQuickCustomerForm.valueClassify == false" :label="t('reuse.customerName')" prop="addQuickCustomerName">
                 <el-input
-                  v-model="addQuickCustomerName"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterCompanyName')"
-                />
-              </div>
-              <div class="flex gap-4 pt-4 pb-4">
-                <label class="w-[30%] text-right"
-                  >{{ t('formDemo.taxCode') }} <span class="text-red-500">*</span></label
-                >
-                <el-input
-                  v-model="quickTaxCode"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterTaxCode')"
-                />
-              </div>
-              <div class="flex gap-4 pt-4 pb-4">
-                <label class="w-[30%] text-right">{{ t('formDemo.representative') }}</label>
-                <el-input
-                  v-model="quickRepresentative"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterRepresentative')"
-                />
-              </div>
-              <div class="flex gap-4 pt-4 pb-4">
-                <label class="w-[30%] text-right"
-                  >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-                >
-                <el-input
-                  v-model="quickPhoneNumber"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterPhoneNumber')"
-  
-                />
-              </div>
-              <div class="flex gap-4 pt-4 pb-4">
-                <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-                <el-input
-                  v-model="quickEmail"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterEmail')"
-                />
-              </div>
-            </div>
-          </div>
-          <div v-else>
-            <el-divider />
-            <div>
-              <div class="flex gap-4 pt-4 pb-4 items-center">
-                <label class="w-[30%] text-right max-w-[162.73px]"
-                  >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-                >
-                <div class="w-[80%] flex gap-2">
-                  <div class="w-[50%] fix-full-width">
-                    <el-select v-model="valueClassify" placeholder="Select">
-                      <el-option
-                        v-for="item in optionsClassify"
-                        :key="item.id"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </div>
-                  <div class="w-[50%] fix-full-width">
-                    <el-select v-model="valueSelectCustomer" placeholder="Select">
-                      <el-option
-                        v-for="item in optionsCustomer"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </div>
-                </div>
-              </div>
-  
-              <div class="flex gap-4 pt-4 pb-4">
-                <label class="w-[30%] text-right"
-                  >{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label
-                >
-                <el-input
-                  v-model="addQuickCustomerName"
+                  v-model="ruleAddQuickCustomerForm.addQuickCustomerName"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterCustomerName')"
                 />
-              </div>
-  
-              <div class="flex gap-4 pt-4 pb-4">
-                <label class="w-[30%] text-right"
-                  >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-                >
+            </el-form-item>
+            <div v-if="ruleAddQuickCustomerForm.valueClassify == true">
+              <el-form-item :label="t('formDemo.companyName')" prop="addQuickCustomerName">
+                  <el-input
+                    v-model="ruleAddQuickCustomerForm.addQuickCustomerName"
+                    style="width: 100%"
+                    :placeholder="t('formDemo.enterCompanyName')"
+                  />
+              </el-form-item>
+              <el-form-item :label="t('formDemo.taxCode')" prop="quickTaxCode">
+                  <el-input
+                    v-model="ruleAddQuickCustomerForm.quickTaxCode"
+                    style="width: 100%"
+                    :placeholder="t('formDemo.enterTaxCode')"
+                  />
+              </el-form-item>
+              <el-form-item :label="t('formDemo.representative')" prop="quickRepresentative">
+                  <el-input
+                    v-model="ruleAddQuickCustomerForm.quickRepresentative"
+                    style="width: 100%"
+                    :placeholder="t('formDemo.enterRepresentative')"
+                  />
+              </el-form-item>
+            </div>
+            <el-form-item :label="t('reuse.phoneNumber')" prop="quickPhoneNumber">
                 <el-input
-                  v-model="quickPhoneNumber"
+                  v-model="ruleAddQuickCustomerForm.quickPhoneNumber"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterPhoneNumber')"
                 />
-              </div>
-              <div class="flex gap-4 pt-4 pb-4">
-                <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
+            </el-form-item>
+            <el-form-item :label="t('reuse.email')" prop="quickEmail">
                 <el-input
-                  v-model="quickEmail"
+                  v-model="ruleAddQuickCustomerForm.quickEmail"
                   style="width: 100%"
                   :placeholder="t('formDemo.enterEmail')"
                 />
-              </div>
-            </div>
+            </el-form-item>
           </div>
+        <el-divider />
         </el-form>
 
         <template #footer>
@@ -2966,13 +2966,19 @@ const disabledPhieu = ref(false)
                   dialogAddQuick = false
                   createQuickCustomer()
                   callCustomersApi()
+                  resetForm(ruleAddQuickCustomerFormRef)
                 }
               "
               >{{ t('reuse.save') }}</el-button
             >
-            <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
-              t('reuse.exit')
-            }}</el-button>
+            <el-button
+              class="w-[150px]" 
+              @click.stop.prevent="() => {
+              dialogAddQuick = false
+              resetForm(ruleAddQuickCustomerFormRef)}"
+            >
+              {{t('reuse.exit')}}
+            </el-button>
           </span>
         </template>
       </el-dialog>

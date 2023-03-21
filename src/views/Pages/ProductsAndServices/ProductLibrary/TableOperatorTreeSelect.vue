@@ -493,15 +493,20 @@ const getCodeAndNameSelect = async () => {
   }))
   CodeOptions.value = CodeAndNameSelect.value
 }
-const remoteProductCode = async (query: string) => {
+const remoteProductCode = (query: string) => {
+  setValues({ ProductCode: productCode.value })
   if (query) {
-    const res = await getCodeAndNameProductLibrary({ Keyword: query })
-    CodeOptions.value = res.data.map((val) => ({
-      label: val.productCode,
-      value: val.productCode,
-      name: val.name,
-      id: val.id
-    }))
+    loading.value = true
+    setTimeout(async () => {
+      loading.value = false
+      const res = await getCodeAndNameProductLibrary({ Keyword: query })
+      CodeOptions.value = res.data.map((val) => ({
+        label: val.productCode,
+        value: val.productCode,
+        name: val.name,
+        id: val.id
+      }))
+    }, 200);
   } else {
     CodeOptions.value = CodeAndNameSelect.value
   }
@@ -666,6 +671,7 @@ const approvalProduct = async () => {
       })
     )
 }
+const loading = ref(false)
 </script>
 <template>
   <ContentWrap :title="props.title">
@@ -723,9 +729,8 @@ const approvalProduct = async () => {
               @blur="setProductCode"
               @keyup.enter="setProductCode"
               popper-class="max-w-600px"
+              :loading="loading"
             >
-              <!-- <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scrollMethod">
-                <div ref="divRef" class="whereisthis"> -->
               <div @scroll="scrolling" id="content">
                 <el-option
                   ref="optionCodeHeight"
@@ -740,8 +745,6 @@ const approvalProduct = async () => {
                   >
                 </el-option>
               </div>
-              <!-- </div>
-              </el-scrollbar> -->
             </el-select>
             <el-button @click="resetForm" type="danger" size="small">{{
               t('reuse.resetForm')

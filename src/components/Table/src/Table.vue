@@ -288,6 +288,7 @@ export default defineComponent({
                 label={v.label}
                 width="65"
                 fixed={v.fixed ?? false}
+                sortable={true}
               ></ElTableColumn>
             )
           } else {

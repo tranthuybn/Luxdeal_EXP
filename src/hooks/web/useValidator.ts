@@ -7,6 +7,7 @@ type Callback = (error?: string | Error | undefined) => void
 export const useValidator = () => {
   const required = (message?: string) => {
     return {
+
       required: true,
       message: message || t('common.required'),
       trigger: 'blur'
@@ -21,6 +22,13 @@ export const useValidator = () => {
     }
   }
 
+  const requiredValue = (_, val: any, callback: Callback) => {
+    if (!val) {
+      callback(new Error(t('common.required')))
+    } else {
+      callback()
+    }
+  }
   const notSpace = (_, val: any, callback: Callback) => {
     // Username cannot have space
     if (val && val.toString().indexOf(' ') !== -1) {
@@ -415,6 +423,7 @@ export const useValidator = () => {
     doNotHaveNumber,
     checkNumber,
     checkLength,
-    checkDuplicate
+    checkDuplicate,
+    requiredValue
   }
 }

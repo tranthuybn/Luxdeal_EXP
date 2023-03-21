@@ -364,4 +364,8 @@ const activeName = ref('information')
     justify-content: flex-end;
   }
 
+  ::v-deep(.btn-wrap) {
+    margin-left: 140px;
+  }
+
 </style>

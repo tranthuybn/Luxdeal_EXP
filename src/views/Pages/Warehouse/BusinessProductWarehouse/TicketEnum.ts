@@ -20,3 +20,25 @@ export enum TicketType {
   XuatKho = 2,
   ChuyenKho = 3
 }
+export enum TicketStatus
+{
+    // [Description("Chờ xác nhận")]
+    // [StringValue("Chờ xác nhận")]
+    Pending = 1,
+    // [Description("Chờ xuất/nhập kho")]
+    // [StringValue("Chờ xuất/nhập kho")]
+    PendingTransfer = 2,
+    // [Description("Hủy phiếu")]
+    // [StringValue("Hủy phiếu")]
+    Cancelled = 3,
+    // [Description("Đã xuất/nhập kho")]
+    // [StringValue("Đã xuất/nhập kho")]
+    Accepted = 4,
+    // [Description("Đang đặt cọc")]
+    // [StringValue("Đang đặt cọc")]
+    Depositing = 5,
+    // [Description("Đã đặt cọc")]
+    // [StringValue("Đã đặt cọc")]
+    Deposited = 6
+
+}

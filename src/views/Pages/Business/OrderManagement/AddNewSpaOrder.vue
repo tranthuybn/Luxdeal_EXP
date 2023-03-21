@@ -301,8 +301,11 @@ const getReturnRequestTable = async () => {
       warehouseTicketCode: e.warehouseTicketCode,
       warehouseTicketId: e.warehouseTicketId,
       warehouseTicketStatusName: e.warehouseTicketStatusName,
+      warehouseTicketStatus: e.warehouseTicketStatus,
       isSpa: e.isSpa
     }))
+    orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
+
   }
 }
 const tableReturnFullyIntegrated = ref<Array<historyTableType>>([])
@@ -2177,6 +2180,9 @@ const disabledEdit = ref(false)
 const duplicateStatusButton = ref(false) //check trạng thái cuối đã duyệt hay chưa
 const startSpa = ref(false)
 const editData = async () => {
+  await orderUtility.getStatusWarehouse(id)
+
+
   if (type == 'detail') {
     checkDisabled.value = true
     disabledCustomer.value = true
@@ -4164,6 +4170,12 @@ const finishOrder = async () =>{
               >
                 Thay đổi dịch vụ Spa
               </el-button>
+
+              <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
               <el-button
                 v-if="
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
@@ -4181,6 +4193,8 @@ const finishOrder = async () =>{
               >
                 Trả hàng Spa
               </el-button>
+              </div>
+              </el-tooltip>
               <!-- <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[6].orderStatus && duplicateStatusButton"
                 type="primary"

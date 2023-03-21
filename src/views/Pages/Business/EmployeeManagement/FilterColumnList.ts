@@ -1,7 +1,5 @@
 import {
       getBranchList,
-      getDepartmentList,
-      getRankList,
 } from '@/api/HumanResourceManagement'
 import {ElMessage} from 'element-plus'
 import { useI18n } from 'vue-i18n'

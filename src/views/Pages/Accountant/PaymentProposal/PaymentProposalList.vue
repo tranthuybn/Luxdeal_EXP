@@ -19,7 +19,7 @@ const Utility = appStore.getUtility
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 
 const apiToFilter = {
-  ['peopleName'] :getAllCustomer
+  ['peopleName'] : getAllCustomer
 }
 
 const action = (row: any, type: string) => {
@@ -42,13 +42,11 @@ const columns = reactive<TableColumn[]>([
     field: 'code',
     label: t('reuse.proposalCode'),
     minWidth: '130',
-    headerAlign: "left"
   },
   {
     field: 'description',
     label: t('reuse.reasonSpendMoney'),
-    minWidth: '200',
-    headerAlign: "left"  
+    minWidth: '200',  
   },
   {
     field: 'totalMoney',
@@ -56,24 +54,21 @@ const columns = reactive<TableColumn[]>([
     minWidth: '130',
     align: 'right',
     sortable: true,
-    headerAlign: "left"
   },
   {
     field: 'peopleName',
     label: t('reuse.subject'),
     minWidth: '450',
     headerFilter: 'Search',
-    headerAlign: "left"
   },
   {
     field: 'attachDocument',
     label: t('reuse.attachDocument'),
     minWidth: '200',
-    filters: '',
+    filters: [],
     formatter: (_record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
       return h(cellValue ? h('div', ATTACH_DOCUMENT[1].label) : h('div', ATTACH_DOCUMENT[0].label))
     },
-    headerAlign: "left"
   },
   {
     field: 'createdAt',
@@ -83,14 +78,12 @@ const columns = reactive<TableColumn[]>([
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     },
-    headerAlign: "left"
   },
   {
     field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '130',
     headerFilter: 'Name',
-    headerAlign: "left"
   },
   {
     field: 'status',
@@ -100,7 +93,6 @@ const columns = reactive<TableColumn[]>([
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${formatStatusGeneral(cellValue)}`)
     },
-    headerAlign: "left"
   },
   {
     field: 'operator',

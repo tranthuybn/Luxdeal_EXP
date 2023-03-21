@@ -505,8 +505,8 @@ const callAPIProduct = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20,  ServiceType: 5, IsApprove: true})
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
-      productCode: product.code,
-      value: product.productCode,
+      productCode: product.productCode,
+      value: product.code,
       name: product.name ?? '',
       inventory:product.tonKho ?? 0,
       unit: product.unitName,
@@ -520,7 +520,7 @@ const callAPIProduct = async () => {
     if(!find && row.productPropertyId){
       listProducts.value.unshift({
         productCode: row?.productCode,
-        value: row?.productCode,
+        value: row?.code,
         name: row?.productName ?? '',
         unit: row?.unitName,
         productPropertyId: row?.productPropertyId,
@@ -549,8 +549,8 @@ const ScrollProductBottom = () => {
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProducts.value.push({
-                  productCode: product.code,
-                  value: product.productCode,
+                  productCode: product.productCode,
+                  value: product.code,
                   name: product.name ?? '',
                   inventory:product.tonKho ?? 0,
                   price: product.price.toString(),
@@ -3614,7 +3614,7 @@ const finishOrder = async () =>{
                 :items="listProducts"
                 valueKey="productPropertyId"
                 :disabled="disabledEdit || props.row.newProduct"
-                labelKey="productCode"
+                labelKey="name"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
                 :defaultValue="props.row.productPropertyId"

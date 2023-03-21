@@ -622,8 +622,8 @@ const callAPIProduct = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20, ServiceType: 2, IsApprove: true })
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
-      productCode: product.code,
-      value: product.productCode,
+      productCode: product.productCode,
+      value: product.code,
       name: product.name ?? '',
       inventory:product.tonKho?? 0,
       unit: product.unitName,
@@ -661,8 +661,8 @@ const ScrollProductBottom = () => {
                   productPropertyCode: any
                 }) =>
                   listProducts.value?.push({
-                    productCode: product.code,
-                    value: product.productCode,
+                    productCode: product.productCode,
+                    value: product.code,
                     name: product.name ?? '',
                     price: product.price.toString(),
                     productPropertyId: product.id.toString(),

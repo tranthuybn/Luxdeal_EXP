@@ -574,7 +574,7 @@ const addnewproduct = (currentRow) => {
 const postQuickProduct = (product,productId)=>{
   listProducts.value?.unshift({
       productCode: product.productCode,
-      value: product.productCode,
+      value: product.code,
       name: product.name ?? '',
       unit: '',
       price: 0,
@@ -692,8 +692,8 @@ const callAPIProduct = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20,  ServiceType: 4, IsApprove: true })
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
-      productCode: product.code,
-      value: product.productCode,
+      productCode: product.productCode,
+      value: product.code,
       name: product.name ?? '',
       inventory:product.tonKho??0,
       unit: product.unitName,
@@ -723,8 +723,8 @@ const ScrollProductBottom = () => {
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProducts.value.push({
-                  productCode: product.code,
-                  value: product.productCode,
+                  productCode: product.productCode,
+                  value: product.code,
                   name: product.name ?? '',
                   inventory:product.tonKho??0,
                   price: product.price.toString(),
@@ -2813,7 +2813,7 @@ const finishOrder = async () =>{
                 :items="listProducts"
                 valueKey="productPropertyId"
                 :disabled="disabledEdit || props.row.newProduct"
-                labelKey="productCode"
+                labelKey="value"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
                 :defaultValue="props.row.productPropertyId"

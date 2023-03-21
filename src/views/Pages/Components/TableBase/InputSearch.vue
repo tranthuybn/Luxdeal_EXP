@@ -45,7 +45,7 @@ const params : [any, string, object?] = reactive([props.apiToFilter, t('reuse.ca
 
 const remoteMethod = (query: string) => {
   // Only search when query is at least 2 characters long
-  if (query.length >= 0) {
+  if (query.length >= 2) {
     loading.value = true
     setTimeout(async () => {
       loading.value = false
@@ -60,7 +60,6 @@ const remoteMethod = (query: string) => {
   }
 }
 
-
 const handleScroll = async (event) => {
   if(props.apiHasPagination) {
     const target = event.target;
@@ -68,14 +67,16 @@ const handleScroll = async (event) => {
     if (bottomReached) {
       // Increase pageIndex and fetch more data
       pageIndex.value += 1;
-
-      const response = await getFilterList(...params)
-      options.value.push(...response); 
       // Append new items to options
-      // filteredOptions.value = options.value.slice(0, pageSize.value * pageIndex.value); // Update filtered options
     }
   }
 };
+
+watch(pageIndex, async (newPageIndex) => {
+  params[2] = { pageIndex: newPageIndex, pageSize: pageSize.value };
+  const response = await getFilterList(...params);
+  if(response.length > 0) options.value.push(...response); 
+});
 
 
 </script>

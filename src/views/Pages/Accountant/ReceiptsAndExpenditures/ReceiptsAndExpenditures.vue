@@ -110,6 +110,18 @@ const columns = reactive<TableColumn[]>([
     headerAlign: 'left',
   },
   {
+    field: 'paymentMethod',
+    label: t('reuse.choosePayment'),
+    minWidth: '130',
+    headerFilter: 'Name',
+  },
+  {
+    field: 'paymentType',
+    label: t('reuse.alreadyPaid'),
+    minWidth: '130',
+    filters: [],
+  },
+  {
     field: 'status',
     label: t('reuse.status'),
     minWidth: '150',

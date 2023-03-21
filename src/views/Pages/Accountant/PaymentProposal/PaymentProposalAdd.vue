@@ -66,7 +66,7 @@ const collapse: Array<Collapse> = [
     title: t('formDemo.paymentrequestinformation')
   },
   {
-    icon: plusIcon,
+    icon: minusIcon,
     name: 'productAndPayment',
     title: t('formDemo.detailedlistofexpenses')
   }

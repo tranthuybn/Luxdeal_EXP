@@ -615,8 +615,8 @@ const callApiProductList = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20,  ServiceType: 1, IsApprove: true})
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
-      productCode: product.code,
-      value: product.productCode,
+      productCode: product.productCode,
+      value: product.code,
       name: product.name ?? '',
       inventory:product.tonKho ?? 0,
       unit: product.unitName,
@@ -646,8 +646,8 @@ const ScrollProductBottom = () => {
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProductsTable.value.push({
-                  productCode: product.code,
-                  value: product.productCode,
+                  productCode: product.productCode,
+                  value: product.code,
                   name: product.name ?? '',
                   inventory:product.tonKho ?? 0,
                   unit: product.unitName,
@@ -1120,8 +1120,8 @@ const postData = async (pushBack: boolean) => {
           id: id
         }
       })
-      orderCompletion(res)
     }
+    orderCompletion(res)
   disabledPhieu.value = false
   } else {
     ElNotification({
@@ -1996,7 +1996,7 @@ const postReturnRequest = async () => {
     tableImportPost.value = tableReturnFullyIntegrated.value?.map((el) => ({
       productPropertyId: el?.productPropertyId,
       quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
-      accessory: '',
+      accessory: el.accessory,
       returnDetailType: 1,
       unitPrice: el.unitPrice,
       totalPrice: el.totalPrice
@@ -2005,7 +2005,7 @@ const postReturnRequest = async () => {
     tableExportPost.value = tableProductInformationExportChange.value?.map((el) => ({
       productPropertyId: el?.productPropertyId,
       quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
-      accessory: '',
+      accessory: el.accessory,
       returnDetailType: 2,
       unitPrice: el.unitPrice,
       totalPrice: el.totalPrice
@@ -2024,16 +2024,17 @@ const postReturnRequest = async () => {
     giaHanDetails: [],
     isPaid: alreadyPaidForTt.value
   }
-  idReturnRequest.value = await createReturnRequest(payload)
-  if (idReturnRequest.value) {
+  idReturnRequest.value = await createReturnRequest(payload).then(() => {
     ElNotification({
       message: 'Đổi trả đơn hàng thành công',
       type: 'success'
     })
-  } else ElNotification({
-      message: 'Đơn hàng chưa được xuất kho',
+  }).catch((error) => {
+    ElNotification({
+      message: error?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
     })
+  })
   postOrderStransaction(3)
   createTicketFromReturnOrders()
   getReturnRequestTable()
@@ -2697,10 +2698,15 @@ const orderCompletion = async (id) => {
     await orderUtility.automaticCouponWareHouse(TicketType.XuatKho,id)
     await reloadStatusOrder()
   }
+  editData()
 }
-const finishOrder = async () =>{
-  await orderUtility.finishOrderAPI(id)
-  await reloadStatusOrder()
+
+const finishOrder = (id) => {
+  orderUtility.finishOrderAPI(id).then((res) => {
+    if (res) {
+      editData()
+    }
+  })
 }
 
 onBeforeMount(async () => {
@@ -4921,7 +4927,7 @@ const disabledPhieu = ref(false)
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
-                  labelKey="productCode"
+                  labelKey="productPropertyName"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   @scroll-top="ScrollProductTop"
@@ -4929,7 +4935,7 @@ const disabledPhieu = ref(false)
                   :clearable="false"
                   @update-value="(value, obj) => updatePrice(value, obj, props)"
                 />
-                <div v-else>{{ props.row.productCode }}</div>
+                <div v-else>{{ props.row.productPropertyName }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="150">
@@ -4995,7 +5001,7 @@ const disabledPhieu = ref(false)
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
-                  labelKey="productCode"
+                  labelKey="productPropertyName"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   @scroll-top="ScrollProductTop"
@@ -5003,7 +5009,7 @@ const disabledPhieu = ref(false)
                   :clearable="false"
                   @update-value="(value, obj) => updateExchangePrice(value, obj, props)"
                 />
-                <div v-else>{{ props.row.productCode }}</div>
+                <div v-else>{{ props.row.productPropertyName }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="150">
@@ -5205,7 +5211,7 @@ const disabledPhieu = ref(false)
                 :disabled="disabledEdit"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="productCode"
+                labelKey="value"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyId"
@@ -5712,7 +5718,7 @@ const disabledPhieu = ref(false)
               :disabled="statusButtonDetail"
               @click="
                 () => {
-                  finishOrder()
+                  finishOrder(id)
                 }
               "
               class="min-w-42 min-h-11 bg-[#D9D9D9]"
@@ -5755,8 +5761,7 @@ const disabledPhieu = ref(false)
               t('formDemo.depositSlipAdvance')
             }}</el-button>
             <button
-              @click="finishOrder"
-              :disabled="checkDisabled"
+              @click="finishOrder(id)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button
             >

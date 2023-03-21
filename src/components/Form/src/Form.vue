@@ -206,6 +206,16 @@ const prefixCls = getPrefixCls('form')
           )
         }
       }
+      if(item?.labelDescription) {
+        formItemSlots.label = () => {
+          return (
+            <div class="flex flex-col items-end">
+              <p class="leading-4 mb-1">{item.label}</p>
+              <p class="text-yellow-500 italic text-xs leading-none">{item.labelDescription}</p>
+            </div>
+          )
+        }
+      }
       return (
         <ElFormItem {...(item.formItemProps || {})} prop={item.field} label={item.label || ''}>
           {{

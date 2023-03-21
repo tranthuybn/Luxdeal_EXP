@@ -889,8 +889,8 @@ const callApiProductList = async () => {
   })
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data?.map((product) => ({
-      productCode: product?.code,
-      value: product?.productCode,
+      productCode: product?.productCode,
+      value: product?.code,
       name: product?.name ?? '',
       inventory:product.tonKho ?? 0,
       price: product?.price.toString(),
@@ -922,8 +922,8 @@ const ScrollProductBottom = () => {
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProductsTable.value?.push({
-                  productCode: product?.code,
-                  value: product?.productCode,
+                  productCode: product?.productCode,
+                  value: product?.code,
                   name: product?.name ?? '',
                   inventory: product.tonKho ?? 0,
                   price: product?.price.toString(),
@@ -2431,6 +2431,15 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
     await createTicketFromReturnOrders()
     reloadStatusOrder()
     getReturnRequestTable()
+    ElNotification({
+      message: 'Đổi trả đơn hàng thành công',
+      type: 'success'
+    })
+  }).catch((error) => {
+    ElNotification({
+      message: error?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
+      type: 'warning'
+    })
   })
 }
 const idReturnRequest = ref()
@@ -5064,7 +5073,7 @@ const disabledPhieu = ref(false)
                 :disabled="disabledEdit"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="productCode"
+                labelKey="value"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyId"

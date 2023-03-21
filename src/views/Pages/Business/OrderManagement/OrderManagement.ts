@@ -1,11 +1,11 @@
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   filtersReceiptExpenditure,
-  filtersStatus,
   filterRentTerm,
   filterDeposit,
   filterSpaService,
-  filtersCustomerType
+  filtersCustomerType,
+  filtersStatusOrder
 } from '@/utils/filters'
 import { h } from 'vue'
 import { dateTimeFormat, moneyFormat } from '@/utils/format'
@@ -145,7 +145,7 @@ export const sellOrder = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatus,
+    filters: filtersStatusOrder,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
     }
@@ -335,7 +335,7 @@ export const rentalorder = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatus,
+    filters: filtersStatusOrder,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
     }
@@ -541,7 +541,7 @@ export const depositOrder = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatus,
+    filters: filtersStatusOrder,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
     }
@@ -739,7 +739,7 @@ export const pawnOrder = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatus,
+    filters: filtersStatusOrder,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
     }
@@ -903,7 +903,7 @@ export const spaOrder = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatus,
+    filters: filtersStatusOrder,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
     }

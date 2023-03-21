@@ -107,7 +107,7 @@ const schema = reactive<FormSchema[]>([
     label: t('formDemo.writtenWords'),
     component: 'Input',
     colProps: {
-      span: 12
+      span: 18
     },
     componentProps: {
       placeholder: t('formDemo.writtenWords'),

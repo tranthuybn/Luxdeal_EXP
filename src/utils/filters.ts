@@ -157,6 +157,17 @@ export const filtersStatus: Array<Filter> = [
   { text: t('reuse.cancelled'), value: 8 }
 ]
 
+
+export const filtersStatusOrder: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.closedTheOrder'), value: 2 },
+  { text: t('reuse.depositing'), value: 5 },
+  { text: t('formDemo.completeOrder'), value: '13, 21, 31, 41, 51' },
+  { text: t('formDemo.exchangeReturnGoods'), value: '14, 22, 24, 32, 34, 42, 44, 55, 56, 65' },
+  { text: t('common.doneLabel'), value: 3 },
+  { text: t('reuse.cancelled'), value: -1 }
+]
+
 export const filterStatusOrder: Array<Filter> = [
   { text: t('reuse.deliveryFailed'), value: -1 },
   { text: t('formDemo.waitingDelivery'), value: 0 },

@@ -82,21 +82,12 @@ import { API_URL } from '@/utils/API_URL'
 import * as orderUtility from './OrderFixbug'
 import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
 import { deleteTempCode } from '@/api/common'
+import { changeMoney } from '@/utils/tsxHelper'
 
 const { t } = useI18n()
 const { utility } = appModules
 
 const doCloseOnClickModal = ref(false)
-
-
-
-
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })

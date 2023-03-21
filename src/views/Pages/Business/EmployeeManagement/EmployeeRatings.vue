@@ -17,6 +17,7 @@ import { ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useAppStore } from '@/store/modules/app'
 import { useRouter } from 'vue-router'
+import { changeMoney } from '@/utils/tsxHelper'
 
 // Key must be the same as name filed in columns
 const apiToFilter = {
@@ -41,12 +42,6 @@ const action = (row: any, type: string) => {
     })
   }
 }
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 
 const columns = reactive<TableColumn[]>([
   {

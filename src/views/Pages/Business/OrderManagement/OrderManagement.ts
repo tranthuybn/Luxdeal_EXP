@@ -14,13 +14,9 @@ import { ElButton } from 'element-plus'
 import { useAppStore } from '@/store/modules/app'
 import router from '@/router'
 import { API_ORDER } from '@/utils/API.Variables'
+import { changeMoney } from '@/utils/tsxHelper'
 const { t } = useI18n()
 
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 const appStore = useAppStore()

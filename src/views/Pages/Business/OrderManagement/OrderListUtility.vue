@@ -88,18 +88,13 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
+import { changeMoney } from '@/utils/tsxHelper'
 
 import * as orderUtility from './OrderFixbug'
 import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
 
 const { utility } = appModules
 const { t } = useI18n()
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 
 const checkPercent = (_rule: any, value: any, callback: any) => {
   if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))

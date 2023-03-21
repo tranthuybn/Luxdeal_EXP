@@ -82,6 +82,7 @@ import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import liquidationPurchaseContractPrint from '../../Components/formPrint/src/liquidationPurchaseContractPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+import { changeMoney } from '@/utils/tsxHelper'
 import { API_URL } from '@/utils/API_URL'
 //them nhanh sp
 import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
@@ -98,11 +99,6 @@ const route = useRoute()
 const type = String(route.params.type)
 const approvalId = String(route.params.approvalId)
 
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()

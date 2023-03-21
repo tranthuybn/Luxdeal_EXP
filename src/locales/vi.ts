@@ -957,6 +957,13 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    chooseARecommender: 'Chọn người đề nghị',
+    receiptsAddDetails: 'Thông tin chi tiết phiếu thu',
+    paymentAddDetails: 'Thông tin chi tiết phiếu chi',
+    payThroughMoney: 'Thanh toán tiền mặt',
+    payThroughCard: 'Thanh toán qua thẻ',
+    receiptsAdd: 'Thêm mới phiếu thu',
+    paymentsAdd: 'Thêm mới phiếu chi',
     confirmClose: 'Bạn có chắc muốn đóng?',
     choosePayment: 'Chọn thanh toán',
     spend: 'Chi',

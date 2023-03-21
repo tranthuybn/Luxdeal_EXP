@@ -76,6 +76,7 @@ import { deleteTempCode } from '@/api/common'
 //them nhanh sp
 import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
+import { changeMoney } from '@/utils/tsxHelper'
 import AddQuickProduct from './AddQuickProduct.vue'
 
 import * as orderUtility from './OrderFixbug'
@@ -84,11 +85,6 @@ import UploadMultipleImages from './UploadMultipleImages.vue'
 import EntryTransactionStatus from './EntryTransactionStatus.vue'
 
 const { utility } = appModules
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 const { t } = useI18n()
 
 const doCloseOnClickModal = ref(false)

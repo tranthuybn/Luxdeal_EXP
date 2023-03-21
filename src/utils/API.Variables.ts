@@ -93,6 +93,19 @@ export const PAYMENT = [
     label: 'Chi'
   }
 ]
+export const PAYMENT_METHOD = [
+  {
+    value: 1,
+    key: t('reuse.payThroughMoney'),
+    label: t('reuse.payThroughMoney')
+  },
+  {
+    value: 2,
+    key: t('reuse.payThroughCard'),
+    label: t('reuse.payThroughCard')
+  }
+]
+
 export const ATTACH_DOCUMENT = [
   {
     value: 0,

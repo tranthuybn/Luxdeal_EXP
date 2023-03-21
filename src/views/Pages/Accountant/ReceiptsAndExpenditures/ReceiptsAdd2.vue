@@ -107,10 +107,25 @@ const schema = reactive<FormSchema[]>([
     label: t('formDemo.writtenWords'),
     component: 'Input',
     colProps: {
-      span: 18
+      span: 12
     },
     componentProps: {
       placeholder: t('formDemo.writtenWords'),
+    }
+  },
+  {
+    field: 'name',
+    label: t('formDemo.formPayment'),
+    component: 'Select',
+    value: 1,
+    colProps: {
+      span: 18
+    },
+    componentProps: {
+      options: [
+      { label: t('reuse.payThroughMoney'), value: 1 },
+      { label: t('reuse.payThroughCard'), value: 2 },
+      ]
     }
   },
   {

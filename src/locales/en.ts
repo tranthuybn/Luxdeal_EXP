@@ -905,6 +905,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    choosePayment: 'Choose payment method',
     lock: 'Lock',
     spend: 'Spend',
     get: 'Get',

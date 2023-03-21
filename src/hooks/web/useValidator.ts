@@ -82,14 +82,28 @@ export const useValidator = () => {
     }
   }
 
-  const checkDuplicate = (config, listToCheck, message) => {
+  const checkDuplicate = (config, listToCheck, message, type?, id?) => {
     const [_, val, callback] = config
-    const duplicateValue = listToCheck ? listToCheck.find(item => val == item.value) : 0
-    if (val && duplicateValue) {
-      callback(new Error(message))
-    } else {
-      callback()
+
+    if (!val || !listToCheck) {
+      return callback();
     }
+
+    const isDuplicate = listToCheck.some(item => {
+      if (type === 'add') {
+        return val === item.value;
+      } else if (type === 'edit' && id) {
+        const presentValue = listToCheck.find(item => item.id === id)?.value;
+        return val !== presentValue && val === item.value;
+      }
+    });
+
+    if (isDuplicate) {
+      callback(new Error(message));
+    } else {
+      callback();
+    }
+
   }
 
   const doNotHaveNumber = (_, val: any, callback: Callback) => {

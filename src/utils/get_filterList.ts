@@ -16,10 +16,11 @@ export const getFilterList = async (getListFunc, errorMessage, params = {}) => {
   }
 }
 
-export const getBadgeAccount1List = async (getListFunc, errorMessage) => {
+export const getBadgeAccountList = async (getListFunc, typeAccount, errorMessage) => {
   const res = await getListFunc()
   if (res) {
-    return res.data.map((item) => ({ label: item.accountNumber, value: item.accountNumber, id: item.id}))
+    if(typeAccount == '1') return res.data.map((item) => ({ label: item.accountNumber, value: item.accountNumber, id: item.id}))
+    return res.data.map((item) => ({ label: item.children.accountNumber, value: item.children.accountNumber, id: item.children.id}))
   } else {
     ElMessage({
       message: t(errorMessage),

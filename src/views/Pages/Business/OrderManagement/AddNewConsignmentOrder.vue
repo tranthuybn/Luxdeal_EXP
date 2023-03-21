@@ -4,7 +4,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
   ElCollapseItem,
-  ElUpload,
   ElSelect,
   ElOption,
   ElCheckbox,
@@ -23,10 +22,8 @@ import {
   FormRules,
   UploadUserFile,
   ElMessage,
-  ElNotification,
-  UploadProps
+  ElNotification
 } from 'element-plus'
-import type { UploadFile } from 'element-plus'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { useIcon } from '@/hooks/web/useIcon'
 import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
@@ -35,7 +32,7 @@ import { dateTimeFormat } from '@/utils/format'
 import { appModules } from '@/config/app'
 import liquidationContractPrint from '../../Components/formPrint/src/liquidationContractPrint.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
-import {GenerateCodeOrder} from '@/api/Business'
+import {GenerateCodeOrder, updateStatusTransaction} from '@/api/Business'
 import {
   getProductsList,
   getCustomerById,
@@ -83,6 +80,8 @@ import AddQuickProduct from './AddQuickProduct.vue'
 
 import * as orderUtility from './OrderFixbug'
 import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
+import UploadMultipleImages from './UploadMultipleImages.vue'
+import EntryTransactionStatus from './EntryTransactionStatus.vue'
 
 const { utility } = appModules
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -91,21 +90,12 @@ const changeMoney = new Intl.NumberFormat('vi', {
   minimumFractionDigits: 0
 })
 const { t } = useI18n()
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
 const doCloseOnClickModal = ref(false)
 
 
 var autoCustomerCode = 'KH' + moment().format('hhmmss')
 
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -744,17 +734,6 @@ interface statusOrderType {
 let arrayStatusOrder = ref(Array<statusOrderType>())
 arrayStatusOrder.value.pop()
 
-// const updateOrderStatus = async (status: number, idOrder: any) => {
-//   const payload = {
-//     OrderId: idOrder ? idOrder : id,
-//     ServiceType: 2,
-//     OrderStatus: status
-//   }
-//   const formDataPayLoad = FORM_IMAGES(payload)
-//   await updateStatusOrder(formDataPayLoad)
-//   statusOrder.value = status
-//   reloadStatusOrder()
-// }
 
 const duplicateStatusButton = ref(false)
 // load lại trạng thái đơn hàng
@@ -782,14 +761,6 @@ const approvalFunction = async (isApprove) => {
   })
 }
 
-// const addStatusOrder = (index) => {
-//   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-//   arrayStatusOrder.value?.push(STATUS_ORDER_DEPOSIT[index])
-//   statusOrder.value = STATUS_ORDER_DEPOSIT[index].orderStatus
-//   arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-//   updateOrderStatus(STATUS_ORDER_DEPOSIT[index].orderStatus, id)
-// }
-// Cập nhật trạng thái đơn hàng
 const cancelOrder = async () =>{
   const res = await orderUtility.cancelOrderAPI(id, orderUtility.ServiceType.KyGui)
    if(res){
@@ -797,6 +768,7 @@ const cancelOrder = async () =>{
      Code:ruleForm.orderCode
       })
     }
+    await reloadStatusOrder()
 }
 // const updateStatusOrders = async (typeState) => {
 //   // 13 hoàn thành đơn hàng
@@ -1120,7 +1092,7 @@ const postData = async () => {
       CollaboratorCommission: ruleForm.collaboratorCommission,
       Description: ruleForm.orderNotes,
       WarehouseId: ruleForm.warehouse,
-      Files: Files,
+      Files: Files.value,
       CustomerId: customerID.value,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: valueProvince.value ?? 1,
@@ -1165,6 +1137,8 @@ const batDauKyGui = async () =>{
   if(res){
     await orderUtility.startOrder(id,orderUtility.ServiceType.KyGui)
   }
+  await reloadStatusOrder()
+
 }
 
 function printPage(id: string, { url, title, w, h }) {
@@ -1466,10 +1440,30 @@ const checkPTC = ref(0)
 let childrenTable = ref()
 let objOrderStransaction = ref()
 let idStransaction = ref()
+
+const updateDetailAcountingEntry = ref(false)
+const updateInfoAcountingEntry = async(index) => {
+  if (updateDetailAcountingEntry.value) {
+    updateOrderStransaction()
+  }else {
+    postOrderStransaction(index)
+  }
+}
+// cập nhật bút toán
+const updateOrderStransaction = async() => {
+  const payload = {
+    accountingEntryId: idAcountingEntry.value,
+    isReceiptedMoney: alreadyPaidForTt.value,
+    paymentMethods: 1
+  }
+  await updateOrderTransaction(payload)
+  getOrderStransactionList()
+}
+const idAcountingEntry = ref()
 // Thêm bút toán cho đơn hàng
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
-    merchadiseTobePayforId: parseInt(val.productPropertyId),
+    merchadiseTobePayforId: parseInt(val.id),
     quantity: parseInt(val.quantity)
   }))
 
@@ -1615,7 +1609,6 @@ const editData = async () => {
         statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
         }
 
-    Files = orderObj.orderFiles
 
     if (statusOrder.value == 2 && type == 'edit') {
       disableEditData.value = true
@@ -1660,23 +1653,11 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
-    orderObj.orderFiles.map(
-      (element: { domainUrl: any; path: any; fileId: any; id: any } | null) => {
-        if (element !== null) {
-          ListFileUpload.value?.push({
-            url: `${element?.domainUrl}${element?.path}`,
-            name: element?.fileId,
-            uid: element?.id
-          })
-        }
-      }
-    )
-    orderObj.orderFiles.map((element) => {
-      fileList.value.push({
-        url: `${API_URL}${element?.path}`,
-        name: element?.fileId
+    Files.value = orderObj.orderFiles.map((element) => ({
+          url: `${API_URL}${element?.path}`,
+          name: element?.fileId
       })
-    })
+    )
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value?.push({ ...productForSale })
   }
@@ -1699,7 +1680,7 @@ const editOrderInfo = async () => {
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: parseFloat(ruleForm.collaboratorCommission),
     Description: ruleForm.orderNotes,
-    Files: Files,
+    Files: Files.value,
     DeleteFileIds: '',
     DeliveryOptionId: dataEdit.value?.deliveryOption ?? ruleForm.delivery
   }
@@ -1829,6 +1810,9 @@ let formAccountingId = ref()
 let tableSalesSlip = ref()
 const openAcountingEntryDialog = async (index, num) => {
   const res = await getDetailAccountingEntryById({ id: index })
+
+  idAcountingEntry.value = index
+
   formAccountingId.value = { ...res.data }
   tableSalesSlip.value = formAccountingId.value?.paidMerchandises
   tableSalesSlip.value.forEach((e) => {
@@ -1845,6 +1829,18 @@ const openAcountingEntryDialog = async (index, num) => {
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
 
+  //trạng thái bút toán
+  statusAccountingEntry.value = formAccountingId.value.statusHistorys
+  statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
+  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
+    showCancelAcountingEntry.value = false
+    showCreatedOrUpdateButton.value = false
+
+  } else {
+    showCancelAcountingEntry.value = true
+    showCreatedOrUpdateButton.value = true
+  }
+
   getReturnOrder()
   if (num == 4) {
     dialogAccountingEntryAdditional.value = true
@@ -1859,6 +1855,11 @@ const openAcountingEntryDialog = async (index, num) => {
     changeReturnGoods.value = true
   }
 }
+
+// Đúng thì hiển thị button Lưu và ghi sổ và hủy bút toán
+const showCreatedOrUpdateButton = ref (false)
+const showCancelAcountingEntry = ref(true)
+const statusAccountingEntry = ref<orderUtility.TransactionStatusHistory[]>([])
 
 const addProductInformationExportChange = () => {
   tableProductInformationExportChange.value.push({
@@ -1926,13 +1927,6 @@ const ckeckChooseProduct = (scope) => {
   }
 }
 
-const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
-  ElMessage.warning(
-    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
-      'reuse.total'
-    )}${files.length + uploadFiles.length}`
-  )
-}
 
 const updateStatusReturnAheadOfTime = (index) => {
   statusOrder.value = index
@@ -2055,10 +2049,17 @@ const postReturnRequest = async (reason) => {
     xuatDetails: [],
     isPaid: true
   }
-  await createReturnRequest(payload).then(async (res)=>{
+  await createReturnRequest(payload)
+  .then(async (res)=>{
     idReturnRequest.value = res
     await createTicketFromReturnOrders()
     getReturnRequestTable()
+  })
+  .catch((err) => {
+      ElNotification({
+      message: err.response.data.message,
+      type: 'warning'
+    })
   })
 }
 
@@ -2110,8 +2111,8 @@ const paymentExpired = async (status) => {
     xuatDetails: tableReturnPost,
     isPaid: true
   }
-  const res = await createReturnRequest(payload)
-  if (res) {
+  await createReturnRequest(payload)
+  .then(async (res)=>{
     ElNotification({
       message: 'Đã trả hàng hết hạn thành công!',
       type: 'success'
@@ -2120,12 +2121,13 @@ const paymentExpired = async (status) => {
     await createTicketFromReturnOrders()
     getReturnRequestTable()
     reloadStatusOrder()
-  } else {
-    ElNotification({
-      message: 'Trả hàng thất bại!',
+  })
+  .catch((err) => {
+      ElNotification({
+      message: err.response.data.message,
       type: 'warning'
     })
-  }
+  })
 }
 
 // Trả hàng trước thời hạn
@@ -2152,8 +2154,8 @@ const returnGoodsAheadOfTime = async (status, data) => {
     xuatDetails: tableReturnPost,
     isPaid: true
   }
-  const res = await createReturnRequest(payload)
-  if (res) {
+  await createReturnRequest(payload)
+  .then(async (res)=>{
     ElNotification({
       message: 'Tạo phiếu trả thành công',
       type: 'success'
@@ -2162,12 +2164,13 @@ const returnGoodsAheadOfTime = async (status, data) => {
     await createTicketFromReturnOrders()
     getReturnRequestTable()
     reloadStatusOrder()
-  } else {
-    ElNotification({
-      message: 'Yêu cầu trả hàng thất bại!',
+  })
+  .catch((err) => {
+      ElNotification({
+      message: err.response.data.message,
       type: 'warning'
     })
-  }
+  })
 }
 // hoàn thành trả hàng
 
@@ -2179,76 +2182,7 @@ if (type == 'add' || type == ':type') {
   })
 }
 
-let Files = reactive({})
-const validImageType = ['jpeg', 'png']
-//cái này validate file chỉ cho ảnh tí a sửa lại nhé
-const beforeAvatarUpload = (rawFile, type: string) => {
-  if (rawFile) {
-    //nếu là 1 ảnh
-    if (type === 'single') {
-      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
-        return false
-      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
-        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-        return false
-      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
-        ElMessage.error(t('reuse.imageOver4MB'))
-        return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
-      }
-    }
-    //nếu là 1 list ảnh
-    if (type === 'list') {
-      let inValid = true
-      rawFile.map((file) => {
-        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
-          ElMessage.error(t('reuse.notImageFile'))
-          inValid = false
-        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
-          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-          inValid = false
-          return false
-        } else if (file.size / 1024 / 1024 > 4) {
-          ElMessage.error(t('reuse.imageOver4MB'))
-          inValid = false
-        } else if (file.name?.split('.')[0].length > 100) {
-          ElMessage.error(t('reuse.checkNameImageLength'))
-          inValid = false
-          return false
-        }
-      })
-      return inValid
-    }
-    return true
-  }
-  // else {
-  //   //báo lỗi nếu ko có ảnh
-  //   if (type === 'list' && fileList.value.length > 0) {
-  //     return true
-  //   }
-  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
-  //     return true
-  //   } else {
-  //     ElMessage.warning(t('reuse.notHaveImage'))
-  //     return false
-  //   }
-  // }
-}
-const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
-  console.log(uploadFile, uploadFiles)
-}
-const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
-  uploadFiles.map((file) => {
-    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file, uploadFiles) : ''
-  })
-  Files = ListFileUpload.value.map((el) => el?.raw)
-}
-const fileList = ref<UploadUserFile[]>([])
+const Files = ref<UploadUserFile[]>([])
 
 const addRow = () => {
   rentReturnOrder.value.tableData?.push({ ...productForSale })
@@ -2341,7 +2275,35 @@ const openDetailOrder = (id, type) => {
     })
 }
 
-</script>nhanh khách
+const UpdateStatusTransaction = async() => {
+  const payload = {
+    AccountingEntryId: idAcountingEntry.value,
+    OrderTransactionStatus: 0
+  }
+
+  updateStatusTransaction(FORM_IMAGES(payload))
+  // Cập nhật lại bảng lịch sử công nợ
+  getOrderStransactionList()
+}
+const openAdditionalDialog = () => {
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
+  updateDetailAcountingEntry.value = false
+  createStatusAcountingEntry()
+
+  dialogAccountingEntryAdditional.value = true
+}
+const createStatusAcountingEntry = () => {
+  statusAccountingEntry.value = []
+  statusAccountingEntry.value.push({
+    transactionStatus: 1,
+    transactionStatusName: t('formDemo.initializationBookkeeping'),
+    approvedAt: '',
+    createdAt: '',
+    isActive: true
+  })
+}
+</script>
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -3144,31 +3106,33 @@ const openDetailOrder = (id, type) => {
               />
             </el-select>
           </div>
-          <div class="flex gap-4 pb-2 items-center">
-            <label class="w-[30%] text-right">{{ t('reuse.status') }}</label>
-            <div class="flex items-center w-[100%]">
-              <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
-              <span class="box dark:text-black">
-                Khởi tạo & ghi sổ
-                <span class="triangle-right"> </span>
-              </span>
-            </div>
-          </div>
+          <EntryTransactionStatus :statusAccountingEntry="statusAccountingEntry"/>
         </div>
         <template #footer>
           <span class="dialog-footer">
             <el-button
+              v-if="showCreatedOrUpdateButton"
               type="primary"
               @click="
                 () => {
-                  postOrderStransaction(4)
+                  updateInfoAcountingEntry(4)
                   dialogAccountingEntryAdditional = false
                 }
               "
               >{{ t('formDemo.saveRecordDebts') }}</el-button
             >
+            <el-button
+              type="danger"
+              v-if="showCancelAcountingEntry"
+              @click="
+                () => {
+                  UpdateStatusTransaction()
+                  dialogAccountingEntryAdditional = false
+                }
+              "
+                > 
+                 {{t('formDemo.cancelAccountingEntry')}}
+              </el-button>
             <el-button @click="dialogAccountingEntryAdditional = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -3674,47 +3638,7 @@ const openDetailOrder = (id, type) => {
                 <div class="text-right text-[#FECB80]">{{ t('formDemo.lessThanTenProfiles') }}</div>
               </div>
               <div class="pl-4">
-                <el-upload
-                  action="#"
-                  list-type="picture-card"
-                  v-model:file-list="fileList"
-                  :limit="10"
-                  :multiple="true"
-                  :disabled="disabledEdit"
-                  :on-exceed="handleExceed"
-                  :on-change="handleChange"
-                  :auto-upload="false"
-                  class="relative"
-                  :on-remove="handleRemove"
-                >
-                  <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                      <span class="el-upload-list__item-actions">
-                        <span
-                          class="el-upload-list__item-preview"
-                          @click="handlePictureCardPreview(file)"
-                        >
-                          <ElButton :icon="viewIcon" />
-                        </span>
-                        <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
-                        <span v-if="!disabled" class="el-upload-list__item-delete">
-                          <ElButton :icon="deleteIcon" />
-                        </span>
-                      </span>
-                    </div>
-                  </template>
-                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute">
-                    <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                    >
-                  </el-dialog>
-                </el-upload>
-
-                <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible">
-                  <img w-full :src="dialogImageUrl" alt="Preview Image" />
-                </el-dialog>
+                <UploadMultipleImages v-model="Files" :disabled="disabledEdit" />
               </div>
             </div>
           </div>
@@ -4494,12 +4418,7 @@ const openDetailOrder = (id, type) => {
 
         <el-button
           text
-          @click="
-            () => {
-              alreadyPaidForTt = false
-              dialogAccountingEntryAdditional = true
-            }
-          "
+          @click="openAdditionalDialog"
           >+ {{ t('reuse.addAccountingEntry') }}</el-button
         >
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
@@ -4671,7 +4590,7 @@ const openDetailOrder = (id, type) => {
           >
             <template #default="props">
               <div>{{
-                props.row.status == 0 ? t('formDemo.recorded') : t('formDemo.cancelled')
+                props.row.status == 1 ? t('formDemo.recorded') : t('formDemo.cancelled')
               }}</div>
             </template>
           </el-table-column>

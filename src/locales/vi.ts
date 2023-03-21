@@ -2025,5 +2025,6 @@ export default {
     totalPawnMoneyPaid: 'Tổng tiền gốc thanh toán',
     totalPawnFeePaid: 'Tổng tiền phí thanh toán',
     paymentRequestInformationTicket: 'Thông tin phiếu đề nghị thanh toán',
+    limitUploads: 'Số ảnh tối đa là',
   }
 }

@@ -2696,13 +2696,13 @@ const orderCompletion = async (id) => {
   const status = await orderUtility.startOrder(id,orderUtility.ServiceType.Ban)
   if(status){
     await orderUtility.automaticCouponWareHouse(TicketType.XuatKho,id)
+    await reloadStatusOrder()
   }
   editData()
 }
 
 const finishOrder = (id) => {
   orderUtility.finishOrderAPI(id).then((res) => {
-  console.log('res :>> ', res);
     if (res) {
       editData()
     }

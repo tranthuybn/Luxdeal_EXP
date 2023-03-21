@@ -4,7 +4,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
   ElCollapseItem,
-  ElUpload,
   ElSelect,
   ElOption,
   ElCheckbox,
@@ -26,10 +25,8 @@ import {
   FormInstance,
   ElNotification,
   UploadUserFile,
-  UploadProps,
   ElMessage
 } from 'element-plus'
-import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { dateTimeFormat, formatOrderReturnReason, FORM_IMAGES, postDateTime } from '@/utils/format'
 import { Collapse } from '../../Components/Type'
@@ -57,11 +54,8 @@ import {
   getDetailAccountingEntryById,
   updateOrderTransaction,
   GetPaymentRequestDetail,
-  updateStatusOrder,
   updateOrderInfo,
   getListWareHouse,
-  cancelOrder,
-  finishStatusOrder,
   approvalOrder,
   getReturnRequestForOrder,
   GetWarehouseTransaction,
@@ -91,24 +85,19 @@ import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
 import { GenerateCodeOrder } from '@/api/common'
 
+import UploadMultipleImages from './UploadMultipleImages.vue'
+import * as orderUtility from './OrderFixbug'
+
+
 const { t } = useI18n()
 const { utility } = appModules
 
 
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const percentIcon = useIcon({ icon: 'material-symbols:percent' })
 
 
 const doCloseOnClickModal = ref(false)
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
 
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -507,7 +496,6 @@ const totalPriceSpa = (scope) => {
   scope.row.totalPrice = quantityInput * totalSettingSpa.value
 }
 
-const inputDeposit = ref(0)
 const inputPaymentBill = ref(0)
 // Call api danh sách sản phẩm
 const listProducts = ref()
@@ -1252,7 +1240,7 @@ const postData = async (pushBack: boolean) => {
     CollaboratorCommission: ruleForm.collaboratorCommission,
     Description: ruleForm.orderNotes,
     CustomerId: valueTypeSpa.value == 0 ? customerID.value : 2,
-    Files: Files,
+    Files: Files.value,
     WarehouseId: valueTypeSpa.value == 0 ? ruleForm.warehouseImport : ruleForm.warehouseParent,
     DeliveryOptionId: ruleForm.delivery ?? 0,
     ProvinceId: valueProvince.value ?? 1,
@@ -1304,7 +1292,8 @@ const postData = async (pushBack: boolean) => {
     }
     startSpa.value = false
   if (clickStarSpa.value == true) {
-    addStatusOrder(5)
+    orderUtility.startOrder(id,orderUtility.ServiceType.Spa)
+    await reloadStatusOrder()
   }}
 
 }
@@ -1320,8 +1309,7 @@ const clickStarSpa = ref(false)
 
 
 const checkPercent = (_rule: any, value: any, callback: any) => {
-  if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
-  else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+  if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
   else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
   else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
   else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
@@ -1529,13 +1517,6 @@ const districtChange = async (value) => {
 //     //when remove row check newProduct if(true){call api remove proudct(id), shift listProducts}
 // }
 
-const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
-  ElMessage.warning(
-    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
-      'reuse.total'
-    )}${files.length + uploadFiles.length}`
-  )
-}
 
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
@@ -1755,7 +1736,6 @@ const callApiStaffList = async () => {
     value: el.id,
     label: el.name + ' | ' + el.contact
   }))
-  console.log('currentCreator', currentCreator.value)
   getStaffList.value.push(
     {
       value: currentCreator.value.id,
@@ -1772,7 +1752,20 @@ function openBillSpaDialog() {
   dialogBillSpaInfomation.value = !dialogBillSpaInfomation.value
   ListInfoSpa.value = ListOfProductsForSale.value
   nameDialog.value = 'billPawn'
+  getDebt()
 }
+
+const getDebt = () =>{
+  totalFee.value = totalFinalOrder.value
+  if(debtTable.value.length > 0){
+    debtTable.value.forEach((row)=>{
+    if(row.typeOfAccountingEntry == 1){
+      totalFee.value = row.deibt
+    }
+  })
+}
+}
+
 const clearData = () => {
   totalPayment.value = 0
   depositePayment.value = 0
@@ -1884,9 +1877,9 @@ const postOrderStransaction = async (num: number) => {
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
     receiveMoney:
-      num == 1 ? inputPaymentBill.value : num == 2 ? tableAccountingEntry.value[0].receiveMoney : 0,
+      num == 1 ? inputPaymentBill.value : num == 4 ? tableAccountingEntry.value[0].receiveMoney : 0,
 
-    paidMoney: num == 1 ? 0 : num == 2 ? tableAccountingEntry.value[0].paidMoney : 0,
+    paidMoney: num == 1 ? 0 : num == 4 ? tableAccountingEntry.value[0].paidMoney : 0,
     deibt: num == 1 ? remainingMoney.value : 0,
     typeOfPayment: num == 1 
                   ? 1 
@@ -2132,17 +2125,7 @@ const postPC = async () => {
   handleChangeReceipts()
 }
 
-const updateOrderStatus = async (status: number, idOrder: any) => {
-  const payload = {
-    OrderId: idOrder ? idOrder : id,
-    ServiceType: 5,
-    OrderStatus: status
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  await updateStatusOrder(formDataPayLoad)
-  statusOrder.value = status
-  reloadStatusOrder()
-}
+
 const approvalFunction = async (checkApproved) => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: checkApproved }
   await approvalOrder(FORM_IMAGES(payload))
@@ -2164,37 +2147,7 @@ const approvalFunction = async (checkApproved) => {
       })
     }
 }
-const addStatusOrder = (index) => {
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-  arrayStatusOrder.value.push(STATUS_ORDER_SPA[index])
-  statusOrder.value = STATUS_ORDER_SPA[index].orderStatus
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-  updateOrderStatus(STATUS_ORDER_SPA[index].orderStatus, id)
-}
-// const addStatusOrderByStatusValue = (statusValue) => {
-//   addStatusOrder(STATUS_ORDER_SPA.findIndex(status=>status.orderStatus == statusValue))
-// }
-// Cập nhật trạng thái đơn hàng
-const updateStatusOrders = async (typeState) => {
-  // 13 hoàn thành đơn hàng
-  if (typeState == STATUS_ORDER_SPA[0].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await cancelOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else if (typeState == STATUS_ORDER_SPA[2].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await finishStatusOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else {
-    let paylpad = { OrderId: id, ServiceType: 5, OrderStatus: typeState }
-    await updateStatusOrder(FORM_IMAGES(paylpad))
-    reloadStatusOrder()
-  }
-}
+
 
 // load lại trạng thái đơn hàng
 const reloadStatusOrder = async () => {
@@ -2264,8 +2217,6 @@ const editData = async () => {
     if (statusOrder.value == 2 && type == 'edit') {
       editButton.value = true
     }
-    Files = orderObj.orderFiles
-
     /* Tạm thời bỏ VAT 21/02/2023 
     if (orderObj.vat == null) radioVAT.value = t('formDemo.VATNotIncluded')
     else radioVAT.value = orderObj.vat + '%'
@@ -2323,12 +2274,11 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer.email
       }
     }
-    orderObj.orderFiles.map((element) => {
-      fileList.value.push({
-        url: `${API_URL}${element?.path}`,
-        name: element?.fileId
+    Files.value = orderObj.orderFiles.map((element) => ({
+          url: `${API_URL}${element?.path}`,
+          name: element?.fileId
       })
-    })
+    )
   } else if (type == 'add' || !type || type != 'approval-order') {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
@@ -2458,7 +2408,7 @@ const updateOrderStransaction = async() => {
   getOrderStransactionList()
 }
 const idAcountingEntry = ref()
-
+const totalFee = ref(0)
 const openAcountingEntryDialog = async (index, num) => {
   idAcountingEntry.value = index
   createStatusAcountingEntry()
@@ -2469,12 +2419,15 @@ const openAcountingEntryDialog = async (index, num) => {
   tableSalesSlip.value.forEach((e) => {
     e.totalPrice = e.unitPrice * e.quantity
   })
-  inputDeposit.value = formAccountingId.value.accountingEntry?.receiveMoney
   remainingMoney.value = formAccountingId.value.accountingEntry?.deibt
   tableAccountingEntry.value[0] = formAccountingId.value.accountingEntry
 
+  //tien but toan
+  ListInfoSpa.value = formAccountingId.value.paidMerchandises
+  totalFee.value = formAccountingId.value.accountingEntry.deibt
+  inputPaymentBill.value = formAccountingId.value.accountingEntry?.receiveMoney
+
   //trạng thái bút toán
-  console.log('formAccountingId', formAccountingId.value)
   statusAccountingEntry.value = formAccountingId.value.statusHistorys
   statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
   if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
@@ -2583,11 +2536,11 @@ const editor = ref()
 
 const indexSpa = ref()
 
-const addStatusDelay = () => {
-  setTimeout(() => {
-    addStatusOrder(0)
-  }, 4000)
-}
+// const addStatusDelay = () => {
+//   setTimeout(() => {
+//     addStatusOrder(0)
+//   }, 4000)
+// }
 const valueMoneyAccoungtingEntry = ref(0)
 
 const lotData = ref()
@@ -2674,68 +2627,12 @@ var autoCodeReceipts = 'PT' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
 var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
 
-const handleRemove = (file: UploadFile) => {
-  return file
-}
 
 let ListInfoSpa = ref()
 
-let Files = reactive({})
-const validImageType = ['jpeg', 'png']
+const Files = ref<UploadUserFile[]>([])
+
 //cái này validate file chỉ cho ảnh tí a sửa lại nhé
-const beforeAvatarUpload = (rawFile, type: string) => {
-  if (rawFile) {
-    //nếu là 1 ảnh
-    if (type === 'single') {
-      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
-        return false
-      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
-        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-        return false
-      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
-        ElMessage.error(t('reuse.imageOver4MB'))
-        return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
-      }
-    }
-    //nếu là 1 list ảnh
-    if (type === 'list') {
-      let inValid = true
-      rawFile.map((file) => {
-        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
-          ElMessage.error(t('reuse.notImageFile'))
-          inValid = false
-        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
-          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-          inValid = false
-          return false
-        } else if (file.size / 1024 / 1024 > 4) {
-          ElMessage.error(t('reuse.imageOver4MB'))
-          inValid = false
-        } else if (file.name?.split('.')[0].length > 100) {
-          ElMessage.error(t('reuse.checkNameImageLength'))
-          inValid = false
-          return false
-        }
-      })
-      return inValid
-    }
-    return true
-  }
- 
-}
-const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
-  uploadFiles.map((file) => {
-    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
-  })
-  Files = ListFileUpload.value.map((el) => el?.raw)
-}
-const fileList = ref<UploadUserFile[]>([])
 const disableCreateOrder = ref(false)
 const currentCreator = ref()
 
@@ -2773,9 +2670,10 @@ onBeforeMount(async () => {
 })
 
 const remainingMoney = ref(0)
-const priceBillPayment = () => {
-  remainingMoney.value = totalPriceOrder.value - inputPaymentBill.value
-}
+watch(()=> [totalFee.value, inputPaymentBill.value],
+()=>{
+  remainingMoney.value = totalFee.value - inputPaymentBill.value
+})
 
 // trả hàng spa
 
@@ -2836,37 +2734,22 @@ const postReturnRequest = async (reason) => {
     isPaid: true
   }
 
-  await createReturnRequest(payload).then((res) => {
+  await createReturnRequest(payload)
+  .then(async(res) => {
           ElNotification({
             message: t('reuse.addSuccess'),
             type: 'success'
           })
-  createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
-      .then((res) => {
-        if(res.statusCode == 400) {
-          ElNotification({
-            message: 'Đơn hàng chưa được nhập kho',
-            type: 'warning'
-          })
-        }
-       }).catch(() => {
+  await createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
+  await getReturnRequestTable()
+  await reloadStatusOrder()
+  })
+  .catch((err) => {
       ElNotification({
-      message: 'Đơn hàng chưa được nhập kho',
+      message: err.response.data.message,
       type: 'warning'
     })
-    })
   })
-  await getReturnRequestTable()
-  // let ISSPA = true
-  // rentReturnOrder.value.tableData.forEach((row)=>{
-  //   if(row.isSpa == false){
-  //     ISSPA = false
-  //   }
-  // })
-  await reloadStatusOrder()
-  // ISSPA 
-  // ? addStatusOrder(6) //Ko duyệt
-  // : addStatusOrder(10) // Duyệt trả hàng spa
 }
 
 //Truong ngo SPA :(
@@ -2962,6 +2845,20 @@ const postReturnRequest = async (reason) => {
     )
     if(res) await editData()
   }  
+
+const cancelOrder = async () =>{
+  await orderUtility.cancelOrderAPI(id,orderUtility.ServiceType.Spa)
+  await reloadStatusOrder()
+}
+const startOrder = async () =>{
+  await orderUtility.startOrder(id,orderUtility.ServiceType.Spa)
+  await reloadStatusOrder()
+  spaNotChange.value = true
+}
+const finishOrder = async () =>{
+  await orderUtility.finishOrderAPI(id)
+  await reloadStatusOrder()
+}
 </script>
 
 <template>
@@ -3410,47 +3307,8 @@ const postReturnRequest = async (reason) => {
                 }}</div>
               </div>
               <div class="pl-4">
-                <el-upload
-                  action="#"
-                  list-type="picture-card"
-                  v-model:file-list="fileList"
-                  :multiple="true"
-                  :auto-upload="false"
-                  :limit="10"
-                  :on-exceed="handleExceed"
-                  :disabled="disabledEdit"
-                  class="relative"
-                  :on-change="handleChange"
-                >
-                  <!-- <ElButton :icon="addIcon" class="avatar-uploader-icon" /> -->
-                  <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                      <span class="el-upload-list__item-actions">
-                        <span
-                          class="el-upload-list__item-preview"
-                          @click="handlePictureCardPreview(file)"
-                        >
-                          <ElButton :icon="viewIcon" />
-                        </span>
-                        <span v-if="!disabled" class="el-upload-list__item-delete"> </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleRemove(file)"
-                        >
-                          <ElButton :icon="deleteIcon" />
-                        </span>
-                      </span>
-                    </div>
-                  </template>
-                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute">
-                    <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}
-                    </div>
-                  </el-dialog>
-                </el-upload>
+                <UploadMultipleImages v-model="Files" :disabled="disabledEdit" />
+
               </div>
             </div>
           </div>
@@ -4187,7 +4045,7 @@ const postReturnRequest = async (reason) => {
               <el-button
                 @click="
                   () => {
-                    addStatusDelay()
+                    cancelOrder()
                   }
                 "
                 :disabled="checkDisabled"
@@ -4265,8 +4123,7 @@ const postReturnRequest = async (reason) => {
                 v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type != 'add'"
                 @click="
                   () => {
-                    addStatusOrder(5)
-                    spaNotChange = true
+                    startOrder()
                   }
                 "
                 type="primary"
@@ -4284,7 +4141,7 @@ const postReturnRequest = async (reason) => {
                 v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus"
                 @click="
                   () => {
-                    updateStatusOrders(STATUS_ORDER_SPA[0].orderStatus)
+                    cancelOrder()
                   }
                 "
                 type="danger"
@@ -4355,31 +4212,6 @@ const postReturnRequest = async (reason) => {
                 Đối soát & kết thúc
               </el-button> -->
             </div>
-            <div v-if="changeServiceSpa" class="w-[100%] flex ml-1 gap-3">
-              <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
-                @click="
-                  () => {
-                    addStatusOrder(8)
-                  }
-                "
-                type="primary"
-                class="min-w-42 min-h-11"
-                >{{ t('reuse.saveAndPending') }}</el-button
-              >
-              <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
-                @click="
-                  () => {
-                    router.go(-1)
-                    changeServiceSpa = false
-                  }
-                "
-                type="danger"
-                class="min-w-42 min-h-11"
-                >{{ t('button.cancel') }}</el-button
-              >
-            </div>
             <div v-if="!changeServiceSpa">
               <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[8].orderStatus"
@@ -4433,7 +4265,7 @@ const postReturnRequest = async (reason) => {
                 type="info"
                 @click="
                   () => {
-                    updateStatusOrders(STATUS_ORDER_SPA[2].orderStatus)
+                    finishOrder()
                   }
                 "
                 class="min-w-42 min-h-11"
@@ -4568,7 +4400,7 @@ const postReturnRequest = async (reason) => {
                 <p class="text-black dark:text-white">{{ t('reuse.totalSpaFeeDebt2') }} </p>
               </div>
               <div class="text-right">
-                <p class="pr-2 text-black font-bold dark:text-white">{{ '0 đ' }}</p>
+                <p class="pr-2 text-black font-bold dark:text-white">{{ changeMoney.format(totalFee) }}</p>
               </div>
             </div>
             <div class="price-c flex gap-3 mb-2">
@@ -4579,7 +4411,6 @@ const postReturnRequest = async (reason) => {
                 <CurrencyInputComponent
                   class="handle-fix"
                   v-model="inputPaymentBill"
-                  @change="priceBillPayment"
                   :max="totalPriceOrder"
                   :min="0"
                 />
@@ -5656,7 +5487,7 @@ const postReturnRequest = async (reason) => {
           >
             <template #default="props">
               <div>{{
-                props.row.status == 0 ? t('formDemo.recorded') : t('formDemo.cancelled')
+                props.row.status == 1 ? t('formDemo.recorded') : t('formDemo.cancelled')
               }}</div>
             </template>
           </el-table-column>

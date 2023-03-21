@@ -62,22 +62,16 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'productStat.datTonKhoBan',
+    field: 'sellInventoryStatusName',
     label: t('reuse.setInventoryForSale'),
     minWidth: '170',
-    filters: filterIventory,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-     return t(`${businessIventoryStatusTransferToText(cellValue)}`)
-    }
+    filters: filterIventory
   },
   {
-    field: 'productStat.datTonKhoThue',
+    field: 'productBussinessName',
     label: t('reuse.setInventoryForRent'),
     minWidth: '200',
-    filters: filterIventory,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-     return t(`${businessIventoryStatusTransferToText(cellValue)}`)
-    }
+    filters: filterIventory
   },
   {
     field: 'price',

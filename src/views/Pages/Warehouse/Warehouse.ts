@@ -165,12 +165,9 @@ export const wareHouse = [
     minWidth: '150',
     filters: filterDeposit,
     formatter: (row, _column, _cellValue, _index) => {
-      return h(
-        'ul',
-        row?.bussinessSetup.map((item) => {
-          return h('li', lotBusinessSetup(item))
-        })
-      )
+      return row.bussinessSetup?.map((item) => {
+        return h('span', t(`${lotBusinessSetup(item)}`))
+      }).map(el => el.children).join(', ')
     }
   },
   {

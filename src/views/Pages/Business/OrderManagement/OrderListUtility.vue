@@ -1098,7 +1098,6 @@ const postData = async (pushBack: boolean) => {
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
-    id = res
     // updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
     // reloadStatusOrder()
     ElNotification({
@@ -1110,6 +1109,18 @@ const postData = async (pushBack: boolean) => {
         name: 'business.order-management.order-list',
         params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
+    } else {
+      const id = Number(res)
+      router.push({
+        name: `business.order-management.order-list.${utility}`,
+        params: {
+          backRoute: 'business.order-management.order-list',
+          type: 'detail',
+          tab: 'orderSell',
+          id: id
+        }
+      })
+      orderCompletion(res)
     }
   disabledPhieu.value = false
   } else {
@@ -1119,7 +1130,6 @@ const postData = async (pushBack: boolean) => {
     })
   }
 }
-
 
 // Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
 const backToListOrder = async () => {
@@ -1289,7 +1299,7 @@ const createStatusAcountingEntry = () => {
 }
 
 const updateDetailAcountingEntry = ref(false)
-const updateInfoAcountingEntry = async(index) => {
+const updateInfoAcountingEntry = async(index, id) => {
   if (updateDetailAcountingEntry.value) {
     updateOrderStransaction()
   }else {
@@ -2015,6 +2025,15 @@ const postReturnRequest = async () => {
     isPaid: alreadyPaidForTt.value
   }
   idReturnRequest.value = await createReturnRequest(payload)
+  if (idReturnRequest.value) {
+    ElNotification({
+      message: 'Đổi trả đơn hàng thành công',
+      type: 'success'
+    })
+  } else ElNotification({
+      message: 'Đơn hàng chưa được xuất kho',
+      type: 'warning'
+    })
   postOrderStransaction(3)
   createTicketFromReturnOrders()
   getReturnRequestTable()
@@ -2553,36 +2572,6 @@ const updateOrderInfomation = async () => {
 }
 
 const { push } = useRouter()
-// Cập nhật trạng thái đơn hàng
-// const updateStatusOrders = async (typeState) => {
-//   if (typeState == STATUS_ORDER_SELL[0].orderStatus) {
-//     let payload = {
-//       OrderId: id
-//     }
-//     await cancelOrder(FORM_IMAGES(payload))
-//     reloadStatusOrder()
-//   } else if (typeState == STATUS_ORDER_SELL[4].orderStatus) {
-//     let payload = {
-//       OrderId: id
-//     }
-//     await finishStatusOrder(FORM_IMAGES(payload))
-//     reloadStatusOrder()
-//   } else {
-//     if (type == 'add' || type == ':type') {
-//       let payload = {
-//         OrderId: idOrderPost.value,
-//         ServiceType: 1,
-//         OrderStatus: typeState
-//       }
-//       submitForm(ruleFormRef, ruleFormRef2, true)
-//       updateStatusOrder(FORM_IMAGES(payload))
-//     } else {
-//       let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
-//       await updateStatusOrder(FORM_IMAGES(paylpad))
-//       reloadStatusOrder()
-//     }
-//   }
-// }
 
 // Duyệt đơn hàng
 const approvalFunction = async (checkApproved) => {
@@ -2702,7 +2691,7 @@ const UpdateStatusTransaction = async() => {
 const keepGoodsOnDeposit = ref(false)
 
 // Hoàn thành đơn hàng -> call api phiếu nhập kho tự động
-const orderCompletion = async () => {
+const orderCompletion = async (id) => {
   const status = await orderUtility.startOrder(id,orderUtility.ServiceType.Ban)
   if(status){
     await orderUtility.automaticCouponWareHouse(TicketType.XuatKho,id)
@@ -3658,7 +3647,7 @@ const disabledPhieu = ref(false)
                   @click="
                     () => {
                       dialogSalesSlipInfomation = false
-                      updateInfoAcountingEntry(1)
+                      updateInfoAcountingEntry(1, id)
                     }
                   "
                   >
@@ -3898,7 +3887,7 @@ const disabledPhieu = ref(false)
                   @click="
                     () => {
                       dialogDepositSlipAdvance = false
-                      updateInfoAcountingEntry(2)
+                      updateInfoAcountingEntry(2, id)
                     }
                   "
                   >
@@ -4342,7 +4331,7 @@ const disabledPhieu = ref(false)
               v-if="showCreatedOrUpdateButton"
               @click="
                 () => {
-                  updateInfoAcountingEntry(4)
+                  updateInfoAcountingEntry(4, id)
                   dialogAccountingEntryAdditional = false
                 }
               "
@@ -4753,9 +4742,6 @@ const disabledPhieu = ref(false)
         <div class="flex justify-end mr-[156px] text-right font-medium">{{ totalWarehouse }}</div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
-              >{{ t('reuse.save') }}
-            </el-button>
             <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -5653,7 +5639,7 @@ const disabledPhieu = ref(false)
             }}</el-button>
             <el-button
               :disabled="statusButtonDetail"
-              @click="orderCompletion"
+              @click="orderCompletion(id)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button

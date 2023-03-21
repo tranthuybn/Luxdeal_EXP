@@ -295,7 +295,6 @@ const save = async (type) => {
     }
   })
 }
-const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
@@ -820,10 +819,16 @@ const approvalProduct = async () => {
             <div v-if="imageUrl" class="relative">
               <el-image :src="imageUrl" class="avatar" />
             </div>
-            <el-button v-else :icon="addIcon" class="avatar-uploader-icon" />
+            <img
+              src="@/assets/imgs/noImg.png"
+              alt=""
+            />
           </div>
           <div v-else>
-            <el-button :icon="addIcon" />
+            <img
+              src="@/assets/imgs/noImg.png"
+              alt=""
+            />
           </div>
           <template #file="{ file }">
             <div class="ml-auto mr-auto">

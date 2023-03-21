@@ -486,7 +486,7 @@ const updateTicket = (warehouse) => {
         <StatusWarehouse :arrayStatusWH="arrayStatusWH" :label="t('reuse.exportTicketStatus')"/>
 
         <div class="ml-[170px] flex">
-          <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
+          <ElButton class="w-[150px]" disabled>{{
             t('reuse.printDeliveryNote')
           }}</ElButton>
           <div v-if="status == 1 || status == 2" class="ml-[20px] flex">

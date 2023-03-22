@@ -1879,5 +1879,6 @@ export default {
     totalPawnFeePaid: 'Total pawn fee paid',
     paymentRequestInformationTicket: 'Payment request information ticket',
     limitUploads: 'Limit upload',
+    orderStillInWarehouse: 'Order still in warehouse',
   }
 }

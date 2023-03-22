@@ -1,8 +1,12 @@
-import { postAutomaticWarehouse, StartOrder, cancelOrder, finishOrder } from '@/api/Business'
+import { postAutomaticWarehouse, StartOrder, cancelOrder, finishOrder, GetWarehouseTransaction } from '@/api/Business'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useIcon } from '@/hooks/web/useIcon'
 import { FORM_IMAGES } from '@/utils/format'
 import { ElNotification } from 'element-plus'
+import { ref } from 'vue'
+import { TicketStatus } from '../../Warehouse/BusinessProductWarehouse/TicketEnum' 
+
+
 const { t } = useI18n()
 
 export const viewIcon = useIcon({ icon: 'uil:search' })
@@ -115,3 +119,38 @@ export const finishOrderAPI = async (orderId) => {
     })
     return success
   }
+
+//Lấy trạng thái của kho
+export const disableStatusWarehouse = ref(false)
+  //false: Đã xuất/nhập kho
+  //true: Chưa xuất
+export const getStatusWarehouse = async (orderId) => {
+  let success = 0
+  const payload = {
+      OrderId : orderId
+  }
+  await GetWarehouseTransaction(payload)
+  .then((res)=>{
+    res.data.forEach((row)=>{
+      if(row.returnRequestId == 0){
+        success = row.status
+      }
+    })
+    ElNotification({
+      message: t('reuse.success'),
+      type: 'success'
+    })
+  })
+  .catch((error)=>{
+    ElNotification({
+        message: error.response.data.message ?? t('reuse.fail'),
+        type: 'error'
+      })
+  })
+  success == TicketStatus.Accepted ? disableStatusWarehouse.value = false : disableStatusWarehouse.value = true
+
+  return success
+}
+export const checkStatusReturnRequestInWarehouse = (status) => {
+  status == TicketStatus.Accepted ? disableStatusWarehouse.value = false : disableStatusWarehouse.value = true
+}

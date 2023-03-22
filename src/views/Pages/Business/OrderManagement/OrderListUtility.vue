@@ -1099,70 +1099,75 @@ const postData = async (pushBack: boolean) => {
   }))
   orderDetailsTable.pop()
   const productPayment = JSON.stringify([...orderDetailsTable])
-  const payload = {
-    ServiceType: 1,
-    OrderCode: ruleForm.orderCode,
-    PromotionCode: promoCode.value ?? '',
-    CollaboratorId: ruleForm.collaborators,
-    CollaboratorCommission: ruleForm.discount,
-    Description: ruleForm.orderNotes,
-    CustomerId: customerID.value,
-    TotalPrice: totalPriceOrder.value,
-    DepositePrice: 0,
-    DiscountMoney:
-      promoCash.value != 0
-        ? promoCash.value
-        : promoValue.value != 0
-        ? (totalPriceOrder.value * promoValue.value) / 100
-        : 0,
-    InterestMoney: 0,
-    // VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
-    VATMoney: 0,
-    Files: Files,
-    DeliveryOptionId: ruleForm.delivery,
-    ProvinceId: formAddress.province ?? 1,
-    DistrictId: formAddress.district ?? 1,
-    WardId: formAddress.wardCommune ?? 1,
-    Address: customerAddress.value,
-    OrderDetail: productPayment,
-    CampaignId: campaignId.value ?? '',
-    VAT: 0,
-    Status: 2,
-    WarehouseId: ruleForm.warehouse
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  const res = await addNewOrderList(formDataPayLoad)
-  if (res) {
-    // updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
-    // reloadStatusOrder()
-    ElNotification({
-      message: t('reuse.addSuccess'),
-      type: 'success'
-    })
-    if (pushBack == false) {
-      router.push({
-        name: 'business.order-management.order-list',
-        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+  if(orderDetailsTable?.length < 1) {
+    ElMessage.error('Vui lòng chọn mã sản phẩm')
+    return 
+  } else {
+    const payload = {
+      ServiceType: 1,
+      OrderCode: ruleForm.orderCode,
+      PromotionCode: promoCode.value ?? '',
+      CollaboratorId: ruleForm.collaborators,
+      CollaboratorCommission: ruleForm.discount,
+      Description: ruleForm.orderNotes,
+      CustomerId: customerID.value,
+      TotalPrice: totalPriceOrder.value,
+      DepositePrice: 0,
+      DiscountMoney:
+        promoCash.value != 0
+          ? promoCash.value
+          : promoValue.value != 0
+          ? (totalPriceOrder.value * promoValue.value) / 100
+          : 0,
+      InterestMoney: 0,
+      // VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
+      VATMoney: 0,
+      Files: Files,
+      DeliveryOptionId: ruleForm.delivery,
+      ProvinceId: formAddress.province ?? 1,
+      DistrictId: formAddress.district ?? 1,
+      WardId: formAddress.wardCommune ?? 1,
+      Address: customerAddress.value,
+      OrderDetail: productPayment,
+      CampaignId: campaignId.value ?? '',
+      VAT: 0,
+      Status: 2,
+      WarehouseId: ruleForm.warehouse
+    }
+    const formDataPayLoad = FORM_IMAGES(payload)
+    const res = await addNewOrderList(formDataPayLoad)
+    if (res) {
+      // updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
+      // reloadStatusOrder()
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
       })
+      if (pushBack == false) {
+        router.push({
+          name: 'business.order-management.order-list',
+          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+        })
+      } else {
+        const id = Number(res)
+        router.push({
+          name: `business.order-management.order-list.${utility}`,
+          params: {
+            backRoute: 'business.order-management.order-list',
+            type: 'detail',
+            tab: 'orderSell',
+            id: id
+          }
+        })
+      }
+      orderCompletion(res)
+    disabledPhieu.value = false
     } else {
-      const id = Number(res)
-      router.push({
-        name: `business.order-management.order-list.${utility}`,
-        params: {
-          backRoute: 'business.order-management.order-list',
-          type: 'detail',
-          tab: 'orderSell',
-          id: id
-        }
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
       })
     }
-    orderCompletion(res)
-  disabledPhieu.value = false
-  } else {
-    ElNotification({
-      message: t('reuse.addFail'),
-      type: 'warning'
-    })
   }
 }
 
@@ -1711,11 +1716,7 @@ const createTicketFromReturnOrders = async () => {
         type: 'warning'
       })
     )
-  } else ElNotification({
-        message: 'Đơn hàng chưa được xuất kho',
-        type: 'warning'
-      })
-  
+  }
 }
 
 const alreadyPaidForTt = ref(false)
@@ -2597,6 +2598,10 @@ const updateOrderInfomation = async () => {
       ElNotification({
         message: 'Sửa thành công',
         type: 'success'
+      })
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
       })
     })
     .catch(() =>
@@ -3797,7 +3802,7 @@ const handleClose = (done: () => void) => {
               <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" :disabled="condition"/>
               <p class="pr-2 text-red-600 pt-2">
                 {{ changeMoney.format(outstandingDebt - inputDeposit) }}
-              }</p>
+              </p>
             </div>
           </div>
         </div>

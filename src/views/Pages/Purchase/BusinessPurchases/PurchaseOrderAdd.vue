@@ -883,6 +883,14 @@ const checkQuantity = (value) => {
   }
 }
 
+const checkPrice = (value) => {
+  if (isNaN(value)) {
+    ElMessage.error(t('reuse.numberFormat'))
+  } else if (value < 0) {
+    ElMessage.error(t('reuse.positiveNumber'))
+  }
+}
+
 const autoCalculateOrder = () => {
   totalPriceOrder.value = 0
   totalFinalOrder.value = 0
@@ -1105,10 +1113,22 @@ const postData = async () => {
   }))
   if (orderDetailsTable.value?.length > 0) {
     orderDetailsTable.value.forEach((el) => {
-      if (el.Quantity == 0 || el.Quantity < 0) {
+      if (el.Quantity < 0 || el.UnitPrice < 0) {
         checkValidatorProduct.value = true
         ElMessage.error(t('reuse.positiveNumber'))
-      }
+      } else if (el.Quantity == 0) {
+        checkValidatorProduct.value = true
+        ElNotification({
+          message: 'Hãy nhập số lượng mua',
+          type: 'warning'
+        })
+      } else if (el.UnitPrice == 0) {
+        checkValidatorProduct.value = true
+        ElNotification({
+          message: 'Hãy nhập đơn giá',
+          type: 'warning'
+        })
+      } else checkValidatorProduct.value = false
     })
     if (!checkValidatorProduct.value) {
       const productPayment = JSON.stringify([...orderDetailsTable.value])
@@ -1144,29 +1164,24 @@ const postData = async () => {
         Status: statusTracking.value
       }
       const formDataPayLoad = FORM_IMAGES(payload)
-      const res = await addNewOrderList(formDataPayLoad)
-      if (res) {
-        ElNotification({
-          message: t('reuse.addSuccess'),
-          type: 'success'
-        })
-        hiddenButton.value = false
-        router.push({
-          name: 'purchase.business-purchases.purchase-order-list',
-          params: { backRoute: String(router.currentRoute.value.name) }
-        })
-      } else {
+      await addNewOrderList(formDataPayLoad).then(res => {
+        if (res) {
+          idOrderPost.value = res
+          hiddenButton.value = false
+          ElNotification({
+            message: t('reuse.addSuccess'),
+            type: 'success'
+          })
+          router.push({
+            name: 'purchase.business-purchases.purchase-order-list',
+            params: { backRoute: String(router.currentRoute.value.name) }
+          })
+        }
+      }).catch(() => {
         ElNotification({
           message: t('reuse.addFail'),
           type: 'warning'
         })
-      }
-      idOrderPost.value = res
-
-    } else {
-      ElNotification({
-        message: 'Hãy nhập số lượng mua',
-        type: 'warning'
       })
     }
   } else {
@@ -2112,27 +2127,25 @@ const postReturnRequest = async () => {
     giaHanDetails: [],
     isPaid: alreadyPaidForTt.value
   }
-  const res = await createReturnRequest(JSON.stringify(payload))
-  if (res) {
+  await createReturnRequest(JSON.stringify(payload)).then((res) => {
     returnRequestId.value = res
     if (exchangePrice.value > 0) tableAccountingEntry.value[0].paidMoney = Math.abs(exchangePrice.value)
     else tableAccountingEntry.value[0].receiveMoney = Math.abs(exchangePrice.value)
-    await postOrderStransaction(3)
-    createTicketFromReturnOrder({ orderId: id, returnRequestId: res })
-      .then((res) => {
-        if(res.statusCode == 400) {
+    postOrderStransaction(3)
+    createTicketFromReturnOrder({ orderId: id, returnRequestId: res }).then((data) => {
+        if(data.statusCode == 400) {
           ElNotification({
             message: 'Đơn hàng chưa được nhập kho',
             type: 'warning'
           })
         }
-       }).catch(() => {
-      ElNotification({
-      message: 'Đơn hàng chưa được nhập kho',
+       })
+  }).catch((error) => {
+    ElNotification({
+      message: error?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
     })
-    })
-  }
+  })
   getReturnRequestTable()
   reloadStatusOrder()
 }
@@ -4812,6 +4825,7 @@ onBeforeMount(async () => {
                 v-if="type != 'detail'"
                 @change="
                   () => {
+                    checkPrice(props.row.unitPrice)
                     props.row.totalPrice = props.row.unitPrice * props.row.quantity
                     autoCalculateOrder()
                   }

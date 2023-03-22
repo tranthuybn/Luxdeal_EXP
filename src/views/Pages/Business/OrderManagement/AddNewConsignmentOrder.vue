@@ -22,7 +22,8 @@ import {
   FormRules,
   UploadUserFile,
   ElMessage,
-  ElNotification
+  ElNotification,
+  ElTooltip
 } from 'element-plus'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -600,7 +601,6 @@ const postQuickProduct = (product,productId)=>{
       productPropertyId: productId,
       productPropertyCode: product.productPropertyCode
     })
-    console.log(';', product, productId, listProducts.value)
     //Change productpropertyId of currentNewProductRow
     ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
     ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
@@ -1556,8 +1556,10 @@ const getReturnRequestTable = async () => {
       value: e?.productPropertyId,
       warehouseTicketCode: e.warehouseTicketCode,
       warehouseTicketId: e.warehouseTicketId,
-      warehouseTicketStatusName: e.warehouseTicketStatusName
+      warehouseTicketStatusName: e.warehouseTicketStatusName,
+      warehouseTicketStatus: e.warehouseTicketStatus
     }))
+    orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }
 }
 const consignOrderCode = ref()
@@ -1567,6 +1569,8 @@ let changeButtonEdit = ref(false)
 const disableEditData = ref(false)
 const disableCreateOrder = ref(false)
 const editData = async () => {
+  await orderUtility.getStatusWarehouse(id)
+
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
 
@@ -2053,7 +2057,7 @@ const postReturnRequest = async (reason) => {
   })
   .catch((err) => {
       ElNotification({
-      message: err.response.data.message,
+      message: err?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
     })
   })
@@ -2120,7 +2124,7 @@ const paymentExpired = async (status) => {
   })
   .catch((err) => {
       ElNotification({
-      message: err.response.data.message,
+      message: err?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
     })
   })
@@ -2163,7 +2167,7 @@ const returnGoodsAheadOfTime = async (status, data) => {
   })
   .catch((err) => {
       ElNotification({
-      message: err.response.data.message,
+      message: err?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
     })
   })
@@ -4191,21 +4195,29 @@ const createStatusAcountingEntry = () => {
               class="min-w-42 min-h-11"
               >{{ t('formDemo.aheadTimeReturns') }}</el-button
             >
-            <el-button
-              v-if="statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
-              (statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
-              isPartialReturn)"
-              @click="
-                () => {
-                  deleteTable()
-                  setDataForReturnOrder()
-                  truocHan = true
-                }
-              "
-              type="warning"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.durationPrepayment') }}</el-button
-            >
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
+                <el-button
+                  v-if="statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
+                  (statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
+                  isPartialReturn)"
+                  :disabled="unref(orderUtility.disableStatusWarehouse)"
+                  @click="
+                    () => {
+                      deleteTable()
+                      setDataForReturnOrder()
+                      truocHan = true
+                    }
+                  "
+                  type="warning"
+                  class="min-w-42 min-h-11"
+                  >{{ t('formDemo.durationPrepayment') }}</el-button
+                >
+              </div>
+              </el-tooltip>
 
             <el-button
               v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && !duplicateStatusButton"
@@ -4218,6 +4230,11 @@ const createStatusAcountingEntry = () => {
               >{{ t('formDemo.cancelReturn') }}</el-button
             >
 
+            <el-tooltip :disabled="!orderUtility.disableStatusWarehouse">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
@@ -4229,10 +4246,14 @@ const createStatusAcountingEntry = () => {
                   hetHan = true
                 }
               "
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
               type="warning"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.infoReturnExpired') }}</el-button
             >
+              </div>
+            </el-tooltip>
+
             <div v-if="!completeThePayment">
               <el-button
                 v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"

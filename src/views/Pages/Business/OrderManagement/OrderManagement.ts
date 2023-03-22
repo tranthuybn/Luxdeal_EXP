@@ -138,13 +138,10 @@ export const sellOrder = [
     headerFilter: 'Name'
   },
   {
-    field: 'isActive',
+    field: 'statusName',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatusOrder,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
-    }
+    filters: filtersStatusOrder
   },
   {
     field: 'operator',
@@ -328,13 +325,10 @@ export const rentalorder = [
     headerFilter: 'Name'
   },
   {
-    field: 'isActive',
+    field: 'statusName',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatusOrder,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
-    }
+    filters: filtersStatusOrder
   },
   {
     field: 'operator',
@@ -534,13 +528,10 @@ export const depositOrder = [
     headerFilter: 'Name'
   },
   {
-    field: 'isActive',
+    field: 'statusName',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatusOrder,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
-    }
+    filters: filtersStatusOrder
   },
   {
     field: 'operator',
@@ -730,15 +721,11 @@ export const pawnOrder = [
     minWidth: '150',
     headerFilter: 'Name'
   },
-
   {
-    field: 'isActive',
+    field: 'statusName',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatusOrder,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
-    }
+    filters: filtersStatusOrder
   },
   {
     field: 'operator',
@@ -896,13 +883,10 @@ export const spaOrder = [
     headerFilter: 'Name'
   },
   {
-    field: 'isActive',
+    field: 'statusName',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatusOrder,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', cellValue ? 'Đang hoạt động' : 'Ngưng hoạt động')
-    }
+    filters: filtersStatusOrder
   },
   {
     field: 'operator',

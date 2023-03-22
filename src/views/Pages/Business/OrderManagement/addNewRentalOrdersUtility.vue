@@ -27,7 +27,6 @@ import {
   UploadProps,
   ElMessage
 } from 'element-plus'
-import type { UploadFile } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
@@ -247,23 +246,6 @@ const submitForm = async (
       checkValidateForm.value = false
     }
   })
-}
-
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
-
-const handleRemove = (file: UploadFile) => {
-  return file
-}
-
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
-
-const handleDownload = (file: UploadFile) => {
-  return file
 }
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -2494,70 +2476,10 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
 }
 
 const ListFileUpload = ref<UploadUserFile[]>([])
+
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
-  uploadFiles.map((file) => {
-    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
-  })
   Files = [...ListFileUpload.value.map((el) => el?.raw)]
-}
-const validImageType = ['jpeg', 'png']
-//cái này validate file chỉ cho ảnh tí a sửa lại nhé
-const beforeAvatarUpload = (rawFile, type: string) => {
-  if (rawFile) {
-    //nếu là 1 ảnh
-    if (type === 'single') {
-      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
-        return false
-      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
-        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-        return false
-      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
-        ElMessage.error(t('reuse.imageOver4MB'))
-        return false
-      } 
-      // else if (rawFile.name?.split('.')[0].length > 100) {
-      //   ElMessage.error(t('reuse.checkNameImageLength'))
-      //   return false
-      // }
-    }
-    //nếu là 1 list ảnh
-    if (type === 'list') {
-      let inValid = true
-      rawFile.map((file) => {
-        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
-          ElMessage.error(t('reuse.notImageFile'))
-          inValid = false
-        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
-          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-          inValid = false
-          return false
-        } else if (file.size / 1024 / 1024 > 4) {
-          ElMessage.error(t('reuse.imageOver4MB'))
-          inValid = false
-        } else if (file.name?.split('.')[0].length > 100) {
-          ElMessage.error(t('reuse.checkNameImageLength'))
-          inValid = false
-          return false
-        }
-      })
-      return inValid
-    }
-    return true
-  }
-  // else {
-  //   //báo lỗi nếu ko có ảnh
-  //   if (type === 'list' && fileList.value.length > 0) {
-  //     return true
-  //   }
-  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
-  //     return true
-  //   } else {
-  //     ElMessage.warning(t('reuse.notHaveImage'))
-  //     return false
-  //   }
-  // }
 }
 
 /* Tạm thời bỏ VAT 21/02/2023
@@ -4506,42 +4428,16 @@ const disabledPhieu = ref(false)
                 <el-upload
                   action="#"
                   :disabled="checkDisabled"
-                  v-model:file-list="fileList"
+                  v-model:file-list="ListFileUpload"
                   :multiple="true"
-                  list-type="picture-card"
                   :limit="10"
                   :on-exceed="handleExceed"
                   :auto-upload="false"
                   :on-change="handleChange"
                   class="relative"
                 >
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                      <span class="el-upload-list__item-actions">
-                        <span
-                          class="el-upload-list__item-preview"
-                          @click="handlePictureCardPreview(file)"
-                        >
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleDownload(file)"
-                        >
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleRemove(file)"
-                        >
-                        </span>
-                      </span>
-                    </div>
-                  </template>
-                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute" />
-                  <div class="text-[#303133] font-medium dark:text-[#fff]"
-                    >+ {{ t('formDemo.addPhotosOrFiles') }}</div
+                  <el-button class="text-[#303133] font-medium dark:text-[#fff]"
+                    >+ {{ t('formDemo.addPhotosOrFiles') }}</el-button
                   >
                 </el-upload>
               </div>

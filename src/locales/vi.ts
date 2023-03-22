@@ -2034,5 +2034,6 @@ export default {
     totalPawnFeePaid: 'Tổng tiền phí thanh toán',
     paymentRequestInformationTicket: 'Thông tin phiếu đề nghị thanh toán',
     limitUploads: 'Số ảnh tối đa là',
+    orderStillInWarehouse: 'Đơn hàng đang được xử lí trong kho',
   }
 }

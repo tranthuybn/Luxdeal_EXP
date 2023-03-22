@@ -910,7 +910,7 @@ onBeforeMount(() => {
                 <el-divider content-position="left">Tài khoản & phân quyền</el-divider>
 
                 <el-form-item label="Tên đăng nhập" prop="userName">
-                  <el-input v-model="ruleForm.userName" placeholder="Nhập tên đăng nhập" />
+                  <el-input v-model="ruleForm.userName" placeholder="Nhập tên đăng nhập" :disabled="isDisable" />
                 </el-form-item>
 
                 <el-form-item label="Phân quyền" prop="decentralization" placeholder="Họ và tên">
@@ -1199,7 +1199,7 @@ onBeforeMount(() => {
                 </div>
                 <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
                   <el-divider content-position="left">{{ t('formDemo.codeQR') }}</el-divider>
-                  <Qrcode :text="'Katsuke'" />
+                  <Qrcode :text="ruleForm.staffCode" />
                 </div>
               </ElForm>
             </div>

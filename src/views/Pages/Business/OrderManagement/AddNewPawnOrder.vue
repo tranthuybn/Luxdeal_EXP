@@ -1102,7 +1102,7 @@ const postReturnRequest = async (reason) => {
   })
   .catch((err) => {
       ElNotification({
-      message: err.response.data.message,
+      message: err?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
     })
   })
@@ -1149,8 +1149,10 @@ const getReturnRequestTable = async () => {
       returnDetailStatusName: e.returnDetailStatusName,
       warehouseTicketStatusName: e.warehouseTicketStatusName,
       warehouseTicketCode: e.warehouseTicketCode,
-      warehouseTicketId: e.warehouseTicketId
+      warehouseTicketId: e.warehouseTicketId,
+      warehouseTicketStatus: e.warehouseTicketStatus
     }))
+    orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }
 }
 
@@ -1638,6 +1640,8 @@ const totalPrincipalMoney = ref(0)
 const totalPrincipalDebt = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
+  await orderUtility.getStatusWarehouse(id)
+
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
@@ -1801,7 +1805,6 @@ function openPaymentDialog() {
 const openPaymentRequest = () => {
   newCodePaymentRequest()
   clearData()
-  console.log('newTable', newTable.value)
   if(newTable.value[0].typeOfAccountingEntry == 5){
     openAccountingEntry(newTable.value[0].id, newTable.value[0].orderTypeBTSpa)
     paymentRequestFromAnotherOrder.value = true
@@ -2206,7 +2209,6 @@ const setDataForReturnOrder = () => {
     rentReturnOrder.value.tableData[index].description = row.description,
     rentReturnOrder.value.tableData[index].code = row.code
   })
-  console.log('rent', rentReturnOrder.value.tableData)
 }
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
@@ -3226,6 +3228,12 @@ const finishOrder = async () =>{
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
+
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
               v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus"
               @click="
@@ -3235,10 +3243,14 @@ const finishOrder = async () =>{
                   setDataForReturnOrder()
                 }
               "
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
               type="warning"
               class="min-w-42 min-h-11"
               >Chuộc hàng trước hạn</el-button
             >
+            </div>
+            </el-tooltip>
+
             <div v-if="statusOrder == STATUS_ORDER_PAWN[6].orderStatus || statusOrder == STATUS_ORDER_PAWN[8].orderStatus">
               <el-button
                 v-if="duplicateStatusButton"
@@ -3279,6 +3291,11 @@ const finishOrder = async () =>{
               class="min-w-42 min-h-11"
               >Đối soát & kết thúc</el-button
             >
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
@@ -3290,10 +3307,18 @@ const finishOrder = async () =>{
                   setDataForReturnOrder()
                 }
               "
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
               class="min-w-42 min-h-11 !border-red-500"
               ><p class="text-red-500">Gia hạn cầm đồ</p></el-button
             >
+            </div>
+            </el-tooltip>
 
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
@@ -3305,15 +3330,25 @@ const finishOrder = async () =>{
                   setDataForReturnOrder()
                 }
               "
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
               type="warning"
               class="min-w-42 min-h-11"
               >Đứt hàng hết hạn</el-button
             >
+            </div>
+            </el-tooltip>
+            
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus
               "
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
               @click="
                 () => {
                   chuocHetHan = true
@@ -3324,6 +3359,8 @@ const finishOrder = async () =>{
               class="min-w-42 min-h-11"
               >Chuộc hàng hết hạn</el-button
             >
+            </div>
+            </el-tooltip>
 
             <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
               <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{

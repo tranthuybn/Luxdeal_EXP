@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { getBusinessProductLibrary, deleteProduct } from '@/api/LibraryAndSetting'
-import { businessProductLibrary } from './ProductLibraryManagement'
+import { businessProductLibrary, getCategory } from './ProductLibraryManagement'
 import TableType01 from '../../Components/TableDataBase.vue'
+Promise.all([getCategory()])
 </script>
 <template>
   <TableType01

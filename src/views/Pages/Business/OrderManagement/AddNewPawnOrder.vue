@@ -1111,7 +1111,7 @@ const postReturnRequest = async (reason) => {
   })
   .catch((err) => {
       ElNotification({
-      message: err.response.data.message,
+      message: err?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
     })
   })

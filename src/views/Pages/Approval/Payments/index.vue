@@ -5,14 +5,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus'
 import { getOrderPayments } from '@/api/Approval'
 import { appModules } from '@/config/app'
+import { changeMoney } from '@/utils/tsxHelper'
 const { utility } = appModules
 const { t } = useI18n()
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 
 const route = useRoute()
 const { push } = useRouter()

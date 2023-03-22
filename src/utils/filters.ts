@@ -141,6 +141,10 @@ export const filtersReceiptExpenditure: Array<Filter> = [
   { text: t('reuse.haveToCollect'), value: 1 },
   { text: t('reuse.havetoPay'), value: 0 }
 ]
+export const filterPaymentMethod: Array<Filter> = [
+  { text: t('reuse.payThroughMoney'), value: 1 },
+  { text: t('reuse.payThroughCard'), value: 2 }
+]
 export const filtersCustomerType: Array<Filter> = [
   { text: t('reuse.customerName'), value: 1 },
   { text: t('formDemo.companyName'), value: 2 }
@@ -299,7 +303,7 @@ export const filterStatusRevenueExpenditure: Array<Filter> = [
   { text: t('reuse.auctioning'), value: 3 },
   
 ]
-export const filterStatusAccouting: Array<Filter> = [
+export const filterStatusAccounting: Array<Filter> = [
   { text: t('reuse.pending'), value: 1 },
   { text: t('reuse.finishPending'), value: 2 },
   { text: t('reuse.accounted'), value: 3 },

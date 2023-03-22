@@ -54,7 +54,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '200',
     filters: filterVoucherType,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return VoucherType(cellValue)
+      return t(`${VoucherType(cellValue)}`)
     }
   },
   {

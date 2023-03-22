@@ -17,14 +17,10 @@ import { dateTimeFormat } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { changeMoney } from '@/utils/tsxHelper'
 
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 const props = defineProps({
   modelValue: Boolean,
   showDialog: {

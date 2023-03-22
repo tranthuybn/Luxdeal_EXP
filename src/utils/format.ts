@@ -133,15 +133,38 @@ export const formatStatusRatingEmployee = (val) => {
       return ''
   }
 }
+
+export const formatPaymentOrReceipts = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.payThroughMoney')
+    case 2:
+      return t('reuse.payThroughCard')
+    default:
+      return ''
+  }
+}
+
+export const formatPaymentMethod = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.get')
+    case 2:
+      return t('reuse.spend')
+    default:
+      return ''
+  }
+}
+
 export const formatStatusAccounting = (val) => {
   switch (val) {
-    case 0:
-      return t('reuse.pending')
     case 1:
-      return t('reuse.finishPending')
+      return t('reuse.pending')
     case 2:
-      return t('reuse.accounted')
+      return t('reuse.finishPending')
     case 3:
+      return t('reuse.accounted')
+    case 4:
       return t('reuse.cancelled')
     default:
       return ''

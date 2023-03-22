@@ -905,6 +905,14 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    chooseARecommender: 'Choose a recommender',
+    receiptsAddDetails: 'Receipts Add Details',
+    paymentAddDetails: 'Payment Add Details',
+    payThroughMoney: 'Pay Through Money',
+    payThroughCard: 'Pay Through Card',
+    receiptsAdd: 'Add new receipt',
+    paymentsAdd: 'Add new payment',
+    confirmClose: 'Are you sure to close this?',
     choosePayment: 'Choose payment method',
     lock: 'Lock',
     spend: 'Spend',

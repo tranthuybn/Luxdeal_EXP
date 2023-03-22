@@ -4,13 +4,9 @@ import { getAccountantList } from '@/api/Business'
 import TableType01 from '@/views/Pages/Components/TableDataBase.vue'
 import { h } from 'vue'
 import { filterStatusBalance } from '@/utils/filters'
+import { changeMoney } from '@/utils/tsxHelper'
 
 const { t } = useI18n()
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 const getSummaries = (param) => {
   const { columns, data } = param
   const sums: string[] = []

@@ -48,6 +48,10 @@ const props = defineProps({
     type: String,
     default: 'reuse.newInitialization'
   },
+  titleAdd2: {
+    type: String,
+    default: ''
+  },
   titleChilden: {
     type: String,
     default: ''
@@ -107,6 +111,10 @@ const props = defineProps({
   getSummaries: {
     type: Function,
     default: () => []
+  },
+  customRouterName: {
+    type: String,
+    default: ''
   }
 })
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
@@ -131,9 +139,19 @@ const { push } = useRouter()
 const router = useRouter()
 const pushAdd = () => {
   push({
-    name: `${String(router.currentRoute.value.name)}.${Utility}`,
-    params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
+      name: `${String(router.currentRoute.value.name)}.${Utility}`,
+      params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
   })
+}
+
+const pushAdd2 = () => {
+  if(props.customRouterName) {
+    push({
+      name: `${String(router.currentRoute.value.name)}.${props.customRouterName}.${Utility}`,
+      params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
+    })
+    return
+  }
 }
 
 //declare variables here (not from file) so it will reset when change pages
@@ -178,10 +196,13 @@ const initMappingObject = (el) => {
 </script>
 <template>
   <section>
-    <HeaderFiler @get-data="getData" @refrsesh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
+    <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
         <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
           <el-button v-if="!removeButtonAdd" type="primary" :icon="createIcon" @click="pushAdd">
             {{ t(`${props.titleAdd}`) }}
+          </el-button>
+          <el-button v-if="props.titleAdd2" type="primary" :icon="createIcon" @click="pushAdd2">
+            {{ t(`${props.titleAdd2}`) }}
           </el-button>
         </template>
     </HeaderFiler>

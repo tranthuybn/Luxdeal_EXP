@@ -34,6 +34,7 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import moment from 'moment'
 import ckEditor from '@/components/Editor/src/Editor.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import { changeMoney } from '@/utils/tsxHelper'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -250,13 +251,6 @@ const productForSale = reactive<ListOfProductsForSaleType>({
 })
 
 const ListOfProductsForSale = ref<Array<ListOfProductsForSaleType>>([])
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
-
 let totalPriceOrder = ref(0)
 let totalFinalOrder = ref(0)
 // Total order

@@ -44,6 +44,7 @@ const { t } = useI18n()
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
+console.log('type', type)
 const optionsStaffApi = ref()
 var curDate = 'PT' + moment().format('hhmmss')
 var autoCodeSellOrder = 'MH' + moment().format('hmmss')
@@ -61,7 +62,6 @@ const ruleForm = reactive({
   warehouse: '',
   orderFiles: []
 })
-
 const lableReceiptsPayment = reactive({
   lableInformation: t('formDemo.informationReceipts'),
   lableCode: t('formDemo.receiptsCode'),
@@ -840,6 +840,7 @@ onBeforeMount(async () => {
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
+                    
                   />
                 </div>
               </el-select>

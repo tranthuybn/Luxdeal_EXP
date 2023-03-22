@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, onBeforeMount, ref, computed } from 'vue'
+import { reactive, onBeforeMount, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -21,8 +21,6 @@ const title = router.currentRoute.value.meta.title
 const setFormData = reactive({} as FormData)
 const disabledCancelBtn = ref(false)
 const currentType = ref('')
-const checkTypeAccount = computed(() => currentType.value)
-
 
 
 onBeforeMount(async() => {
@@ -35,18 +33,13 @@ const rules = reactive({
   accountNumber1: [
     { validator: checkNumber }, 
     { validator: (...config) =>  checkLength(config, undefined, 5) },
-    { validator: (...config) => {
-      if(checkTypeAccount.value == '1') checkDuplicate(config, badgeAccount1List.value, t('reuse.accountanceDuplicated'), type, id)
-    }}
+
   ],
   accountNumber2: [
     { validator: checkNumber }, 
     { validator: (...config) =>  checkLength(config, undefined, 5) },
     { validator: (...config) => checkDuplicate(config, badgeAccount2List.value, t('reuse.accountanceDuplicated'), type, id)}
   ],
-  accountName: [
-    { validator: (...config) =>  checkLength(config, undefined, 255)}
-  ]
 })
 
 const schema = reactive<FormSchema[]>([

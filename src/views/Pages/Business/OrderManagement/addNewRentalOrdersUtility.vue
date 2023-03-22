@@ -85,16 +85,11 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
+import { changeMoney } from '@/utils/tsxHelper'
+
 const { utility } = appModules
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
-
 const checkPercent = (_rule: any, value: any, callback: any) => {
   if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
   else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))

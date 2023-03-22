@@ -184,12 +184,15 @@ const setFormValue = async () => {
 //watch and call get data form detail and edit
 watch(
   () => props.type,
-  () => {
+  async () => {
     if (props.type === 'detail') {
       disabledEverything()
     }
     if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval-product') {
-      getTableValue()
+      await getTableValue()
+      if(formValue.value.productStatus == 1){
+        disabledEverything()
+      }
     }
   },
   {
@@ -873,10 +876,10 @@ const approvalProduct = async () => {
                         {{ t('reuse.fix') }}
                       </ElButton>
                     </div> -->
-        <ElButton type="primary" @click="save('add')">
+        <ElButton type="primary" @click="save('add')" :disabled="disabledUpload">
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton type="primary" @click="save('saveAndAdd')">
+        <ElButton type="primary" @click="save('saveAndAdd')" :disabled="disabledUpload">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
         <ElButton @click="cancel">
@@ -892,7 +895,7 @@ const approvalProduct = async () => {
                 </ElButton> -->
       </div>
       <div v-if="props.type === 'edit'">
-        <ElButton type="primary" @click="save('edit')">
+        <ElButton type="primary" @click="save('edit')" :disabled="disabledUpload">
           {{ t('reuse.save') }}
         </ElButton>
         <!-- <ElButton  @click="cancel">

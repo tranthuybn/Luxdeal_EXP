@@ -86,9 +86,6 @@ type ListLotWarehouse = {
   warehouseName: string
 }
 
-const warehouseListLot = reactive<ListLotWarehouse>({} as ListLotWarehouse)
-console.log('warehouseListLot', warehouseListLot)
-
 const saveOldLot = () => {
   radioSelected.value == -1
   emit('close-dialog-warehouse', warehouseData.value)
@@ -105,7 +102,6 @@ watch(
     radioSelected.value = props.listLotWH.findIndex(
       (lot) => lot.Id == props.warehouseFormData.lotId
     )
-    console.log('radioSelected.value', radioSelected.value)
   }
 )
 

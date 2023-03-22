@@ -20,7 +20,7 @@ const columnsApprovalProduct = [
     align: 'center'
   },
   {
-    field: 'categoryName',
+    field: 'code',
     label: t('reuse.productCode') + '/' + t('reuse.service'),
     minWidth: '150'
   },
@@ -38,7 +38,7 @@ const columnsApprovalProduct = [
     }
   },
   {
-    field: 'categories[1]?.value',
+    field: 'categoryName',
     label: t('reuse.category'),
     minWidth: '150',
     filters: filterTableCategory
@@ -73,7 +73,7 @@ const columnsApprovalProduct = [
     minWidth: '150'
   },
   {
-    field: 'isActive',
+    field: 'statusName',
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterTableStatus,

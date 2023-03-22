@@ -628,6 +628,32 @@ const callAPIProduct = async () => {
       productPropertyCode: product.productPropertyCode
     }))
   }
+  if(disabledEdit.value){
+    ListOfProductsForSale.value.forEach((row)=>{
+      const found = listProducts.value.find((product)=>product.productPropertyId == row.productPropertyId)
+      if(!found){
+        getProductsList({ Keyword: row.productPropertyCode, ServiceType: 2, IsApprove: true })
+        .then((res)=>{
+          listProducts.value?.unshift({
+            productCode: res.data[0].productCode,
+            value: res.data[0].code,
+            name: res.data[0].name ?? '',
+            inventory:res.data[0].tonKho?? 0,
+            unit: res.data[0].unitName,
+            price: res.data[0].price,
+            productPropertyId: res.data[0].id,
+            productPropertyCode: res.data[0].productPropertyCode
+          })
+        })
+        .catch(()=>{
+          ElNotification({
+            message: t('reuse.cantFindProduct'),
+            type: 'error'
+          })
+        })
+      }
+    })
+  }
 }
 
 const scrollProductTop = ref(false)
@@ -747,6 +773,14 @@ const reloadStatusOrder = async () => {
       duplicateStatusButton.value = true
     else duplicateStatusButton.value = false
   }
+  let arrayLength = arrayStatusOrder.value?.length
+  while(statusOrder.value == 29 /*Trả 1 phần*/){
+        arrayLength -= 2
+        statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+      }
+      if (statusOrder.value == 29 /*Trả 1 phần*/) {
+        statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
+        }
 }
 
 const approvalFunction = async (isApprove) => {
@@ -1601,11 +1635,11 @@ const editData = async () => {
     }
 
     let arrayLength = arrayStatusOrder.value?.length
-      while(statusOrder.value == 27 /*Trả 1 phần*/){
+      while(statusOrder.value == 29 /*Trả 1 phần*/){
         arrayLength -= 2
         statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
       }
-      if (statusOrder.value == 27 /*Trả 1 phần*/) {
+      if (statusOrder.value == 29 /*Trả 1 phần*/) {
         statusOrder.value = arrayStatusOrder.value[arrayStatusOrder.value?.length - 3]?.orderStatus
         }
 
@@ -3995,6 +4029,7 @@ const createStatusAcountingEntry = () => {
                     item.orderStatus == STATUS_ORDER_DEPOSIT[3].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[5].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[7].orderStatus ||
+                    item.orderStatus == STATUS_ORDER_DEPOSIT[13].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[12].orderStatus ||
                     item.orderStatus == STATUS_ORDER_DEPOSIT[11].orderStatus
                   "
@@ -4230,30 +4265,6 @@ const createStatusAcountingEntry = () => {
               >{{ t('formDemo.cancelReturn') }}</el-button
             >
 
-            <el-tooltip :disabled="!orderUtility.disableStatusWarehouse">
-              <template #content>
-                <span>{{t('reuse.orderStillInWarehouse')}}</span>
-              </template>
-              <div>
-            <el-button
-              v-if="
-                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
-                statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus
-              "
-              @click="
-                () => {
-                  setDataForReturnOrder()
-                  hetHan = true
-                }
-              "
-              :disabled="unref(orderUtility.disableStatusWarehouse)"
-              type="warning"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.infoReturnExpired') }}</el-button
-            >
-              </div>
-            </el-tooltip>
-
             <div v-if="!completeThePayment">
               <el-button
                 v-if="statusOrder == STATUS_ORDER_DEPOSIT[5].orderStatus && duplicateStatusButton"
@@ -4339,6 +4350,30 @@ const createStatusAcountingEntry = () => {
               class="min-w-42 min-h-11 !border-red-500"
               ><p class="text-red-500">Gia hạn ký gửi</p></el-button
             >
+            
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
+            <el-button
+              v-if="
+                statusOrder == STATUS_ORDER_DEPOSIT[9].orderStatus ||
+                statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus
+              "
+              @click="
+                () => {
+                  setDataForReturnOrder()
+                  hetHan = true
+                }
+              "
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
+              type="warning"
+              class="min-w-42 min-h-11"
+              >{{ t('formDemo.infoReturnExpired') }}</el-button
+            >
+              </div>
+            </el-tooltip>
 
             <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
               <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{

@@ -2035,5 +2035,6 @@ export default {
     paymentRequestInformationTicket: 'Thông tin phiếu đề nghị thanh toán',
     limitUploads: 'Số ảnh tối đa là',
     orderStillInWarehouse: 'Đơn hàng đang được xử lí trong kho',
+    cantFindProduct: 'Không thể tìm thấy sản phẩm',
   }
 }

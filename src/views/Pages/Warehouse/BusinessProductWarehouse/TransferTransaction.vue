@@ -182,7 +182,11 @@ type ProductWarehouse = {
   serviceType?: number
 }
 const status = ref(1)
-const lastStatus = ref()
+const lastStatus = ref({
+  value: 0,
+  approveAt: null,
+  name: ''
+})
 const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 const serviceType = ref(6)
 

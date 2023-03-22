@@ -1020,7 +1020,7 @@ const postData = async (pushBack: boolean) => {
     if (pushBack == false) {
       router.push({
         name: 'business.order-management.order-list',
-        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+        params: { backRoute: String(router.currentRoute.value.name), tab: 'orderRental' }
       })
     } else {
       const id = Number(res)
@@ -2408,7 +2408,7 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
     xuatDetails: [],
     isPaid: true
   }
-   await createReturnRequest(payload).then(async (res)=>{
+  await createReturnRequest(payload).then(async (res)=>{
     idReturnRequest.value = res
     await createTicketFromReturnOrders()
     reloadStatusOrder()
@@ -2418,6 +2418,7 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
       type: 'success'
     })
   }).catch((error) => {
+    statusOrder.value = 400
     ElNotification({
       message: error?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
@@ -5501,9 +5502,8 @@ const disabledPhieu = ref(false)
               >{{ t('button.cancel') }}</el-button
             >
           </div>
-
           <div
-          v-else-if="statusOrder == STATUS_ORDER_RENTAL[5].orderStatus || (statusOrder == STATUS_ORDER_RENTAL[4].orderStatus && isPartialReturn && duplicateStatusButton)"
+          v-else-if="statusOrder == STATUS_ORDER_RENTAL[5].orderStatus || (statusOrder == STATUS_ORDER_RENTAL[4].orderStatus && isPartialReturn && duplicateStatusButton) || statusOrder == 400"
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button

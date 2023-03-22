@@ -608,6 +608,7 @@ const callApiProductList = async () => {
       value: product.productCode,
       code: product.code,
       name: product.name ?? '',
+      inventory:product.tonKho?? 0,
       unitPrice: product.unitPrice,
       unitName: product.unitName,
       productPropertyId: product?.id,
@@ -639,6 +640,7 @@ const ScrollProductBottom = () => {
                   code: product.code,
                   value: product.productCode,
                   name: product.name ?? '',
+                  inventory:product.tonKho?? 0,
                   unitPrice: product.unitPrice.toString(),
                   productPropertyId: product?.id,
                   productPropertyCode: product.productPropertyCode
@@ -4710,7 +4712,8 @@ onBeforeMount(async () => {
                 :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
-                  t('formDemo.productInformation')
+                  t('formDemo.productInformation'),
+                  t('reuse.inventory')
                 ]"
                 v-else
                 filterable

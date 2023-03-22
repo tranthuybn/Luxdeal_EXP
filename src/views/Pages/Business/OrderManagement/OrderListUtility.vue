@@ -1111,7 +1111,7 @@ const postData = async (pushBack: boolean) => {
       if (pushBack == false) {
         router.push({
           name: 'business.order-management.order-list',
-          params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+          params: { backRoute: String(router.currentRoute.value.name), tab: 'orderSell' }
         })
       } else {
         const id = Number(res)
@@ -1124,8 +1124,8 @@ const postData = async (pushBack: boolean) => {
             id: id
           }
         })
+        orderCompletion(res)
       }
-      orderCompletion(res)
     disabledPhieu.value = false
     } else {
       ElNotification({
@@ -2025,7 +2025,8 @@ const postReturnRequest = async () => {
     giaHanDetails: [],
     isPaid: alreadyPaidForTt.value
   }
-  idReturnRequest.value = await createReturnRequest(payload).then(() => {
+  await createReturnRequest(payload).then((res) => {
+    idReturnRequest.value = res
     ElNotification({
       message: 'Đổi trả đơn hàng thành công',
       type: 'success'
@@ -5452,6 +5453,7 @@ const disabledPhieu = ref(false)
             </el-radio-group>
           </div>
         </div>
+        
         <div class="flex gap-2 pb-8">
           <label class="w-[11%] text-right pr-8">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
@@ -5562,7 +5564,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled || disabledPhieu"
+              :disabled="doubleDisabled || disabledPhieu || outstandingDebt == 0"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
@@ -5604,7 +5606,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled || outstandingDebt == 0"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
@@ -5650,7 +5652,7 @@ const disabledPhieu = ref(false)
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
-            <el-button @click="openDepositDialog" class="min-w-42 min-h-11">{{
+            <el-button @click="openDepositDialog" class="min-w-42 min-h-11" :disabled="outstandingDebt == 0">{{
               t('formDemo.depositSlipAdvance')
             }}</el-button>
             <el-button
@@ -5709,7 +5711,7 @@ const disabledPhieu = ref(false)
             }}</el-button>
             <el-button
               @click="openDepositDialog"
-              :disabled="statusButtonDetail"
+              :disabled="statusButtonDetail || outstandingDebt == 0"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
@@ -5762,7 +5764,7 @@ const disabledPhieu = ref(false)
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
-            <el-button @click="openDepositDialog" class="min-w-42 min-h-11">{{
+            <el-button @click="openDepositDialog" class="min-w-42 min-h-11" :disabled="outstandingDebt == 0">{{
               t('formDemo.depositSlipAdvance')
             }}</el-button>
             <button

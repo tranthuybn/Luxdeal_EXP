@@ -3,9 +3,9 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import {
   filterTableStatus,
-  filterTableCategory,
   filterIventory,
-  filterDeposit
+  filterDeposit,
+  filterTableCategory
 } from '@/utils/filters'
 import {
   dateTimeFormat,
@@ -200,7 +200,7 @@ const optionsCategory = ref()
 export const getCategory = async () => {
     const res = await getCategories({
       TypeName: PRODUCTS_AND_SERVICES[0].key,
-      pageSize: 20,
+      pageSize: 999,
       pageIndex: 1
     })
     optionsCategory.value = res.data.map((product) => ({
@@ -210,6 +210,10 @@ export const getCategory = async () => {
         value: child.id,
         label: child.name,
       }))
+    }))
+    businessProductLibrary[4].filters = res.data.map((product) => ({
+      text: product.name,
+      value: product.id
     }))
 }
 

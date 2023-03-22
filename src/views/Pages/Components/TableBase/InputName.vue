@@ -24,7 +24,7 @@ const options = ref([
 ])
 
 watch(value, (newValue) => {
-  if (newValue !== '') {
+  if (newValue.length) {
     const objValue = {}
     objValue[propField.value] = newValue
     emit('filter-select', objValue)

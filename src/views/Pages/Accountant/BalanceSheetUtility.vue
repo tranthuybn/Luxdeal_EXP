@@ -26,6 +26,7 @@ const currentType = ref('')
 onBeforeMount(async() => {
   badgeAccount1List.value = await getBadgeAccountList(getAccountantList,'1', t('reuse.cantBadgeAccount1List'))
   badgeAccount2List.value = await getBadgeAccountList(getAccountantList, '2', t('reuse.cantBadgeAccount1List'))
+  console.log(badgeAccount2List.value)
 })
 
 const { checkNumber, checkLength, checkDuplicate} = useValidator()
@@ -33,12 +34,29 @@ const rules = reactive({
   accountNumber1: [
     { validator: checkNumber }, 
     { validator: (...config) =>  checkLength(config, undefined, 5) },
-
+    { validator: (...config) => {
+        if(currentType.value === '1') {
+          checkDuplicate(config, badgeAccount1List.value, t('reuse.accountanceDuplicated'), type, id)
+        }
+        else {
+          config[2]()
+        }
+      } 
+    }
   ],
   accountNumber2: [
     { validator: checkNumber }, 
     { validator: (...config) =>  checkLength(config, undefined, 5) },
-    { validator: (...config) => checkDuplicate(config, badgeAccount2List.value, t('reuse.accountanceDuplicated'), type, id)}
+    { validator: (...config) =>
+      {
+        if(currentType.value === '2') {
+          checkDuplicate(config, badgeAccount2List.value, t('reuse.accountanceDuplicated'), type, id)
+        }
+        else {
+          config[2]()
+        }
+      } 
+    }
   ],
 })
 

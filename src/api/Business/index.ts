@@ -88,7 +88,7 @@ export const getEmployeeRatingList = async (params: any): Promise<IResponse> => 
     },
     fixedBaseURL
   )
-  return res.data && res.data.data
+  return res && res.data
 }
 
 export const getEmployeeSaleTrackingList = async (params: any): Promise<IResponse> => {

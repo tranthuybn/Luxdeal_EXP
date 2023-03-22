@@ -122,16 +122,9 @@ export const formatStatusVoucher = (val) => {
 }
 
 export const formatStatusRatingEmployee = (val) => {
-  switch (val) {
-    case 0:
-      return t('reuse.active')
-    case 1:
-      return t('reuse.pause')
-    case 2:
-      return t('reuse.cancelled')
-    default:
-      return ''
-  }
+  if(val) return t('reuse.isWorking')
+  return  t('reuse.stopWorking')
+
 }
 
 export const formatPaymentOrReceipts = (val) => {
@@ -207,6 +200,18 @@ export const productStatusTransferToText = (val) => {
   if (val.isActive) return `${t('reuse.active')}`
   else return `${t('reuse.inactive')}`
 }
+
+export const formatStatusEmployee = (val) => {
+  switch (val) {
+    case 1:
+      return t('reuse.active')
+    case 0:
+      return t('reuse.inactive')
+    default:
+      return ''
+  }
+}
+
 export const collaboratorStatusTransferToText = (val) => {
   switch (val) {
     case 0:

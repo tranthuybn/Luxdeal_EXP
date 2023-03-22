@@ -2351,11 +2351,9 @@ const DoiPhieuCamDo = ref(true)
 const totalPawnFee = ref(0)
 
 const startOrder = async () =>{
-  const res = await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
-  if(res){
+  await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
     await orderUtility.startOrder(id,orderUtility.ServiceType.CamDo)
     await reloadStatusOrder()
-  }
 }
 const cancelOrder = async () =>{
   const res = await orderUtility.cancelOrderAPI(id, orderUtility.ServiceType.CamDo)

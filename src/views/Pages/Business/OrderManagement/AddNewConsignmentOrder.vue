@@ -1163,10 +1163,8 @@ const postData = async () => {
 }
 
 const batDauKyGui = async () =>{
-  const res = await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
-  if(res){
-    await orderUtility.startOrder(id,orderUtility.ServiceType.KyGui)
-  }
+  await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
+  await orderUtility.startOrder(id,orderUtility.ServiceType.KyGui)
   await reloadStatusOrder()
 
 }

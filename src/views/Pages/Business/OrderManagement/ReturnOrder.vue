@@ -126,20 +126,28 @@ const close = () => {
 }
 const newDate = ref()
 const postReturnRequest = async (orderStatusType) => {
-  if(orderStatusType == 7){ //extendDate
-    if(newDate.value == '' || !newDate.value){
+  if (tableAheadOfTime.value.length <= 1) {
+    emit('update:modelValue', true)
     ElNotification({
-        title: 'Info',
-        message: t('reuse.notFillAllInformation'),
-        type: 'info'
-      })
-      return
+      message: 'Bạn phải chọn sản phẩm trước',
+      type: 'warning'
+    })
+  } else {
+    if(orderStatusType == 7){ //extendDate
+      if(newDate.value == '' || !newDate.value){
+      ElNotification({
+          title: 'Info',
+          message: t('reuse.notFillAllInformation'),
+          type: 'info'
+        })
+        return
+      }
     }
-  }
 
-  emit('post-return-request', orderStatusType, tableAheadOfTime.value)
-  emit('update:modelValue', false)
-  emit('update-status')
+    emit('post-return-request', orderStatusType, tableAheadOfTime.value)
+    emit('update:modelValue', false)
+    emit('update-status')
+  }
 }
 const postReturnRequestSpa = async (orderStatusType) => {
   let chooseSpa = true

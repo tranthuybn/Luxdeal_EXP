@@ -117,11 +117,13 @@ const { register, tableObject, methods } = useTable<TableData>({
     headerAlign: 'left'
   }
 })
+
 // get api
 let paginationObj = ref<Pagination>()
 
 const getData = (data = {}) => {
   methods.setSearchParams({ ...unref(params), ...data })
+  
 }
 onBeforeMount(() => {
   getData()
@@ -137,7 +139,7 @@ watch(
       })
       : (paginationObj.value = undefined)
     emit('TotalRecord', tableObject?.tableList?.length ?? 0)
-    // console.log(tableObject?.tableList?.length)
+
   },
   {
     immediate: true
@@ -311,7 +313,6 @@ const showingColumnList = ref<Array<string>>(
 )
 
 const localeChange = (_show: boolean) => {
-  //console.log(show)
 }
 const showingColumn =
   props.fullColumns.length > 0

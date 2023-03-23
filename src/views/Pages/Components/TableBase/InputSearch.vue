@@ -24,7 +24,7 @@ interface IOptions {
 const options = ref([{} as IOptions])
 
 watch(value, (newValue) => {
-  if (newValue !== '') {
+  if (newValue.length) {
     const objValue = reactive({})
     objValue[propField.value] = newValue
     for (const key in objValue) {

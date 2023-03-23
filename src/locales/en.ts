@@ -905,6 +905,8 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    isWorking: 'Is working',
+    stopWorking: 'Stop working',
     chooseARecommender: 'Choose a recommender',
     receiptsAddDetails: 'Receipts Add Details',
     paymentAddDetails: 'Payment Add Details',

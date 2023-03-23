@@ -22,7 +22,8 @@ import {
   FormInstance,
   UploadUserFile,
   ElNotification,
-  ElMessage} from 'element-plus'
+  ElMessage,
+  ElTooltip} from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { appModules } from '@/config/app'
 
@@ -56,7 +57,6 @@ import {
   approvalOrder,
   GetPaymentRequestDetail,
   updateOrderTransaction,
-  postAutomaticWarehouse,
 createTicketFromReturnOrder,
 GenerateCodeOrder,
 cancelReturnOrder,
@@ -688,10 +688,36 @@ const callAPIProduct = async () => {
       name: product.name ?? '',
       inventory:product.tonKho??0,
       unit: product.unitName,
-      price: product.price.toString(),
+      price: product.price,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
+  }
+  if(disabledEdit.value){
+    ListOfProductsForSale.value.forEach((row)=>{
+      const found = listProducts.value.find((product)=>product.productPropertyId == row.productPropertyId)
+      if(!found){
+        getProductsList({ Keyword: row.productPropertyCode, ServiceType: 2, IsApprove: true })
+        .then((res)=>{
+          listProducts.value?.unshift({
+            productCode: res.data[0].productCode,
+            value: res.data[0].code,
+            name: res.data[0].name ?? '',
+            inventory:res.data[0].tonKho?? 0,
+            unit: res.data[0].unitName,
+            price: res.data[0].price,
+            productPropertyId: res.data[0].id,
+            productPropertyCode: res.data[0].productPropertyCode
+          })
+        })
+        .catch(()=>{
+          ElNotification({
+            message: t('reuse.cantFindProduct'),
+            type: 'error'
+          })
+        })
+      }
+    })
   }
 }
 
@@ -951,18 +977,8 @@ const postData = async () => {
     })
   }
   idOrderPost.value = res
-  automaticCouponWareHouse(1)
 }
 
-// Phiếu nhap kho tự động
-const automaticCouponWareHouse = async (index) => {
-  const payload = {
-    OrderId: idOrderPost.value,
-    Type: index
-  }
-
-  await postAutomaticWarehouse(JSON.stringify(payload))
-}
 
 const duplicateStatusButton = ref(false)
 // load lại trạng thái đơn hàng
@@ -2335,11 +2351,9 @@ const DoiPhieuCamDo = ref(true)
 const totalPawnFee = ref(0)
 
 const startOrder = async () =>{
-  const res = await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
-  if(res){
+  await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
     await orderUtility.startOrder(id,orderUtility.ServiceType.CamDo)
     await reloadStatusOrder()
-  }
 }
 const cancelOrder = async () =>{
   const res = await orderUtility.cancelOrderAPI(id, orderUtility.ServiceType.CamDo)
@@ -2759,9 +2773,6 @@ const finishOrder = async () =>{
                 <div class="flex">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
-                    <div v-if="infoCompany.taxCode !== null">
-                      Mã số thuế: {{ infoCompany.taxCode }}</div
-                    >
                     <div>{{ infoCompany.phone }}</div>
                     <div>{{ infoCompany.email }}</div>
                   </div>

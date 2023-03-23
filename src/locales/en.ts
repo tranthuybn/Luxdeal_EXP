@@ -1882,5 +1882,6 @@ export default {
     paymentRequestInformationTicket: 'Payment request information ticket',
     limitUploads: 'Limit upload',
     orderStillInWarehouse: 'Order still in warehouse',
+    cantFindProduct: 'Cant find product',
   }
 }

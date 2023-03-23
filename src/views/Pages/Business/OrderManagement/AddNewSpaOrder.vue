@@ -25,7 +25,8 @@ import {
   FormInstance,
   ElNotification,
   UploadUserFile,
-  ElMessage
+  ElMessage,
+  ElTooltip
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { dateTimeFormat, formatOrderReturnReason, FORM_IMAGES, postDateTime } from '@/utils/format'
@@ -512,19 +513,32 @@ const callAPIProduct = async () => {
       productPropertyCode: product.productPropertyCode
     }))
   }
-  ListOfProductsForSale.value.forEach(row=>{
-    const find = listProducts.value.find(product => product.productPropertyId == row.productPropertyId)
-    if(!find && row.productPropertyId){
-      listProducts.value.unshift({
-        productCode: row?.productCode,
-        value: row?.code,
-        name: row?.productName ?? '',
-        unit: row?.unitName,
-        productPropertyId: row?.productPropertyId,
-        productPropertyCode: row?.productPropertyCode
+  if(disabledEdit.value){
+    ListOfProductsForSale.value.forEach((row)=>{
+      const found = listProducts.value.find((product)=>product.productPropertyId == row.productPropertyId)
+      if(!found){
+        getProductsList({ Keyword: row.productPropertyCode, ServiceType: 2, IsApprove: true })
+        .then((res)=>{
+          listProducts.value?.unshift({
+            productCode: res.data[0].productCode,
+            value: res.data[0].code,
+            name: res.data[0].name ?? '',
+            inventory:res.data[0].tonKho?? 0,
+            unit: res.data[0].unitName,
+            price: res.data[0].price,
+            productPropertyId: res.data[0].id,
+            productPropertyCode: res.data[0].productPropertyCode
+          })
+        })
+        .catch(()=>{
+          ElNotification({
+            message: t('reuse.cantFindProduct'),
+            type: 'error'
+          })
+        })
+      }
     })
-    }
-  })
+  }
 }
 
 const scrollProductTop = ref(false)
@@ -1280,7 +1294,6 @@ const postData = async (pushBack: boolean) => {
   // get data
   id = res.data
   
-  valueTypeSpa.value === 0 ? warehouseTranferAuto(1) : warehouseTranferAuto(3)
   if (pushBack == true) {
       router.push({
         name: 'business.order-management.order-list',
@@ -1289,8 +1302,7 @@ const postData = async (pushBack: boolean) => {
     }
     startSpa.value = false
   if (clickStarSpa.value == true) {
-    orderUtility.startOrder(id,orderUtility.ServiceType.Spa)
-    await reloadStatusOrder()
+    startOrder()
   }}
 
 }
@@ -2852,6 +2864,7 @@ const cancelOrder = async () =>{
 }
 const startOrder = async () =>{
   await orderUtility.startOrder(id,orderUtility.ServiceType.Spa)
+  valueTypeSpa.value === 0 ? warehouseTranferAuto(1) : warehouseTranferAuto(3)
   await reloadStatusOrder()
   spaNotChange.value = true
 }
@@ -4175,6 +4188,7 @@ const finishOrder = async () =>{
                   statusOrder == STATUS_ORDER_SPA[5].orderStatus ||
                   statusOrder == STATUS_ORDER_SPA[7].orderStatus
                 "
+                :disabled="unref(orderUtility.disableStatusWarehouse)"
                 type="primary"
                 @click="
                   () => {

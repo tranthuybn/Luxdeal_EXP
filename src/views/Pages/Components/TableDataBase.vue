@@ -117,11 +117,15 @@ const props = defineProps({
     default: ''
   }
 })
+
+const emit = defineEmits(['getDate'])
+
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const getData = (data) => {
   unref(tableBase01)!.getData(data)
+  emit('getDate', data )
 }
 
 //add operator for every table
@@ -192,7 +196,6 @@ const initMappingObject = (el) => {
   }
   return []
 }
-
 </script>
 <template>
   <section>
@@ -234,9 +237,6 @@ const initMappingObject = (el) => {
       :titleChilden="props.titleChilden">
       <template #expand>
         <slot name="expand"></slot>
-      </template>
-      <template #sumInBalanceSheet>
-        <slot name="sumInBalanceSheet"></slot>
       </template>
     </TableBase>
   </section>

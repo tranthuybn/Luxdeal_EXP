@@ -819,7 +819,7 @@ let promoTable = ref()
 const promoLoading = ref(true)
 const listPromotions = ref()
 const callPromoApi = async () => {
-    const res = await getPromotionsList({ ServiceType: 1, CustomerId: customerIdPromo.value })
+    const res = await getPromotionsList({ ServiceType: 5, CustomerId: customerIdPromo.value })
     listPromotions.value = res.data
     promoTable.value = listPromotions.value.map((product) => ({
       id: product.id,

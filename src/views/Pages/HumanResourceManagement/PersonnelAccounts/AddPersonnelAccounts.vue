@@ -495,13 +495,13 @@ const postData = async (typebtn) => {
       PhoneNumber: ruleForm.phoneNumber,
       Email: ruleForm.email,
       CCCD: ruleForm.cccd,
-      LicenseDate: moment(ruleForm.cccdCreateAt).format('DD/MM/YYYY'),
+      LicenseDate: moment(ruleForm.cccdCreateAt).format('YYYY/MM/DD'),
       LicensePlace: ruleForm.cccdPlaceOfGrant,
       Birthday: moment(ruleForm.doB).format('YYYY/MM/DD'),
       IsActive: true,
       Gender: ruleForm.sex,
       Contact: ruleForm.link,
-      FileId: ListFileUpload.value,
+      FileId: ListFileUpload.value || [],
       BranchId: ruleForm.branch,
       DepartmentId: ruleForm.department,
       PositionId: ruleForm.jobPosition,
@@ -580,7 +580,7 @@ const getTableValue = async () => {
     })
     ruleForm.staffCode = formValue.value.code
     ruleForm.name = formValue.value.name
-    ruleForm.phoneNumber = formValue.value.phone
+    ruleForm.phoneNumber = formValue.value.phonenumber
     ruleForm.email = formValue.value.email
     ruleForm.cccd = formValue.value.cccd
     ruleForm.cccdCreateAt = formValue.value.cccdNgayCap

@@ -1207,6 +1207,7 @@ const doCloseOnClickModal = ref(false)
 const isKeepDeposite = ref(false)
 const disabledDeleteRow = ref(false)
 const duplicateStatusButton = ref(false)
+const outstandingDebt = ref(0)
 const editData = async () => {
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
@@ -1245,6 +1246,7 @@ const editData = async () => {
       totalFinalOrder.value = orderObj.totalPrice
 
       totalOrder.value = orderObj.totalPrice
+      totalOutstandingDebt()
       if (orderObj.discountMoney != 0) {
         showPromo.value = true
         promoCash.value = orderObj.discountMoney
@@ -1845,11 +1847,11 @@ function openBillDialog() {
   nameDialog.value = 'bill'
 }
 
-const outstandingDebt = ref(0)
 const totalOutstandingDebt = () => {
   if (debtTable.value.length <= 0) {
     outstandingDebt.value = totalPriceOrder.value
   } else {
+    outstandingDebt.value = totalPriceOrder.value
     if (showCancelAcountingEntry.value) {
       outstandingDebt.value = formAccountingId.value.accountingEntry?.deibt + formAccountingId.value.accountingEntry?.receiveMoney
     } else {
@@ -5547,7 +5549,6 @@ const handleClose = (done: () => void) => {
             </div>
           </div>
         </div>
-
         <div class="w-[100%] flex gap-2">
           <div class="w-[12%]"></div>
           <!-- Không thay đổi giá -->

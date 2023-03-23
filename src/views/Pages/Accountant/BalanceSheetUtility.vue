@@ -26,7 +26,6 @@ const currentType = ref('')
 onBeforeMount(async() => {
   badgeAccount1List.value = await getBadgeAccountList(getAccountantList,'1', t('reuse.cantBadgeAccount1List'))
   badgeAccount2List.value = await getBadgeAccountList(getAccountantList, '2', t('reuse.cantBadgeAccount1List'))
-  console.log(badgeAccount2List.value)
 })
 
 const { checkNumber, checkLength, checkDuplicate} = useValidator()
@@ -201,7 +200,6 @@ const customData = (data) => {
 }
 
 const postData = async (data) => {
-  console.log('data', data)
   const typeBtn = data.typeBtn
   data = typeBtn ? customData(data.data) : customData(data)
   await addNewAccountant(data)

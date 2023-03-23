@@ -102,7 +102,6 @@ let saleTrackingRes :any = reactive([])
 const callAPISalesTracking= async () => {
   if (!isNaN(id) && type == 'detail') {
     const res = await getEmployeeSaleTrackingList({ Id: id, StartDate: startDate, EndDate: endDate })
-    console.log('res', res)
     if (res) {
       if (res.data?.list !== undefined) {
         saleTrackingRes = res.data.list[0]

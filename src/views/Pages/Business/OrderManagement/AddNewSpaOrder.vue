@@ -821,7 +821,6 @@ const promoLoading = ref(true)
 const listPromotions = ref()
 let optionCallPromoAPi = 0
 const callPromoApi = async () => {
-  if (optionCallPromoAPi == 0) {
     const res = await getPromotionsList({ ServiceType: 1, CustomerId: customerIdPromo.value })
     listPromotions.value = res.data
     promoTable.value = listPromotions.value.map((product) => ({
@@ -847,8 +846,6 @@ const callPromoApi = async () => {
       max: product.maximumReduce,
       isAvailable: product.isAvailable
     }))
-    optionCallPromoAPi++
-  }
 }
 
 const currentRow = ref()
@@ -873,6 +870,7 @@ const handleCurrentChange = (val: undefined) => {
     : (promoValue.value = promo.value?.reducePercent)
   changeRowPromo()
   checkPromo.value = true
+  console.log('promo', val)
 }
 
 const dialogPaymentVoucher = ref(false)
@@ -1259,7 +1257,7 @@ const postData = async (pushBack: boolean) => {
     WardId: valueCommune.value ?? 1,
     Address: enterdetailAddress.value,
     OrderDetail: productPayment,
-    CampaignId: 2,
+    CampaignId: campaignId.value,
     // VAT: adioVAT.value == t('formDemo.VATNotIncluded') ? null : radioVAT.value == t('formDemo.doesNotIncludeVAT') ? null      : parseInt(radioVAT.value),
     VAT: 0,
     // VATMoney: moneyVAT.value,
@@ -3569,7 +3567,7 @@ const finishOrder = async () =>{
               <template #default="props">
                 <div>{{ props.row.label }}</div>
                 <div>{{ props.row.description }}</div>
-                <div>Áp dụng cho đơn hàng từ {{ props.row.min }}</div>
+                <div>Áp dụng cho đơn hàng từ {{ changeMoney.format(props.row.min) }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="toDate" width="180" align="left">
@@ -3887,9 +3885,9 @@ const finishOrder = async () =>{
             }}</div>
           </div>
 
-          <div class="w-60 pl-2">
+          <div class="w-60 pl-2" >
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-            <div class="text-blue-500 cursor-pointer bg-[#F4F8FD]">
+            <div class="text-blue-500 cursor-pointer bg-[#F4F8FD]" v-if="showPromo">
               {{ promoActive }}
             </div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>

@@ -1133,7 +1133,7 @@ const postData = async () => {
       toDate: moment(ruleForm.rentalPeriod[1]).format('YYYY/MM/DD'),
       Days: 1,
       OrderDetail: productPayment,
-      CampaignId: 2,
+      CampaignId: null,
       VAT: 1,
       TotalPrice: 0,
       DepositePrice: 0,

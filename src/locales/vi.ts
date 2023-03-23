@@ -957,6 +957,8 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    payment: 'Thanh toán',
+    accountingAccount: 'Tài khoản hạch toán',
     isWorking: 'Đang làm việc',
     stopWorking: 'Dừng làm việc',
     chooseARecommender: 'Chọn người đề nghị',

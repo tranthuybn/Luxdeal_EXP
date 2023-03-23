@@ -99,7 +99,7 @@ OrderId: '',
 id: undefined,
 isDelete: false,
 orderId: undefined,
-paymentType: true,
+paymentType: 1,
 peopleId: undefined,
 peopleName: null,
 pepopleType: 1,
@@ -243,28 +243,24 @@ const postData = async() => {
     DebtMoney: form.value.debtMoney,
     TotalPrice: form.value.totalPrice
   }
-
   await addDNTT(FORM_IMAGES(payload))
 }
 
 const getDetailPayment = async() => {
   const res = await GetPaymentRequestDetail({id: id})
-
   form.value = res.data.paymentRequest
   tableData.value = res.data.paymentRequestDetail
-  console.log('form:', form.value)
-  console.log('formCode: ', form.value.code)
 }
 
 const optionsPayments = [
   {
-    value: 1,
-    key: 1,
+    value: 0,
+    key: 0,
     label: 'Thanh toán tiền mặt',
   },
   {
-    value: 2,
-    key: 2,
+    value: 1,
+    key: 1,
     label: 'Thanh toán qua thẻ',
   }
 ]
@@ -450,7 +446,7 @@ onBeforeMount(() => {
                 :clearable="false"
                 />
                 
-              </el-form-item>
+            </el-form-item>
             <el-form-item>
               <div v-if="form.idCustomer">
                   <div> {{ customerName ?? '' }} </div>

@@ -9,6 +9,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { ElNotification } from 'element-plus'
 import { FormDataPostAndEdit, FormData } from './types/BalanceSheet.d'
 
+const allBadgeAccount = ref([])
 const badgeAccount1List = ref()
 const badgeAccount2List = ref()
 const { t } = useI18n()
@@ -26,6 +27,7 @@ const currentType = ref('')
 onBeforeMount(async() => {
   badgeAccount1List.value = await getBadgeAccountList(getAccountantList,'1', t('reuse.cantBadgeAccount1List'))
   badgeAccount2List.value = await getBadgeAccountList(getAccountantList, '2', t('reuse.cantBadgeAccount1List'))
+  allBadgeAccount.value = allBadgeAccount.value.concat(badgeAccount1List.value, badgeAccount2List.value)
 })
 
 const { checkNumber, checkLength, checkDuplicate} = useValidator()
@@ -35,7 +37,7 @@ const rules = reactive({
     { validator: (...config) =>  checkLength(config, undefined, 5) },
     { validator: (...config) => {
         if(currentType.value === '1') {
-          checkDuplicate(config, badgeAccount1List.value, t('reuse.accountanceDuplicated'), type, id)
+          checkDuplicate(config, allBadgeAccount.value, t('reuse.accountanceDuplicated'), type, id)
         }
         else {
           config[2]()
@@ -49,7 +51,7 @@ const rules = reactive({
     { validator: (...config) =>
       {
         if(currentType.value === '2') {
-          checkDuplicate(config, badgeAccount2List.value, t('reuse.accountanceDuplicated'), type, id)
+          checkDuplicate(config, allBadgeAccount.value, t('reuse.accountanceDuplicated'), type, id)
         }
         else {
           config[2]()
@@ -252,7 +254,18 @@ const editData = async (data) => {
 
 // Assign value for form
 const customizeData = async (data) => {
-  setFormData.typeAccount = data.typeAccount
+  setFormData.accountName = data.accountName
+  setFormData.status = data.isActive
+  if(!data.parentId) {
+    setFormData.accountNumber1 = data.accountNumber
+    setFormData.typeAccount = '1'
+  } else {
+    schema[4].hidden = false
+    setFormData.accountNumber1 = badgeAccount1List.value.find(item => item.id == data.parentId).label
+    setFormData.accountNumber2 = data.accountNumber
+    setFormData.typeAccount = '2'
+  }
+  return 
 }
 </script>
 

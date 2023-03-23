@@ -7,7 +7,7 @@ export interface FormDataPostAndEdit {
     Id?: number
 }
 export interface FormData {
-    typeAccount: null | 1
+    typeAccount: '1' | '2'
     accountNumber2?: number
     accountNumber1: number
     accountName: string

@@ -484,7 +484,6 @@ const changeAddressCustomer = (data) => {
     infoCompany.phone = infoCustomerId.value.phone
     infoCompany.email = 'Email: ' + infoCustomerId.value.email
   }
-  optionCallPromoAPi = 0
   customerIdPromo.value = infoCustomerId.value.id
   callPromoApi()
 }
@@ -819,7 +818,6 @@ let customerIdPromo = ref()
 let promoTable = ref()
 const promoLoading = ref(true)
 const listPromotions = ref()
-let optionCallPromoAPi = 0
 const callPromoApi = async () => {
     const res = await getPromotionsList({ ServiceType: 1, CustomerId: customerIdPromo.value })
     listPromotions.value = res.data
@@ -870,7 +868,6 @@ const handleCurrentChange = (val: undefined) => {
     : (promoValue.value = promo.value?.reducePercent)
   changeRowPromo()
   checkPromo.value = true
-  console.log('promo', val)
 }
 
 const dialogPaymentVoucher = ref(false)
@@ -3489,7 +3486,7 @@ const finishOrder = async () =>{
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
                     <div v-if="infoCompany.taxCode !== null">
-                      Mã số thuế: {{ infoCompany.taxCode }}</div
+                      {{ infoCompany.taxCode }}</div
                     >
                     <div>{{ infoCompany.phone }}</div>
                     <div>{{ infoCompany.email }}</div>

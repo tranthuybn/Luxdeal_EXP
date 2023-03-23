@@ -1,5 +1,8 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { getCategories } from '@/api/LibraryAndSetting'
+import { reactive } from 'vue'
 
 interface Filter {
   text: string
@@ -201,9 +204,8 @@ export const filterStatusCustomer: Array<Filter> = [
 ]
 
 export const filterStatusRatingEmployee: Array<Filter> = [
-  { text: t('reuse.active'), value: 1 },
-  { text: t('reuse.pause'), value: 2 },
-  { text: t('reuse.cancelled'), value: 3 },
+  { text: t('reuse.isWorking'), value: true },
+  { text: t('reuse.stopWorking'), value: false },
 ]
 
 export const filterResultTable: Array<Filter> = [
@@ -348,3 +350,4 @@ export const filterStatusBalance: Array<Filter> = [
   { text: t('reuse.active'), value: true},
   { text: t('reuse.stopActive'), value: false }
 ]
+

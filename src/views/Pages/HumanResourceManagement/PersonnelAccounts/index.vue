@@ -11,7 +11,7 @@ import {
   filterTypeEmployee,
   filterStatusSettingPoint
 } from '@/utils/filters'
-import { dateTimeFormat, productStatusTransferToText } from '@/utils/format'
+import { dateTimeFormat, formatStatusEmployee } from '@/utils/format'
 import { deleteStaffAccount } from '@/api/HumanResourceManagement'
 
 const { t } = useI18n()
@@ -90,7 +90,7 @@ const columns = reactive<TableColumn[]>([
     filters: filterTypeEmployee
   },
   {
-    field: 'createAt',
+    field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
     sortable: true,
@@ -99,7 +99,7 @@ const columns = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'createBy',
+    field: 'createdBy',
     label: t('reuse.creator'),
     minWidth: '150',
     headerFilter: 'Name'
@@ -110,7 +110,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '200',
     filters: filterStatusSettingPoint,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return t(`${productStatusTransferToText(cellValue)}`)
+      return t(`${formatStatusEmployee(cellValue)}`)
     }
   }
 ])

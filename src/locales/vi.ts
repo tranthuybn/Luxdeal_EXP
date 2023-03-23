@@ -957,6 +957,8 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    isWorking: 'Đang làm việc',
+    stopWorking: 'Dừng làm việc',
     chooseARecommender: 'Chọn người đề nghị',
     receiptsAddDetails: 'Thông tin chi tiết phiếu thu',
     paymentAddDetails: 'Thông tin chi tiết phiếu chi',
@@ -2035,5 +2037,6 @@ export default {
     paymentRequestInformationTicket: 'Thông tin phiếu đề nghị thanh toán',
     limitUploads: 'Số ảnh tối đa là',
     orderStillInWarehouse: 'Đơn hàng đang được xử lí trong kho',
+    cantFindProduct: 'Không thể tìm thấy sản phẩm',
   }
 }

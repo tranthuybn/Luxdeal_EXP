@@ -121,11 +121,15 @@ export const finishOrderAPI = async (orderId) => {
   }
 
 //Lấy trạng thái của kho
-export const disableStatusWarehouse = ref(false)
+export const disableStatusWarehouse = ref(true)
   //false: Đã xuất/nhập kho
   //true: Chưa xuất
 export const getStatusWarehouse = async (orderId) => {
   let success = 0
+  if(orderId ==0 || isNaN(orderId)){
+    disableStatusWarehouse.value = true
+    return success
+  }
   const payload = {
       OrderId : orderId
   }

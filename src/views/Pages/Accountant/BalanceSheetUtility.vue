@@ -33,12 +33,29 @@ const rules = reactive({
   accountNumber1: [
     { validator: checkNumber }, 
     { validator: (...config) =>  checkLength(config, undefined, 5) },
-
+    { validator: (...config) => {
+        if(currentType.value === '1') {
+          checkDuplicate(config, badgeAccount1List.value, t('reuse.accountanceDuplicated'), type, id)
+        }
+        else {
+          config[2]()
+        }
+      } 
+    }
   ],
   accountNumber2: [
     { validator: checkNumber }, 
     { validator: (...config) =>  checkLength(config, undefined, 5) },
-    { validator: (...config) => checkDuplicate(config, badgeAccount2List.value, t('reuse.accountanceDuplicated'), type, id)}
+    { validator: (...config) =>
+      {
+        if(currentType.value === '2') {
+          checkDuplicate(config, badgeAccount2List.value, t('reuse.accountanceDuplicated'), type, id)
+        }
+        else {
+          config[2]()
+        }
+      } 
+    }
   ],
 })
 
@@ -183,7 +200,6 @@ const customData = (data) => {
 }
 
 const postData = async (data) => {
-  console.log('data', data)
   const typeBtn = data.typeBtn
   data = typeBtn ? customData(data.data) : customData(data)
   await addNewAccountant(data)

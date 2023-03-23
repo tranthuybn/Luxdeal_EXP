@@ -1311,15 +1311,6 @@ const warehouseTranferAuto = async (index) => {
 }
 const clickStarSpa = ref(false)
 
-
-const checkPercent = (_rule: any, value: any, callback: any) => {
-  if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
-  else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
-  else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
-  else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
-  callback()
-}
-
 const checkDisabled = ref(false)
 const checkDisabled3 = ref(false)
 const checkDisabled2 = ref(false)
@@ -1384,7 +1375,7 @@ const rules = reactive<FormRules>({
   ],
   collaboratorCommission: [
     {
-      validator: checkPercent,
+      validator: orderUtility.checkPercent,
       trigger: 'blur'
     }
   ],

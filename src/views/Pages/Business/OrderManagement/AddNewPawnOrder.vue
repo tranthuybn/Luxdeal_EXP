@@ -820,13 +820,6 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
   })
 }
 
-const checkPercent = (_rule: any, value: any, callback: any) => {
-  if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
-  else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
-  else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
-  else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
-  callback()
-}
 
 const dialogInformationReceipts = ref(false)
 const dialogPaymentVoucher = ref(false)
@@ -865,7 +858,7 @@ const rules = reactive<FormRules>({
   ],
   collaboratorCommission: [
     {
-      validator: checkPercent,
+      validator: orderUtility.checkPercent,
       trigger: 'blur'
     }
   ],

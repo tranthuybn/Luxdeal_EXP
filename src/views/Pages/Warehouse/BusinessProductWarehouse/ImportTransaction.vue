@@ -65,6 +65,8 @@ const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
 const addTransaction = async () => {
+  let responseValue = 0
+
   let validTicket: any = false
   validTicket = await detailTicketRef.value?.submitFormTicket()
   let validTable = productWarehouseRef.value?.checkValueOfTable()
@@ -91,14 +93,13 @@ const addTransaction = async () => {
 
     if (type.value == 'add') {
       await createTicketManually(JSON.stringify(uploadData))
-        .then(() => {
+        .then((res) => {
           ElNotification({
             message: t('reuse.addSuccess'),
             type: 'success'
-          }),
-            push({
-              name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-            })
+          })
+          responseValue = res.data
+          id.value = res.data
         })
         .catch(() =>
           ElNotification({
@@ -127,6 +128,7 @@ const addTransaction = async () => {
         )
     }
   }
+  return responseValue
 }
 const ticketData = ref({
   ticketCode: '',
@@ -176,7 +178,11 @@ type ProductWarehouse = {
 }
 const productData = ref<ProductWarehouse[]>([{} as ProductWarehouse])
 const status = ref(0)
-const lastStatus = ref()
+const lastStatus = ref({
+  value: 0,
+  approveAt: null,
+  name: ''
+})
 const serviceType = ref(6)
 const returnRequestId = ref(0)
 const duplicateStatusButton = ref(false)
@@ -262,6 +268,24 @@ const cancelTicketWarehouse = async () => {
     })
 }
 onBeforeMount(async () => await callApiForData())
+
+const importNow = async () => {
+  if(Number(ticketData.value.orderId) !== 0){//ticket from order
+    await updateInventoryOrder()
+  }
+  else{
+    if(isNaN(id.value) || id.value == 0){
+      const res = await addTransaction()
+      if(res != 0){
+        await updateInventory()
+        back()
+      }
+    }
+    else{
+      await updateInventory()
+    }
+  }
+}
 
 const updateInventory = async () => {
   const payload = {
@@ -380,33 +404,17 @@ const updateTicket = (warehouse) => {
           }}</ElButton>
           <div v-if="status !== 4 && status !== 3" class="ml-[20px] flex">
             <ElButton
+              v-if="lastStatus.value !== 4 || (lastStatus.value == 4 && lastStatus.approveAt != null)"
               class="w-[150px]"
               type="primary"
-              v-if="Number(ticketData.orderId) !== 0"
-              :disabled="type == 'add' || type == 'edit' || (lastStatus.value == 4 && !lastStatus.approveAt)"
-              @click="updateInventoryOrder"
-              >{{ t('reuse.importWarehouseNow') }}</ElButton
-            >
-            <ElButton
-              v-else
-              class="w-[150px]"
-              type="primary"
-              :disabled="type == 'add' || type == 'edit'"
-              @click="updateInventory"
+              @click="importNow"
               >{{ t('reuse.importWarehouseNow') }}</ElButton
             >
             <ElButton
               class="w-[150px]"
               type="primary"
               @click="addTransaction"
-              v-if="Number(ticketData.orderId) == 0 && type == 'add'"
-              >{{ t('reuse.save') }}</ElButton
-            >
-            <ElButton
-              class="w-[150px]"
-              type="primary"
-              @click="addTransaction"
-              v-if="Number(ticketData.orderId) == 0 && type == 'edit'"
+              v-if="Number(ticketData.orderId) == 0 && type =='add'"
               >{{ t('reuse.save') }}</ElButton
             >
             <ElButton
@@ -418,7 +426,7 @@ const updateTicket = (warehouse) => {
             <ElButton
               class="w-[150px]"
               type="danger"
-              v-if="Number(ticketData.orderId) !== 0"
+              v-if="Number(ticketData.orderId) == 0"
               :disabled="type == 'add' || type == 'edit'|| (lastStatus.value == 4 && !lastStatus.approveAt)"
               @click="cancelTicketWarehouse"
               >{{ t('reuse.cancelImport') }}</ElButton

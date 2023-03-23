@@ -151,7 +151,7 @@ const rules = reactive<FormRules>({
   accountNumber: [
     {validator: checkNumber},
     {validator: (...config) =>  checkLength(config, 9, 14)},
-    { validator: (...config) => checkDuplicate(config, accountNumberList.value, t('reuse.accountNumberDuplicated'))}
+    {validator: (...config) => checkDuplicate(config, accountNumberList.value, t('reuse.accountNumberDuplicated'), type, id)}
   ],
 })
 
@@ -652,6 +652,7 @@ const change = () => {
 
 const formatDate = () => {
   console.log(ruleForm.doB)
+
 }
 
 interface typeCustomer {
@@ -675,10 +676,11 @@ const callAPICustomer = async () => {
           label: el.code
         })
     })
-    accountNumberList.value = res?.data.map((el) => ({
-      value: el.accountNumber
-    }))
   }
+  accountNumberList.value = res?.data.map((el) => ({
+      value: el.accountNumber,
+      id: el.id
+  }))
 }
 
 const ScrollCustomerBottom = () => {

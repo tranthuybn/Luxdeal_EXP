@@ -30,17 +30,11 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment';
 import { useRoute, useRouter } from 'vue-router'
+import { changeMoney } from '@/utils/tsxHelper'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
-
 const ruleFormRef = ref<FormInstance>()
 
 //lay du lieu tu router
@@ -66,7 +60,7 @@ const collapse: Array<Collapse> = [
     title: t('formDemo.paymentrequestinformation')
   },
   {
-    icon: plusIcon,
+    icon: minusIcon,
     name: 'productAndPayment',
     title: t('formDemo.detailedlistofexpenses')
   }
@@ -142,9 +136,6 @@ const tableProduction = ref([
        thaotac:''
     }
   ])
- 
-
-
 const deleteRow = (index: number) => {
   tableData.value.splice(index, 1)
 }
@@ -267,12 +258,12 @@ const getDetailPayment = async() => {
 
 const optionsPayments = [
   {
-    value: true,
+    value: 1,
     key: 1,
     label: 'Thanh toán tiền mặt',
   },
   {
-    value: false,
+    value: 2,
     key: 2,
     label: 'Thanh toán qua thẻ',
   }

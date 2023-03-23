@@ -7,6 +7,7 @@ type Callback = (error?: string | Error | undefined) => void
 export const useValidator = () => {
   const required = (message?: string) => {
     return {
+
       required: true,
       message: message || t('common.required'),
       trigger: 'blur'
@@ -21,6 +22,13 @@ export const useValidator = () => {
     }
   }
 
+  const requiredValue = (_, val: any, callback: Callback) => {
+    if (!val) {
+      callback(new Error(t('common.required')))
+    } else {
+      callback()
+    }
+  }
   const notSpace = (_, val: any, callback: Callback) => {
     // Username cannot have space
     if (val && val.toString().indexOf(' ') !== -1) {
@@ -72,9 +80,9 @@ export const useValidator = () => {
 
   const checkLength = (config, minLength, maxLength) => {
     const [_, val, callback] = config
-    if (minLength && val && val.length < minLength) {
+    if (val && minLength && val.length < minLength) {
       callback(new Error(`Nhập tối thiếu ${minLength} ký tự`))
-    } else if (maxLength && val && val.length > maxLength) {
+    } else if (val && maxLength && val.length > maxLength) {
       callback(new Error(`Nhập tối đa ${maxLength} ký tự`))
     }
      else {
@@ -82,14 +90,28 @@ export const useValidator = () => {
     }
   }
 
-  const checkDuplicate = (config, listToCheck, message) => {
+  const checkDuplicate = (config, listToCheck, message, type?, id?) => {
     const [_, val, callback] = config
-    const duplicateValue = listToCheck.find(item => val == item.value)
-    if (val && duplicateValue) {
-      callback(new Error(message))
-    } else {
-      callback()
+
+    if (!val || !listToCheck) {
+      return callback();
     }
+
+    const isDuplicate = listToCheck.some(item => {
+      if (type === 'add') {
+        return val === item.value;
+      } else if (type === 'edit' && id) {
+        const presentValue = listToCheck.find(item => item.id === id)?.value;
+        return val !== presentValue && val === item.value;
+      }
+    });
+
+    if (isDuplicate) {
+      callback(new Error(message));
+    } else {
+      callback();
+    }
+
   }
 
   const doNotHaveNumber = (_, val: any, callback: Callback) => {
@@ -401,6 +423,7 @@ export const useValidator = () => {
     doNotHaveNumber,
     checkNumber,
     checkLength,
-    checkDuplicate
+    checkDuplicate,
+    requiredValue
   }
 }

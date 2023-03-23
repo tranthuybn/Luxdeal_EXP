@@ -20,10 +20,11 @@ const options = ref([
   {
     label:'', 
     value:''
-  }])
+  },
+])
 
 watch(value, (newValue) => {
-  if (newValue !== '') {
+  if (newValue.length) {
     const objValue = {}
     objValue[propField.value] = newValue
     emit('filter-select', objValue)
@@ -44,6 +45,7 @@ const clear = () => {
       filterable
       clearable
       remote
+      multiple
       reserve-keyword
       :placeholder="t('reuse.inputName')"
       :loading="loading"

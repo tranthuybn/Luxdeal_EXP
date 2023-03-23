@@ -69,7 +69,7 @@ const renderClassStatus = (status) =>{
                     <p v-if="item?.approveAt">{{
                     item?.approveAt ? dateTimeFormat(item?.approveAt) : ''
                     }}</p>
-                    <p v-else class="text-transparent"></p>
+                    <p v-else class="text-transparent">''</p>
                 </div>
             </div>
           </div>

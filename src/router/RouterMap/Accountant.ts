@@ -77,7 +77,7 @@ export default {
           path: 'payment-add',
           component: () =>
             import('@/views/Pages/Accountant/ReceiptsAndExpenditures/PaymentsAdd.vue'),
-          name: 'accountant.receipts-expenditures.payment-add',
+          name: `accountant.receipts-expenditures.receipts-expenditures-list.payment-add.${utility}`,
           meta: {
             title: t('router.paymentsAdd')
           }

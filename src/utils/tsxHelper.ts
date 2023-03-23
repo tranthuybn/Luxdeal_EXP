@@ -14,3 +14,16 @@ export const getSlot = (slots: Slots, slot = 'default', data?: Recordable) => {
   if (!slotFn) return null
   return slotFn(data)
 }
+
+
+export const filterHandler = (config, field) => {
+  const [value,row,column ] = config
+  const property = column[field]
+  return row[property] === value
+}
+
+export const changeMoney = new Intl.NumberFormat('vi', {
+  style: 'currency',
+  currency: 'vnd',
+  minimumFractionDigits: 0
+})

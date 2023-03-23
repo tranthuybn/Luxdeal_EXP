@@ -48,6 +48,10 @@ const props = defineProps({
     type: String,
     default: 'reuse.newInitialization'
   },
+  titleAdd2: {
+    type: String,
+    default: ''
+  },
   titleChilden: {
     type: String,
     default: ''
@@ -91,13 +95,37 @@ const props = defineProps({
   removeButtonAdd: {
     type: Boolean,
     default: false
+  },
+  apiHasPagination: {
+    type: Boolean,
+    default: false,
+  },
+  apiToFilter: {
+    type: Object,
+    default: () => {}
+  },
+  showSummary: {
+    type: Boolean,
+    default: false
+  },
+  getSummaries: {
+    type: Function,
+    default: () => []
+  },
+  customRouterName: {
+    type: String,
+    default: ''
   }
 })
+
+const emit = defineEmits(['getDate'])
+
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
 
 const getData = (data) => {
   unref(tableBase01)!.getData(data)
+  emit('getDate', data )
 }
 
 //add operator for every table
@@ -115,9 +143,19 @@ const { push } = useRouter()
 const router = useRouter()
 const pushAdd = () => {
   push({
-    name: `${String(router.currentRoute.value.name)}.${Utility}`,
-    params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
+      name: `${String(router.currentRoute.value.name)}.${Utility}`,
+      params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
   })
+}
+
+const pushAdd2 = () => {
+  if(props.customRouterName) {
+    push({
+      name: `${String(router.currentRoute.value.name)}.${props.customRouterName}.${Utility}`,
+      params: { type: 'add', backRoute: String(router.currentRoute.value.name) }
+    })
+    return
+  }
 }
 
 //declare variables here (not from file) so it will reset when change pages
@@ -158,14 +196,16 @@ const initMappingObject = (el) => {
   }
   return []
 }
-
 </script>
 <template>
   <section>
-    <HeaderFiler @get-data="getData" @refrsesh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
+    <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
         <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
           <el-button v-if="!removeButtonAdd" type="primary" :icon="createIcon" @click="pushAdd">
             {{ t(`${props.titleAdd}`) }}
+          </el-button>
+          <el-button v-if="props.titleAdd2" type="primary" :icon="createIcon" @click="pushAdd2">
+            {{ t(`${props.titleAdd2}`) }}
           </el-button>
         </template>
     </HeaderFiler>
@@ -173,16 +213,30 @@ const initMappingObject = (el) => {
       v-if="selection" :totalRecord="getTotalRecord" :selectedRecord="getSelectedRecord"
       @export-excel-event="ExportExcelEvent" />
     <TableBase
-      :removeDrawer="removeDrawer" :expand="expand" :titleButtons="props.titleButtons"
-      :typeButton="props.typeButton" :customOperator="customOperator" :apiTableChild="apiTableChild" :delApi="delApi"
-      :deleteTitle="deleteTitle" :columnsTableChild="columnsTableChild" :paginationType="pagination" ref="tableBase01"
-      :api="dynamicApi" :maxHeight="'69vh'" :fullColumns="dynamicColumns" @total-record="fnGetTotalRecord"
-      @selected-record="fnGetSelectedRecord" :selection="selection" :titleChilden="props.titleChilden">
+      :removeDrawer="removeDrawer" 
+      :expand="expand" 
+      :titleButtons="props.titleButtons"
+      :typeButton="props.typeButton" 
+      :customOperator="customOperator" 
+      :apiTableChild="apiTableChild" 
+      :delApi="delApi"
+      :deleteTitle="deleteTitle" 
+      :columnsTableChild="columnsTableChild" 
+      :paginationType="pagination" 
+      ref="tableBase01" 
+      :apiHasPagination="props.apiHasPagination"
+      :api="dynamicApi" 
+      :maxHeight="'69vh'" 
+      :fullColumns="dynamicColumns" 
+      @total-record="fnGetTotalRecord" 
+      @selected-record="fnGetSelectedRecord" 
+      :selection="selection" 
+      :showSummary="props.showSummary"
+      :getSummaries="getSummaries"
+      :apiToFilter="props.apiToFilter"
+      :titleChilden="props.titleChilden">
       <template #expand>
         <slot name="expand"></slot>
-      </template>
-      <template #totalBalanceSheet>
-        <slot name="totalBalanceSheet"></slot>
       </template>
     </TableBase>
   </section>

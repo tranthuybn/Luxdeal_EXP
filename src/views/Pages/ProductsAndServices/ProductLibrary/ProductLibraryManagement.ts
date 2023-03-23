@@ -3,14 +3,13 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import {
   filterTableStatus,
-  filterTableCategory,
   filterIventory,
-  filterDeposit
+  filterDeposit,
+  filterTableCategory
 } from '@/utils/filters'
 import {
   dateTimeFormat,
   businessIventoryStatusTransferToText,
-  businessStatusTransferToText
 } from '@/utils/format'
 import { ElNotification } from 'element-plus'
 import { reactive, h, ref } from 'vue'
@@ -63,22 +62,16 @@ export const businessProductLibrary = [
     sortable: true
   },
   {
-    field: 'productStat.datTonKhoBan',
+    field: 'sellInventoryStatusName',
     label: t('reuse.setInventoryForSale'),
     minWidth: '170',
-    filters: filterIventory,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-     return t(`${businessIventoryStatusTransferToText(cellValue)}`)
-    }
+    filters: filterIventory
   },
   {
-    field: 'productStat.datTonKhoThue',
+    field: 'productBussinessName',
     label: t('reuse.setInventoryForRent'),
     minWidth: '200',
-    filters: filterIventory,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-     return t(`${businessIventoryStatusTransferToText(cellValue)}`)
-    }
+    filters: filterIventory
   },
   {
     field: 'price',
@@ -129,13 +122,10 @@ export const businessProductLibrary = [
     headerFilter: 'Name'
   },
   {
-    field: 'isActive',
+    field: 'productStatusName',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return t(`${businessStatusTransferToText(cellValue)}`)
-    }
+    filters: filterTableStatus
   }
 ]
 type Options = {
@@ -210,7 +200,7 @@ const optionsCategory = ref()
 export const getCategory = async () => {
     const res = await getCategories({
       TypeName: PRODUCTS_AND_SERVICES[0].key,
-      pageSize: 20,
+      pageSize: 999,
       pageIndex: 1
     })
     optionsCategory.value = res.data.map((product) => ({
@@ -220,6 +210,10 @@ export const getCategory = async () => {
         value: child.id,
         label: child.name,
       }))
+    }))
+    businessProductLibrary[4].filters = res.data.map((product) => ({
+      text: product.name,
+      value: product.id
     }))
 }
 

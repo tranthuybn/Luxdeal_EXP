@@ -1,6 +1,7 @@
 import TableExtension from './src/TableExtension.vue'
 import TableBase from './src/TableBase.vue'
 import InputDateRange from './InputDateRange.vue'
+import InputSearch from './InputSearch.vue'
 import InputMoneyRange from './InputMoneyRange.vue'
 import InputNumberRange from './InputNumberRange.vue'
 import InputName from './InputName.vue'
@@ -12,5 +13,6 @@ export {
   InputMoneyRange,
   InputNumberRange,
   InputName,
-  TableOperator
+  TableOperator,
+  InputSearch
 }

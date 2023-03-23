@@ -184,12 +184,15 @@ const setFormValue = async () => {
 //watch and call get data form detail and edit
 watch(
   () => props.type,
-  () => {
+  async () => {
     if (props.type === 'detail') {
       disabledEverything()
     }
     if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval-product') {
-      getTableValue()
+      await getTableValue()
+      if(formValue.value.productStatus == 1){
+        disabledEverything()
+      }
     }
   },
   {
@@ -295,7 +298,6 @@ const save = async (type) => {
     }
   })
 }
-const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
@@ -494,15 +496,20 @@ const getCodeAndNameSelect = async () => {
   }))
   CodeOptions.value = CodeAndNameSelect.value
 }
-const remoteProductCode = async (query: string) => {
+const remoteProductCode = (query: string) => {
+  setValues({ ProductCode: productCode.value })
   if (query) {
-    const res = await getCodeAndNameProductLibrary({ Keyword: query })
-    CodeOptions.value = res.data.map((val) => ({
-      label: val.productCode,
-      value: val.productCode,
-      name: val.name,
-      id: val.id
-    }))
+    loading.value = true
+    setTimeout(async () => {
+      loading.value = false
+      const res = await getCodeAndNameProductLibrary({ Keyword: query })
+      CodeOptions.value = res.data.map((val) => ({
+        label: val.productCode,
+        value: val.productCode,
+        name: val.name,
+        id: val.id
+      }))
+    }, 200);
   } else {
     CodeOptions.value = CodeAndNameSelect.value
   }
@@ -667,6 +674,7 @@ const approvalProduct = async () => {
       })
     )
 }
+const loading = ref(false)
 </script>
 <template>
   <ContentWrap :title="props.title">
@@ -724,9 +732,8 @@ const approvalProduct = async () => {
               @blur="setProductCode"
               @keyup.enter="setProductCode"
               popper-class="max-w-600px"
+              :loading="loading"
             >
-              <!-- <el-scrollbar ref="scrollbarRef" height="400px" always @scroll="scrollMethod">
-                <div ref="divRef" class="whereisthis"> -->
               <div @scroll="scrolling" id="content">
                 <el-option
                   ref="optionCodeHeight"
@@ -741,8 +748,6 @@ const approvalProduct = async () => {
                   >
                 </el-option>
               </div>
-              <!-- </div>
-              </el-scrollbar> -->
             </el-select>
             <el-button @click="resetForm" type="danger" size="small">{{
               t('reuse.resetForm')
@@ -820,10 +825,16 @@ const approvalProduct = async () => {
             <div v-if="imageUrl" class="relative">
               <el-image :src="imageUrl" class="avatar" />
             </div>
-            <el-button v-else :icon="addIcon" class="avatar-uploader-icon" />
+            <img
+              src="@/assets/imgs/noImg.png"
+              alt=""
+            />
           </div>
           <div v-else>
-            <el-button :icon="addIcon" />
+            <img
+              src="@/assets/imgs/noImg.png"
+              alt=""
+            />
           </div>
           <template #file="{ file }">
             <div class="ml-auto mr-auto">
@@ -868,10 +879,10 @@ const approvalProduct = async () => {
                         {{ t('reuse.fix') }}
                       </ElButton>
                     </div> -->
-        <ElButton type="primary" @click="save('add')">
+        <ElButton type="primary" @click="save('add')" :disabled="disabledUpload">
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton type="primary" @click="save('saveAndAdd')">
+        <ElButton type="primary" @click="save('saveAndAdd')" :disabled="disabledUpload">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
         <ElButton @click="cancel">
@@ -887,7 +898,7 @@ const approvalProduct = async () => {
                 </ElButton> -->
       </div>
       <div v-if="props.type === 'edit'">
-        <ElButton type="primary" @click="save('edit')">
+        <ElButton type="primary" @click="save('edit')" :disabled="disabledUpload">
           {{ t('reuse.save') }}
         </ElButton>
         <!-- <ElButton  @click="cancel">

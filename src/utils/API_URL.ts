@@ -133,7 +133,8 @@ export const ORDER_API = {
   UPDATE_SPA_SERVICE: '/api/v1/Order/UpdateSpaService',
   CANCEL_UPDATE_SPA_SERVICE: '/api/v1/Order/CancelUpdateSpaService',
   FINISH_UPDATE_SPA_SERVICE: '/api/v1/Order/FinishUpdateSpaService',
-  GET_ACCOUNTING_MONEY_AND_DATE: '/api/v1/Accountant/GetMoneyAndDatePayment'
+  GET_ACCOUNTING_MONEY_AND_DATE: '/api/v1/Accountant/GetMoneyAndDatePayment',
+  START_ORDER: '/api/v1/Order/StartOrder',
 }
 
 export const ADDRESS_API = {

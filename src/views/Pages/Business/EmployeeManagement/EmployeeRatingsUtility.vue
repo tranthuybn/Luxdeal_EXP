@@ -13,6 +13,7 @@ import {
 } from 'element-plus'
 import { getEmployeeRatingList, getEmployeeSaleTrackingList } from '@/api/Business'
 import { moneyFormat } from '@/utils/format'
+import moment from 'moment';
 
 const escape = useIcon({ icon: 'quill:escape' })
 const back = async () => {
@@ -25,9 +26,13 @@ const { t } = useI18n()
 const { push } = useRouter()
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-
 const type = String(router.currentRoute.value.params.type)
-
+const startDate = String(router.currentRoute.value.params.startDate)
+const endDate = String(router.currentRoute.value.params.endDate)
+const formartDate = (date) => {
+  if(date) return moment(date, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY')
+  return ''
+}
 // Show | Hiden detail utility
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -38,9 +43,9 @@ const collapse: Array<Collapse> = [
     title: t('formDemo.employeeDetail'),
   },
   {
-    icon: minusIcon,
+    icon: plusIcon,
     name: 'salesTrackingInformation',
-    title: t('formDemo.salesTrackingTable'),
+    title: `${t('formDemo.salesTrackingTable')} ${formartDate(startDate)} đến ngày ${formartDate(endDate)} `,
   },
 
 ]
@@ -64,7 +69,7 @@ onBeforeMount(() => {
 interface InfoEmployee {
   employeeCode: string
   employeeName: string
-  phoneNumber: string
+  phonenumber: string
   email: string
   branch: string
   department: string
@@ -96,7 +101,7 @@ const callAPIInfoEmployee = async () => {
 let saleTrackingRes :any = reactive([])
 const callAPISalesTracking= async () => {
   if (!isNaN(id) && type == 'detail') {
-    const res = await getEmployeeSaleTrackingList({ Id: id })
+    const res = await getEmployeeSaleTrackingList({ Id: id, StartDate: startDate, EndDate: endDate })
     if (res) {
       if (res.data?.list !== undefined) {
         saleTrackingRes = res.data.list[0]
@@ -112,7 +117,6 @@ const callAPISalesTracking= async () => {
     }
   }
 }
-
 
 interface SaleTracking {
   dateOrder: string
@@ -131,7 +135,7 @@ const totalSales = ref()
 const setInfoEmployeeTableValue = () => {
     infoEmployeeTable.generalInfo[t('reuse.employeeCode')] = infoEmployeeRes.employeeCode
     infoEmployeeTable.generalInfo[t('reuse.employeeName')] = infoEmployeeRes.employeeName
-    infoEmployeeTable.generalInfo[t('reuse.phoneNumber')] = infoEmployeeRes.phoneNumber
+    infoEmployeeTable.generalInfo[t('reuse.phoneNumber')] = infoEmployeeRes.phonenumber
     infoEmployeeTable.generalInfo[t('reuse.email')] = infoEmployeeRes.email
     
     infoEmployeeTable.positionInfo[t('reuse.branch')] = infoEmployeeRes.branch
@@ -143,7 +147,7 @@ const setInfoEmployeeTableValue = () => {
 const setSalesTrackingTableValue = () => {
   const newArr = saleTrackingRes.map(item => 
     ({
-      dateOrder: item.dateOrder,
+      dateOrder: formartDate(item.dateOrder),
       orderCode: item.orderCode,
       orderValue: moneyFormat(item.orderValue),
       sales: moneyFormat(item.sales),
@@ -188,6 +192,29 @@ const setSalesTrackingTableValue = () => {
 //     headerAlign: 'left',
 //   } 
 // ])
+
+const getSummaries = (param) => {
+  const { columns, data } = param
+  const sums: string[] = []
+  columns.forEach((column, index) => {
+    const values = data.map((item) => Number(item[column.property]))
+    if (!values.every((value) => Number.isNaN(value))) {
+      sums[index] = `${values.reduce((prev, curr) => {
+        const value = Number(curr)
+        if (!Number.isNaN(value)) {
+          return prev + curr
+        } else {
+          return prev
+        }
+      }, 0)} đ`
+    } else {
+      sums[index] = ''
+    }
+  })
+
+  return sums
+}
+
 </script>
 
 <template>
@@ -229,14 +256,14 @@ const setSalesTrackingTableValue = () => {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl ml-3">{{ collapse[1].title }}</span>
         </template>
-        <el-table :data="salesTrackingTable" border>
+        <el-table :summary-method="getSummaries" :data="salesTrackingTable" border>
           <template #append >
-            <span v-if="totalSales"  class="p-[1500px] font-bold">{{ totalSales }}</span>
+            <span v-if="totalSales"  class="p-[1368px] pt-3 font-bold">{{ totalSales }}</span>
           </template>
           <el-table-column prop="orderCode" :label="t('formDemo.orderCode')" min-width="794" />
-          <el-table-column prop="orderValue" :label="t('formDemo.orderValue')" min-width="200" />
-          <el-table-column prop="percentageSale" :label="t('formDemo.percentageSales')" min-width="200"/>
-          <el-table-column prop="sales" :label="t('formDemo.sales')"  min-width="200"/>
+          <el-table-column prop="orderValue" header-align="left" align="right" :label="t('formDemo.orderValue')" min-width="200" />
+          <el-table-column prop="percentageSale"  header-align="left" align="center" :label="t('formDemo.percentageSales')" min-width="200"/>
+          <el-table-column prop="sales"  header-align="left" align="right" :label="t('formDemo.sales')"  min-width="200"/>
           <el-table-column prop="dateOrder" :label="t('formDemo.day')" min-width="200"/>
         </el-table>
         <!-- <TableDataBase 
@@ -255,5 +282,8 @@ const setSalesTrackingTableValue = () => {
   ::v-deep(.el-divider__text){
     font-size: 15px;
     font-weight: 700;
+  }
+  ::v-deep(.el-table__append-wrapper){
+    padding: 10px 0;
   }
 </style>

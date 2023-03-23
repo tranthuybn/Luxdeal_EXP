@@ -276,7 +276,12 @@ const save = async (type) => {
         loading.value = false
       }
       if (type == 'saveAndAdd') {
-        emit('post-data', data)
+        console.log('run')
+        if (props.showSaveAndAddBtnOnTypeEdit) {
+          emit('post-data', {data, typeBtn: 'saveAndAdd'})
+        } else {
+          emit('post-data', data)
+        }
         unref(elFormRef)!.resetFields()
         loading.value = false
       }
@@ -567,7 +572,7 @@ const approvalProduct = async () => {
     </ElRow>
     <template #under v-if="!removeButton">
       <div class="w-[100%]" v-if="props.type === 'add'">
-        <div class="w-[50%] flex justify-center gap-2 ml-8">
+        <div class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('add')">
             {{ t('reuse.save') }}
           </ElButton>
@@ -580,20 +585,20 @@ const approvalProduct = async () => {
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'edit'">
-        <div class="w-[50%] flex justify-center gap-2 ml-5">
+        <div class="w-[50%] flex justify-left gap-2 ml-5">
           <ElButton :loading="loading" type="primary" @click="save('edit')">
             {{ t('reuse.save') }}
           </ElButton>
           <ElButton v-if="props.showSaveAndAddBtnOnTypeEdit" :loading="loading" type="primary" @click="save('saveAndAdd')">
             {{ t('reuse.saveAndAdd') }}
           </ElButton>
-          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="cancel">
+          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="props.showSaveAndAddBtnOnTypeEdit ? delAction : cancel">
             {{ t('reuse.cancel') }}
           </ElButton>
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'detail'">
-        <div class="w-[50%] flex justify-center gap-2 ml-5">
+        <div class="w-[50%] flex justify-left gap-2 ml-5">
           <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
             {{ t('reuse.fix') }}
           </ElButton>

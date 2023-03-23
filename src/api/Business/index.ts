@@ -88,7 +88,7 @@ export const getEmployeeRatingList = async (params: any): Promise<IResponse> => 
     },
     fixedBaseURL
   )
-  return res.data && res.data.data
+  return res && res.data
 }
 
 export const getEmployeeSaleTrackingList = async (params: any): Promise<IResponse> => {
@@ -1049,7 +1049,6 @@ export const getAccountantById = async (params: any): Promise<IResponse> => {
 }
 
 export const addNewAccountant = async (params: any): Promise<IResponse> => {
-  console.log(params)
   const res = await request.post(
     {
       url: `${ACCOUNTANT_API.ADD_NEW_BALANCE}?${objectToQueryParams(params)}`
@@ -1201,6 +1200,17 @@ export const GetMoneyAndDatePayment = async (params): Promise<IResponse> => {
       url: `${ORDER_API.GET_ACCOUNTING_MONEY_AND_DATE}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
+  )
+  return res && res.data
+}
+
+//Bắt đầu đơn hàng
+export const StartOrder = async (params): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: ORDER_API.START_ORDER,
+      data: params
+    }, fixedBaseURL
   )
   return res && res.data
 }

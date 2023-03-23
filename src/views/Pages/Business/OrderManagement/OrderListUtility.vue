@@ -3,7 +3,10 @@ import { reactive, ref, watch, unref, onBeforeMount, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
+import { useValidator } from '@/hooks/web/useValidator'
 import {
+  ElRow,
+  ElCol,
   ElCollapse,
   ElCollapseItem,
   ElUpload,
@@ -18,6 +21,7 @@ import {
   ElRadioGroup,
   ElRadio,
   ElDialog,
+  ElMessageBox,
   // ElDropdown,
   // ElDropdownMenu,
   // ElDropdownItem,
@@ -60,14 +64,10 @@ import {
   addOrderStransaction,
   updateOrderTransaction,
   getDetailAccountingEntryById,
-  postAutomaticWarehouse,
   GetProductPropertyInventory,
   getListWareHouse,
   updateOrderInfo,
-  finishStatusOrder,
-  updateStatusOrder,
   approvalOrder,
-  cancelOrder,
   createTicketFromReturnOrder,
   GetWarehouseTransaction,
   getAllStaffList,
@@ -76,6 +76,7 @@ import {
   finishReturnOrder,
 GenerateCodeOrder
 } from '@/api/Business'
+// import QuickAddCustomer from '@/views/Pages/Warehouse/BusinessProductWarehouse/QuickAddCustomer.vue'
 import { FORM_IMAGES } from '@/utils/format'
 import { UpdateStatusTicketFromOrder } from '@/api/Warehouse'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -87,14 +88,13 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
+import { changeMoney } from '@/utils/tsxHelper'
+
+import * as orderUtility from './OrderFixbug'
+import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
+
 const { utility } = appModules
 const { t } = useI18n()
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 
 const checkPercent = (_rule: any, value: any, callback: any) => {
   if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
@@ -105,6 +105,7 @@ const checkPercent = (_rule: any, value: any, callback: any) => {
 }
 
 const ruleFormRef = ref<FormInstance>()
+const ruleAddQuickCustomerFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
 // var curDate = 'DHB' + moment().format('hhmmss')
@@ -492,7 +493,7 @@ const handleSelectionChange = (val: tableDataType[]) => {
 // Dialog change address
 
 const dialogFormVisible = ref(false)
-let dialogAddQuick = ref(false)
+const dialogAddQuick = ref()
 const openDialogChooseWarehouse = ref(false)
 const openDialogChoosePromotion = ref(false)
 
@@ -614,8 +615,8 @@ const callApiProductList = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20,  ServiceType: 1, IsApprove: true})
   if (res.data && res.data?.length > 0) {
     listProductsTable.value = res.data.map((product) => ({
-      productCode: product.code,
-      value: product.productCode,
+      productCode: product.productCode,
+      value: product.code,
       name: product.name ?? '',
       inventory:product.tonKho ?? 0,
       unit: product.unitName,
@@ -645,8 +646,8 @@ const ScrollProductBottom = () => {
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProductsTable.value.push({
-                  productCode: product.code,
-                  value: product.productCode,
+                  productCode: product.productCode,
+                  value: product.code,
                   name: product.name ?? '',
                   inventory:product.tonKho ?? 0,
                   unit: product.unitName,
@@ -810,7 +811,6 @@ const getValueOfCustomerSelected = (value, obj) => {
 }
 
 // phân loại khách hàng: 1: công ty, 2: cá nhân
-const valueClassify = ref(false)
 const optionsClassify = [
   {
     value: true,
@@ -824,6 +824,8 @@ const optionsClassify = [
   }
 ]
 
+const { ValidService } = useValidator()
+
 // form add quick customer
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
@@ -831,17 +833,61 @@ const quickRepresentative = ref()
 const quickPhoneNumber = ref()
 const quickEmail = ref()
 
+const ruleAddQuickCustomerForm = reactive({
+  valueClassify: false,
+  valueSelectCustomer: 1,
+  addQuickCustomerName: '',
+  quickTaxCode: '',
+  quickRepresentative: '',
+  quickPhoneNumber: '',
+  quickEmail: ''
+})
+const rulesAddQuickCustomer = reactive<FormRules>({
+  classify: [
+    {
+      required: true,
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+  ],
+  addQuickCustomerName: [
+    {
+      required: true,
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+  ],
+  quickTaxCode: [
+    {
+      required: true,
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+  ],
+  quickPhoneNumber: [
+    {
+      required: true,
+      message: t('common.required'),
+      trigger: 'blur'
+    },
+    ValidService.checkPhone
+  ],
+  quickEmail: [
+    ValidService.checkEmail
+  ]
+})
+
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
     Code: autoCustomerCode,
-    IsOrganization: valueClassify.value,
-    Name: addQuickCustomerName.value,
-    TaxCode: quickTaxCode.value,
-    Representative: quickRepresentative.value,
-    Phonenumber: quickPhoneNumber.value,
-    Email: quickEmail.value,
-    CustomerType: valueSelectCustomer.value
+    IsOrganization: ruleAddQuickCustomerForm.valueClassify,
+    Name: ruleAddQuickCustomerForm.addQuickCustomerName,
+    TaxCode: ruleAddQuickCustomerForm.quickTaxCode,
+    Representative: ruleAddQuickCustomerForm.quickRepresentative,
+    Phonenumber: ruleAddQuickCustomerForm.quickPhoneNumber,
+    Email: ruleAddQuickCustomerForm.quickEmail,
+    CustomerType: ruleAddQuickCustomerForm.valueSelectCustomer
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
   const res = await addQuickCustomer(formCustomerPayLoad)
@@ -860,7 +906,6 @@ const createQuickCustomer = async () => {
 }
 
 // select khách hàng
-const valueSelectCustomer = ref(1)
 const optionsCustomer = [
   {
     value: 1,
@@ -1032,7 +1077,6 @@ const checkDisabled = ref(false)
 
 let orderDetailsTable = reactive([{}])
 
-let idOrderPost = ref()
 // Tạo đơn hàng
 const postData = async (pushBack: boolean) => {
   orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
@@ -1055,81 +1099,91 @@ const postData = async (pushBack: boolean) => {
   }))
   orderDetailsTable.pop()
   const productPayment = JSON.stringify([...orderDetailsTable])
-  const payload = {
-    ServiceType: 1,
-    OrderCode: ruleForm.orderCode,
-    PromotionCode: promoCode.value ?? '',
-    CollaboratorId: ruleForm.collaborators,
-    CollaboratorCommission: ruleForm.discount,
-    Description: ruleForm.orderNotes,
-    CustomerId: customerID.value,
-    TotalPrice: totalPriceOrder.value,
-    DepositePrice: 0,
-    DiscountMoney:
-      promoCash.value != 0
-        ? promoCash.value
-        : promoValue.value != 0
-        ? (totalPriceOrder.value * promoValue.value) / 100
-        : 0,
-    InterestMoney: 0,
-    // VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
-    VATMoney: 0,
-    Files: Files,
-    DeliveryOptionId: ruleForm.delivery,
-    ProvinceId: formAddress.province ?? 1,
-    DistrictId: formAddress.district ?? 1,
-    WardId: formAddress.wardCommune ?? 1,
-    Address: customerAddress.value,
-    OrderDetail: productPayment,
-    CampaignId: campaignId.value ?? '',
-    VAT: 0,
-    Status: 2,
-    WarehouseId: ruleForm.warehouse
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  const res = await addNewOrderList(formDataPayLoad)
-  if (res) {
-    id = res
-    // updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
-    // reloadStatusOrder()
-    ElNotification({
-      message: t('reuse.addSuccess'),
-      type: 'success'
-    })
-    if (pushBack == false) {
-      router.push({
-        name: 'business.order-management.order-list',
-        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+  if(orderDetailsTable?.length < 1) {
+    ElMessage.error('Vui lòng chọn mã sản phẩm')
+    return 
+  } else {
+    const payload = {
+      ServiceType: 1,
+      OrderCode: ruleForm.orderCode,
+      PromotionCode: promoCode.value ?? '',
+      CollaboratorId: ruleForm.collaborators,
+      CollaboratorCommission: ruleForm.discount,
+      Description: ruleForm.orderNotes,
+      CustomerId: customerID.value,
+      TotalPrice: totalPriceOrder.value,
+      DepositePrice: 0,
+      DiscountMoney:
+        promoCash.value != 0
+          ? promoCash.value
+          : promoValue.value != 0
+          ? (totalPriceOrder.value * promoValue.value) / 100
+          : 0,
+      InterestMoney: 0,
+      // VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
+      VATMoney: 0,
+      Files: Files,
+      DeliveryOptionId: ruleForm.delivery,
+      ProvinceId: formAddress.province ?? 1,
+      DistrictId: formAddress.district ?? 1,
+      WardId: formAddress.wardCommune ?? 1,
+      Address: customerAddress.value,
+      OrderDetail: productPayment,
+      CampaignId: campaignId.value ?? '',
+      VAT: 0,
+      Status: 2,
+      WarehouseId: ruleForm.warehouse
+    }
+    const formDataPayLoad = FORM_IMAGES(payload)
+    const res = await addNewOrderList(formDataPayLoad)
+    if (res) {
+      // updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
+      // reloadStatusOrder()
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+      if (pushBack == false) {
+        router.push({
+          name: 'business.order-management.order-list',
+          params: { backRoute: String(router.currentRoute.value.name), tab: 'orderSell' }
+        })
+      } else {
+        const id = Number(res)
+        router.push({
+          name: `business.order-management.order-list.${utility}`,
+          params: {
+            backRoute: 'business.order-management.order-list',
+            type: 'detail',
+            tab: 'orderSell',
+            id: id
+          }
+        })
+        orderCompletion(res)
+      }
+    disabledPhieu.value = false
+    } else {
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
       })
     }
-  disabledPhieu.value = false
-  } else {
-    ElNotification({
-      message: t('reuse.addFail'),
-      type: 'warning'
-    })
   }
-}
-
-// Phiếu xuất kho tự động
-const automaticCouponWareHouse = async (index) => {
-  const payload = {
-    OrderId: id,
-    Type: index
-  }
-
-  await postAutomaticWarehouse(payload)
 }
 
 // Hủy tạo đơn hàng -> back ra màn danh sách đơn hàng
-const backToListOrder = () => {
-  router.push({
-    name: 'business.order-management.order-list',
-    params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-  })
-  deleteTempCode({
+const backToListOrder = async () => {
+
+   const res = await orderUtility.cancelOrderAPI(id, orderUtility.ServiceType.Ban)
+   if(res){
+    await deleteTempCode({
      Code:ruleForm.orderCode
    })
+      router.push({
+      name: 'business.order-management.order-list',
+      params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+    })
+   }
 }
 
 // total order
@@ -1285,7 +1339,7 @@ const createStatusAcountingEntry = () => {
 }
 
 const updateDetailAcountingEntry = ref(false)
-const updateInfoAcountingEntry = async(index) => {
+const updateInfoAcountingEntry = async(index, id) => {
   if (updateDetailAcountingEntry.value) {
     updateOrderStransaction()
   }else {
@@ -1295,8 +1349,10 @@ const updateInfoAcountingEntry = async(index) => {
         orderId: id,
         status: 5
       }
-      await automaticCouponWareHouse(2)
-      await UpdateStatusTicketFromOrder(payload)
+      const res = await orderUtility.automaticCouponWareHouse(2,id)
+      if(res){
+        await UpdateStatusTicketFromOrder(payload)
+      }
     }
   }
 }
@@ -1660,11 +1716,7 @@ const createTicketFromReturnOrders = async () => {
         type: 'warning'
       })
     )
-  } else ElNotification({
-        message: 'Đơn hàng chưa được xuất kho',
-        type: 'warning'
-      })
-  
+  }
 }
 
 const alreadyPaidForTt = ref(false)
@@ -1980,7 +2032,7 @@ const postReturnRequest = async () => {
     tableImportPost.value = tableReturnFullyIntegrated.value?.map((el) => ({
       productPropertyId: el?.productPropertyId,
       quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
-      accessory: '',
+      accessory: el.accessory,
       returnDetailType: 1,
       unitPrice: el.unitPrice,
       totalPrice: el.totalPrice
@@ -1989,7 +2041,7 @@ const postReturnRequest = async () => {
     tableExportPost.value = tableProductInformationExportChange.value?.map((el) => ({
       productPropertyId: el?.productPropertyId,
       quantity: typeof el.quantity == 'string' ? parseInt(el.quantity) : el.quantity,
-      accessory: '',
+      accessory: el.accessory,
       returnDetailType: 2,
       unitPrice: el.unitPrice,
       totalPrice: el.totalPrice
@@ -2008,7 +2060,18 @@ const postReturnRequest = async () => {
     giaHanDetails: [],
     isPaid: alreadyPaidForTt.value
   }
-  idReturnRequest.value = await createReturnRequest(payload)
+  await createReturnRequest(payload).then((res) => {
+    idReturnRequest.value = res
+    ElNotification({
+      message: 'Đổi trả đơn hàng thành công',
+      type: 'success'
+    })
+  }).catch((error) => {
+    ElNotification({
+      message: error?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
+      type: 'warning'
+    })
+  })
   postOrderStransaction(3)
   createTicketFromReturnOrders()
   getReturnRequestTable()
@@ -2157,7 +2220,6 @@ const clearData = () => {
 // Bật dialog thêm nhanh khách hàng
 const openDialogAddQuickCustomer = () => {
   clearFormPostCustomer()
-
   dialogAddQuick.value = true
 }
 
@@ -2538,6 +2600,10 @@ const updateOrderInfomation = async () => {
         message: 'Sửa thành công',
         type: 'success'
       })
+      router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+      })
     })
     .catch(() =>
       ElNotification({
@@ -2548,36 +2614,6 @@ const updateOrderInfomation = async () => {
 }
 
 const { push } = useRouter()
-// Cập nhật trạng thái đơn hàng
-const updateStatusOrders = async (typeState) => {
-  if (typeState == STATUS_ORDER_SELL[0].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await cancelOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else if (typeState == STATUS_ORDER_SELL[4].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await finishStatusOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else {
-    if (type == 'add' || type == ':type') {
-      let payload = {
-        OrderId: idOrderPost.value,
-        ServiceType: 1,
-        OrderStatus: typeState
-      }
-      submitForm(ruleFormRef, ruleFormRef2, true)
-      updateStatusOrder(FORM_IMAGES(payload))
-    } else {
-      let paylpad = { OrderId: id, ServiceType: 1, OrderStatus: typeState }
-      await updateStatusOrder(FORM_IMAGES(paylpad))
-      reloadStatusOrder()
-    }
-  }
-}
 
 // Duyệt đơn hàng
 const approvalFunction = async (checkApproved) => {
@@ -2697,9 +2733,21 @@ const UpdateStatusTransaction = async() => {
 const keepGoodsOnDeposit = ref(false)
 
 // Hoàn thành đơn hàng -> call api phiếu nhập kho tự động
-const orderCompletion = () => {
-  automaticCouponWareHouse(2)
-  updateStatusOrders(STATUS_ORDER_SELL[3].orderStatus)
+const orderCompletion = async (id) => {
+  const status = await orderUtility.startOrder(id,orderUtility.ServiceType.Ban)
+  if(status){
+    await orderUtility.automaticCouponWareHouse(TicketType.XuatKho,id)
+    await reloadStatusOrder()
+  }
+  editData()
+}
+
+const finishOrder = (id) => {
+  orderUtility.finishOrderAPI(id).then((res) => {
+    if (res) {
+      editData()
+    }
+  })
 }
 
 onBeforeMount(async () => {
@@ -2733,6 +2781,21 @@ onBeforeMount(async () => {
 })
 
 const disabledPhieu = ref(false)
+const resetForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.resetFields()
+}
+
+const handleClose = (done: () => void) => {
+  ElMessageBox.confirm(t('reuse.confirmClose'))
+    .then(() => {
+      done()
+    })
+    .catch(() => {
+      // catch error
+    })
+}
+
 </script>
 
 <template>
@@ -2799,153 +2862,101 @@ const disabledPhieu = ref(false)
 
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
+        class="pb-3"
         :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogAddQuick"
         width="40%"
         align-center
         :title="t('formDemo.QuicklyAddCustomers')"
+        :before-close="(done) => {
+          handleClose(done)
+          resetForm(ruleAddQuickCustomerFormRef)
+        }"
       >
-        <div v-if="valueClassify == true">
-          <el-divider />
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right max-w-[162.73px]"
-                >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-              >
-              <div class="w-[80%] flex gap-2">
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueClassify" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsCustomer"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-              </div>
+        <el-form
+          ref="ruleAddQuickCustomerFormRef"
+          :model="ruleAddQuickCustomerForm"
+          :rules="rulesAddQuickCustomer"
+          label-width="180px"
+        >
+        <el-divider />
+          <div class="py-2">
+            <el-form-item :label="t('formDemo.classify')" prop="classify">
+              <el-row :gutter="10">
+                <el-col :span="12">
+                  <el-form-item  prop="valueClassify">
+                      <el-select v-model="ruleAddQuickCustomerForm.valueClassify" placeholder="Select">
+                        <el-option
+                          v-for="item in optionsClassify"
+                          :key="item.id"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item prop="valueSelectCustomer">
+                      <el-select v-model="ruleAddQuickCustomerForm.valueSelectCustomer" placeholder="Select">
+                        <el-option
+                          v-for="item in optionsCustomer"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-form-item>
+            <el-form-item v-if="ruleAddQuickCustomerForm.valueClassify == false" :label="t('reuse.customerName')" prop="addQuickCustomerName">
+                <el-input
+                  v-model="ruleAddQuickCustomerForm.addQuickCustomerName"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterCustomerName')"
+                />
+            </el-form-item>
+            <div v-if="ruleAddQuickCustomerForm.valueClassify == true">
+              <el-form-item :label="t('formDemo.companyName')" prop="addQuickCustomerName">
+                  <el-input
+                    v-model="ruleAddQuickCustomerForm.addQuickCustomerName"
+                    style="width: 100%"
+                    :placeholder="t('formDemo.enterCompanyName')"
+                  />
+              </el-form-item>
+              <el-form-item :label="t('formDemo.taxCode')" prop="quickTaxCode">
+                  <el-input
+                    v-model="ruleAddQuickCustomerForm.quickTaxCode"
+                    style="width: 100%"
+                    :placeholder="t('formDemo.enterTaxCode')"
+                  />
+              </el-form-item>
+              <el-form-item :label="t('formDemo.representative')" prop="quickRepresentative">
+                  <el-input
+                    v-model="ruleAddQuickCustomerForm.quickRepresentative"
+                    style="width: 100%"
+                    :placeholder="t('formDemo.enterRepresentative')"
+                  />
+              </el-form-item>
             </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.companyName') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="addQuickCustomerName"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterCompanyName')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.taxCode') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickTaxCode"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterTaxCode')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('formDemo.representative') }}</label>
-              <el-input
-                v-model="quickRepresentative"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterRepresentative')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickPhoneNumber"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterPhoneNumber')"
-
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-              <el-input
-                v-model="quickEmail"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterEmail')"
-              />
-            </div>
+            <el-form-item :label="t('reuse.phoneNumber')" prop="quickPhoneNumber">
+                <el-input
+                  v-model="ruleAddQuickCustomerForm.quickPhoneNumber"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterPhoneNumber')"
+                />
+            </el-form-item>
+            <el-form-item :label="t('reuse.email')" prop="quickEmail">
+                <el-input
+                  v-model="ruleAddQuickCustomerForm.quickEmail"
+                  style="width: 100%"
+                  :placeholder="t('formDemo.enterEmail')"
+                />
+            </el-form-item>
           </div>
-        </div>
-        <div v-else>
-          <el-divider />
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right max-w-[162.73px]"
-                >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-              >
-              <div class="w-[80%] flex gap-2">
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueClassify" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsCustomer"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-              </div>
-            </div>
+        <el-divider />
+        </el-form>
 
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="addQuickCustomerName"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterCustomerName')"
-              />
-            </div>
-
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickPhoneNumber"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterPhoneNumber')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
-              <el-input
-                v-model="quickEmail"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterEmail')"
-              />
-            </div>
-          </div>
-        </div>
         <template #footer>
           <span class="dialog-footer">
             <el-button
@@ -2956,16 +2967,24 @@ const disabledPhieu = ref(false)
                   dialogAddQuick = false
                   createQuickCustomer()
                   callCustomersApi()
+                  resetForm(ruleAddQuickCustomerFormRef)
                 }
               "
               >{{ t('reuse.save') }}</el-button
             >
-            <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
-              t('reuse.exit')
-            }}</el-button>
+            <el-button
+              class="w-[150px]" 
+              @click.stop.prevent="() => {
+              dialogAddQuick = false
+              resetForm(ruleAddQuickCustomerFormRef)}"
+            >
+              {{t('reuse.exit')}}
+            </el-button>
           </span>
         </template>
       </el-dialog>
+
+      <!-- <QuickAddCustomer :showDialog="dialogAddQuick.value"/>  -->
 
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
@@ -3646,7 +3665,7 @@ const disabledPhieu = ref(false)
                   @click="
                     () => {
                       dialogSalesSlipInfomation = false
-                      updateInfoAcountingEntry(1)
+                      updateInfoAcountingEntry(1, id)
                     }
                   "
                   >
@@ -3784,7 +3803,7 @@ const disabledPhieu = ref(false)
               <CurrencyInputComponent class="handle-fix" v-model="inputDeposit" :disabled="condition"/>
               <p class="pr-2 text-red-600 pt-2">
                 {{ changeMoney.format(outstandingDebt - inputDeposit) }}
-              }</p>
+              </p>
             </div>
           </div>
         </div>
@@ -3886,7 +3905,7 @@ const disabledPhieu = ref(false)
                   @click="
                     () => {
                       dialogDepositSlipAdvance = false
-                      updateInfoAcountingEntry(2)
+                      updateInfoAcountingEntry(2, id)
                     }
                   "
                   >
@@ -4330,7 +4349,7 @@ const disabledPhieu = ref(false)
               v-if="showCreatedOrUpdateButton"
               @click="
                 () => {
-                  updateInfoAcountingEntry(4)
+                  updateInfoAcountingEntry(4, id)
                   dialogAccountingEntryAdditional = false
                 }
               "
@@ -4741,9 +4760,6 @@ const disabledPhieu = ref(false)
         <div class="flex justify-end mr-[156px] text-right font-medium">{{ totalWarehouse }}</div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
-              >{{ t('reuse.save') }}
-            </el-button>
             <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -4918,7 +4934,7 @@ const disabledPhieu = ref(false)
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
-                  labelKey="productCode"
+                  labelKey="productPropertyName"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   @scroll-top="ScrollProductTop"
@@ -4926,7 +4942,7 @@ const disabledPhieu = ref(false)
                   :clearable="false"
                   @update-value="(value, obj) => updatePrice(value, obj, props)"
                 />
-                <div v-else>{{ props.row.productCode }}</div>
+                <div v-else>{{ props.row.productPropertyName }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="150">
@@ -4992,7 +5008,7 @@ const disabledPhieu = ref(false)
                   filterable
                   :items="listOfOrderProduct"
                   valueKey="productPropertyId"
-                  labelKey="productCode"
+                  labelKey="productPropertyName"
                   :hiddenKey="['id']"
                   :placeHolder="'Chọn mã sản phẩm'"
                   @scroll-top="ScrollProductTop"
@@ -5000,7 +5016,7 @@ const disabledPhieu = ref(false)
                   :clearable="false"
                   @update-value="(value, obj) => updateExchangePrice(value, obj, props)"
                 />
-                <div v-else>{{ props.row.productCode }}</div>
+                <div v-else>{{ props.row.productPropertyName }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="150">
@@ -5202,7 +5218,7 @@ const disabledPhieu = ref(false)
                 :disabled="disabledEdit"
                 :items="listProductsTable"
                 valueKey="productPropertyId"
-                labelKey="productCode"
+                labelKey="value"
                 :hiddenKey="['id']"
                 :placeHolder="'Chọn mã sản phẩm'"
                 :defaultValue="props.row.productPropertyId"
@@ -5286,7 +5302,6 @@ const disabledPhieu = ref(false)
               <div class="flex w-[100%] items-center">
                 <el-button
                   text
-                  :disabled="disabledEdit"
                   @click="
                     () => {
                       callApiWarehouse(props)
@@ -5439,6 +5454,7 @@ const disabledPhieu = ref(false)
             </el-radio-group>
           </div>
         </div>
+        
         <div class="flex gap-2 pb-8">
           <label class="w-[11%] text-right pr-8">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%]">
@@ -5549,7 +5565,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled || disabledPhieu"
+              :disabled="doubleDisabled || disabledPhieu || outstandingDebt == 0"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
@@ -5591,7 +5607,7 @@ const disabledPhieu = ref(false)
             >
             <el-button
               @click="openDepositDialog"
-              :disabled="doubleDisabled"
+              :disabled="doubleDisabled || outstandingDebt == 0"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
@@ -5619,11 +5635,7 @@ const disabledPhieu = ref(false)
             class="w-[100%] flex ml-1 gap-4"
           >
             <el-button
-              @click="
-                () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)
-                }
-              "
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5641,12 +5653,12 @@ const disabledPhieu = ref(false)
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
-            <el-button @click="openDepositDialog" class="min-w-42 min-h-11">{{
+            <el-button @click="openDepositDialog" class="min-w-42 min-h-11" :disabled="outstandingDebt == 0">{{
               t('formDemo.depositSlipAdvance')
             }}</el-button>
             <el-button
               :disabled="statusButtonDetail"
-              @click="orderCompletion"
+              @click="orderCompletion(id)"
               type="primary"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.completeOrder') }}</el-button
@@ -5658,7 +5670,7 @@ const disabledPhieu = ref(false)
               >{{ t('formDemo.editOrder') }}</el-button
             >
             <el-button
-              @click="updateStatusOrders(STATUS_ORDER_SELL[0].orderStatus)"
+              @click="backToListOrder"
               :disabled="statusButtonDetail"
               type="danger"
               class="min-w-42 min-h-11"
@@ -5700,7 +5712,7 @@ const disabledPhieu = ref(false)
             }}</el-button>
             <el-button
               @click="openDepositDialog"
-              :disabled="statusButtonDetail"
+              :disabled="statusButtonDetail || outstandingDebt == 0"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
@@ -5714,7 +5726,7 @@ const disabledPhieu = ref(false)
               :disabled="statusButtonDetail"
               @click="
                 () => {
-                  updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)
+                  finishOrder(id)
                 }
               "
               class="min-w-42 min-h-11 bg-[#D9D9D9]"
@@ -5753,12 +5765,11 @@ const disabledPhieu = ref(false)
             <el-button @click="openBillDialog" class="min-w-42 min-h-11">{{
               t('formDemo.paymentSlip')
             }}</el-button>
-            <el-button @click="openDepositDialog" class="min-w-42 min-h-11">{{
+            <el-button @click="openDepositDialog" class="min-w-42 min-h-11" :disabled="outstandingDebt == 0">{{
               t('formDemo.depositSlipAdvance')
             }}</el-button>
             <button
-              @click="updateStatusOrders(STATUS_ORDER_SELL[4].orderStatus)"
-              :disabled="checkDisabled"
+              @click="finishOrder(id)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button
             >

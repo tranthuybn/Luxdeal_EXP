@@ -4,7 +4,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
   ElCollapseItem,
-  ElUpload,
   ElSelect,
   ElOption,
   ElCheckbox,
@@ -24,13 +23,11 @@ import {
   UploadUserFile,
   ElNotification,
   ElMessage,
-  UploadProps
-} from 'element-plus'
+  ElTooltip} from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { appModules } from '@/config/app'
 
 import billLoanConfirmation from '../../Components/formPrint/src/billLoanConfirmation.vue'
-import type { UploadFile } from 'element-plus'
 import { dateTimeFormat, moneyFormat, formatOrderReturnReason, postDateTime } from '@/utils/format'
 import ReturnOrder from './ReturnOrder.vue'
 import { FORM_IMAGES } from '@/utils/format'
@@ -56,14 +53,10 @@ import {
   getDetailAccountingEntryById,
   GetProductPropertyInventory,
   getListWareHouse,
-  updateStatusOrder,
   updateOrderInfo,
   approvalOrder,
   GetPaymentRequestDetail,
-  cancelOrder,
-  finishStatusOrder,
   updateOrderTransaction,
-  postAutomaticWarehouse,
 createTicketFromReturnOrder,
 GenerateCodeOrder,
 cancelReturnOrder,
@@ -78,40 +71,23 @@ import moment from 'moment'
 import { useRoute, useRouter } from 'vue-router'
 import { STATUS_ORDER_PAWN } from '@/utils/API.Variables'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
-import { deleteTempCode } from '@/api/common'
 //them nhanh sp
 import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
 import AddQuickProduct from './AddQuickProduct.vue'
 import StatusWarehouse from '@/views/Pages/Warehouse/BusinessProductWarehouse/StatusWarehouse.vue'
 
+import UploadMultipleImages from './UploadMultipleImages.vue'
+import { API_URL } from '@/utils/API_URL'
+import * as orderUtility from './OrderFixbug'
+import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
+import { deleteTempCode } from '@/api/common'
+import { changeMoney } from '@/utils/tsxHelper'
+
 const { t } = useI18n()
 const { utility } = appModules
 
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
 const doCloseOnClickModal = ref(false)
-
-
-const handleRemove = (file: UploadFile) => {
-  return file
-}
-
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
-
-const handleDownload = (file: UploadFile) => {
-  return file
-}
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -589,7 +565,7 @@ const addnewproduct = (currentRow) => {
 const postQuickProduct = (product,productId)=>{
   listProducts.value?.unshift({
       productCode: product.productCode,
-      value: product.productCode,
+      value: product.code,
       name: product.name ?? '',
       unit: '',
       price: 0,
@@ -707,15 +683,41 @@ const callAPIProduct = async () => {
   const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20,  ServiceType: 4, IsApprove: true })
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
-      productCode: product.code,
-      value: product.productCode,
+      productCode: product.productCode,
+      value: product.code,
       name: product.name ?? '',
       inventory:product.tonKho??0,
       unit: product.unitName,
-      price: product.price.toString(),
+      price: product.price,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
+  }
+  if(disabledEdit.value){
+    ListOfProductsForSale.value.forEach((row)=>{
+      const found = listProducts.value.find((product)=>product.productPropertyId == row.productPropertyId)
+      if(!found){
+        getProductsList({ Keyword: row.productPropertyCode, ServiceType: 2, IsApprove: true })
+        .then((res)=>{
+          listProducts.value?.unshift({
+            productCode: res.data[0].productCode,
+            value: res.data[0].code,
+            name: res.data[0].name ?? '',
+            inventory:res.data[0].tonKho?? 0,
+            unit: res.data[0].unitName,
+            price: res.data[0].price,
+            productPropertyId: res.data[0].id,
+            productPropertyCode: res.data[0].productPropertyCode
+          })
+        })
+        .catch(()=>{
+          ElNotification({
+            message: t('reuse.cantFindProduct'),
+            type: 'error'
+          })
+        })
+      }
+    })
   }
 }
 
@@ -738,8 +740,8 @@ const ScrollProductBottom = () => {
             ? (noMoreProductData.value = true)
             : res.data.map((product) =>
                 listProducts.value.push({
-                  productCode: product.code,
-                  value: product.productCode,
+                  productCode: product.productCode,
+                  value: product.code,
                   name: product.name ?? '',
                   inventory:product.tonKho??0,
                   price: product.price.toString(),
@@ -819,8 +821,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
 }
 
 const checkPercent = (_rule: any, value: any, callback: any) => {
-  if (value === '') callback(new Error(t('formDemo.pleaseInputDiscount')))
-  else if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+  if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
   else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
   else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
   else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
@@ -942,7 +943,7 @@ const postData = async () => {
     ProvinceId: valueProvince.value ?? 1,
     DistrictId: valueDistrict.value ?? 1,
     WardId: valueCommune.value ?? 1,
-    Files: Files,
+    Files: Files.value,
     Address: enterdetailAddress.value,
     OrderDetail: productPayment,
     fromDate: postDateTime(ruleForm.pawnTerm[0]),
@@ -976,18 +977,8 @@ const postData = async () => {
     })
   }
   idOrderPost.value = res
-  automaticCouponWareHouse(1)
 }
 
-// Phiếu nhap kho tự động
-const automaticCouponWareHouse = async (index) => {
-  const payload = {
-    OrderId: idOrderPost.value,
-    Type: index
-  }
-
-  await postAutomaticWarehouse(JSON.stringify(payload))
-}
 
 const duplicateStatusButton = ref(false)
 // load lại trạng thái đơn hàng
@@ -1019,13 +1010,6 @@ const approvalFunction = async (isApprove) => {
   })
 }
 
-const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
-  ElMessage.warning(
-    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
-      'reuse.total'
-    )}${files.length + uploadFiles.length}`
-  )
-}
 
 const handleTotal = (scope) => {
   scope.row.intoMoney = (parseInt(scope.row.quantity) * parseInt(scope.row.unitPrice)).toString()
@@ -1086,6 +1070,8 @@ const initDataTablePawnSlip = () =>{
 }
 
 function openDepositDialog() {
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
   initDataTablePawnSlip()
   alreadyPaidForTt.value = true
   dialogFeePaymentSlip.value = !dialogFeePaymentSlip.value
@@ -1095,6 +1081,8 @@ function openDepositDialog() {
 const dialogPawnCouponInfomation = ref(false)
 function openBillPawnDialog() {
   alreadyPaidForTt.value = true
+  showCreatedOrUpdateButton.value = true
+  showCancelAcountingEntry.value = false
   dialogPawnCouponInfomation.value = !dialogPawnCouponInfomation.value
   nameDialog.value = 'billPawn'
   tablePawnSlip.value = ListOfProductsForSale.value
@@ -1124,16 +1112,16 @@ const postReturnRequest = async (reason) => {
   }
   await createReturnRequest(payload).then(async (res)=>{
     idReturnRequest.value = res
-    await createTicketFromReturnOrders()
+    if(reason != 5) {await createTicketFromReturnOrders()}
     getReturnRequestTable()
     editData()
   })
   .catch((err) => {
       ElNotification({
-      message: err.response.data.message,
+      message: err?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
     })
-    })
+  })
 }
 
 const idReturnRequest = ref()
@@ -1177,8 +1165,10 @@ const getReturnRequestTable = async () => {
       returnDetailStatusName: e.returnDetailStatusName,
       warehouseTicketStatusName: e.warehouseTicketStatusName,
       warehouseTicketCode: e.warehouseTicketCode,
-      warehouseTicketId: e.warehouseTicketId
+      warehouseTicketId: e.warehouseTicketId,
+      warehouseTicketStatus: e.warehouseTicketStatus
     }))
+    orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }
 }
 
@@ -1655,76 +1645,10 @@ const ckeckChooseProduct = (scope) => {
     dialogbusinessManagement.value = true
   }
 }
-let Files = reactive({})
-const validImageType = ['jpeg', 'png']
-//cái này validate file chỉ cho ảnh tí a sửa lại nhé
-const beforeAvatarUpload = (rawFile, type: string) => {
-  if (rawFile) {
-    //nếu là 1 ảnh
-    if (type === 'single') {
-      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
-        return false
-      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
-        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-        return false
-      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
-        ElMessage.error(t('reuse.imageOver4MB'))
-        return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
-      }
-    }
-    //nếu là 1 list ảnh
-    if (type === 'list') {
-      let inValid = true
-      rawFile.map((file) => {
-        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
-          ElMessage.error(t('reuse.notImageFile'))
-          inValid = false
-        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
-          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-          inValid = false
-          return false
-        } else if (file.size / 1024 / 1024 > 4) {
-          ElMessage.error(t('reuse.imageOver4MB'))
-          inValid = false
-        } else if (file.name?.split('.')[0].length > 100) {
-          ElMessage.error(t('reuse.checkNameImageLength'))
-          inValid = false
-          return false
-        }
-      })
-      return inValid
-    }
-    return true
-  }
-  // else {
-  //   //báo lỗi nếu ko có ảnh
-  //   if (type === 'list' && fileList.value.length > 0) {
-  //     return true
-  //   }
-  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
-  //     return true
-  //   } else {
-  //     ElMessage.warning(t('reuse.notHaveImage'))
-  //     return false
-  //   }
-  // }
-}
-const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
-  uploadFiles.map((file) => {
-    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
-  })
-  Files = ListFileUpload.value.map((el) => el?.raw)
-}
-const fileList = ref<UploadUserFile[]>([])
+const Files = ref<UploadUserFile[]>([])
 
 const disableCreateOrder = ref(false)
-const disabledDate = (time: Date) => {
+const disabledDate = (_time: Date) => {
   return false
   // return time.getTime() <= Date.now() - 86400000
 }
@@ -1732,6 +1656,8 @@ const totalPrincipalMoney = ref(0)
 const totalPrincipalDebt = ref(0)
 const priceintoMoneyByday = ref(0)
 const editData = async () => {
+  await orderUtility.getStatusWarehouse(id)
+
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
@@ -1782,8 +1708,6 @@ const editData = async () => {
       editButton.value = true
     }
 
-    Files = orderObj.orderFiles
-
     if (res.data) {
       customerData.customerId = orderObj.customerId
       await getCustomerInfo(customerData.customerId)
@@ -1829,15 +1753,11 @@ const editData = async () => {
         }
       }
     }
-    orderObj?.orderFiles?.map((element) => {
-      if (element !== null) {
-        ListFileUpload.value.push({
-          url: `${element?.domainUrl}${element?.path}`,
-          name: element?.fileId,
-          uid: element?.id
-        })
-      }
-    })
+    Files.value = orderObj.orderFiles.map((element) => ({
+          url: `${API_URL}${element?.path}`,
+          name: element?.fileId
+      })
+    )
   } else if (type == 'add' || !type) {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
@@ -1901,7 +1821,6 @@ function openPaymentDialog() {
 const openPaymentRequest = () => {
   newCodePaymentRequest()
   clearData()
-  console.log('newTable', newTable.value)
   if(newTable.value[0].typeOfAccountingEntry == 5){
     openAccountingEntry(newTable.value[0].id, newTable.value[0].orderTypeBTSpa)
     paymentRequestFromAnotherOrder.value = true
@@ -2206,48 +2125,7 @@ if (type == 'add' || type == ':type')
     isActive: true
   })
 
-const updateOrderStatus = async (status: number, idOrder: any) => {
-  const payload = {
-    OrderId: idOrder ? idOrder : id,
-    ServiceType: 4,
-    OrderStatus: status
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  await updateStatusOrder(formDataPayLoad)
-  statusOrder.value = status
-}
 
-const addStatusOrder = async(index) => {
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = false
-  arrayStatusOrder.value.push(STATUS_ORDER_PAWN[index])
-  statusOrder.value = STATUS_ORDER_PAWN[index].orderStatus
-  arrayStatusOrder.value[arrayStatusOrder.value.length - 1].isActive = true
-  await updateOrderStatus(STATUS_ORDER_PAWN[index].orderStatus, id)
-  await reloadStatusOrder()
-}
-
-// Cập nhật trạng thái đơn hàng
-const updateStatusOrders = async (typeState) => {
-  await deleteTempCode(ruleForm.orderCode)
-  // 13 hoàn thành đơn hàng
-  if (typeState == STATUS_ORDER_PAWN[0].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await cancelOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else if (typeState == STATUS_ORDER_PAWN[2].orderStatus) {
-    let payload = {
-      OrderId: id
-    }
-    await finishStatusOrder(FORM_IMAGES(payload))
-    reloadStatusOrder()
-  } else {
-    let paylpad = { OrderId: id, ServiceType: 4, OrderStatus: typeState }
-    await updateStatusOrder(FORM_IMAGES(paylpad))
-    reloadStatusOrder()
-  }
-}
 
 const codeReceipts = ref()
 const codeExpenditures = ref()
@@ -2327,11 +2205,12 @@ const setDataForReturnOrder = () => {
     maxQuantity : '',
     productPropertyCode : '',
     description : '',
-    code : ''
+    code : '',
+    importWarehousePrice: ''
   }]
   ListOfProductsForSale.value.forEach(async (row,index)=>{
 
-    if(giaHan.value){
+    if(dutHang.value){
       await GetMoneyAndDatePayment({CustomerOrderId: id, ProductPropertyId: row.productPropertyId})
       .then((res)=>{
         rentReturnOrder.value.tableData[index].importWarehousePrice = res.data.principalDebt - res.data.principalFeeDebt
@@ -2346,7 +2225,6 @@ const setDataForReturnOrder = () => {
     rentReturnOrder.value.tableData[index].description = row.description,
     rentReturnOrder.value.tableData[index].code = row.code
   })
-  console.log('rent', rentReturnOrder.value.tableData)
 }
 const addRow = () => {
   rentReturnOrder.value.tableData.push({ ...productForSale })
@@ -2471,6 +2349,26 @@ const disabledDatePawnFee= (time : Date,row) =>{
 }
 const DoiPhieuCamDo = ref(true)
 const totalPawnFee = ref(0)
+
+const startOrder = async () =>{
+  await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
+    await orderUtility.startOrder(id,orderUtility.ServiceType.CamDo)
+    await reloadStatusOrder()
+}
+const cancelOrder = async () =>{
+  const res = await orderUtility.cancelOrderAPI(id, orderUtility.ServiceType.CamDo)
+   if(res){
+    await deleteTempCode({
+     Code:ruleForm.orderCode
+      })
+    }
+    await reloadStatusOrder()
+}
+const finishOrder = async () =>{
+  await orderUtility.finishOrderAPI(id)
+  await reloadStatusOrder()
+}
+
 </script>
 
 <template>
@@ -2758,48 +2656,8 @@ const totalPawnFee = ref(0)
                 <div class="text-right text-[#FECB80]">{{ t('formDemo.lessThanTenProfiles') }}</div>
               </div>
               <div class="pl-4">
-                <el-upload
-                  action="#"
-                  list-type="picture-card"
-                  :limit="10"
-                  :on-exceed="handleExceed"
-                  :multiple="true"
-                  :auto-upload="false"
-                  class="relative"
-                  :on-change="handleChange"
-                  v-model:file-list="fileList"
-                >
-                  <strong>+ {{ t('formDemo.addPhotosOrFiles') }}</strong>
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                      <span class="el-upload-list__item-actions">
-                        <span
-                          class="el-upload-list__item-preview"
-                          @click="handlePictureCardPreview(file)"
-                        >
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleDownload(file)"
-                        >
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleRemove(file)"
-                        >
-                        </span>
-                      </span>
-                    </div>
-                  </template>
-                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute">
-                    <div class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                    >
-                  </el-dialog>
-                </el-upload>
+                <UploadMultipleImages v-model="Files" :disabled="disabledEdit" />
+
               </div>
             </div>
           </div>
@@ -2915,9 +2773,6 @@ const totalPawnFee = ref(0)
                 <div class="flex">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
-                    <div v-if="infoCompany.taxCode !== null">
-                      Mã số thuế: {{ infoCompany.taxCode }}</div
-                    >
                     <div>{{ infoCompany.phone }}</div>
                     <div>{{ infoCompany.email }}</div>
                   </div>
@@ -2962,7 +2817,7 @@ const totalPawnFee = ref(0)
                 :items="listProducts"
                 valueKey="productPropertyId"
                 :disabled="disabledEdit || props.row.newProduct"
-                labelKey="productCode"
+                labelKey="value"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
                 :defaultValue="props.row.productPropertyId"
@@ -3347,16 +3202,10 @@ const totalPawnFee = ref(0)
 
             <el-button
               v-if="
-                statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[2].orderStatus
+                statusOrder == STATUS_ORDER_PAWN[1].orderStatus
               "
               type="primary"
-              @click="
-                () => {
-                  // addStatusOrder(3)
-                  addStatusOrder(5)
-                }
-              "
+              @click="startOrder"
               class="min-w-43 min-h-11"
               >Bắt đầu cầm đồ theo kỳ hạn</el-button
             >
@@ -3385,15 +3234,17 @@ const totalPawnFee = ref(0)
                   !duplicateStatusButton &&
                   type != 'add')
               "
-              @click="
-                () => {
-                  updateStatusOrders(STATUS_ORDER_PAWN[0].orderStatus)
-                }
-              "
+              @click="cancelOrder"
               type="danger"
               class="min-w-42 min-h-11"
               >{{ t('button.cancelOrder') }}</el-button
             >
+
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
               v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus"
               @click="
@@ -3403,10 +3254,14 @@ const totalPawnFee = ref(0)
                   setDataForReturnOrder()
                 }
               "
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
               type="warning"
               class="min-w-42 min-h-11"
               >Chuộc hàng trước hạn</el-button
             >
+            </div>
+            </el-tooltip>
+
             <div v-if="statusOrder == STATUS_ORDER_PAWN[6].orderStatus || statusOrder == STATUS_ORDER_PAWN[8].orderStatus">
               <el-button
                 v-if="duplicateStatusButton"
@@ -3440,14 +3295,18 @@ const totalPawnFee = ref(0)
               "
               @click="
                 () => {
-                  addStatusOrder(-1)
-                  // setDataForReturnOrder()
+                  finishOrder()
                 }
               "
               type="info"
               class="min-w-42 min-h-11"
               >Đối soát & kết thúc</el-button
             >
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
@@ -3459,10 +3318,18 @@ const totalPawnFee = ref(0)
                   setDataForReturnOrder()
                 }
               "
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
               class="min-w-42 min-h-11 !border-red-500"
               ><p class="text-red-500">Gia hạn cầm đồ</p></el-button
             >
+            </div>
+            </el-tooltip>
 
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
@@ -3474,15 +3341,25 @@ const totalPawnFee = ref(0)
                   setDataForReturnOrder()
                 }
               "
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
               type="warning"
               class="min-w-42 min-h-11"
               >Đứt hàng hết hạn</el-button
             >
+            </div>
+            </el-tooltip>
+            
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
                 statusOrder == STATUS_ORDER_PAWN[11].orderStatus
               "
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
               @click="
                 () => {
                   chuocHetHan = true
@@ -3493,6 +3370,8 @@ const totalPawnFee = ref(0)
               class="min-w-42 min-h-11"
               >Chuộc hàng hết hạn</el-button
             >
+            </div>
+            </el-tooltip>
 
             <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
               <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{
@@ -3626,9 +3505,6 @@ const totalPawnFee = ref(0)
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button class="w-[150px]" type="primary" @click="openDialogChooseWarehouse = false"
-              >{{ t('reuse.save') }}
-            </el-button>
             <el-button class="w-[150px]" @click="openDialogChooseWarehouse = false">{{
               t('reuse.exit')
             }}</el-button>

@@ -1,5 +1,8 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { getCategories } from '@/api/LibraryAndSetting'
+import { reactive } from 'vue'
 
 interface Filter {
   text: string
@@ -126,6 +129,12 @@ export const filterTableStatus: Array<Filter> = [
   { text: t('reuse.pending'), value: 3 },
   { text: t('reuse.finishPending'), value: 4 }
 ]
+export const filterCampaignStatus: Array<Filter> = [
+  { text: t('reuse.pending'), value: 0 },
+  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.inactive'), value: 2 },
+  { text: t('reuse.lock'), value: 3 }
+]
 export const filterTableCategory: Array<Filter> = [
   { text: t('reuse.bag'), value: 1 },
   { text: t('reuse.wallet'), value: 2 },
@@ -134,6 +143,10 @@ export const filterTableCategory: Array<Filter> = [
 export const filtersReceiptExpenditure: Array<Filter> = [
   { text: t('reuse.haveToCollect'), value: 1 },
   { text: t('reuse.havetoPay'), value: 0 }
+]
+export const filterPaymentMethod: Array<Filter> = [
+  { text: t('reuse.payThroughMoney'), value: 1 },
+  { text: t('reuse.payThroughCard'), value: 2 }
 ]
 export const filtersCustomerType: Array<Filter> = [
   { text: t('reuse.customerName'), value: 1 },
@@ -149,6 +162,17 @@ export const filtersStatus: Array<Filter> = [
   { text: t('reuse.deliveryFailed'), value: 6 },
   { text: t('common.doneLabel'), value: 7 },
   { text: t('reuse.cancelled'), value: 8 }
+]
+
+
+export const filtersStatusOrder: Array<Filter> = [
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.closedTheOrder'), value: 2 },
+  { text: t('reuse.depositing'), value: 5 },
+  { text: t('formDemo.completeOrder'), value: '13, 21, 31, 41, 51' },
+  { text: t('formDemo.exchangeReturnGoods'), value: '14, 22, 24, 32, 34, 42, 44, 55, 56, 65' },
+  { text: t('common.doneLabel'), value: 3 },
+  { text: t('reuse.cancelled'), value: -1 }
 ]
 
 export const filterStatusOrder: Array<Filter> = [
@@ -180,9 +204,8 @@ export const filterStatusCustomer: Array<Filter> = [
 ]
 
 export const filterStatusRatingEmployee: Array<Filter> = [
-  { text: t('reuse.active'), value: 1 },
-  { text: t('reuse.pause'), value: 2 },
-  { text: t('reuse.cancelled'), value: 3 },
+  { text: t('reuse.isWorking'), value: true },
+  { text: t('reuse.stopWorking'), value: false },
 ]
 
 export const filterResultTable: Array<Filter> = [
@@ -282,7 +305,7 @@ export const filterStatusRevenueExpenditure: Array<Filter> = [
   { text: t('reuse.auctioning'), value: 3 },
   
 ]
-export const filterStatusAccouting: Array<Filter> = [
+export const filterStatusAccounting: Array<Filter> = [
   { text: t('reuse.pending'), value: 1 },
   { text: t('reuse.finishPending'), value: 2 },
   { text: t('reuse.accounted'), value: 3 },
@@ -322,3 +345,9 @@ export const filterStatusSettingPoint: Array<Filter> = [
   { text: t('reuse.active'), value: 1 },
   { text: t('reuse.inactive'), value: 0 }
 ]
+
+export const filterStatusBalance: Array<Filter> = [
+  { text: t('reuse.active'), value: true},
+  { text: t('reuse.stopActive'), value: false }
+]
+

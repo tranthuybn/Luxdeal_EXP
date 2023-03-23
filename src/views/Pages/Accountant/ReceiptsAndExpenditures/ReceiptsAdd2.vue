@@ -19,17 +19,17 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 
 //random field code
-const curDate = 'SPA' + moment().format('hhmmss')
+const curDate = 'PT' + moment().format('hhmmss')
 
 const schema = reactive<FormSchema[]>([
   {
     field: 'generalServiceInformation',
-    label: t('formDemo.generalServiceInformation'),
+    label: t('formDemo.informationReceipts'),
     component: 'Divider'
   },
   {
     field: 'code',
-    label: t('formDemo.serviceCode'),
+    label: t('formDemo.receiptsCode'),
     component: 'Input',
     colProps: {
       span: 18
@@ -41,49 +41,56 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'name',
-    label: t('formDemo.serviceName'),
-    labelDescription: t('reuse.under50Characters'),
+    label: t('reuse.petitioner'),
+    component: 'Select',
+    colProps: {
+      span: 18
+    },
+    componentProps: {
+      placeholder: t('reuse.chooseARecommender'),
+      options: [
+      { label: 'Tran Thu', value: 1 },
+      ]
+    }
+  },
+  {
+    field: 'name',
+    label: t('formDemo.reasonCollectingMoney'),
     component: 'Input',
     colProps: {
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterServiceName'),
-      formatter: (value) => value.replace(/^\s+$/gm, '')
+      placeholder: t('formDemo.enterDescription'),
     }
   },
   {
-    field: 'shortDescription',
-    label: t('formDemo.shortDescription'),
-    labelDescription: t('reuse.under256Characters'),
-    component: 'Input',
+    field: 'generalServiceInformation',
+    label: t('reuse.subject'),
+    component: 'Divider'
+  },
+  {
+    field: 'name',
+    label: t('reuse.selectObject'),
+    component: 'Select',
     colProps: {
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterDescription')
+      placeholder: 'Lấy tk đang tạo phiếu',
+      options: [
+      { label: 'Tran Thu', value: 1 },
+      ]
     }
   },
   {
-    field: 'description',
-    label: t('formDemo.description'),
-    component: 'Editor',
-    colProps: {
-      span: 24
-    },
-    componentProps: {
-      style: 'max-width: 100%',
-      defaultHtml: ''
-    }
-  },
-  {
-    field: 'servicePriceAndExecutionTime',
-    label: t('formDemo.servicePriceAndExecutionTime'),
+    field: 'generalServiceInformation',
+    label: t('formDemo.billingInformation'),
     component: 'Divider'
   },
   {
     field: 'cost',
-    label: t('formDemo.serviceUnitPrice'),
+    label: t('formDemo.amountCollect'),
     component: 'InputPrice',
     value: '',
     colProps: {
@@ -91,81 +98,52 @@ const schema = reactive<FormSchema[]>([
     },
     componentProps: {
       showCurrency: false,
-      placeholder: t('formDemo.enterPrice'),
+      placeholder: t('reuse.placeholderMoney'),
       suffixIcon: h('div', 'đ'),
     }
   },
   {
-    field: 'promotePrice',
-    label: t('formDemo.promotionalPrice'),
-    component: 'InputPrice',
-    colProps: {
-      span: 18
-    },
-    componentProps: {
-      showCurrency: false,
-      placeholder: t('formDemo.enterPrice'),
-      suffixIcon: h('div', 'đ'),
-    }
-  },
-  {
-    field: 'time',
-    label: t('formDemo.executionTime'),
+    field: 'name',
+    label: t('formDemo.writtenWords'),
     component: 'Input',
     colProps: {
       span: 18
     },
     componentProps: {
-      placeholder: t('formDemo.enterNumberMinute'),
-      suffixIcon: h('div',{class: 'suffixIcon'}, 'phút')
+      placeholder: t('formDemo.writtenWords'),
     }
   },
   {
-    field: 'warranty',
-    label: t('formDemo.insurance'),
-    component: 'Input',
-    colProps: {
-      span: 18
-    },
-    componentProps: {
-      placeholder: t('formDemo.enterNumberDays'),
-      suffixIcon: h('div', 'ngày')
-    }
-  },
-  {
-    field: 'statusAndFunctional',
-    label: t('formDemo.statusAndFunctional'),
-    component: 'Divider'
-  },
-  {
-    field: 'status',
-    label: t('formDemo.status'),
-    component: 'Radio',
+    field: 'name',
+    label: t('formDemo.formPayment'),
+    component: 'Select',
+    value: 1,
     colProps: {
       span: 18
     },
     componentProps: {
       options: [
-        {
-          label: t('formDemo.isActive'),
-          value: true
-        }
+      { label: t('reuse.payThroughMoney'), value: 1 },
+      { label: t('reuse.payThroughCard'), value: 2 },
       ]
     }
   },
   {
-    field: 'approval',
-    label: ' ',
+    field: 'name',
+    label: t('formDemo.formPayment'),
+    component: 'Select',
+    value: 1,
     colProps: {
       span: 18
     },
-    component: 'Input',
     componentProps: {
-      value: t('reuse.pendings'),
-      class: 'approval-wrap',
-      readonly: true
+      options: [
+      { label: t('reuse.payThroughMoney'), value: 1 },
+      { label: t('reuse.payThroughCard'), value: 2 },
+      ]
     }
-  }
+  },
+
 ])
 const rules = reactive({
   name: [required()],
@@ -291,25 +269,18 @@ interface Collapse {
   name: string
   title: string
   columns?: TableColumn[]
-  api?: <T = any>(option: any) => Promise<IResponse<T>>
-  buttonAdd: string
-  buttons: number
 }
-
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
-    name: 'information',
-    title: t('reuse.informationServices'),
-    columns: schema,
-    api: undefined,
-    buttonAdd: '',
-    buttons: 1
+    name: 'receiptsAddDetails',
+    title: t('reuse.receiptsAddDetails'),
+    columns: schema
   }
 ]
 let currentCollapse = ref<string>(collapse[0].name)
 const deleteOrigin = `${t('reuse.deleteUnit')}`
-const activeName = ref('information')
+const activeName = ref('receiptsAddDetails')
 </script>
 
 <template>

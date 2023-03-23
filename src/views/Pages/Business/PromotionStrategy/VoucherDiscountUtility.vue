@@ -12,6 +12,7 @@ import moment from 'moment'
 import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
+
 const { t } = useI18n()
 const curDate = 'VC' + moment().format('hhmmss')
 
@@ -215,6 +216,7 @@ const schema = reactive<FormSchema[]>([
     field: 'status',
     label: t('reuse.status'),
     component: 'Divider',
+    
     colProps: {
       span: 24
     }

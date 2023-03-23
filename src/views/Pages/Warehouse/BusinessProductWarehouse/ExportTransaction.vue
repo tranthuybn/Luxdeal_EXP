@@ -63,11 +63,22 @@ const back = async () => {
   })
 }
 const status = ref(2)
-const lastStatus = ref()
+const lastStatus = ref({
+  value: 0,
+  approveAt: null,
+  name: ''
+})
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const ExportPWRef = ref<InstanceType<typeof ExportPW>>()
+
+const pushRouter = () =>{
+    push({
+      name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
+    })
+}
 const addTransaction = async () => {
+  let responseValue = 0
   if (detailTicketRef.value?.submitFormTicket() && ExportPWRef.value?.checkValueOfTable()) {
     let uploadData: any = {}
     uploadData.type = 2
@@ -90,14 +101,13 @@ const addTransaction = async () => {
 
     if (type.value == 'add') {
       await createTicketManually(JSON.stringify(uploadData))
-        .then(() => {
+        .then((res) => {
           ElNotification({
             message: t('reuse.addSuccess'),
             type: 'success'
-          }),
-            push({
-              name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-            })
+          })
+          responseValue = res.data
+          id.value = res.data
         })
         .catch(() =>
           ElNotification({
@@ -126,6 +136,7 @@ const addTransaction = async () => {
         )
     }
   }
+  return responseValue
 }
 
 const ticketData = ref({
@@ -262,6 +273,25 @@ const cancelTicketWarehouse = async () => {
     })
 }
 onBeforeMount(async () => await callApiForData())
+
+const exportNow = async () => {
+  if(Number(ticketData.value.orderId) !== 0){//ticket from order
+    await updateInventoryOrder()
+  }
+  else{
+    if(isNaN(id.value) || id.value == 0){
+      const res = await addTransaction()
+      if(res != 0){
+        await updateInventory()
+      }
+    }
+    else{
+      await updateInventory()
+    }
+  }
+  pushRouter()
+}
+
 const updateInventory = async () => {
   const payload = {
     ticketId: id.value,
@@ -270,18 +300,11 @@ const updateInventory = async () => {
   //const id =
   //trả về id dùng tiếp ko cần đẩy ra ngoài
   await UpdateInventory(JSON.stringify(payload))
-    .then(async (res) => {
+    .then(() => {
       ElNotification({
         message: t('reuse.success'),
         type: 'success'
       })
-      if(type.value=='add'){
-        id.value = res.data
-        await exportInventoryNow()
-      }
-        push({
-          name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-        })
     })
     .catch(() =>
       ElNotification({
@@ -463,37 +486,22 @@ const updateTicket = (warehouse) => {
         <StatusWarehouse :arrayStatusWH="arrayStatusWH" :label="t('reuse.exportTicketStatus')"/>
 
         <div class="ml-[170px] flex">
-          <ElButton class="w-[150px]" :disabled="type == 'add' || type == 'edit'">{{
+          <ElButton class="w-[150px]" disabled>{{
             t('reuse.printDeliveryNote')
           }}</ElButton>
           <div v-if="status == 1 || status == 2" class="ml-[20px] flex">
             <ElButton
+              v-if="lastStatus.value !== 4 || (lastStatus.value == 4 && lastStatus.approveAt != null)"
               class="w-[150px]"
               type="primary"
-              v-if="Number(ticketData.orderId) !== 0"
-              :disabled="type == 'add' || type == 'edit' || (lastStatus.value == 4 && !lastStatus.approveAt)"
-              @click="updateInventoryOrder"
-              >{{ t('reuse.outStockNow') }}</ElButton
-            >
-            <ElButton
-              v-if="status == 2"
-              class="w-[150px]"
-              type="primary"
-              @click="updateInventory"
+              @click="exportNow"
               >{{ t('reuse.outStockNow') }}</ElButton
             >
             <ElButton
               class="w-[150px]"
               type="primary"
               @click="addTransaction"
-              v-if="Number(ticketData.orderId) == 0 && type == 'add'"
-              >{{ t('reuse.save') }}</ElButton
-            >
-            <ElButton
-              class="w-[150px]"
-              type="primary"
-              @click="addTransaction"
-              v-if="Number(ticketData.orderId) == 0 && type == 'edit'"
+              v-if="Number(ticketData.orderId) == 0 && type =='add'"
               >{{ t('reuse.save') }}</ElButton
             >
             <ElButton
@@ -505,7 +513,7 @@ const updateTicket = (warehouse) => {
             <ElButton
               class="w-[150px]"
               type="danger"
-              v-if="Number(ticketData.orderId) !== 0"
+              v-if="Number(ticketData.orderId) == 0"
               :disabled="type == 'add' || type == 'edit' || (lastStatus.value == 4 && !lastStatus.approveAt)"
               @click="cancelTicketWarehouse"
               >{{ t('reuse.cancelImport') }}</ElButton

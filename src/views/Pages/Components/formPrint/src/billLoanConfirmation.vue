@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElTable, ElTableColumn } from 'element-plus'
 import { dateTimeFormat } from '@/utils/format'
+import { changeMoney } from '@/utils/tsxHelper'
 const { t } = useI18n()
 
 const props = defineProps({
@@ -28,12 +29,6 @@ const props = defineProps({
   }
 })
 const tradingCode = ref('CDSG0273')
-
-const changeMoney = new Intl.NumberFormat('vi', {
-  style: 'currency',
-  currency: 'vnd',
-  minimumFractionDigits: 0
-})
 </script>
 
 <template>

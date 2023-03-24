@@ -135,7 +135,7 @@ const rules = reactive<FormRules>({
   orderCode: [{ required: true, message: t('formDemo.pleaseInputOrderCode'), trigger: 'blur' }],
   discount: [
     {
-      validator: checkPercent,
+      validator: orderUtility.checkPercent,
       trigger: 'blur'
     }
   ],

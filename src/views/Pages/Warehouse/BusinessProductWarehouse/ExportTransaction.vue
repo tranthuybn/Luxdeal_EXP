@@ -72,11 +72,6 @@ const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const ExportPWRef = ref<InstanceType<typeof ExportPW>>()
 
-const pushRouter = () =>{
-    push({
-      name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-    })
-}
 const addTransaction = async () => {
   let responseValue = 0
   if (detailTicketRef.value?.submitFormTicket() && ExportPWRef.value?.checkValueOfTable()) {
@@ -124,9 +119,7 @@ const addTransaction = async () => {
             message: t('reuse.updateSuccess'),
             type: 'success'
           }),
-            push({
-              name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-            })
+          back()
         })
         .catch(() =>
           ElNotification({
@@ -289,7 +282,6 @@ const exportNow = async () => {
       await updateInventory()
     }
   }
-  pushRouter()
 }
 
 const updateInventory = async () => {
@@ -393,10 +385,7 @@ const updateInventoryOrder = async () => {
         message: t('reuse.success'),
         type: 'success'
       }),
-        push({
-          name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-        }),
-
+      back(),
         callButToan(payload.warehouseProductJson);
     })
     .catch(() =>
@@ -417,9 +406,7 @@ const exportInventoryNow = async () => {
         message: t('reuse.success'),
         type: 'success'
       }),
-        push({
-          name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-        })
+      back()
     })
     .catch(() =>
       ElNotification({

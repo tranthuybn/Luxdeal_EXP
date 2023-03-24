@@ -1770,7 +1770,7 @@ const categoriesToString = (categories) => {
             }}</template></ElTableColumn
           >
           <ElTableColumn header-align="center" align="center" width="150" :label="t('reuse.status')"
-            ><template #default="scope">{{ productStatusPending(scope.row.isActive) }}</template>
+            ><template #default="scope">{{ t(productStatusPending(scope.row.isActive)) }}</template>
           </ElTableColumn>
           <ElTableColumn
             header-align="center"

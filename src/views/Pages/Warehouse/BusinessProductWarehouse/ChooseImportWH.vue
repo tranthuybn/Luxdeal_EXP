@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { createWarehouseLot, getProductStorage, getWarehouseLot } from '@/api/Warehouse'
 import { useI18n } from '@/hooks/web/useI18n'
-import { FORM_IMAGES, orderType } from '@/utils/format'
+import { FORM_IMAGES, orderType, dateTimeFormat } from '@/utils/format'
 import {
   ElButton,
   ElDivider,
@@ -18,7 +18,6 @@ import {
 import type { FormInstance, FormRules } from 'element-plus'
 import { computed, reactive, ref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
-import { dateTimeFormat } from '@/utils/format'
 import moment from 'moment'
 
 const doCloseOnClickModal = ref(false)
@@ -214,7 +213,7 @@ watch(
         {{ warehouseForm.quantity }}
       </el-form-item>
       <el-form-item :label="t('reuse.type')" prop="serviceType">
-        {{ orderType(serviceType) }}
+        {{ t(orderType(serviceType)) }}
       </el-form-item>
       <div class="flex import" v-if="transactionType != 2">
         <el-form-item :label="t('reuse.chooseLocation')" prop="locationImportId" class="w-full">

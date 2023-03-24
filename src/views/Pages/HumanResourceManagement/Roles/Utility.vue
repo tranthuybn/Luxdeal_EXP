@@ -20,6 +20,7 @@ import { cloneDeep, cloneDeepWith } from 'lodash-es'
 import { getRoleDetail, postCreateNewStaffRole, editStaffRole } from '@/api/HumanResourceManagement'
 import { useForm } from '@/hooks/web/useForm' 
 import { RouteRecordName, useRouter } from 'vue-router'
+import { TreeNodeData } from 'element-plus/es/components/tree/src/tree.type'
 
 const { t } = useI18n()
 const { utility } = appModules
@@ -29,7 +30,6 @@ interface Tree {
   children?: Tree[]
 }
 let ElTreeData = ref<Tree[]>([])
-const routerMap = cloneDeep(asyncRouterMap)
 const { register, elFormRef, methods } = useForm()
 const loading = ref(false)
 const { currentRoute, push } = useRouter()
@@ -38,15 +38,16 @@ const treeRef = ref<InstanceType<typeof ElTree>>()
 const { go } = useRouter()
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
+const utilitiesNodes = reactive<TreeNodeData[]>([])
 const parentRoute = computed((): RouteRecordName  => {
   const { name } = unref(currentRoute)
   if (typeof name == 'string' && name?.length > 0) {    
     return name.replace('.' + utility, '')
   }return ''
 })
-const typeOfActivity = computed(():string | string[]=> { 
-  const { params } = unref(currentRoute)
-  return params?.type ?? 'add'
+const typeOfActivity = computed((): string | string[] => { 
+     const { params } = unref(currentRoute)
+    return params?.type ?? 'add'
 }) 
 const RoleId = computed(():number=> { 
   const { params } = unref(currentRoute)
@@ -109,29 +110,39 @@ const schema = reactive<FormSchema[]>([
     }
   }
 ])
-onBeforeMount(async () => {
-  // filter recursive, eliminate the utilities screen
-  var filterRouter = await routerMap.
-    filter(function filterFunction(o) {
+onBeforeMount(() => {
+
+//mapping data to the el-tree component
+  ElTreeData.value = mappingRouterTree(routerPreprocessing(), null)
+// mapping recursive
+  if (typeof typeOfActivity.value == 'string' && typeOfActivity.value != 'add')
+    getRoleDetailEvent()
+  })
+
+// filter recursive, eliminate the utilities screen
+function routerPreprocessing(): AppRouteRecordRaw[]{ 
+  const routerMap = cloneDeep(asyncRouterMap)
+  if (Array.isArray(routerMap) && routerMap.length > 0){
+    routerMap.filter(function filterFunction(o) {
       if (o.children) {
         return (o.children = o.children.filter(filterFunction)).length
       }
-      if (o?.name && !o?.name.includes(utility)) {          
-       
+      if (o?.name && !o?.name.includes(utility)) 
       return true
-    } 
-
-  
+      else 
+       // collect all the utility screens for post router to server, next after that
+       utilitiesNodes.push(o)
     })
-    // remove not found 404 page
-  if (filterRouter[filterRouter.length - 1] && filterRouter[filterRouter.length - 1].name == 'NotFound')
-    filterRouter.splice(filterRouter.length - 1, 1)
-// mapping recursive
-  ElTreeData.value = mappingRouterTree(filterRouter, null)
-  getRoleDetailEvent()
-})
+      // remove not found 404 page
+    if (routerMap[routerMap.length - 1].name == 'NotFound') {
+      routerMap.splice(routerMap.length - 1, 1)
+    }
+  } 
+  return routerMap
+}
 
-function mappingRouterTree(tree,parentPath) {
+
+function mappingRouterTree(tree, parentPath) {
 if(Array.isArray(tree) && tree.length > 0)
   return cloneDeepWith(tree, node => {
     if (node?.name && !node?.name.includes(utility)) {
@@ -147,25 +158,27 @@ if(Array.isArray(tree) && tree.length > 0)
           addable: node.meta?.add,
           editable: node.meta?.edit,
           deletable: node.meta?.delete,
+          routeName: node.name,
           add: false,
           edit: false,
           delete:false,
           children: mappingRouterTree(node.children, currentNodePath),
           isParents: true,
-          disabled:typeOfActivity.value == 'detail',
+          disabled: typeOfActivity.value == 'detail',
         };
       else
         return {
           url: currentNodePath,
-          label: node.meta?.title ? t(`${node.meta.title}`) : '',
+          label: node.meta?.title ? t(`${node.meta.title}`) : '' ,
           addable: node.meta?.add,
           editable: node.meta?.edit,
           deletable: node.meta?.delete,
+          routeName: node.name,
           add: false,
           edit: false,
           delete: false,
           isParents: false,
-          disabled:typeOfActivity.value == 'detail',
+          disabled: typeOfActivity.value == 'detail',
         };
     }
     
@@ -173,7 +186,6 @@ if(Array.isArray(tree) && tree.length > 0)
   return []
 }
 const getRoleDetailEvent = () => {
-  if (typeof typeOfActivity.value == 'string' && typeOfActivity.value != 'add') {
     loading.value = true
     getRoleDetail({ id: RoleId.value }).then((res) => {
       const { data } = res
@@ -183,10 +195,11 @@ const getRoleDetailEvent = () => {
           roleName: data.roleName,
           description: data.description
         })
-        const routerMap = data.router.map((el) => el.url)
+        // mapping keys into el-tree, remove indeterminate node
+        const routerMap = data.router.filter((el) => !el?.indeterminate)?.map((el) => el.url) ?? []
         if (data.router.length > 0) {
           treeRef.value?.setCheckedKeys(routerMap)
-          console.log('treeRef.value :>> ', treeRef.value);
+          // mapping type of operators for the nodes
           treeRef.value?.data.map((i: any) => i.children?.map(it => it.children?.map(item => data.router.map((el) => {
             if(el.url == item.url) {
               item.add = el.addable,
@@ -209,6 +222,7 @@ const getRoleDetailEvent = () => {
             }
           }))
         }
+        // mapping status variable 
         roleStatus.value = data.isActive
       }
 
@@ -221,22 +235,23 @@ const getRoleDetailEvent = () => {
     }).finally(() => {
       loading.value = false
     })
+}
+const elTReeIndeterminateNodes = reactive<TreeNodeData[]>([])
+const handleCheckChange = (nodeData) => {
+  const node = treeRef.value?.getNode(nodeData.url);
+  // get indeterminate node
+  if (node?.indeterminate == true) {
+    elTReeIndeterminateNodes.push(nodeData)
   }
 }
-const listParents = ref([])
-const handleCheckChange = (nodeData: any) => {
-  if (nodeData.isParents == true) {
-    listParents.value.push(nodeData)
-  }
-}
-const createNewRoleEvent = (goOut) => {
+const createOrEditRoleEvent = (goOut = true) => {
   const formRef = unref(elFormRef)
   formRef?.validate(async (isValid) => {
     if (isValid) {
       // loading.value = true
       const routes = treeRef.value?.getCheckedNodes() ?? []
-      const listRouters = routes.concat(listParents.value.filter((el: any) => !routes.map(item => item.url).includes(el.url)))
-      console.log('listRouters :>> ', listRouters);
+      const utilitiesRoutes = getUtilitiesRoutes(routes)
+      const listRouters = routes.concat(elTReeIndeterminateNodes,utilitiesRoutes)
       const { getFormData } = methods
       const formData = await getFormData()
       if (listRouters.length > 0) {
@@ -244,13 +259,14 @@ const createNewRoleEvent = (goOut) => {
           ...formData,
           isActive: roleStatus.value,
           router: listRouters?.map(el => ({
-            url: el.url,
-            addable: el.add,
-            editable: el.edit,
-            deletable: el.delete,
-            indeterminate: el.isParents
+            url: el.url ?? '',
+            addable: el.add ?? false,
+            editable: el.edit ?? false,
+            deletable: el.delete ?? false,
+            indeterminate: elTReeIndeterminateNodes.find(check=>check.url === el.url) != null
           }))
         }
+        if(typeOfActivity.value == 'add')
         postCreateNewStaffRole(params).then(res => {
           ElNotification({
             message: res.message ?? t('reuse.addSuccess'),
@@ -266,36 +282,7 @@ const createNewRoleEvent = (goOut) => {
         }).finally(() => {
           loading.value = false
         })
-      } else { 
-        loading.value = false
-        ElMessage.error(t('reuse.pleaseChooseTheRole'))
-      } 
-     
-    }else ElMessage.error(t('reuse.notFillAllInformation'))
-  })
-  
-
-}
-
-const editRoleEvent = () => {
-  const formRef = unref(elFormRef)
-  formRef?.validate(async (isValid) => {
-    if (isValid) {
-      loading.value = true
-      const routes = treeRef.value?.getCheckedNodes() ?? []
-      const { getFormData } = methods
-      const formData = await getFormData()
-      if (routes.length > 0) {
-        const params = {
-          ...formData,
-          isActive: roleStatus.value,
-          router: routes?.map(el => ({
-            url: el.url,
-            addable: el.add,
-            editable: el.edit,
-            deletable: el.delete
-          }))
-        }
+        else
         editStaffRole(id, params).then(res => {
           ElNotification({
             message: res.message ?? t('reuse.updateSuccess'),
@@ -316,10 +303,27 @@ const editRoleEvent = () => {
       } 
      
     }else ElMessage.error(t('reuse.notFillAllInformation'))
-  })
+  }) 
 }
-
-
+function getUtilitiesRoutes(routes: TreeNodeData[]): TreeNodeData[] {
+  const utilitiesNodesChecked : TreeNodeData[] = [] 
+  if (unref(routes).length > 0) 
+    unref(routes).forEach(rc => {
+      // by convention utility screen name = the screen list's name + utility
+      const checkedRouteName = rc.routeName + '.' + utility
+      const find = utilitiesNodes.find(u => u.name === checkedRouteName)
+      if (find) { 
+        utilitiesNodesChecked.push({
+          url: find.path,
+          routeName: find.name,
+          add: rc.add,
+          edit: rc.edit,
+          delete:rc.delete,
+        })
+      }
+    })
+  return utilitiesNodesChecked
+}
 const openEditRoleEvent = () => {
   push({
     name: `human-resource-management.set-role.${utility}`,
@@ -355,23 +359,24 @@ const openEditRoleEvent = () => {
                 ref="treeRef"               
                 :data="ElTreeData"
                 show-checkbox
+                :check-strictly="false"
                 node-key="url"
                 default-expand-all 
                 class="w-[100%]"           
                 @check-change="handleCheckChange"      
               >
-                <template #default="{ node }">
+                <template #default="{ node,data }">
                   <div class="flex justify-between w-[100%]" >                  
-                    <div> {{ node.data.label }}</div>
+                    <div> {{ data.label }}</div>
                     <div class="extension-function w-[30%]">
                       <p v-if="node.data.addable" >
-                        <ElCheckbox v-model="node.data.add" :disabled="typeOfActivity === 'detail'">Thêm</ElCheckbox>   
+                        <ElCheckbox v-model="data.add" :disabled="typeOfActivity === 'detail'">Thêm</ElCheckbox>   
                       </p>
                       <p  v-if="node.data.editable" >
-                        <ElCheckbox v-model="node.data.edit" :disabled="typeOfActivity === 'detail'">Sửa</ElCheckbox> 
+                        <ElCheckbox v-model="data.edit" :disabled="typeOfActivity === 'detail'">Sửa</ElCheckbox> 
                       </p>
                       <p  v-if="node.data.deletable">
-                        <ElCheckbox v-model="node.data.delete" :disabled="typeOfActivity === 'detail'">Xóa</ElCheckbox> 
+                        <ElCheckbox v-model="data.delete" :disabled="typeOfActivity === 'detail'">Xóa</ElCheckbox> 
                       </p>
                     </div>
                   </div>
@@ -403,14 +408,11 @@ const openEditRoleEvent = () => {
       </ElCol>
     </ElRow>
   
-    <ElButton v-if="typeOfActivity == 'add'" type="primary" @click="createNewRoleEvent(true)" v-loading.fullscreen.lock="loading">
+    <ElButton v-if="typeOfActivity == 'add' || typeOfActivity == 'edit' " type="primary" @click="createOrEditRoleEvent(true)" v-loading.fullscreen.lock="loading">
       {{ t('reuse.save') }}
     </ElButton>
-    <ElButton v-if="typeOfActivity == 'add'" type="primary" @click="createNewRoleEvent(false)" v-loading.fullscreen.lock="loading">
+    <ElButton v-if="typeOfActivity == 'add'" type="primary" @click="createOrEditRoleEvent(false)" v-loading.fullscreen.lock="loading">
       {{ t('reuse.saveAndAdd') }}
-    </ElButton>
-    <ElButton v-if="typeOfActivity == 'edit'" type="primary" @click="editRoleEvent()" v-loading.fullscreen.lock="loading" >
-      {{ t('reuse.save') }}
     </ElButton>
     <ElButton v-if="typeOfActivity == 'detail'" type="primary" @click="openEditRoleEvent()" v-loading.fullscreen.lock="loading" >
       {{ t('button.edit') }}

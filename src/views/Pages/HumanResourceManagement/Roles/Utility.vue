@@ -186,6 +186,7 @@ const getRoleDetailEvent = () => {
         const routerMap = data.router.map((el) => el.url)
         if (data.router.length > 0) {
           treeRef.value?.setCheckedKeys(routerMap)
+          console.log('treeRef.value :>> ', treeRef.value);
           treeRef.value?.data.map((i: any) => i.children?.map(it => it.children?.map(item => data.router.map((el) => {
             if(el.url == item.url) {
               item.add = el.addable,
@@ -222,23 +223,32 @@ const getRoleDetailEvent = () => {
     })
   }
 }
+const listParents = ref([])
+const handleCheckChange = (nodeData: any) => {
+  if (nodeData.isParents == true) {
+    listParents.value.push(nodeData)
+  }
+}
 const createNewRoleEvent = (goOut) => {
   const formRef = unref(elFormRef)
   formRef?.validate(async (isValid) => {
     if (isValid) {
-      loading.value = true
+      // loading.value = true
       const routes = treeRef.value?.getCheckedNodes() ?? []
+      const listRouters = routes.concat(listParents.value.filter((el: any) => !routes.map(item => item.url).includes(el.url)))
+      console.log('listRouters :>> ', listRouters);
       const { getFormData } = methods
       const formData = await getFormData()
-      if (routes.length > 0) {
+      if (listRouters.length > 0) {
         const params = {
           ...formData,
           isActive: roleStatus.value,
-          router: routes?.map(el => ({
+          router: listRouters?.map(el => ({
             url: el.url,
             addable: el.add,
             editable: el.edit,
-            deletable: el.delete
+            deletable: el.delete,
+            indeterminate: el.isParents
           }))
         }
         postCreateNewStaffRole(params).then(res => {
@@ -347,7 +357,8 @@ const openEditRoleEvent = () => {
                 show-checkbox
                 node-key="url"
                 default-expand-all 
-                class="w-[100%]"                 
+                class="w-[100%]"           
+                @check-change="handleCheckChange"      
               >
                 <template #default="{ node }">
                   <div class="flex justify-between w-[100%]" >                  

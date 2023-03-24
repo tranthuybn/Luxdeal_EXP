@@ -277,15 +277,6 @@ const addLastRowAttribute = async () => {
 }
 // Add mode cant open this Collapse
 const openLastCollapse = ref(false)
-const OpenCollapse = () => {
-  if (disabledTabOpen.value == true) {
-    ElNotification({
-      message: t('reuse.cannotOpenBecauseNotCreateProduct'),
-      type: 'error'
-    })
-  }
-  openLastCollapse.value = true
-}
 const activeName = ref([collapse[0].name])
 const handleDeleteRow = async (scope) => {
   //newValue : newly created (havent post api)
@@ -1563,9 +1554,9 @@ const categoriesToString = (categories) => {
         }}</el-button>
       </div>
     </el-dialog>
-    <el-collapse-item :name="collapse[1].name" @click="OpenCollapse" :disabled="disabledTabOpen">
+    <el-collapse-item :name="collapse[1].name">
       <template #title>
-        <el-button class="header-icon" :icon="collapse[1].icon" link :disabled="disabledTabOpen" />
+        <el-button class="header-icon" :icon="collapse[1].icon" link />
         <span class="text-center">{{ collapse[1].title }}</span>
       </template>
       <el-form ref="ruleTreeFormRef" :model="collapse[1].tableList">
@@ -1807,7 +1798,7 @@ const categoriesToString = (categories) => {
         class="ml-5 mt-5"
         :icon="plusIcon"
         @click="addLastRowAttribute"
-        :disabled="type == 'detail'"
+        :disabled="type == 'detail' || disabledTabOpen"
         >{{ t('reuse.addAttributeAndPrice') }}</el-button
       >
     </el-collapse-item>
@@ -2349,9 +2340,9 @@ const categoriesToString = (categories) => {
         }}</el-button>
       </div>
     </el-dialog>
-    <el-collapse-item :name="collapse[7].name" @click="OpenCollapse" :disabled="disabledTabOpen">
+    <el-collapse-item :name="collapse[7].name">
       <template #title>
-        <el-button class="header-icon" :icon="collapse[7].icon" link :disabled="disabledTabOpen" />
+        <el-button class="header-icon" :icon="collapse[7].icon" link />
         <span class="text-center">{{ collapse[7].title }}</span>
       </template>
       <TableOperator

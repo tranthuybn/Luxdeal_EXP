@@ -5010,6 +5010,9 @@ const disabledPhieu = ref(false)
                 "
                 v-model="scope.row.quantity"
                 style="width: 100%"
+                :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                :parser="(value) => value.replace(/\$\s?|(,*)/g, '')"
+                :clearable="true"
               />
             </template>
           </el-table-column>
@@ -5597,7 +5600,8 @@ const disabledPhieu = ref(false)
           <div
             v-else-if="
               statusOrder == STATUS_ORDER_RENTAL[9].orderStatus ||
-              statusOrder == STATUS_ORDER_RENTAL[6].orderStatus
+              statusOrder == STATUS_ORDER_RENTAL[6].orderStatus ||
+              statusOrder == 400
             "
             class="w-[100%] flex ml-1 gap-4"
           >

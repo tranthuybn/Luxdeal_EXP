@@ -448,6 +448,7 @@ const callApiGetRoleList = async () => {
     Keyword: '',
     PageIndex: 1,
     PageSize: 99999,
+    isActive: true,
   }
   const res = await getRoleList(params)
   if (res) {

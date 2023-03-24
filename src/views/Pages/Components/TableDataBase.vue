@@ -129,7 +129,7 @@ const isAddable = ref(false)
 const getRole = () => {
   GetRouterByStaffAccountId({ id: accountId }).then(res => {
     const routerRole = res.data.find(el => el.url == router.currentRoute.value.path)
-    if (routerRole.addable == true) return isAddable.value = true
+    if (routerRole?.addable == true) return isAddable.value = true
     else isAddable.value = false
   })
 }

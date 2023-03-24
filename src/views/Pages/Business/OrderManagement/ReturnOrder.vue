@@ -126,7 +126,7 @@ const close = () => {
 }
 const newDate = ref()
 const postReturnRequest = async (orderStatusType) => {
-  if (tableAheadOfTime.value.length <= 1) {
+  if (tableAheadOfTime.value.length <= 0) {
     emit('update:modelValue', true)
     ElNotification({
       message: 'Bạn phải chọn sản phẩm trước',

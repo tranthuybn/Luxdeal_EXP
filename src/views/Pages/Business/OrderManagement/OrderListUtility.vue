@@ -1246,7 +1246,12 @@ const editData = async () => {
       totalFinalOrder.value = orderObj.totalPrice
 
       totalOrder.value = orderObj.totalPrice
-      totalOutstandingDebt()
+      const listDebt = debtTable.value.filter(el => el.status == 1)
+      if (listDebt.length <= 0) {
+        outstandingDebt.value = totalPriceOrder.value
+      } else {
+        outstandingDebt.value = listDebt[listDebt.length-1].deibt
+      }
       if (orderObj.discountMoney != 0) {
         showPromo.value = true
         promoCash.value = orderObj.discountMoney

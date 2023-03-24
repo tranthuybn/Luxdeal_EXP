@@ -126,9 +126,9 @@ const isDelete = ref(false)
 const getRole = () => {
   GetRouterByStaffAccountId({ id: accountId }).then(res => {
     const routerRole = res.data.find(el => el.url == router.currentRoute.value.path)
-    if (routerRole.editable == true) isEdit.value = true
+    if (routerRole?.editable == true) isEdit.value = true
     else isEdit.value = false
-    if (routerRole.deletable == true) isDelete.value = true
+    if (routerRole?.deletable == true) isDelete.value = true
     else isDelete.value = false
   })
 }

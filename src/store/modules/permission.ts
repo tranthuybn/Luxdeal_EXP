@@ -15,6 +15,7 @@ export interface PermissionState {
   roles: string
   routerByRoles: string
   staffInfo: string
+  accountId: string
 }
 
 export const usePermissionStore = defineStore({
@@ -28,7 +29,8 @@ export const usePermissionStore = defineStore({
     refreshToken: 'REFRESH_TOKEN',
     roles: 'ROLES',
     routerByRoles: 'ROUTER_BY_ROLES',
-    staffInfo: 'STAFF_INFO'
+    staffInfo: 'STAFF_INFO',
+    accountId: 'ACCOUNT_ID'
   }),
   persist: {
     enabled: true
@@ -60,7 +62,10 @@ export const usePermissionStore = defineStore({
     },
     getStaffInfo(): string {
       return this.staffInfo
-    }
+    },
+    getAccountId(): string {
+      return this.accountId
+    },
   },
   actions: {
     generateRoutes(

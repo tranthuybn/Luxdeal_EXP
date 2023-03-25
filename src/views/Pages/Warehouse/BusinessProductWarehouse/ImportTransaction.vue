@@ -116,9 +116,7 @@ const addTransaction = async () => {
             message: t('reuse.updateSuccess'),
             type: 'success'
           }),
-            push({
-              name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-            })
+          back()
         })
         .catch(() =>
           ElNotification({
@@ -300,9 +298,7 @@ const updateInventory = async () => {
         message: t('reuse.success'),
         type: 'success'
       }),
-        push({
-          name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-        })
+      back()
     })
     .catch(() =>
       ElNotification({
@@ -333,9 +329,7 @@ const updateInventoryOrder = async () => {
         message: t('reuse.success'),
         type: 'success'
       }),
-        push({
-          name: 'Inventorymanagement.ListWarehouse.inventory-tracking'
-        })
+      back()
     })
     .catch(() =>
       ElNotification({

@@ -1327,7 +1327,7 @@ const editData = async () => {
 
       ruleForm.orderCode = orderObj.code
       sellOrderCode.value = ruleForm.orderCode
-      ruleForm.collaborators = orderObj.collaborator.id
+      ruleForm.collaborators = orderObj.collaborator?.id
       ruleForm.discount = orderObj.collaboratorCommission
       ruleForm.warehouse = orderObj.warehouseId
       ruleForm.customerName =

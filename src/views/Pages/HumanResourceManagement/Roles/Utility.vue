@@ -21,7 +21,7 @@ import { getRoleDetail, postCreateNewStaffRole, editStaffRole } from '@/api/Huma
 import { useForm } from '@/hooks/web/useForm' 
 import { RouteRecordName, useRouter } from 'vue-router'
 import { TreeNodeData } from 'element-plus/es/components/tree/src/tree.type'
-
+import { usePermissionStore } from '@/store/modules/permission'
 const { t } = useI18n()
 const { utility } = appModules
 const { required, notSpecialCharacters } = useValidator()
@@ -39,6 +39,8 @@ const { go } = useRouter()
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const utilitiesNodes = reactive<TreeNodeData[]>([])
+const permissionStore = usePermissionStore()
+const routers = computed(() => permissionStore.getRouters)
 const parentRoute = computed((): RouteRecordName  => {
   const { name } = unref(currentRoute)
   if (typeof name == 'string' && name?.length > 0) {    
@@ -53,6 +55,9 @@ const RoleId = computed(():number=> {
   const { params } = unref(currentRoute)
   return params.id && typeof params.id == 'string'  ? parseInt(params.id): 0
 }) 
+const elTReeCheckedNode = computed((): TreeNodeData[] => 
+treeRef.value?.getCheckedNodes() ? treeRef.value?.getCheckedNodes() : []
+)
 const rules = {
   roleName: [required(), {required: true, validator: notSpecialCharacters, trigger: 'blur' }],
 }
@@ -113,7 +118,9 @@ const schema = reactive<FormSchema[]>([
 onBeforeMount(() => {
 
 //mapping data to the el-tree component
+loading.value = true
   ElTreeData.value = mappingRouterTree(routerPreprocessing(), null)
+loading.value = false
 // mapping recursive
   if (typeof typeOfActivity.value == 'string' && typeOfActivity.value != 'add')
     getRoleDetailEvent()
@@ -121,25 +128,40 @@ onBeforeMount(() => {
 
 // filter recursive, eliminate the utilities screen
 function routerPreprocessing(): AppRouteRecordRaw[]{ 
-  const routerMap = cloneDeep(asyncRouterMap)
-  if (Array.isArray(routerMap) && routerMap.length > 0){
-    routerMap.filter(function filterFunction(o) {
+  let routesWithoutUtilityPage: AppRouteRecordRaw[] = []
+  if (Array.isArray(routers.value) && routers.value.length > 0) {
+    let childrenPath = ''
+    let char = '/'
+    routesWithoutUtilityPage = routers.value.filter(function filterFunction(o) {
+      // check if it is the first tier
+      if(routers.value.find(el=>el.name == o.name))
+        childrenPath = ''
+      if (o.path) { 
+        childrenPath += o.path[0] == char ? o.path :  char+ o.path
+      }
       if (o.children) {
         return (o.children = o.children.filter(filterFunction)).length
+      } 
+      else if (o?.name && !o?.name.includes(utility) && !o.meta.hidden && o.meta.title) {
+        if (childrenPath.includes(char)) { 
+          let cutIndex = childrenPath.lastIndexOf(char);
+          childrenPath = childrenPath.substring(0, cutIndex);
+        }
+        return true
       }
-      if (o?.name && !o?.name.includes(utility)) 
-      return true
-      else 
-       // collect all the utility screens for post router to server, next after that
-       utilitiesNodes.push(o)
+      else { 
+        // collect all the utility screens for post router to server, next after that
+        utilitiesNodes.push({
+          url:childrenPath,
+          routeName:o.name
+        })
+        childrenPath = ''
+      }
     })
-      // remove not found 404 page
-    if (routerMap[routerMap.length - 1].name == 'NotFound') {
-      routerMap.splice(routerMap.length - 1, 1)
-    }
   } 
-  return routerMap
+  return routesWithoutUtilityPage
 }
+
 
 
 function mappingRouterTree(tree, parentPath) {
@@ -238,20 +260,29 @@ const getRoleDetailEvent = () => {
 }
 const elTReeIndeterminateNodes = reactive<TreeNodeData[]>([])
 const handleCheckChange = (nodeData) => {
-  const node = treeRef.value?.getNode(nodeData.url);
-  // get indeterminate node
-  if (node?.indeterminate == true) {
-    elTReeIndeterminateNodes.push(nodeData)
+  // node unchecked then reset all node's operator
+  const alreadyChecked = elTReeCheckedNode.value.find(el => el.url === nodeData.url) ?? null 
+  const currentNode = treeRef.value?.getNode(nodeData.url);
+  if (!alreadyChecked ) { 
+    if (!currentNode?.indeterminate) {
+      nodeData.add = false,
+      nodeData.edit = false
+      nodeData.delete = false
+      elTReeIndeterminateNodes.splice(elTReeIndeterminateNodes.indexOf(nodeData),1)
+    } else{    
+    // get indeterminate node
+        elTReeIndeterminateNodes.push(nodeData)
+    }
   }
+ 
 }
 const createOrEditRoleEvent = (goOut = true) => {
   const formRef = unref(elFormRef)
   formRef?.validate(async (isValid) => {
     if (isValid) {
       // loading.value = true
-      const routes = treeRef.value?.getCheckedNodes() ?? []
-      const utilitiesRoutes = getUtilitiesRoutes(routes)
-      const listRouters = routes.concat(elTReeIndeterminateNodes,utilitiesRoutes)
+      const utilitiesRoutes = getUtilitiesRoutes(elTReeCheckedNode.value.filter(el=>el.add || el.edit || el.delete))
+      const listRouters = elTReeCheckedNode.value.concat(elTReeIndeterminateNodes,utilitiesRoutes)
       const { getFormData } = methods
       const formData = await getFormData()
       if (listRouters.length > 0) {
@@ -306,16 +337,16 @@ const createOrEditRoleEvent = (goOut = true) => {
   }) 
 }
 function getUtilitiesRoutes(routes: TreeNodeData[]): TreeNodeData[] {
-  const utilitiesNodesChecked : TreeNodeData[] = [] 
+  const utilitiesNodesChecked: TreeNodeData[] = [] 
   if (unref(routes).length > 0) 
     unref(routes).forEach(rc => {
       // by convention utility screen name = the screen list's name + utility
       const checkedRouteName = rc.routeName + '.' + utility
-      const find = utilitiesNodes.find(u => u.name === checkedRouteName)
+      const find = utilitiesNodes.find(u => u.routeName === checkedRouteName)
       if (find) { 
         utilitiesNodesChecked.push({
-          url: find.path,
-          routeName: find.name,
+          url: find.url,
+          routeName: find.routeName,
           add: rc.add,
           edit: rc.edit,
           delete:rc.delete,
@@ -329,6 +360,9 @@ const openEditRoleEvent = () => {
     name: `human-resource-management.set-role.${utility}`,
     params: { type: 'edit', id: id }
   })
+}
+const disableElTreeOperator = (currentNodeKey):boolean => { 
+ return typeOfActivity.value == 'detail' || elTReeCheckedNode.value.find((el)=>el.url === currentNodeKey) == null
 }
 
 </script>
@@ -370,13 +404,13 @@ const openEditRoleEvent = () => {
                     <div> {{ data.label }}</div>
                     <div class="extension-function w-[30%]">
                       <p v-if="node.data.addable" >
-                        <ElCheckbox v-model="data.add" :disabled="typeOfActivity === 'detail'">Thêm</ElCheckbox>   
+                        <ElCheckbox v-model="data.add" :disabled="disableElTreeOperator(data.url)">Thêm</ElCheckbox>   
                       </p>
                       <p  v-if="node.data.editable" >
-                        <ElCheckbox v-model="data.edit" :disabled="typeOfActivity === 'detail'">Sửa</ElCheckbox> 
+                        <ElCheckbox v-model="data.edit" :disabled="disableElTreeOperator(data.url)">Sửa</ElCheckbox> 
                       </p>
                       <p  v-if="node.data.deletable">
-                        <ElCheckbox v-model="data.delete" :disabled="typeOfActivity === 'detail'">Xóa</ElCheckbox> 
+                        <ElCheckbox v-model="data.delete" :disabled="disableElTreeOperator(data.url)">Xóa</ElCheckbox> 
                       </p>
                     </div>
                   </div>

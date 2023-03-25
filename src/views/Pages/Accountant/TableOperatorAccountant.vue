@@ -80,7 +80,7 @@ const props = defineProps({
   //id của sản phẩm
   id: {
     type: Number,
-    default: NaN
+    default: 0
   },
   //type = 'add' || 'detail' || 'edit'
   //có sự kiện watch để bắt xem đang ở type nào
@@ -130,6 +130,10 @@ const props = defineProps({
   disabledCancelBtn: {
     type: Boolean,
     default: false
+  },
+  customAddBtn: {
+    type: Number,
+    default: 1
   }
 })
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -147,7 +151,7 @@ const fileList = ref<UploadUserFile[]>([])
 const loading = ref(false)
 const fullSpan = ref<number>()
 const rawUploadFile = ref<UploadFile>()
-const optionPeopeType = ref()
+const optionPeopleType = ref()
 const optionCreatedBy = ref()
 const pageIndexStaff = ref(1)
 const pageIndexCustomer = ref(1)
@@ -287,22 +291,22 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
       if (type == 'add') {
-        // data.backRouter = true
-        data.createdBy = optionCreatedBy.value.id
-        data.peopleType = optionPeopeType.value.id
+        data.backRouter = true
+        if(optionCreatedBy.value?.id && optionPeopleType.value?.id) {
+          data.createdById = optionCreatedBy.value.id
+          data.peopleTypeId = optionPeopleType.value.id
+        }
         emit('post-data', data)
         loading.value = false
       }
       if (type == 'saveAndAdd') {
-        if (props.showSaveAndAddBtnOnTypeEdit) {
-          emit('post-data', {data, typeBtn: 'saveAndAdd'})
-        } else {
-          emit('post-data', data)
-        }
+        data.typeBtn = 'saveAndAdd'
+        emit('post-data', data)
         unref(elFormRef)!.resetFields()
         loading.value = false
       }
       if (type == 'edit') {
+        console.log('vô đây')
         data.backRouter = true
         data.Id = props.id
         // fix cung theo api (nen theo 1 quy tac)
@@ -413,6 +417,7 @@ const delAction = async () => {
       confirmButtonClass: 'ElButton--danger'
     })
       .then(() => {
+        console.log()
         const res = props.delApi({ Id: props.id })
         if (res) {
           ElNotification({
@@ -511,7 +516,7 @@ const handleChangeOptions = (option, form, formType) => {
       return
     case 'peopleType' : 
       form.peopleType = `${option.name} | ${option.value}`
-      optionPeopeType.value = option
+      optionPeopleType.value = option
       return
     default: return ''
   }
@@ -642,9 +647,9 @@ const approvalProduct = async () => {
               @update-value="(_value, option) =>  handleChangeOptions(option, form, 'peopleType')"
             />
             <ul class="mt-2">
-              <li v-if="optionPeopeType?.name" class="leading-5">{{ optionPeopeType.name }}</li>
-              <li v-if="optionPeopeType?.value" class="leading-5">{{ t('reuse.phoneNumber') }}: {{ optionPeopeType.value }}</li>
-              <li v-if="optionPeopeType?.email" class="leading-5">{{ t('reuse.email') }}: {{ optionPeopeType.email }}</li>
+              <li v-if="optionPeopleType?.name" class="leading-5">{{ optionPeopleType.name }}</li>
+              <li v-if="optionPeopleType?.value" class="leading-5">{{ t('reuse.phoneNumber') }}: {{ optionPeopleType.value }}</li>
+              <li v-if="optionPeopleType?.email" class="leading-5">{{ t('reuse.email') }}: {{ optionPeopleType.email }}</li>
             </ul>
           </template>
         </Form>
@@ -718,7 +723,7 @@ const approvalProduct = async () => {
     </ElRow>
     <template #under>
       <div class="w-[100%]" v-if="props.type === 'add'">
-        <div class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customAddBtn == 1" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton :loading="loading" @click="save('add')">
               {{ t('button.print') }}
           </ElButton>
@@ -729,17 +734,39 @@ const approvalProduct = async () => {
             {{ t('reuse.cancel') }}
           </ElButton>
         </div>
+        <div v-if="customAddBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
+          <ElButton type="primary" :loading="loading" @click="save('add')">
+            {{ t('reuse.save') }}
+          </ElButton>
+          <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
+            {{ t('reuse.saveAndAdd') }}
+          </ElButton>
+          <ElButton :loading="loading" @click="cancel()">
+            {{ t('reuse.cancel') }}
+          </ElButton>
+        </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'edit'">
-        <div class="w-[50%] flex justify-left gap-2 ml-5">
+        <div v-if="customAddBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
           <ElButton :loading="loading" @click="save('add')">
               {{ t('button.print') }}
           </ElButton>
           <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
             {{ t('reuse.saveAndPending') }}
           </ElButton>
-          <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+          <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
             {{ t('reuse.delete') }}
+          </ElButton>
+        </div>
+        <div v-if="customAddBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
+          <ElButton type="primary" :loading="loading" @click="save('edit')">
+            {{ t('reuse.save') }}
+          </ElButton>
+          <ElButton type="primary" :loading="loading" @click="save('edit')">
+            {{ t('reuse.saveAndAdd') }}
+          </ElButton>
+          <ElButton :loading="loading" @click="delAction">
+            {{ t('reuse.cancel') }}
           </ElButton>
         </div>
       </div>

@@ -46,7 +46,7 @@ const columns = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'paymentOrReceipts',
+    field: 'type',
     label: t('reuse.revenueAndExpenditure'),
     minWidth: '100',
     filters: filtersReceiptExpenditure,

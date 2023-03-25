@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, onBeforeMount, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { TableOperator } from '../Components/TableBase'
+import TableOperatorAccountant from './TableOperatorAccountant.vue'
 import { useRouter } from 'vue-router'
 import { getBadgeAccountList } from '@/utils/get_filterList'
 import { getAccountantList,getAccountantById, addNewAccountant, updateAccountant, deleteAccountant } from '@/api/Business'
@@ -198,12 +198,13 @@ const customData = (data) => {
   }
   customData.AccountName = data.accountName
   customData.Status = data.status
+
   return customData
 }
 
 const postData = async (data) => {
   const typeBtn = data.typeBtn
-  data = typeBtn ? customData(data.data) : customData(data)
+  data = customData(data)
   await addNewAccountant(data)
   .then(() => {
       ElNotification({
@@ -232,6 +233,7 @@ const editData = async (data) => {
     disabledCancelBtn.value = true
   }
   data = customData(data)
+  console.log('data', data)
   await updateAccountant(data)
   .then(() => {
     ElNotification({
@@ -256,10 +258,14 @@ const editData = async (data) => {
 const customizeData = async (data) => {
   setFormData.accountName = data.accountName
   setFormData.status = data.isActive
+  setFormData.id = data.id
+
   if(!data.parentId) {
     setFormData.accountNumber1 = data.accountNumber
     setFormData.typeAccount = '1'
+    changeValueClassify('1')
   } else {
+    changeValueClassify('2')
     schema[4].hidden = false
     setFormData.accountNumber1 = badgeAccount1List.value.find(item => item.id == data.parentId).label
     setFormData.accountNumber2 = data.accountNumber
@@ -270,7 +276,7 @@ const customizeData = async (data) => {
 </script>
 
 <template>
-  <TableOperator 
+  <TableOperatorAccountant 
     :schema="schema" 
     :nameBack="currentRoute" 
     :title="title"
@@ -279,12 +285,12 @@ const customizeData = async (data) => {
     :id="id"
     :apiId="getAccountantById"
     :hasImage="false"
-    :showSaveAndAddBtnOnTypeEdit="true"
     @post-data="postData"
     @edit-data="editData"
     @customize-form-data="customizeData"
     :formDataCustomize="setFormData"
     :delApi="deleteAccountant"
     :disabledCancelBtn="disabledCancelBtn"
+    :customAddBtn="2"
   />
 </template>

@@ -276,7 +276,6 @@ const save = async (type) => {
         loading.value = false
       }
       if (type == 'saveAndAdd') {
-        console.log('run')
         if (props.showSaveAndAddBtnOnTypeEdit) {
           emit('post-data', {data, typeBtn: 'saveAndAdd'})
         } else {

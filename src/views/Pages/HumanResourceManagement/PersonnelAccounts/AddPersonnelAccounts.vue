@@ -606,6 +606,7 @@ const getTableValue = async () => {
     ruleForm.Address = formValue.value.address
     ruleForm.userName = formValue.value.userName
     ruleForm.roleAcces = formValue.value.roleId
+    ListFileUpload.value =  JSON.stringify(formValue.value.listImageJson)
     // ListFileUpload.value = formValue.value.fieldId
   }
 }

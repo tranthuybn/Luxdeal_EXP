@@ -12,6 +12,7 @@ export interface FormData {
     accountNumber1: number
     accountName: string
     status: boolean
+    id: number
   }
 
 export default {}

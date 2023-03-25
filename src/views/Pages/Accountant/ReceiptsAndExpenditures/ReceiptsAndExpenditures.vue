@@ -3,7 +3,7 @@ import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import { getReceiptsExpendituresList } from '@/api/Business'
-import { deleteAReceiptOrPaymentVoucher } from '@/api/Accountant'
+import { deleteReceiptOrPayment } from '@/api/Accountant'
 import { ATTACH_DOCUMENT } from '@/utils/API.Variables'
 import { filterHandler, changeMoney } from '@/utils/tsxHelper'
 import {
@@ -143,7 +143,7 @@ const columns = reactive<TableColumn[]>([
   <tableDatetimeFilterBasicVue 
   :columns="columns" 
   :customOperator="4" 
-  :delApi="deleteAReceiptOrPaymentVoucher" 
+  :delApi="deleteReceiptOrPayment" 
   :api="getReceiptsExpendituresList" 
   :titleAdd="t('reuse.receiptsAdd')"
   :titleAdd2="t('reuse.paymentsAdd')"

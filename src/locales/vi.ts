@@ -553,7 +553,7 @@ export default {
     paymentDepositSlipAdvance: 'Phiếu thanh toán/đặt cọc/tạm ứng',
     depositSlipAdvanceinformation: 'Thông tin phiếu đặt cọc/Tạm ứng',
     paymentVoucherInformation: 'Thông tin phiếu chi',
-    detailedListExpenses: 'Bảng kê chi tiết các khoản chi(Nếu có)',
+    detailedListExpenses: 'Bảng kê chi tiết các khoản chi (Nếu có)',
     numberVouchers: 'Số chứng từ',
     dayVouchers: 'Ngày chứng từ',
     spendFor: 'Nội dung chi',
@@ -957,6 +957,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    paymentRequestInfo: 'Thông tin đề nghị thanh toán',
     payment: 'Thanh toán',
     accountingAccount: 'Tài khoản hạch toán',
     isWorking: 'Đang làm việc',

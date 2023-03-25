@@ -1,5 +1,6 @@
 import { Slots } from 'vue'
 import { isFunction } from '@/utils/is'
+import moment from 'moment';
 
 export const getSlot = (slots: Slots, slot = 'default', data?: Recordable) => {
   // Reflect.has determines whether an object exists in a certain attribute
@@ -27,3 +28,8 @@ export const changeMoney = new Intl.NumberFormat('vi', {
   currency: 'vnd',
   minimumFractionDigits: 0
 })
+
+export const formartDate = (date) => {
+  if(date) return moment(date, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY')
+  return ''
+}

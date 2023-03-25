@@ -13,7 +13,6 @@ import {
 } from 'element-plus'
 import { getEmployeeRatingList, getEmployeeSaleTrackingList } from '@/api/Business'
 import { moneyFormat } from '@/utils/format'
-import { useEmitt } from '@/hooks/web/useEmitt'
 import { formartDate } from '@/utils/tsxHelper'
 
 const escape = useIcon({ icon: 'quill:escape' })
@@ -63,11 +62,6 @@ const activeName = ref(collapse[0].name)
 onBeforeMount(() => {
   callAPIInfoEmployee()
   callAPISalesTracking()
-})
-useEmitt({name: 'getDatexxx', callback: (data) => {
-    startDate.value = data.startDate
-    endDate.value = data.endDate
-  } 
 })
 
 interface InfoEmployee {

@@ -13,7 +13,8 @@ import {
 } from 'element-plus'
 import { getEmployeeRatingList, getEmployeeSaleTrackingList } from '@/api/Business'
 import { moneyFormat } from '@/utils/format'
-import moment from 'moment';
+import { useEmitt } from '@/hooks/web/useEmitt'
+import { formartDate } from '@/utils/tsxHelper'
 
 const escape = useIcon({ icon: 'quill:escape' })
 const back = async () => {
@@ -27,12 +28,9 @@ const { push } = useRouter()
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const startDate = String(router.currentRoute.value.params.startDate)
-const endDate = String(router.currentRoute.value.params.endDate)
-const formartDate = (date) => {
-  if(date) return moment(date, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY')
-  return ''
-}
+const startDate = ref()
+const endDate = ref()
+
 // Show | Hiden detail utility
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -66,6 +64,12 @@ onBeforeMount(() => {
   callAPIInfoEmployee()
   callAPISalesTracking()
 })
+useEmitt({name: 'getDatexxx', callback: (data) => {
+    startDate.value = data.startDate
+    endDate.value = data.endDate
+  } 
+})
+
 interface InfoEmployee {
   employeeCode: string
   employeeName: string

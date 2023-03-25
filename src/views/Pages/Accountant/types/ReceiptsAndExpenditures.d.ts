@@ -6,10 +6,10 @@ export interface FormDataPostAndEdit  {
     PeopleType: string
     TotalMoney: number
     EnterMoney: string
-    PaymentMethod: number
-    AccountNumber: number
-    Paid: boolean
-    Type: 1 | 2
+    TypeOfPayment: 1 | 2
+    AccountNumber?: number
+    Paid?: boolean
+    Type: 1 | 0
 }
 
 export interface FormData {
@@ -20,7 +20,7 @@ export interface FormData {
     peopleType: string
     totalMoney: number
     enterMoney: string
-    paymentMethod: number
+    typeOfPayment: 1 | 2
     accountNumber: number
     paid: boolean
 }

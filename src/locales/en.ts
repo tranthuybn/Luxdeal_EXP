@@ -905,6 +905,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    paymentRequestInfo: 'Payment request info',
     payment: 'Payment',
     accountingAccount: 'Accounting Account',
     isWorking: 'Is working',

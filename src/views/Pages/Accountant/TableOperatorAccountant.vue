@@ -286,7 +286,6 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
-      console.log(type)
       if (type == 'add') {
         // data.backRouter = true
         data.createdBy = optionCreatedBy.value.id

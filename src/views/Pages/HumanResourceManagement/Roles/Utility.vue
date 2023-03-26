@@ -15,8 +15,7 @@ import { Form } from '@/components/Form'
 import { computed, onBeforeMount, reactive, ref,unref } from 'vue'
 import { appModules } from '@/config/app'
 import { useValidator } from '@/hooks/web/useValidator'
-import { asyncRouterMap } from '@/router'
-import { cloneDeep, cloneDeepWith } from 'lodash-es'
+import { cloneDeepWith } from 'lodash-es'
 import { getRoleDetail, postCreateNewStaffRole, editStaffRole } from '@/api/HumanResourceManagement'
 import { useForm } from '@/hooks/web/useForm' 
 import { RouteRecordName, useRouter } from 'vue-router'
@@ -29,7 +28,7 @@ interface Tree {
   label: string
   children?: Tree[]
 }
-let ElTreeData = ref<Tree[]>([])
+let ElTreeData = ref<roleTreeNode[]>([])
 const { register, elFormRef, methods } = useForm()
 const loading = ref(false)
 const { currentRoute, push } = useRouter()
@@ -119,7 +118,7 @@ onBeforeMount(() => {
 
 //mapping data to the el-tree component
 loading.value = true
-  ElTreeData.value = mappingRouterTree(routerPreprocessing(), null)
+  ElTreeData.value = routerPreprocessing( mappingRouterTree(routers.value, null))
 loading.value = false
 // mapping recursive
   if (typeof typeOfActivity.value == 'string' && typeOfActivity.value != 'add')
@@ -127,35 +126,19 @@ loading.value = false
   })
 
 // filter recursive, eliminate the utilities screen
-function routerPreprocessing(): AppRouteRecordRaw[]{ 
-  let routesWithoutUtilityPage: AppRouteRecordRaw[] = []
-  if (Array.isArray(routers.value) && routers.value.length > 0) {
-    let childrenPath = ''
-    let char = '/'
-    routesWithoutUtilityPage = routers.value.filter(function filterFunction(o) {
-      // check if it is the first tier
-      if(routers.value.find(el=>el.name == o.name))
-        childrenPath = ''
-      if (o.path) { 
-        childrenPath += o.path[0] == char ? o.path :  char+ o.path
-      }
+function routerPreprocessing(routerParams:roleTreeNode[]):roleTreeNode[] { 
+  let routesWithoutUtilityPage: roleTreeNode[] = []
+  if (Array.isArray(routerParams) && routerParams.length > 0) {
+    routesWithoutUtilityPage = routerParams.filter(function filterFunction(o) {
       if (o.children) {
         return (o.children = o.children.filter(filterFunction)).length
       } 
       else if (o?.name && !o?.name.includes(utility) && !o.meta.hidden && o.meta.title) {
-        if (childrenPath.includes(char)) { 
-          let cutIndex = childrenPath.lastIndexOf(char);
-          childrenPath = childrenPath.substring(0, cutIndex);
-        }
         return true
       }
       else { 
         // collect all the utility screens for post router to server, next after that
-        utilitiesNodes.push({
-          url:childrenPath,
-          routeName:o.name
-        })
-        childrenPath = ''
+        utilitiesNodes.push(o)
       }
     })
   } 
@@ -164,7 +147,7 @@ function routerPreprocessing(): AppRouteRecordRaw[]{
 
 
 
-function mappingRouterTree(tree, parentPath) {
+function mappingRouterTree(tree, parentPath) :roleTreeNode[] {
 if(Array.isArray(tree) && tree.length > 0)
   return cloneDeepWith(tree, node => {
     if (node?.name && !node?.name.includes(utility)) {
@@ -180,7 +163,8 @@ if(Array.isArray(tree) && tree.length > 0)
           addable: node.meta?.add,
           editable: node.meta?.edit,
           deletable: node.meta?.delete,
-          routeName: node.name,
+          name: node.name,
+          meta:node.meta,
           add: false,
           edit: false,
           delete:false,
@@ -195,7 +179,8 @@ if(Array.isArray(tree) && tree.length > 0)
           addable: node.meta?.add,
           editable: node.meta?.edit,
           deletable: node.meta?.delete,
-          routeName: node.name,
+          name: node.name,
+          meta:node.meta,
           add: false,
           edit: false,
           delete: false,
@@ -297,37 +282,38 @@ const createOrEditRoleEvent = (goOut = true) => {
             indeterminate: elTReeIndeterminateNodes.find(check=>check.url === el.url) != null
           }))
         }
-        if(typeOfActivity.value == 'add')
-        postCreateNewStaffRole(params).then(res => {
-          ElNotification({
-            message: res.message ?? t('reuse.addSuccess'),
-            type: res.statusCode == 200 ? 'success' : 'error'
-          })
-          if (res.statusCode == 200 && goOut&&parentRoute)
-            push({name:unref(parentRoute)})
-        }).catch(() => {
-          ElNotification({
-            message: t('reuse.addFail'),
-            type: 'error'
-          })
-        }).finally(() => {
-          loading.value = false
-        })
-        else
-        editStaffRole(id, params).then(res => {
-          ElNotification({
-            message: res.message ?? t('reuse.updateSuccess'),
-            type: res.statusCode == 200 ? 'success' : 'error'
-          })
-          push({name:unref(parentRoute)})
-        }).catch(() => {
-          ElNotification({
-            message: t('reuse.updateFail'),
-            type: 'error'
-          })
-        }).finally(() => {
-          loading.value = false
-        })
+        console.log(params)
+        // if(typeOfActivity.value == 'add')
+        // postCreateNewStaffRole(params).then(res => {
+        //   ElNotification({
+        //     message: res.message ?? t('reuse.addSuccess'),
+        //     type: res.statusCode == 200 ? 'success' : 'error'
+        //   })
+        //   if (res.statusCode == 200 && goOut&&parentRoute)
+        //     push({name:unref(parentRoute)})
+        // }).catch(() => {
+        //   ElNotification({
+        //     message: t('reuse.addFail'),
+        //     type: 'error'
+        //   })
+        // }).finally(() => {
+        //   loading.value = false
+        // })
+        // else
+        // editStaffRole(id, params).then(res => {
+        //   ElNotification({
+        //     message: res.message ?? t('reuse.updateSuccess'),
+        //     type: res.statusCode == 200 ? 'success' : 'error'
+        //   })
+        //   push({name:unref(parentRoute)})
+        // }).catch(() => {
+        //   ElNotification({
+        //     message: t('reuse.updateFail'),
+        //     type: 'error'
+        //   })
+        // }).finally(() => {
+        //   loading.value = false
+        // })
       } else { 
         loading.value = false
         ElMessage.error(t('reuse.pleaseChooseTheRole'))
@@ -341,12 +327,12 @@ function getUtilitiesRoutes(routes: TreeNodeData[]): TreeNodeData[] {
   if (unref(routes).length > 0) 
     unref(routes).forEach(rc => {
       // by convention utility screen name = the screen list's name + utility
-      const checkedRouteName = rc.routeName + '.' + utility
-      const find = utilitiesNodes.find(u => u.routeName === checkedRouteName)
+      const checkedRouteName = rc.name + '.' + utility
+      const find = utilitiesNodes.find(u => u.name === checkedRouteName)
       if (find) { 
         utilitiesNodesChecked.push({
           url: find.url,
-          routeName: find.routeName,
+          name: find.name,
           add: rc.add,
           edit: rc.edit,
           delete:rc.delete,

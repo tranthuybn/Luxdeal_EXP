@@ -18,16 +18,27 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { cloneDeepWith } from 'lodash-es'
 import { getRoleDetail, postCreateNewStaffRole, editStaffRole } from '@/api/HumanResourceManagement'
 import { useForm } from '@/hooks/web/useForm' 
-import { RouteRecordName, useRouter } from 'vue-router'
+import { RouteMeta, RouteRecordName, useRouter } from 'vue-router'
 import { TreeNodeData } from 'element-plus/es/components/tree/src/tree.type'
 import { usePermissionStore } from '@/store/modules/permission'
 const { t } = useI18n()
 const { utility } = appModules
-const { required, notSpecialCharacters } = useValidator()
-interface Tree {
-  label: string
-  children?: Tree[]
+interface roleTreeNode { 
+  url: string,
+  label: string,
+  addable: boolean,
+  editable: boolean,
+  deletable: boolean,
+  name: string,
+  meta:RouteMeta,
+  add: boolean,
+  edit: boolean,
+  delete:boolean,
+  children: roleTreeNode[],
+  isParents: boolean,
+  disabled: boolean,
 }
+const { required, notSpecialCharacters } = useValidator()
 let ElTreeData = ref<roleTreeNode[]>([])
 const { register, elFormRef, methods } = useForm()
 const loading = ref(false)
@@ -150,7 +161,7 @@ function routerPreprocessing(routerParams:roleTreeNode[]):roleTreeNode[] {
 function mappingRouterTree(tree, parentPath) :roleTreeNode[] {
 if(Array.isArray(tree) && tree.length > 0)
   return cloneDeepWith(tree, node => {
-    if (node?.name && !node?.name.includes(utility)) {
+    if (node?.name && node?.path) {
       /**
        * Be careful not to mutate `node` unless you want also
        * want the original tree to be affected.
@@ -245,19 +256,23 @@ const getRoleDetailEvent = () => {
 }
 const elTReeIndeterminateNodes = reactive<TreeNodeData[]>([])
 const handleCheckChange = (nodeData) => {
-  // node unchecked then reset all node's operator
+  // node unchecked then reset all node's operator 
   const alreadyChecked = elTReeCheckedNode.value.find(el => el.url === nodeData.url) ?? null 
   const currentNode = treeRef.value?.getNode(nodeData.url);
-  if (!alreadyChecked ) { 
-    if (!currentNode?.indeterminate) {
-      nodeData.add = false,
-      nodeData.edit = false
-      nodeData.delete = false
-      elTReeIndeterminateNodes.splice(elTReeIndeterminateNodes.indexOf(nodeData),1)
-    } else{    
+  if (alreadyChecked && typeOfActivity.value === 'add' ) { 
+    nodeData.add = true,
+    nodeData.edit = true
+    nodeData.delete = true
+  }
+  else if (!currentNode?.indeterminate && typeOfActivity.value !== 'detail') {    
+    nodeData.add = false,
+    nodeData.edit = false
+    nodeData.delete = false
+    elTReeIndeterminateNodes.splice(elTReeIndeterminateNodes.indexOf(nodeData),1)   
+  }
+  else{    
     // get indeterminate node
-        elTReeIndeterminateNodes.push(nodeData)
-    }
+    elTReeIndeterminateNodes.push(nodeData)
   }
  
 }
@@ -282,38 +297,37 @@ const createOrEditRoleEvent = (goOut = true) => {
             indeterminate: elTReeIndeterminateNodes.find(check=>check.url === el.url) != null
           }))
         }
-        console.log(params)
-        // if(typeOfActivity.value == 'add')
-        // postCreateNewStaffRole(params).then(res => {
-        //   ElNotification({
-        //     message: res.message ?? t('reuse.addSuccess'),
-        //     type: res.statusCode == 200 ? 'success' : 'error'
-        //   })
-        //   if (res.statusCode == 200 && goOut&&parentRoute)
-        //     push({name:unref(parentRoute)})
-        // }).catch(() => {
-        //   ElNotification({
-        //     message: t('reuse.addFail'),
-        //     type: 'error'
-        //   })
-        // }).finally(() => {
-        //   loading.value = false
-        // })
-        // else
-        // editStaffRole(id, params).then(res => {
-        //   ElNotification({
-        //     message: res.message ?? t('reuse.updateSuccess'),
-        //     type: res.statusCode == 200 ? 'success' : 'error'
-        //   })
-        //   push({name:unref(parentRoute)})
-        // }).catch(() => {
-        //   ElNotification({
-        //     message: t('reuse.updateFail'),
-        //     type: 'error'
-        //   })
-        // }).finally(() => {
-        //   loading.value = false
-        // })
+        if(typeOfActivity.value == 'add')
+        postCreateNewStaffRole(params).then(res => {
+          ElNotification({
+            message: res.message ?? t('reuse.addSuccess'),
+            type: res.statusCode == 200 ? 'success' : 'error'
+          })
+          if (res.statusCode == 200 && goOut&&parentRoute)
+            push({name:unref(parentRoute)})
+        }).catch(() => {
+          ElNotification({
+            message: t('reuse.addFail'),
+            type: 'error'
+          })
+        }).finally(() => {
+          loading.value = false
+        })
+        else
+        editStaffRole(id, params).then(res => {
+          ElNotification({
+            message: res.message ?? t('reuse.updateSuccess'),
+            type: res.statusCode == 200 ? 'success' : 'error'
+          })
+          push({name:unref(parentRoute)})
+        }).catch(() => {
+          ElNotification({
+            message: t('reuse.updateFail'),
+            type: 'error'
+          })
+        }).finally(() => {
+          loading.value = false
+        })
       } else { 
         loading.value = false
         ElMessage.error(t('reuse.pleaseChooseTheRole'))

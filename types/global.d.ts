@@ -40,18 +40,3 @@ declare interface IResponse<T = any> {
   data: T extends any ? T : T & any
 }
 
-declare interface roleTreeNode { 
-  url: string,
-  label: string,
-  addable: boolean,
-  editable: boolean,
-  deletable: boolean,
-  name: string,
-  meta:RouteMeta,
-  add: boolean,
-  edit: boolean,
-  delete:boolean,
-  children: roleTreeNode[],
-  isParents: boolean,
-  disabled: boolean,
-}

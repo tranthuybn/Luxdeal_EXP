@@ -62,7 +62,6 @@ const propsObj = defineProps({
     default: false
   }
 })
-
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
 
 let selected = computed(() => {

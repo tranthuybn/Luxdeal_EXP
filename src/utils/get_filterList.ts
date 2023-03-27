@@ -20,7 +20,11 @@ export const getBadgeAccountList = async (getListFunc, typeAccount, errorMessage
   const res = await getListFunc()
   if (res) {
     if(typeAccount == '1') return res.data.map((item) => ({ label: item.accountNumber, value: item.accountNumber, id: item.id}))
-    return res.data.filter(item => item.children.length > 0).map(item => (item.children)).map(item => item[0])
+    return res.data
+          .filter(item => item.children.length > 0)
+          .map(item => (item.children))
+          .flat()
+          .map(item => ({ label: item.accountNumber, value: item.accountNumber, id: item.id}))
   } else {
     ElMessage({
       message: t(errorMessage),

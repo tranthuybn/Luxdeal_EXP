@@ -151,14 +151,15 @@ export const ACCOUNTANT_API = {
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
   PUT_COMMISSION_PAYMENT_API: 'api/v1/Customer/UpdateCommissionPayment',
   BALANCE_SHEET_LIST: '/api/v1/Accountant/GetListOfAccountingAccounts',
-  GET_BALANCE_BY_ID: '',
+  GET_BALANCE_BY_ID: 'api/v1/Accountant/GetAccountingAccountsID',
   DELETE_ACCOUNTANT: '/api/v1/Accountant/DeleteAccountingAccount',
   UPDATE_BALANCE: '/api/v1/Accountant/UpdateAccountingAccount', 
   ADD_NEW_BALANCE: 'api/v1/Accountant/CreateAccountingAccounts',
   POST_ACCOUNTANT_CREATEANEWPAYMENTREQUEST:'/api/v1/Accountant/CreateANewPaymentRequest',
   CREATE_NEW_RECEIPT_OR_PAYMENT_VOUCHER: '/api/v1/Accountant/CreateANewReceiptOrPaymentVoucher',
   EDIT_RECEIPT_OR_PAYMENT_VOUCHER: '/api/v1/Accountant/EditAReceiptOrPaymentVoucher',
-  DELETE_RECEIPT_OR_PAYMENT_VOUCHER: '/api/v1/Accountant/DeleteAReceiptOrPaymentVoucher'
+  DELETE_RECEIPT_OR_PAYMENT_VOUCHER: '/api/v1/Accountant/DeleteAReceiptOrPaymentVoucher',
+  GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/ReceiptOrPaymentVoucherDetail',
 }
 
 export const WAREHOUSE_API = {

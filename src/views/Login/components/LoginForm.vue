@@ -132,7 +132,6 @@ const signIn = () => {
           const now = new Date()
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           const accountId = res.data['userInformation']?.id ?? null
-          console.log('accountId', accountId)
           if (accountId) {
             const hasInfo = await getUserInfoByAccountId(accountId)
             if (!hasInfo)
@@ -175,7 +174,6 @@ const inValidAccountAccess = () => {
 }
 // Get role information
 const getRole =  async (accountId): Promise<boolean> => {
-  console.log('getRole');
   
   // get role list
   try {
@@ -219,7 +217,7 @@ const getUserInfoByAccountId = async (id): Promise<boolean> => {
   console.log('getUserInfoByAccountId');
   
   await getStaffInfoByAccountId({ Id: id })
-    .then((res) => {
+    .then(async (res) => {
       if (res.data && Object.keys(res.data).length > 0) {
         wsCache.set(permissionStore.getStaffInfo, res.data)
       }
@@ -236,10 +234,9 @@ const getUserInfoByAccountId = async (id): Promise<boolean> => {
 }
 // store user information
 const setPermissionForUser = (data) => {
-  console.log('setPermissionForUser',data);
-  
   wsCache.set(permissionStore.getAccessToken, data['accessToken'] ?? '')
   wsCache.set(permissionStore.getRefreshToken, data['refreshToken'] ?? '')
+  wsCache.set(permissionStore.getAccountId, data.userInformation['id'] ?? '')
 }
 // Go to register a page
 // const toRegister = () => {

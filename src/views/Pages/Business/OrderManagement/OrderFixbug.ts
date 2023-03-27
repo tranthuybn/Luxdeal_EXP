@@ -158,3 +158,11 @@ export const getStatusWarehouse = async (orderId) => {
 export const checkStatusReturnRequestInWarehouse = (status) => {
   status == TicketStatus.Accepted ? disableStatusWarehouse.value = false : disableStatusWarehouse.value = true
 }
+
+export const checkPercent = (_rule: any, value: any, callback: any) => {
+  if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+  else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
+  else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
+  else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
+  callback()
+}

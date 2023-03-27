@@ -21,6 +21,7 @@ import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 import { appModules } from '@/config/app'
 import { TableResponse } from '../../Type'
+import { GetRouterByStaffAccountId } from '@/api/login'
 //provide from main component
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
@@ -117,6 +118,20 @@ const { register, tableObject, methods } = useTable<TableData>({
     headerAlign: 'left'
   }
 })
+  
+const accountId = JSON.parse(JSON.parse(localStorage.getItem('ACCOUNT_ID')?.toString() || '').v)
+const isEdit = ref(false)
+const isDelete = ref(false)
+
+const getRole = () => {
+  GetRouterByStaffAccountId({ id: accountId }).then(res => {
+    const routerRole = res.data.find(el => el.url == router.currentRoute.value.path)
+    if (routerRole?.editable == true) isEdit.value = true
+    else isEdit.value = false
+    if (routerRole?.deletable == true) isDelete.value = true
+    else isDelete.value = false
+  })
+}
 
 // get api
 let paginationObj = ref<Pagination>()
@@ -127,6 +142,7 @@ const getData = (data = {}) => {
 }
 onBeforeMount(() => {
   getData()
+  getRole()
 })
 // execute pagination
 watch(
@@ -380,8 +396,8 @@ const updateTableColumn = () => {
       <template v-if="!(customOperator === 3)" #operator="{ row }">
         <div v-if="customOperator === 1">
           <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
-          <ElButton @click="action(row, 'edit')" :icon="editIcon" />
-          <ElButton @click="delData(row, false)" :icon="trashIcon" />
+          <ElButton v-if="isEdit == true" @click="action(row, 'edit')" :icon="editIcon" />
+          <ElButton v-if="isDelete == true" @click="delData(row, false)" :icon="trashIcon" />
         </div>
         <div v-if="customOperator === 2">
           <ElButton v-if="buttonShow" type="primary" @click="action(row, 'editRow')" plain>

@@ -480,6 +480,8 @@ export const statusOrder = (val) => {
       return t('reuse.successfulDelivery')
     case 4:
       return t('formDemo.receivedDelivery')
+    default:
+      return ''
   }
 }
 

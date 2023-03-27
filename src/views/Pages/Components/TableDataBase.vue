@@ -13,6 +13,7 @@ import { useAppStore } from '@/store/modules/app'
 import moment from 'moment'
 import { ElNotification } from 'element-plus'
 import { excelParser } from './excel-parser'
+import { GetRouterByStaffAccountId } from '@/api/login'
 const { currentRoute } = useRouter()
 const { t } = useI18n()
 const props = defineProps({
@@ -50,7 +51,7 @@ const props = defineProps({
   },
   titleAdd2: {
     type: String,
-    default: ''
+    default: '',
   },
   titleChilden: {
     type: String,
@@ -94,7 +95,8 @@ const props = defineProps({
   },
   removeButtonAdd: {
     type: Boolean,
-    default: false
+    default: false,
+    description: 'Remove button add'
   },
   apiHasPagination: {
     type: Boolean,
@@ -106,15 +108,26 @@ const props = defineProps({
   },
   showSummary: {
     type: Boolean,
-    default: false
+    default: false,
+    description: 'show summary for table'
   },
   getSummaries: {
     type: Function,
-    default: () => []
+    default: () => [],
+    description: 'if prop showSummary is true, use this prop to customize the summary'
   },
   customRouterName: {
     type: String,
-    default: ''
+    default: '',
+    description: 'if table have 2 add button, use this prop pass to path of second add button'
+  },
+  apiHasDateParams: {
+    type: Boolean,
+    default: false
+  },
+  dateDefault : {
+    type: Object,
+    default: () => {}
   }
 })
 
@@ -122,14 +135,35 @@ const emit = defineEmits(['getDate'])
 
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
+  
+const accountId = JSON.parse(JSON.parse(localStorage.getItem('ACCOUNT_ID')?.toString() || '').v)
+const isAddable = ref(false)
+const getRole = () => {
+  GetRouterByStaffAccountId({ id: accountId }).then(res => {
+    const routerRole = res.data.find(el => el.url == router.currentRoute.value.path)
+    if (routerRole?.addable == true) return isAddable.value = true
+    else isAddable.value = false
+  })
+}
 
 const getData = (data) => {
-  unref(tableBase01)!.getData(data)
-  emit('getDate', data )
+  const table = unref(tableBase01);
+  if (!props.apiHasDateParams || (data.startDate && data.endDate)) {
+    table!.getData(data);
+  } else {
+    const newData = {
+      startDate: data.startDate || props.dateDefault.startDate,
+      endDate: data.endDate || props.dateDefault.endDate,
+      Keyword: data.Keyword
+    };
+    table!.getData(newData);
+  }
+  emit('getDate', data);
 }
 
 //add operator for every table
 onBeforeMount(() => {
+  getRole()
   dynamicApi.value = props.api
   dynamicColumns.value = props.columns
   if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
@@ -201,10 +235,10 @@ const initMappingObject = (el) => {
   <section>
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
         <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
-          <el-button v-if="!removeButtonAdd" type="primary" :icon="createIcon" @click="pushAdd">
+          <el-button v-if="!removeButtonAdd && isAddable == true" type="primary" :icon="createIcon" @click="pushAdd">
             {{ t(`${props.titleAdd}`) }}
           </el-button>
-          <el-button v-if="props.titleAdd2" type="primary" :icon="createIcon" @click="pushAdd2">
+          <el-button v-if="props.titleAdd2 && isAddable == true" type="primary" :icon="createIcon" @click="pushAdd2">
             {{ t(`${props.titleAdd2}`) }}
           </el-button>
         </template>

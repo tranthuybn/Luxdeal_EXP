@@ -484,7 +484,6 @@ const changeAddressCustomer = (data) => {
     infoCompany.phone = infoCustomerId.value.phone
     infoCompany.email = 'Email: ' + infoCustomerId.value.email
   }
-  optionCallPromoAPi = 0
   customerIdPromo.value = infoCustomerId.value.id
   callPromoApi()
 }
@@ -819,10 +818,8 @@ let customerIdPromo = ref()
 let promoTable = ref()
 const promoLoading = ref(true)
 const listPromotions = ref()
-let optionCallPromoAPi = 0
 const callPromoApi = async () => {
-  if (optionCallPromoAPi == 0) {
-    const res = await getPromotionsList({ ServiceType: 1, CustomerId: customerIdPromo.value })
+    const res = await getPromotionsList({ ServiceType: 5, CustomerId: customerIdPromo.value })
     listPromotions.value = res.data
     promoTable.value = listPromotions.value.map((product) => ({
       id: product.id,
@@ -847,8 +844,6 @@ const callPromoApi = async () => {
       max: product.maximumReduce,
       isAvailable: product.isAvailable
     }))
-    optionCallPromoAPi++
-  }
 }
 
 const currentRow = ref()
@@ -1259,7 +1254,7 @@ const postData = async (pushBack: boolean) => {
     WardId: valueCommune.value ?? 1,
     Address: enterdetailAddress.value,
     OrderDetail: productPayment,
-    CampaignId: 2,
+    CampaignId: campaignId.value,
     // VAT: adioVAT.value == t('formDemo.VATNotIncluded') ? null : radioVAT.value == t('formDemo.doesNotIncludeVAT') ? null      : parseInt(radioVAT.value),
     VAT: 0,
     // VATMoney: moneyVAT.value,
@@ -1315,15 +1310,6 @@ const warehouseTranferAuto = async (index) => {
   await postAutomaticWarehouse(JSON.stringify(payload))
 }
 const clickStarSpa = ref(false)
-
-
-const checkPercent = (_rule: any, value: any, callback: any) => {
-  if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
-  else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
-  else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
-  else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
-  callback()
-}
 
 const checkDisabled = ref(false)
 const checkDisabled3 = ref(false)
@@ -1389,7 +1375,7 @@ const rules = reactive<FormRules>({
   ],
   collaboratorCommission: [
     {
-      validator: checkPercent,
+      validator: orderUtility.checkPercent,
       trigger: 'blur'
     }
   ],
@@ -3491,7 +3477,7 @@ const finishOrder = async () =>{
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
                     <div v-if="infoCompany.taxCode !== null">
-                      Mã số thuế: {{ infoCompany.taxCode }}</div
+                      {{ infoCompany.taxCode }}</div
                     >
                     <div>{{ infoCompany.phone }}</div>
                     <div>{{ infoCompany.email }}</div>
@@ -3569,7 +3555,7 @@ const finishOrder = async () =>{
               <template #default="props">
                 <div>{{ props.row.label }}</div>
                 <div>{{ props.row.description }}</div>
-                <div>Áp dụng cho đơn hàng từ {{ props.row.min }}</div>
+                <div>Áp dụng cho đơn hàng từ {{ changeMoney.format(props.row.min) }}</div>
               </template>
             </el-table-column>
             <el-table-column prop="toDate" width="180" align="left">
@@ -3887,9 +3873,9 @@ const finishOrder = async () =>{
             }}</div>
           </div>
 
-          <div class="w-60 pl-2">
+          <div class="w-60 pl-2" >
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>
-            <div class="text-blue-500 cursor-pointer bg-[#F4F8FD]">
+            <div class="text-blue-500 cursor-pointer bg-[#F4F8FD]" v-if="showPromo">
               {{ promoActive }}
             </div>
             <div class="dark:text-[#fff] text-transparent dark:text-transparent">s</div>

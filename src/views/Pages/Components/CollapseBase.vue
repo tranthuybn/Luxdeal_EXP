@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, PropType } from 'vue'
 import { ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useDesign } from '@/hooks/web/useDesign'
@@ -12,7 +12,7 @@ const { t } = useI18n()
 
 const props = defineProps({
   collapse: {
-    type: Array<Collapse>,
+    type: Array as PropType<Collapse[]> ,
     default: () => []
   },
   default: {

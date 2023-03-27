@@ -18,7 +18,7 @@ const { t } = useI18n()
 
 const columns = reactive<TableColumn[]>([
   {
-    field: 'id',
+    field: 'index',
     label: t('reuse.index'),
     type: 'index',
     sortable: true,
@@ -142,7 +142,7 @@ const columns = reactive<TableColumn[]>([
 <template>
   <tableDatetimeFilterBasicVue 
   :columns="columns" 
-  :customOperator="4" 
+  :customOperator="6" 
   :delApi="deleteReceiptOrPayment" 
   :api="getReceiptsExpendituresList" 
   :titleAdd="t('reuse.receiptsAdd')"

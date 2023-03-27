@@ -3,18 +3,19 @@ export interface FormDataPostAndEdit  {
     CreateAt: string
     CreatedBy: string
     Description: string
-    PeopleType: string
+    PeopleId: number
+    PeopleType: 1
     TotalMoney: number
     EnterMoney: string
     TypeOfPayment: 1 | 2
     AccountNumber?: number
-    Paid?: boolean
+    Transacted: boolean
     Type: 1 | 0
 }
 
 export interface FormData {
     code: string
-    createAt: string
+    createdAt: string
     createdBy: string
     description: string
     peopleType: string

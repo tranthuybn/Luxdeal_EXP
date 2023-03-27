@@ -86,7 +86,9 @@ import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
 import { changeMoney } from '@/utils/tsxHelper'
+import { useValidator } from '@/hooks/web/useValidator'
 
+const { ValidService } = useValidator()
 const { utility } = appModules
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
@@ -131,12 +133,7 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  discount: [
-    {
-      validator: orderUtility.checkPercent,
-      trigger: 'blur'
-    }
-  ],
+  discount: [{validator : ValidService.checkPercent.validator } ],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],

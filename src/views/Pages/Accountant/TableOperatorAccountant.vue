@@ -146,6 +146,7 @@ const imageUrl = ref()
 const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
+
 const deleteFileIds: any = []
 const fileList = ref<UploadUserFile[]>([])
 const loading = ref(false)
@@ -153,12 +154,12 @@ const fullSpan = ref<number>()
 const rawUploadFile = ref<UploadFile>()
 const optionPeopleType = ref()
 const optionCreatedBy = ref()
+const accountNumberOptions = ref()
 const pageIndexStaff = ref(1)
 const pageIndexCustomer = ref(1)
 const pageSize = ref(10)
 const createdByOptions = ref([{}])
 const peopleTypeOptions = ref([{}])
-const accountNumberOptions = ref()
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
 
@@ -192,6 +193,8 @@ const getTableValue = async () => {
 
 //formValue lay tu api
 const customizeData = async () => {
+  optionPeopleType.value = formValue.value?.peopleObject
+  optionCreatedBy.value = formValue.value?.createdByObject
   emit('customize-form-data', formValue.value)
 }
 
@@ -225,7 +228,6 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
-
 //Get data when click detail or edit button
 watch(
   () => props.type,
@@ -293,7 +295,7 @@ const save = async (type) => {
       if (type == 'add') {
         data.backRouter = true
         if(optionCreatedBy.value?.id && optionPeopleType.value?.id) {
-          data.createdBy = optionCreatedBy.value.id
+          data.createdById = optionCreatedBy.value.id
           data.peopleId = optionPeopleType.value.id
         }
         emit('post-data', data)
@@ -485,13 +487,14 @@ onBeforeMount(async () => {
   peopleTypeOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
   
   const accountNumberList = await getAccountantList({})
-  accountNumberOptions.value = accountNumberList.data.map(item => ({
-    label: `${item.accountNumber} | ${item.accountName}`,
-    value: item.id,
-    children: item.children.length > 0 ? 
-      item.children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
-  }))
-})
+  accountNumberOptions.value = accountNumberList.data.filter(item => item.isActive)
+    .map(item => ({
+      label: `${item.accountNumber} | ${item.accountName}`,
+      value: item.id,
+      children: item.children.length > 0 ? 
+        item.children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
+    }))
+  })
 const handleScroll = (field) => {
   switch (field) {
     case 'createdBy' :
@@ -563,6 +566,10 @@ const approvalProduct = async () => {
       })
     )
 }
+const treeSelect = ref()
+const testFun = (e) => {
+  console.log(e.target.value)
+}
 </script>
 <template>
   <ContentWrap :title="title" :back-button="backButton">
@@ -622,11 +629,13 @@ const approvalProduct = async () => {
 
           <template #accountNumber="form">
             <el-tree-select
+              ref="treeSelect"
               v-model="form['accountNumber']"
               :data="accountNumberOptions"
               check-strictly
               :render-after-expand="false"
               show-checkbox
+              @change="testFun"
             />
           </template>
 

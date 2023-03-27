@@ -95,15 +95,6 @@ import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
 
 const { utility } = appModules
 const { t } = useI18n()
-
-const checkPercent = (_rule: any, value: any, callback: any) => {
-  if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
-  else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
-  else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
-  else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
-  callback()
-}
-
 const ruleFormRef = ref<FormInstance>()
 const ruleAddQuickCustomerFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()

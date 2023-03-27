@@ -233,7 +233,6 @@ const editData = async (data) => {
     disabledCancelBtn.value = true
   }
   data = customData(data)
-  console.log('data', data)
   await updateAccountant(data)
   .then(() => {
     ElNotification({
@@ -266,10 +265,9 @@ const customizeData = async (data) => {
     changeValueClassify('1')
   } else {
     changeValueClassify('2')
-    schema[4].hidden = false
+    setFormData.typeAccount = '2'
     setFormData.accountNumber1 = badgeAccount1List.value.find(item => item.id == data.parentId).label
     setFormData.accountNumber2 = data.accountNumber
-    setFormData.typeAccount = '2'
   }
   return 
 }

@@ -416,7 +416,6 @@ const delAction = async () => {
       confirmButtonClass: 'ElButton--danger'
     })
       .then(() => {
-        console.log()
         const res = props.delApi({ Id: props.id })
         if (res) {
           ElNotification({

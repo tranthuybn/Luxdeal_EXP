@@ -293,8 +293,8 @@ const save = async (type) => {
       if (type == 'add') {
         data.backRouter = true
         if(optionCreatedBy.value?.id && optionPeopleType.value?.id) {
-          data.createdById = optionCreatedBy.value.id
-          data.peopleTypeId = optionPeopleType.value.id
+          data.createdBy = optionCreatedBy.value.id
+          data.peopleId = optionPeopleType.value.id
         }
         emit('post-data', data)
         loading.value = false
@@ -306,7 +306,6 @@ const save = async (type) => {
         loading.value = false
       }
       if (type == 'edit') {
-        console.log('vô đây')
         data.backRouter = true
         data.Id = props.id
         // fix cung theo api (nen theo 1 quy tac)

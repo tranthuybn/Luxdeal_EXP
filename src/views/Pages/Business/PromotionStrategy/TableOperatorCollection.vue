@@ -41,6 +41,7 @@ import { dateTimeFormat, FORM_IMAGES, moneyFormat } from '@/utils/format'
 import { Approvement, CampaignTypeArr } from '@/utils/API.Variables'
 import moment from 'moment'
 import {CampaignStatusV2} from './CampaignStatusEnum'
+import { statusCampaign } from '@/utils/status'
 
 const currentDate = ref(moment().format("DD/MM/YYYY"))
 const { t } = useI18n()
@@ -237,28 +238,6 @@ const setFormValue = async () => {
     }
   } else {
     setValues(formValue.value)
-  }
-}
-
-// Modify color of statusValue
-const statusClass = (campaignStatus) => {
-  switch (campaignStatus) {
-    case -1:
-      return 'status--cancel';
-    case 0:
-      return 'status--initial';
-    case 1:
-      return 'status--pending';
-    case 2:
-      return 'status--pending-edit';
-    case 3:
-      return 'status--active';
-    case 4:
-      return 'status--ending';
-    case 41:
-      return 'status--sent-voucher';
-    default:
-      return '';
   }
 }
 
@@ -1221,7 +1200,7 @@ const spaMoney = ref(0)
                       <span
                         class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                       ></span>
-                      <span class="box dark:text-divck" :class="statusClass(item.campaignStatus)" >
+                      <span class="box dark:text-divck" :class="statusCampaign(item.campaignStatus)" >
                         {{item.campaignStatusName }}    
                         <span class="triangle-right"></span>
                       </span>

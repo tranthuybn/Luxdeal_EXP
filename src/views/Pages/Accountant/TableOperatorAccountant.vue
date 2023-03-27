@@ -15,20 +15,29 @@ import {
   ElMessageBox,
   ElNotification,
   ElImage,
-  ElDivider
+  ElDivider,
+  ElTreeSelect
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
-import { TableResponse } from '../../Type'
 import { useRoute, useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 import { approvalProducts } from '@/api/Approval'
-import { FORM_IMAGES } from '@/utils/format'
+import { FORM_IMAGES, dateTimeFormat } from '@/utils/format'
+import { statusService } from '@/utils/status'
+import moment from 'moment'
+import { TableResponse } from '@/views/Pages/Components/Type'
+import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import { getStaffList, getAllCustomer, getAccountantList } from '@/api/Business'
+import { ListImages } from './types'
 
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
+const { push } = useRouter()
+const router = useRouter()
+const route = useRoute()
 const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
@@ -49,6 +58,11 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  hasAttachDocument: {
+    type: Boolean,
+    default: false,
+    description: 'add attach document'
+  },
   multipleImages: {
     type: Boolean,
     default: true
@@ -66,7 +80,7 @@ const props = defineProps({
   //id của sản phẩm
   id: {
     type: Number,
-    default: NaN
+    default: 0
   },
   //type = 'add' || 'detail' || 'edit'
   //có sự kiện watch để bắt xem đang ở type nào
@@ -94,11 +108,6 @@ const props = defineProps({
     type: Object,
     default: () => {}
   },
-  // remove the button at the end of the component
-  removeButton: {
-    type: Boolean,
-    default: false
-  },
   // add exit button to header
   backButton: {
     type: Boolean,
@@ -112,11 +121,7 @@ const props = defineProps({
   titleAdd: {
     type: String,
     default: 'reuse.addCategory',
-    Descriptions: 'tiêu đề nút thêm mới'
-  },
-  tab: {
-    type: String,
-    default: ''
+    descriptions: 'title add button'
   },
   showSaveAndAddBtnOnTypeEdit: {
     type: Boolean,
@@ -126,9 +131,39 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  customAddBtn: {
+    type: Number,
+    default: 1
+  }
 })
+// eslint-disable-next-line vue/no-setup-props-destructure
+const schema = props.schema
 const formValue = ref()
+const currentDate = ref(moment().format("DD/MM/YYYY"))
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const imageUrl = ref()
+const addIcon = useIcon({ icon: 'uil:plus' })
+const viewIcon = useIcon({ icon: 'uil:search' })
+const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
+const deleteFileIds: any = []
+const fileList = ref<UploadUserFile[]>([])
+const loading = ref(false)
+const fullSpan = ref<number>()
+const rawUploadFile = ref<UploadFile>()
+const optionPeopleType = ref()
+const optionCreatedBy = ref()
+const pageIndexStaff = ref(1)
+const pageIndexCustomer = ref(1)
+const pageSize = ref(10)
+const createdByOptions = ref([{}])
+const peopleTypeOptions = ref([{}])
+const accountNumberOptions = ref()
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
+const { register, methods, elFormRef } = useForm({schema})
+
+//if schema has image then split screen
+props.hasImage || props.hasAttachDocument ? (fullSpan.value = 12) : (fullSpan.value = 24)
 
 //get data from table
 const getTableValue = async () => {
@@ -154,20 +189,12 @@ const getTableValue = async () => {
     }
   }
 }
-// eslint-disable-next-line vue/no-setup-props-destructure
-const schema = props.schema
-const { register, methods, elFormRef } = useForm({
-  schema
-})
-let fileList = ref<UploadUserFile[]>([])
 
 //formValue lay tu api
 const customizeData = async () => {
   emit('customize-form-data', formValue.value)
 }
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const imageUrl = ref()
+
 //set data for form edit and detail
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
@@ -199,7 +226,7 @@ const setFormValue = async () => {
   }
 }
 
-//Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
+//Get data when click detail or edit button
 watch(
   () => props.type,
   () => {
@@ -238,12 +265,8 @@ defineExpose({
   setValues: methods.setValues
 })
 
-const route = useRoute()
-const loading = ref(false)
 
 //doc du lieu tu bang roi emit len goi API
-
-const tabs = ref()
 const save = async (type) => {
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
@@ -269,28 +292,25 @@ const save = async (type) => {
       //callback cho hàm emit
       if (type == 'add') {
         data.backRouter = true
-        data.tabs = tabs
-        data.tab =
-          props.tab == 'branch' ? 1 : props.tab == 'department' ? 2 : props.tab == 'rank' ? 3 : 4
+        if(optionCreatedBy.value?.id && optionPeopleType.value?.id) {
+          data.createdBy = optionCreatedBy.value.id
+          data.peopleId = optionPeopleType.value.id
+        }
         emit('post-data', data)
         loading.value = false
       }
       if (type == 'saveAndAdd') {
-        if (props.showSaveAndAddBtnOnTypeEdit) {
-          emit('post-data', {data, typeBtn: 'saveAndAdd'})
-        } else {
-          emit('post-data', data)
-        }
+        data.typeBtn = 'saveAndAdd'
+        emit('post-data', data)
         unref(elFormRef)!.resetFields()
         loading.value = false
       }
       if (type == 'edit') {
         data.backRouter = true
         data.Id = props.id
-        data.tabs = tabs
         // fix cung theo api (nen theo 1 quy tac)
         data.NewPhotos = fileList.value
-        data.DeleteFileIds = DeleteFileIds
+        data.DeleteFileIds = deleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
         emit('edit-data', data)
         loading.value = false
@@ -302,21 +322,13 @@ const save = async (type) => {
     }
   })
 }
-const addIcon = useIcon({ icon: 'uil:plus' })
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
-
-//if schema has image then split screen
-let fullSpan = ref<number>()
-let rawUploadFile = ref<UploadFile>()
-props.hasImage ? (fullSpan.value = 12) : (fullSpan.value = 24)
 //set Title
 let title = ref(props.title)
 if (props.title == 'undefined') {
   title.value = 'Category'
 }
 
-let DeleteFileIds: any = []
+
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value?.filter((image) => image.url !== file.url)
   ListFileUpload.value = ListFileUpload.value?.filter((image) => image.url !== file.url)
@@ -326,7 +338,7 @@ const handleRemove = (file: UploadFile) => {
       (image) => `${API_URL}${image.path}` === file.url
     )
     if (imageRemove) {
-      DeleteFileIds.push(imageRemove?.id)
+      deleteFileIds.push(imageRemove?.id)
     }
   }
 }
@@ -394,22 +406,6 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     return true
   }
 }
-//chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
-const { push } = useRouter()
-const router = useRouter()
-const edit = () => {
-  push({
-    // name: `human-resource-management.department-directory.${utility}`,
-    name: `${String(router.currentRoute.value.name)}`,
-    // params: { id: row.id, type: type, tab: props.tabs }
-    params: {
-      backRoute: `${String(router.currentRoute.value.name)}`,
-      tab: props.tab,
-      type: 'edit',
-      id: props.id
-    }
-  })
-}
 //xóa dữ liệu sản phẩm
 const delAction = async () => {
   {
@@ -445,7 +441,8 @@ const delAction = async () => {
 const cancel = () => {
   router.go(-1)
 }
-//xử lí ảnh
+
+//Image handle
 const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) => {
   if (!props.multipleImages) {
@@ -470,14 +467,81 @@ const removeImage = () => {
   rawUploadFile.value = undefined
   imageUrl.value = undefined
 }
-
-type ListImages = 'text' | 'picture' | 'picture-card'
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 
-onBeforeMount(() => {
-  tabs.value = String(route.params.tab)
+
+onBeforeMount(async () => {
+  const staffList = await getStaffList({
+    PageIndex: pageIndexStaff.value,
+    PageSize: pageSize.value
+  })
+  createdByOptions.value = staffList.data.map(({code, phonenumber, name, id}) => ({label: code, value: phonenumber, name, id}))
+  
+  const customerList = await getAllCustomer({
+    PageIndex: pageIndexCustomer.value,
+    PageSize: pageSize.value
+  })
+  peopleTypeOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
+  
+  const accountNumberList = await getAccountantList({})
+  accountNumberOptions.value = accountNumberList.data.map(item => ({
+    label: `${item.accountNumber} | ${item.accountName}`,
+    value: item.id,
+    children: item.children.length > 0 ? 
+      item.children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
+  }))
 })
+const handleScroll = (field) => {
+  switch (field) {
+    case 'createdBy' :
+      pageIndexStaff.value += 1
+      return
+    case 'peopleType' : 
+      pageIndexCustomer.value += 1
+      return
+    default: return ''
+  }
+};
+const changeOption = (option) => {
+  console.log(option)
+}
+const handleChangeOptions = (option, form, formType) => {
+  switch (formType) {
+    case 'createdBy' :
+      form.createdBy = `${option.name} | ${option.value}`
+      optionCreatedBy.value = option
+      return
+    case 'peopleType' : 
+      form.peopleType = `${option.name} | ${option.value}`
+      optionPeopleType.value = option
+      return
+    default: return ''
+  }
+}
+watch(pageIndexStaff, async (newPageIndex) => {
+  const response = await getStaffList({
+    PageIndex: newPageIndex,
+    PageSize: pageSize.value
+  })
+
+  if(response.data.length > 0) {
+    const arr = response.data.map(item => ({label: item.code, value: item.phonenumber, name: item.name, id: item.id }))
+    createdByOptions.value.push(...arr); 
+  }
+});
+
+watch(pageIndexCustomer, async (newPageIndex) => {
+  const response = await getAllCustomer({
+    PageIndex: newPageIndex,
+    PageSize: pageSize.value
+  })
+
+  if(response.data.length > 0) {
+    const arr = response.data.map(({code, phonenumber,name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
+    peopleTypeOptions.value.push(...arr); 
+  }
+});
 
 const approvalId = String(route.params.approvalId)
 const approvalProduct = async () => {
@@ -501,10 +565,93 @@ const approvalProduct = async () => {
 }
 </script>
 <template>
-  <ContentWrap :title="props.title" :back-button="props.backButton">
+  <ContentWrap :title="title" :back-button="backButton">
     <ElRow class="pl-8" :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
-        <Form :rules="rules" @register="register" />
+        <Form :rules="rules" @register="register" >
+          <template #statusHistory="form">
+            <div class="mr-5 flex flex-col justify-start gap-2" v-if="type=='add'">
+                <div>
+                  <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span class="box status--initial dark:text-divck" >
+                      {{ t('reuse.initializeAndWrite') }}
+                      <span class="triangle-right"></span>
+                    </span>
+                </div>
+                <div class="italic text-xs text-gray-500">{{ currentDate }}</div>
+              </div>
+              <div v-else class="flex items-start" >
+                <div          
+                    class="duplicate-status align-top"
+                    v-for="item, index in form['statusHistory']"
+                    :key="index"
+                >
+                  <div class="mr-5 flex flex-col justify-start gap-2">
+                      <div>
+                        <span
+                          class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                        ></span>
+                        <span class="box dark:text-divck" :class="statusService(item.status)" >
+                          {{item.statusName }}    
+                          <span class="triangle-right"></span>
+                        </span>
+                      </div>
+                      <div class="italic text-xs text-gray-500">{{dateTimeFormat(item.approvedAt)}}</div>
+                  </div>
+                </div>
+              </div>
+          </template>
+          
+          <template #createdBy="form">
+            <MultipleOptionsBox 
+              :fields="[t('reuse.employeeCode'),t('reuse.phoneNumber'),t('reuse.employeeName')]"
+              min-width="500px"
+              valueKey="id" 
+              labelKey="label"
+              :hiddenKey="['id']"
+              :clearable="false"
+              :items="createdByOptions"
+              @scroll-bottom="() => handleScroll('createdBy')"
+              @change="changeOption"
+              :defaultValue="form.createdBy"
+              @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
+            />
+          </template>
+
+          <template #accountNumber="form">
+            <el-tree-select
+              v-model="form['accountNumber']"
+              :data="accountNumberOptions"
+              check-strictly
+              :render-after-expand="false"
+              show-checkbox
+            />
+          </template>
+
+          <template #peopleType="form">
+            <MultipleOptionsBox 
+              :fields="[t('reuse.customerCode'),t('reuse.phoneNumber'),t('reuse.customerName')]"
+              min-width="500px"
+              valueKey="id" 
+              labelKey="label"
+              :hiddenKey="['id', 'email']"
+              :clearable="false"
+              :items="peopleTypeOptions"
+              @scroll-bottom="() => handleScroll('peopleType')"
+              @change="changeOption"
+              :defaultValue="form.peopleType"
+              @update-value="(_value, option) =>  handleChangeOptions(option, form, 'peopleType')"
+            />
+            <ul class="mt-2">
+              <li v-if="optionPeopleType?.name" class="leading-5">{{ optionPeopleType.name }}</li>
+              <li v-if="optionPeopleType?.value" class="leading-5">{{ t('reuse.phoneNumber') }}: {{ optionPeopleType.value }}</li>
+              <li v-if="optionPeopleType?.email" class="leading-5">{{ t('reuse.email') }}: {{ optionPeopleType.email }}</li>
+            </ul>
+          </template>
+        </Form>
+       
       </ElCol>
       <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
         <ElDivider class="text-center font-bold ml-2">{{ t('reuse.addImage') }}</ElDivider>
@@ -568,10 +715,24 @@ const approvalProduct = async () => {
           <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
         </el-dialog>
       </ElCol>
+      <ElCol :span="hasAttachDocument ? 12 : 0" v-if="hasAttachDocument" class="max-h-400px overflow-y-auto">
+        <ElDivider class="text-center font-bold ml-2">{{ t('reuse.attachDocument') }}</ElDivider>
+      </ElCol>
     </ElRow>
-    <template #under v-if="!removeButton">
+    <template #under>
       <div class="w-[100%]" v-if="props.type === 'add'">
-        <div class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customAddBtn == 1" class="w-[50%] flex justify-left gap-2 ml-8">
+          <ElButton :loading="loading" @click="save('add')">
+              {{ t('button.print') }}
+          </ElButton>
+          <ElButton type="primary" :loading="loading" @click="save('add')">
+            {{ t('reuse.saveAndPending') }}
+          </ElButton>
+          <ElButton type="danger" :loading="loading" @click="cancel()">
+            {{ t('reuse.cancel') }}
+          </ElButton>
+        </div>
+        <div v-if="customAddBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('add')">
             {{ t('reuse.save') }}
           </ElButton>
@@ -584,25 +745,26 @@ const approvalProduct = async () => {
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'edit'">
-        <div class="w-[50%] flex justify-left gap-2 ml-5">
-          <ElButton :loading="loading" type="primary" @click="save('edit')">
-            {{ t('reuse.save') }}
+        <div v-if="customAddBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
+          <ElButton :loading="loading" @click="save('add')">
+              {{ t('button.print') }}
           </ElButton>
-          <ElButton v-if="props.showSaveAndAddBtnOnTypeEdit" :loading="loading" type="primary" @click="save('saveAndAdd')">
-            {{ t('reuse.saveAndAdd') }}
+          <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
+            {{ t('reuse.saveAndPending') }}
           </ElButton>
-          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="props.showSaveAndAddBtnOnTypeEdit ? delAction : cancel">
-            {{ t('reuse.cancel') }}
+          <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+            {{ t('reuse.delete') }}
           </ElButton>
         </div>
-      </div>
-      <div class="w-[100%]" v-if="props.type === 'detail'">
-        <div class="w-[50%] flex justify-left gap-2 ml-5">
-          <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
-            {{ t('reuse.fix') }}
+        <div v-if="customAddBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
+          <ElButton type="primary" :loading="loading" @click="save('edit')">
+            {{ t('reuse.save') }}
           </ElButton>
-          <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-            {{ t('reuse.delete') }}
+          <ElButton type="primary" :loading="loading" @click="save('edit')">
+            {{ t('reuse.saveAndAdd') }}
+          </ElButton>
+          <ElButton :loading="loading" @click="delAction">
+            {{ t('reuse.cancel') }}
           </ElButton>
         </div>
       </div>
@@ -613,30 +775,29 @@ const approvalProduct = async () => {
     </template>
   </ContentWrap>
 </template>
-<style scoped>
-.avatar-uploader .avatar {
-  display: block;
-  width: 250px;
-  padding-bottom: 1rem;
-}
-
-.avatar-uploader .el-upload {
-  position: relative;
-  margin-left: 2rem;
-  overflow: hidden;
-  cursor: pointer;
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader :deep(.el-upload) {
-  display: flex;
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
+<style lang="scss" scoped>
+.avatar-uploader{
+  .avatar {
+    display: block;
+    width: 250px;
+    padding-bottom: 1rem;
+  }
+  .el-upload {
+    position: relative;
+    margin-left: 2rem;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px dashed var(--el-border-color);
+    border-radius: 6px;
+    transition: var(--el-transition-duration-fast);
+  }
+  &:deep(.el-upload) {
+    display: flex;
+  }
+  .el-upload:hover {
+    border-color: var(--el-color-primary);
+  }
+} 
 
 .avatar-uploader-icon {
   width: 148px;
@@ -659,6 +820,39 @@ const approvalProduct = async () => {
 :deep(.el-button) {
   min-width: 150px;
   min-height: 40px;
+}
+.triangle-left {
+  position: absolute;
+  z-index: 100;
+  width: 0;
+  height: 0;
+}
+
+.triangle-right {
+  position: absolute;
+  right: -12px;
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 11px solid #ccc;
+}
+.box {
+  position: relative;
+  display: flex;
+  width: fit-content;
+  padding: 0 10px 0 20px;
+  background-color: #ccc;
+  border: 1px solid #ccc;
+  opacity: 1;
+  align-items: center;
+  line-height: 23px;
+}
+::v-deep(.readonly-info) {
+  .el-input__wrapper{
+    box-shadow: none;
+    padding: 0
+  }
 }
 
 </style>

@@ -102,7 +102,7 @@ export const PurchaseOrderColumn = [
     align: 'left',
     filters: filterStatusOrder,
     formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
-      return statusOrder(cellValue)
+      return `${t(statusOrder(cellValue))}`
     }
   }
 ]

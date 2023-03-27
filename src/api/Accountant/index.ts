@@ -28,7 +28,7 @@ export const getEmployeeById = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
-export const CreateANewReceiOrPayment = async (params: any): Promise<IResponse> => {
+export const postNewReceiOrPayment = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     {
       url: ACCOUNTANT_API.CREATE_NEW_RECEIPT_OR_PAYMENT_VOUCHER,
@@ -38,8 +38,17 @@ export const CreateANewReceiOrPayment = async (params: any): Promise<IResponse> 
   )
   return res.data && res.data.data
 }
-
-export const EditAReceiptOrPaymentVoucher = async (params: any): Promise<IResponse> => {
+export const getDetailReceiptPayment = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ACCOUNTANT_API.GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE}?${objectToQueryParams(params)}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+export const updateReceiptOrPayment = async (params: any): Promise<IResponse> => {
   const res = await request.put(
     {
       url: ACCOUNTANT_API.EDIT_RECEIPT_OR_PAYMENT_VOUCHER,
@@ -50,7 +59,7 @@ export const EditAReceiptOrPaymentVoucher = async (params: any): Promise<IRespon
   return res.data && res.data.data
 }
 
-export const deleteAReceiptOrPaymentVoucher = async (params: any): Promise<IResponse> => {
+export const deleteReceiptOrPayment = async (params: any): Promise<IResponse> => {
   const res = await request.delete(
     {
       url: `${ACCOUNTANT_API.DELETE_RECEIPT_OR_PAYMENT_VOUCHER}?${objectToQueryParams(params)}`

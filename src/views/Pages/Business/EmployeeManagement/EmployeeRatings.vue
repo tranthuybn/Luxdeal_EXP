@@ -19,6 +19,7 @@ import { useRouter } from 'vue-router'
 import { ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useAppStore } from '@/store/modules/app'
+import { localStore } from './store'
 
 // Key must be the same as name filed in columns
 const apiToFilter = {
@@ -27,35 +28,30 @@ const apiToFilter = {
   ['rankEmployee'] : getRankList,
   ['typeEmployee'] : getTypePersonnelList,
 }
-
 const { t } = useI18n()
+const dateDefault = {
+  startDate : moment().startOf('month').format('YYYY-MM-DD%20HH:mm:ss'), 
+  endDate: moment().endOf('day').format('YYYY-MM-DD%20HH:mm:ss')
+}
 const startDateDef = moment().startOf('month').format('YYYY-MM-DD%20HH:mm:ss')
 const endDateDef = moment().endOf('day').format('YYYY-MM-DD%20HH:mm:ss')
 const startDate = ref(startDateDef)
 const endDate = ref(endDateDef)
 const params = {startDate: startDate.value, endDate: endDate.value}
-provide('parameters', {params})
 const { push } = useRouter()
 const router = useRouter()
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
+provide('parameters', {params})
+const { setData } = localStore()
+setData(params)
 const action = (row: any, type: string) => {
-  if (type === 'detail') {
-    if(startDate.value || endDate.value) {
-      push({
+  push({
         name: `${String(router.currentRoute.value.name)}.${Utility}`,
-        params: { id: row.id, type: type, tab: row.voucherType, startDate: startDate.value, endDate:endDate.value }
-      })
-    } else {
-      push({
-        name: `${String(router.currentRoute.value.name)}.${Utility}`,
-        params: { id: row.id, type: type, tab: row.voucherType, startDate: startDateDef, endDate: endDateDef }
-      })
-    }
-  }
+        params: {id: row.id, type: type, tab: row.voucherType}
+  })
 }
-
 const columns = reactive<TableColumn[]>([
   {
     field: 'index',
@@ -146,10 +142,18 @@ const columns = reactive<TableColumn[]>([
   
 ])
 const getDate = (date) => {
-  startDate.value = date.startDate
-  endDate.value = date.endDate
+  if(date.startDate && date.endDate) {
+    startDate.value = date.startDate
+    endDate.value = date.endDate
+  }
+  startDate.value = date.startDate || startDateDef
+  endDate.value = date.endDate || endDateDef
+  const data = {
+    startDate: startDate.value,
+    endDate: endDate.value
+  }
+  setData(data)
 }
-
 </script>
 <template>
   <tableDatetimeFilterBasicVue 
@@ -158,6 +162,8 @@ const getDate = (date) => {
   :api="getEmployeeRatingList"
   :customOperator="3" 
   :apiToFilter="apiToFilter"
+  :apiHasDateParams="true"
+  :dateDefault="dateDefault"
   @get-date="getDate"
   />
 </template>

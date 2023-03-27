@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, onBeforeMount, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { TableOperator } from '../Components/TableBase'
+import TableOperatorAccountant from './TableOperatorAccountant.vue'
 import { useRouter } from 'vue-router'
 import { getBadgeAccountList } from '@/utils/get_filterList'
 import { getAccountantList,getAccountantById, addNewAccountant, updateAccountant, deleteAccountant } from '@/api/Business'
@@ -9,6 +9,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { ElNotification } from 'element-plus'
 import { FormDataPostAndEdit, FormData } from './types/BalanceSheet.d'
 
+const allBadgeAccount = ref([])
 const badgeAccount1List = ref()
 const badgeAccount2List = ref()
 const { t } = useI18n()
@@ -26,6 +27,7 @@ const currentType = ref('')
 onBeforeMount(async() => {
   badgeAccount1List.value = await getBadgeAccountList(getAccountantList,'1', t('reuse.cantBadgeAccount1List'))
   badgeAccount2List.value = await getBadgeAccountList(getAccountantList, '2', t('reuse.cantBadgeAccount1List'))
+  allBadgeAccount.value = allBadgeAccount.value.concat(badgeAccount1List.value, badgeAccount2List.value)
 })
 
 const { checkNumber, checkLength, checkDuplicate} = useValidator()
@@ -35,7 +37,7 @@ const rules = reactive({
     { validator: (...config) =>  checkLength(config, undefined, 5) },
     { validator: (...config) => {
         if(currentType.value === '1') {
-          checkDuplicate(config, badgeAccount1List.value, t('reuse.accountanceDuplicated'), type, id)
+          checkDuplicate(config, allBadgeAccount.value, t('reuse.accountanceDuplicated'), type, id)
         }
         else {
           config[2]()
@@ -49,7 +51,7 @@ const rules = reactive({
     { validator: (...config) =>
       {
         if(currentType.value === '2') {
-          checkDuplicate(config, badgeAccount2List.value, t('reuse.accountanceDuplicated'), type, id)
+          checkDuplicate(config, allBadgeAccount.value, t('reuse.accountanceDuplicated'), type, id)
         }
         else {
           config[2]()
@@ -196,12 +198,13 @@ const customData = (data) => {
   }
   customData.AccountName = data.accountName
   customData.Status = data.status
+  if(data.Id) customData.Id = data.Id
   return customData
 }
 
 const postData = async (data) => {
   const typeBtn = data.typeBtn
-  data = typeBtn ? customData(data.data) : customData(data)
+  data = customData(data)
   await addNewAccountant(data)
   .then(() => {
       ElNotification({
@@ -222,13 +225,6 @@ const postData = async (data) => {
 }
 
 const editData = async (data) => {
-  if(data.status) {
-    schema[1].disabled = true
-    schema[3].disabled = true
-    schema[4].disabled = true
-    schema[8].disabled = true
-    disabledCancelBtn.value = true
-  }
   data = customData(data)
   await updateAccountant(data)
   .then(() => {
@@ -252,12 +248,33 @@ const editData = async (data) => {
 
 // Assign value for form
 const customizeData = async (data) => {
-  setFormData.typeAccount = data.typeAccount
+  if(data.assigned) {
+    schema[1].disabled = true
+    schema[3].disabled = true
+    schema[4].disabled = true
+    schema[8].disabled = true
+    disabledCancelBtn.value = true
+  }
+  setFormData.accountName = data.accountName
+  setFormData.status = data.isActive
+  setFormData.id = data.id
+
+  if(!data.parentId) {
+    setFormData.accountNumber1 = data.accountNumber
+    setFormData.typeAccount = '1'
+    changeValueClassify('1')
+  } else {
+    changeValueClassify('2')
+    setFormData.typeAccount = '2'
+    setFormData.accountNumber1 = badgeAccount1List.value.find(item => item.id == data.parentId).label
+    setFormData.accountNumber2 = data.accountNumber
+  }
+  return 
 }
 </script>
 
 <template>
-  <TableOperator 
+  <TableOperatorAccountant 
     :schema="schema" 
     :nameBack="currentRoute" 
     :title="title"
@@ -266,12 +283,12 @@ const customizeData = async (data) => {
     :id="id"
     :apiId="getAccountantById"
     :hasImage="false"
-    :showSaveAndAddBtnOnTypeEdit="true"
     @post-data="postData"
     @edit-data="editData"
     @customize-form-data="customizeData"
     :formDataCustomize="setFormData"
     :delApi="deleteAccountant"
     :disabledCancelBtn="disabledCancelBtn"
+    :customAddBtn="2"
   />
 </template>

@@ -51,7 +51,7 @@ const props = defineProps({
   },
   titleAdd2: {
     type: String,
-    default: ''
+    default: '',
   },
   titleChilden: {
     type: String,
@@ -95,7 +95,8 @@ const props = defineProps({
   },
   removeButtonAdd: {
     type: Boolean,
-    default: false
+    default: false,
+    description: 'Remove button add'
   },
   apiHasPagination: {
     type: Boolean,
@@ -107,15 +108,26 @@ const props = defineProps({
   },
   showSummary: {
     type: Boolean,
-    default: false
+    default: false,
+    description: 'show summary for table'
   },
   getSummaries: {
     type: Function,
-    default: () => []
+    default: () => [],
+    description: 'if prop showSummary is true, use this prop to customize the summary'
   },
   customRouterName: {
     type: String,
-    default: ''
+    default: '',
+    description: 'if table have 2 add button, use this prop pass to path of second add button'
+  },
+  apiHasDateParams: {
+    type: Boolean,
+    default: false
+  },
+  dateDefault : {
+    type: Object,
+    default: () => {}
   }
 })
 
@@ -135,8 +147,18 @@ const getRole = () => {
 }
 
 const getData = (data) => {
-  unref(tableBase01)!.getData(data)
-  emit('getDate', data )
+  const table = unref(tableBase01);
+  if (!props.apiHasDateParams || (data.startDate && data.endDate)) {
+    table!.getData(data);
+  } else {
+    const newData = {
+      startDate: data.startDate || props.dateDefault.startDate,
+      endDate: data.endDate || props.dateDefault.endDate,
+      Keyword: data.Keyword
+    };
+    table!.getData(newData);
+  }
+  emit('getDate', data);
 }
 
 //add operator for every table

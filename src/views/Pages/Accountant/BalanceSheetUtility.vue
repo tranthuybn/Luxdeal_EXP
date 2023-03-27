@@ -198,7 +198,7 @@ const customData = (data) => {
   }
   customData.AccountName = data.accountName
   customData.Status = data.status
-
+  if(data.Id) customData.Id = data.Id
   return customData
 }
 
@@ -225,15 +225,7 @@ const postData = async (data) => {
 }
 
 const editData = async (data) => {
-  if(data.status) {
-    schema[1].disabled = true
-    schema[3].disabled = true
-    schema[4].disabled = true
-    schema[8].disabled = true
-    disabledCancelBtn.value = true
-  }
   data = customData(data)
-  console.log('data', data)
   await updateAccountant(data)
   .then(() => {
     ElNotification({
@@ -256,6 +248,13 @@ const editData = async (data) => {
 
 // Assign value for form
 const customizeData = async (data) => {
+  if(data.assigned) {
+    schema[1].disabled = true
+    schema[3].disabled = true
+    schema[4].disabled = true
+    schema[8].disabled = true
+    disabledCancelBtn.value = true
+  }
   setFormData.accountName = data.accountName
   setFormData.status = data.isActive
   setFormData.id = data.id

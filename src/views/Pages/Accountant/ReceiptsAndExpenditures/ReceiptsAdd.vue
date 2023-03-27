@@ -216,7 +216,7 @@ const customData = (data) => {
   customData.TypeOfPayment = data.typeOfPayment
   customData.AccountNumber = data.accountNumber
   customData.Paid = data.paid
-  customData.Type = 0
+  customData.Type = 1
   return customData
 }
 
@@ -242,7 +242,6 @@ const editData = async (data) => {
 }
 
 const postData = async (data) => {
-  console.log(data)
   data = customData(data)
   await postNewReceiOrPayment(FORM_IMAGES(data))
     .then(() => {
@@ -283,7 +282,7 @@ const currentCollapse = ref<string>(collapse[0].name)
         :name="item.name"
         v-model="currentCollapse"
       >
-      <template #title>
+       <template #title>
           <div class="flex w-full justify-between">
             <div class="before">
               <el-button class="header-icon" :icon="collapse[0].icon" link />

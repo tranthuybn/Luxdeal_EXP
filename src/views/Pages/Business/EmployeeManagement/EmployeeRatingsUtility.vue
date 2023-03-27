@@ -14,7 +14,8 @@ import {
 import { getEmployeeRatingList, getEmployeeSaleTrackingList } from '@/api/Business'
 import { moneyFormat } from '@/utils/format'
 import { formartDate } from '@/utils/tsxHelper'
-
+import { localStore } from './store'
+const { getData } = localStore()
 const escape = useIcon({ icon: 'quill:escape' })
 const back = async () => {
   push({
@@ -27,8 +28,8 @@ const { push } = useRouter()
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const startDate = ref()
-const endDate = ref()
+const startDate = ref(getData.startDate)
+const endDate = ref(getData.endDate)
 
 // Show | Hiden detail utility
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -42,7 +43,7 @@ const collapse: Array<Collapse> = [
   {
     icon: plusIcon,
     name: 'salesTrackingInformation',
-    title: `${t('formDemo.salesTrackingTable')} ${formartDate(startDate)} đến ngày ${formartDate(endDate)} `,
+    title: `${t('formDemo.salesTrackingTable')} ${formartDate(startDate.value)} đến ngày ${formartDate(endDate.value)} `,
   },
 
 ]
@@ -62,6 +63,7 @@ const activeName = ref(collapse[0].name)
 onBeforeMount(() => {
   callAPIInfoEmployee()
   callAPISalesTracking()
+  
 })
 
 interface InfoEmployee {
@@ -99,7 +101,7 @@ const callAPIInfoEmployee = async () => {
 let saleTrackingRes :any = reactive([])
 const callAPISalesTracking= async () => {
   if (!isNaN(id) && type == 'detail') {
-    const res = await getEmployeeSaleTrackingList({ Id: id, StartDate: startDate, EndDate: endDate })
+    const res = await getEmployeeSaleTrackingList({ Id: id, StartDate: startDate.value, EndDate: endDate.value })
     if (res) {
       if (res.data?.list !== undefined) {
         saleTrackingRes = res.data.list[0]

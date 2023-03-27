@@ -473,9 +473,12 @@ const disabled = computed(() => {
 
     <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
       <template #default="props">
-        <el-button @click="removeRow(props)" :disabled="prop.type == 'detail'" type="danger">{{
-          t('reuse.delete')
-        }}</el-button>
+        <el-button
+          :disabled="type == 'detail'"
+          @click="removeRow(props)"
+          type="danger"
+          >{{ t('reuse.delete') }}</el-button
+        >
       </template>
     </el-table-column>
   </el-table>

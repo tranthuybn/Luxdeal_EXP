@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton, ElTabs, ElTabPane } from 'element-plus'
-import { ref, unref, onBeforeMount } from 'vue'
+import { ref, unref, onBeforeMount, PropType } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableBase, TableExtension } from './TableBase/index'
 import { Tab } from './Type'
@@ -17,7 +17,7 @@ const { currentRoute } = useRouter()
 const { t } = useI18n()
 const props = defineProps({
   tabs: {
-    type: Array<Tab>,
+    type: Array as PropType<Tab[]>,
     default: () => []
   },
   customHeaderButton: {

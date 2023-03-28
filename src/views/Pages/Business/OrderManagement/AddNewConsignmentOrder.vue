@@ -3822,7 +3822,7 @@ const createStatusAcountingEntry = () => {
                   t('reuse.inventory')
                 ]"
                 filterable
-                width="650px"
+                width="650px" 
                 :items="listProducts"
                 valueKey="productPropertyId"
                 :disabled="disabledEdit || props.row.newProduct"

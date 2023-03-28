@@ -19,6 +19,7 @@ import { getWareHouseTransactionList, addOrderStransaction } from '@/api/Busines
 import moment from 'moment'
 import { statusWhType } from "./TicketEnum"
 import StatusWarehouse from './StatusWarehouse.vue'
+import * as warehouseUtility from './WarehouseHelper'
 
 const { t } = useI18n()
 
@@ -72,7 +73,7 @@ const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const ExportPWRef = ref<InstanceType<typeof ExportPW>>()
 
-const addTransaction = async () => {
+const addTransaction = async (pushBack = false) => {
   let responseValue = 0
   if (detailTicketRef.value?.submitFormTicket() && ExportPWRef.value?.checkValueOfTable()) {
     let uploadData: any = {}
@@ -101,6 +102,9 @@ const addTransaction = async () => {
             message: t('reuse.addSuccess'),
             type: 'success'
           })
+          if(pushBack){
+            back()
+          }
           responseValue = res.data
           id.value = res.data
         })
@@ -268,18 +272,21 @@ const cancelTicketWarehouse = async () => {
 onBeforeMount(async () => await callApiForData())
 
 const exportNow = async () => {
-  if(Number(ticketData.value.orderId) !== 0){//ticket from order
-    await updateInventoryOrder()
-  }
-  else{
-    if(isNaN(id.value) || id.value == 0){
-      const res = await addTransaction()
-      if(res != 0){
-        await updateInventory()
-      }
+  if(await warehouseUtility.confirmDialog(t('reuse.didYouReceiveProductMessage'))){
+    if(Number(ticketData.value.orderId) !== 0){//ticket from order
+      await updateInventoryOrder()
     }
     else{
-      await updateInventory()
+      if(isNaN(id.value) || id.value == 0){
+        const res = await addTransaction()
+        if(res != 0){
+          await updateInventory()
+          back()
+        }
+      }
+      else{
+        await updateInventory()
+      }
     }
   }
 }
@@ -397,6 +404,8 @@ const updateInventoryOrder = async () => {
 }
 
 const exportInventoryNow = async () => {
+  if(await warehouseUtility.confirmDialog(t('reuse.didYouReceiveProductMessage'))){
+
   const payload = {
     TicketId: id.value,
   }
@@ -414,6 +423,7 @@ const exportInventoryNow = async () => {
         type: 'warning'
       })
     )
+  }
 }
 
 
@@ -487,7 +497,7 @@ const updateTicket = (warehouse) => {
             <ElButton
               class="w-[150px]"
               type="primary"
-              @click="addTransaction"
+              @click="addTransaction(true)"
               v-if="Number(ticketData.orderId) == 0 && type =='add'"
               >{{ t('reuse.save') }}</ElButton
             >
@@ -503,7 +513,7 @@ const updateTicket = (warehouse) => {
               v-if="Number(ticketData.orderId) == 0"
               :disabled="type == 'add' || type == 'edit' || (lastStatus.value == 4 && !lastStatus.approveAt)"
               @click="cancelTicketWarehouse"
-              >{{ t('reuse.cancelImport') }}</ElButton
+              >{{ t('reuse.cancelExport') }}</ElButton
             >
           </div>
           <ElButton

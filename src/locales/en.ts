@@ -1886,5 +1886,8 @@ export default {
     limitUploads: 'Limit upload',
     orderStillInWarehouse: 'Order still in warehouse',
     cantFindProduct: 'Cant find product',
+    didYouReceiveProductMessage: 'Did you receive product?',
+    warning: 'Warning',
+    cancelExport: 'Cancel export',
   }
 }

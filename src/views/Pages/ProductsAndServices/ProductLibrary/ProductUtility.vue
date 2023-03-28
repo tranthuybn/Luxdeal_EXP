@@ -1424,7 +1424,10 @@ const categoriesToString = (categories) => {
   }
   return categoriesLabel.toString()
 }
-//glhf:)
+
+const disabledEverything = () =>{
+  disabledTabOpen.value = true
+}
 </script>
 <template>
   <el-collapse
@@ -1456,6 +1459,7 @@ const categoriesToString = (categories) => {
           'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
         ]"
         :apiStatus="apiStatus"
+        @disabled="disabledEverything"
       />
     </el-collapse-item>
     <el-dialog

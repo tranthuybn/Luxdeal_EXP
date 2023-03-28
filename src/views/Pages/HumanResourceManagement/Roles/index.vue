@@ -51,7 +51,13 @@ const columns = reactive<TableColumn[]>([
         () =>filterStatusSettingPoint.find((el)=>el.value === cellValue)?.text ?? ''
       )
     }
-  }
+  },
+  {
+    field: 'employee',
+    label: t('formDemo.numberPersonnel'),
+    minWidth: '100',
+    align: 'center'
+  },
 ])
 </script>
 <template>

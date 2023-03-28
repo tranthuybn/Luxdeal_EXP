@@ -138,6 +138,7 @@ export const useValidator = () => {
       required: true,
       trigger: 'blur'
     },
+    required: { required: true, message: t('common.required'), trigger: 'change' },
     checkPhone: {
       pattern: /((09|03|07|08|05)+([0-9]{8})\b)/g,
       message: t('reuse.phoneNumberFormat'),

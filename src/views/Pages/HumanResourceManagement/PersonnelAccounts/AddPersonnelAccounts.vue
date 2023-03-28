@@ -107,14 +107,10 @@ const ruleForm = reactive({
   sex: true,
   branch: '',
   link: '',
-  cccdOrcmnd: '',
   cccd: '',
   cccdCreateAt: '',
   cccdPlaceOfGrant: '',
   email: '',
-  sexAndBirdth: '',
-  brandAndDepartment: '',
-  placeAndType: '',
   delivery: false,
   type: [],
   resource: '',
@@ -130,43 +126,37 @@ const ruleForm = reactive({
   roleAcces: '',
   Address: '',
   password: '',
-  city: ' ',
-  district: ' ',
-  ward: ' ',
-  addressDetail: ' ',
+  city: '',
+  district: '',
+  ward: '',
   isActive: true
 })
 
 const rules = reactive<FormRules>({
   name: [
     { required: true, message: 'Vui lòng nhập tên', trigger: 'blur' },
-    { min: 1, max: 30, message: 'Độ dài phải lớn hơn 1 và nhỏ hơn 30', trigger: 'blur' }
+    { min: 1, max: 30, message: 'Độ dài phải lớn hơn 1 và nhỏ hơn 30', trigger: 'change' }
   ],
-  email: [{ required: true, message: t('common.required'), trigger: 'change' }, ValidService.checkEmail],
-  branch: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  sex: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  jobPosition: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  ProvinceId: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  DistrictId: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  roleAcces: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  typeOfEmployee: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  department: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  cccdOrcmnd: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  sexAndBirdth: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  accountNumber: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  accountName: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  bankName: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  brandAndDepartment: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  placeAndType: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  city: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  district: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  ward: [{ required: true, message: t('common.required'), trigger: 'change' }],
-  addressDetail: [{ required: true, message: t('common.required'), trigger: 'change' }],
+  email: [ValidService.required, ValidService.checkEmail],
+  branch: [ValidService.required],
+  sex: [ValidService.required],
+  jobPosition: [ValidService.required],
+  ProvinceId: [ValidService.required],
+  DistrictId: [ValidService.required],
+  roleAcces: [ValidService.required],
+  typeOfEmployee: [ValidService.required],
+  department: [ValidService.required],
+  accountNumber: [ValidService.required],
+  accountName: [ValidService.required],
+  bankName: [ValidService.required],
+  city: [ValidService.required],
+  ward: [ValidService.required],
+  district: [ValidService.required],
   phoneNumber: [
     {
       required: true,
       message: t('common.required'),
-      trigger: 'blur'
+      trigger: 'change'
     },
     {
       validator: (_rule: any, value: any, callback: any) => {
@@ -175,13 +165,14 @@ const rules = reactive<FormRules>({
         callback()
       },
       required: true,
-      trigger: 'blur'
+      trigger: 'change'
     },
     ValidService.checkPhone
   ],
   cccdCreateAt: [
   { required: true, message: t('common.required'), trigger: 'change', type: 'date' }
   ],
+  Address: [ValidService.required],
   doB: [
     {
       type: 'date',
@@ -191,16 +182,12 @@ const rules = reactive<FormRules>({
     }
   ],
   userName: [
-    { required: true, message: t('common.required'), trigger: 'blur' },
+    ValidService.required,
     { validator: notSpace }
   ],
-  password: [{ required: true, message: t('common.required'), trigger: 'blur' }],
+  password: [ValidService.required],
   confirmPassword: [
-    {
-      required: true,
-      message: t('common.required'),
-      trigger: 'blur'
-    },
+    ValidService.required,
     {
       validator: (_rule: any, value: any, callback: any) => {
         if (value !== ruleForm.password) {
@@ -209,12 +196,12 @@ const rules = reactive<FormRules>({
         callback()
       },
       required: true,
-      trigger: 'blur'
+      trigger: 'change'
     }
   ],
-  cccdPlaceOfGrant: [{ required: true, message: t('common.required'), trigger: 'blur' }],
+  cccdPlaceOfGrant: [ValidService.required],
   cccd: [
-    { required: true, message: t('common.required'), trigger: 'change' },
+    ValidService.required,
     {
       validator: (_rule: any, value: any, callback: any) => {
         if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
@@ -222,7 +209,7 @@ const rules = reactive<FormRules>({
         callback()
       },
       required: true,
-      trigger: 'blur'
+      trigger: 'change'
     },
     ValidService.checkCCCD
   ],
@@ -241,7 +228,7 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  desc: [{ required: true, message: 'Please input activity form', trigger: 'blur' }]
+  desc: [{ required: true, message: 'Please input activity form', trigger: 'change' }]
 })
 
 const optionsGender = [
@@ -339,21 +326,6 @@ const CallApiDepartment = async () => {
   }
 }
 
-// const listViTris = ref()
-// const CallApiViTri = async () => {
-//   const res = await getBranchList()
-//   if (res) {
-//     listViTris.value = res.data.map((vitri) => ({ label: vitri.name, value: vitri.id }))
-//     return listViTris.value
-//   } else {
-//     ElMessage({
-//       message: t('reuse.cantGetData'),
-//       type: 'error'
-//     })
-//     return
-//   }
-// }
-
 const listTypeOfStaff = ref()
 const CallApiStaff = async () => {
   const res = await getTypePersonnelList()
@@ -379,6 +351,7 @@ const callApiCity = async () => {
 }
 
 watch(() => valueProvince.value, async val => {
+  ruleForm.city = val
   if (val) {
     district.value = await getDistrict(val)
     // valueCommune.value = ''
@@ -387,10 +360,14 @@ watch(() => valueProvince.value, async val => {
 })
 
 watch(() => valueDistrict.value, async val => {
+  ruleForm.district = val
   if (val) {
     ward.value = await getWard(val)
     // valueCommune.value = ''
   }
+})
+watch(() => valueCommune.value, async val => {
+  ruleForm.ward = val
 })
 
 const disabledDate = (time: Date) => {
@@ -753,7 +730,7 @@ onBeforeMount(() => {
                   <el-input v-model="ruleForm.email" placeholder="Nhập email" :disabled="isDisable" />
                 </el-form-item>
 
-                <el-form-item prop="cccdOrcmnd" :label="t('reuse.cmnd')">
+                <el-form-item required :label="t('reuse.cmnd')">
                   <div class="flex gap-2 w-[100%] cccd-format">
                     <div class="flex-1 fix-width">
                       <el-form-item prop="cccd">
@@ -801,7 +778,7 @@ onBeforeMount(() => {
                 <el-form-item
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
                   :label="t('reuse.dateOfBirthAnGender')"
-                  prop="sexAndBirdth"
+                  required
                 >
                   <div class="flex gap-2 w-[100%] cccd-format">
                     <div class="flex-1 fix-width">
@@ -852,7 +829,7 @@ onBeforeMount(() => {
                 <el-form-item
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
                   label="Chi nhánh/phòng ban"
-                  prop="brandAndDepartment"
+                  required
                 >
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
@@ -890,7 +867,7 @@ onBeforeMount(() => {
                 <el-form-item
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
                   label="Cấp bậc/loại hình"
-                  prop="placeAndType"
+                  required
                 >
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
@@ -936,7 +913,7 @@ onBeforeMount(() => {
                   <el-input v-model="ruleForm.userName" placeholder="Nhập tên đăng nhập" :disabled="isDisable" />
                 </el-form-item>
 
-                <el-form-item label="Phân quyền" prop="roleAcces" placeholder="Họ và tên">
+                <el-form-item prop="roleAcces" label="Phân quyền" placeholder="Họ và tên" required>
                   <el-select
                     v-model="ruleForm.roleAcces"
                     clearable
@@ -1153,7 +1130,7 @@ onBeforeMount(() => {
                   <ElFormItem
                     class="flex w-[100%] items-center"
                     :label="t('formDemo.detailedAddress')"
-                    prop="addressDetail"
+                    prop="Address"
                   >
                     <el-input
                       v-model="ruleForm.Address"

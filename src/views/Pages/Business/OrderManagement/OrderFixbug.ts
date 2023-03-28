@@ -2,7 +2,7 @@ import { postAutomaticWarehouse, StartOrder, cancelOrder, finishOrder, GetWareho
 import { useI18n } from '@/hooks/web/useI18n'
 import { useIcon } from '@/hooks/web/useIcon'
 import { FORM_IMAGES } from '@/utils/format'
-import { ElNotification } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 import { ref } from 'vue'
 import { TicketStatus } from '../../Warehouse/BusinessProductWarehouse/TicketEnum' 
 
@@ -161,8 +161,27 @@ export const checkStatusReturnRequestInWarehouse = (status) => {
 
 export const checkPercent = (_rule: any, value: any, callback: any) => {
   if (/\s/g.test(value)) callback(new Error(t('reuse.notSpace')))
+  else if (!value) callback()
   else if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
   else if (value < 0) callback(new Error(t('reuse.positiveNumber')))
   else if (value < 0 || value > 100) callback(new Error(t('formDemo.validatePercentNum')))
   callback()
+}
+
+export const ValidatePostData = (tableData)=>{
+  let valid = true
+
+  tableData
+  .filter((row)=>row.productPropertyId || row.productPropertyId !== '')
+  .forEach((row)=>{
+    if(!row.quantity || row.quantity <= 0){
+      ElMessage({
+        message: t('reuse.invalidQuantity'),
+        type: 'warning'
+      })
+      valid = false
+      return valid
+    }
+  })
+  return valid
 }

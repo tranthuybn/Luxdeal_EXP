@@ -1011,7 +1011,7 @@ const checkValidatorProduct = ref(false)
 // Tạo đơn hàng
 const postData = async () => {
   orderDetailsTable.value = ListOfProductsForSale.value
-  .filter(val=>val.productPropertyId != '' || val.productPropertyId)
+  .filter(val=>val.productPropertyId != '' && val.productPropertyId && val.productPropertyId != null)
   .map((val) => ({
     ProductPropertyId: parseInt(val?.productPropertyId),
     Quantity: val.quantity,

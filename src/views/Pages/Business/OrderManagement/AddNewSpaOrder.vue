@@ -1214,7 +1214,9 @@ const postData = async (pushBack: boolean) => {
         ListOfProductsForSale.value.splice(index,1)
       }
     })
-  orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+  orderDetailsTable = ListOfProductsForSale.value
+  .filter((row)=>row.productPropertyId && row.productPropertyId !== '' && row.productPropertyId != null)
+  .map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
     Quantity: val.quantity,
     ProductPrice: val.price,
@@ -1235,6 +1237,10 @@ const postData = async (pushBack: boolean) => {
       type: 'info'
     })
   }
+  if(orderUtility.ValidatePostData(ListOfProductsForSale.value) == false){
+      return
+    }
+
   const productPayment = JSON.stringify([...orderDetailsTable])
 
   const payload = {

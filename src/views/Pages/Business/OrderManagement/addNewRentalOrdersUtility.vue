@@ -934,7 +934,9 @@ let idOrderPost = ref()
 // tạo đơn hàng
 let postTable = ref()
 const postData = async (pushBack: boolean) => {
-  postTable.value = tableData.value.map((e) => ({
+  postTable.value = tableData.value
+  .filter((row)=>row.productPropertyId && row.productPropertyId !== '' && row.productPropertyId != null)
+  .map((e) => ({
     ProductPropertyId: e.productPropertyId,
     Accessory: e.accessory,
     Description: null,
@@ -951,7 +953,11 @@ const postData = async (pushBack: boolean) => {
     FromDate: postDateTime(ruleForm.rentalPeriod[0]),
     ToDate: postDateTime(ruleForm.rentalPeriod[1])
   }))
-  if (!postTable.value[postTable.value.length - 1].ProductPropertyId) postTable.value.pop()
+
+  if(orderUtility.ValidatePostData(tableData.value) == false){
+      return
+    }
+
   const productPayment = JSON.stringify([...postTable.value])
 
   const invalidArrayLength = postTable.value.filter(item => !item.ProductPropertyId).length

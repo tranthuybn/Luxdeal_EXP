@@ -1047,7 +1047,9 @@ let orderDetailsTable = reactive([{}])
 
 // Tạo đơn hàng
 const postData = async (pushBack: boolean) => {
-  orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+  orderDetailsTable = ListOfProductsForSale.value
+  .filter((row)=>row.productPropertyId || row.productPropertyId !== '' || row.productPropertyId != null)
+  .map((val) => ({
     ProductPropertyId:
       typeof val?.productPropertyId != 'number'
         ? parseInt(val?.productPropertyId)
@@ -1065,7 +1067,11 @@ const postData = async (pushBack: boolean) => {
     WarehouseId: null,
     PriceChange: priceChangeOrders.value
   }))
-  orderDetailsTable.pop()
+
+  if(orderUtility.ValidatePostData(ListOfProductsForSale.value) == false){
+      return
+    }
+
   const productPayment = JSON.stringify([...orderDetailsTable])
   if(orderDetailsTable?.length < 1) {
     ElMessage.error('Vui lòng chọn mã sản phẩm')

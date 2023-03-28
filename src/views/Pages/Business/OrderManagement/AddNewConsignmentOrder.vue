@@ -393,7 +393,7 @@ interface ListOfProductsForSaleType {
   businessSetupName: string
 
   amountSpa: number
-  quantity: string
+  quantity: number
   accessory: string | undefined
   code: string | undefined
   description: string | undefined
@@ -420,7 +420,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   spaServices: '',
   amountSpa: 2,
   productPropertyId: '',
-  quantity: '',
+  quantity: 0,
   accessory: '',
   code: '',
   description: '',
@@ -1095,10 +1095,10 @@ const { push } = useRouter()
 const postData = async () => {
   if (checkValidateForm.value) {
     orderDetailsTable = ListOfProductsForSale.value
-    .filter((row)=>row.productPropertyId || row.productPropertyId !== '')
+    .filter((row)=>row.productPropertyId && row.productPropertyId !== '' && row.productPropertyId != null)
     .map((val) => ({
       ProductPropertyId: parseInt(val.productPropertyId),
-      Quantity: parseInt(val.quantity),
+      Quantity: val.quantity,
       UnitPrice: 0,
       HirePrice: 0,
       DepositePrice: 0,
@@ -1113,6 +1113,11 @@ const postData = async () => {
       Code: val.code,
       Description: val.description
     }))
+
+    if(orderUtility.ValidatePostData(ListOfProductsForSale.value) == false){
+      return
+    }
+
     const productPayment = JSON.stringify([...orderDetailsTable])
     const payload = {
       ServiceType: 2,
@@ -1492,7 +1497,7 @@ const idAcountingEntry = ref()
 const postOrderStransaction = async (index: number) => {
   childrenTable.value = ListOfProductsForSale.value.map((val) => ({
     merchadiseTobePayforId: parseInt(val.id),
-    quantity: parseInt(val.quantity)
+    quantity: val.quantity
   }))
 
   const payload = {
@@ -3783,9 +3788,9 @@ const createStatusAcountingEntry = () => {
                 <div class="flex">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
-                    <div v-if="infoCompany.taxCode !== null">
+                    <!-- <div v-if="infoCompany.taxCode !== null">
                       Mã số thuế: {{ infoCompany.taxCode }}</div
-                    >
+                    > -->
                     <div>Số điện thoại: {{ infoCompany.phone ?? '' }}</div>
                     <div>{{ infoCompany.email }}</div>
                   </div>
@@ -4998,4 +5003,10 @@ const createStatusAcountingEntry = () => {
   padding: 0 10px;
   overflow: auto;
 }
+::v-deep(.el-upload--picture-card) {
+  width: 160px;
+  height: 40px;
+  border: 1px solid #409eff;
+}
+
 </style>

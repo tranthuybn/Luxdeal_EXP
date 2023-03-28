@@ -2044,5 +2044,6 @@ export default {
     didYouReceiveProductMessage: 'Bạn đã nhận được sản phẩm?',
     warning: 'Cảnh báo',
     cancelExport: 'Hủy xuất kho',
+    invalidQuantity: 'Số lượng không phù hợp',
   }
 }

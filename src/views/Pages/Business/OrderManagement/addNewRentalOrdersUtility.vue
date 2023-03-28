@@ -2490,6 +2490,7 @@ const autoCollaboratorCommission = (index) => {
 
 const dateRangePrice = ref()
 const changeDateRange = (data) => {
+  if(data){
   tableData.value.forEach((el) => {
     el.fromDate = data[0]
     el.toDate = data[1]
@@ -2507,6 +2508,9 @@ const changeDateRange = (data) => {
         val.totalPrice = val.hirePrice * parseInt(val.quantity) * days
       })
       autoCalculateOrder()
+  }}
+  else{
+    startDate.value = null
   }
 }
 
@@ -2873,7 +2877,21 @@ onBeforeMount(async() => {
 })
 
 const disabledPhieu = ref(false)
+const startDate = ref()
+const disabledDate = (time: Date) => {
+  if(startDate.value){
+    const day = moment(time)
+    const firstDate = moment(startDate.value).format()
+    const endDate = moment(startDate.value).add(ruleForm.leaseTerm, "days").format()
 
+    return day.isBefore(firstDate) || day.isAfter(endDate)
+  }
+  return false //ko disable
+}
+const changeDateRanges = (dates) =>{
+  startDate.value = dates[0]
+  console.log('startDate', startDate.value, dates)
+}
 </script>
 
 <template>
@@ -4315,9 +4333,11 @@ const disabledPhieu = ref(false)
                   type="daterange"
                   unlink-panels
                   @change="changeDateRange"
+                  @calendar-change="changeDateRanges"
                   :start-placeholder="t('formDemo.startDay')"
                   :end-placeholder="t('formDemo.endDay')"
                   format="DD/MM/YYYY"
+                  :disabled-date="disabledDate"
                 />
               </el-form-item>
               <el-form-item :label="t('formDemo.rentalPaymentPeriod')" prop="rentalPaymentPeriod">

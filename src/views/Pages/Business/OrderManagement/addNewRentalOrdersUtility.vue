@@ -4,7 +4,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
   ElCollapseItem,
-  ElUpload,
   ElSelect,
   ElOption,
   ElButton,
@@ -24,8 +23,8 @@ import {
   ElFormItem,
   ElNotification,
   UploadUserFile,
-  UploadProps,
-  ElMessage
+  ElMessage,
+  ElTooltip
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -86,6 +85,8 @@ import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
 import { changeMoney } from '@/utils/tsxHelper'
+import * as orderUtility from './OrderFixbug'
+import UploadMultipleImages from './UploadMultipleImages.vue'
 
 const { utility } = appModules
 const { t } = useI18n()
@@ -131,12 +132,12 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  // discount: [
-  //   {
-  //     validator: orderUtility.checkPercent,
-  //     trigger: 'blur'
-  //   }
-  // ],
+  discount: [
+    {
+      validator: orderUtility.checkPercent,
+      trigger: 'blur'
+    }
+  ],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],
@@ -981,7 +982,7 @@ const postData = async (pushBack: boolean) => {
     InterestMoney: 0,
     // VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
     VATMoney: 0,
-    Files: Files,
+    Files: Files.value,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: formAddress.province ?? 1,
     DistrictId: formAddress.district ?? 1,
@@ -1294,6 +1295,8 @@ const disabledPhieuDatCoc = ref(false)
 // Check trạng thái đơn hàng có đang ở chốt đơn hàng k để sinh bút toán tự động
 const automaticEntry = ref(false)
 const editData = async () => {
+  await orderUtility.getStatusWarehouse(id)
+
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
@@ -1377,18 +1380,16 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer?.email
       }
     }
-    orderObj.orderFiles.map((element) => {
-      fileList.value.push({
-        url: `${API_URL}${element?.path}`,
-        name: element?.fileId
+    Files.value = orderObj.orderFiles.map((element) => ({
+          url: `${API_URL}${element?.path}`,
+          name: element?.fileId
       })
-    })
+      )
   } else if (type == 'add' || type == ':type') {
     tableData.value.push({ ...productForSale })
   }
 }
 
-const fileList = ref<UploadUserFile[]>([])
 const duplicateProduct = ref()
 const duplicateProductMessage = () => {
   ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
@@ -1810,6 +1811,7 @@ const getReturnRequestTable = async () => {
       warehouseTicketId: e?.warehouseTicketId,
       warehouseTicketStatusName: e?.warehouseTicketStatusName
     }))
+    orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }
 }
 
@@ -2459,21 +2461,7 @@ const doubleDisabled = ref(false)
 const showPromo = ref(false)
 
 // import and show image
-let Files = reactive({})
-const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
-  ElMessage.warning(
-    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
-      'reuse.total'
-    )}${files.length + uploadFiles.length}`
-  )
-}
-
-const ListFileUpload = ref<UploadUserFile[]>([])
-
-const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
-  Files = [...ListFileUpload.value.map((el) => el?.raw)]
-}
+const Files = ref<UploadUserFile[]>([])
 
 /* Tạm thời bỏ VAT 21/02/2023
 // Cập nhật lại giá tiền khi thay đổi VAT
@@ -2597,7 +2585,7 @@ const updateOrderInfomation = async () => {
     CollaboratorCommission: ruleForm.discount,
     Description: ruleForm.orderNotes,
     DeleteFileIds: '',
-    Files: Files,
+    Files: Files.value,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: formAddress.province ?? null,
     DistrictId: formAddress.district ?? null,
@@ -4418,21 +4406,7 @@ const disabledPhieu = ref(false)
                 <div class="text-right text-[#FECB80] italic">{{ t('formDemo.lessThanTenProfiles') }}</div>
               </div>
               <div class="pl-4">
-                <el-upload
-                  action="#"
-                  :disabled="checkDisabled"
-                  v-model:file-list="ListFileUpload"
-                  :multiple="true"
-                  :limit="10"
-                  :on-exceed="handleExceed"
-                  :auto-upload="false"
-                  :on-change="handleChange"
-                  class="relative"
-                >
-                  <el-button class="text-[#303133] font-medium dark:text-[#fff]"
-                    >+ {{ t('formDemo.addPhotosOrFiles') }}</el-button
-                  >
-                </el-upload>
+                <UploadMultipleImages v-model="Files" :disabled="disabledEdit" />
               </div>
             </div>
           </div>
@@ -5508,12 +5482,19 @@ const disabledPhieu = ref(false)
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <button
-              :disabled="statusButtonDetail"
+              :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.durationPrepayment') }}</button
             >
+          </div>
+            </el-tooltip>
           </div>
           <div
             v-else-if="statusOrder == STATUS_ORDER_RENTAL[4].orderStatus && !duplicateStatusButton"
@@ -5567,12 +5548,19 @@ const disabledPhieu = ref(false)
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <button
-              :disabled="statusButtonDetail"
+              :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[10].orderStatus, id)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
               >{{ t('formDemo.checkFinish') }}</button
             >
+            </div>
+            </el-tooltip>
           </div>
           <div
             v-else-if="statusOrder == STATUS_ORDER_RENTAL[8].orderStatus"
@@ -5590,12 +5578,19 @@ const disabledPhieu = ref(false)
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlip') }}</el-button
             >
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <button
-              :disabled="statusButtonDetail"
+              :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.aheadTimeReturns') }}</button
             >
+          </div>
+            </el-tooltip>
           </div>
           <div
             v-else-if="
@@ -5623,8 +5618,13 @@ const disabledPhieu = ref(false)
               class="min-w-42 min-h-11 border-1 border-red-500 text-red-500 rounded font-bold"
               >{{ t('formDemo.leaseExtension') }}</button
             >
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <button
-              :disabled="statusButtonDetail"
+              :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="
                 () => {
                   setDataForReturnOrder()
@@ -5634,6 +5634,8 @@ const disabledPhieu = ref(false)
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
               >{{ t('formDemo.returnsExpired') }}</button
             >
+          </div>
+            </el-tooltip>
           </div>
           <div v-else-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
             <button

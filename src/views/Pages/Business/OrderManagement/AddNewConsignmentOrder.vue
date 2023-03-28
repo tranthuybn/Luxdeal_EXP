@@ -4234,10 +4234,10 @@ const createStatusAcountingEntry = () => {
               </template>
               <div>
                 <el-button
+                  :disabled="unref(orderUtility.disableStatusWarehouse)"
                   v-if="statusOrder == STATUS_ORDER_DEPOSIT[4].orderStatus ||
                   (statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
                   isPartialReturn)"
-                  :disabled="unref(orderUtility.disableStatusWarehouse)"
                   @click="
                     () => {
                       deleteTable()
@@ -4285,19 +4285,27 @@ const createStatusAcountingEntry = () => {
                 class="min-w-42 min-h-11"
                 >{{ t('formDemo.cancelReturn') }}</el-button
               >
-              <el-button
-                v-if="
-                (statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
-                !isPartialReturn)"
-                @click="
-                  () => {
-                    finishOrderDeposit()
-                  }
-                "
-                type="info"
-                class="min-w-42 min-h-11"
-                >{{ t('formDemo.checkFinish') }}</el-button
-              >
+              <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+            <div>
+                <el-button
+                  :disabled="unref(orderUtility.disableStatusWarehouse)"
+                  v-if="
+                  (statusOrder == STATUS_ORDER_DEPOSIT[11].orderStatus && 
+                  !isPartialReturn)"
+                  @click="
+                    () => {
+                      finishOrderDeposit()
+                    }
+                  "
+                  type="info"
+                  class="min-w-42 min-h-11"
+                  >{{ t('formDemo.checkFinish') }}</el-button
+                >
+                  </div>
+                </el-tooltip>
             </div>
             <div v-if="completeThePayment && statusOrder != STATUS_ORDER_DEPOSIT[2].orderStatus">
               <el-button
@@ -4306,7 +4314,13 @@ const createStatusAcountingEntry = () => {
                 @click="dialogBillLiquidation = true"
                 >{{ t('formDemo.printConsignmentContract') }}</el-button
               >
+              <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+            <div>
               <el-button
+                :disabled="unref(orderUtility.disableStatusWarehouse)"
                 @click="
                   () => {
                     finishOrderDeposit()
@@ -4317,7 +4331,15 @@ const createStatusAcountingEntry = () => {
                 >{{ t('formDemo.checkFinish') }}</el-button
               >
             </div>
+              </el-tooltip>
+            </div>
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
               v-if="
               statusOrder == STATUS_ORDER_DEPOSIT[12].orderStatus ||
                 statusOrder == STATUS_ORDER_DEPOSIT[7].orderStatus ||
@@ -4334,6 +4356,8 @@ const createStatusAcountingEntry = () => {
               class="min-w-42 min-h-11"
               >{{ t('formDemo.checkFinish') }}</el-button
             >
+            </div>
+            </el-tooltip>
             <el-button
               v-if="
                 statusOrder == STATUS_ORDER_DEPOSIT[6].orderStatus ||
@@ -4740,12 +4764,6 @@ const createStatusAcountingEntry = () => {
 ::v-deep(.el-form-item) {
   display: flex;
   align-items: center;
-}
-
-::v-deep(.el-upload--picture-card) {
-  width: 160px;
-  height: 40px;
-  border: 1px solid #409eff;
 }
 
 ::v-deep(.d-block > .el-row) {

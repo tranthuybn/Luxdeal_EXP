@@ -4268,9 +4268,15 @@ const finishOrder = async () =>{
                 class="min-w-42 min-h-11"
                 >Hủy trả hàng</el-button
               >
+              <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[12].orderStatus"
                 type="info"
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
                 @click="
                   () => {
                     finishOrder()
@@ -4280,6 +4286,8 @@ const finishOrder = async () =>{
               >
                 Đối soát & kết thúc
               </el-button>
+            </div>
+            </el-tooltip>
         </div>
 
         <div class="w-[100%] flex gap-2">

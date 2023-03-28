@@ -8,9 +8,10 @@ export interface FormDataPostAndEdit  {
     TotalMoney: number
     EnterMoney: string
     TypeOfPayment: 1 | 2
-    AccountNumber?: number
+    FundID?: number
     Transacted: boolean
     Type: 1 | 0
+    Status: number
 }
 
 export interface FormData {

@@ -61,10 +61,7 @@ const columns = [
         minWidth: '100',
         headerAlign: 'center',
         align: 'right',
-        formatter: (row, _column, _cellValue) => {
-          const x = changeMoney.format(parseInt(row.beginningPeriodRevenue))
-          return x
-        }
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.beginningPeriodRevenue))
       },
       {
         field: 'beginningPeriodPayment',
@@ -72,10 +69,7 @@ const columns = [
         minWidth: '100',
         headerAlign: 'center',
         align: 'right',
-        formatter: (row, _column, _cellValue) => {
-          const x = changeMoney.format(parseInt(row.beginningPeriodPayment))
-          return x
-        }
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.beginningPeriodPayment))
       }
     ]
   },
@@ -90,14 +84,16 @@ const columns = [
         label: t('reuse.get'),
         minWidth: '100',
         headerAlign: 'center',
-        align: 'right'
+        align: 'right',
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.duringPeriodRevenue))
       },
       {
         field: 'duringPeriodPayment',
         label: t('reuse.spend'),
         minWidth: '100',
         headerAlign: 'center',
-        align: 'right'
+        align: 'right',
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.duringPeriodPayment))
       }
     ]
   },
@@ -112,14 +108,16 @@ const columns = [
         label: t('reuse.get'),
         minWidth: '100',
         headerAlign: 'center',
-        align: 'right'
+        align: 'right',
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.endPeriodRevenue))
       },
       {
         field: 'endPeriodpayment',
         label: t('reuse.spend'),
         minWidth: '100',
         headerAlign: 'center',
-        align: 'right'
+        align: 'right',
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.endPeriodpayment))
       }
     ]
   },
@@ -154,7 +152,7 @@ provide('parameters', {params})
   <TableType01
     :columns="columns"
     :api="getAccountantList"
-    :customOperator="6"
+    :customOperator="4"
     :titleAdd="t('reuse.addAccount')"
     :showSummary="true"
     :getSummaries="getSummaries"

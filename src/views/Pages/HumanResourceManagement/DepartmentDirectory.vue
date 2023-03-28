@@ -17,6 +17,8 @@ import CollapseBase from '@/views/Pages/Components/CollapseBase.vue'
 import { Collapse } from '../Components/Type'
 import { useRouter } from 'vue-router'
 import { dateTimeFormat, statusBranch } from '@/utils/format'
+import { filterHandler } from '@/utils/tsxHelper'
+
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -34,23 +36,23 @@ const columnsBranch = reactive<TableColumn[]>([
     field: 'code',
     label: t('reuse.managementCode'),
     minWidth: '250',
-    sortable: true
   },
   {
     field: 'name',
     label: t('reuse.branchName'),
-    minWidth: '200',
-    sortable: true
+    minWidth: '732',
   },
   {
     field: 'counts',
     label: t('formDemo.numberPersonnel'),
-    minWidth: '200'
+    minWidth: '200',
+    sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '200',
+    sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     }
@@ -58,13 +60,15 @@ const columnsBranch = reactive<TableColumn[]>([
   {
     field: 'createdBy',
     label: t('reuse.creator'),
-    minWidth: '200'
+    minWidth: '200',
+    headerFilter: 'Name'
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterDepartment,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${statusBranch(cellValue)}`)
     }
@@ -81,23 +85,23 @@ const columnsDepartment = reactive<TableColumn[]>([
     field: 'code',
     label: t('reuse.managementCode'),
     minWidth: '250',
-    sortable: true
   },
   {
     field: 'name',
     label: t('reuse.DepartmentName'),
-    minWidth: '200',
-    sortable: true
+    minWidth: '732',
   },
   {
     field: 'counts',
     label: t('formDemo.numberPersonnel'),
-    minWidth: '200'
+    minWidth: '200',
+    sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '200',
+    sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     }
@@ -105,13 +109,15 @@ const columnsDepartment = reactive<TableColumn[]>([
   {
     field: 'createdBy',
     label: t('reuse.creator'),
-    minWidth: '200'
+    minWidth: '200',
+    headerFilter: 'Name'
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterDepartment,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${statusBranch(cellValue)}`)
     }
@@ -128,23 +134,23 @@ const columnsRank = reactive<TableColumn[]>([
     field: 'code',
     label: 'Mã cấp bậc',
     minWidth: '250',
-    sortable: true
   },
   {
     field: 'name',
-    label: 'Tên cấp bậc',
-    minWidth: '200',
-    sortable: true
+    label: t('formDemo.rankName'),
+    minWidth: '732',
   },
   {
     field: 'counts',
     label: t('formDemo.numberPersonnel'),
-    minWidth: '200'
+    minWidth: '200',
+    sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '200',
+    sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     }
@@ -152,13 +158,15 @@ const columnsRank = reactive<TableColumn[]>([
   {
     field: 'createdBy',
     label: t('reuse.creator'),
-    minWidth: '200'
+    minWidth: '200',
+    headerFilter: 'Name'
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterDepartment,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${statusBranch(cellValue)}`)
     }
@@ -175,23 +183,23 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
     field: 'code',
     label: t('reuse.managementCode'),
     minWidth: '250',
-    sortable: true
   },
   {
     field: 'name',
-    label: 'Tên cấp bậc',
-    minWidth: '200',
-    sortable: true
+    label: t('formDemo.typeName'),
+    minWidth: '732',
   },
   {
     field: 'counts',
     label: t('formDemo.numberPersonnel'),
-    minWidth: '200'
+    minWidth: '200',
+    sortable: true
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '200',
+    sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     }
@@ -199,13 +207,15 @@ const columnsTypePersonnel = reactive<TableColumn[]>([
   {
     field: 'createdBy',
     label: t('reuse.creator'),
-    minWidth: '200'
+    minWidth: '200',
+    headerFilter: 'Name'
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterDepartment,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${statusBranch(cellValue)}`)
     }

@@ -146,7 +146,6 @@ const imageUrl = ref()
 const addIcon = useIcon({ icon: 'uil:plus' })
 const viewIcon = useIcon({ icon: 'uil:search' })
 const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
-
 const deleteFileIds: any = []
 const fileList = ref<UploadUserFile[]>([])
 const loading = ref(false)
@@ -232,7 +231,7 @@ const setFormValue = async () => {
 watch(
   () => props.type,
   () => {
-    if (props.type === 'detail') {
+    if (props.type === 'detail' || props.type === 'approval') {
       const { setProps, setSchema } = methods
       setProps({
         disabled: true
@@ -252,7 +251,7 @@ watch(
         }
       ])
     }
-    if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval-product') {
+    if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
       getTableValue()
     }
   },
@@ -294,10 +293,8 @@ const save = async (type) => {
       //callback cho hàm emit
       if (type == 'add') {
         data.backRouter = true
-        if(optionCreatedBy.value?.id && optionPeopleType.value?.id) {
-          data.createdById = optionCreatedBy.value.id
-          data.peopleId = optionPeopleType.value.id
-        }
+        if(optionCreatedBy.value?.id) data.createdById = optionCreatedBy.value.id
+        if(optionPeopleType.value?.id) data.peopleId = optionPeopleType.value.id
         emit('post-data', data)
         loading.value = false
       }
@@ -444,6 +441,17 @@ const cancel = () => {
   router.go(-1)
 }
 
+const edit = () => {
+  push({
+    name: `${String(router.currentRoute.value.name)}`,
+    params: {
+      backRoute: `${String(router.currentRoute.value.name)}`,
+      type: 'edit',
+      id: props.id
+    }
+  })
+}
+
 //Image handle
 const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) => {
@@ -494,7 +502,7 @@ onBeforeMount(async () => {
       children: item.children.length > 0 ? 
         item.children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
     }))
-  })
+})
 const handleScroll = (field) => {
   switch (field) {
     case 'createdBy' :
@@ -506,9 +514,6 @@ const handleScroll = (field) => {
     default: return ''
   }
 };
-const changeOption = (option) => {
-  console.log(option)
-}
 const handleChangeOptions = (option, form, formType) => {
   switch (formType) {
     case 'createdBy' :
@@ -547,16 +552,16 @@ watch(pageIndexCustomer, async (newPageIndex) => {
 });
 
 const approvalId = String(route.params.approvalId)
-const approvalProduct = async () => {
-  const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
+const approvalProduct = async (val) => {
+  const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: val }
   await approvalProducts(FORM_IMAGES(payload))
     .then(() => {
       ElNotification({
-        message: 'Duyệt thành công',
+        message: val ? 'Duyệt thành công' : 'Hủy duyệt thành công',
         type: 'success'
       })
       push({
-        name: `approve.products-approval.newly-initialized`
+        name: `approve.payment-approval.receipts-and-expenditures`
       })
     })
     .catch(() =>
@@ -565,10 +570,6 @@ const approvalProduct = async () => {
         type: 'warning'
       })
     )
-}
-const treeSelect = ref()
-const testFun = (e) => {
-  console.log(e.target.value)
 }
 </script>
 <template>
@@ -621,7 +622,6 @@ const testFun = (e) => {
               :clearable="false"
               :items="createdByOptions"
               @scroll-bottom="() => handleScroll('createdBy')"
-              @change="changeOption"
               :defaultValue="form.createdBy"
               @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
             />
@@ -629,13 +629,11 @@ const testFun = (e) => {
 
           <template #accountNumber="form">
             <el-tree-select
-              ref="treeSelect"
-              v-model="form['accountNumber']"
+              v-model="form.accountNumber"
               :data="accountNumberOptions"
               check-strictly
               :render-after-expand="false"
               show-checkbox
-              @change="testFun"
             />
           </template>
 
@@ -649,7 +647,6 @@ const testFun = (e) => {
               :clearable="false"
               :items="peopleTypeOptions"
               @scroll-bottom="() => handleScroll('peopleType')"
-              @change="changeOption"
               :defaultValue="form.peopleType"
               @update-value="(_value, option) =>  handleChangeOptions(option, form, 'peopleType')"
             />
@@ -769,17 +766,24 @@ const testFun = (e) => {
           <ElButton type="primary" :loading="loading" @click="save('edit')">
             {{ t('reuse.save') }}
           </ElButton>
-          <ElButton type="primary" :loading="loading" @click="save('edit')">
-            {{ t('reuse.saveAndAdd') }}
-          </ElButton>
-          <ElButton :loading="loading" @click="delAction">
+          <ElButton :loading="loading" @click="cancel()">
             {{ t('reuse.cancel') }}
+          </ElButton>  
+        </div>
+      </div>
+      <div class="w-[100%]" v-if="props.type === 'detail'">
+        <div class="w-[50%] flex justify-left gap-2 ml-5">
+          <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
+            {{ t('reuse.fix') }}
+          </ElButton>
+          <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+            {{ t('reuse.delete') }}
           </ElButton>
         </div>
       </div>
-      <div class="pl-57" v-if="props.type === 'approval-product'">
-        <el-button @click="approvalProduct" class="min-w-[120px]" type="warning">Duyệt</el-button>
-        <el-button class="min-w-[120px]">Không duyệt</el-button>
+      <div class="pl-57" v-if="props.type === 'approval'">
+        <el-button @click="approvalProduct(true)" class="min-w-[120px]" type="warning">{{ t('router.approve') }}</el-button>
+        <el-button  @click="approvalProduct(false)" class="min-w-[120px]">{{ t('router.notApproval') }}</el-button>
       </div>
     </template>
   </ContentWrap>

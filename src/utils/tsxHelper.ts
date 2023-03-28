@@ -17,9 +17,8 @@ export const getSlot = (slots: Slots, slot = 'default', data?: Recordable) => {
 }
 
 
-export const filterHandler = (config, field) => {
-  const [value,row,column ] = config
-  const property = column[field]
+export const filterHandler = (value,row,column) => {
+  const property = column['property']
   return row[property] === value
 }
 

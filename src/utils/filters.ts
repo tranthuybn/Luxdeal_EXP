@@ -77,8 +77,8 @@ export const filterBranch: Array<Filter> = [
   { text: t('reuse.hochiminh'), value: false }
 ]
 export const filterDepartment: Array<Filter> = [
-  { text: t('reuse.administrative'), value: true },
-  { text: t('reuse.humanResources'), value: false }
+  { text: t('reuse.active'), value: true },
+  { text: t('reuse.inactive'), value: false }
 ]
 export const filterRankEmployee: Array<Filter> = [
   { text: t('reuse.employee'), value: 1 },
@@ -312,9 +312,9 @@ export const filterStatusAccounting: Array<Filter> = [
   { text: t('reuse.cancelled'), value: 4 }
 ]
 export const filterStatusGeneral: Array<Filter> = [
-  { text: t('reuse.pending'), value: 1 },
-  { text: t('reuse.finishPending'), value: 2 },
-  { text: t('reuse.cancelled'), value: 3 }
+  { text: t('reuse.pending'), value: 0 },
+  { text: t('reuse.finishPending'), value: 1 },
+  { text: t('reuse.cancelled'), value: 2 }
 ]
 export const filterReciprocalProfile: Array<Filter> = [
   { text: t('reuse.yes'), value: 1 },

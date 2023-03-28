@@ -85,7 +85,10 @@ const columns = reactive<TableColumn[]>([
     field: 'accountingDate',
     label: t('reuse.accountingDate'),
     minWidth: '150',
-    sortable: true,
+    sortable: true,    
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    },
   },
   {
     field: 'createdAt',
@@ -103,17 +106,17 @@ const columns = reactive<TableColumn[]>([
     headerFilter: 'Name',
   },
   {
-    field: 'paymentMethod',
+    field: 'typeOfPayment',
     label: t('reuse.choosePayment'),
     minWidth: '150',
     filters: filterPaymentMethod,
-    filterMethod: (...config) => filterHandler(config, 'paymentMethod') ,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
       return t(`${formatPaymentMethod(cellValue)}`)
     },
   },
   {
-    field: 'paid',
+    field: 'transacted',
     label: t('reuse.alreadyPaid'),
     minWidth: '100',
     filters: [],

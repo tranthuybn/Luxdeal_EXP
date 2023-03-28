@@ -10,6 +10,7 @@ import { useRouter } from 'vue-router'
 import { ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useAppStore } from '@/store/modules/app'
+import { changeMoney, filterHandler } from '@/utils/tsxHelper'
 
 const { t } = useI18n()
 const { push } = useRouter()
@@ -54,6 +55,7 @@ const columns = reactive<TableColumn[]>([
     minWidth: '130',
     align: 'right',
     sortable: true,
+    formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.totalMoney))
   },
   {
     field: 'peopleName',
@@ -90,6 +92,7 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.status'),
     minWidth: '130',
     filters: filterStatusGeneral,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${formatStatusGeneral(cellValue)}`)
     },

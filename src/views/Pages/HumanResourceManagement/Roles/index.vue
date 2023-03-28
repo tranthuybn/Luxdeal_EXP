@@ -17,7 +17,8 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'name',
     label: t('reuse.setRole'),
-    minWidth: '250'
+    minWidth: '250',
+    filters: []
   },
   {
     field: 'description',

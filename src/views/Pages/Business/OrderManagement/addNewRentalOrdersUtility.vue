@@ -2890,7 +2890,6 @@ const disabledDate = (time: Date) => {
 }
 const changeDateRanges = (dates) =>{
   startDate.value = dates[0]
-  console.log('startDate', startDate.value, dates)
 }
 </script>
 

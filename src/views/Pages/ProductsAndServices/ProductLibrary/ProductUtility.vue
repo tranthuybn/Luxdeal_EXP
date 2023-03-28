@@ -1426,6 +1426,7 @@ const categoriesToString = (categories) => {
 }
 
 const disabledEverything = () =>{
+  console.log('disabled tab')
   disabledTabOpen.value = true
 }
 </script>
@@ -1633,19 +1634,19 @@ const disabledEverything = () =>{
                   :icon="plusIcon"
                   link
                   :disabled="type == 'detail'"
-                  :type="scope.row.bussinessSetups[2].hasPrice ? 'primary' : 'warning'"
+                  :type="scope.row.bussinessSetups[1].hasPrice ? 'primary' : 'warning'"
                   @click="openRentTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
                 <ElSwitch
-                  :model-value="scope.row.bussinessSetups[2]?.value"
+                  :model-value="scope.row.bussinessSetups[1]?.value"
                   :disabled="!scope.row.edited"
                   size="large"
                   inline-prompt
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => changeDataSwitch(scope, data, 2)"
+                  @change="(data) => changeDataSwitch(scope, data, 1)"
                 />
               </div>
             </template>

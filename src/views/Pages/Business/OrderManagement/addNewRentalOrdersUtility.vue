@@ -5493,11 +5493,11 @@ const disabledPhieu = ref(false)
                 <span>{{t('reuse.orderStillInWarehouse')}}</span>
               </template>
               <div>
-            <button
+            <el-button
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-              >{{ t('formDemo.durationPrepayment') }}</button
+              >{{ t('formDemo.durationPrepayment') }}</el-button
             >
           </div>
             </el-tooltip>
@@ -5559,11 +5559,11 @@ const disabledPhieu = ref(false)
                 <span>{{t('reuse.orderStillInWarehouse')}}</span>
               </template>
               <div>
-            <button
+            <el-button
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[10].orderStatus, id)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
-              >{{ t('formDemo.checkFinish') }}</button
+              >{{ t('formDemo.checkFinish') }}</el-button
             >
             </div>
             </el-tooltip>
@@ -5589,11 +5589,11 @@ const disabledPhieu = ref(false)
                 <span>{{t('reuse.orderStillInWarehouse')}}</span>
               </template>
               <div>
-            <button
+            <el-button
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-              >{{ t('formDemo.aheadTimeReturns') }}</button
+              >{{ t('formDemo.aheadTimeReturns') }}</el-button
             >
           </div>
             </el-tooltip>
@@ -5629,7 +5629,7 @@ const disabledPhieu = ref(false)
                 <span>{{t('reuse.orderStillInWarehouse')}}</span>
               </template>
               <div>
-            <button
+            <el-button
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="
                 () => {
@@ -5638,7 +5638,7 @@ const disabledPhieu = ref(false)
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-              >{{ t('formDemo.returnsExpired') }}</button
+              >{{ t('formDemo.returnsExpired') }}</el-button
             >
           </div>
             </el-tooltip>

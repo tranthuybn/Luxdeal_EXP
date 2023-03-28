@@ -5103,7 +5103,7 @@ onBeforeMount(async () => {
                 <span>{{t('reuse.orderStillInWarehouse')}}</span>
               </template>
               <div>
-            <button
+            <el-button
             :disabled="unref(orderUtility.disableStatusWarehouse)"
               @click="
                 () => {
@@ -5113,15 +5113,15 @@ onBeforeMount(async () => {
               "
               v-if="statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus"
               class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold"
-              >{{ t('formDemo.exchangeReturnGoods') }}</button
+              >{{ t('formDemo.exchangeReturnGoods') }}</el-button
             >
           </div>
             </el-tooltip>
-            <button
+            <el-button
               @click="openFinishReturnRequest"
               v-if="checkApprovalAt && statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus"
               class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold"
-              >{{ t('formDemo.completeExchangeReturn') }}</button
+              >{{ t('formDemo.completeExchangeReturn') }}</el-button
             >
             <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
               <template #content>

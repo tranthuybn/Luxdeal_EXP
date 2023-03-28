@@ -5596,11 +5596,11 @@ const handleClose = (done: () => void) => {
                 <span>{{t('reuse.orderStillInWarehouse')}}</span>
               </template>
               <div>
-            <button
+            <el-button
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="createdExpendReturn"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-              >{{ t('formDemo.exchangeReturnGoods') }}</button
+              >{{ t('formDemo.exchangeReturnGoods') }}</el-button
             >
           </div>
             </el-tooltip>
@@ -5662,11 +5662,11 @@ const handleClose = (done: () => void) => {
                 <span>{{t('reuse.orderStillInWarehouse')}}</span>
               </template>
               <div>       
-            <button
+            <el-button
             :disabled="unref(orderUtility.disableStatusWarehouse)"
               @click="finishOrder(id)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
-              >{{ t('formDemo.checkFinish') }}</button
+              >{{ t('formDemo.checkFinish') }}</el-button
             >
           </div>
             </el-tooltip>

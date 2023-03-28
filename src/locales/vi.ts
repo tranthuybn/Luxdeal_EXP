@@ -2041,5 +2041,8 @@ export default {
     limitUploads: 'Số ảnh tối đa là',
     orderStillInWarehouse: 'Đơn hàng đang được xử lí trong kho',
     cantFindProduct: 'Không thể tìm thấy sản phẩm',
+    didYouReceiveProductMessage: 'Bạn đã nhận được sản phẩm?',
+    warning: 'Cảnh báo',
+    cancelExport: 'Hủy xuất kho',
   }
 }

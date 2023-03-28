@@ -131,12 +131,12 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  discount: [
-    {
-      validator: orderUtility.checkPercent,
-      trigger: 'blur'
-    }
-  ],
+  // discount: [
+  //   {
+  //     validator: orderUtility.checkPercent,
+  //     trigger: 'blur'
+  //   }
+  // ],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],

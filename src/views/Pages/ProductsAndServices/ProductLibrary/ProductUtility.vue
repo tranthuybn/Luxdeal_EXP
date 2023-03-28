@@ -1426,7 +1426,6 @@ const categoriesToString = (categories) => {
 }
 
 const disabledEverything = () =>{
-  console.log('disabled tab')
   disabledTabOpen.value = true
 }
 </script>

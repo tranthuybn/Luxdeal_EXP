@@ -51,7 +51,7 @@ export default {
           meta: {
             title: t('router.manageChat'),
             // canTo: true,
-            hidden: true
+           // hidden: true
           }
         }
       ]

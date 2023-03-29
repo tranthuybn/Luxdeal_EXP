@@ -14,6 +14,12 @@ export const productCategories = [
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
+    field: 'total',
+    label: t('reuse.quantity'),
+    minWidth: '150',
+    sortable: true
+  },
+  {
     field: 'index',
     label: t('reuse.position'),
     minWidth: '150',
@@ -47,6 +53,12 @@ export const colorCategories = [
     headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
+  },
+  {
+    field: 'total',
+    label: t('reuse.quantity'),
+    minWidth: '150',
+    sortable: true
   },
 
   {
@@ -86,7 +98,12 @@ export const sizeCategories = [
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
-
+  {
+    field: 'total',
+    label: t('reuse.quantity'),
+    minWidth: '150',
+    sortable: true
+  },
   {
     field: 'index',
     label: t('reuse.position'),
@@ -125,7 +142,12 @@ export const materialCategories = [
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
-
+  {
+    field: 'total',
+    label: t('reuse.quantity'),
+    minWidth: '150',
+    sortable: true
+  },
   {
     field: 'index',
     label: t('reuse.position'),
@@ -164,7 +186,12 @@ export const statusCategories = [
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
-
+  {
+    field: 'total',
+    label: t('reuse.quantity'),
+    minWidth: '150',
+    sortable: true
+  },
   {
     field: 'index',
     label: t('reuse.position'),
@@ -203,7 +230,12 @@ export const genderCategories = [
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
-
+  {
+    field: 'total',
+    label: t('reuse.quantity'),
+    minWidth: '150',
+    sortable: true
+  },
   {
     field: 'index',
     label: t('reuse.position'),
@@ -242,7 +274,12 @@ export const unitCategories = [
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
-
+  {
+    field: 'total',
+    label: t('reuse.quantity'),
+    minWidth: '150',
+    sortable: true
+  },
   {
     field: 'index',
     label: t('reuse.position'),
@@ -282,7 +319,12 @@ export const brandCategories = [
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
-
+  {
+    field: 'total',
+    label: t('reuse.quantity'),
+    minWidth: '150',
+    sortable: true
+  },
   {
     field: 'index',
     label: t('reuse.position'),
@@ -321,7 +363,12 @@ export const originCategories = [
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
-
+  {
+    field: 'total',
+    label: t('reuse.quantity'),
+    minWidth: '150',
+    sortable: true
+  },
   {
     field: 'index',
     label: t('reuse.position'),

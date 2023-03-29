@@ -4,34 +4,60 @@
     <div class="flex message-box__header items-center justify-between h-1/10 px-4">
       <div class="flex message-box__customer items-center">
         <img :src="defaultImg" alt="..." width="50" height="50" />
-        <span class="pl-2">{{ user.Name ? user.Name : user.UserName }}</span>
+        <span class="pl-2">{{ user.userName }}</span>
       </div>
       <div class="flex items-center w-1/4">
-        <el-form class="message-box__search w-full">
-          <el-input
-            :placeholder="`${t('reuse.findContent')} ...`"
-            v-model="search"
-            :suffix-icon="searchIcon"
-            class="h-50px"
-          />
-        </el-form>
+        <el-input
+:placeholder="`${t('reuse.findContent')} ...`" v-model="search" :suffix-icon="searchIcon"
+class="p-4 h-70px"  />
         <div id="showDocument">
-          <el-button
-            :icon="leftArrow"
-            class="!pl-4 !border-0 !font-bold hidden"
-            @click="showDocumentList(0)"
-            >Tài liệu</el-button
-          ></div
-        ></div
-      >
+          <el-button :icon="leftArrow" class="!pl-4 !border-0 !font-bold hidden" @click="showDocumentList(0)">Tài
+            liệu</el-button>
+        </div>
+      </div>
     </div>
     <el-alert v-if="noMoreLoadData" title="Đã hiển thị hết tin nhắn" type="success" effect="dark" />
     <!-- <p v-if="scrollLoading" class="text-center"> Đang tải thêm ... </p> -->
     <section class="h-650px">
-      <ul
-        class="message-box__body !h-full !dark:bg-[var(--el-bg-color)] border-top-1 dark:border-transparent"
-      >
-        <li
+      <ul class="message-box__body !h-full !dark:bg-[var(--el-bg-color)] border-top-1 dark:border-transparent">
+      <!-- <li>
+          <pre id="messages" style=" overflow: scroll"></pre>
+              </li> -->
+        <div class="messages-chat" id="messages" style=" overflow: auto;">
+          <div class="message">
+            <div
+class="photo"
+              style="background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);">
+              <div class="online"></div>
+            </div>
+            <p class="text"> Hi, how are you ? </p>
+          </div>
+          <div class="message text-only">
+            <p class="text"> What are you doing tonight ? Want to go take a drink ?</p>
+          </div>
+          <p class="time"> 14h58</p>
+          <div class="message text-only">
+            <div class="response">
+              <p class="text"> Hey Megan ! It's been a while 😃</p>
+            </div>
+          </div>
+          <div class="message text-only">
+            <div class="response">
+              <p class="text"> When can we meet ?</p>
+            </div>
+          </div>
+          <p class="response-time time"> 15h04</p>
+          <div class="message">
+            <div
+class="photo"
+              style="background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);">
+              <div class="online"></div>
+            </div>
+            <p class="text"> 9 pm at the bar if possible 😳</p>
+          </div>
+          <p class="time"> 15h09</p>
+        </div>
+      <!-- <li
           class="content-message dark:bg-[var(--el-bg-color)]"
           v-for="(mess, index) in messageStreamContent"
           :key="index"
@@ -102,34 +128,23 @@
               </div></section
             >
           </section>
-          <!-- deal here -->
-        </li>
-        <!-- messages here -->
+                  </li> -->
       </ul>
     </section>
     <div class="message-box__footer p-3 h-1/10">
       <el-form
-        class="message-box__send h-full flex-grow pr-4"
-        ref="messageInput"
-        :model="messageInputForm"
-        @submit.native.prevent
-      >
+class="message-box__send h-full flex-grow pr-4" ref="messageInput" :model="messageInputForm"
+        @submit.native.prevent>
         <el-form-item prop="chatContent" class="h-full relative" style="margin: 0">
           <el-input
-            class="h-45px"
-            :placeholder="`${t('reuse.inputContent')} ...`"
-            v-model="messageInputForm.chatContent"
-            @keyup.enter.native="onSubmit"
-          />
-          <el-button
-            :icon="sendIcon"
-            @click="onSubmit"
-            class="absolute right-1 !text-blue-500 biggerIcon"
-          />
+class="h-45px" :placeholder="`${t('reuse.inputContent')} ...`" v-model="messageInputForm.chatContent"
+            @keyup.enter.native="onSubmit" />
+          <el-button :icon="sendIcon" @click="onSubmit" class="absolute right-1 !text-blue-500 biggerIcon" />
         </el-form-item>
       </el-form>
       <div class="flex flex-nowrap justify-around gap-2">
         <el-upload class="message-box__feel" action="#" :show-file-list="false">
+          +
           <div size="small" class="message-box__icon">
             <Icon icon="carbon:face-satisfied" :size="27" />
             <small>{{ t('reuse.status') }}</small>
@@ -169,10 +184,14 @@ import {
   TYPE_OF_MESSAGE_DEPOSIT,
   PAGE_SIZE_ARRAY
 } from '@/utils/chatConstants'
+import { useCache } from '@/hooks/web/useCache'
+import { usePermissionStore } from '@/store/modules/permission'
 import { useIcon } from '@/hooks/web/useIcon'
 import { formatMoneyInput } from '@/utils/format.ts'
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
+const { wsCache } = useCache()
+const permissionStore = usePermissionStore()
 const sendIcon = useIcon({ icon: 'mdi:send' })
 const searchIcon = useIcon({ icon: 'uiw:search' })
 const leftArrow = useIcon({ icon: 'material-symbols:chevron-left' })
@@ -181,8 +200,10 @@ export default {
   props: {
     user: Object,
     channelId: String,
-    messagesOfCurrentUser: Array
+    messagesOfCurrentUser: Array,
+    refss: Array
   },
+  expose: ['showMessage1', 'showMessage', 'showMessageSocketRe'],
   data() {
     return {
       message: [],
@@ -195,6 +216,7 @@ export default {
       messageInputForm: {
         chatContent: ''
       },
+      dataMessageChat: wsCache.get(permissionStore.getGroupChatID),
       contractIcon,
       albumIcon,
       faceIcon,
@@ -207,7 +229,8 @@ export default {
       pageIndex: 1,
       pageSize: PAGE_SIZE_ARRAY[0],
       scrollLoading: false,
-      noMoreLoadData: false
+      noMoreLoadData: false,
+      messages: document.querySelector("#messages")
     }
   },
   computed: {
@@ -217,7 +240,8 @@ export default {
 
     disableScroll() {
       return this.noMoreLoadData || this.scrollLoading
-    }
+    },
+
   },
 
   watch: {
@@ -247,19 +271,130 @@ export default {
           this.message = val
         }
       }
-    }
+    },
+    refss: {
+      deep: true,
+      handler(val) {
+        this.showMessage1(val)
+      }
+    },
+    dataMessageChat: {
+      deep: true,
+      handler(val) {
+        this.showMessage1(val)
+      }
+    },
   },
   created() {
     this.message = this.messagesOfCurrentUser
+  },
+  mounted() {
   },
   methods: {
     onSubmit() {
       this.$refs.messageInput.validate(async (valid) => {
         if (valid) {
           this.$emit('input', this.messageInputForm.chatContent)
+
+          var a = {
+            chatGroupId: wsCache.get(permissionStore.getGroupChatID),
+            text: this.messageInputForm.chatContent,
+            chatTypeId: null,
+            productId: null,
+            file: null,
+            sender: {
+              id: wsCache.get(permissionStore.getUserIDSentChat),
+              UserName: wsCache.get(permissionStore.getUserNameSentChat),
+              avatar: null
+            }
+          }
+          this.showMessageSocket(a);
+          this.$emit('send-data', JSON.stringify(a))
           this.messageInputForm.chatContent = ''
         }
       })
+
+
+
+    },
+    showMessageSocketRe(message) {
+      console.log(wsCache.get(permissionStore.getUserIDReceive))
+      console.log(message)
+      if (message.sender.id == wsCache.get(permissionStore.getUserIDReceive)) {
+        this.showMessage(message);
+      }
+    },
+    showMessage(message) {
+
+      if (message.sender.id != wsCache.get(permissionStore.getUserIDSentChat)) {
+        messages.innerHTML += `
+        <div class="message" style="  display: flex;
+  align-items: center;
+  margin-bottom: 8px;">
+    <div class="photo"
+      style="background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);display: block;width: 45px;height: 45px;background: #E6E7ED;-moz-border-radius: 50px;-webkit-border-radius:50px;background-position: center;background-size: cover;background-repeat: no-repeat;">
+      <div class="online"
+        style="position: relative;top: 35px;left: 30px;width: 13px;height: 13px;background-color: #8BC34A;border-radius: 13px;border: 3px solid #FAFAFA;">
+      </div>
+    </div>
+    <p class="text" style="    margin: 0 35px;
+  background-color: #f6f6f6;
+  padding: 10px;
+  border-radius: 12px;">
+      ${message.text} </p>
+  </div>
+  <p class="time" style="    font-size: 10px;
+  color: lightgrey;
+  margin-bottom: 10px;
+  margin-left: 85px;"> ${ moment(message.createAT).format('DD/MM/YYYY hh:ss:mm') }</p>`
+      } else {
+        messages.innerHTML += `<div class="message text-only" style="display: flex;align-items: center;margin-bottom: 10px;">
+    <div class="response" style="float: right;margin-right: 0px !important;margin-left: auto;">
+      <p class="text" style=" background-color: #e3effd !important;padding: 10px;border-radius: 12px;"> ${message.text}</p>
+    </div>
+  </div>`;
+      }
+      messages.scrollTop = messages.scrollHeight;
+    },
+    showMessageSocket(message) {
+      if (message.id == wsCache.get(permissionStore.getUserIDSentChat)) {
+        messages.innerHTML += `
+        <div class="message" style="  display: flex;
+  align-items: center;
+  margin-bottom: 8px;">
+    <div class="photo"
+      style="background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);display: block;width: 45px;height: 45px;background: #E6E7ED;-moz-border-radius: 50px;-webkit-border-radius:50px;background-position: center;background-size: cover;background-repeat: no-repeat;">
+      <div class="online"
+        style="position: relative;top: 35px;left: 30px;width: 13px;height: 13px;background-color: #8BC34A;border-radius: 13px;border: 3px solid #FAFAFA;">
+      </div>
+    </div>
+    <p class="text" style="    margin: 0 35px;
+  background-color: #f6f6f6;
+  padding: 10px;
+  border-radius: 12px;">
+      ${message.text} </p>
+  </div>
+  <p class="time" style="    font-size: 10px;
+  color: lightgrey;
+  margin-bottom: 10px;
+  margin-left: 85px;"> ${ moment(message.createAT).format('hh:ss:mm') }</p>`
+      } else {
+        messages.innerHTML += `<div class="message text-only" style="display: flex;align-items: center;margin-bottom: 10px;">
+    <div class="response" style="float: right;margin-right: 0px !important;margin-left: auto;">
+      <p class="text" style=" background-color: #e3effd !important;padding: 10px;border-radius: 12px;"> ${message.text}</p>
+    </div>
+  </div>`;
+      }
+      messages.scrollTop = messages.scrollHeight;
+
+    },
+    showMessage1(val) {
+      console.log("HUYHUYHUH: next")
+      messages.innerHTML = "";
+      for (var i = 0; i < val.message.length; i++) {
+        this.showMessage(val.message[i])
+      }
+      messages.scrollTop = messages.scrollHeight;
     },
     formatPrice(value) {
       return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
@@ -406,23 +541,85 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/styles/chat.scss';
+
 .biggerIcon :deep(.el-icon) span {
   font-size: 24px !important;
 }
+
 .ml-0 {
   margin-left: 0 !important;
 }
+
 ul {
   padding: 1rem;
   list-style: none;
 }
+
 .h-680px :deep(.el-card__body) {
   height: 100%;
 }
+
 .h-45px :deep(.el-input__wrapper) {
   padding-left: 1rem;
 }
+
 .h-250px :deep(.el-card__body) {
   padding: 1rem !important;
+}
+
+.messages-chat {
+  padding: 0px;
+}
+
+.messages-chat .message {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.messages-chat .message .photo {
+  display: block;
+  width: 45px;
+  height: 45px;
+  background: #E6E7ED;
+  -moz-border-radius: 50px;
+  -webkit-border-radius: 50px;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.messages-chat .text {
+  margin: 0 35px;
+  background-color: #f6f6f6;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.text-only {
+  margin-left: 45px;
+}
+
+.time {
+  font-size: 10px;
+  color: lightgrey;
+  margin-bottom: 10px;
+  margin-left: 85px;
+}
+
+.response-time {
+  float: right;
+  margin-right: 40px !important;
+}
+
+.response {
+  float: right;
+  margin-right: 0px !important;
+  margin-left: auto;
+  /* flexbox alignment rule */
+}
+
+.response .text {
+  background-color: #e3effd !important;
 }
 </style>

@@ -127,6 +127,10 @@ export const usePermissionStore = defineStore({
           this.userPermission = hasRole ?? null
       }else
       this.userPermission = null
+    },
+    clearPermission() { 
+      if(Array.isArray(this.userPermission) && this.userPermission.length > 0 )
+        this.userPermission.splice(0,this.userPermission.length-1)
     }
   }
 })

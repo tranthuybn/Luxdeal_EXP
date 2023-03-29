@@ -571,6 +571,96 @@ const approvalProduct = async (val) => {
       })
     )
 }
+const formx = ref({
+  attachDocument: false,
+  code: "",
+  createdAt: new Date(),
+  createdBy: "",
+  idCustomer: '',
+  debtMoney: 0,
+  depositeMoney: 0,
+  description: null,
+  enterMoney: "",
+  OrderId: '',
+  id: undefined,
+  isDelete: false,
+  orderId: undefined,
+  paymentType: 1,
+  peopleId: undefined,
+  peopleName: null,
+  pepopleType: 1,
+  reasonCollectMoney: "",
+  status: 1,
+  totalMoney: '',
+  totalPrice: 0,
+  updatedAt: "",
+  updatedBy: ""
+})
+interface typeOfTableData {
+  dayVouchers: any
+  note: string
+  numberVouchers: string | number
+  paymentRequestId: number | undefined
+  quantity: number
+  spentFor: string
+  totalPrice: number
+  unitPrice: number
+}
+
+const tableData = ref<Array<typeOfTableData>>([
+  { dayVouchers: new Date(),
+    note: "tt",
+    numberVouchers: "tt",
+    paymentRequestId: 0,
+    quantity: 1,
+    spentFor: "yy",
+    totalPrice: 0,
+    unitPrice: 0
+  }
+])
+const deleteRow = (index: number) => {
+  tableData.value.splice(index, 1)
+}
+
+const onAddItem = () => {
+  tableData.value.push({    
+    dayVouchers: new Date(),
+    note: "",
+    numberVouchers: "",
+    paymentRequestId: undefined,
+    quantity: 1,
+    spentFor: "",
+    totalPrice: 0,
+    unitPrice: 0
+  })
+}
+const autoCalculate = () =>{
+  formx.value.totalPrice = 0
+  tableData.value.forEach((el) => {
+    if (el.numberVouchers && el.unitPrice) {
+      formx.value.totalPrice += el.totalPrice
+    }
+  })
+  formx.value.debtMoney = formx.value.totalPrice - formx.value.depositeMoney
+}
+watch(
+  () => tableData.value[tableData.value.length - 1],
+  () => {
+    if (
+      tableData.value[tableData.value.length - 1].numberVouchers &&
+      tableData.value[tableData.value.length - 1].dayVouchers &&
+      tableData.value[tableData.value.length - 1].spentFor &&
+      tableData.value[tableData.value.length - 1].quantity &&
+      tableData.value[tableData.value.length - 1].unitPrice &&
+      tableData.value[tableData.value.length - 1].totalPrice
+    )
+    onAddItem()
+  },
+  {
+    deep: true
+  }
+)
+
 </script>
 <template>
   <ContentWrap :title="title" :back-button="backButton">
@@ -656,9 +746,75 @@ const approvalProduct = async (val) => {
               <li v-if="optionPeopleType?.email" class="leading-5">{{ t('reuse.email') }}: {{ optionPeopleType.email }}</li>
             </ul>
           </template>
+
+          <template #detailedExpensesTable>
+            <el-table :data="tableData" border style="width: 100%">
+              <el-table-column type="index" :label="t('reuse.index')" align="center" min-width="80" />
+              <el-table-column prop="numberVouchers" :label="t('formDemo.numberVouchers')" min-width="132" >
+                <template #default="scope">
+                  <el-input v-model="scope.row.numberVouchers"/>
+                </template>
+              </el-table-column>
+              <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" min-width="132">
+                <template #default="scope">
+                    <el-date-picker
+                      v-model="scope.row.dayVouchers"
+                      type="date"
+                      placeholder="Pick a day"
+                      format="DD/MM/YYYY"
+                    />
+                </template>
+              </el-table-column>
+              <el-table-column prop="spentFor" :label="t('formDemo.spendFor')" min-width="436" >
+                <template #default="scope">
+                      <el-input v-model="scope.row.spentFor" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="150">
+                <template #default="scope">
+                  <el-input
+                    v-model="scope.row.quantity"
+                    @change="
+                      () => {
+                        scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
+                        autoCalculate()
+                      }
+                    "
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="price" :label="t('reuse.unitPrice')" min-width="150">
+                  <template #default="scope">
+                    <el-input
+                    v-model="scope.row.unitPrice" 
+                    @change="
+                      () => {
+                        scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
+                        autoCalculate()
+                      }
+                    "/>
+                </template>
+              </el-table-column>
+              <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')" min-width="150" >
+                <template #default="scope">
+                    {{ scope.row.totalPrice }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="note" :label="t('reuse.note')">
+                <template #default="scope">
+                  <el-input v-model="scope.row.note" />
+                </template>            
+              </el-table-column>
+              <el-table-column :label="t('formDemo.manipulation')" min-width="86">
+                <template #default="scope">
+                  <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)" >Xóa</el-button>
+                </template>
+              </el-table-column>
+            </el-table>  
+          </template>
         </Form>
-       
       </ElCol>
+      
       <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
         <ElDivider class="text-center font-bold ml-2">{{ t('reuse.addImage') }}</ElDivider>
         <el-upload

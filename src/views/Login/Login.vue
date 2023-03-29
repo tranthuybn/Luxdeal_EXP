@@ -111,6 +111,9 @@ const toLogin = () => {
           </div>
         </Transition>
       </div>
+       <div class="text-gray-600 absolute top-8 right-35">
+          <a href="./components/index.html" target="_blank">Hướng dẫn</a>
+       </div>
       <div class="text-gray-600 absolute bottom-0 right-2">version: {{ version }}</div>
     </div>
   </div>

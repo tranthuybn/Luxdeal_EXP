@@ -5001,6 +5001,7 @@ const createStatusAcountingEntry = () => {
   padding: 0 10px;
   overflow: auto;
 }
+
 ::v-deep(.el-upload--picture-card) {
   width: 160px;
   height: 40px;

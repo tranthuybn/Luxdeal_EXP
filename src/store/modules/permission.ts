@@ -25,6 +25,11 @@ export interface PermissionState {
   roles: string
   routerByRoles: string
   staffInfo: string
+  groupChatID :string
+  userNameSentChat: string
+  userIDSentChat: string
+  userNameReceive: string
+  userIDReceive: string
   accountId: string
 }
 
@@ -41,6 +46,11 @@ export const usePermissionStore = defineStore({
     roles: 'ROLES',
     routerByRoles: 'ROUTER_BY_ROLES',
     staffInfo: 'STAFF_INFO',
+    groupChatID : "groupChatID",
+    userNameSentChat: "userNameSentChat",
+    userIDSentChat: "userIDSentChat",
+    userNameReceive : "userNameReceive",
+    userIDReceive: "userIDReceive",
     accountId: 'ACCOUNT_ID'
   }),
   persist: {
@@ -73,6 +83,21 @@ export const usePermissionStore = defineStore({
     },
     getStaffInfo(): string {
       return this.staffInfo
+    },
+    getGroupChatID(): string {
+      return this.groupChatID
+    },
+    getUserNameSentChat(): string {
+      return this.userNameSentChat
+    },
+    getUserIDSentChat(): string {
+      return this.userIDSentChat
+    },
+    getUserNameReceive(): string {
+      return this.userNameReceive
+    },
+    getUserIDReceive(): string {
+      return this.userNameReceive
     },
     getAccountId(): string {
       return this.accountId

@@ -1889,5 +1889,6 @@ export default {
     didYouReceiveProductMessage: 'Did you receive product?',
     warning: 'Warning',
     cancelExport: 'Cancel export',
+    invalidQuantity: 'Invalid quantity',
   }
 }

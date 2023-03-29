@@ -903,7 +903,9 @@ const checkDisabled = ref(false)
 let idOrderPost = ref()
 
 const postData = async () => {
-  orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+  orderDetailsTable = ListOfProductsForSale.value
+  .filter((row)=>row.productPropertyId && row.productPropertyId !== '' && row.productPropertyId != null)
+  .map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
     Quantity: val.quantity,
     ProductPrice: 0,
@@ -921,7 +923,11 @@ const postData = async () => {
     PrincipalMoney: val.principalMoney,
     PrincipalDebt: val.principalDebt
   }))
-  orderDetailsTable.pop()
+
+  if(orderUtility.ValidatePostData(ListOfProductsForSale.value) == false){
+      return
+    }
+    
   const productPayment = JSON.stringify([...orderDetailsTable])
 
   const payload = {
@@ -3282,7 +3288,13 @@ const finishOrder = async () =>{
               class="min-w-42 min-h-11"
               >Hủy đứt hàng</el-button
             >
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
+            :disabled="unref(orderUtility.disableStatusWarehouse)"
               v-if="
                 statusOrder == STATUS_ORDER_PAWN[12].orderStatus
               "
@@ -3295,6 +3307,8 @@ const finishOrder = async () =>{
               class="min-w-42 min-h-11"
               >Đối soát & kết thúc</el-button
             >
+              </div>
+              </el-tooltip>
             <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
               <template #content>
                 <span>{{t('reuse.orderStillInWarehouse')}}</span>

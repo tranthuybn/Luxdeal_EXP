@@ -91,10 +91,6 @@ const props = defineProps({
     default: 'Warning',
     description: 'Tiêu đề thông báo khi ấn nút xóa'
   },
-  typeButton: {
-    type: String,
-    default: ''
-  },
   currentT: [String, Number],
   apiHasPagination: {
     type: Boolean,
@@ -194,17 +190,6 @@ const filterChange = (filterValue) => {
   setSearchParams(filterValue)
 }
 const { utility } = appModules
-
-const handleClickAdd = () => {
-  push({
-    name: `human-resource-management.department-directory.${utility}`,
-    params: {
-      backRoute: 'human-resource-management.department-directory',
-      tab: props.typeButton,
-      type: 'add'
-    }
-  })
-}
 const sortValue = ref()
 let sortObj = {}
 const lastSort = ref('')
@@ -319,7 +304,6 @@ const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilt
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
-const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const drawer = ref(false)
 const showingColumnList = ref<Array<string>>(
   props.fullColumns.length > 0 ? props.fullColumns.map((el) => el.field)?.filter((el) => el) : []
@@ -434,8 +418,6 @@ const setOperatorType = (type)=> {
         <slot name="expand"></slot>
       </template>
     </Table>
-    <ElButton v-if="!(props.titleButtons === '')" @click="handleClickAdd" id="bt-add" :icon="plusIcon" class="mx-12">
-      {{ props.titleButtons }}</ElButton>
   </ContentWrap>
 </template>
 <style lang="less" scoped>

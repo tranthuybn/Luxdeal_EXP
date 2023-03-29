@@ -108,7 +108,7 @@ const props = defineProps({
     default: true
   }
 })
-const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
+const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data','disabled'])
 const formValue = ref()
 
 const disabledUpload = ref(false)
@@ -126,6 +126,7 @@ const disabledEverything = () => {
     }))
   )
   setSchema([{ field: 'Description', path: 'componentProps.disabled', value: true }])
+  emit('disabled')
 }
 //get data from table
 const getTableValue = async () => {

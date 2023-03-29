@@ -4,12 +4,22 @@ import { constantRouterMap } from '@/router/constant'
 import { generateRoutesFn1, generateRoutesFn2, flatMultiLevelRoutes } from '@/utils/routerHelper'
 import { store } from '../index'
 import { cloneDeep } from 'lodash-es'
+import { RouteLocationNormalizedLoaded } from 'vue-router'
 
+interface iUserPermission { 
+  addable:boolean 
+  deletable:boolean
+  editable:boolean
+  id:number
+  indeterminate:boolean
+  url: string
+}
 export interface PermissionState {
   routers: AppRouteRecordRaw[]
   addRouters: AppRouteRecordRaw[]
   isAddRouters: boolean
   menuTabRouters: AppRouteRecordRaw[]
+  userPermission: iUserPermission | Nullable<iUserPermission>
   accessToken: string
   refreshToken: string
   roles: string
@@ -25,6 +35,7 @@ export const usePermissionStore = defineStore({
     addRouters: [],
     isAddRouters: false,
     menuTabRouters: [],
+    userPermission: null,
     accessToken: 'ACCESS_TOKEN',
     refreshToken: 'REFRESH_TOKEN',
     roles: 'ROLES',
@@ -66,6 +77,9 @@ export const usePermissionStore = defineStore({
     getAccountId(): string {
       return this.accountId
     },
+    getUserPermission(): iUserPermission|Nullable<iUserPermission> { 
+      return this.userPermission
+    }
   },
   actions: {
     generateRoutes(
@@ -105,6 +119,18 @@ export const usePermissionStore = defineStore({
     },
     setMenuTabRouters(routers: AppRouteRecordRaw[]): void {
       this.menuTabRouters = routers
+    },
+    checkRoleAndSetPermission(RoleList: iUserPermission[], currentRoute: RouteLocationNormalizedLoaded): void { 
+      if (Array.isArray(RoleList) && RoleList.length > 0) {
+        const { path } = currentRoute
+        const hasRole = RoleList.find(el => el.url === path)
+          this.userPermission = hasRole ?? null
+      }else
+      this.userPermission = null
+    },
+    clearPermission() { 
+      if(Array.isArray(this.userPermission) && this.userPermission.length > 0 )
+        this.userPermission.splice(0,this.userPermission.length-1)
     }
   }
 })

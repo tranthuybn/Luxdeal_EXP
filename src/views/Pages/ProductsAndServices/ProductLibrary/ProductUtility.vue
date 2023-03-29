@@ -1424,7 +1424,10 @@ const categoriesToString = (categories) => {
   }
   return categoriesLabel.toString()
 }
-//glhf:)
+
+const disabledEverything = () =>{
+  disabledTabOpen.value = true
+}
 </script>
 <template>
   <el-collapse
@@ -1456,6 +1459,7 @@ const categoriesToString = (categories) => {
           'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
         ]"
         :apiStatus="apiStatus"
+        @disabled="disabledEverything"
       />
     </el-collapse-item>
     <el-dialog
@@ -1629,19 +1633,19 @@ const categoriesToString = (categories) => {
                   :icon="plusIcon"
                   link
                   :disabled="type == 'detail'"
-                  :type="scope.row.bussinessSetups[2].hasPrice ? 'primary' : 'warning'"
+                  :type="scope.row.bussinessSetups[1].hasPrice ? 'primary' : 'warning'"
                   @click="openRentTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
                 <ElSwitch
-                  :model-value="scope.row.bussinessSetups[2]?.value"
+                  :model-value="scope.row.bussinessSetups[1]?.value"
                   :disabled="!scope.row.edited"
                   size="large"
                   inline-prompt
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => changeDataSwitch(scope, data, 2)"
+                  @change="(data) => changeDataSwitch(scope, data, 1)"
                 />
               </div>
             </template>

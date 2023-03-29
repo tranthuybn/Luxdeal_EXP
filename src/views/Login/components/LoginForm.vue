@@ -171,19 +171,16 @@ const signIn = () => {
 const inValidAccountAccess = () => { 
   wsCache.clear()
   loading.value = false
+  permissionStore.clearPermission()
 }
 // Get role information
 const getRole =  async (accountId): Promise<boolean> => {
-  
   // get role list
-  try {
-    const routers = await GetRouterByStaffAccountId({ id: accountId })
-    // var tempUrl = await getRoutesAsRolesApi({ roleName: 'test' })
+  const routers = await GetRouterByStaffAccountId({ id: accountId })
 
-    if (routers?.data && routers.data.length > 0) {
-      const urlList = routers.data.map((el) => el.url)
-      //generateRouter(tempUrl.data)
-      generateRouter(urlList)
+  try {
+    if (routers?.data && routers.data.length > 0) {   
+      generateRouter(routers.data)
     } else {
       ElNotification({
         message: t('reuse.authorized'),
@@ -196,6 +193,7 @@ const getRole =  async (accountId): Promise<boolean> => {
       message: `${t('router.errorPage')}`,
       type: 'error'
     })
+    inValidAccountAccess()
     return false
   } finally { 
     return true
@@ -205,7 +203,8 @@ const generateRouter = (routers) => {
   // save roles in local storage
   wsCache.set(permissionStore.getRouterByRoles, routers)
   //  generate router by roles
-  permissionStore.generateRoutes(routers, 'client').catch(() => {})
+  const urlList = routers.map((el) => el.url)
+  permissionStore.generateRoutes(urlList, 'client').catch(() => {})
 
   permissionStore.getAddRouters.forEach((route) => {
     addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table
@@ -214,8 +213,6 @@ const generateRouter = (routers) => {
   push({ path: redirect.value || permissionStore.addRouters[0].path })
 }
 const getUserInfoByAccountId = async (id): Promise<boolean> => {
-  console.log('getUserInfoByAccountId');
-  
   await getStaffInfoByAccountId({ Id: id })
     .then(async (res) => {
       if (res.data && Object.keys(res.data).length > 0) {
@@ -228,6 +225,7 @@ const getUserInfoByAccountId = async (id): Promise<boolean> => {
         message: t('reuse.accountInfo'),
         type: 'error'
       })
+      inValidAccountAccess()
       return false
     })
     return true

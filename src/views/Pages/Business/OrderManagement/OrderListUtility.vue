@@ -9,7 +9,6 @@ import {
   ElCol,
   ElCollapse,
   ElCollapseItem,
-  ElUpload,
   ElSelect,
   ElOption,
   ElCheckbox,
@@ -22,16 +21,13 @@ import {
   ElRadio,
   ElDialog,
   ElMessageBox,
-  // ElDropdown,
-  // ElDropdownMenu,
-  // ElDropdownItem,
   ElDatePicker,
   ElForm,
   ElFormItem,
   ElMessage,
   ElNotification,
-  UploadProps,
-  UploadUserFile
+  UploadUserFile,
+  ElTooltip
 } from 'element-plus'
 // import { ORDER_STYTE } from '@/utils/API.Variables' 
 import { useIcon } from '@/hooks/web/useIcon'
@@ -41,7 +37,6 @@ import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { STATUS_ORDER_SELL } from '@/utils/API.Variables'
-import type { UploadFile } from 'element-plus'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -90,11 +85,13 @@ import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
 import { changeMoney } from '@/utils/tsxHelper'
 
+import UploadMultipleImages from './UploadMultipleImages.vue'
 import * as orderUtility from './OrderFixbug'
 import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
 
 const { utility } = appModules
 const { t } = useI18n()
+
 const ruleFormRef = ref<FormInstance>()
 const ruleAddQuickCustomerFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
@@ -219,30 +216,10 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
   })
 }
 
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const disabled = ref(false)
 
-const handleRemove = (file: UploadFile) => {
-  return file
-}
 
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
 
-const handleDownload = (file: UploadFile) => {
-  return file
-}
 
-const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
-  ElMessage.warning(
-    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
-      'reuse.total'
-    )}${files.length + uploadFiles.length}`
-  )
-}
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -1070,7 +1047,9 @@ let orderDetailsTable = reactive([{}])
 
 // Tạo đơn hàng
 const postData = async (pushBack: boolean) => {
-  orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+  orderDetailsTable = ListOfProductsForSale.value
+  .filter((row)=>row.productPropertyId || row.productPropertyId !== '' || row.productPropertyId != null)
+  .map((val) => ({
     ProductPropertyId:
       typeof val?.productPropertyId != 'number'
         ? parseInt(val?.productPropertyId)
@@ -1088,7 +1067,11 @@ const postData = async (pushBack: boolean) => {
     WarehouseId: null,
     PriceChange: priceChangeOrders.value
   }))
-  orderDetailsTable.pop()
+
+  if(orderUtility.ValidatePostData(ListOfProductsForSale.value) == false){
+      return
+    }
+
   const productPayment = JSON.stringify([...orderDetailsTable])
   if(orderDetailsTable?.length < 1) {
     ElMessage.error('Vui lòng chọn mã sản phẩm')
@@ -1113,7 +1096,7 @@ const postData = async (pushBack: boolean) => {
       InterestMoney: 0,
       // VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
       VATMoney: 0,
-      Files: Files,
+      Files: Files.value,
       DeliveryOptionId: ruleForm.delivery,
       ProvinceId: formAddress.province ?? 1,
       DistrictId: formAddress.district ?? 1,
@@ -1200,6 +1183,7 @@ const disabledDeleteRow = ref(false)
 const duplicateStatusButton = ref(false)
 const outstandingDebt = ref(0)
 const editData = async () => {
+  await orderUtility.getStatusWarehouse(id)
   if (type == 'detail') checkDisabled.value = true
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
@@ -1222,7 +1206,6 @@ const editData = async () => {
       else duplicateStatusButton.value = false
     }
     dataEdit.value = orderObj
-    Files = orderObj.orderFiles
     if (res.data) {
       ruleForm.orderCode = orderObj.code
       sellOrderCode.value = ruleForm.orderCode
@@ -1271,12 +1254,11 @@ const editData = async () => {
         infoCompany.email = 'Email: ' + orderObj.customer?.email
       }
     }
-    orderObj.orderFiles.map((element) => {
-      fileList.value?.push({
-        url: `${API_URL}${element?.path}`,
-        name: element?.fileId
+    Files.value = orderObj.orderFiles.map((element) => ({
+          url: `${API_URL}${element?.path}`,
+          name: element?.fileId
       })
-    })
+    )
   } else if (type == 'add' || type == ':type') {
     ListOfProductsForSale.value.push({ ...productForSale })
   }
@@ -1690,6 +1672,7 @@ const getReturnRequestTable = async () => {
       warehouseTicketId: e.warehouseTicketId,
       warehouseTicketStatusName: e.warehouseTicketStatusName
     }))
+    orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }
 }
 
@@ -2417,74 +2400,7 @@ const autoCollaboratorCommission = (index) => {
   })
 }
 
-let Files = reactive({})
-const validImageType = ['jpeg', 'png']
-//cái này validate file chỉ cho ảnh tí a sửa lại nhé
-const beforeAvatarUpload = (rawFile, type: string) => {
-  if (rawFile) {
-    //nếu là 1 ảnh
-    if (type === 'single') {
-      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
-        return false
-      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
-        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-        return false
-      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
-        ElMessage.error(t('reuse.imageOver4MB'))
-        return false
-      } 
-      // else if (rawFile.name?.split('.')[0].length > 100) {
-      //   ElMessage.error(t('reuse.checkNameImageLength'))
-      //   return false
-      // }
-    }
-    //nếu là 1 list ảnh
-    if (type === 'list') {
-      let inValid = true
-      rawFile.map((file) => {
-        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
-          ElMessage.error(t('reuse.notImageFile'))
-          inValid = false
-        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
-          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-          inValid = false
-          return false
-        } else if (file.size / 1024 / 1024 > 4) {
-          ElMessage.error(t('reuse.imageOver4MB'))
-          inValid = false
-        } else if (file.name?.split('.')[0].length > 100) {
-          ElMessage.error(t('reuse.checkNameImageLength'))
-          inValid = false
-          return false
-        }
-      })
-      return inValid
-    }
-    return true
-  }
-  // else {
-  //   //báo lỗi nếu ko có ảnh
-  //   if (type === 'list' && fileList.value.length > 0) {
-  //     return true
-  //   }
-  //   if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
-  //     return true
-  //   } else {
-  //     ElMessage.warning(t('reuse.notHaveImage'))
-  //     return false
-  //   }
-  // }
-}
-const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
-  uploadFiles.map((file) => {
-    beforeAvatarUpload(file, 'single') ? '' : file.raw ? handleRemove(file) : ''
-  })
-  Files = [...ListFileUpload.value.map((el) => el?.raw)]
-}
-const fileList = ref<UploadUserFile[]>([])
+const Files = ref<UploadUserFile[]>([])
 
 // infinity scroll CTV
 // Call api danh sách cộng tác viên
@@ -2584,7 +2500,7 @@ const updateOrderInfomation = async () => {
     CollaboratorCommission: ruleForm.discount,
     Description: ruleForm.orderNotes,
     DeleteFileIds: '',
-    Files: Files,
+    Files: Files.value,
     DeliveryOptionId: ruleForm.delivery,
     ProvinceId: formAddress.province ?? null,
     DistrictId: formAddress.district ?? null,
@@ -4542,46 +4458,8 @@ const handleClose = (done: () => void) => {
                 }}</div>
               </div>
               <div class="pl-4">
-                <el-upload
-                  action="#"
-                  v-model:file-list="fileList"
-                  :multiple="true"
-                  list-type="picture-card"
-                  :limit="10"
-                  :on-exceed="handleExceed"
-                  :auto-upload="false"
-                  :on-change="handleChange"
-                  class="relative"
-                >
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-                      <span class="el-upload-list__item-actions">
-                        <span
-                          class="el-upload-list__item-preview"
-                          @click="handlePictureCardPreview(file)"
-                        >
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleDownload(file)"
-                        >
-                        </span>
-                        <span
-                          v-if="!disabled"
-                          class="el-upload-list__item-delete"
-                          @click="handleRemove(file)"
-                        >
-                        </span>
-                      </span>
-                    </div>
-                  </template>
-                  <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible" class="absolute" />
-                  <div class="text-[#303133] font-medium dark:text-[#fff]"
-                    >+ {{ t('formDemo.addPhotosOrFiles') }}</div
-                  >
-                </el-upload>
+                <UploadMultipleImages v-model="Files" :disabled="disabledEdit" />
+
               </div>
             </div>
           </div>
@@ -5713,14 +5591,26 @@ const handleClose = (done: () => void) => {
               class="min-w-42 min-h-11"
               >{{ t('formDemo.depositSlipAdvance') }}</el-button
             >
-            <button
-              :disabled="statusButtonDetail"
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
+            <el-button
+              :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="createdExpendReturn"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
-              >{{ t('formDemo.exchangeReturnGoods') }}</button
+              >{{ t('formDemo.exchangeReturnGoods') }}</el-button
             >
+          </div>
+            </el-tooltip>
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
-              :disabled="statusButtonDetail"
+              :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="
                 () => {
                   finishOrder(id)
@@ -5729,6 +5619,8 @@ const handleClose = (done: () => void) => {
               class="min-w-42 min-h-11 bg-[#D9D9D9]"
               >{{ t('formDemo.checkFinish') }}</el-button
             >
+          </div>
+            </el-tooltip>
           </div>
           <div
             v-else-if="statusOrder == STATUS_ORDER_SELL[5].orderStatus && !duplicateStatusButton"
@@ -5765,11 +5657,19 @@ const handleClose = (done: () => void) => {
             <el-button @click="openDepositDialog" class="min-w-42 min-h-11" :disabled="outstandingDebt == 0">{{
               t('formDemo.depositSlipAdvance')
             }}</el-button>
-            <button
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>       
+            <el-button
+            :disabled="unref(orderUtility.disableStatusWarehouse)"
               @click="finishOrder(id)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
-              >{{ t('formDemo.checkFinish') }}</button
+              >{{ t('formDemo.checkFinish') }}</el-button
             >
+          </div>
+            </el-tooltip>
           </div>
           <div v-else-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
             <el-button @click="approvalFunction(true)" type="warning" class="min-w-42 min-h-11">{{

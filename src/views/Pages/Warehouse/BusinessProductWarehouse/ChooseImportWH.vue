@@ -262,7 +262,7 @@ watch(
         <el-table-column prop="lotCode" :label="t('reuse.lotCode')" width="180" />
         <el-table-column prop="orderType" :label="t('reuse.type')" width="180">
           <template #default="scope">
-            {{ orderType(scope.row.orderType) }}
+            {{ t(orderType(scope.row.orderType)) }}
           </template></el-table-column
         >
         <el-table-column prop="inventory" :label="t('reuse.inventory')" width="180" />

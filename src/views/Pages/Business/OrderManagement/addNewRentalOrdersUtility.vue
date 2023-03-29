@@ -87,9 +87,7 @@ import { deleteTempCode } from '@/api/common'
 import { changeMoney } from '@/utils/tsxHelper'
 import * as orderUtility from './OrderFixbug'
 import UploadMultipleImages from './UploadMultipleImages.vue'
-import { useValidator } from '@/hooks/web/useValidator'
 
-const { ValidService } = useValidator()
 const { utility } = appModules
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
@@ -134,7 +132,12 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  discount: [{validator : ValidService.checkPercent.validator } ],
+  discount: [
+    {
+      validator: orderUtility.checkPercent,
+      trigger: 'blur'
+    }
+  ],
   customerName: [
     { required: true, message: t('formDemo.pleaseSelectCustomerName'), trigger: 'change' }
   ],
@@ -1389,9 +1392,11 @@ const editData = async () => {
       })
       )
   } else if (type == 'add' || type == ':type') {
+    disabledTypeAdd.value = true
     tableData.value.push({ ...productForSale })
   }
 }
+const disabledTypeAdd = ref(false)
 
 const duplicateProduct = ref()
 const duplicateProductMessage = () => {
@@ -2410,7 +2415,6 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
       type: 'success'
     })
   }).catch((error) => {
-    statusOrder.value = 400
     ElNotification({
       message: error?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
@@ -5513,6 +5517,7 @@ const changeDateRanges = (dates) =>{
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
+              type="warning"
               >{{ t('formDemo.durationPrepayment') }}</el-button
             >
           </div>
@@ -5579,6 +5584,7 @@ const changeDateRanges = (dates) =>{
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[10].orderStatus, id)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
+              type="info"
               >{{ t('formDemo.checkFinish') }}</el-button
             >
             </div>
@@ -5609,6 +5615,7 @@ const changeDateRanges = (dates) =>{
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
+              type="warning"
               >{{ t('formDemo.aheadTimeReturns') }}</el-button
             >
           </div>
@@ -5654,6 +5661,7 @@ const changeDateRanges = (dates) =>{
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
+              type="warning"
               >{{ t('formDemo.returnsExpired') }}</el-button
             >
           </div>
@@ -5681,7 +5689,7 @@ const changeDateRanges = (dates) =>{
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button @click="openDialogAdditional" text>+ {{ t('reuse.addAccountingEntry') }}</el-button>
+         <el-button text @click="openDialogAdditional" :disabled="disabledTypeAdd">+ {{ t('reuse.addAccountingEntry') }}</el-button>
         <el-button
           :disabled="disabledPTAccountingEntry"
           @click="

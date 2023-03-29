@@ -1893,5 +1893,6 @@ export default {
     warning: 'Warning',
     cancelExport: 'Cancel export',
     invalidQuantity: 'Invalid quantity',
+    pleaseChooseDate: 'Please choose date',
   }
 }

@@ -80,7 +80,8 @@ const callApiProductList = async () => {
     productCode: product.code,
     productPropertyId: product.id,
     productPropertyCode: product.productCode,
-    name: product.name
+    name: product.name,
+    inventory: product.tonKho
   }))
   ListOfProductsForSale.value.forEach(row=>{
     const find = tempListProducts.value.find(product => product.productPropertyId == row.productPropertyId)
@@ -156,7 +157,8 @@ const ScrollProductBottom = () => {
                   productCode: product.code,
                   productPropertyId: product.id,
                   productPropertyCode: product.productCode,
-                  name: product.name
+                  name: product.name,
+    inventory: product.tonKho
                 })
               )
         })
@@ -337,7 +339,9 @@ const searchProduct = async (keyword) => {
       productCode: product.code,
       productPropertyId: product.id,
       productPropertyCode: product.productCode,
-      name: product.name
+      name: product.name,
+    inventory: product.tonKho
+      
     }))
   } else {
     tempListProducts.value = listProducts.value
@@ -413,7 +417,8 @@ const totalMoney = () => {
           :fields="[
             t('reuse.productCode'),
             t('reuse.managementCode'),
-            t('reuse.productInformation')
+            t('reuse.productInformation'),
+            t('reuse.inventory')
           ]"
           width="500px"
           :items="tempListProducts"

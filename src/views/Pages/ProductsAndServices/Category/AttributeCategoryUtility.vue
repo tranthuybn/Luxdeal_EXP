@@ -12,7 +12,7 @@ import {
   hideCategory
 } from '@/api/LibraryAndSetting'
 import { useValidator } from '@/hooks/web/useValidator'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
 
 const { required, ValidService, notSpecialCharacters } = useValidator()
@@ -275,9 +275,9 @@ const postData = async (data) => {
       })
     )
     .catch((error) =>
-      ElMessage({
-        message: error,
-        type: 'warning'
+      ElNotification({
+        message: error.response.data.message ?? t('reuse.fail'),
+        type: 'error'
       })
     )
   // TODO (FIX BUG ROUTER DAC TINH )

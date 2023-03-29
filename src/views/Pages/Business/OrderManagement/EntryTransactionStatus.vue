@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TransactionStatusHistory } from './OrderFixbug';
-import { PropType } from 'vue-types/dist/types';
+import { PropType } from 'vue';
 import { dateTimeFormat } from '@/utils/format';
 import { useI18n } from '@/hooks/web/useI18n';
 

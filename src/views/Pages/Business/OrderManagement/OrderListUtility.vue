@@ -1048,7 +1048,7 @@ let orderDetailsTable = reactive([{}])
 // Tạo đơn hàng
 const postData = async (pushBack: boolean) => {
   orderDetailsTable = ListOfProductsForSale.value
-  .filter((row)=>row.productPropertyId || row.productPropertyId !== '' || row.productPropertyId != null)
+  .filter((row)=>row.productPropertyId && row.productPropertyId !== '' && row.productPropertyId != null)
   .map((val) => ({
     ProductPropertyId:
       typeof val?.productPropertyId != 'number'
@@ -1105,7 +1105,7 @@ const postData = async (pushBack: boolean) => {
       OrderDetail: productPayment,
       CampaignId: campaignId.value ?? '',
       VAT: 0,
-      Status: 2,
+      Status: radio1.value ? radio1.value : null,
       WarehouseId: ruleForm.warehouse
     }
     const formDataPayLoad = FORM_IMAGES(payload)
@@ -5320,14 +5320,14 @@ const handleClose = (done: () => void) => {
           <label class="w-[9%] text-right">Tracking đơn hàng</label>
           <div class="w-[84%] pl-1">
             <el-radio-group v-model="radio1" class="ml-4">
-              <el-radio :disabled="checkDisabled" label="1">{{
+              <el-radio :disabled="checkDisabled" label="0">{{
                 t('formDemo.waitingDelivery')
               }}</el-radio>
               <el-radio :disabled="checkDisabled" label="2">{{ t('reuse.delivery') }}</el-radio>
               <el-radio :disabled="checkDisabled" label="3">{{
                 t('reuse.successfulDelivery')
               }}</el-radio>
-              <el-radio :disabled="checkDisabled" label="4">{{
+              <el-radio :disabled="checkDisabled" label="-1">{{
                 t('reuse.deliveryFailed')
               }}</el-radio>
             </el-radio-group>

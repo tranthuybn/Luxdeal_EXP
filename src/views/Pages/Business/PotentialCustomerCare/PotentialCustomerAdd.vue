@@ -745,8 +745,8 @@ const getOrdersOptions = async () => {
       .then((res) => {
         if (res.data) {
           OrdersSelect = res.data.map((tag) => ({
-            label: tag.key,
-            value: tag.key,
+            label: tag.code,
+            value: tag.id,
             id: tag.id
           }))
         }

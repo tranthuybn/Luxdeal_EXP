@@ -28,7 +28,7 @@ export const getEmployeeById = async (params): Promise<IResponse> => {
   return res && res.data
 }
 
-export const postNewReceiOrPayment = async (params: any): Promise<IResponse> => {
+export const postNewReceiptOrPayment = async (params: any): Promise<IResponse> => {
   const res = await request.post(
     {
       url: ACCOUNTANT_API.CREATE_NEW_RECEIPT_OR_PAYMENT_VOUCHER,

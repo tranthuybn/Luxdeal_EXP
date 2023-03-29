@@ -18,7 +18,7 @@ const { t } = useI18n()
 
 const columns = reactive<TableColumn[]>([
   {
-    field: 'id',
+    field: 'index',
     label: t('reuse.index'),
     type: 'index',
     sortable: true,
@@ -85,7 +85,10 @@ const columns = reactive<TableColumn[]>([
     field: 'accountingDate',
     label: t('reuse.accountingDate'),
     minWidth: '150',
-    sortable: true,
+    sortable: true,    
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return dateTimeFormat(cellValue)
+    },
   },
   {
     field: 'createdAt',
@@ -103,17 +106,17 @@ const columns = reactive<TableColumn[]>([
     headerFilter: 'Name',
   },
   {
-    field: 'paymentMethod',
+    field: 'typeOfPayment',
     label: t('reuse.choosePayment'),
     minWidth: '150',
     filters: filterPaymentMethod,
-    filterMethod: (...config) => filterHandler(config, 'paymentMethod') ,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
       return t(`${formatPaymentMethod(cellValue)}`)
     },
   },
   {
-    field: 'paid',
+    field: 'transacted',
     label: t('reuse.alreadyPaid'),
     minWidth: '100',
     filters: [],
@@ -142,7 +145,7 @@ const columns = reactive<TableColumn[]>([
 <template>
   <tableDatetimeFilterBasicVue 
   :columns="columns" 
-  :customOperator="4" 
+  :customOperator="6" 
   :delApi="deleteReceiptOrPayment" 
   :api="getReceiptsExpendituresList" 
   :titleAdd="t('reuse.receiptsAdd')"

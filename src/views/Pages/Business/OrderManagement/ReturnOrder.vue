@@ -403,7 +403,7 @@ onBeforeMount(()=>{
               :items="listProductsTable"
               :disable="disableCheck"
               valueKey="productPropertyId"
-              labelKey="name"
+              labelKey="value"
               :hiddenKey="['id']"
               :placeHolder="'Chọn mã sản phẩm'"
               :clearable="false"
@@ -742,7 +742,7 @@ onBeforeMount(()=>{
               filterable
               :items="listProductsTable"
               valueKey="productPropertyId"
-              labelKey="name"
+              labelKey="value"
               :hiddenKey="['id']"
               :placeHolder="'Chọn mã sản phẩm'"
               :clearable="false"
@@ -887,7 +887,7 @@ onBeforeMount(()=>{
               filterable
               :items="listProductsTable"
               valueKey="productPropertyId"
-              labelKey="name"
+              labelKey="value"
               :hiddenKey="['id']"
               :placeHolder="'Chọn mã sản phẩm'"
               :clearable="false"
@@ -1026,7 +1026,7 @@ onBeforeMount(()=>{
               filterable
               :items="listProductsTable"
               valueKey="productPropertyId"
-              labelKey="name"
+              labelKey="value"
               :hiddenKey="['id']"
               :placeHolder="'Chọn mã sản phẩm'"
               :clearable="false"
@@ -1160,7 +1160,7 @@ onBeforeMount(()=>{
               filterable
               :items="listProductsTable"
               valueKey="productPropertyId"
-              labelKey="name"
+              labelKey="value"
               :hiddenKey="['id']"
               :placeHolder="'Chọn mã sản phẩm'"
               :clearable="false"
@@ -1313,7 +1313,7 @@ onBeforeMount(()=>{
               filterable
               :items="listProductsTable"
               valueKey="productPropertyId"
-              labelKey="name"
+              labelKey="value"
               :hiddenKey="['id']"
               :placeHolder="'Chọn mã sản phẩm'"
               :clearable="false"
@@ -1490,7 +1490,7 @@ onBeforeMount(()=>{
               filterable
               :items="listProductsTable"
               valueKey="productPropertyId"
-              labelKey="name"
+              labelKey="value"
               :hiddenKey="['id']"
               :placeHolder="'Chọn mã sản phẩm'"
               :clearable="false"
@@ -1602,7 +1602,7 @@ onBeforeMount(()=>{
               filterable
               :items="listProductsTable"
               valueKey="productPropertyId"
-              labelKey="name"
+              labelKey="value"
               :hiddenKey="['id']"
               :placeHolder="'Chọn mã sản phẩm'"
               :clearable="false"

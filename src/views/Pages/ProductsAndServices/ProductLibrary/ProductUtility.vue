@@ -586,11 +586,11 @@ const postData = async (data) => {
         await getAttributeData()
       }
     })
-    .catch(() => {
+    .catch((error)=>{
       ElNotification({
-        message: t('reuse.saveFail'),
-        type: 'error'
-      })
+          message: error.response.data.message ?? t('reuse.saveFail'),
+          type: 'error'
+        })
       apiStatus.value = false
     })
     //maybe use async await

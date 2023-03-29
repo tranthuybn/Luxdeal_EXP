@@ -2048,5 +2048,6 @@ export default {
     warning: 'Cảnh báo',
     cancelExport: 'Hủy xuất kho',
     invalidQuantity: 'Số lượng không phù hợp',
+    pleaseChooseDate: 'Vui lòng chọn ngày',
   }
 }

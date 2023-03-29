@@ -139,9 +139,8 @@ const props = defineProps({
 const emit = defineEmits(['getDate'])
 
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
+const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
-
-
 const getData = (data) => {
   const table = unref(tableBase01);
   if (!props.apiHasDateParams || (data.startDate && data.endDate)) {
@@ -170,6 +169,17 @@ const Utility = appStore.getUtility
 
 const { push } = useRouter()
 const router = useRouter()
+// fresher đang sử dụng component chung để làm việc riêng - phải sửa lại sau
+const handleClickAdd = () => {
+  push({
+    name: `human-resource-management.department-directory.${Utility}`,
+    params: {
+      backRoute: 'human-resource-management.department-directory',
+      tab: props.typeButton,
+      type: 'add'
+    }
+  })
+}
 const pushAdd = () => {
   push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
@@ -230,7 +240,7 @@ const initMappingObject = (el) => {
   <section>
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
         <template #headerFilterSlot v-if="!removeHeaderFilterSlot && userPermission">
-          <el-button v-if="!removeButtonAdd && userPermission?.addable" type="primary" :icon="createIcon" @click="pushAdd">
+          <el-button v-if="!removeButtonAdd && userPermission?.addable" type="primary" :icon="createIcon" @click="pushAdd()">
             {{ t(`${props.titleAdd}`) }}
           </el-button>
           <el-button v-if="props.titleAdd2 && userPermission?.addable" type="primary" :icon="createIcon" @click="pushAdd2">
@@ -244,8 +254,6 @@ const initMappingObject = (el) => {
     <TableBase
       :removeDrawer="removeDrawer" 
       :expand="expand" 
-      :titleButtons="props.titleButtons"
-      :typeButton="props.typeButton" 
       :customOperator="customOperator" 
       :apiTableChild="apiTableChild" 
       :delApi="delApi"
@@ -268,5 +276,9 @@ const initMappingObject = (el) => {
         <slot name="expand"></slot>
       </template>
     </TableBase>
+    <!--  fresher đang sử dụng component chung để làm việc riêng - phải sửa lại sau -->
+    <ElButton v-if="!(props.titleButtons === '')" @click="handleClickAdd" id="bt-add" :icon="plusIcon" class="mx-12">
+      {{ props.titleButtons }}
+    </ElButton>
   </section>
 </template>

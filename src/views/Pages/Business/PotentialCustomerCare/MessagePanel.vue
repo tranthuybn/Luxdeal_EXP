@@ -20,42 +20,7 @@ class="p-4 h-70px"  />
     <!-- <p v-if="scrollLoading" class="text-center"> Đang tải thêm ... </p> -->
     <section class="h-650px">
       <ul class="message-box__body !h-full !dark:bg-[var(--el-bg-color)] border-top-1 dark:border-transparent">
-      <!-- <li>
-          <pre id="messages" style=" overflow: scroll"></pre>
-              </li> -->
         <div class="messages-chat" id="messages" style=" overflow: auto;">
-          <div class="message">
-            <div
-class="photo"
-              style="background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);">
-              <div class="online"></div>
-            </div>
-            <p class="text"> Hi, how are you ? </p>
-          </div>
-          <div class="message text-only">
-            <p class="text"> What are you doing tonight ? Want to go take a drink ?</p>
-          </div>
-          <p class="time"> 14h58</p>
-          <div class="message text-only">
-            <div class="response">
-              <p class="text"> Hey Megan ! It's been a while 😃</p>
-            </div>
-          </div>
-          <div class="message text-only">
-            <div class="response">
-              <p class="text"> When can we meet ?</p>
-            </div>
-          </div>
-          <p class="response-time time"> 15h04</p>
-          <div class="message">
-            <div
-class="photo"
-              style="background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);">
-              <div class="online"></div>
-            </div>
-            <p class="text"> 9 pm at the bar if possible 😳</p>
-          </div>
-          <p class="time"> 15h09</p>
         </div>
       <!-- <li
           class="content-message dark:bg-[var(--el-bg-color)]"

@@ -283,6 +283,7 @@ const getSummaries = (param) => {
     font-size: 15px;
     font-weight: 700;
   }
+
   ::v-deep(.el-table__append-wrapper){
     padding: 10px 0;
   }

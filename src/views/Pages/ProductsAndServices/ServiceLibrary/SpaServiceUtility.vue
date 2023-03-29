@@ -346,16 +346,19 @@ const activeName = ref('information')
   ::v-deep(.el-checkbox-group) {
     display: flex;
   }
+
   ::v-deep(.approval-wrap) {
       width: 150px;
+
     .el-input__wrapper{
       padding: 0;
     }
+
     input {
-      border-width: 0;
       padding: 0 8px ;
       color: rgb(234 179 8); 
       background-color: #fff0d9;
+      border-width: 0;
     }
   } 
 

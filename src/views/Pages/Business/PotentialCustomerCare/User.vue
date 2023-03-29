@@ -16,7 +16,7 @@
       </div>
       <div class="message-box__note" style="padding-right: 4px; font-size: 12px;">
         <div v-if="user.countMessage!=0">
-          <div style="color: red;font-size: 17px; text-align: right;">{{ user.countMessage }}<sup>+</sup></div>
+          <div style="font-size: 17px;color: red; text-align: right;">{{ user.countMessage }}<sup>+</sup></div>
         </div>
         <div>{{ moment(user.createAT).format('DD/MM/YYYY') }}</div>
       </div>

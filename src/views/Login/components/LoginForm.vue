@@ -133,16 +133,8 @@ const signIn = () => {
           Object.assign(res.data['userInformation'], { loginTime: now.getTime() })
           const accountId = res.data['userInformation']?.id ?? null
           if (accountId) {
-            const hasInfo = await getUserInfoByAccountId(accountId)
-            if (!hasInfo)
-              return null
-            const hasRole = await getRole(accountId)
-            if (!hasRole)
-              return null
-            ElNotification({
-              message: t('login.welcome'),
-              type: 'success'
-            })
+              getUserInfoByAccountId(accountId)
+              getRole(accountId)
           } else {
             ElNotification({
               message: t('reuse.accountInfo'),
@@ -159,11 +151,11 @@ const signIn = () => {
         }
       } catch (err:any){
         ElNotification({
-              message: t('login.incorrectAccount'),
+              message: t('router.errorPage'),
               type: 'error'
         })
         inValidAccountAccess()     
-       }
+      }
      
     }
   })
@@ -174,11 +166,9 @@ const inValidAccountAccess = () => {
   permissionStore.clearPermission()
 }
 // Get role information
-const getRole =  async (accountId): Promise<boolean> => {
+const getRole =  (accountId) => {
   // get role list
-  const routers = await GetRouterByStaffAccountId({ id: accountId })
-
-  try {
+  GetRouterByStaffAccountId({ id: accountId }).then(routers => { 
     if (routers?.data && routers.data.length > 0) {   
       generateRouter(routers.data)
     } else {
@@ -186,39 +176,54 @@ const getRole =  async (accountId): Promise<boolean> => {
         message: t('reuse.authorized'),
         type: 'error'
       })
-      return false
     }
-  } catch {
+  }).catch(() => { 
     ElNotification({
-      message: `${t('router.errorPage')}`,
+      message: 'can not get role',
       type: 'error'
     })
     inValidAccountAccess()
-    return false
-  } finally { 
-    return true
-  }
+  })
+
+
 }
 const generateRouter = (routers) => {
-  // save roles in local storage
-  wsCache.set(permissionStore.getRouterByRoles, routers)
-  //  generate router by roles
-  const urlList = routers.map((el) => el.url)
-  permissionStore.generateRoutes(urlList, 'client').catch(() => {})
+  try {
+    // save roles in local storage
+    wsCache.set(permissionStore.getRouterByRoles, routers)
+    //  generate router by roles
+    const urlList = routers.map((el) => el.url)
+    console.log('urlList',urlList)
+    permissionStore.generateRoutes(urlList, 'client').catch(() => { })
 
-  permissionStore.getAddRouters.forEach((route) => {
-    addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table
-  })
-  permissionStore.setIsAddRouters(true)
-  push({ path: redirect.value || permissionStore.addRouters[0].path })
+    permissionStore.getAddRouters.forEach((route) => {
+      addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table
+    })
+    permissionStore.setIsAddRouters(true)
+    push({ path: redirect.value || permissionStore.addRouters[0].path })
+    ElNotification({
+      message: t('login.welcome'),
+      type: 'success'
+    })
+  }
+  catch(err )
+  { 
+    console.error(err);
+    ElNotification({
+      message: 'can not generate directory',
+      type: 'error'
+    })
+    inValidAccountAccess()
+  }
+ 
 }
-const getUserInfoByAccountId = async (id): Promise<boolean> => {
-  await getStaffInfoByAccountId({ Id: id })
-    .then(async (res) => {
+const getUserInfoByAccountId =  (id) => {
+   getStaffInfoByAccountId({ Id: id })
+    .then((res) => {
       if (res.data && Object.keys(res.data).length > 0) {
         wsCache.set(permissionStore.getStaffInfo, res.data)
       }
-    })
+   })
     .catch((err) => {
       console.error(err)
       ElNotification({
@@ -226,9 +231,7 @@ const getUserInfoByAccountId = async (id): Promise<boolean> => {
         type: 'error'
       })
       inValidAccountAccess()
-      return false
-    })
-    return true
+    }) 
 }
 // store user information
 const setPermissionForUser = (data) => {

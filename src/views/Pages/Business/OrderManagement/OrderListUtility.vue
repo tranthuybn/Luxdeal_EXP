@@ -1177,6 +1177,7 @@ const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
 }
+const disabledTypeAdd = ref(false)
 const doCloseOnClickModal = ref(false)
 const isKeepDeposite = ref(false)
 const disabledDeleteRow = ref(false)
@@ -1260,6 +1261,7 @@ const editData = async () => {
       })
     )
   } else if (type == 'add' || type == ':type') {
+    disabledTypeAdd.value = true
     ListOfProductsForSale.value.push({ ...productForSale })
   }
 }
@@ -1332,6 +1334,7 @@ const updateInfoAcountingEntry = async(index, id) => {
       const res = await orderUtility.automaticCouponWareHouse(2,id)
       if(res){
         await UpdateStatusTicketFromOrder(payload)
+        await reloadStatusOrder()
       }
     }
   }
@@ -5600,6 +5603,7 @@ const handleClose = (done: () => void) => {
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="createdExpendReturn"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
+              type="warning"
               >{{ t('formDemo.exchangeReturnGoods') }}</el-button
             >
           </div>
@@ -5617,6 +5621,7 @@ const handleClose = (done: () => void) => {
                 }
               "
               class="min-w-42 min-h-11 bg-[#D9D9D9]"
+              type="info"
               >{{ t('formDemo.checkFinish') }}</el-button
             >
           </div>
@@ -5666,6 +5671,7 @@ const handleClose = (done: () => void) => {
             :disabled="unref(orderUtility.disableStatusWarehouse)"
               @click="finishOrder(id)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
+              type="info"
               >{{ t('formDemo.checkFinish') }}</el-button
             >
           </div>
@@ -5687,7 +5693,7 @@ const handleClose = (done: () => void) => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button text @click="openAdditionalDialog">+ {{ t('reuse.addAccountingEntry') }}</el-button>
+        <el-button text @click="openAdditionalDialog" :disabled="disabledTypeAdd">+ {{ t('reuse.addAccountingEntry') }}</el-button>
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ {{ t('reuse.addReceiptBill') }}</el-button
         >

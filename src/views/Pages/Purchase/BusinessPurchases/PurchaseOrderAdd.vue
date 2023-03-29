@@ -2537,6 +2537,7 @@ onBeforeMount(async () => {
     arrayStatusOrder.value[0].isActive = true
     checkButtonPrint.value = true
     hiddenEditButton.value = false
+    checkAccountEntry.value = true
   }
 
   if (type === 'approval-order') {
@@ -5113,6 +5114,7 @@ onBeforeMount(async () => {
               "
               v-if="statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus"
               class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold"
+              type="warning"
               >{{ t('formDemo.exchangeReturnGoods') }}</el-button
             >
           </div>
@@ -5128,7 +5130,7 @@ onBeforeMount(async () => {
                 <span>{{t('reuse.orderStillInWarehouse')}}</span>
               </template>
               <div>
-            <button
+            <el-button
             :disabled="unref(orderUtility.disableStatusWarehouse)"
               @click="
                 () => {
@@ -5141,7 +5143,8 @@ onBeforeMount(async () => {
               "
               class="min-w-42 min-h-11 box_3 dark:text-black"
               style="font-weight: 500"
-              >{{ t('formDemo.checkFinish') }}</button
+              type="info"
+              >{{ t('formDemo.checkFinish') }}</el-button
             >
           </div>
             </el-tooltip>

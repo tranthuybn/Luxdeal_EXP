@@ -55,5 +55,5 @@ const renderClassStatus = (status) =>{
           </div>
 </template>
 <style lang="scss" scoped>
-@import '@/styles/statusHistory.scss';
+ @import '@/styles/statusHistory.scss';
 </style>

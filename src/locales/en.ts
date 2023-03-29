@@ -905,6 +905,9 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    approveSuccess: 'Approve Successfully',
+    cancelApproveSuccess: 'Cancel approve success',
+    approveFail: 'Approve Fail',
     paymentRequestInfo: 'Payment request info',
     payment: 'Payment',
     accountingAccount: 'Accounting Account',

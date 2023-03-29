@@ -87,6 +87,7 @@ import { deleteTempCode } from '@/api/common'
 import { changeMoney } from '@/utils/tsxHelper'
 import * as orderUtility from './OrderFixbug'
 import UploadMultipleImages from './UploadMultipleImages.vue'
+import { useValidator } from '@/hooks/web/useValidator'
 
 const { ValidService } = useValidator()
 const { utility } = appModules

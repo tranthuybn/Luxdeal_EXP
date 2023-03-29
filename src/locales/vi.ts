@@ -957,6 +957,9 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    approveSuccess: 'Duyệt thành công',
+    cancelApproveSuccess: 'Hủy duyệt thành công',
+    approveFail: 'Duyệt thất bại',
     paymentRequestInfo: 'Thông tin đề nghị thanh toán',
     payment: 'Thanh toán',
     accountingAccount: 'Tài khoản hạch toán',

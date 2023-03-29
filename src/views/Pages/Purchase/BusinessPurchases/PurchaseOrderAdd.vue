@@ -2537,6 +2537,7 @@ onBeforeMount(async () => {
     arrayStatusOrder.value[0].isActive = true
     checkButtonPrint.value = true
     hiddenEditButton.value = false
+    checkAccountEntry.value = true
   }
 
   if (type === 'approval-order') {
@@ -5112,7 +5113,8 @@ onBeforeMount(async () => {
                 }
               "
               v-if="statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus"
-              class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold"
+              class="min-w-42 min-h-11 "
+              type="warning"
               >{{ t('formDemo.exchangeReturnGoods') }}</el-button
             >
           </div>
@@ -5120,7 +5122,8 @@ onBeforeMount(async () => {
             <el-button
               @click="openFinishReturnRequest"
               v-if="checkApprovalAt && statusOrder == STATUS_ORDER_PURCHASE[6].orderStatus"
-              class="min-w-42 min-h-11 box_1 text-yellow-500 rounded font-bold"
+              class="min-w-42 min-h-11"
+              type="warning"
               >{{ t('formDemo.completeExchangeReturn') }}</el-button
             >
             <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
@@ -5128,7 +5131,7 @@ onBeforeMount(async () => {
                 <span>{{t('reuse.orderStillInWarehouse')}}</span>
               </template>
               <div>
-            <button
+            <el-button
             :disabled="unref(orderUtility.disableStatusWarehouse)"
               @click="
                 () => {
@@ -5139,9 +5142,10 @@ onBeforeMount(async () => {
                 statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus ||
                 statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus
               "
-              class="min-w-42 min-h-11 box_3 dark:text-black"
+              class="min-w-42 min-h-11"
               style="font-weight: 500"
-              >{{ t('formDemo.checkFinish') }}</button
+              type="info"
+              >{{ t('formDemo.checkFinish') }}</el-button
             >
           </div>
             </el-tooltip>

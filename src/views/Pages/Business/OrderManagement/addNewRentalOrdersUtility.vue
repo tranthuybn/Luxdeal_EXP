@@ -1392,9 +1392,11 @@ const editData = async () => {
       })
       )
   } else if (type == 'add' || type == ':type') {
+    disabledTypeAdd.value = true
     tableData.value.push({ ...productForSale })
   }
 }
+const disabledTypeAdd = ref(false)
 
 const duplicateProduct = ref()
 const duplicateProductMessage = () => {
@@ -2413,7 +2415,6 @@ const postReturnRequest = async (reason, scope, dateTime, tableExpand) => {
       type: 'success'
     })
   }).catch((error) => {
-    statusOrder.value = 400
     ElNotification({
       message: error?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
       type: 'warning'
@@ -5516,6 +5517,7 @@ const changeDateRanges = (dates) =>{
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
+              type="warning"
               >{{ t('formDemo.durationPrepayment') }}</el-button
             >
           </div>
@@ -5582,6 +5584,7 @@ const changeDateRanges = (dates) =>{
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="updateStatusOrders(STATUS_ORDER_RENTAL[10].orderStatus, id)"
               class="min-w-42 min-h-11 bg-[#D9D9D9] rounded font-bold"
+              type="info"
               >{{ t('formDemo.checkFinish') }}</el-button
             >
             </div>
@@ -5612,6 +5615,7 @@ const changeDateRanges = (dates) =>{
               :disabled="statusButtonDetail || unref(orderUtility.disableStatusWarehouse)"
               @click="openDialogReturnAheadOfTime"
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
+              type="warning"
               >{{ t('formDemo.aheadTimeReturns') }}</el-button
             >
           </div>
@@ -5657,6 +5661,7 @@ const changeDateRanges = (dates) =>{
                 }
               "
               class="min-w-42 min-h-11 bg-[#FFF0D9] text-[#FD9800] rounded font-bold"
+              type="warning"
               >{{ t('formDemo.returnsExpired') }}</el-button
             >
           </div>
@@ -5684,7 +5689,7 @@ const changeDateRanges = (dates) =>{
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button @click="openDialogAdditional" text>+ {{ t('reuse.addAccountingEntry') }}</el-button>
+         <el-button text @click="openDialogAdditional" :disabled="disabledTypeAdd">+ {{ t('reuse.addAccountingEntry') }}</el-button>
         <el-button
           :disabled="disabledPTAccountingEntry"
           @click="

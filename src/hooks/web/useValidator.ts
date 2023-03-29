@@ -138,6 +138,7 @@ export const useValidator = () => {
       required: true,
       trigger: 'blur'
     },
+    required: { required: true, message: t('common.required'), trigger: 'change' },
     checkPhone: {
       pattern: /((09|03|07|08|05)+([0-9]{8})\b)/g,
       message: t('reuse.phoneNumberFormat'),
@@ -252,8 +253,8 @@ export const useValidator = () => {
     checkPercent: {
       type: 'number',
       validator: (_rule: any, value: any, callback: any) => {
-        if (value && value.length > 3) {
-          callback(new Error(t('reuse.checkNameLength')))
+        if (value && value.length > 2) {
+          callback(new Error(t('reuse.maxPercent')))
         }
         callback()
       },

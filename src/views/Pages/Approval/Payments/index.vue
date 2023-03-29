@@ -14,7 +14,6 @@ const { push } = useRouter()
 let nameRoute = route.name?.toString()
 const type = nameRoute?.slice(25, nameRoute.length)
 
-console.log('type: ', type)
 const tableDNTT = ref([])
 const tablePTC = ref([])
 
@@ -36,12 +35,12 @@ const detailedBrowsing = (scope: any) => {
   if (type != 'proposal') {
     push({
       name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
-      params: { type: 'detail', id: scope.row.targetId }
+      params: { type: 'approval', id: scope.row.targetId, approvalId: scope.row.id }
     })
   } else {
     push({
       name: `accountant.payment-proposal.payment-proposal-list.${utility}`,
-      params: { type: 'approval-payments', id: scope.row.targetId, approvalId: scope.row.id }
+      params: { type: 'approval', id: scope.row.targetId, approvalId: scope.row.id }
     })
   }
 }
@@ -49,6 +48,7 @@ const detailedBrowsing = (scope: any) => {
 onBeforeMount(() => {
   getListOrder()
 })
+
 </script>
 
 <template>

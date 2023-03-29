@@ -3,7 +3,7 @@ import { h, reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import TableOperatorAccountant from '../TableOperatorAccountant.vue'
 import { useRouter } from 'vue-router'
-import { updateReceiptOrPayment, postNewReceiOrPayment, deleteReceiptOrPayment, getDetailReceiptPayment } from '@/api/Accountant'
+import { updateReceiptOrPayment, postNewReceiptOrPayment, deleteReceiptOrPayment, getDetailReceiptPayment } from '@/api/Accountant'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElNotification, ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -11,12 +11,13 @@ import moment from 'moment'
 import { FORM_IMAGES } from '@/utils/format'
 import { FormDataPostAndEdit, FormData } from '../types/ReceiptsAndExpenditures'
 import { Collapse } from '../types'
+import { formartDate } from '@/utils/tsxHelper'
 const { required } = useValidator()
 const { t } = useI18n()
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
-const type = 'add'
+const type = String(router.currentRoute.value.params.type) === ':type' ? 'add' : String(router.currentRoute.value.params.type)
 const { push } = useRouter()
 const escape = useIcon({ icon: 'quill:escape' })
 const activeName = ref('receiptsAddDetails')
@@ -31,7 +32,7 @@ const rules = reactive({
   description: [required()],
   totalMoney: [required()],
   enterMoney: [required()],
-  paymentMethod: [required()],
+  typeOfPayment: [required()],
 })
 
 //random field code
@@ -154,7 +155,6 @@ const schema = reactive<FormSchema[]>([
     field: 'accountNumber',
     label: t('reuse.accountingAccount'),
     component: 'Select',
-    value: 1,
     colProps: {
       span: 24
     },
@@ -195,28 +195,30 @@ const customizeData = async (data) => {
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney
-  setFormData.createdBy = data.createdBy
-  setFormData.createAt = data.createAt
-  setFormData.peopleType = data.peopleType
+  setFormData.createdBy = `${data.createdByObject?.name} | ${data.createdByObject?.value}` || ''
+  setFormData.createdAt = formartDate(data.createdAt)
+  setFormData.peopleType = `${data.peopleObject?.name} | ${data.peopleObject?.value}` || ''
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
-  setFormData.accountNumber = data.accountNumber
-  setFormData.paid = data.paid
+  setFormData.accountNumber = data.fundID
+  setFormData.paid = data.transacted
 }
 
 const customData = (data) => {
   const customData = {} as FormDataPostAndEdit
   customData.Code = data.code
-  customData.CreatedBy = data.createdBy
-  customData.CreateAt = data.createAt
+  customData.CreatedBy = data.createdById
+  customData.CreateAt = data.createdAt
   customData.Description = data.description
-  customData.PeopleType = data.peopleType
+  customData.PeopleId = data.peopleId
+  customData.PeopleType = 1
   customData.TotalMoney = data.totalMoney
   customData.EnterMoney = data.enterMoney
   customData.TypeOfPayment = data.typeOfPayment
-  customData.AccountNumber = data.accountNumber
-  customData.Paid = data.paid
+  customData.FundID = data.accountNumber
+  customData.Transacted = data.paid
   customData.Type = 1
+  customData.Status = 1
   return customData
 }
 
@@ -243,7 +245,7 @@ const editData = async (data) => {
 
 const postData = async (data) => {
   data = customData(data)
-  await postNewReceiOrPayment(FORM_IMAGES(data))
+  await postNewReceiptOrPayment(FORM_IMAGES(data))
     .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
 import {
+  ElRow,
+  ElCol,
   ElCollapse,
   ElCollapseItem,
   ElSelect,
@@ -18,7 +20,7 @@ import type {FormRules, FormInstance} from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
   GetPaymentRequestDetail,
-  getAllStaffList,
+  getStaffList,
   getAllCustomer,
   approvalOrder,
   addDNTT
@@ -31,28 +33,45 @@ import { Collapse } from '../../Components/Type'
 import moment from 'moment';
 import { useRoute, useRouter } from 'vue-router'
 import { changeMoney } from '@/utils/tsxHelper'
+import { IDetailExpenses } from '../types/PaymentProposal.d'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const ruleFormRef = ref<FormInstance>()
-const ishow= ref(false)
-const ishide = ref(true)
 const router = useRouter()
 const route = useRoute()
 const curDate = 'DNTT' + moment().format('hhmmss')
-const id: any = Number(router.currentRoute.value.params.id)
-let type = String(route.params.type)
+const createdByOptions = ref([{}])
+const peopleTypeOptions = ref([{}])
+const pageIndexStaff = ref(1)
+const pageIndexCustomer = ref(1)
+const optionPeopleType = ref()
+const optionCreatedBy = ref()
+const pageSize = ref(10)
+const id = Number(router.currentRoute.value.params.id)
 const approvalId = String(route.params.approvalId)
+const type = String(route.params.type) == ':type' ? 'add' : String(route.params.type)
 
-// Validate
 const rules = reactive<FormRules>({  
   peopleId: [
    { required: true, message: 'Chọn dữ liệu' },
    { type: 'string', message: 'Chọn giá trị' }   
   ]                      
 })
-
+const rulesPaymentMethod = reactive<FormRules>({
+  totalMoney : [
+    { required: true, message: 'Nhập số tiền', trigger: 'blur' }
+  ],
+  enterMoney: [
+    { required: true, message: 'Nhập chữ', trigger: 'blur' },
+    { type: 'string', message: 'Nhập chữ', trigger: 'blur' },
+  ],
+  typeOfPayment : [
+    { required: true, message: 'Viết bằng chữ', trigger: 'blur' },
+    { type: 'string', message: 'Viết bằng chữ', trigger: 'blur' },
+  ]
+})
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -80,37 +99,28 @@ const collapseChangeEvent = (val) => {
 }
 const activeName = ref([collapse[0].name, collapse[1].name])
 
-// const changeshow = () =>{ return ishow.value=true, ishide.value=false}
-// const hide = () =>{ return ishide.value=true,ishow.value=false}
-
 const form = ref({
-  attachDocument: false,
   code: "",
   createdAt: new Date(),
   createdBy: "",
   idCustomer: '',
   debtMoney: 0,
   depositeMoney: 0,
-  description: null,
+  description: '',
   enterMoney: "",
-  OrderId: '',
   id: undefined,
   isDelete: false,
-  orderId: undefined,
-  paymentType: 1,
+  typeOfPayment: 1,
   peopleId: undefined,
   peopleName: null,
   pepopleType: 1,
-  reasonCollectMoney: "",
   status: 1,
   totalMoney: '',
   totalPrice: 0,
-  updatedAt: "",
-  updatedBy: ""
 })
 
 interface typeOfTableData {
-  dayVouchers: any
+  dayVouchers: any 
   note: string
   numberVouchers: string | number
   paymentRequestId: number | undefined
@@ -121,25 +131,8 @@ interface typeOfTableData {
 }
 
 const tableData = ref<Array<typeOfTableData>>([])
-const tableProduction = ref([
-    {
-       stt:'',
-       masp:'',
-       tenhh:'',
-       ngayban:'',
-       giaban:'',
-       giakygui:'',
-       giadamphan:'',
-       phaitt:'',
-       thaotac:''
-    }
-  ])
 const deleteRow = (index: number) => {
   tableData.value.splice(index, 1)
-}
-
-const deleteRowProduction = (index: number) => {
-  tableProduction.value.splice(index, 1)
 }
 
 const onAddItem = () => {
@@ -154,20 +147,6 @@ const onAddItem = () => {
     unitPrice: 0
   })
 }
-
-const rulesPaymentMethod = reactive<FormRules>({
-  totalMoney : [
-    { required: true, message: 'Nhập số tiền', trigger: 'blur' }
-  ],
-  enterMoney: [
-    { required: true, message: 'Nhập chữ', trigger: 'blur' },
-    { type: 'string', message: 'Nhập chữ', trigger: 'blur' },
-  ],
-  paymentType : [
-    { required: true, message: 'Viết bằng chữ', trigger: 'blur' },
-    { type: 'string', message: 'Viết bằng chữ', trigger: 'blur' },
-  ]
-})
 
 watch(
   () => tableData.value[tableData.value.length - 1],
@@ -201,20 +180,10 @@ const autoCalculateFun = () => {
   form.value.debtMoney = form.value.totalPrice - form.value.depositeMoney
 }
 
-interface typeDetailExpenses {
-  numberVouchers: string | number
-  dayVouchers: any
-  spentFor: string
-  quantity: number
-  unitPrice: number
-  totalPrice: number
-  note: string
-}
-
-let detailedListExpenses = ref<Array<typeDetailExpenses>>([])
+const detailedListExpenses = ref<Array<IDetailExpenses>>([])
 const postData = async() => {
   if (!tableData.value[tableData.value.length - 1].numberVouchers) tableData.value.pop()
-    detailedListExpenses.value = tableData.value.map((el) => ({
+  detailedListExpenses.value = tableData.value.map((el) => ({
     numberVouchers: el.numberVouchers,
     dayVouchers: el.dayVouchers,
     spentFor: el.spentFor,
@@ -227,14 +196,11 @@ const postData = async() => {
   const payload = {
     Code: form.value.code,
     TotalMoney: form.value.totalMoney,
-    PaymentType: form.value.paymentType,
+    PaymentType : form.value.typeOfPayment,
     PeopleId: form.value.peopleId,
     status: 1,
     PeopleType: 1,
-    Description: '',
-    Document: undefined,
-    AccountingEntryId: undefined,
-    ReasonCollectMoney: form.value.reasonCollectMoney,
+    Description: form.value.description,
     EnterMoney: form.value.enterMoney,
     ExpensesDetail: JSON.stringify(detailedListExpenses.value),
     DepositeMoney: form.value.depositeMoney,
@@ -252,111 +218,61 @@ const getDetailPayment = async() => {
 
 const optionsPayments = [
   {
-    value: 0,
+    value: 1,
     key: 0,
-    label: 'Thanh toán tiền mặt',
+    label: t('reuse.payThroughMoney')
   },
   {
-    value: 1,
+    value: 2,
     key: 1,
-    label: 'Thanh toán qua thẻ',
+    label: t('reuse.payThroughCard'),
   }
 ]
 
-// Danh sách nhân viên
-// const currentCreator = ref()
-const getStaffList = ref()
-const callApiStaffList = async () => {
-  const res = await getAllStaffList({ PageIndex: 1, PageSize: 40 })
-  getStaffList.value = res.data.map((el) => ({
-    value: el?.id,
-    label: el?.name + ' | ' + el?.contact
-  }))
-  // getStaffList.value.push(
-  //   {
-  //     value: currentCreator.value.id,
-  //     label: currentCreator.value.name + ' | ' + currentCreator.value.contact
-  //   }
-  // )
-}
-
-// Call api danh sách khách hàng
-// infinity scroll KH
-const pageIndexCustomer = ref(1)
-const optionsCustomerApi = ref<Array<any>>([])
-const callCustomersApi = async () => {
-  const res = await getAllCustomer({
-    PageIndex: pageIndexCustomer.value,
-    PageSize: 20
+onBeforeMount(async () => {
+  editData()
+  const staffList = await getStaffList({
+    PageIndex: pageIndexStaff.value,
+    PageSize: pageSize.value
   })
-  const getCustomerResult = res.data
-  if (res.data && res.data?.length > 0) {
-    optionsCustomerApi.value = getCustomerResult.map((customer) => ({
-      code: customer.code,
-      label: customer.isOrganization
-        ? customer.name + ' | MST ' + customer.taxCode
-        : customer.name + ' | ' + customer.phonenumber,
-      address: customer.address,
-      name: customer.name,
-      value: customer.id,
-      isOrganization: customer.isOrganization,
-      taxCode: customer.taxCode,
-      phone: customer.phonenumber,
-      email: customer.email,
-      id: customer.id
-    }))
-  }  
-}
+  createdByOptions.value = staffList.data.map(({code, phonenumber, name, id}) => ({label: code, value: phonenumber, name, id}))
+  
+  const customerList = await getAllCustomer({
+    PageIndex: pageIndexCustomer.value,
+    PageSize: pageSize.value
+  })
+  peopleTypeOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
+  
+})
 
-const ScrollCustomerTop = () => {
-  scrollCustomerTop.value = true
-}
-
-const scrollCustomerTop = ref(false)
-const scrollCustomerBottom = ref(false)
-
-const noMoreCustomerData = ref(false)
-
-const ScrollCustomerBottom = () => {
-  scrollCustomerBottom.value = true
-  pageIndexCustomer.value++
-  noMoreCustomerData.value
-    ? ''
-    : getAllCustomer({ PageIndex: pageIndexCustomer.value, PageSize: 20 })
-        .then((res) => {
-          res.data.length == 0
-            ? (noMoreCustomerData.value = true)
-            : res.data.map((customer) =>
-              optionsCustomerApi.value.push({
-                code: customer.code,
-                label: customer.isOrganization
-                  ? customer.name + ' | MST ' + customer.taxCode
-                  : customer.name + ' | ' + customer.phonenumber,
-                address: customer.address,
-                name: customer.name,
-                value: customer.id,
-                isOrganization: customer.isOrganization,
-                taxCode: customer.taxCode,
-                phone: customer.phonenumber,
-                email: customer.email,
-                id: customer.id
-                })
-              )
-        })
-        .catch(() => {
-          noMoreCustomerData.value = true
-        })
+const handleScroll = (field) => {
+  switch (field) {
+    case 'createdBy' :
+      pageIndexStaff.value += 1
+      return
+    case 'peopleType' : 
+      pageIndexCustomer.value += 1
+      return
+    default: return ''
+  }
+};
+const handleChangeOptions = (option, form, formType) => {
+  switch (formType) {
+    case 'createdBy' :
+      form.createdBy = `${option.name} | ${option.value}`
+      optionCreatedBy.value = option
+      return
+    case 'peopleType' : 
+      form.peopleType = `${option.name} | ${option.value}`
+      optionPeopleType.value = option
+      return
+    default: return ''
+  }
 }
 
 const customerName = ref()
 const customerPhone = ref()
 const customerEmail = ref()
-const getValueOfCustomerSelected = (value, obj) => {
-  form.value.idCustomer = value
-  customerName.value = obj.name
-  customerPhone.value = obj.phone
-  customerEmail.value = obj.email
-}
 
 
 const { push } = useRouter()
@@ -369,9 +285,10 @@ const approvalPayments = async (checkApproved) => {
   })
 }
 const disabledEdit = ref(false)
+
 // Xem detail or edit or approved 
 const editData = () => {
-  if (type == 'approval-payments' || type == 'detail' || type == 'edit') {
+  if (type == 'approval' || type == 'detail' || type == 'edit') {
     disabledEdit.value = true
     getDetailPayment()
   } else {
@@ -380,12 +297,6 @@ const editData = () => {
   }
 }
 
-onBeforeMount(() => {
-  if (type == ':type') type = 'add'
-  editData()
-  callApiStaffList()
-  callCustomersApi()
-})
 </script>
 <template>
   <el-collapse
@@ -398,9 +309,9 @@ onBeforeMount(() => {
         <el-button class="header-icon" :icon="collapse[0].icon" link />
         <span class="text-center text-xl">{{ collapse[0].title }}</span>
       </template>
-      <div class="flex gap-4 bg-white">
-        <div class="flex-1">
-          <el-divider content-position="left">Thông tin đề nghị thanh toán</el-divider>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-divider content-position="left">{{ t('reuse.paymentRequestInfo') }}</el-divider>
           <el-form ref="ruleFormRef" :model="form" :rules="rules" label-width="160px">
             <el-form-item prop="code" label="Mã phiếu">
               <div>{{ form.code }}</div>
@@ -409,42 +320,37 @@ onBeforeMount(() => {
               <div>{{ dateTimeFormat(form.createdAt) }}</div>
             </el-form-item>
             <el-form-item label="Người yêu cầu" >
-              <el-select v-model="form.peopleId" >
-                <el-option
-                  v-for="item in getStaffList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="Lý do chi tiền" prop="reasonCollectMoney" >
-              <el-input v-model="form.reasonCollectMoney" placeholder="Nhập mô tả" />
-            </el-form-item>
-
-            <el-divider content-position="left">Đối tượng</el-divider>
-            <el-form-item label="Chọn đối tượng" prop="idCustomer">
-              <MultipleOptionsBox
-                :fields="[
-                  t('reuse.customerCode'),
-                  t('reuse.customerName'),
-                  t('reuse.customerInfo')
-                ]"
-                filterable
-                width="700px"
-                :items="optionsCustomerApi"
-                valueKey="value"
+              <MultipleOptionsBox 
+                :fields="[t('reuse.employeeCode'),t('reuse.phoneNumber'),t('reuse.employeeName')]"
+                min-width="500px"
+                valueKey="id" 
                 labelKey="label"
                 :hiddenKey="['id']"
-                :placeHolder="'Chọn khách hàng'"
-                :defaultValue="form.idCustomer"
-                @scroll-top="ScrollCustomerTop"
-                @scroll-bottom="ScrollCustomerBottom"
-                @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
                 :clearable="false"
-                />
-                
+                :items="createdByOptions"
+                @scroll-bottom="() => handleScroll('createdBy')"
+                :defaultValue="form.createdBy"
+                @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
+             />
             </el-form-item>
+            <el-form-item :label="t('formDemo.reasonsSpendMoney')" prop="description" >
+              <el-input v-model="form.description" placeholder="Nhập mô tả" />
+            </el-form-item>
+            <el-divider content-position="left">{{ t('reuse.subject') }}</el-divider>
+            <el-form-item :label="t('reuse.selectObject')" prop="idCustomer">
+              <MultipleOptionsBox 
+                :fields="[t('reuse.customerCode'),t('reuse.phoneNumber'),t('reuse.customerName')]"
+                min-width="500px"
+                valueKey="id" 
+                labelKey="label"
+                :hiddenKey="['id', 'email']"
+                :clearable="false"
+                :items="peopleTypeOptions"
+                @scroll-bottom="() => handleScroll('peopleType')"
+                @update-value="(_value, option) =>  handleChangeOptions(option, form, 'peopleType')"
+              />
+            </el-form-item>
+
             <el-form-item>
               <div v-if="form.idCustomer">
                   <div> {{ customerName ?? '' }} </div>
@@ -453,27 +359,26 @@ onBeforeMount(() => {
               </div>              
             </el-form-item>
           </el-form>
-        </div>
-        <div class="flex-1">
-          <el-divider content-position="left">Chứng từ kèm theo</el-divider>
-          <div v-if="type !== 'add'" >Mã đơn hàng {{ form?.OrderId }}</div>
-        </div>
-      </div>
+        </el-col>
+        <el-col :span="12">
+          <el-divider content-position="left">{{ t('formDemo.documentsAttached') }}</el-divider>
+        </el-col>
+      </el-row>
     </el-collapse-item>
 
-    <el-collapse-item :name="collapse[1].name"  v-if="ishide">
+    <el-collapse-item :name="collapse[1].name">
       <template #title >
         <el-button class="header-icon" :icon="collapse[1].icon" link/>
         <span class="text-center text-xl">{{ collapse[1].title }}</span>
       </template>
       <el-table :data="tableData" border style="width: 100%">
-        <el-table-column type="index" label="STT" align="center" width="56" />
-        <el-table-column prop="numberVouchers" label="Số chứng từ" width="132" >
+        <el-table-column type="index" :label="t('reuse.index')" align="center" min-width="80" />
+        <el-table-column prop="numberVouchers" :label="t('formDemo.numberVouchers')" min-width="132" >
           <template #default="props">
             <el-input  v-model="props.row.numberVouchers"/>
           </template>
         </el-table-column>
-        <el-table-column prop="dayVouchers" label="Ngày chứng từ" width="132">
+        <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" min-width="132">
           <template #default="props">
               <el-date-picker
                 v-model="props.row.dayVouchers"
@@ -483,12 +388,12 @@ onBeforeMount(() => {
               />
           </template>
         </el-table-column>
-        <el-table-column prop="spentFor" label="Nội dung chi" width="436" >
+        <el-table-column prop="spentFor" :label="t('formDemo.spendFor')" min-width="436" >
           <template #default="props">
                 <el-input v-model="props.row.spentFor" />
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" label="Số lượng" width="150">
+        <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="150">
           <template #default="props">
             <el-input
               v-model="props.row.quantity"
@@ -501,7 +406,7 @@ onBeforeMount(() => {
             />
           </template>
         </el-table-column>
-        <el-table-column prop="price" label="Đơn giá" width="150">
+        <el-table-column prop="price" :label="t('reuse.unitPrice')" min-width="150">
             <template #default="props">
               <el-input
               v-model="props.row.unitPrice" 
@@ -513,17 +418,17 @@ onBeforeMount(() => {
               "/>
           </template>
         </el-table-column>
-        <el-table-column prop="totalPrice" label="Thành tiền" width="150" >
+        <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')" min-width="150" >
           <template #default="props">
               {{ props.row.totalPrice }}
           </template>
         </el-table-column>
-        <el-table-column prop="note" label="Ghi chú">
+        <el-table-column prop="note" :label="t('reuse.note')">
           <template #default="props">
             <el-input v-model="props.row.note" />
           </template>            
         </el-table-column>
-        <el-table-column label="Thao Tác" width="86">
+        <el-table-column :label="t('formDemo.manipulation')" min-width="86">
           <template #default="scope">
             <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)" >Xóa</el-button>
           </template>
@@ -532,28 +437,28 @@ onBeforeMount(() => {
       <div class="flex justify-end">
         <div class="total flex flex-col mt-4 w-[880px]">
           <div class="flex gap-4">
-            <label class="w-[10%] text-right font-bold">Tổng tiền</label>
+            <label class="w-[10%] text-right font-bold">{{ t('reuse.totaMoney') }}</label>
             <span class="w-[170px] text-right">{{ changeMoney.format(form.totalPrice) }}</span>
           </div>
           <div class="flex gap-4">
-            <label class="w-[10%] text-right">Đặt cọc</label>
+            <label class="w-[10%] text-right">{{ t('formDemo.deposit') }}</label>
             <span class="w-[170px] text-right">
               <el-input @change="autoCalculateFun" placeholder="đ" class="poi_text_right" v-model="form.depositeMoney" />
             </span>
           </div>
           <div class="flex gap-4">
-            <label class="w-[10%] text-right text-red-500">Còn lại</label>
+            <label class="w-[10%] text-right text-red-500">{{ t('reuse.remaining') }}</label>
             <span class="w-[170px] text-right">{{ changeMoney.format(form.debtMoney) }}</span>
           </div>
         </div>
       </div>
-      <el-divider content-position="left" >Thông tin thanh toán</el-divider>
-      <div class="flex flex-row">
-        <el-form :model="form" :rules="rulesPaymentMethod" label-width="160px" class="basis-1/2" >
+      <el-divider content-position="left" >{{ t('formDemo.billingInformation') }}</el-divider>
+      <el-row :gutter="20">
+        <el-col :span=12>
+          <el-form :model="form" :rules="rulesPaymentMethod" label-width="160px" class="basis-1/2" >
           <el-form-item 
             prop="totalMoney"
-            label="Số tiền chi" 
-            tabindex="Nhập số tiền"
+            :label="t('formDemo.amountSpent')" 
             >
             <el-input
                 size="default"
@@ -564,15 +469,15 @@ onBeforeMount(() => {
           </el-form-item>
           <el-form-item
             prop="enterMoney"
-            label="Viết bằng chữ"
+            :label="t('formDemo.writtenWords')"
             >
-              <el-input v-model="form.enterMoney" placeholder="Viết bằng chữ" />
+              <el-input v-model="form.enterMoney" :placeholder="t('formDemo.writtenWords')" />
           </el-form-item>
           <el-form-item
-            prop="paymentType"
-            label="Hình thức thanh toán" 
+            prop="typeOfPayment"
+            :label="t('formDemo.formPayment')" 
           >
-            <el-select v-model="form.paymentType" placeholder="Select">
+            <el-select v-model="form.typeOfPayment">
               <el-option
                 v-for="item in optionsPayments"
                 :key="item.key"
@@ -581,7 +486,7 @@ onBeforeMount(() => {
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="Trạng thái" class="day-update-wrap">
+          <el-form-item :label="t('reuse.status')" class="day-update-wrap">
               <div class="flex flex-col gap-1">
                 <span class="day-updated">
                   {{ t('reuse.initializeAndWrite') }}
@@ -592,128 +497,23 @@ onBeforeMount(() => {
               </div>
           </el-form-item>
           <el-form-item/>
-          <el-form-item v-if="type != 'approval-payments'">
-            <el-button>In phiếu</el-button>
-            <el-button type="primary" @click="postData">Lưu và chờ duyệt</el-button>
-            <el-button type="danger">Hủy</el-button>
+          <el-form-item v-if="type === 'add'">
+            <el-button>{{ t('button.print') }}</el-button>
+            <el-button type="primary" @click="postData">{{ t('reuse.saveAndPending') }}</el-button>
+            <el-button type="danger">{{ t('reuse.cancel') }}</el-button>
           </el-form-item>
-          <el-form-item v-else>
-            <el-button @click="approvalPayments(true)" type="warning">Duyệt</el-button>
-            <el-button @click="approvalPayments(false)">Không duyệt</el-button>
+          <el-form-item v-if="type === 'approval'">
+            <el-button @click="approvalPayments(true)" type="warning">{{ t('router.approve') }}</el-button>
+            <el-button @click="approvalPayments(false)">{{ t('router.notApproval') }}</el-button>
           </el-form-item>
-        </el-form>
-      </div>
+      </el-form>
+        </el-col>
+      </el-row>
+    </el-collapse-item>
+  </el-collapse>
 
-    </el-collapse-item>
-    <el-collapse-item :name="collapse[2].name" v-if="ishow">
-            <template #title >
-              <el-button class="header-icon" :icon="collapse[2].icon" link/>
-              <span class="text-center text-xl">{{ collapse[2].title }}</span>
-            </template>
-            <el-table :data="tableProduction" border style="width: 100%">
-              <el-table-column type="index" label="STT" width="80" />
-              <el-table-column prop="msp" label="Mã sản phẩm" width="100" >
-                    <!-- <template #default="props">
-                        <el-input  v-model="props.row.masp"/>
-                    </template> -->
-              </el-table-column>
-              <el-table-column prop="tenhh" label="Tên hàng hóa" >
-                  <!-- <template #default="props">
-                      <el-date-picker
-                        v-model="props.row.date"
-                        type="date"
-                        placeholder="Pick a day"
-                        format="DD/MM/YYYY"
-                      />
-                  </template> -->
-              </el-table-column>
-              <el-table-column prop="ngayban" label="Ngày bán" >
-                    <!-- <template #default="props">
-                          <el-input v-model="props.row.content" />
-                    </template> -->
-              </el-table-column>
-              <el-table-column prop="giaban" label="Gía bán" >
-                    <!-- <template #default="props">
-                        <el-input v-model="props.row.quanti" />
-                  </template> -->
-              </el-table-column>
-              <el-table-column prop="giakygui" label="Gía ký gửi" >
-                    <!-- <template #default="props">
-                        <el-input v-model="props.row.price" />
-                    </template> -->
-              </el-table-column>
-              <el-table-column prop="giadamphan" label="Gía đàm phám" >
-                    <!-- <template #default="props">
-                        <el-input v-model="props.row.total" />
-                    </template> -->
-              </el-table-column>
-              <el-table-column prop="phaitt" label="Phải thanh toán trước" >
-                    <!-- <template #default="props">
-                      <el-input v-model="props.row.note" />
-                    </template>             -->
-              </el-table-column>
-              <el-table-column label="Thao Tác" >
-                    <template #default="scope">
-                        <el-button size="small" type="danger" @click.prevent="deleteRowProduction(scope.$index)" >Xóa</el-button>
-                    </template>
-              </el-table-column>
-            </el-table>
-            
-          <el-divider content-position="left" >Thông tin thanh toán</el-divider>
-              <div class="flex flex-row">
-                      <el-form :model="form" label-width="160px" class="basis-1/2" >
-                                  <el-form-item 
-                                          label="Số tiền chi" tabindex="" prop="name" :rules="
-                                          [
-                                        { required: true, message: 'Nhập số tiền' },
-                                        { type: 'number', message: 'Nhập số tiền' },
-                                  
-                                        ]">
-                                          <el-input v-model="form.reasonCollectMoney" placeholder="Nhập số tiền" />
-                                  </el-form-item>
-                                  <el-form-item
-                                        label="Viết bằng chữ" prop="name" :rules="[
-                                      { required: true, message: 'Nhập chữ' },
-                                      { type: 'string', message: 'Nhập chữ' },
-                                
-                                      ]">
-                                            <el-input v-model="form.reasonCollectMoney" placeholder="Viết bằng chữ" />
-                                  </el-form-item>
-                                  <el-form-item
-                                        label="Hình thức thanh toán" :rules="[
-                                        { required: true, message: 'Viết bằng chữ' },
-                                        { type: 'string', message: 'Viết bằng chữ' },
-                                        ]">
-                                            <el-select class="w-[100%]" v-model="form.peopleId" placeholder="Thanh toán tiền mặt">
-                                              <el-option label="Zone one" value="shanghai" />
-                                              <el-option label="Zone two" value="beijing" />
-                                            </el-select>
-                                  </el-form-item>
-                                  <el-form-item label="Trạng thái ">
-                                        <span class="day-updated">
-                                          {{ t('reuse.initializeAndWrite') }}
-                                        </span>
-                                  </el-form-item>
-                                  <el-form-item>
-                                        <div>
-                                          <label class="italic text-xs text-gray-500" > {{ dateTimeFormat(moment()) }} </label>
-                                        </div>
-                                  </el-form-item>
-                                  <el-form-item >
-                                        <el-button>In phiếu</el-button>
-                                        <el-button type="primary" @click="postData">Lưu và chờ duyệt</el-button>
-                                        <el-button type="danger">Hủy</el-button>
-                                  </el-form-item>
-                      </el-form>
-              </div>
-    </el-collapse-item>
-    </el-collapse>
 </template>  
 <style scoped lang="less">
-.requied{
-  color: red;
-}
-
 ::v-deep(.el-select){
   width: 100%;
 }

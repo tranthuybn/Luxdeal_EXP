@@ -957,6 +957,9 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    approveSuccess: 'Duyệt thành công',
+    cancelApproveSuccess: 'Hủy duyệt thành công',
+    approveFail: 'Duyệt thất bại',
     quantity: 'Số lượng',
     paymentRequestInfo: 'Thông tin đề nghị thanh toán',
     payment: 'Thanh toán',
@@ -2046,5 +2049,6 @@ export default {
     warning: 'Cảnh báo',
     cancelExport: 'Hủy xuất kho',
     invalidQuantity: 'Số lượng không phù hợp',
+    pleaseChooseDate: 'Vui lòng chọn ngày',
   }
 }

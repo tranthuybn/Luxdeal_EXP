@@ -127,7 +127,7 @@ export const formatStatusRatingEmployee = (val) => {
 
 }
 
-export const formatPaymentOrReceipts = (val) => {
+export const formatPaymentMethod = (val) => {
   switch (val) {
     case 1:
       return t('reuse.payThroughMoney')
@@ -138,11 +138,11 @@ export const formatPaymentOrReceipts = (val) => {
   }
 }
 
-export const formatPaymentMethod = (val) => {
+export const formatPaymentOrReceipts = (val) => {
   switch (val) {
     case 1:
       return t('reuse.get')
-    case 2:
+    case 0:
       return t('reuse.spend')
     default:
       return ''

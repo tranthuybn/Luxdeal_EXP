@@ -138,7 +138,8 @@ const tagLinksRefs = useTemplateRefsList<RouterLinkProps>()
 
 const moveToTarget = (currentTag: RouteLocationNormalizedLoaded) => {
   // @ts-ignore
-  const wrap$ = unref(scrollbarRef)?.wrap$ 
+  const wrap$ = unref(scrollbarRef)?.wrapRef
+
   let firstTag: Nullable<RouterLinkProps> = null
   let lastTag: Nullable<RouterLinkProps> = null
 

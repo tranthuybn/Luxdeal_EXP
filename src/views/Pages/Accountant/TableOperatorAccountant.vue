@@ -134,6 +134,10 @@ const props = defineProps({
   customAddBtn: {
     type: Number,
     default: 1
+  },
+  splitScreen: {
+    type: Boolean,
+    default: false
   }
 })
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -163,7 +167,7 @@ const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
 
 //if schema has image then split screen
-props.hasImage || props.hasAttachDocument ? (fullSpan.value = 12) : (fullSpan.value = 24)
+props.hasImage || props.hasAttachDocument || props.splitScreen ? (fullSpan.value = 12) : (fullSpan.value = 24)
 
 //get data from table
 const getTableValue = async () => {
@@ -646,6 +650,7 @@ const approvalProduct = async (val) => {
               labelKey="label"
               :hiddenKey="['id', 'email']"
               :clearable="false"
+              :placeHolder="t('reuse.selectObject')"
               :items="peopleTypeOptions"
               @scroll-bottom="() => handleScroll('peopleType')"
               :defaultValue="form.peopleType"

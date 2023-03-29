@@ -68,3 +68,14 @@ export const deleteReceiptOrPayment = async (params: any): Promise<IResponse> =>
   )
   return res.data && res.data.data
 }
+
+export const postNewPaymentRequest = async (params): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${ACCOUNTANT_API.POST_ACCOUNTANT_CREATEANEWPAYMENTREQUEST}`,
+      data: params,
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

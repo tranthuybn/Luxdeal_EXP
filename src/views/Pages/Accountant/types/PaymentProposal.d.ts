@@ -1,9 +1,10 @@
 export interface IDetailExpenses {
     numberVouchers: string | number
     dayVouchers: any
-    spentFor: string
+    spendFor: string
     quantity: number
     unitPrice: number
     totalPrice: number
     note: string
   }
+

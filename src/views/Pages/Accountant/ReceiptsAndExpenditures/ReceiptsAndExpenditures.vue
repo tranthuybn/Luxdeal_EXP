@@ -145,7 +145,7 @@ const columns = reactive<TableColumn[]>([
 <template>
   <tableDatetimeFilterBasicVue 
   :columns="columns" 
-  :customOperator="6" 
+  :customOperator="4" 
   :delApi="deleteReceiptOrPayment" 
   :api="getReceiptsExpendituresList" 
   :titleAdd="t('reuse.receiptsAdd')"

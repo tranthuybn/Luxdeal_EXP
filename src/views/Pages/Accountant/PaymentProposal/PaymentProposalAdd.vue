@@ -23,8 +23,9 @@ import {
   getStaffList,
   getAllCustomer,
   approvalOrder,
-  addDNTT
 } from '@/api/Business'
+import { postNewPaymentRequest } from '@/api/Accountant'
+
 import { onBeforeMount, reactive, ref, watch, h } from 'vue'
 import { FORM_IMAGES } from '@/utils/format'
 import { dateTimeFormat } from '@/utils/format'
@@ -34,6 +35,7 @@ import moment from 'moment';
 import { useRoute, useRouter } from 'vue-router'
 import { changeMoney } from '@/utils/tsxHelper'
 import { IDetailExpenses } from '../types/PaymentProposal.d'
+import { useValidator } from '@/hooks/web/useValidator'
 
 const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -41,37 +43,42 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const ruleFormRef = ref<FormInstance>()
 const router = useRouter()
 const route = useRoute()
-const curDate = 'DNTT' + moment().format('hhmmss')
+const curCode = 'DNTT' + moment().format('hhmmss')
 const createdByOptions = ref([{}])
-const peopleTypeOptions = ref([{}])
+const peopleOptions = ref([{}])
 const pageIndexStaff = ref(1)
 const pageIndexCustomer = ref(1)
-const optionPeopleType = ref()
+const optionPeople = ref()
 const optionCreatedBy = ref()
 const pageSize = ref(10)
 const id = Number(router.currentRoute.value.params.id)
 const approvalId = String(route.params.approvalId)
 const type = String(route.params.type) == ':type' ? 'add' : String(route.params.type)
-
+const tableData = ref<Array<IDetailExpenses>>([])
+const detailedListExpenses = ref<Array<IDetailExpenses>>([])
+const { ValidService } = useValidator()
 const rules = reactive<FormRules>({  
-  peopleId: [
-   { required: true, message: 'Chọn dữ liệu' },
-   { type: 'string', message: 'Chọn giá trị' }   
-  ]                      
+  createdBy: [ValidService.required] ,
+  description: [ValidService.required]                  
 })
 const rulesPaymentMethod = reactive<FormRules>({
-  totalMoney : [
-    { required: true, message: 'Nhập số tiền', trigger: 'blur' }
-  ],
-  enterMoney: [
-    { required: true, message: 'Nhập chữ', trigger: 'blur' },
-    { type: 'string', message: 'Nhập chữ', trigger: 'blur' },
-  ],
-  typeOfPayment : [
-    { required: true, message: 'Viết bằng chữ', trigger: 'blur' },
-    { type: 'string', message: 'Viết bằng chữ', trigger: 'blur' },
-  ]
+  totalMoney : [ValidService.required],
+  enterMoney: [ValidService.required],
+  typeOfPayment : [ValidService.required]
 })
+
+const optionsPayments = [
+  {
+    value: 1,
+    key: 0,
+    label: t('reuse.payThroughMoney')
+  },
+  {
+    value: 2,
+    key: 1,
+    label: t('reuse.payThroughCard'),
+  }
+]
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -100,51 +107,33 @@ const collapseChangeEvent = (val) => {
 const activeName = ref([collapse[0].name, collapse[1].name])
 
 const form = ref({
-  code: "",
+  code: curCode,
   createdAt: new Date(),
   createdBy: "",
-  idCustomer: '',
+  description: "",
+  peopleId: "",
   debtMoney: 0,
-  depositeMoney: 0,
-  description: '',
-  enterMoney: "",
-  id: undefined,
-  isDelete: false,
   typeOfPayment: 1,
-  peopleId: undefined,
-  peopleName: null,
-  pepopleType: 1,
   status: 1,
-  totalMoney: '',
+  depositeMoney: 0,
+  totalMoney: "",
+  enterMoney: "",
   totalPrice: 0,
 })
 
-interface typeOfTableData {
-  dayVouchers: any 
-  note: string
-  numberVouchers: string | number
-  paymentRequestId: number | undefined
-  quantity: number
-  spentFor: string
-  totalPrice: number
-  unitPrice: number
-}
-
-const tableData = ref<Array<typeOfTableData>>([])
 const deleteRow = (index: number) => {
   tableData.value.splice(index, 1)
 }
 
 const onAddItem = () => {
   tableData.value.push({    
-    dayVouchers: new Date(),
-    note: "",
     numberVouchers: "",
-    paymentRequestId: undefined,
+    dayVouchers: new Date(),
+    spendFor: "",
     quantity: 1,
-    spentFor: "",
+    unitPrice: 0,
     totalPrice: 0,
-    unitPrice: 0
+    note: "",
   })
 }
 
@@ -154,7 +143,7 @@ watch(
     if (
       tableData.value[tableData.value.length - 1].numberVouchers &&
       tableData.value[tableData.value.length - 1].dayVouchers &&
-      tableData.value[tableData.value.length - 1].spentFor &&
+      tableData.value[tableData.value.length - 1].spendFor &&
       tableData.value[tableData.value.length - 1].quantity &&
       tableData.value[tableData.value.length - 1].unitPrice &&
       tableData.value[tableData.value.length - 1].totalPrice
@@ -165,6 +154,29 @@ watch(
     deep: true
   }
 )
+watch(pageIndexStaff, async (newPageIndex) => {
+  const response = await getStaffList({
+    PageIndex: newPageIndex,
+    PageSize: pageSize.value
+  })
+
+  if(response.data.length > 0) {
+    const arr = response.data.map(item => ({label: item.code, value: item.phonenumber, name: item.name, id: item.id }))
+    createdByOptions.value.push(...arr); 
+  }
+});
+
+watch(pageIndexCustomer, async (newPageIndex) => {
+  const response = await getAllCustomer({
+    PageIndex: newPageIndex,
+    PageSize: pageSize.value
+  })
+
+  if(response.data.length > 0) {
+    const arr = response.data.map(({code, phonenumber,name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
+    peopleOptions.value.push(...arr); 
+  }
+});
 
 const autoCalculate = () =>{
   form.value.totalPrice = 0
@@ -179,14 +191,12 @@ const autoCalculate = () =>{
 const autoCalculateFun = () => {
   form.value.debtMoney = form.value.totalPrice - form.value.depositeMoney
 }
-
-const detailedListExpenses = ref<Array<IDetailExpenses>>([])
 const postData = async() => {
   if (!tableData.value[tableData.value.length - 1].numberVouchers) tableData.value.pop()
   detailedListExpenses.value = tableData.value.map((el) => ({
     numberVouchers: el.numberVouchers,
     dayVouchers: el.dayVouchers,
-    spentFor: el.spentFor,
+    spendFor: el.spendFor,
     quantity: el.quantity,
     unitPrice: el.unitPrice,
     totalPrice: el.totalPrice,
@@ -207,7 +217,7 @@ const postData = async() => {
     DebtMoney: form.value.debtMoney,
     TotalPrice: form.value.totalPrice
   }
-  await addDNTT(FORM_IMAGES(payload))
+  await postNewPaymentRequest(FORM_IMAGES(payload))
 }
 
 const getDetailPayment = async() => {
@@ -216,21 +226,7 @@ const getDetailPayment = async() => {
   tableData.value = res.data.paymentRequestDetail
 }
 
-const optionsPayments = [
-  {
-    value: 1,
-    key: 0,
-    label: t('reuse.payThroughMoney')
-  },
-  {
-    value: 2,
-    key: 1,
-    label: t('reuse.payThroughCard'),
-  }
-]
-
 onBeforeMount(async () => {
-  editData()
   const staffList = await getStaffList({
     PageIndex: pageIndexStaff.value,
     PageSize: pageSize.value
@@ -241,8 +237,8 @@ onBeforeMount(async () => {
     PageIndex: pageIndexCustomer.value,
     PageSize: pageSize.value
   })
-  peopleTypeOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
-  
+  peopleOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
+  editData()
 })
 
 const handleScroll = (field) => {
@@ -250,7 +246,7 @@ const handleScroll = (field) => {
     case 'createdBy' :
       pageIndexStaff.value += 1
       return
-    case 'peopleType' : 
+    case 'peopleId' : 
       pageIndexCustomer.value += 1
       return
     default: return ''
@@ -262,20 +258,16 @@ const handleChangeOptions = (option, form, formType) => {
       form.createdBy = `${option.name} | ${option.value}`
       optionCreatedBy.value = option
       return
-    case 'peopleType' : 
-      form.peopleType = `${option.name} | ${option.value}`
-      optionPeopleType.value = option
+    case 'peopleId' : 
+      form.peopleId = `${option.name} | ${option.value}`
+      optionPeople.value = option
       return
     default: return ''
   }
 }
 
-const customerName = ref()
-const customerPhone = ref()
-const customerEmail = ref()
-
-
 const { push } = useRouter()
+
 // Duyệt đề nghị thanh toán
 const approvalPayments = async (checkApproved) => {
   const payload = { ItemType: 5, Id: parseInt(approvalId), IsApprove: checkApproved }
@@ -292,7 +284,6 @@ const editData = () => {
     disabledEdit.value = true
     getDetailPayment()
   } else {
-    form.value.code = curDate
     onAddItem()
   }
 }
@@ -313,13 +304,13 @@ const editData = () => {
         <el-col :span="12">
           <el-divider content-position="left">{{ t('reuse.paymentRequestInfo') }}</el-divider>
           <el-form ref="ruleFormRef" :model="form" :rules="rules" label-width="160px">
-            <el-form-item prop="code" label="Mã phiếu">
+            <el-form-item prop="code" :label="t('formDemo.formCode')">
               <div>{{ form.code }}</div>
             </el-form-item>
-            <el-form-item prop="createdAt" label="Ngày tạo">
+            <el-form-item prop="createdAt" :label="t('reuse.createDate')">
               <div>{{ dateTimeFormat(form.createdAt) }}</div>
             </el-form-item>
-            <el-form-item label="Người yêu cầu" >
+            <el-form-item :label="t('reuse.petitioner')" prop="createdBy">
               <MultipleOptionsBox 
                 :fields="[t('reuse.employeeCode'),t('reuse.phoneNumber'),t('reuse.employeeName')]"
                 min-width="500px"
@@ -334,29 +325,31 @@ const editData = () => {
              />
             </el-form-item>
             <el-form-item :label="t('formDemo.reasonsSpendMoney')" prop="description" >
-              <el-input v-model="form.description" placeholder="Nhập mô tả" />
+              <el-input v-model="form.description" :placeholder="t('formDemo.enterDescription')" />
             </el-form-item>
             <el-divider content-position="left">{{ t('reuse.subject') }}</el-divider>
-            <el-form-item :label="t('reuse.selectObject')" prop="idCustomer">
+            <el-form-item :label="t('reuse.selectObject')" prop="peopleId">
               <MultipleOptionsBox 
                 :fields="[t('reuse.customerCode'),t('reuse.phoneNumber'),t('reuse.customerName')]"
                 min-width="500px"
                 valueKey="id" 
+                :placeHolder="t('reuse.selectObject')"
                 labelKey="label"
                 :hiddenKey="['id', 'email']"
                 :clearable="false"
-                :items="peopleTypeOptions"
-                @scroll-bottom="() => handleScroll('peopleType')"
-                @update-value="(_value, option) =>  handleChangeOptions(option, form, 'peopleType')"
+                :defaultValue="form.peopleId"
+                :items="peopleOptions"
+                @scroll-bottom="() => handleScroll('peopleId')"
+                @update-value="(_value, option) =>  handleChangeOptions(option, form, 'peopleId')"
               />
             </el-form-item>
 
             <el-form-item>
-              <div v-if="form.idCustomer">
-                  <div> {{ customerName ?? '' }} </div>
-                  <div>Số điện thoại: {{ customerPhone ?? '' }}</div>
-                  <div>Email: {{ customerEmail ?? '' }}</div>
-              </div>              
+              <ul class="mt-2">
+                <li v-if="optionPeople?.name" class="leading-5">{{ optionPeople.name }}</li>
+                <li v-if="optionPeople?.value" class="leading-5">{{ t('reuse.phoneNumber') }}: {{ optionPeople.value }}</li>
+                <li v-if="optionPeople?.email" class="leading-5">{{ t('reuse.email') }}: {{ optionPeople.email }}</li>
+             </ul>            
             </el-form-item>
           </el-form>
         </el-col>
@@ -371,66 +364,66 @@ const editData = () => {
         <el-button class="header-icon" :icon="collapse[1].icon" link/>
         <span class="text-center text-xl">{{ collapse[1].title }}</span>
       </template>
-      <el-table :data="tableData" border style="width: 100%">
-        <el-table-column type="index" :label="t('reuse.index')" align="center" min-width="80" />
+      <el-table :data="tableData" border>
+        <el-table-column type="index" :label="t('reuse.index')" align="center" min-width="90" />
         <el-table-column prop="numberVouchers" :label="t('formDemo.numberVouchers')" min-width="132" >
-          <template #default="props">
-            <el-input  v-model="props.row.numberVouchers"/>
+          <template #default="scope">
+            <el-input  v-model="scope.row.numberVouchers"/>
           </template>
         </el-table-column>
         <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" min-width="132">
-          <template #default="props">
+          <template #default="scope">
               <el-date-picker
-                v-model="props.row.dayVouchers"
+                v-model="scope.row.dayVouchers"
                 type="date"
                 placeholder="Pick a day"
                 format="DD/MM/YYYY"
               />
           </template>
         </el-table-column>
-        <el-table-column prop="spentFor" :label="t('formDemo.spendFor')" min-width="436" >
-          <template #default="props">
-                <el-input v-model="props.row.spentFor" />
+        <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" min-width="436" >
+          <template #default="scope">
+                <el-input v-model="scope.row.spendFor" />
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="150">
-          <template #default="props">
+        <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="132">
+          <template #default="scope">
             <el-input
-              v-model="props.row.quantity"
+              v-model="scope.row.quantity"
               @change="
                 () => {
-                  props.row.totalPrice = props.row.unitPrice * props.row.quantity
+                  scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
                   autoCalculate()
                 }
               "
             />
           </template>
         </el-table-column>
-        <el-table-column prop="price" :label="t('reuse.unitPrice')" min-width="150">
-            <template #default="props">
+        <el-table-column prop="unitPrice" :label="t('reuse.unitPrice')" min-width="132">
+            <template #default="scope">
               <el-input
-              v-model="props.row.unitPrice" 
+              v-model="scope.row.unitPrice" 
               @change="
                 () => {
-                  props.row.totalPrice = props.row.unitPrice * props.row.quantity
+                  scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
                   autoCalculate()
                 }
               "/>
           </template>
         </el-table-column>
-        <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')" min-width="150" >
-          <template #default="props">
-              {{ props.row.totalPrice }}
+        <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')" min-width="132" >
+          <template #default="scope">
+              {{ scope.row.totalPrice }}
           </template>
         </el-table-column>
         <el-table-column prop="note" :label="t('reuse.note')">
-          <template #default="props">
-            <el-input v-model="props.row.note" />
+          <template #default="scope">
+            <el-input v-model="scope.row.note" />
           </template>            
         </el-table-column>
         <el-table-column :label="t('formDemo.manipulation')" min-width="86">
           <template #default="scope">
-            <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)" >Xóa</el-button>
+            <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)">Xóa</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TableData } from '@/api/table/types'
 import { ContentWrap } from '@/components/ContentWrap'
-import { Table, TableExpose } from '@/components/Table'
+import { Table } from '@/components/Table'
 import { computed, onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import {
   ElButton,
@@ -35,7 +35,7 @@ const permissionStore = usePermissionStore()
 
 permissionStore.checkRoleAndSetPermission(wsCache.get(permissionStore.routerByRoles),currentRoute.value )
 const userPermission = computed (()=>permissionStore.getUserPermission)
-const tabeRef = ref<TableExpose>()
+
 const props = defineProps({
   api: {
     type: Function as PropType<any>,
@@ -385,31 +385,31 @@ const setOperatorType = (type)=> {
           @cancel="cancel" />
       </template>
       <template v-if="customOperator !== 3 && userPermission" #operator="{ row }">
-          <ElButton  
+         <ElButton  
             v-if="userPermission?.editable && [1,4,5].includes(customOperator)"
             @click="action(row, 'detail')" 
             :icon="setOperatorIcon(eyeIcon)"
              :type="setOperatorType('primary')"
              :plain="customOperator === 2"
              >
-             {{ customOperator === 2? t('reuse.fix'):'' }}
-             </ElButton>
-            <ElButton 
+             {{ customOperator === 2? t('reuse.fix'): '' }}
+          </ElButton>
+          <ElButton 
               v-if="userPermission?.editable && [1,2,5].includes(customOperator)"  
               @click="action(row, 'edit')" 
               :icon="setOperatorIcon(editIcon)" 
               :type="setOperatorType('primary')" 
             >
             {{ customOperator === 2? t('reuse.save') : ''}}
-            </ElButton>
-            <ElButton 
+          </ElButton>
+          <ElButton 
               v-if="userPermission?.deletable && [1,2].includes(customOperator)" 
               @click="delData(row, false)" 
               :icon="setOperatorIcon(trashIcon)" 
               :type="setOperatorType('danger')"
             >
             {{ customOperator === 2? t('reuse.delete'): '' }}
-            </ElButton>
+          </ElButton>
       </template>
       <template #switch="data">
         <ElSwitch v-model="data.row.switch" @change="localeChange" />

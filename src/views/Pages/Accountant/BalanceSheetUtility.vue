@@ -283,6 +283,7 @@ const customizeData = async (data) => {
     :id="id"
     :apiId="getAccountantById"
     :hasImage="false"
+    :splitScreen="true"
     @post-data="postData"
     @edit-data="editData"
     @customize-form-data="customizeData"
@@ -292,3 +293,11 @@ const customizeData = async (data) => {
     :customAddBtn="2"
   />
 </template>
+
+<style lang="less" scoped>
+
+  ::v-deep(.btn-wrap) {
+    margin-left: 176px;
+  }
+
+</style>

@@ -6,6 +6,7 @@ import { h, provide, ref } from 'vue'
 import { filterStatusBalance } from '@/utils/filters'
 import { changeMoney } from '@/utils/tsxHelper'
 import moment from 'moment'
+import { filterHandler } from '@/utils/tsxHelper'
 
 const { t } = useI18n()
 const getSummaries = (param) => {
@@ -126,12 +127,10 @@ const columns = [
     label: t('reuse.status'),
     minWidth: '130',
     filters: filterStatusBalance,
+    filterMethod: filterHandler,
     formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
-      if (record.isActive == false) {
-        return h('div', t('reuse.stopActive'))
-      } else {
-        return h('div', t('reuse.active'))
-      }
+      if (record.isActive == false) return h('div', t('reuse.stopActive'))
+      return h('div', t('reuse.active'))
     }
   },
   {
@@ -159,6 +158,3 @@ provide('parameters', {params})
   />
   
 </template>
-
-<style lang="less" scoped>
-</style>

@@ -2,7 +2,7 @@
 import { TableData } from '@/api/table/types'
 import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton } from 'element-plus'
-import { PropType, ref, unref, onBeforeMount } from 'vue'
+import { PropType, ref, unref, onBeforeMount, computed } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableExtension, TableBase } from './TableBase/index'
 import { TableResponse, apiType } from './Type'
@@ -13,9 +13,14 @@ import { useAppStore } from '@/store/modules/app'
 import moment from 'moment'
 import { ElNotification } from 'element-plus'
 import { excelParser } from './excel-parser'
-import { GetRouterByStaffAccountId } from '@/api/login'
+import { useCache } from '@/hooks/web/useCache'
+import { usePermissionStore } from '@/store/modules/permission'
 const { currentRoute } = useRouter()
 const { t } = useI18n()
+const { wsCache } = useCache()
+const permissionStore = usePermissionStore()
+permissionStore.checkRoleAndSetPermission(wsCache.get(permissionStore.routerByRoles),currentRoute.value )
+const userPermission = computed (()=>permissionStore.getUserPermission)
 const props = defineProps({
   columns: {
     type: Array as PropType<TableColumn[]>,
@@ -135,16 +140,7 @@ const emit = defineEmits(['getDate'])
 
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
-  
-const accountId = JSON.parse(JSON.parse(localStorage.getItem('ACCOUNT_ID')?.toString() || '').v)
-const isAddable = ref(false)
-const getRole = () => {
-  GetRouterByStaffAccountId({ id: accountId }).then(res => {
-    const routerRole = res.data.find(el => el.url == router.currentRoute.value.path)
-    if (routerRole?.addable == true) return isAddable.value = true
-    else isAddable.value = false
-  })
-}
+
 
 const getData = (data) => {
   const table = unref(tableBase01);
@@ -163,7 +159,6 @@ const getData = (data) => {
 
 //add operator for every table
 onBeforeMount(() => {
-  getRole()
   dynamicApi.value = props.api
   dynamicColumns.value = props.columns
   if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
@@ -234,11 +229,11 @@ const initMappingObject = (el) => {
 <template>
   <section>
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
-        <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
-          <el-button v-if="!removeButtonAdd && isAddable == true" type="primary" :icon="createIcon" @click="pushAdd">
+        <template #headerFilterSlot v-if="!removeHeaderFilterSlot && userPermission">
+          <el-button v-if="!removeButtonAdd && userPermission?.addable" type="primary" :icon="createIcon" @click="pushAdd">
             {{ t(`${props.titleAdd}`) }}
           </el-button>
-          <el-button v-if="props.titleAdd2 && isAddable == true" type="primary" :icon="createIcon" @click="pushAdd2">
+          <el-button v-if="props.titleAdd2 && userPermission?.addable" type="primary" :icon="createIcon" @click="pushAdd2">
             {{ t(`${props.titleAdd2}`) }}
           </el-button>
         </template>

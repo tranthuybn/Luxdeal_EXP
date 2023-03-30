@@ -906,6 +906,17 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    descIsTheStandardTime: 'Is the standard time',
+    chooseWorkLevel: 'Choose work level',
+    rankAndType: 'Rank and type',
+    chooseBranch: 'Choose Branch',
+    chooseDepartment: 'Choose department',
+    brandAndDepartment: 'Brand/Department',
+    confirmPasswordAgain: 'Confirm password again',
+    password: 'Password',
+    accountsAndPermissions: 'Accounts & Permissions',
+    chooseTypeAccount: 'Choose type account',
+    chooseGender: 'Choose Gender',
     approveSuccess: 'Approve Successfully',
     cancelApproveSuccess: 'Cancel approve success',
     approveFail: 'Approve Fail',

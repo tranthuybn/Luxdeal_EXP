@@ -131,9 +131,13 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  customAddBtn: {
+  customBtn: {
     type: Number,
     default: 1
+  },
+  splitScreen: {
+    type: Boolean,
+    default: false
   }
 })
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -163,7 +167,7 @@ const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
 
 //if schema has image then split screen
-props.hasImage || props.hasAttachDocument ? (fullSpan.value = 12) : (fullSpan.value = 24)
+props.hasImage || props.hasAttachDocument || props.splitScreen ? (fullSpan.value = 12) : (fullSpan.value = 24)
 
 //get data from table
 const getTableValue = async () => {
@@ -646,6 +650,7 @@ const approvalProduct = async (val) => {
               labelKey="label"
               :hiddenKey="['id', 'email']"
               :clearable="false"
+              :placeHolder="t('reuse.selectObject')"
               :items="peopleTypeOptions"
               @scroll-bottom="() => handleScroll('peopleType')"
               :defaultValue="form.peopleType"
@@ -728,7 +733,7 @@ const approvalProduct = async (val) => {
     </ElRow>
     <template #under>
       <div class="w-[100%]" v-if="props.type === 'add'">
-        <div v-if="customAddBtn == 1" class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton :loading="loading" @click="save('add')">
               {{ t('button.print') }}
           </ElButton>
@@ -739,7 +744,7 @@ const approvalProduct = async (val) => {
             {{ t('reuse.cancel') }}
           </ElButton>
         </div>
-        <div v-if="customAddBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('add')">
             {{ t('reuse.save') }}
           </ElButton>
@@ -752,7 +757,7 @@ const approvalProduct = async (val) => {
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'edit'">
-        <div v-if="customAddBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
+        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
           <ElButton :loading="loading" @click="save('add')">
               {{ t('button.print') }}
           </ElButton>
@@ -763,7 +768,7 @@ const approvalProduct = async (val) => {
             {{ t('reuse.delete') }}
           </ElButton>
         </div>
-        <div v-if="customAddBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('edit')">
             {{ t('reuse.save') }}
           </ElButton>
@@ -773,12 +778,17 @@ const approvalProduct = async (val) => {
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'detail'">
-        <div class="w-[50%] flex justify-left gap-2 ml-5">
+        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-5">
           <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
             {{ t('reuse.fix') }}
           </ElButton>
           <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
             {{ t('reuse.delete') }}
+          </ElButton>
+        </div>
+        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
+          <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+            {{ t('reuse.cancel') }}
           </ElButton>
         </div>
       </div>

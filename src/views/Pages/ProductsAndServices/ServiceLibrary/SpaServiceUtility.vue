@@ -112,6 +112,7 @@ const schema = reactive<FormSchema[]>([
     field: 'time',
     label: t('formDemo.executionTime'),
     component: 'Input',
+    labelDescription: t('reuse.descIsTheStandardTime'),
     colProps: {
       span: 18
     },
@@ -179,10 +180,11 @@ const rules = reactive({
     { validator: ValidService.checkSpace.validator },
     { validator: ValidService.checkDescriptionLength.validator }
   ],
-  cost: [{ validator: ValidService.checkPositiveNumber.validator }],
-  time: [],
-  promotePrice: [{ validator: ValidService.checkPositiveNumber.validator }],
+  cost: [required(),{ validator: ValidService.checkPositiveNumber.validator }],
+  time: [required()],
+  promotePrice: [required(), { validator: ValidService.checkPositiveNumber.validator }],
   warranty: [
+    required(),
     {
       validator: (_rule: any, value: any, callback: any) => {
         if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
@@ -191,7 +193,8 @@ const rules = reactive({
       required: false,
       trigger: 'blur'
     }
-  ]
+  ],
+
 })
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
@@ -267,6 +270,7 @@ const editData = async (data) => {
     )
 }
 const postData = async (data) => {
+  console.log('có vào đây ko')
   data = customPostData(data)
   await postSpa(FORM_IMAGES(data))
     .then(() => {

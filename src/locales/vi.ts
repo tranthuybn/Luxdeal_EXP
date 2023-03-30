@@ -124,6 +124,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    paidMoney: 'Đã chi tiền',
     jobPosition: 'Vị trí việc làm',
     sales: 'Doanh số',
     percentageSales:'% doanh số',
@@ -957,6 +958,17 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    descIsTheStandardTime: 'Là thời gian tiêu chuẩn',
+    chooseWorkLevel: 'Chọn cấp bậc làm việc',
+    rankAndType: 'Cấp bậc/loại hình',
+    chooseBranch: 'Chọn chi nhánh',
+    chooseDepartment: 'Chọn phòng ban',
+    brandAndDepartment : 'Chi nhánh/phòng ban',
+    confirmPasswordAgain: 'Xác nhận lại mật khẩu',
+    password: 'Mật khẩu',
+    accountsAndPermissions: 'Tài khoản & phân quyền',
+    chooseTypeAccount: 'Chọn loại hình nhân viên',
+    chooseGender: 'Chọn giới tính',
     approveSuccess: 'Duyệt thành công',
     cancelApproveSuccess: 'Hủy duyệt thành công',
     approveFail: 'Duyệt thất bại',

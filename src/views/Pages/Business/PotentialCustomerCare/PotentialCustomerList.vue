@@ -160,7 +160,7 @@ const columns = reactive<TableColumn[]>([
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${formatPotentialCustomerStatusIdToText(cellValue)}`)
     }
-  }
+  },
 ])
 </script>
 <template>

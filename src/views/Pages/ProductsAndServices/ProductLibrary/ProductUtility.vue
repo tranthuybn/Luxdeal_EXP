@@ -1404,7 +1404,7 @@ const disabledTabOpen = ref(false)
 const newId = ref<number>()
 //type == '' && isNaN(id) =true  when refreshing page
 if ((type == '' && isNaN(id)) || type == 'add') {
-  disabledTabOpen.value = true
+  disabledTabOpen.value = false
 }
 watch(
   () => newId,

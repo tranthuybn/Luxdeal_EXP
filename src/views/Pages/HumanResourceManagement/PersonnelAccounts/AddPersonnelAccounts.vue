@@ -23,6 +23,7 @@ import {
   ElRow,
   ElCol,
   ElMessageBox,
+  ElDialog,
   ElNotification
 } from 'element-plus'
 import moment from 'moment'
@@ -39,13 +40,16 @@ import {
   getRankList,
   getTypePersonnelList,
   getRoleList,
-  updeteStaffAccount
+  updeteStaffAccount,
+  deleteStaffAccount
 } from '@/api/HumanResourceManagement'
+
 import { useValidator } from '@/hooks/web/useValidator'
 import { getEmployeeById } from '@/api/Accountant'
 import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
+const showPassword = ref(true)
 //random mã
 const curDate = 'NV' + moment().format('hhmmss')
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -401,8 +405,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
 
 const cancel = async () => {
   push({
-    name: 'business.customer-management.customerList',
-    params: { backRoute: 'business.customer-management.customerList' }
+    name: 'human-resource-management.personnel-accounts',
   })
 }
 
@@ -497,7 +500,7 @@ const postData = async (typebtn) => {
       IsActive: true,
       Gender: ruleForm.sex,
       Contact: ruleForm.link,
-      FileId: ListFileUpload.value || [],
+      FileId: JSON.stringify(ListFileUpload.value) || [],
       BranchId: ruleForm.branch,
       DepartmentId: ruleForm.department,
       PositionId: ruleForm.jobPosition,
@@ -556,8 +559,8 @@ const getTableValue = async () => {
     }
   }
   if (type == 'detail' || type == 'edit') {
-    if (type == 'detail') isDisable.value = true
-    else isDisable.value = false
+    isDisable.value = type === 'detail'
+    showPassword.value = !isDisable.value
     ruleForm.isActive = formValue.value?.isActive
     ruleForm.customerCode = formValue.value?.code
     if (formValue.value?.sex) {
@@ -581,7 +584,7 @@ const getTableValue = async () => {
     ruleForm.cccd = formValue.value.cccd
     ruleForm.cccdCreateAt = formValue.value.cccdNgayCap
     ruleForm.cccdPlaceOfGrant = formValue.value.cccdNoiCap
-    ruleForm.doB = formValue.value.birthday
+    ruleForm.doB = formValue.value.doB
     ruleForm.sex = formValue.value.gender
     ruleForm.link = formValue.value.contact
     ruleForm.accountName = formValue.value.bankAccountName
@@ -599,9 +602,9 @@ const getTableValue = async () => {
     valueDistrict.value = formValue.value.addressDistrictId
     valueCommune.value = formValue.value.wardId
     ruleForm.Address = formValue.value.address
-    ruleForm.userName = formValue.value.userName
+    ruleForm.userName = formValue.value.username
     ruleForm.roleAcces = formValue.value.roleId
-    ListFileUpload.value =  JSON.stringify(formValue.value.listImageJson)
+    ListFileUpload.value =  formValue.value.path
     // ListFileUpload.value = formValue.value.fieldId
   }
 }
@@ -636,7 +639,6 @@ const editData = async (typebtn) => {
       BankAccountNumber: ruleForm.accountNumber,
       BankId: ruleForm.bankName,
       RoleId: ruleForm.roleAcces,
-
       OldPassword: ruleForm.userName,
       Password: ruleForm.password,
       ConfirmPassword: ruleForm.confirmPassword,
@@ -666,14 +668,36 @@ const editData = async (typebtn) => {
 
 onBeforeMount(() => {
   if(type != 'add') getTableValue()
-
   callApiCity()
   CallApiBranch()
   CallApiDepartment()
   CallApiPosition()
   CallApiStaff()
   callApiGetRoleList()
+
 })
+
+const deleteAccount = async () => {
+  await deleteStaffAccount({ Id: id })
+  .then((res) => {
+    if(res?.succeeded) {
+      ElNotification({
+        message: t('reuse.deleteSuccess'),
+        type: 'success'
+      })
+      push({
+        name: 'human-resource-management.personnel-accounts',
+      })
+    }
+  })
+  .catch(() =>
+    ElNotification({
+      message: t('reuse.deleteFail'),
+      type: 'error'
+    })
+  )
+}
+
 </script>
 
 <template>
@@ -706,15 +730,15 @@ onBeforeMount(() => {
                 class="demo-ruleForm"
                 status-icon
               >
-                <el-form-item label="Mã nhân viên" prop="staffCode">
+                <el-form-item :label="t('reuse.employeeCode')" prop="staffCode">
                   <!-- <el-input v-model="ruleForm.staffCode" /> -->
                   <span class="pl-2">
                     {{ ruleForm.staffCode }}
                   </span>
                 </el-form-item>
 
-                <el-form-item label="Tên nhân viên" prop="name">
-                  <el-input v-model="ruleForm.name" placeholder="Họ và tên" :disabled="isDisable" />
+                <el-form-item :label="t('reuse.employeeName')" prop="name">
+                  <el-input v-model="ruleForm.name" :placeholder="t('reuse.fullName')" :disabled="isDisable" />
                 </el-form-item>
 
                 <el-form-item :label="t('reuse.phoneNumber')" prop="phoneNumber">
@@ -726,8 +750,8 @@ onBeforeMount(() => {
                   />
                 </el-form-item>
 
-                <el-form-item label="Email" prop="email">
-                  <el-input v-model="ruleForm.email" placeholder="Nhập email" :disabled="isDisable" />
+                <el-form-item :label="t('reuse.email')" prop="email">
+                  <el-input v-model="ruleForm.email" :placeholder="t('reuse.enterEmail')" :disabled="isDisable" />
                 </el-form-item>
 
                 <el-form-item required :label="t('reuse.cmnd')">
@@ -799,7 +823,7 @@ onBeforeMount(() => {
                     </div>
                     <div class="flex-1">
                       <el-form-item prop="sex">
-                        <el-select v-model="ruleForm.sex" clearable placeholder="Chọn giới tính" :disabled="isDisable">
+                        <el-select v-model="ruleForm.sex" clearable :placeholder="t('reuse.chooseGender')" :disabled="isDisable">
                           <el-option
                             v-for="item in optionsGender"
                             :key="item.label"
@@ -824,17 +848,17 @@ onBeforeMount(() => {
                   />
                 </el-form-item>
 
-                <el-divider content-position="left">Vị trí việc làm</el-divider>
+                <el-divider content-position="left">{{t('formDemo.jobPosition')}}</el-divider>
 
                 <el-form-item
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
-                  label="Chi nhánh/phòng ban"
+                  :label="t('reuse.brandAndDepartment')"
                   required
                 >
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
                       <el-form-item prop="branch">
-                        <el-select v-model="ruleForm.branch" clearable placeholder="Chọn chi nhánh" :disabled="isDisable">
+                        <el-select v-model="ruleForm.branch" clearable :placeholder="t('reuse.chooseBranch')" :disabled="isDisable">
                           <el-option
                             v-for="item in listBranchs"
                             :key="item.label"
@@ -849,7 +873,7 @@ onBeforeMount(() => {
                         <el-select
                           v-model="ruleForm.department"
                           clearable
-                          placeholder="Chọn phòng ban"
+                          :placeholder="t('reuse.chooseDepartment')"
                           :disabled="isDisable"
                         >
                           <el-option
@@ -866,7 +890,7 @@ onBeforeMount(() => {
 
                 <el-form-item
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
-                  label="Cấp bậc/loại hình"
+                  :label="t('reuse.rankAndType')"
                   required
                 >
                   <div class="flex gap-2 w-[100%]">
@@ -875,7 +899,7 @@ onBeforeMount(() => {
                         <el-select
                           v-model="ruleForm.jobPosition"
                           clearable
-                          placeholder="Chọn cấp bậc làm việc"
+                          :placeholder="t('reuse.chooseWorkLevel')"
                           :disabled="isDisable"
                         >
                           <el-option
@@ -892,7 +916,7 @@ onBeforeMount(() => {
                         <el-select
                           v-model="ruleForm.typeOfEmployee"
                           clearable
-                          placeholder="Chọn loại hình nhân viên"
+                          :placeholder="t('reuse.chooseTypeAccount')"
                           :disabled="isDisable"
                         >
                           <el-option
@@ -907,17 +931,17 @@ onBeforeMount(() => {
                   </div>
                 </el-form-item>
 
-                <el-divider content-position="left">Tài khoản & phân quyền</el-divider>
+                <el-divider content-position="left">{{ t('reuse.accountsAndPermissions') }}</el-divider>
 
-                <el-form-item label="Tên đăng nhập" prop="userName">
-                  <el-input v-model="ruleForm.userName" placeholder="Nhập tên đăng nhập" :disabled="isDisable" />
+                <el-form-item :label="t('formDemo.userName')" prop="userName">
+                  <el-input v-model="ruleForm.userName" :placeholder="t('formDemo.enterUserName')" :disabled="isDisable" />
                 </el-form-item>
 
-                <el-form-item prop="roleAcces" label="Phân quyền" placeholder="Họ và tên" required>
+                <el-form-item prop="roleAcces" :label="t('reuse.setRole')" :placeholder="t('reuse.fullName')" required>
                   <el-select
                     v-model="ruleForm.roleAcces"
                     clearable
-                    placeholder="Chọn quyền"
+                    :placeholder="t('reuse.choosePermission')"
                     :disabled="isDisable"
                   >
                     <el-option
@@ -929,14 +953,14 @@ onBeforeMount(() => {
                   </el-select>
                 </el-form-item>
 
-                <el-form-item label="Mật khẩu" prop="password">
-                  <el-input v-model="ruleForm.password" placeholder="Nhập mật khẩu" :disabled="isDisable" />
+                <el-form-item v-if="showPassword" :label="t('reuse.password')" prop="password">
+                  <el-input v-model="ruleForm.password" :placeholder="t('formDemo.enterPassword')" :disabled="isDisable" />
                 </el-form-item>
 
-                <el-form-item label="Nhập lại mật khẩu" prop="confirmPassword">
+                <el-form-item v-if="showPassword" :label="t('formDemo.confirmPassword')" prop="confirmPassword">
                   <el-input
                     v-model="ruleForm.confirmPassword"
-                    placeholder="Xác nhận lại mật khẩu"
+                    :placeholder="t('reuse.confirmPasswordAgain')"
                     :disabled="isDisable"
                   />
                 </el-form-item>
@@ -990,7 +1014,7 @@ onBeforeMount(() => {
                         <span class="dialog-footer">
                           <el-button
                             type="danger"
-                            @click="centerDialogCancelAccount = false"
+                            @click="deleteAccount"
                             class="min-w-36 min-h-10"
                             >{{ t('formDemo.cancelAccount') }}</el-button
                           >

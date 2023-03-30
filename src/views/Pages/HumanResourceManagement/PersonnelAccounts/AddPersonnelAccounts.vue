@@ -23,6 +23,7 @@ import {
   ElRow,
   ElCol,
   ElMessageBox,
+  ElDialog,
   ElNotification
 } from 'element-plus'
 import moment from 'moment'
@@ -39,13 +40,16 @@ import {
   getRankList,
   getTypePersonnelList,
   getRoleList,
-  updeteStaffAccount
+  updeteStaffAccount,
+  deleteStaffAccount
 } from '@/api/HumanResourceManagement'
+
 import { useValidator } from '@/hooks/web/useValidator'
 import { getEmployeeById } from '@/api/Accountant'
 import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
+const showPassword = ref(true)
 //random mã
 const curDate = 'NV' + moment().format('hhmmss')
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -401,8 +405,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
 
 const cancel = async () => {
   push({
-    name: 'business.customer-management.customerList',
-    params: { backRoute: 'business.customer-management.customerList' }
+    name: 'human-resource-management.personnel-accounts',
   })
 }
 
@@ -556,8 +559,8 @@ const getTableValue = async () => {
     }
   }
   if (type == 'detail' || type == 'edit') {
-    if (type == 'detail') isDisable.value = true
-    else isDisable.value = false
+    isDisable.value = type === 'detail'
+    showPassword.value = !isDisable.value
     ruleForm.isActive = formValue.value?.isActive
     ruleForm.customerCode = formValue.value?.code
     if (formValue.value?.sex) {
@@ -665,14 +668,36 @@ const editData = async (typebtn) => {
 
 onBeforeMount(() => {
   if(type != 'add') getTableValue()
-
   callApiCity()
   CallApiBranch()
   CallApiDepartment()
   CallApiPosition()
   CallApiStaff()
   callApiGetRoleList()
+
 })
+
+const deleteAccount = async () => {
+  await deleteStaffAccount({ Id: id })
+  .then((res) => {
+    if(res?.succeeded) {
+      ElNotification({
+        message: t('reuse.deleteSuccess'),
+        type: 'success'
+      })
+      push({
+        name: 'human-resource-management.personnel-accounts',
+      })
+    }
+  })
+  .catch(() =>
+    ElNotification({
+      message: t('reuse.deleteFail'),
+      type: 'error'
+    })
+  )
+}
+
 </script>
 
 <template>
@@ -928,11 +953,11 @@ onBeforeMount(() => {
                   </el-select>
                 </el-form-item>
 
-                <el-form-item label="Mật khẩu" prop="password">
+                <el-form-item v-if="showPassword" label="Mật khẩu" prop="password">
                   <el-input v-model="ruleForm.password" placeholder="Nhập mật khẩu" :disabled="isDisable" />
                 </el-form-item>
 
-                <el-form-item label="Nhập lại mật khẩu" prop="confirmPassword">
+                <el-form-item v-if="showPassword" label="Nhập lại mật khẩu" prop="confirmPassword">
                   <el-input
                     v-model="ruleForm.confirmPassword"
                     placeholder="Xác nhận lại mật khẩu"
@@ -989,7 +1014,7 @@ onBeforeMount(() => {
                         <span class="dialog-footer">
                           <el-button
                             type="danger"
-                            @click="centerDialogCancelAccount = false"
+                            @click="deleteAccount"
                             class="min-w-36 min-h-10"
                             >{{ t('formDemo.cancelAccount') }}</el-button
                           >

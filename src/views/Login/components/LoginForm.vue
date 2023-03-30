@@ -193,7 +193,6 @@ const generateRouter = (routers) => {
     wsCache.set(permissionStore.getRouterByRoles, routers)
     //  generate router by roles
     const urlList = routers.map((el) => el.url)
-    console.log('urlList',urlList)
     permissionStore.generateRoutes(urlList, 'client').catch(() => { })
 
     permissionStore.getAddRouters.forEach((route) => {

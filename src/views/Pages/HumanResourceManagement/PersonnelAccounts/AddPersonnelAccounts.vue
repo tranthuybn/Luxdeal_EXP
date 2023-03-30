@@ -497,7 +497,7 @@ const postData = async (typebtn) => {
       IsActive: true,
       Gender: ruleForm.sex,
       Contact: ruleForm.link,
-      FileId: ListFileUpload.value || [],
+      FileId: JSON.stringify(ListFileUpload.value) || [],
       BranchId: ruleForm.branch,
       DepartmentId: ruleForm.department,
       PositionId: ruleForm.jobPosition,
@@ -581,7 +581,7 @@ const getTableValue = async () => {
     ruleForm.cccd = formValue.value.cccd
     ruleForm.cccdCreateAt = formValue.value.cccdNgayCap
     ruleForm.cccdPlaceOfGrant = formValue.value.cccdNoiCap
-    ruleForm.doB = formValue.value.birthday
+    ruleForm.doB = formValue.value.doB
     ruleForm.sex = formValue.value.gender
     ruleForm.link = formValue.value.contact
     ruleForm.accountName = formValue.value.bankAccountName
@@ -599,9 +599,9 @@ const getTableValue = async () => {
     valueDistrict.value = formValue.value.addressDistrictId
     valueCommune.value = formValue.value.wardId
     ruleForm.Address = formValue.value.address
-    ruleForm.userName = formValue.value.userName
+    ruleForm.userName = formValue.value.username
     ruleForm.roleAcces = formValue.value.roleId
-    ListFileUpload.value =  JSON.stringify(formValue.value.listImageJson)
+    ListFileUpload.value =  formValue.value.path
     // ListFileUpload.value = formValue.value.fieldId
   }
 }
@@ -636,7 +636,6 @@ const editData = async (typebtn) => {
       BankAccountNumber: ruleForm.accountNumber,
       BankId: ruleForm.bankName,
       RoleId: ruleForm.roleAcces,
-
       OldPassword: ruleForm.userName,
       Password: ruleForm.password,
       ConfirmPassword: ruleForm.confirmPassword,

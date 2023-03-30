@@ -124,6 +124,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    paidMoney: 'Đã chi tiền',
     jobPosition: 'Vị trí việc làm',
     sales: 'Doanh số',
     percentageSales:'% doanh số',

@@ -131,7 +131,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  customAddBtn: {
+  customBtn: {
     type: Number,
     default: 1
   },
@@ -733,7 +733,7 @@ const approvalProduct = async (val) => {
     </ElRow>
     <template #under>
       <div class="w-[100%]" v-if="props.type === 'add'">
-        <div v-if="customAddBtn == 1" class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton :loading="loading" @click="save('add')">
               {{ t('button.print') }}
           </ElButton>
@@ -744,7 +744,7 @@ const approvalProduct = async (val) => {
             {{ t('reuse.cancel') }}
           </ElButton>
         </div>
-        <div v-if="customAddBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('add')">
             {{ t('reuse.save') }}
           </ElButton>
@@ -757,7 +757,7 @@ const approvalProduct = async (val) => {
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'edit'">
-        <div v-if="customAddBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
+        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
           <ElButton :loading="loading" @click="save('add')">
               {{ t('button.print') }}
           </ElButton>
@@ -768,7 +768,7 @@ const approvalProduct = async (val) => {
             {{ t('reuse.delete') }}
           </ElButton>
         </div>
-        <div v-if="customAddBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('edit')">
             {{ t('reuse.save') }}
           </ElButton>
@@ -778,12 +778,17 @@ const approvalProduct = async (val) => {
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'detail'">
-        <div class="w-[50%] flex justify-left gap-2 ml-5">
+        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-5">
           <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
             {{ t('reuse.fix') }}
           </ElButton>
           <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
             {{ t('reuse.delete') }}
+          </ElButton>
+        </div>
+        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
+          <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+            {{ t('reuse.cancel') }}
           </ElButton>
         </div>
       </div>

@@ -154,6 +154,7 @@ watch(
     deep: true
   }
 )
+
 watch(pageIndexStaff, async (newPageIndex) => {
   const response = await getStaffList({
     PageIndex: newPageIndex,
@@ -364,8 +365,8 @@ const editData = () => {
         <el-button class="header-icon" :icon="collapse[1].icon" link/>
         <span class="text-center text-xl">{{ collapse[1].title }}</span>
       </template>
-      <el-table :data="tableData" border>
-        <el-table-column type="index" :label="t('reuse.index')" align="center" min-width="90" />
+      <el-table :data="tableData" border header-row-class-name="dark:text-white text-black">
+        <el-table-column type="index" :label="t('reuse.index')" align="center" width="70" />
         <el-table-column prop="numberVouchers" :label="t('formDemo.numberVouchers')" min-width="132" >
           <template #default="scope">
             <el-input  v-model="scope.row.numberVouchers"/>
@@ -408,7 +409,8 @@ const editData = () => {
                   scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
                   autoCalculate()
                 }
-              "/>
+              "
+              />
           </template>
         </el-table-column>
         <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')" min-width="132" >

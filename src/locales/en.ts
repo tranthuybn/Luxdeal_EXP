@@ -125,6 +125,7 @@ export default {
     byYear: 'By year'
   },
   formDemo: {
+    paidMoney: 'Paid money',
     jobPosition: 'Job position',
     sales: 'Sales',
     percentageSales:'% Sales',

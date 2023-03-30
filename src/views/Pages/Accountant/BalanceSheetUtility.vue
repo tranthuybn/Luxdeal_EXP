@@ -290,7 +290,7 @@ const customizeData = async (data) => {
     :formDataCustomize="setFormData"
     :delApi="deleteAccountant"
     :disabledCancelBtn="disabledCancelBtn"
-    :customAddBtn="2"
+    :customBtn="2"
   />
 </template>
 

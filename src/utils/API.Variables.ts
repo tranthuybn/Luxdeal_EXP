@@ -618,7 +618,7 @@ export const STATUS_ORDER_SELL = [
     orderStatusName: 'Hoàn thành đổi trả',
     createdAt: ''
   },
-  {
+  {//8
     orderStatus: 5,
     orderStatusName: 'Đã đặt cọc',
     createdAt: ''

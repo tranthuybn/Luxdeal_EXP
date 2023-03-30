@@ -960,6 +960,7 @@ export default {
     approveSuccess: 'Duyệt thành công',
     cancelApproveSuccess: 'Hủy duyệt thành công',
     approveFail: 'Duyệt thất bại',
+    quantity: 'Số lượng',
     paymentRequestInfo: 'Thông tin đề nghị thanh toán',
     payment: 'Thanh toán',
     accountingAccount: 'Tài khoản hạch toán',
@@ -1098,7 +1099,6 @@ export default {
     productInformation: 'Thông tin sản phẩm',
     characteristic: 'Đặc tính',
     accessory: 'Phụ kiện',
-    quantity: 'Số lượng',
     unitNamePawn: 'Đơn vị',
     firstEntryDate: 'Ngày nhập',
     singleEntryCode: 'Mã đơn nhập',
@@ -2048,5 +2048,6 @@ export default {
     warning: 'Cảnh báo',
     cancelExport: 'Hủy xuất kho',
     invalidQuantity: 'Số lượng không phù hợp',
+    pleaseChooseDate: 'Vui lòng chọn ngày',
   }
 }

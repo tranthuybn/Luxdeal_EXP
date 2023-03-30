@@ -10,8 +10,7 @@ UploadFile,
 UploadUserFile,
 ElMessage
 } from 'element-plus'
-import { ref, watch, unref } from 'vue'
-import { PropType } from 'vue-types/dist/types';
+import { ref, watch, unref,PropType } from 'vue'
 import * as orderUtility from './OrderFixbug'
 
 const props = defineProps({

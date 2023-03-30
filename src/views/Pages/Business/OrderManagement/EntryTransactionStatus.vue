@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { TransactionStatusHistory } from './OrderFixbug';
-import { PropType } from 'vue-types/dist/types';
 import { dateTimeFormat } from '@/utils/format';
 import { useI18n } from '@/hooks/web/useI18n';
+import { PropType } from 'vue';
 
 const { t } = useI18n()
 

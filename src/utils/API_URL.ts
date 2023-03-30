@@ -1,6 +1,8 @@
-import { ERP_DOMAIN, ERP_DOMAIN_LOGIN } from '../../public/config'
+import { ERP_DOMAIN, ERP_DOMAIN_LOGIN, ERP_DOMAIN_CHATS, ERP_DOMAIN_SOCKET } from '../../public/config'
 export const API_URL = ERP_DOMAIN
 export const LOGIN_API_URL = ERP_DOMAIN_LOGIN
+export const ERP_DOMAIN_CHATS_URL = ERP_DOMAIN_CHATS
+export const ERP_DOMAIN_SOCKET_URL = ERP_DOMAIN_SOCKET
 
 //Mã tạo tự động khi tạo đơn hàng
 export const GENERATE_CODE_API = {
@@ -249,4 +251,10 @@ export const ROLE_API = {
 export const TOOL_API = {
   GENERATE_CODE: '/api/v1/Tool/GenerateCode',
   DELETE_TEMPORARY_CODE: '/api/v1/Tool/DeleteTemporaryCode',
+}
+
+export const CHAT_API = {
+  USER_LIST_CHAT: '/api/users',
+  MESSAGE_LIST_GROUP_CHAT: '/api/message/',
+  GROUP_CHAT: '/api/groupChat/',
 }

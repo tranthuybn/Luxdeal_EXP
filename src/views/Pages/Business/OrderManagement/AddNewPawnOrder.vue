@@ -1758,9 +1758,11 @@ const editData = async () => {
       })
     )
   } else if (type == 'add' || !type) {
+    disabledTypeAdd.value = true
     ListOfProductsForSale.value.push({ ...productForSale })
   }
 }
+const disabledTypeAdd = ref(false)
 
 interface typeWarehouse {
   value: any
@@ -3524,7 +3526,7 @@ const finishOrder = async () =>{
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button text @click="openAdditionalDialog">+ {{ t('reuse.addAccountingEntry') }}</el-button>
+        <el-button text @click="openAdditionalDialog" :disabled="disabledTypeAdd">+ {{ t('reuse.addAccountingEntry') }}</el-button>
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ {{ t('reuse.addReceiptBill') }}</el-button
         >

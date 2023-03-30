@@ -223,7 +223,8 @@ export const filterService: Array<Filter> = [
   { text: t('reuse.rent'), value: 3 },
   { text: t('workplace.mortgage'), value: 4 },
   { text: t('workplace.spa'), value: 5 },
-  { text: t('reuse.internal'), value: 6 }
+  { text: t('workplace.spa'), value: 6 },
+  { text: t('reuse.internal'), value: 7 }
 ]
 export const filterSource: Array<Filter> = [
   { text: 'Facebook', value: 1 },

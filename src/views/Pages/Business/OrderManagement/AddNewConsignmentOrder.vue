@@ -1696,10 +1696,12 @@ const editData = async () => {
       })
     )
   } else if (type == 'add' || !type) {
+    disabledTypeAdd.value = true
     ListOfProductsForSale.value?.push({ ...productForSale })
   }
 }
 const valueMoneyAccoungtingEntry = ref(0)
+const disabledTypeAdd = ref(false)
 
 const autoChangeMoneyAccountingEntry = (_val, scope) => {
   valueMoneyAccoungtingEntry.value = 0
@@ -4495,11 +4497,7 @@ const createStatusAcountingEntry = () => {
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
 
-        <el-button
-          text
-          @click="openAdditionalDialog"
-          >+ {{ t('reuse.addAccountingEntry') }}</el-button
-        >
+        <el-button text @click="openAdditionalDialog" :disabled="disabledTypeAdd">+ {{ t('reuse.addAccountingEntry') }}</el-button>
         <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
           >+ {{ t('reuse.addReceiptBill') }}</el-button
         >
@@ -5003,6 +5001,7 @@ const createStatusAcountingEntry = () => {
   padding: 0 10px;
   overflow: auto;
 }
+
 ::v-deep(.el-upload--picture-card) {
   width: 160px;
   height: 40px;

@@ -88,6 +88,7 @@ export default {
     username: 'Username',
     password: 'Password',
     register: 'Register',
+    guide: "Guides",
     checkPassword: 'Confirm password',
     login: 'Sign in',
     otherLogin: 'Sign in with',

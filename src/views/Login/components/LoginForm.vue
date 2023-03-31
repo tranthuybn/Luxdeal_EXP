@@ -283,6 +283,13 @@ window.addEventListener('keyup', function(event) {
           {{ t('login.login') }}
         </ElButton>
       </div>
+      <div class="w-[100%] mt-15px">
+        <a href="./guide" target="_blank" >
+        <ElButton class="w-[100%]">
+          {{ t('login.guide') }}
+        </ElButton>
+      </a>
+      </div>
       <!-- bỏ chức năng đăng ký -->
       <!-- <div class="w-[100%] mt-15px">
         <ElButton class="w-[100%]" @click="toRegister">

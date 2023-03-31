@@ -40,6 +40,16 @@ export const constantRouterMap: AppRouteRecordRaw[] = [
     }
   },
   {
+    path: '/guide',
+    component: () => import('@/views/Login/User_guide_ERP_Luxdeal.vue'),
+    name: 'Guide',
+    meta: {
+      hidden: true,
+      title: "Guide",
+      noTagsView: true
+    }
+  },
+  {
     path: '/4044',
     component: () => import('@/views/Error/404.vue'),
     name: 'NoFind',

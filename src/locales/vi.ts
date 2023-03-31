@@ -88,6 +88,7 @@ export default {
     username: 'Tên tài khoản',
     password: 'Mật khẩu',
     register: 'Đăng ký',
+    guide : 'Hướng dẫn',
     checkPassword: 'Xác nhận mật khẩu',
     login: 'Đăng nhập',
     otherLogin: 'Đăng nhập với',

@@ -7,11 +7,15 @@ import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import { apiType, TableResponse } from '../../Type'
 import { ElButton } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
+import { useRouter } from 'vue-router'
 import { addOperatorColumn, dynamicApi, dynamicColumns } from '../../TablesReusabilityFunction'
 import { InputMoneyRange, InputDateRange, InputNumberRange, InputName } from '../index'
+import { usePermission } from '@/utils/tsxHelper'
 const { t } = useI18n()
 let paginationObj = ref<Pagination>()
 const tableRef = ref<TableExpose>()
+const { currentRoute } = useRouter()
+const userPermission = usePermission(currentRoute.value)
 const props = defineProps({
   api: {
     type: Function as PropType<apiType>,
@@ -147,10 +151,11 @@ defineExpose({
   tableObject
 })
 
+const operatorPermission = userPermission?.addable || userPermission?.deletable || userPermission?.editable
 onBeforeMount(() => {
   dynamicApi.value = props.api
   dynamicColumns.value = props.fullColumns
-  if (props.customOperator === 2 && props.customOperatorChildren == true)
+  if (props.customOperator === 2 && props.customOperatorChildren == true && operatorPermission)
     addOperatorColumn(dynamicColumns.value)
 })
 </script>

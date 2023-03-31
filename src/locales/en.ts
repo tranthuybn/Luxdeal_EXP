@@ -906,6 +906,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    chooseBirthday: 'Choose birthday',
     descIsTheStandardTime: 'Is the standard time',
     chooseWorkLevel: 'Choose work level',
     rankAndType: 'Rank and type',

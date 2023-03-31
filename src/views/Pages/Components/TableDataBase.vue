@@ -2,7 +2,7 @@
 import { TableData } from '@/api/table/types'
 import { useIcon } from '@/hooks/web/useIcon'
 import { ElButton } from 'element-plus'
-import { PropType, ref, unref, onBeforeMount, computed } from 'vue'
+import { PropType, ref, unref, onBeforeMount } from 'vue'
 import { HeaderFiler } from './HeaderFilter/index'
 import { TableExtension, TableBase } from './TableBase/index'
 import { TableResponse, apiType } from './Type'
@@ -13,14 +13,11 @@ import { useAppStore } from '@/store/modules/app'
 import moment from 'moment'
 import { ElNotification } from 'element-plus'
 import { excelParser } from './excel-parser'
-import { useCache } from '@/hooks/web/useCache'
-import { usePermissionStore } from '@/store/modules/permission'
+import { usePermission } from '@/utils/tsxHelper'
+
 const { currentRoute } = useRouter()
+const userPermission = usePermission(currentRoute.value)
 const { t } = useI18n()
-const { wsCache } = useCache()
-const permissionStore = usePermissionStore()
-permissionStore.checkRoleAndSetPermission(wsCache.get(permissionStore.routerByRoles),currentRoute.value )
-const userPermission = computed (()=>permissionStore.getUserPermission)
 const props = defineProps({
   columns: {
     type: Array as PropType<TableColumn[]>,
@@ -157,12 +154,12 @@ const getData = (data) => {
 }
 
 //add operator for every table
+const operatorPermission = userPermission?.addable || userPermission?.deletable || userPermission?.editable
 onBeforeMount(() => {
   dynamicApi.value = props.api
   dynamicColumns.value = props.columns
-  if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
+  if (!props.isOperatorColumnCustomize && operatorPermission ) addOperatorColumn(dynamicColumns.value)
 })
-
 
 const appStore = useAppStore()
 const Utility = appStore.getUtility

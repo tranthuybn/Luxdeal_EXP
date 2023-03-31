@@ -178,7 +178,7 @@ const rules = reactive<FormRules>({
     {
       type: 'date',
       required: true,
-      message: 'Vui lòng chọn ngày sinh',
+      message: t('reuse.chooseBirthday'),
       trigger: 'change'
     }
   ],
@@ -960,6 +960,9 @@ const deleteAccount = async () => {
                     :placeholder="t('reuse.confirmPasswordAgain')"
                     :disabled="isDisable"
                   />
+                </el-form-item>
+                <el-form-item>
+                  <el-button>{{ t('reuse.editPassword') }}</el-button>
                 </el-form-item>
 
                 <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">

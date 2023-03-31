@@ -958,6 +958,8 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    editPassword: 'Sửa mật khẩu',
+    chooseBirthday: 'Vui lòng chọn ngày sinh',
     descIsTheStandardTime: 'Là thời gian tiêu chuẩn',
     chooseWorkLevel: 'Chọn cấp bậc làm việc',
     rankAndType: 'Cấp bậc/loại hình',

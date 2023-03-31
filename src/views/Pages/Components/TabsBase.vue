@@ -12,7 +12,10 @@ import { useAppStore } from '@/store/modules/app'
 import moment from 'moment'
 import { ElNotification } from 'element-plus'
 import { excelParser } from './excel-parser'
+import { usePermission } from '@/utils/tsxHelper'
+ 
 const { currentRoute } = useRouter()
+const userPermission = usePermission(currentRoute.value)
 
 const { t } = useI18n()
 const props = defineProps({
@@ -58,8 +61,9 @@ function fnGetSelectedRecord(val) {
 
 // tab logic
 const route = useRoute()
-
 const currentTab = ref<string>('')
+const operatorPermission = userPermission?.addable || userPermission?.deletable || userPermission?.editable
+
 onBeforeMount(() => {
   if (Array.isArray(props.tabs) && props.tabs?.length > 0) {
     const theFirstTab = props.tabs[0]
@@ -67,7 +71,8 @@ onBeforeMount(() => {
 
     dynamicApi.value = theFirstTab.api
     dynamicColumns.value = theFirstTab.column
-    addOperatorColumn(dynamicColumns.value)
+    console.log(operatorPermission)
+    if (operatorPermission) addOperatorColumn(dynamicColumns.value)
     /*
      * alway set currentTab at the end of function after column and api
      * Due to current tab was set as a key of the table and the header filter
@@ -85,7 +90,7 @@ const tabChangeEvent = (name) => {
     const tab = props.tabs.find((el) => el.name === name)
     dynamicColumns.value = tab?.column
     dynamicApi.value = tab?.api ?? undefined
-    addOperatorColumn(dynamicColumns.value)
+    if (userPermission) addOperatorColumn(dynamicColumns.value)
   }
   emit('tabChangeEvent', name)
 }
@@ -151,7 +156,7 @@ const initMappingObject = (el) => {
       >
         <div :key="currentTab" v-if="item.name === currentTab">
           <HeaderFiler @get-data="getData" @refresh-data="getData">
-            <template #headerFilterSlot>
+            <template #headerFilterSlot v-if="userPermission?.addable">
               <div v-if="customHeaderButton === 'Warehouse'">
                 <el-button type="primary" :icon="addIcon" @click="pushWarehouse(1)">
                   Nhập kho
@@ -185,7 +190,8 @@ const initMappingObject = (el) => {
             :tabs="item.name"
             @selected-record="fnGetSelectedRecord"
             @total-record="fnGetTotalRecord"
-        /></div>
+          />
+        </div>
       </el-tab-pane>
     </el-tabs>
   </section>

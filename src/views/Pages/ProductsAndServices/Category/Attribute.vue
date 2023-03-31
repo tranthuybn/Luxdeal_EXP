@@ -25,7 +25,7 @@ const tabs: Array<Tab> = [
     api: getCategories,
     column: colorCategories,
     delApi: deleteCategory,
-    titleAdd: 'reuse.addNewCharacteristicColor'
+    titleAdd: 'reuse.addNewCharacteristicColor',
   },
   {
     name: PRODUCTS_AND_SERVICES[2].key,
@@ -33,7 +33,7 @@ const tabs: Array<Tab> = [
     api: getCategories,
     column: sizeCategories,
     delApi: deleteCategory,
-    titleAdd: 'reuse.addNewCharacteristicSize'
+    titleAdd: 'reuse.addNewCharacteristicSize',
   },
   {
     name: PRODUCTS_AND_SERVICES[3].key,
@@ -41,7 +41,7 @@ const tabs: Array<Tab> = [
     api: getCategories,
     column: materialCategories,
     delApi: deleteCategory,
-    titleAdd: 'reuse.addNewCharacteristicMaterial'
+    titleAdd: 'reuse.addNewCharacteristicMaterial',
   },
   {
     name: PRODUCTS_AND_SERVICES[4].key,
@@ -49,7 +49,7 @@ const tabs: Array<Tab> = [
     api: getCategories,
     column: statusCategories,
     delApi: deleteCategory,
-    titleAdd: 'reuse.addNewCharacteristicStatus'
+    titleAdd: 'reuse.addNewCharacteristicStatus',
   },
   {
     name: PRODUCTS_AND_SERVICES[5].key,
@@ -57,7 +57,7 @@ const tabs: Array<Tab> = [
     api: getCategories,
     column: genderCategories,
     delApi: deleteCategory,
-    titleAdd: 'reuse.addNewCharacteristicGender'
+    titleAdd: 'reuse.addNewCharacteristicGender',
   }
 ]
 
@@ -71,7 +71,6 @@ const getCurrentTab = () => {
   } else {
     params.TypeName = 'mausac'
   }
-  console.log('tab', tab)
 }
 let currentTab = ref('')
 

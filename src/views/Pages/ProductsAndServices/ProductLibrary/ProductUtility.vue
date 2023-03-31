@@ -276,7 +276,6 @@ const addLastRowAttribute = async () => {
   })
 }
 // Add mode cant open this Collapse
-const openLastCollapse = ref(false)
 const activeName = ref([collapse[0].name])
 const handleDeleteRow = async (scope) => {
   //newValue : newly created (havent post api)
@@ -1402,10 +1401,7 @@ const SellTableDialogClose = () => {
 //or when click PressAndAdd button
 const disabledTabOpen = ref(false)
 const newId = ref<number>()
-//type == '' && isNaN(id) =true  when refreshing page
-if ((type == '' && isNaN(id)) || type == 'add') {
-  disabledTabOpen.value = false
-}
+
 watch(
   () => newId,
   () => {
@@ -1560,7 +1556,7 @@ const disabledEverything = () =>{
     </el-dialog>
     <el-collapse-item :name="collapse[1].name">
       <template #title>
-        <el-button class="header-icon" :icon="collapse[1].icon" link />
+        <el-button @click="collapse[1].loading = false" class="header-icon" :icon="collapse[1].icon" link />
         <span class="text-center">{{ collapse[1].title }}</span>
       </template>
       <el-form ref="ruleTreeFormRef" :model="collapse[1].tableList">
@@ -1807,7 +1803,7 @@ const disabledEverything = () =>{
       >
     </el-collapse-item>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+      :close-on-click-modal="doCloseOnClickModal"
       v-model="rentTableVisible"
       :title="`${t('reuse.settingRentPrice')}/ ${rentDialogTitle}`"
       width="70%"
@@ -1937,7 +1933,7 @@ const disabledEverything = () =>{
       </div>
     </el-dialog>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+      :close-on-click-modal="doCloseOnClickModal"
       v-model="depositTableVisible"
       :title="`${t('reuse.settingDepositPrice')}/ ${depositDialogTitle}`"
       width="70%"
@@ -2023,7 +2019,7 @@ const disabledEverything = () =>{
       </div>
     </el-dialog>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+      :close-on-click-modal="doCloseOnClickModal"
       v-model="pawnTableVisible"
       :title="`${t('reuse.settingPawnPrice')}/ ${pawnDialogTitle}`"
       width="70%"
@@ -2113,7 +2109,7 @@ const disabledEverything = () =>{
       </div>
     </el-dialog>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+      :close-on-click-modal="doCloseOnClickModal"
       v-model="spaTableVisible"
       :title="`${t('reuse.settingSpaPrice')}/ ${spaDialogTitle}`"
       width="70%"
@@ -2230,7 +2226,7 @@ const disabledEverything = () =>{
       </div>
     </el-dialog>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+      :close-on-click-modal="doCloseOnClickModal"
       v-model="warehouseTableVisible"
       :title="`${t('reuse.inventoryTracking')}/ ${warehouseDialogTitle}`"
       width="70%"
@@ -2350,7 +2346,6 @@ const disabledEverything = () =>{
         <span class="text-center">{{ collapse[7].title }}</span>
       </template>
       <TableOperator
-        v-if="openLastCollapse"
         :type="type"
         :id="id"
         :imageRequired="true"

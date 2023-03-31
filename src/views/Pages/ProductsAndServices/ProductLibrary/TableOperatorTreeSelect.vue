@@ -19,8 +19,7 @@ import {
   ElTreeSelect,
   ElSelect,
   ElOption,
-  ElRadioGroup,
-  ElRadio
+  ElCheckbox
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -791,9 +790,9 @@ const loading = ref(false)
           </template>
           <template #IsActive="form">
             <!-- formatProductStatus cái này chưa chính xác trạng thái nên sửa lại -->
-            <el-radio-group v-model="form['IsActive']">
-              <el-radio :label="true" size="large">{{ t('reuse.active') }}</el-radio>
-            </el-radio-group>
+            <el-checkbox v-model="form['IsActive']" size="large" :disabled="type != 'edit' && form['ProductStatus'] == 1">
+              {{ t('reuse.active') }}
+            </el-checkbox>
             <span class="text-[#FECB80]">({{ t('reuse.allBusinessRelatedActivities') }})</span>
 
             <div class="break" v-if="form['ProductStatus'] == 1">

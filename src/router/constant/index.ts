@@ -41,7 +41,7 @@ export const constantRouterMap: AppRouteRecordRaw[] = [
   },
   {
     path: '/guide',
-    component: () => import('@/views/Login/components/User_guide_ERP_Luxdeal.vue'),
+    component: () => import('@/views/Login/User_guide_ERP_Luxdeal.vue'),
     name: 'Guide',
     meta: {
       hidden: true,

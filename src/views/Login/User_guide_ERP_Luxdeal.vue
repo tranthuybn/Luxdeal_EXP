@@ -35,7 +35,7 @@ export default {
 
   mounted() {
     let recaptchaScript = document.createElement('script')
-      recaptchaScript.setAttribute('src', './guide/guide.js')
+      recaptchaScript.setAttribute('src', './component/guide/guide.js')
       document.head.appendChild(recaptchaScript)
   },
 };

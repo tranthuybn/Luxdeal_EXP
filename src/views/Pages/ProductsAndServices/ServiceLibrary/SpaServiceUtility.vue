@@ -17,7 +17,7 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-
+const activeService = ref(true)
 //random field code
 const curDate = 'SPA' + moment().format('hhmmss')
 
@@ -145,13 +145,17 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 18
     },
+    value: activeService.value,
     componentProps: {
       options: [
         {
           label: t('formDemo.isActive'),
-          value: true
-        }
-      ]
+          value: activeService.value,
+        },
+      ],
+      onClick: (e) => {console.log(e)
+        activeService.value = !activeService.value
+      }
     }
   },
   {
@@ -181,18 +185,11 @@ const rules = reactive({
     { validator: ValidService.checkDescriptionLength.validator }
   ],
   cost: [required(),{ validator: ValidService.checkPositiveNumber.validator }],
-  time: [required()],
+  time: [required(), ValidService.checkPositiveNumber],
   promotePrice: [required(), { validator: ValidService.checkPositiveNumber.validator }],
   warranty: [
     required(),
-    {
-      validator: (_rule: any, value: any, callback: any) => {
-        if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
-        callback()
-      },
-      required: false,
-      trigger: 'blur'
-    }
+    ValidService.checkPositiveNumber
   ],
 
 })
@@ -237,13 +234,12 @@ const customPostData = (data) => {
   customData.Name = data.name
   customData.Code = data.code
   customData.IsActive = data.status
-  customData.UpdatedBy = 'katsuke'
-  customData.CreatedBy = 'katnguyen'
   customData.UpdatedAt = curDate.toString()
   customData.CreatedAt = curDate.toString()
   customData.IsApproved = false
   return customData
 }
+
 const { push } = useRouter()
 const editData = async (data) => {
   const payload = {
@@ -270,7 +266,6 @@ const editData = async (data) => {
     )
 }
 const postData = async (data) => {
-  console.log('có vào đây ko')
   data = customPostData(data)
   await postSpa(FORM_IMAGES(data))
     .then(() => {

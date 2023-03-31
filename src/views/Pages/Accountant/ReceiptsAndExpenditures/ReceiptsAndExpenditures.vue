@@ -130,6 +130,7 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.status'),
     minWidth: '150',
     filters: filterStatusAccounting,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${formatStatusAccounting(cellValue)}`)
     },

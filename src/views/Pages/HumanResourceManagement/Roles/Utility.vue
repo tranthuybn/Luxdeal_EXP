@@ -85,7 +85,8 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('reuse.inputName'),
       disabled: typeOfActivity.value == 'detail'
-    }
+    },
+
   },
   {
     field: 'description',
@@ -291,9 +292,13 @@ const createOrEditRoleEvent = (goOut = true) => {
       const listRouters = elTReeCheckedNode.value.concat(elTReeIndeterminateNodes,utilitiesRoutes)
       const { getFormData } = methods
       const formData = await getFormData()
+      const customFormData = {
+        description: formData?.description,
+        roleName: formData?.roleName.trim()
+      }
       if (listRouters.length > 0) {
         const params = {
-          ...formData,
+          ...customFormData,
           isActive: roleStatus.value,
           router: listRouters?.map(el => ({
             url: el.url ?? '',

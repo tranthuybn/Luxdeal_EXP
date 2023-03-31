@@ -286,7 +286,7 @@ window.addEventListener('keyup', function(event) {
       <div class="w-[100%] mt-15px">
         <a href="./guide" target="_blank" >
         <ElButton class="w-[100%]">
-          Hướng dẫn
+          {{ t('login.guide') }}
         </ElButton>
       </a>
       </div>

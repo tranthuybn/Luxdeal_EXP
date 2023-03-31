@@ -375,10 +375,6 @@ const disabledDate = (time: Date) => {
   return time.getTime() > Date.now()
 }
 
-const formatDate = () => {
-  console.log(ruleForm.doB)
-}
-
 const size = ref<'' | 'large' | 'small'>('')
 
 const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstance | undefined) => {
@@ -514,6 +510,7 @@ const postData = async (typebtn) => {
       ConfirmPassword: ruleForm.confirmPassword,
       RoleId: ruleForm.roleAcces || 0,
     }
+    console.log('post lên', payload.FileId)
     const formDataPayLoad = FORM_IMAGES(payload)
     await addNewStaff(formDataPayLoad)
       .then(() => {
@@ -557,7 +554,7 @@ const getTableValue = async () => {
   }
   if (type == 'detail' || type == 'edit') {
     isDisable.value = type === 'detail'
-    showPassword.value = !isDisable.value
+    showPassword.value = false
     ruleForm.isActive = formValue.value?.isActive
     ruleForm.customerCode = formValue.value?.code
     if (formValue.value?.sex) {
@@ -601,8 +598,8 @@ const getTableValue = async () => {
     ruleForm.Address = formValue.value.address
     ruleForm.userName = formValue.value.username
     ruleForm.roleAcces = formValue.value.roleId
+    console.log(formValue.value)
     ListFileUpload.value =  formValue.value.path
-    // ListFileUpload.value = formValue.value.fieldId
   }
 }
 
@@ -610,7 +607,7 @@ const getTableValue = async () => {
 const editData = async (typebtn) => {
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
-    const payload = {
+    const payload : any = {
       Id: formValue.value.id,
       Code: ruleForm.staffCode,
       Name: ruleForm.name,
@@ -637,9 +634,12 @@ const editData = async (typebtn) => {
       BankId: ruleForm.bankName,
       RoleId: ruleForm.roleAcces,
       OldPassword: ruleForm.userName,
-      Password: ruleForm.password,
-      ConfirmPassword: ruleForm.confirmPassword,
     }
+    if(ruleForm.password && ruleForm.confirmPassword) {
+      payload.Password = ruleForm.password
+      payload.ConfirmPassword = ruleForm.confirmPassword
+    }
+
     const formDataPayLoad = FORM_IMAGES(payload)
     await updeteStaffAccount(formDataPayLoad)
       .then(() => {
@@ -693,6 +693,16 @@ const deleteAccount = async () => {
       type: 'error'
     })
   )
+}
+
+const showCancelEditPassword = ref(false)
+const editPassword = () => {
+  showPassword.value = true
+  showCancelEditPassword.value = true
+}
+const cancelEditPassword = () => {
+  showPassword.value = false
+  showCancelEditPassword.value = false
 }
 
 </script>
@@ -813,7 +823,6 @@ const deleteAccount = async () => {
                           :editable="false"
                           format="DD/MM/YYYY"
                           value-format="YYYY-MM-DD"
-                          @change="formatDate"
                           :disabled="isDisable"
                         />
                       </el-form-item>
@@ -961,8 +970,9 @@ const deleteAccount = async () => {
                     :disabled="isDisable"
                   />
                 </el-form-item>
-                <el-form-item>
-                  <el-button>{{ t('reuse.editPassword') }}</el-button>
+                <el-form-item v-if="type == 'edit'">
+                  <el-button @click="editPassword">{{ t('reuse.editPassword') }}</el-button>
+                  <el-button v-if="showCancelEditPassword" @click="cancelEditPassword">{{ t('reuse.cancelEditPassword') }}</el-button>
                 </el-form-item>
 
                 <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">

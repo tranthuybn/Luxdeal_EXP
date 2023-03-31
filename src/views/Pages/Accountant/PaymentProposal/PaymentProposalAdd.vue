@@ -14,7 +14,8 @@ import {
   ElInput,
   ElForm,
   ElFormItem,
-  ElDatePicker  
+  ElDatePicker,
+  ElNotification 
 } from 'element-plus'
 import type {FormRules, FormInstance} from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -41,6 +42,7 @@ const { t } = useI18n()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const ruleFormRef = ref<FormInstance>()
+const formValue = ref()
 const router = useRouter()
 const route = useRoute()
 const curCode = 'DNTT' + moment().format('hhmmss')
@@ -222,9 +224,35 @@ const postData = async() => {
 }
 
 const getDetailPayment = async() => {
-  const res = await GetPaymentRequestDetail({id: id})
-  form.value = res.data.paymentRequest
-  tableData.value = res.data.paymentRequestDetail
+  if(!isNaN(id)) {
+    const res = await GetPaymentRequestDetail({id: id})
+    if(res) {
+      formValue.value  = res.data.paymentRequest
+      tableData.value = res.data.paymentRequestDetail
+      await setFormValue()
+    } else {
+      ElNotification({
+        message: t('reuse.cantGetData'),
+        type: 'warning'
+      })
+    }
+  }
+
+}
+
+const setFormValue = () => {
+  const data = formValue.value
+  form.value.code = data.code
+  form.value.createdAt = data.createdAt
+  form.value.createdBy = data.createdBy
+  form.value.description = data.description
+  form.value.peopleId = data.peopleId
+  form.value.debtMoney = data.debtMoney
+  form.value.typeOfPayment = data.paymentType
+  form.value.depositeMoney = data.depositeMoney
+  form.value.totalMoney = data.totalMoney
+  form.value.enterMoney = data.enterMoney
+  form.value.totalPrice = data.totalPrice
 }
 
 onBeforeMount(async () => {
@@ -277,16 +305,19 @@ const approvalPayments = async (checkApproved) => {
     name: `accountant.payment-proposal.payment-proposal-list`
   })
 }
-const disabledEdit = ref(false)
 
 // Xem detail or edit or approved 
 const editData = () => {
   if (type == 'approval' || type == 'detail' || type == 'edit') {
-    disabledEdit.value = true
     getDetailPayment()
   } else {
     onAddItem()
   }
+}
+
+const getRules = () => {
+  if(type == 'add' || type == 'edit') return rules
+  return {}
 }
 
 </script>
@@ -304,7 +335,7 @@ const editData = () => {
       <el-row :gutter="20">
         <el-col :span="12">
           <el-divider content-position="left">{{ t('reuse.paymentRequestInfo') }}</el-divider>
-          <el-form ref="ruleFormRef" :model="form" :rules="rules" label-width="160px">
+          <el-form ref="ruleFormRef" :model="form" :rules="getRules()" label-width="160px">
             <el-form-item prop="code" :label="t('formDemo.formCode')">
               <div>{{ form.code }}</div>
             </el-form-item>

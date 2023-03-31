@@ -507,6 +507,7 @@ onBeforeMount(async () => {
         item.children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
     }))
 })
+
 const handleScroll = (field) => {
   switch (field) {
     case 'createdBy' :

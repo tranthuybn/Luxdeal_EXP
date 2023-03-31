@@ -97,6 +97,7 @@ const callApiProductList = async () => {
     productPropertyId: product.id,
     productPropertyCode: product.productCode,
     name: product.name,
+    inventory: product.tonKho,
     unit: product.unitName
   }))
   ListOfProductsForSale.value.forEach(row=>{
@@ -177,7 +178,8 @@ const ScrollProductBottom = () => {
                   productCode: product.code,
                   productPropertyId: product.id,
                   productPropertyCode: product.productCode,
-                  name: product.name
+                  name: product.name,
+                  inventory: product.tonKho
                 })
               )
         })
@@ -365,7 +367,8 @@ const searchProduct = async (keyword) => {
       productCode: product.code,
       productPropertyId: product.id,
       productPropertyCode: product.productCode,
-      name: product.name
+      name: product.name,
+    inventory: product.tonKho
     }))
   } else {
     tempListProducts.value = listProducts.value
@@ -406,7 +409,8 @@ const disabled = computed(() => {
           :fields="[
             t('reuse.productCode'),
             t('reuse.managementCode'),
-            t('reuse.productInformation')
+            t('reuse.productInformation'),
+            t('reuse.inventory')
           ]"
           width="500px"
           :items="tempListProducts"
@@ -510,10 +514,11 @@ const disabled = computed(() => {
     </el-table-column>
     <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
       <template #default="props">
-        <button
+        <el-button
+          :disabled="type == 'detail'"
           @click="removeRow(props)"
-          class="bg-[#F56C6C] pt-2 pb-2 pl-4 pr-4 text-[#fff] rounded"
-          >{{ t('reuse.delete') }}</button
+          type="danger"
+          >{{ t('reuse.delete') }}</el-button
         >
       </template>
     </el-table-column>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { TableData } from '@/api/table/types'
 import { ContentWrap } from '@/components/ContentWrap'
-import { Table, TableExpose } from '@/components/Table'
-import { onBeforeMount, PropType, ref, unref, watch } from 'vue'
+import { Table } from '@/components/Table'
+import { computed, onBeforeMount, PropType, ref, unref, watch } from 'vue'
 import {
   ElButton,
   ElDrawer,
@@ -21,12 +21,21 @@ import { useTable } from '@/hooks/web/useTable'
 import { inject } from 'vue'
 import { appModules } from '@/config/app'
 import { TableResponse } from '../../Type'
-import { GetRouterByStaffAccountId } from '@/api/login'
+import { usePermissionStore } from '@/store/modules/permission'
+import { useCache } from '@/hooks/web/useCache'
+
 //provide from main component
 const { params }: any = inject('parameters', {})
 const { t } = useI18n()
+
 const route = useRoute()
-const tableRef = ref<TableExpose>()
+const { currentRoute} = useRouter()
+const { wsCache } = useCache()
+const permissionStore = usePermissionStore()
+
+permissionStore.checkRoleAndSetPermission(wsCache.get(permissionStore.routerByRoles),currentRoute.value )
+const userPermission = computed (()=>permissionStore.getUserPermission)
+
 const props = defineProps({
   api: {
     type: Function as PropType<any>,
@@ -82,10 +91,6 @@ const props = defineProps({
     default: 'Warning',
     description: 'Tiêu đề thông báo khi ấn nút xóa'
   },
-  typeButton: {
-    type: String,
-    default: ''
-  },
   currentT: [String, Number],
   apiHasPagination: {
     type: Boolean,
@@ -119,19 +124,7 @@ const { register, tableObject, methods } = useTable<TableData>({
   }
 })
   
-const accountId = JSON.parse(JSON.parse(localStorage.getItem('ACCOUNT_ID')?.toString() || '').v)
-const isEdit = ref(false)
-const isDelete = ref(false)
 
-const getRole = () => {
-  GetRouterByStaffAccountId({ id: accountId }).then(res => {
-    const routerRole = res.data.find(el => el.url == router.currentRoute.value.path)
-    if (routerRole?.editable == true) isEdit.value = true
-    else isEdit.value = false
-    if (routerRole?.deletable == true) isDelete.value = true
-    else isDelete.value = false
-  })
-}
 
 // get api
 let paginationObj = ref<Pagination>()
@@ -142,7 +135,7 @@ const getData = (data = {}) => {
 }
 onBeforeMount(() => {
   getData()
-  getRole()
+
 })
 // execute pagination
 watch(
@@ -197,17 +190,6 @@ const filterChange = (filterValue) => {
   setSearchParams(filterValue)
 }
 const { utility } = appModules
-
-const handleClickAdd = () => {
-  push({
-    name: `human-resource-management.department-directory.${utility}`,
-    params: {
-      backRoute: 'human-resource-management.department-directory',
-      tab: props.typeButton,
-      type: 'add'
-    }
-  })
-}
 const sortValue = ref()
 let sortObj = {}
 const lastSort = ref('')
@@ -322,7 +304,6 @@ const ColumnsHaveHeaderFilter = props.fullColumns.filter((col) => col.headerFilt
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
 const trashIcon = useIcon({ icon: 'fluent:delete-12-filled' })
-const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const drawer = ref(false)
 const showingColumnList = ref<Array<string>>(
   props.fullColumns.length > 0 ? props.fullColumns.map((el) => el.field)?.filter((el) => el) : []
@@ -348,6 +329,16 @@ const updateTableColumn = () => {
   temporaryColumn.value = props.fullColumns.filter((el) =>
     showingColumnList.value.includes(el.field)
   )
+}
+const setOperatorIcon = (icon) => { 
+  if (props.customOperator !== 2 && icon)
+    return icon
+    return ''
+}
+const setOperatorType = (type)=> { 
+  if (props.customOperator === 2 && type)
+    return type
+    return ''
 }
 
 </script>
@@ -393,33 +384,32 @@ const updateTableColumn = () => {
           v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"
           @cancel="cancel" />
       </template>
-      <template v-if="!(customOperator === 3)" #operator="{ row }">
-        <div v-if="customOperator === 1">
-          <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
-          <ElButton v-if="isEdit == true" @click="action(row, 'edit')" :icon="editIcon" />
-          <ElButton v-if="isDelete == true" @click="delData(row, false)" :icon="trashIcon" />
-        </div>
-        <div v-if="customOperator === 2">
-          <ElButton v-if="buttonShow" type="primary" @click="action(row, 'editRow')" plain>
-            {{ t('reuse.fix') }}
+      <template v-if="customOperator !== 3 && userPermission" #operator="{ row }">
+         <ElButton  
+            v-if="userPermission?.editable && [1,4,5].includes(customOperator)"
+            @click="action(row, 'detail')" 
+            :icon="setOperatorIcon(eyeIcon)"
+             :type="setOperatorType('primary')"
+             :plain="customOperator === 2"
+             >
+             {{ customOperator === 2? t('reuse.fix'): '' }}
           </ElButton>
-          <ElButton v-if="!buttonShow" type="primary" @click="action(row, 'saveRow')">
-            {{ t('reuse.save') }}
+          <ElButton 
+              v-if="userPermission?.editable && [1,2,5].includes(customOperator)"  
+              @click="action(row, 'edit')" 
+              :icon="setOperatorIcon(editIcon)" 
+              :type="setOperatorType('primary')" 
+            >
+            {{ customOperator === 2? t('reuse.save') : ''}}
           </ElButton>
-          <ElButton type="danger" @click="action(row, 'delete')">
-            {{ t('reuse.delete') }}
+          <ElButton 
+              v-if="userPermission?.deletable && [1,2].includes(customOperator)" 
+              @click="delData(row, false)" 
+              :icon="setOperatorIcon(trashIcon)" 
+              :type="setOperatorType('danger')"
+            >
+            {{ customOperator === 2? t('reuse.delete'): '' }}
           </ElButton>
-        </div>
-        <div v-if="customOperator === 4">
-          <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
-        </div>
-        <div v-if="customOperator === 5">
-          <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
-          <ElButton @click="action(row, 'edit')" :icon="editIcon" />
-        </div>
-        <div v-if="customOperator === 6">
-          <ElButton @click="action(row, 'edit')" :icon="eyeIcon" />
-        </div>
       </template>
       <template #switch="data">
         <ElSwitch v-model="data.row.switch" @change="localeChange" />
@@ -428,8 +418,6 @@ const updateTableColumn = () => {
         <slot name="expand"></slot>
       </template>
     </Table>
-    <ElButton v-if="!(props.titleButtons === '')" @click="handleClickAdd" id="bt-add" :icon="plusIcon" class="mx-12">
-      {{ props.titleButtons }}</ElButton>
   </ContentWrap>
 </template>
 <style lang="less" scoped>

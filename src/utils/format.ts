@@ -29,6 +29,8 @@ export const formatProductStatus = (val) => {
       return ''
   }
 }
+
+
 export const formatSettingPointStatus = (val) => {
   if (val) {
     return t('reuse.active')
@@ -127,7 +129,7 @@ export const formatStatusRatingEmployee = (val) => {
 
 }
 
-export const formatPaymentOrReceipts = (val) => {
+export const formatPaymentMethod = (val) => {
   switch (val) {
     case 1:
       return t('reuse.payThroughMoney')
@@ -138,11 +140,11 @@ export const formatPaymentOrReceipts = (val) => {
   }
 }
 
-export const formatPaymentMethod = (val) => {
+export const formatPaymentOrReceipts = (val) => {
   switch (val) {
     case 1:
       return t('reuse.get')
-    case 2:
+    case 0:
       return t('reuse.spend')
     default:
       return ''
@@ -200,6 +202,8 @@ export const productStatusTransferToText = (val) => {
   if (val.isActive) return `${t('reuse.active')}`
   else return `${t('reuse.inactive')}`
 }
+
+
 
 export const formatStatusEmployee = (val) => {
   switch (val) {
@@ -480,6 +484,19 @@ export const statusOrder = (val) => {
       return t('reuse.successfulDelivery')
     case 4:
       return t('formDemo.receivedDelivery')
+    default:
+      return ''
+  }
+}
+
+export const formatStatusProductAndService = (val) => {
+  switch (val) {
+    case 0:
+      return t('reuse.approval')
+    case 1:
+      return t('reuse.active')
+    case 2:
+      return t('reuse.pause')
     default:
       return ''
   }

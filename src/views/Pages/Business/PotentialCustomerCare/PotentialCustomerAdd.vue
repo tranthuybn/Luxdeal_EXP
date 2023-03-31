@@ -46,7 +46,7 @@ const rules = reactive({
   taxCode: [requiredOption()],
   customerName: [required()],
   phonenumber: [required(), ValidService.checkPhone],
-  email: [required(), ValidService.checkEmail],
+  email: [ ValidService.checkEmail],
   percentageOfSales: [ValidService.checkNumber]
 })
 type FormValueType = string | number | boolean
@@ -321,24 +321,23 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     field: 'supplier',
     label: '',
     component: 'Select',
-    value: 'Khách hàng',
+    value: t('reuse.customer'),
     componentProps: {
       allowCreate: true,
       filterable: true,
       style: 'width: 100%',
-      placeholder: t('reuse.supplier'),
       options: [
         {
-          value: 'Khách hàng',
-          label: 'Khách hàng'
+          value: t('reuse.customer'),
+          label: t('reuse.customer')
         },
         {
-          value: 'Nhà cung cấp',
-          label: 'Nhà cung cấp'
+          value: t('reuse.supplier'),
+          label: t('reuse.supplier')
         },
         {
-          value: 'Chung',
-          label: 'Chung'
+          value: t('formDemo.joint'),
+          label: t('formDemo.joint')
         }
       ]
     },
@@ -745,8 +744,8 @@ const getOrdersOptions = async () => {
       .then((res) => {
         if (res.data) {
           OrdersSelect = res.data.map((tag) => ({
-            label: tag.key,
-            value: tag.key,
+            label: tag.code,
+            value: tag.id,
             id: tag.id
           }))
         }

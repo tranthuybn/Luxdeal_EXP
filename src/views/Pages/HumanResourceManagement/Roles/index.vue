@@ -17,7 +17,8 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'name',
     label: t('reuse.setRole'),
-    minWidth: '250'
+    minWidth: '250',
+    filters: []
   },
   {
     field: 'description',
@@ -51,7 +52,13 @@ const columns = reactive<TableColumn[]>([
         () =>filterStatusSettingPoint.find((el)=>el.value === cellValue)?.text ?? ''
       )
     }
-  }
+  },
+  {
+    field: 'employee',
+    label: t('formDemo.numberPersonnel'),
+    minWidth: '100',
+    align: 'center'
+  },
 ])
 </script>
 <template>

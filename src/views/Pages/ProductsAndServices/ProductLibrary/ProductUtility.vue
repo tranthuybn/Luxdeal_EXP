@@ -276,7 +276,6 @@ const addLastRowAttribute = async () => {
   })
 }
 // Add mode cant open this Collapse
-const openLastCollapse = ref(false)
 const activeName = ref([collapse[0].name])
 const handleDeleteRow = async (scope) => {
   //newValue : newly created (havent post api)
@@ -586,11 +585,11 @@ const postData = async (data) => {
         await getAttributeData()
       }
     })
-    .catch(() => {
+    .catch((error)=>{
       ElNotification({
-        message: t('reuse.saveFail'),
-        type: 'error'
-      })
+          message: error.response.data.message ?? t('reuse.saveFail'),
+          type: 'error'
+        })
       apiStatus.value = false
     })
     //maybe use async await
@@ -1402,10 +1401,7 @@ const SellTableDialogClose = () => {
 //or when click PressAndAdd button
 const disabledTabOpen = ref(false)
 const newId = ref<number>()
-//type == '' && isNaN(id) =true  when refreshing page
-if ((type == '' && isNaN(id)) || type == 'add') {
-  disabledTabOpen.value = true
-}
+
 watch(
   () => newId,
   () => {
@@ -1424,7 +1420,10 @@ const categoriesToString = (categories) => {
   }
   return categoriesLabel.toString()
 }
-//glhf:)
+
+const disabledEverything = () =>{
+  disabledTabOpen.value = true
+}
 </script>
 <template>
   <el-collapse
@@ -1456,6 +1455,7 @@ const categoriesToString = (categories) => {
           'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
         ]"
         :apiStatus="apiStatus"
+        @disabled="disabledEverything"
       />
     </el-collapse-item>
     <el-dialog
@@ -1556,7 +1556,7 @@ const categoriesToString = (categories) => {
     </el-dialog>
     <el-collapse-item :name="collapse[1].name">
       <template #title>
-        <el-button class="header-icon" :icon="collapse[1].icon" link />
+        <el-button @click="collapse[1].loading = false" class="header-icon" :icon="collapse[1].icon" link />
         <span class="text-center">{{ collapse[1].title }}</span>
       </template>
       <el-form ref="ruleTreeFormRef" :model="collapse[1].tableList">
@@ -1629,19 +1629,19 @@ const categoriesToString = (categories) => {
                   :icon="plusIcon"
                   link
                   :disabled="type == 'detail'"
-                  :type="scope.row.bussinessSetups[2].hasPrice ? 'primary' : 'warning'"
+                  :type="scope.row.bussinessSetups[1].hasPrice ? 'primary' : 'warning'"
                   @click="openRentTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
                 >
                 <ElSwitch
-                  :model-value="scope.row.bussinessSetups[2]?.value"
+                  :model-value="scope.row.bussinessSetups[1]?.value"
                   :disabled="!scope.row.edited"
                   size="large"
                   inline-prompt
                   active-text="On"
                   inactive-text="Off"
                   @click="warningForSwitch(!scope.row.edited)"
-                  @change="(data) => changeDataSwitch(scope, data, 2)"
+                  @change="(data) => changeDataSwitch(scope, data, 1)"
                 />
               </div>
             </template>
@@ -1803,7 +1803,7 @@ const categoriesToString = (categories) => {
       >
     </el-collapse-item>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+      :close-on-click-modal="doCloseOnClickModal"
       v-model="rentTableVisible"
       :title="`${t('reuse.settingRentPrice')}/ ${rentDialogTitle}`"
       width="70%"
@@ -1933,7 +1933,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+      :close-on-click-modal="doCloseOnClickModal"
       v-model="depositTableVisible"
       :title="`${t('reuse.settingDepositPrice')}/ ${depositDialogTitle}`"
       width="70%"
@@ -2019,7 +2019,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+      :close-on-click-modal="doCloseOnClickModal"
       v-model="pawnTableVisible"
       :title="`${t('reuse.settingPawnPrice')}/ ${pawnDialogTitle}`"
       width="70%"
@@ -2109,7 +2109,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+      :close-on-click-modal="doCloseOnClickModal"
       v-model="spaTableVisible"
       :title="`${t('reuse.settingSpaPrice')}/ ${spaDialogTitle}`"
       width="70%"
@@ -2226,7 +2226,7 @@ const categoriesToString = (categories) => {
       </div>
     </el-dialog>
     <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+      :close-on-click-modal="doCloseOnClickModal"
       v-model="warehouseTableVisible"
       :title="`${t('reuse.inventoryTracking')}/ ${warehouseDialogTitle}`"
       width="70%"
@@ -2346,7 +2346,6 @@ const categoriesToString = (categories) => {
         <span class="text-center">{{ collapse[7].title }}</span>
       </template>
       <TableOperator
-        v-if="openLastCollapse"
         :type="type"
         :id="id"
         :imageRequired="true"

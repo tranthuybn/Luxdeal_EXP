@@ -102,6 +102,10 @@ const close = () => {
 
 // Hàm emit để xử lý trên component cha
 const postReturnRequest = async (orderStatusType) => {
+  if(orderStatusType == 5 && !rentExtensionValue.value){
+    ElMessage.info(t('reuse.pleaseChooseDate'))
+    return
+  }
   emit('post-return-request', orderStatusType, tableAheadOfTime.value, rentExtensionValue.value, tableExpend.value)
   emit('update:modelValue', false)
 }

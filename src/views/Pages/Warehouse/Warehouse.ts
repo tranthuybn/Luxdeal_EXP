@@ -327,7 +327,7 @@ export const wareHouseContainer = [
     }
   },
   {
-    field: 'changeThisToOrderType',
+    field: 'serviceType',
     label: t('reuse.productType'),
     minWidth: '100',
     formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {

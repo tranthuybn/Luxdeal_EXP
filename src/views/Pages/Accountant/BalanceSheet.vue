@@ -6,6 +6,7 @@ import { h, provide, ref } from 'vue'
 import { filterStatusBalance } from '@/utils/filters'
 import { changeMoney } from '@/utils/tsxHelper'
 import moment from 'moment'
+import { filterHandler } from '@/utils/tsxHelper'
 
 const { t } = useI18n()
 const getSummaries = (param) => {
@@ -61,10 +62,7 @@ const columns = [
         minWidth: '100',
         headerAlign: 'center',
         align: 'right',
-        formatter: (row, _column, _cellValue) => {
-          const x = changeMoney.format(parseInt(row.beginningPeriodRevenue))
-          return x
-        }
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.beginningPeriodRevenue))
       },
       {
         field: 'beginningPeriodPayment',
@@ -72,10 +70,7 @@ const columns = [
         minWidth: '100',
         headerAlign: 'center',
         align: 'right',
-        formatter: (row, _column, _cellValue) => {
-          const x = changeMoney.format(parseInt(row.beginningPeriodPayment))
-          return x
-        }
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.beginningPeriodPayment))
       }
     ]
   },
@@ -90,14 +85,16 @@ const columns = [
         label: t('reuse.get'),
         minWidth: '100',
         headerAlign: 'center',
-        align: 'right'
+        align: 'right',
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.duringPeriodRevenue))
       },
       {
         field: 'duringPeriodPayment',
         label: t('reuse.spend'),
         minWidth: '100',
         headerAlign: 'center',
-        align: 'right'
+        align: 'right',
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.duringPeriodPayment))
       }
     ]
   },
@@ -112,14 +109,16 @@ const columns = [
         label: t('reuse.get'),
         minWidth: '100',
         headerAlign: 'center',
-        align: 'right'
+        align: 'right',
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.endPeriodRevenue))
       },
       {
         field: 'endPeriodpayment',
         label: t('reuse.spend'),
         minWidth: '100',
         headerAlign: 'center',
-        align: 'right'
+        align: 'right',
+        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.endPeriodpayment))
       }
     ]
   },
@@ -128,12 +127,10 @@ const columns = [
     label: t('reuse.status'),
     minWidth: '130',
     filters: filterStatusBalance,
+    filterMethod: filterHandler,
     formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
-      if (record.isActive == false) {
-        return h('div', t('reuse.stopActive'))
-      } else {
-        return h('div', t('reuse.active'))
-      }
+      if (record.isActive == false) return h('div', t('reuse.stopActive'))
+      return h('div', t('reuse.active'))
     }
   },
   {
@@ -154,13 +151,10 @@ provide('parameters', {params})
   <TableType01
     :columns="columns"
     :api="getAccountantList"
-    :customOperator="6"
+    :customOperator="4"
     :titleAdd="t('reuse.addAccount')"
     :showSummary="true"
     :getSummaries="getSummaries"
   />
   
 </template>
-
-<style lang="less" scoped>
-</style>

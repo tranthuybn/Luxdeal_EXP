@@ -186,9 +186,9 @@ const postData = async (data) => {
       })
     )
     .catch((error) =>
-      ElNotification({
-        message: error,
-        type: 'warning'
+    ElNotification({
+        message: error.response.data.message ?? t('reuse.addFail'),
+        type: 'error'
       })
     )
   if (data.backRouter == true) {

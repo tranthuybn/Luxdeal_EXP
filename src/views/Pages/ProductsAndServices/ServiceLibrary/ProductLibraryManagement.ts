@@ -1,8 +1,9 @@
 import { useI18n } from '@/hooks/web/useI18n'
-import { filterProductStatus } from '@/utils/filters'
-import { productStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import { filterStatusProductAndService } from '@/utils/filters'
+import { formatStatusProductAndService, dateTimeFormat } from '@/utils/format'
 import { h } from 'vue'
 import { setImageDisplayInTable } from '@/utils/domUtils'
+import { changeMoney, filterHandler } from '@/utils/tsxHelper'
 
 const { t } = useI18n()
 export const businessProductLibrary = [
@@ -18,19 +19,16 @@ export const businessProductLibrary = [
     field: 'code',
     label: t('reuse.serviceCode'),
     minWidth: '150',
-    headerAlign: 'left',
   },
   {
     field: 'name',
     label: t('reuse.serviceName'),
     minWidth: '250',
-    headerAlign: 'left',
   },
   {
     field: 'description',
     label: t('reuse.description'),
     minWidth: '250',
-    headerAlign: 'left',
     formatter: (_: Recordable, __: TableColumn, cellValue: any) => {
       return h('span', { innerHTML: cellValue })
     }
@@ -41,23 +39,19 @@ export const businessProductLibrary = [
     minWidth: '150',
     align: 'right',
     sortable: true,
-    headerAlign: 'left',
+    formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.cost))
   },
   {
     field: 'time',
     label: t('reuse.timeMinute'),
     minWidth: '150',
-    align: 'center',
     sortable: true,
-    headerAlign: 'left',
   },
   {
     field: 'warranty',
     label: t('reuse.insuranceDate'),
     minWidth: '150',
-    align: 'center',
     sortable: true,
-    headerAlign: 'left',
   },
   {
     field: 'photos',
@@ -72,9 +66,7 @@ export const businessProductLibrary = [
     field: 'createdAt',
     label: t('formDemo.createdAtEdit'),
     minWidth: '180',
-    align: 'center',
     sortable: true,
-    headerAlign: 'left',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     }
@@ -83,25 +75,22 @@ export const businessProductLibrary = [
     field: 'createdBy',
     label: t('formDemo.createdByEdit'),
     minWidth: '180',
-    align: 'center',
-    headerAlign: 'left',
     headerFilter: 'Name'
   },
   {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '180',
-    headerAlign: 'left',
-    filters: filterProductStatus,
+    filters: filterStatusProductAndService,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return t(`${productStatusTransferToText(cellValue)}`)
+      return t(`${formatStatusProductAndService(cellValue)}`)
     }
   },
   {
     field: 'operator',
     label: t('reuse.operator'),
     minWidth: '220',
-    headerAlign: 'left',
     align: 'center',
   }
 

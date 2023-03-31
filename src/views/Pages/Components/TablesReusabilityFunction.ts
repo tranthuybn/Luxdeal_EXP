@@ -7,7 +7,7 @@ import { useRoute } from 'vue-router'
 const operatorColumn: TableColumn = {
   field: 'operator',
   label: t('reuse.operator'),
-  minWidth: '200',
+  minWidth: '220',
   align: 'center',
   fixed: false
 }
@@ -30,7 +30,6 @@ const getTotalRecord = ref(0)
 const getSelectedRecord = ref<Array<any>>([])
 function fnGetTotalRecord(val) {
   getTotalRecord.value = val ?? 0
-  console.log(getTotalRecord.value)
 }
 function fnGetSelectedRecord(val) {
   getSelectedRecord.value = val ?? []

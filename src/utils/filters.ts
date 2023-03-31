@@ -1,9 +1,5 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
-import { getCategories } from '@/api/LibraryAndSetting'
-import { reactive } from 'vue'
-
 interface Filter {
   text: string
   value: any
@@ -77,8 +73,8 @@ export const filterBranch: Array<Filter> = [
   { text: t('reuse.hochiminh'), value: false }
 ]
 export const filterDepartment: Array<Filter> = [
-  { text: t('reuse.administrative'), value: true },
-  { text: t('reuse.humanResources'), value: false }
+  { text: t('reuse.active'), value: true },
+  { text: t('reuse.inactive'), value: false }
 ]
 export const filterRankEmployee: Array<Filter> = [
   { text: t('reuse.employee'), value: 1 },
@@ -223,7 +219,8 @@ export const filterService: Array<Filter> = [
   { text: t('reuse.rent'), value: 3 },
   { text: t('workplace.mortgage'), value: 4 },
   { text: t('workplace.spa'), value: 5 },
-  { text: t('reuse.internal'), value: 6 }
+  { text: t('workplace.spa'), value: 6 },
+  { text: t('reuse.internal'), value: 7 }
 ]
 export const filterSource: Array<Filter> = [
   { text: 'Facebook', value: 1 },
@@ -312,9 +309,9 @@ export const filterStatusAccounting: Array<Filter> = [
   { text: t('reuse.cancelled'), value: 4 }
 ]
 export const filterStatusGeneral: Array<Filter> = [
-  { text: t('reuse.pending'), value: 1 },
-  { text: t('reuse.finishPending'), value: 2 },
-  { text: t('reuse.cancelled'), value: 3 }
+  { text: t('reuse.pending'), value: 0 },
+  { text: t('reuse.finishPending'), value: 1 },
+  { text: t('reuse.cancelled'), value: 2 }
 ]
 export const filterReciprocalProfile: Array<Filter> = [
   { text: t('reuse.yes'), value: 1 },
@@ -351,3 +348,8 @@ export const filterStatusBalance: Array<Filter> = [
   { text: t('reuse.stopActive'), value: false }
 ]
 
+export const filterStatusProductAndService: Array<Filter> = [
+  { text: t('reuse.approval'), value: 0 },
+  { text: t('reuse.active'), value: 1 },
+  { text: t('reuse.pause'), value: 2 },
+]

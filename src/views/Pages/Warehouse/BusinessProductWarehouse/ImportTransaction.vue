@@ -19,6 +19,8 @@ import { getWareHouseTransactionList } from '@/api/Business'
 import { statusWhType } from './TicketEnum'
 import StatusWarehouse from './StatusWarehouse.vue'
 
+import * as warehouseUtility from './WarehouseHelper'
+
 const { t } = useI18n()
 
 const { push } = useRouter()
@@ -64,7 +66,7 @@ const back = async () => {
 const activeName = ref(collapse[0].name)
 const detailTicketRef = ref<InstanceType<typeof DetailTicket>>()
 const productWarehouseRef = ref<InstanceType<typeof ProductWarehouse>>()
-const addTransaction = async () => {
+const addTransaction = async (pushBack=false) => {
   let responseValue = 0
 
   let validTicket: any = false
@@ -98,6 +100,9 @@ const addTransaction = async () => {
             message: t('reuse.addSuccess'),
             type: 'success'
           })
+          if(pushBack){
+            back()
+          }
           responseValue = res.data
           id.value = res.data
         })
@@ -268,19 +273,21 @@ const cancelTicketWarehouse = async () => {
 onBeforeMount(async () => await callApiForData())
 
 const importNow = async () => {
-  if(Number(ticketData.value.orderId) !== 0){//ticket from order
-    await updateInventoryOrder()
-  }
-  else{
-    if(isNaN(id.value) || id.value == 0){
-      const res = await addTransaction()
-      if(res != 0){
-        await updateInventory()
-        back()
-      }
+  if(await warehouseUtility.confirmDialog(t('reuse.didYouReceiveProductMessage'))){
+    if(Number(ticketData.value.orderId) !== 0){//ticket from order
+      await updateInventoryOrder()
     }
     else{
-      await updateInventory()
+      if(isNaN(id.value) || id.value == 0){
+        const res = await addTransaction()
+        if(res != 0){
+          await updateInventory()
+          back()
+        }
+      }
+      else{
+        await updateInventory()
+      }
     }
   }
 }
@@ -407,7 +414,7 @@ const updateTicket = (warehouse) => {
             <ElButton
               class="w-[150px]"
               type="primary"
-              @click="addTransaction"
+              @click="addTransaction(true)"
               v-if="Number(ticketData.orderId) == 0 && type =='add'"
               >{{ t('reuse.save') }}</ElButton
             >

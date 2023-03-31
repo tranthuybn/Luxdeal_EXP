@@ -16,7 +16,7 @@ import {
   ElNotification,
   ElImage,
   ElDivider,
-  ElTreeSelect
+  ElTreeSelect,
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -131,9 +131,13 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  customAddBtn: {
+  customBtn: {
     type: Number,
     default: 1
+  },
+  splitScreen: {
+    type: Boolean,
+    default: false
   }
 })
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -153,17 +157,17 @@ const fullSpan = ref<number>()
 const rawUploadFile = ref<UploadFile>()
 const optionPeopleType = ref()
 const optionCreatedBy = ref()
+const accountNumberOptions = ref()
 const pageIndexStaff = ref(1)
 const pageIndexCustomer = ref(1)
 const pageSize = ref(10)
 const createdByOptions = ref([{}])
 const peopleTypeOptions = ref([{}])
-const accountNumberOptions = ref()
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
 
 //if schema has image then split screen
-props.hasImage || props.hasAttachDocument ? (fullSpan.value = 12) : (fullSpan.value = 24)
+props.hasImage || props.hasAttachDocument || props.splitScreen ? (fullSpan.value = 12) : (fullSpan.value = 24)
 
 //get data from table
 const getTableValue = async () => {
@@ -192,6 +196,8 @@ const getTableValue = async () => {
 
 //formValue lay tu api
 const customizeData = async () => {
+  optionPeopleType.value = formValue.value?.peopleObject
+  optionCreatedBy.value = formValue.value?.createdByObject
   emit('customize-form-data', formValue.value)
 }
 
@@ -225,12 +231,11 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
-
 //Get data when click detail or edit button
 watch(
   () => props.type,
   () => {
-    if (props.type === 'detail') {
+    if (props.type === 'detail' || props.type === 'approval') {
       const { setProps, setSchema } = methods
       setProps({
         disabled: true
@@ -250,7 +255,7 @@ watch(
         }
       ])
     }
-    if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval-product') {
+    if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
       getTableValue()
     }
   },
@@ -292,10 +297,8 @@ const save = async (type) => {
       //callback cho hàm emit
       if (type == 'add') {
         data.backRouter = true
-        if(optionCreatedBy.value?.id && optionPeopleType.value?.id) {
-          data.createdBy = optionCreatedBy.value.id
-          data.peopleId = optionPeopleType.value.id
-        }
+        if(optionCreatedBy.value?.id) data.createdById = optionCreatedBy.value.id
+        if(optionPeopleType.value?.id) data.peopleId = optionPeopleType.value.id
         emit('post-data', data)
         loading.value = false
       }
@@ -442,6 +445,17 @@ const cancel = () => {
   router.go(-1)
 }
 
+const edit = () => {
+  push({
+    name: `${String(router.currentRoute.value.name)}`,
+    params: {
+      backRoute: `${String(router.currentRoute.value.name)}`,
+      type: 'edit',
+      id: props.id
+    }
+  })
+}
+
 //Image handle
 const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) => {
@@ -485,12 +499,13 @@ onBeforeMount(async () => {
   peopleTypeOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
   
   const accountNumberList = await getAccountantList({})
-  accountNumberOptions.value = accountNumberList.data.map(item => ({
-    label: `${item.accountNumber} | ${item.accountName}`,
-    value: item.id,
-    children: item.children.length > 0 ? 
-      item.children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
-  }))
+  accountNumberOptions.value = accountNumberList.data.filter(item => item.isActive)
+    .map(item => ({
+      label: `${item.accountNumber} | ${item.accountName}`,
+      value: item.id,
+      children: item.children.length > 0 ? 
+        item.children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
+    }))
 })
 const handleScroll = (field) => {
   switch (field) {
@@ -503,9 +518,6 @@ const handleScroll = (field) => {
     default: return ''
   }
 };
-const changeOption = (option) => {
-  console.log(option)
-}
 const handleChangeOptions = (option, form, formType) => {
   switch (formType) {
     case 'createdBy' :
@@ -544,25 +556,26 @@ watch(pageIndexCustomer, async (newPageIndex) => {
 });
 
 const approvalId = String(route.params.approvalId)
-const approvalProduct = async () => {
-  const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
+const approvalProduct = async (val) => {
+  const payload = { ItemType: 5, Id: parseInt(approvalId), IsApprove: val }
   await approvalProducts(FORM_IMAGES(payload))
     .then(() => {
       ElNotification({
-        message: 'Duyệt thành công',
+        message: val ? t('reuse.approveSuccess') : t('reuse.cancelApproveSuccess'),
         type: 'success'
       })
       push({
-        name: `approve.products-approval.newly-initialized`
+        name: `approve.payment-approval.receipts-and-expenditures`
       })
     })
     .catch(() =>
       ElNotification({
-        message: 'Duyệt thất bại',
+        message: t('reuse.approveFail'),
         type: 'warning'
       })
     )
 }
+
 </script>
 <template>
   <ContentWrap :title="title" :back-button="backButton">
@@ -614,7 +627,6 @@ const approvalProduct = async () => {
               :clearable="false"
               :items="createdByOptions"
               @scroll-bottom="() => handleScroll('createdBy')"
-              @change="changeOption"
               :defaultValue="form.createdBy"
               @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
             />
@@ -622,7 +634,7 @@ const approvalProduct = async () => {
 
           <template #accountNumber="form">
             <el-tree-select
-              v-model="form['accountNumber']"
+              v-model="form.accountNumber"
               :data="accountNumberOptions"
               check-strictly
               :render-after-expand="false"
@@ -638,9 +650,9 @@ const approvalProduct = async () => {
               labelKey="label"
               :hiddenKey="['id', 'email']"
               :clearable="false"
+              :placeHolder="t('reuse.selectObject')"
               :items="peopleTypeOptions"
               @scroll-bottom="() => handleScroll('peopleType')"
-              @change="changeOption"
               :defaultValue="form.peopleType"
               @update-value="(_value, option) =>  handleChangeOptions(option, form, 'peopleType')"
             />
@@ -651,8 +663,8 @@ const approvalProduct = async () => {
             </ul>
           </template>
         </Form>
-       
       </ElCol>
+      
       <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
         <ElDivider class="text-center font-bold ml-2">{{ t('reuse.addImage') }}</ElDivider>
         <el-upload
@@ -721,7 +733,7 @@ const approvalProduct = async () => {
     </ElRow>
     <template #under>
       <div class="w-[100%]" v-if="props.type === 'add'">
-        <div v-if="customAddBtn == 1" class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton :loading="loading" @click="save('add')">
               {{ t('button.print') }}
           </ElButton>
@@ -732,7 +744,7 @@ const approvalProduct = async () => {
             {{ t('reuse.cancel') }}
           </ElButton>
         </div>
-        <div v-if="customAddBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('add')">
             {{ t('reuse.save') }}
           </ElButton>
@@ -745,7 +757,7 @@ const approvalProduct = async () => {
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'edit'">
-        <div v-if="customAddBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
+        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
           <ElButton :loading="loading" @click="save('add')">
               {{ t('button.print') }}
           </ElButton>
@@ -756,21 +768,33 @@ const approvalProduct = async () => {
             {{ t('reuse.delete') }}
           </ElButton>
         </div>
-        <div v-if="customAddBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('edit')">
             {{ t('reuse.save') }}
           </ElButton>
-          <ElButton type="primary" :loading="loading" @click="save('edit')">
-            {{ t('reuse.saveAndAdd') }}
+          <ElButton :loading="loading" @click="cancel()">
+            {{ t('reuse.cancel') }}
+          </ElButton>  
+        </div>
+      </div>
+      <div class="w-[100%]" v-if="props.type === 'detail'">
+        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-5">
+          <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
+            {{ t('reuse.fix') }}
           </ElButton>
-          <ElButton :loading="loading" @click="delAction">
+          <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+            {{ t('reuse.delete') }}
+          </ElButton>
+        </div>
+        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
+          <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
             {{ t('reuse.cancel') }}
           </ElButton>
         </div>
       </div>
-      <div class="pl-57" v-if="props.type === 'approval-product'">
-        <el-button @click="approvalProduct" class="min-w-[120px]" type="warning">Duyệt</el-button>
-        <el-button class="min-w-[120px]">Không duyệt</el-button>
+      <div class="pl-57" v-if="props.type === 'approval'">
+        <el-button @click="approvalProduct(true)" class="min-w-[120px]" type="warning">{{ t('router.approve') }}</el-button>
+        <el-button  @click="approvalProduct(false)" class="min-w-[120px]">{{ t('router.notApproval') }}</el-button>
       </div>
     </template>
   </ContentWrap>

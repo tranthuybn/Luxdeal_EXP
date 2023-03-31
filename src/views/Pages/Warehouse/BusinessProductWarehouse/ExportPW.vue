@@ -100,7 +100,8 @@ const callApiProductList = async () => {
     productCode: product.code,
     productPropertyId: product.id,
     productPropertyCode: product.productCode,
-    name: product.name
+    name: product.name,
+    inventory: product.tonKho
   }))
 
   ListOfProductsForSale.value.forEach(row=>{
@@ -178,7 +179,8 @@ const ScrollProductBottom = () => {
                   productCode: product.code,
                   productPropertyId: product.id,
                   productPropertyCode: product.productCode,
-                  name: product.name
+                  name: product.name,
+    inventory: product.tonKho
                 })
               )
         })
@@ -407,7 +409,8 @@ const disabled = computed(() => {
           :fields="[
             t('reuse.productCode'),
             t('reuse.managementCode'),
-            t('reuse.productInformation')
+            t('reuse.productInformation'),
+            t('reuse.inventory')
           ]"
           width="500px"
           :items="tempListProducts"
@@ -473,9 +476,12 @@ const disabled = computed(() => {
 
     <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
       <template #default="props">
-        <el-button @click="removeRow(props)" :disabled="prop.type == 'detail'" type="danger">{{
-          t('reuse.delete')
-        }}</el-button>
+        <el-button
+          :disabled="type == 'detail'"
+          @click="removeRow(props)"
+          type="danger"
+          >{{ t('reuse.delete') }}</el-button
+        >
       </template>
     </el-table-column>
   </el-table>

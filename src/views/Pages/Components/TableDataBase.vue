@@ -13,8 +13,10 @@ import { useAppStore } from '@/store/modules/app'
 import moment from 'moment'
 import { ElNotification } from 'element-plus'
 import { excelParser } from './excel-parser'
-import { GetRouterByStaffAccountId } from '@/api/login'
+import { usePermission } from '@/utils/tsxHelper'
+
 const { currentRoute } = useRouter()
+const userPermission = usePermission(currentRoute.value)
 const { t } = useI18n()
 const props = defineProps({
   columns: {
@@ -134,18 +136,8 @@ const props = defineProps({
 const emit = defineEmits(['getDate'])
 
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
+const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const tableBase01 = ref<ComponentRef<typeof TableBase>>()
-  
-const accountId = JSON.parse(JSON.parse(localStorage.getItem('ACCOUNT_ID')?.toString() || '').v)
-const isAddable = ref(false)
-const getRole = () => {
-  GetRouterByStaffAccountId({ id: accountId }).then(res => {
-    const routerRole = res.data.find(el => el.url == router.currentRoute.value.path)
-    if (routerRole?.addable == true) return isAddable.value = true
-    else isAddable.value = false
-  })
-}
-
 const getData = (data) => {
   const table = unref(tableBase01);
   if (!props.apiHasDateParams || (data.startDate && data.endDate)) {
@@ -162,19 +154,29 @@ const getData = (data) => {
 }
 
 //add operator for every table
+const operatorPermission = userPermission?.addable || userPermission?.deletable || userPermission?.editable
 onBeforeMount(() => {
-  getRole()
   dynamicApi.value = props.api
   dynamicColumns.value = props.columns
-  if (!props.isOperatorColumnCustomize) addOperatorColumn(dynamicColumns.value)
+  if (!props.isOperatorColumnCustomize && operatorPermission ) addOperatorColumn(dynamicColumns.value)
 })
-
 
 const appStore = useAppStore()
 const Utility = appStore.getUtility
 
 const { push } = useRouter()
 const router = useRouter()
+// fresher đang sử dụng component chung để làm việc riêng - phải sửa lại sau
+const handleClickAdd = () => {
+  push({
+    name: `human-resource-management.department-directory.${Utility}`,
+    params: {
+      backRoute: 'human-resource-management.department-directory',
+      tab: props.typeButton,
+      type: 'add'
+    }
+  })
+}
 const pushAdd = () => {
   push({
       name: `${String(router.currentRoute.value.name)}.${Utility}`,
@@ -234,11 +236,11 @@ const initMappingObject = (el) => {
 <template>
   <section>
     <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
-        <template #headerFilterSlot v-if="!removeHeaderFilterSlot">
-          <el-button v-if="!removeButtonAdd && isAddable == true" type="primary" :icon="createIcon" @click="pushAdd">
+        <template #headerFilterSlot v-if="!removeHeaderFilterSlot && userPermission">
+          <el-button v-if="!removeButtonAdd && userPermission?.addable" type="primary" :icon="createIcon" @click="pushAdd()">
             {{ t(`${props.titleAdd}`) }}
           </el-button>
-          <el-button v-if="props.titleAdd2 && isAddable == true" type="primary" :icon="createIcon" @click="pushAdd2">
+          <el-button v-if="props.titleAdd2 && userPermission?.addable" type="primary" :icon="createIcon" @click="pushAdd2">
             {{ t(`${props.titleAdd2}`) }}
           </el-button>
         </template>
@@ -249,8 +251,6 @@ const initMappingObject = (el) => {
     <TableBase
       :removeDrawer="removeDrawer" 
       :expand="expand" 
-      :titleButtons="props.titleButtons"
-      :typeButton="props.typeButton" 
       :customOperator="customOperator" 
       :apiTableChild="apiTableChild" 
       :delApi="delApi"
@@ -273,5 +273,9 @@ const initMappingObject = (el) => {
         <slot name="expand"></slot>
       </template>
     </TableBase>
+    <!--  fresher đang sử dụng component chung để làm việc riêng - phải sửa lại sau -->
+    <ElButton v-if="!(props.titleButtons === '')" @click="handleClickAdd" id="bt-add" :icon="plusIcon" class="mx-12">
+      {{ props.titleButtons }}
+    </ElButton>
   </section>
 </template>

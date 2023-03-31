@@ -85,7 +85,8 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       placeholder: t('reuse.inputName'),
       disabled: typeOfActivity.value == 'detail'
-    }
+    },
+
   },
   {
     field: 'description',
@@ -255,26 +256,32 @@ const getRoleDetailEvent = () => {
     })
 }
 const elTReeIndeterminateNodes = reactive<TreeNodeData[]>([])
-const handleCheckChange = (nodeData) => {
-  // node unchecked then reset all node's operator 
-  const alreadyChecked = elTReeCheckedNode.value.find(el => el.url === nodeData.url) ?? null 
-  const currentNode = treeRef.value?.getNode(nodeData.url);
-  if (alreadyChecked && typeOfActivity.value === 'add' ) { 
-    nodeData.add = true,
-    nodeData.edit = true
-    nodeData.delete = true
-  }
-  else if (!currentNode?.indeterminate && typeOfActivity.value !== 'detail') {    
-    nodeData.add = false,
-    nodeData.edit = false
-    nodeData.delete = false
-    elTReeIndeterminateNodes.splice(elTReeIndeterminateNodes.indexOf(nodeData),1)   
-  }
-  else{    
-    // get indeterminate node
-    elTReeIndeterminateNodes.push(nodeData)
-  }
- 
+const handleCheckChange = (obj) => {
+  if (obj)
+    [obj].forEach( function browseFunction(o){
+      if (Array.isArray(o.children) && o.children.length > 0 ) {
+         o.children.forEach(browseFunction)
+      } 
+      const currentNode = treeRef.value?.getNode(o.url);
+      if (!currentNode?.indeterminate) {
+        if (currentNode?.checked) {
+          o.add = true
+          o.edit = true
+          o.delete = true
+        } else { 
+          o.add = false
+          o.edit = false
+          o.delete = false
+        }
+        elTReeIndeterminateNodes.splice(elTReeIndeterminateNodes.indexOf(o), 1)
+        return null
+      }
+      else {
+        // get indeterminate node
+        elTReeIndeterminateNodes.push(o)
+        return null
+      }     
+    })
 }
 const createOrEditRoleEvent = (goOut = true) => {
   const formRef = unref(elFormRef)
@@ -285,9 +292,13 @@ const createOrEditRoleEvent = (goOut = true) => {
       const listRouters = elTReeCheckedNode.value.concat(elTReeIndeterminateNodes,utilitiesRoutes)
       const { getFormData } = methods
       const formData = await getFormData()
+      const customFormData = {
+        description: formData?.description,
+        roleName: formData?.roleName.trim()
+      }
       if (listRouters.length > 0) {
         const params = {
-          ...formData,
+          ...customFormData,
           isActive: roleStatus.value,
           router: listRouters?.map(el => ({
             url: el.url ?? '',
@@ -397,7 +408,7 @@ const disableElTreeOperator = (currentNodeKey):boolean => {
                 node-key="url"
                 default-expand-all 
                 class="w-[100%]"           
-                @check-change="handleCheckChange"      
+                @check="handleCheckChange"        
               >
                 <template #default="{ node,data }">
                   <div class="flex justify-between w-[100%]" >                  

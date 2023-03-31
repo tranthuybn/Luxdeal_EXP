@@ -1214,7 +1214,9 @@ const postData = async (pushBack: boolean) => {
         ListOfProductsForSale.value.splice(index,1)
       }
     })
-  orderDetailsTable = ListOfProductsForSale.value.map((val) => ({
+  orderDetailsTable = ListOfProductsForSale.value
+  .filter((row)=>row.productPropertyId && row.productPropertyId !== '' && row.productPropertyId != null)
+  .map((val) => ({
     ProductPropertyId: parseInt(val.productPropertyId),
     Quantity: val.quantity,
     ProductPrice: val.price,
@@ -1235,6 +1237,10 @@ const postData = async (pushBack: boolean) => {
       type: 'info'
     })
   }
+  if(orderUtility.ValidatePostData(ListOfProductsForSale.value) == false){
+      return
+    }
+
   const productPayment = JSON.stringify([...orderDetailsTable])
 
   const payload = {
@@ -3613,7 +3619,7 @@ const finishOrder = async () =>{
                 :items="listProducts"
                 valueKey="productPropertyId"
                 :disabled="disabledEdit || props.row.newProduct"
-                labelKey="name"
+                labelKey="value"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"
                 :defaultValue="props.row.productPropertyId"
@@ -4268,9 +4274,15 @@ const finishOrder = async () =>{
                 class="min-w-42 min-h-11"
                 >Hủy trả hàng</el-button
               >
+              <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+              </template>
+              <div>
             <el-button
                 v-if="statusOrder == STATUS_ORDER_SPA[12].orderStatus"
                 type="info"
+              :disabled="unref(orderUtility.disableStatusWarehouse)"
                 @click="
                   () => {
                     finishOrder()
@@ -4280,6 +4292,8 @@ const finishOrder = async () =>{
               >
                 Đối soát & kết thúc
               </el-button>
+            </div>
+            </el-tooltip>
         </div>
 
         <div class="w-[100%] flex gap-2">

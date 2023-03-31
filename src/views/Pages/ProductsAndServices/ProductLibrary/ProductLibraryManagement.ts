@@ -2,18 +2,16 @@ import { getCategories, getTags } from '@/api/LibraryAndSetting'
 import { useI18n } from '@/hooks/web/useI18n'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import {
-  filterTableStatus,
+  filterStatusProductAndService,
   filterIventory,
   filterDeposit,
   filterTableCategory
 } from '@/utils/filters'
-import {
-  dateTimeFormat,
-  businessIventoryStatusTransferToText,
-} from '@/utils/format'
+import { dateTimeFormat, formatStatusProductAndService } from '@/utils/format'
 import { ElNotification } from 'element-plus'
 import { reactive, h, ref } from 'vue'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
+import { filterHandler, changeMoney } from '@/utils/tsxHelper'
 
 const { t } = useI18n()
 export const businessProductLibrary = [
@@ -78,14 +76,15 @@ export const businessProductLibrary = [
     label: t('reuse.sellingPriceFrom'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
+    formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.price))
   },
   {
     field: 'hirePrice',
     label: t('reuse.rentalPriceFrom'),
     minWidth: '150',
     align: 'right',
-    sortable: true
+    sortable: true,
   },
   {
     field: 'categories[2].value',
@@ -96,7 +95,6 @@ export const businessProductLibrary = [
     field: 'productImages[0].path',
     label: t('reuse.image'),
     minWidth: '150',
-    align: 'center',
     formatter: (record: Recordable, column: TableColumn, _cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, record.productImages[0]?.path)
   },
@@ -108,24 +106,27 @@ export const businessProductLibrary = [
   },
   {
     field: 'createdAt',
-    label: t('reuse.createDate'),
-    minWidth: '150',
-    align: 'center',
+    label: t('formDemo.createdAtEdit'),
+    minWidth: '180',
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
     }
   },
   {
     field: 'createdBy',
-    label: t('reuse.creator'),
-    minWidth: '150',
+    label: t('formDemo.createdByEdit'),
+    minWidth: '180',
     headerFilter: 'Name'
   },
   {
     field: 'productStatusName',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus
+    filterMethod: filterHandler,
+    filters: filterStatusProductAndService,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${formatStatusProductAndService(cellValue)}`)
+    }
   }
 ]
 type Options = {

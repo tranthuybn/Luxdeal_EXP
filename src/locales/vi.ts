@@ -88,6 +88,7 @@ export default {
     username: 'Tên tài khoản',
     password: 'Mật khẩu',
     register: 'Đăng ký',
+    guide : 'Hướng dẫn',
     checkPassword: 'Xác nhận mật khẩu',
     login: 'Đăng nhập',
     otherLogin: 'Đăng nhập với',
@@ -124,6 +125,7 @@ export default {
     byYear: 'Theo năm'
   },
   formDemo: {
+    paidMoney: 'Đã chi tiền',
     jobPosition: 'Vị trí việc làm',
     sales: 'Doanh số',
     percentageSales:'% doanh số',
@@ -957,6 +959,23 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    editPassword: 'Sửa mật khẩu',
+    chooseBirthday: 'Vui lòng chọn ngày sinh',
+    descIsTheStandardTime: 'Là thời gian tiêu chuẩn',
+    chooseWorkLevel: 'Chọn cấp bậc làm việc',
+    rankAndType: 'Cấp bậc/loại hình',
+    chooseBranch: 'Chọn chi nhánh',
+    chooseDepartment: 'Chọn phòng ban',
+    brandAndDepartment : 'Chi nhánh/phòng ban',
+    confirmPasswordAgain: 'Xác nhận lại mật khẩu',
+    password: 'Mật khẩu',
+    accountsAndPermissions: 'Tài khoản & phân quyền',
+    chooseTypeAccount: 'Chọn loại hình nhân viên',
+    chooseGender: 'Chọn giới tính',
+    approveSuccess: 'Duyệt thành công',
+    cancelApproveSuccess: 'Hủy duyệt thành công',
+    approveFail: 'Duyệt thất bại',
+    quantity: 'Số lượng',
     paymentRequestInfo: 'Thông tin đề nghị thanh toán',
     payment: 'Thanh toán',
     accountingAccount: 'Tài khoản hạch toán',
@@ -1095,7 +1114,6 @@ export default {
     productInformation: 'Thông tin sản phẩm',
     characteristic: 'Đặc tính',
     accessory: 'Phụ kiện',
-    quantity: 'Số lượng',
     unitNamePawn: 'Đơn vị',
     firstEntryDate: 'Ngày nhập',
     singleEntryCode: 'Mã đơn nhập',
@@ -2041,5 +2059,10 @@ export default {
     limitUploads: 'Số ảnh tối đa là',
     orderStillInWarehouse: 'Đơn hàng đang được xử lí trong kho',
     cantFindProduct: 'Không thể tìm thấy sản phẩm',
+    didYouReceiveProductMessage: 'Bạn đã nhận được sản phẩm?',
+    warning: 'Cảnh báo',
+    cancelExport: 'Hủy xuất kho',
+    invalidQuantity: 'Số lượng không phù hợp',
+    pleaseChooseDate: 'Vui lòng chọn ngày',
   }
 }

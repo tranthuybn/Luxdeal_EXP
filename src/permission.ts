@@ -23,7 +23,8 @@ router.beforeEach(async (to, from, next) => {
   start()
   loadStart()
   const userInfo = wsCache.get(permissionStore.getStaffInfo)
-  if (userInfo) {
+  const routesPermission = wsCache.get(permissionStore.getRouterByRoles)
+  if (userInfo && routesPermission) {
     if (to.path === '/login') {
       next({ path: '/' })
     } else {
@@ -43,16 +44,14 @@ router.beforeEach(async (to, from, next) => {
 
       // Developers can modify it according to the actual situation
       // force to logout if login before this time
-      const loginBefore = new Date('2022-10-28')
+      const loginBefore = new Date('2023-30-28')
       if (userInfo.loginTime < loginBefore.getTime()) {
         wsCache.clear()
         next({ path: '/login' })
         return
       }
 
-      const roleRouters = wsCache.get(permissionStore.getRouterByRoles) || []
-
-      await permissionStore.generateRoutes(roleRouters as AppCustomRouteRecordRaw[], 'client')
+      await permissionStore.generateRoutes(routesPermission.map(el=>el.url) as AppCustomRouteRecordRaw[], 'client')
 
       permissionStore.getAddRouters.forEach((route) => {
         router.addRoute(route as unknown as RouteRecordRaw) // Dynamic adding accessible routing table
@@ -67,29 +66,17 @@ router.beforeEach(async (to, from, next) => {
     if (whiteList.indexOf(to.path) !== -1) {
       next()
     } else {
-      next(`/login?redirect=${to.path}`) // Otherwise, all redirect to the login page
-      wsCache.clear()
+      if(to.path == "/guide" || to.path == "/UserGuide.html"){
+        next()
+      }else{
+        next(`/login?redirect=${to.path}`) // Otherwise, all redirect to the login page
+        wsCache.clear()
+      }
     }
   }
 })
 
 router.afterEach((to) => {
-  // const type = to.params.type
-  // let title = to?.meta?.title ?? ''
-  // console.log('to:', to, type, title)
-
-  // if (type) {
-  //   if (type == 'add') {
-  //     title = title.concat('add')
-  //   }
-  //   if (type == 'detail') {
-  //     title = title.concat('detail')
-  //   }
-  //   if (type == 'edit') {
-  //     title = title.concat('edit')
-  //   }
-  // }
-  // console.log('title', title)
   useTitle(to?.meta?.title as string)
   done() //End Progress
   loadDone()

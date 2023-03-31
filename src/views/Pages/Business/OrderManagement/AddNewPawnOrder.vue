@@ -1659,6 +1659,10 @@ const editData = async () => {
 
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
+  if (type == 'approval-order') {
+    statusOrder.value = 200
+    checkDisabled.value = true
+  }
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
 
 
@@ -2845,7 +2849,7 @@ const finishOrder = async () =>{
           </el-table-column>
 
           <el-table-column
-            prop="productName"
+            prop="productPropertyName"
             :label="t('formDemo.productInformation')"
             min-width="620"
           />

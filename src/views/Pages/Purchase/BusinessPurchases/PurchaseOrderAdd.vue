@@ -4620,7 +4620,7 @@ onBeforeMount(async () => {
             </template>
           </el-table-column>
           <el-table-column
-            prop="productName"
+            prop="productPropertyName"
             :label="t('formDemo.productInformation')"
             min-width="620"
           />

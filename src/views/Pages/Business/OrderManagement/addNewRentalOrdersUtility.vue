@@ -1304,6 +1304,10 @@ const editData = async () => {
   await orderUtility.getStatusWarehouse(id)
 
   if (type == 'detail') checkDisabled.value = true
+  if (type == 'approval-order') {
+    statusOrder.value = 200
+    checkDisabled.value = true
+  }
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
     disabledDeleteRow.value = true
@@ -4969,7 +4973,7 @@ const changeDateRanges = (dates) =>{
             </template>
           </el-table-column>
           <el-table-column
-            prop="productName"
+            prop="productPropertyName"
             :label="t('formDemo.productInformation')"
             width="380"
           />

@@ -1296,16 +1296,19 @@ const postData = async (pushBack: boolean) => {
   id = res.data
   
   if (pushBack == true) {
-      router.push({
-        name: 'business.order-management.order-list',
-        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
-      })
+    pushBackOrder()
     }
     startSpa.value = false
   if (clickStarSpa.value == true) {
     startOrder()
   }}
 
+}
+const pushBackOrder = () =>{
+  router.push({
+        name: 'business.order-management.order-list',
+        params: { backRoute: String(router.currentRoute.value.name), tab: tab }
+      })
 }
 const warehouseTranferAuto = async (index) => {
   const payload = {
@@ -3632,7 +3635,7 @@ const finishOrder = async () =>{
           </el-table-column>
 
           <el-table-column
-            prop="productName"
+            prop="productPropertyName"
             :label="t('formDemo.productInformation')"
             min-width="300"
           />
@@ -4251,6 +4254,21 @@ const finishOrder = async () =>{
               t('router.notApproval')
             }}</el-button>
             </div>
+          </div>
+          <div
+            v-if="
+              statusOrder == STATUS_ORDER_SPA[9].orderStatus &&
+              !duplicateStatusButton &&
+              type != 'add'
+            "
+            class="w-[100%] flex ml-1 gap-4"
+          >
+            <el-button
+              @click="pushBackOrder"
+              type="danger"
+              class="min-w-42 min-h-11"
+              >{{ t('button.cancelOrder') }}</el-button
+            >
           </div>
           <!-- Nút không thuộc về đâu =)) -->
           <el-button

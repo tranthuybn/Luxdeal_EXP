@@ -2,7 +2,7 @@
 import { h, reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import TableOperatorAccountant from '../TableOperatorAccountant.vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { updateReceiptOrPayment, postNewReceiptOrPayment, deleteReceiptOrPayment, getDetailReceiptPayment } from '@/api/Accountant'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElNotification, ElCollapse, ElCollapseItem, ElButton } from 'element-plus'
@@ -19,17 +19,19 @@ const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type) === ':type' ? 'add' : String(router.currentRoute.value.params.type)
 const { push } = useRouter()
-const route = useRoute()
 const escape = useIcon({ icon: 'quill:escape' })
 const activeName = ref('receiptsAddDetails')
 const setFormData = reactive({} as FormData)
 
-
-const test = String(route.query.approvalId)
-console.log(test)
 const back = async () => {
+  if(type !== 'approval') {
+    push({
+      name: 'accountant.receipts-expenditures.receipts-expenditures-list'
+    }) 
+    return
+  }
   push({
-    name: 'accountant.receipts-expenditures.receipts-expenditures-list'
+      name: 'approve.payment-approval.receipts-and-expenditures'
   })
 }
 const rules = reactive({
@@ -38,6 +40,7 @@ const rules = reactive({
   totalMoney: [required()],
   enterMoney: [required()],
   typeOfPayment: [required()],
+  peopleType: [required()],
 })
 
 //random field code
@@ -307,7 +310,7 @@ const currentCollapse = ref<string>(collapse[0].name)
           :type="type"
           :id="id"
           @post-data="postData"
-          :rules="!(type === 'detail') ? rules : {}"
+          :rules="rules"
           @customize-form-data="customizeData"
           @edit-data="editData"
           :formDataCustomize="setFormData"

@@ -973,6 +973,18 @@ export const getPaymentList = async (params: any): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+export const deletePaymentProposal = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${ACCOUNTANT_API.DELETE_PAYMENT_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+
 export const addNewPaymentRequest = async (data): Promise<IResponse> => {
   const res = await request.post(
     { url: `${ACCOUNTANT_API.POST_COMMISSION_PAYMENT_API}`, data },

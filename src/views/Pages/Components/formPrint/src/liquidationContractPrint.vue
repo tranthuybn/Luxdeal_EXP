@@ -134,9 +134,7 @@ function getArraySum(arr) {
         </div>
       </div>
     </div>
-
     <el-divider />
-
     <div class="contract-and-signing mb-5">
       <h4>Hai bên cùng thỏa thuận cùng ký kết hợp đồng với những nội dung sau:</h4>
       <h3 class="underline pt-3">ĐIỀU 1: ĐỐI TƯỢNG CỦA HỢP ĐỒNG</h3>

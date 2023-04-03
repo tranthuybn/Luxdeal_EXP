@@ -40,6 +40,10 @@ const propsObj = defineProps({
   suffixIcon: {
     type: Object,
     default: undefined
+  },
+  showPlaceholder: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['change', 'update:modelValue'])
@@ -50,9 +54,8 @@ const valueHasChangedEvent = (val) => {
 const isInputActive = ref(false)
 const displayValue = computed({
   get() {
-    if (propsObj.modelValue === null || isNaN(propsObj.modelValue)) {
-      return 0
-    }
+    if(propsObj.showPlaceholder && !propsObj.modelValue) return ''
+    if (propsObj.modelValue === null || isNaN(propsObj.modelValue)) return 0
 
     if (isInputActive.value) {
       // Cursor is inside the input field. unformat display value for user

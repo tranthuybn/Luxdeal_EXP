@@ -598,7 +598,6 @@ const getTableValue = async () => {
     ruleForm.Address = formValue.value.address
     ruleForm.userName = formValue.value.username
     ruleForm.roleAcces = formValue.value.roleId
-    console.log(formValue.value)
     ListFileUpload.value =  formValue.value.path
   }
 }

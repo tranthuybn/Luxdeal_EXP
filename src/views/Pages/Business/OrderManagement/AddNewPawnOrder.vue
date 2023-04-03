@@ -181,7 +181,7 @@ const router = useRouter()
 const route = useRoute()
 
 const id = Number(router.currentRoute.value.params.id)
-const tab = String(router.currentRoute.value.params.tab)
+const tab = 'orderPawn'
 const approvalId = String(route.params.approvalId)
 
 const type = String(route.params.type)

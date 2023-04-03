@@ -1167,7 +1167,7 @@ let totalOrder = ref(0)
 const router = useRouter()
 let id: any = Number(router.currentRoute.value.params.id)
 const route = useRoute()
-const tab = String(route.params.tab)
+const tab = 'orderSell'
 let type = String(route.params.type)
 const approvalId = String(route.params.approvalId)
 

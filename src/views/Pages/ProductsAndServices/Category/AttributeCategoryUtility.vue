@@ -268,11 +268,18 @@ const postData = async (data) => {
   // await postCategory({ ...params, ...payload })
 
   await postCategory({ ...params, ...data })
-    .then(() =>
+    .then(() =>{
       ElMessage({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
+        // TODO (FIX BUG ROUTER DAC TINH )
+      if (data.backRouter == true) {
+        push({
+          name: 'products-services.AttributeCategory',
+          params: { backRoute: `products-services.AttributeCategory`, tab: data.tabs }
+        })
+      }}
     )
     .catch((error) =>
       ElNotification({
@@ -280,13 +287,7 @@ const postData = async (data) => {
         type: 'error'
       })
     )
-  // TODO (FIX BUG ROUTER DAC TINH )
-  if (data.backRouter == true) {
-    push({
-      name: 'products-services.AttributeCategory',
-      params: { backRoute: `products-services.AttributeCategory`, tab: data.tabs }
-    })
-  }
+
 }
 
 const formDataCustomize = ref()

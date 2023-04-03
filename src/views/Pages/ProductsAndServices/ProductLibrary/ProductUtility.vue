@@ -270,7 +270,7 @@ const addLastRowAttribute = async () => {
         hasPrice: false
       }
     ],
-    isActive: false,
+    isActive: true,
     edited: true, //edit data (turn to treeSelect, input ...)
     newValue: true //check is newValue so dont have to call api
   })
@@ -682,6 +682,10 @@ const editData = async (data) => {
     )
 }
 const editDataSeo = async (data) => {
+  console.log('run here', data, newId.value)
+  if(newId.value){
+    data.Id = newId.value
+  }
   data.SeoDescription = data.description
   data.SeoTags = data.SeoTags.toString()
   await updateProductSeo(FORM_IMAGES(data))

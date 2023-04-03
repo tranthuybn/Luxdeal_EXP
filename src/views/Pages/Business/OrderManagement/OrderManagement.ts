@@ -138,10 +138,13 @@ export const sellOrder = [
     headerFilter: 'Name'
   },
   {
-    field: 'statusName',
+    field: 'OrderStatusFilter',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatusOrder
+    filters: filtersStatusOrder,
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return row.statusName
+    }
   },
   {
     field: 'operator',
@@ -325,10 +328,13 @@ export const rentalorder = [
     headerFilter: 'Name'
   },
   {
-    field: 'statusName',
+    field: 'OrderStatusFilter',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatusOrder
+    filters: filtersStatusOrder,
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return row.statusName
+    }
   },
   {
     field: 'operator',
@@ -528,10 +534,13 @@ export const depositOrder = [
     headerFilter: 'Name'
   },
   {
-    field: 'statusName',
+    field: 'OrderStatusFilter',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatusOrder
+    filters: filtersStatusOrder,
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return row.statusName
+    }
   },
   {
     field: 'operator',
@@ -722,10 +731,13 @@ export const pawnOrder = [
     headerFilter: 'Name'
   },
   {
-    field: 'statusName',
+    field: 'OrderStatusFilter',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatusOrder
+    filters: filtersStatusOrder,
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return row.statusName
+    }
   },
   {
     field: 'operator',
@@ -883,10 +895,13 @@ export const spaOrder = [
     headerFilter: 'Name'
   },
   {
-    field: 'statusName',
+    field: 'OrderStatusFilter',
     label: t('reuse.status'),
     minWidth: '120',
-    filters: filtersStatusOrder
+    filters: filtersStatusOrder,
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return row.statusName
+    }
   },
   {
     field: 'operator',

@@ -6,7 +6,7 @@ const { utility } = appModules
 export default {
   path: '/purchase',
   component: Layout,
-  redirect: '/purchase',
+  redirect: {name:'purchase.business-purchases'},
   name: 'purchase',
   meta: {
     title: t('router.purchase'),

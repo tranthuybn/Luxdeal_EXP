@@ -38,8 +38,8 @@ import {
   addNewAuthRegister,
   updatedCustomer,
   cancelCustomerAccount,
-approvalOrder,
-getCustomerList
+  approvalOrder,
+  getCustomerList
 } from '@/api/Business'
 import { updatePasswordApi } from '@/api/login/index'
 import { useRouter } from 'vue-router'
@@ -586,9 +586,9 @@ const postData = async (typebtn) => {
       .then(() => {
         postCustomer(typebtn)
       })
-      .catch(() =>{
+      .catch((error) =>{
         ElNotification({
-          message: t('reuse.duplicateInformation'),
+          message: error,
         type: 'error'
       })
      } )

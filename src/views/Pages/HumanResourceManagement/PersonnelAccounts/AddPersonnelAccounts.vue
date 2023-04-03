@@ -510,7 +510,8 @@ const postData = async (typebtn) => {
       ConfirmPassword: ruleForm.confirmPassword,
       RoleId: ruleForm.roleAcces || 0,
     }
-    console.log('post lên', payload.FileId)
+
+    console.log('post lên', payload)
     const formDataPayLoad = FORM_IMAGES(payload)
     await addNewStaff(formDataPayLoad)
       .then(() => {

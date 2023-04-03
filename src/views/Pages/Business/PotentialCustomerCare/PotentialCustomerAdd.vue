@@ -35,6 +35,8 @@ import {
   FormInstance
 } from 'element-plus'
 import { dateTimeFormat } from '@/utils/format'
+import { orderType } from '@/utils/format'
+
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const { required, ValidService, requiredOption } = useValidator()
@@ -293,7 +295,7 @@ const getOrdersOptions = async () => {
         if (res.data) {
           orderOptions.value = res.data.map((tag) => ({
             label: tag.code,
-            value: tag.createdBy,
+            value: `${t(orderType(tag.serviceType))}`,
             name: tag.userName,
             id: tag.id
           }))
@@ -662,9 +664,8 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       clearable: false,
       defaultValue: '1',
       items: orderOptions,
-      fields: [t('reuse.orderCode'),t('reuse.customerName'),t('reuse.employeeName')],
-      updateValue: (_value, option) => { console.log(option)}
-
+      fields: [t('reuse.orderCode'),t('formDemo.orderType'),t('reuse.customerName')],
+      onChange: (value) => {console.log(value)}
     },
     colProps: {
       span: 20

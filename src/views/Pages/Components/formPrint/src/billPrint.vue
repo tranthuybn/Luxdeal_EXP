@@ -48,8 +48,10 @@ const policyDeposit = [
 ]
 function getArraySum(arr) {
   var total = 0
+  console.log(arr)
   for (var i in arr) {
-    if (arr[i].finalPrice !== 'đ') total += arr[i].finalPrice
+    //  total += (arr[i].unitPrice * arr[i].quantity)
+     total += arr[i].totalPrice
   }
   return total
 }
@@ -121,14 +123,15 @@ function getArraySum(arr) {
         <el-table-column label="STT" type="index" width="60" align="center" />
         <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
         <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
-        <el-table-column prop="price" :label="t('reuse.unitPrices')">
+        <el-table-column prop="unitPrice" :label="t('reuse.unitPrices')">
           <template #default="data">
-            <div class="text-right">{{ data.row.price }}</div>
+            <div class="text-right">{{ data.row.unitPrice  }}</div>
           </template>
         </el-table-column>
         <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
           <template #default="data">
-            <div class="text-right">{{ data.row.quantity * data.row.price }}</div>
+            <!-- <div class="text-right">{{ data.row.quantity * data.row.unitPrice }}</div> -->
+             <div class="text-right">{{ data.row.totalPrice }}</div>
           </template>
         </el-table-column>
       </el-table>

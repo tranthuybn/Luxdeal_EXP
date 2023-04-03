@@ -27,6 +27,7 @@ declare global {
     | 'Descriptions'
     | 'Tag'
     | 'InputPrice'
+    | 'SelectMultipleOption'
 
   declare type ColProps = {
     span?: number

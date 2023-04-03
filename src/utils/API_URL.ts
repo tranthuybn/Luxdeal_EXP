@@ -189,6 +189,7 @@ export const WAREHOUSE_API = {
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff',
   GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount',
+  GET_STAFF_BY_ID: '/api/v1/AccountStaff',
   GET_EMPLOYEE_RATING_LIST: '/api/v1/SalaryEmployee/GetListSalers',
   GET_EMPLOYEE_SALE_TRACKING_LIST: '/api/v1/SalaryEmployee/GetIdEmployeeId',
 }

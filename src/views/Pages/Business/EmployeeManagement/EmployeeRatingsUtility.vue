@@ -6,7 +6,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton, ElRow, ElCol, ElDivider, ElNotification } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
 import TableDataBase from '../../Components/TableDataBase.vue'
-import { getEmployeeRatingList, getEmployeeSaleTrackingList } from '@/api/Business'
+import { getEmployeeById, getEmployeeSaleTrackingList } from '@/api/Business'
 import { changeMoney, formartDate } from '@/utils/tsxHelper'
 import { moneyFormat } from '@/utils/format'
 
@@ -77,7 +77,7 @@ interface InfoEmployee {
 let infoEmployeeRes = reactive({} as InfoEmployee)
 const callAPIInfoEmployee = async () => {
   if (!isNaN(id) && type == 'detail') {
-    const res = await getEmployeeRatingList({ Id: id })
+    const res = await getEmployeeById({ Id: id })
     if (res) {
       if (res.data?.list !== undefined) {
         infoEmployeeRes = res.data.list[0]

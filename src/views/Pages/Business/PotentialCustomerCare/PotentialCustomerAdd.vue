@@ -117,7 +117,7 @@ let type = String(router.currentRoute.value.params.type)
 if (type == ':type') {
   type = 'add'
 }
-const postData = (data) => {
+const postData = async (data) => {
   const customerHistory = reactive<
     Array<{ id: Number; staffId: Number; content: String; percentageOfSales: Number }>
   >([])
@@ -158,7 +158,7 @@ const postData = (data) => {
     total: 1,
     potentialCustomerHistorys: customerHistory
   }
-  addNewPotentialCustomer(payload)
+  await addNewPotentialCustomer(payload)
     .then(() => {
       ElNotification({
         message: t('reuse.addSuccess'),
@@ -282,6 +282,34 @@ const size = ref<'' | 'large' | 'small'>('')
 const disabledDate = (time: Date) => {
   return time.getTime() > Date.now()
 }
+
+//get orderlist
+let callOrderAPI = 0
+const orderOptions = ref()
+const getOrdersOptions = async () => {
+  if (callOrderAPI == 0) {
+    await getOrderList({})
+      .then((res) => {
+        if (res.data) {
+          orderOptions.value = res.data.map((tag) => ({
+            label: tag.code,
+            value: tag.createdBy,
+            name: tag.userName,
+            id: tag.id
+          }))
+        }
+        console.log(res)
+        console.log(orderOptions)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => callOrderAPI++)
+    // columnProfileCustomer[20].componentProps!.options = orderOptions
+    columnProfileCustomer[20].componentProps!.loading = false
+  }
+}
+
 
 const columnProfileCustomer = reactive<FormSchema[]>([
   {
@@ -620,20 +648,23 @@ const columnProfileCustomer = reactive<FormSchema[]>([
   },
   {
     field: 'resultAndStatus',
-    label: t('reuse.result') + ' & ' + t('reuse.status'),
+    label: t('reuse.resultsAndStatus'),
     component: 'Divider'
   },
   {
     field: 'result',
     label: t('reuse.result'),
-    component: 'Select',
+    component: 'SelectMultipleOption',
     componentProps: {
-      onClick: () => getOrdersOptions(),
-      allowCreate: true,
-      filterable: true,
-      placeholder: t('reuse.selectOrder'),
-      style: 'width: 100%',
-      options: []
+      valueKey: "id" ,
+      labelKey: "label",
+      hiddenKey: ['id'],
+      clearable: false,
+      defaultValue: '1',
+      items: orderOptions,
+      fields: [t('reuse.orderCode'),t('reuse.customerName'),t('reuse.employeeName')],
+      updateValue: (_value, option) => { console.log(option)}
+
     },
     colProps: {
       span: 20
@@ -735,32 +766,10 @@ const fillTaxCode = (data) => {
 }
 const form = ref<FormInstance>()
 
-//get orderlist
-let callOrderAPI = 0
-let OrdersSelect: ComponentOptions[] = reactive([])
-const getOrdersOptions = async () => {
-  if (callOrderAPI == 0) {
-    await getOrderList({})
-      .then((res) => {
-        if (res.data) {
-          OrdersSelect = res.data.map((tag) => ({
-            label: tag.code,
-            value: tag.id,
-            id: tag.id
-          }))
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-      .finally(() => callOrderAPI++)
-    columnProfileCustomer[20].componentProps!.options = OrdersSelect
-    columnProfileCustomer[20].componentProps!.loading = false
-  }
-}
 
 onBeforeMount(async () => {
   await getCustomerOptions()
+  await getOrdersOptions()
 })
 // add history for sale
 const historyRow = reactive<tableDataType>({

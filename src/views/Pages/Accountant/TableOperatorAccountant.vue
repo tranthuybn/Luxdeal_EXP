@@ -32,7 +32,7 @@ import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getStaffList, getAllCustomer, getAccountantList } from '@/api/Business'
 import { ListImages } from './types'
-import { STATUS_RECEIPTS_AND_PAYMENT } from '@/utils/API.Variables'
+// import { STATUS_RECEIPTS_AND_PAYMENT } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)

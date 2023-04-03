@@ -91,6 +91,16 @@ export const getEmployeeRatingList = async (params: any): Promise<IResponse> => 
   return res && res.data
 }
 
+export const getEmployeeById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_STAFF_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getEmployeeSaleTrackingList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {

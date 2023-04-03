@@ -959,6 +959,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    resultsAndStatus: 'Kết quả & Trạng thái',
     editPassword: 'Sửa mật khẩu',
     cancelEditPassword: 'Hủy',
     chooseBirthday: 'Vui lòng chọn ngày sinh',

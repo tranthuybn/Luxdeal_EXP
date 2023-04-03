@@ -2305,15 +2305,15 @@ const getFormReceipts = () => {
 const formPaymentRequest = ref()
 const printPaymentRequest = () => {
   formPaymentRequest.value = {
-      sellOrderCode: sellOrderCode,
-      codePaymentRequest: codePaymentRequest,
+      sellOrderCode: sellOrderCode.value,
+      codePaymentRequest: codePaymentRequest.value,
       recharger: inputRecharger.value,
       user: getStaffList,
       inputReasonCollectMoney: inputReasonCollectMoney.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts
+      moneyReceipts: moneyReceipts.value
     }
 
   printPage('IPRFormPrint')
@@ -2798,7 +2798,7 @@ const handleClose = (done: () => void) => {
 
       <div id="IPRFormPrint">
         <slot>
-          <paymentOrderPrint v-if="dataEdit" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
         </slot>
       </div>
 

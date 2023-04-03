@@ -73,8 +73,7 @@ console.log('props:', props.dataEdit )
     </div>
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3">{{ t('formDemo.formPayment') }} :</label>
-      <div class="mr-2">Tiền mặt</div>
-      <div>Chuyển khoản</div>
+      <div class="mr-2">{{ props.dataSent.payment}}</div>
     </div>
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3">{{ t('userDemo.accountInfo') }} :</label>

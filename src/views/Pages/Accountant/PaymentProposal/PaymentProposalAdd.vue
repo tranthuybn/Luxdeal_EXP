@@ -14,18 +14,21 @@ import {
   ElInput,
   ElForm,
   ElFormItem,
-  ElDatePicker  
+  ElDatePicker,
+  ElNotification,
+  ElMessageBox
 } from 'element-plus'
 import type {FormRules, FormInstance} from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import {
   GetPaymentRequestDetail,
+  deletePaymentProposal,
   getStaffList,
   getAllCustomer,
   approvalOrder,
 } from '@/api/Business'
 import { postNewPaymentRequest } from '@/api/Accountant'
-
+import InputPrice from '@/components/CurrencyInputComponent.vue'
 import { onBeforeMount, reactive, ref, watch, h } from 'vue'
 import { FORM_IMAGES } from '@/utils/format'
 import { dateTimeFormat } from '@/utils/format'
@@ -38,9 +41,11 @@ import { IDetailExpenses } from '../types/PaymentProposal.d'
 import { useValidator } from '@/hooks/web/useValidator'
 
 const { t } = useI18n()
+const escape = useIcon({ icon: 'quill:escape' })
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const ruleFormRef = ref<FormInstance>()
+const formValue = ref()
 const router = useRouter()
 const route = useRoute()
 const curCode = 'DNTT' + moment().format('hhmmss')
@@ -52,21 +57,28 @@ const optionPeople = ref()
 const optionCreatedBy = ref()
 const pageSize = ref(10)
 const id = Number(router.currentRoute.value.params.id)
-const approvalId = String(route.params.approvalId)
+const approvalId = String(route.query.approvalId)
 const type = String(route.params.type) == ':type' ? 'add' : String(route.params.type)
 const tableData = ref<Array<IDetailExpenses>>([])
+const showInputPricePlaceholder = ref(true)
+const disableForm = ref(false)
 const detailedListExpenses = ref<Array<IDetailExpenses>>([])
 const { ValidService } = useValidator()
 const rules = reactive<FormRules>({  
   createdBy: [ValidService.required] ,
-  description: [ValidService.required]                  
+  description: [ValidService.required],
+  peopleId: [ValidService.required],        
 })
 const rulesPaymentMethod = reactive<FormRules>({
   totalMoney : [ValidService.required],
   enterMoney: [ValidService.required],
   typeOfPayment : [ValidService.required]
 })
-
+const back = async () => {
+  push({
+    name: 'accountant.payment-proposal.payment-proposal-list'
+  })
+}
 const optionsPayments = [
   {
     value: 1,
@@ -116,8 +128,8 @@ const form = ref({
   typeOfPayment: 1,
   status: 1,
   depositeMoney: 0,
-  totalMoney: "",
-  enterMoney: "",
+  totalMoney: 0,
+  enterMoney: '',
   totalPrice: 0,
 })
 
@@ -140,13 +152,14 @@ const onAddItem = () => {
 watch(
   () => tableData.value[tableData.value.length - 1],
   () => {
+    const lastItem = tableData.value.at(-1)
     if (
-      tableData.value[tableData.value.length - 1].numberVouchers &&
-      tableData.value[tableData.value.length - 1].dayVouchers &&
-      tableData.value[tableData.value.length - 1].spendFor &&
-      tableData.value[tableData.value.length - 1].quantity &&
-      tableData.value[tableData.value.length - 1].unitPrice &&
-      tableData.value[tableData.value.length - 1].totalPrice
+      lastItem?.numberVouchers &&
+      lastItem?.dayVouchers &&
+      lastItem?.spendFor &&
+      lastItem?.quantity &&
+      lastItem?.unitPrice &&
+      lastItem?.totalPrice
     )
     onAddItem()
   },
@@ -182,7 +195,7 @@ watch(pageIndexCustomer, async (newPageIndex) => {
 const autoCalculate = () =>{
   form.value.totalPrice = 0
   tableData.value.forEach((el) => {
-    if (el.numberVouchers && el.unitPrice) {
+    if (el.quantity && el.unitPrice) {
       form.value.totalPrice += el.totalPrice
     }
   })
@@ -222,9 +235,35 @@ const postData = async() => {
 }
 
 const getDetailPayment = async() => {
-  const res = await GetPaymentRequestDetail({id: id})
-  form.value = res.data.paymentRequest
-  tableData.value = res.data.paymentRequestDetail
+  if(!isNaN(id)) {
+    const res = await GetPaymentRequestDetail({id: id})
+    if(res) {
+      formValue.value  = res.data.paymentRequest
+      tableData.value = res.data.paymentRequestDetail
+      await setFormValue()
+    } else {
+      ElNotification({
+        message: t('reuse.cantGetData'),
+        type: 'warning'
+      })
+    }
+  }
+
+}
+
+const setFormValue = () => {
+  const data = formValue.value
+  form.value.code = data.code
+  form.value.createdAt = data.createdAt
+  form.value.createdBy = data.createdBy
+  form.value.description = data.description
+  form.value.peopleId = data.peopleId
+  form.value.debtMoney = data.debtMoney
+  form.value.typeOfPayment = data.paymentType
+  form.value.depositeMoney = data.depositeMoney
+  form.value.totalMoney = data.totalMoney
+  form.value.enterMoney = data.enterMoney
+  form.value.totalPrice = data.totalPrice
 }
 
 onBeforeMount(async () => {
@@ -270,22 +309,73 @@ const handleChangeOptions = (option, form, formType) => {
 const { push } = useRouter()
 
 // Duyệt đề nghị thanh toán
-const approvalPayments = async (checkApproved) => {
-  const payload = { ItemType: 5, Id: parseInt(approvalId), IsApprove: checkApproved }
+const approvalPayments = async (val) => {
+  const payload = { ItemType: 5, Id: parseInt(approvalId), IsApprove: val }
   await approvalOrder(FORM_IMAGES(payload))
-  push({
-    name: `accountant.payment-proposal.payment-proposal-list`
-  })
+  .then(() => {
+      ElNotification({
+        message: val ? t('reuse.approveSuccess') : t('reuse.cancelApproveSuccess'),
+        type: 'success'
+      })
+      push({
+        name: `approve.payment-approval.proposal`
+      })
+    })
+    .catch(() =>
+      ElNotification({
+        message: t('reuse.approveFail'),
+        type: 'warning'
+      })
+    )
 }
-const disabledEdit = ref(false)
 
 // Xem detail or edit or approved 
 const editData = () => {
   if (type == 'approval' || type == 'detail' || type == 'edit') {
-    disabledEdit.value = true
     getDetailPayment()
+    disableForm.value = type == 'approval' || type == 'detail'
   } else {
     onAddItem()
+  }
+}
+
+const getRules = () => {
+  if(type == 'add' || type == 'edit') return rules
+  return {}
+}
+
+const cancel = () => {
+  router.go(-1)
+}
+
+const delAction = () => {
+  {
+    ElMessageBox.confirm(`${t('reuse.deleteWarning')}`, 'Warning', {
+      confirmButtonText: t('reuse.delete'),
+      cancelButtonText: t('reuse.exit'),
+      type: 'warning',
+    })
+      .then(async () => {
+        const res = await deletePaymentProposal({ Id: id })
+        if (res) {
+          ElNotification({
+            message: t('reuse.deleteSuccess'),
+            type: 'success'
+          })
+          router.go(-1)
+        } else {
+          ElNotification({
+            message: t('reuse.deleteFail'),
+            type: 'warning'
+          })
+        }
+      })
+      .catch(() => {
+        ElNotification({
+          type: 'info',
+          message: t('reuse.deleteCancel')
+        })
+      })
   }
 }
 
@@ -298,13 +388,21 @@ const editData = () => {
   > 
     <el-collapse-item :name="collapse[0].name" >
       <template #title>
-        <el-button class="header-icon" :icon="collapse[0].icon" link />
-        <span class="text-center text-xl">{{ collapse[0].title }}</span>
+        <div class="flex w-full justify-between">
+            <div class="before">
+              <el-button class="header-icon" :icon="collapse[0].icon" link />
+              <span class="text-center text-xl ml-3">{{ collapse[0].title }}</span>
+            </div>
+            <div @click="back()" class="after">
+              <span class="text-center text-xl">{{ t('reuse.exit') }}</span>
+              <el-button class="header-icon" :icon="escape" link />
+            </div>
+          </div>
       </template>
-      <el-row :gutter="20">
+      <el-row class="border-t py-5 px-13" :gutter="20">
         <el-col :span="12">
           <el-divider content-position="left">{{ t('reuse.paymentRequestInfo') }}</el-divider>
-          <el-form ref="ruleFormRef" :model="form" :rules="rules" label-width="160px">
+          <el-form ref="ruleFormRef" :model="form" :rules="getRules()" label-width="160px" :disabled="disableForm">
             <el-form-item prop="code" :label="t('formDemo.formCode')">
               <div>{{ form.code }}</div>
             </el-form-item>
@@ -365,123 +463,130 @@ const editData = () => {
         <el-button class="header-icon" :icon="collapse[1].icon" link/>
         <span class="text-center text-xl">{{ collapse[1].title }}</span>
       </template>
-      <el-table :data="tableData" border header-row-class-name="dark:text-white text-black">
-        <el-table-column type="index" :label="t('reuse.index')" align="center" width="70" />
-        <el-table-column prop="numberVouchers" :label="t('formDemo.numberVouchers')" min-width="132" >
-          <template #default="scope">
-            <el-input  v-model="scope.row.numberVouchers"/>
-          </template>
-        </el-table-column>
-        <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" min-width="132">
-          <template #default="scope">
-              <el-date-picker
-                v-model="scope.row.dayVouchers"
-                type="date"
-                placeholder="Pick a day"
-                format="DD/MM/YYYY"
-              />
-          </template>
-        </el-table-column>
-        <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" min-width="436" >
-          <template #default="scope">
-                <el-input v-model="scope.row.spendFor" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="132">
-          <template #default="scope">
-            <el-input
-              v-model="scope.row.quantity"
-              @change="
-                () => {
-                  scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
-                  autoCalculate()
-                }
-              "
-            />
-          </template>
-        </el-table-column>
-        <el-table-column prop="unitPrice" :label="t('reuse.unitPrice')" min-width="132">
+      <el-form :disabled="disableForm">
+        <el-table class="px-4" :data="tableData" border header-row-class-name="dark:text-white text-black">
+          <el-table-column type="index" :label="t('reuse.index')" align="center" width="70" />
+          <el-table-column prop="numberVouchers" :label="t('formDemo.numberVouchers')" min-width="132" >
+            <template #default="scope">
+              <el-input  v-model="scope.row.numberVouchers"/>
+            </template>
+          </el-table-column>
+          <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" min-width="132">
+            <template #default="scope">
+                <el-date-picker
+                  v-model="scope.row.dayVouchers"
+                  type="date"
+                  placeholder="Pick a day"
+                  format="DD/MM/YYYY"
+                />
+            </template>
+          </el-table-column>
+          <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" min-width="436" >
+            <template #default="scope">
+                  <el-input v-model="scope.row.spendFor" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="132">
             <template #default="scope">
               <el-input
-              v-model="scope.row.unitPrice" 
-              @change="
-                () => {
-                  scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
-                  autoCalculate()
-                }
-              "
+                v-model="scope.row.quantity"
+                @change="
+                  () => {
+                    scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
+                    autoCalculate()
+                  }
+                "
               />
-          </template>
-        </el-table-column>
-        <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')" min-width="132" >
-          <template #default="scope">
-              {{ scope.row.totalPrice }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="note" :label="t('reuse.note')">
-          <template #default="scope">
-            <el-input v-model="scope.row.note" />
-          </template>            
-        </el-table-column>
-        <el-table-column :label="t('formDemo.manipulation')" min-width="86">
-          <template #default="scope">
-            <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)">Xóa</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div class="flex justify-end">
-        <div class="total flex flex-col mt-4 w-[880px]">
-          <div class="flex gap-4">
-            <label class="w-[10%] text-right font-bold">{{ t('reuse.totaMoney') }}</label>
-            <span class="w-[170px] text-right">{{ changeMoney.format(form.totalPrice) }}</span>
-          </div>
-          <div class="flex gap-4">
-            <label class="w-[10%] text-right">{{ t('formDemo.deposit') }}</label>
-            <span class="w-[170px] text-right">
-              <el-input @change="autoCalculateFun" placeholder="đ" class="poi_text_right" v-model="form.depositeMoney" />
-            </span>
-          </div>
-          <div class="flex gap-4">
-            <label class="w-[10%] text-right text-red-500">{{ t('reuse.remaining') }}</label>
-            <span class="w-[170px] text-right">{{ changeMoney.format(form.debtMoney) }}</span>
-          </div>
-        </div>
-      </div>
-      <el-divider content-position="left" >{{ t('formDemo.billingInformation') }}</el-divider>
-      <el-row :gutter="20">
+            </template>
+          </el-table-column>
+          <el-table-column prop="unitPrice" :label="t('reuse.unitPrice')" min-width="132">
+              <template #default="scope">
+                <el-input
+                v-model="scope.row.unitPrice" 
+                @change="
+                  () => {
+                    scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
+                    autoCalculate()
+                  }
+                "
+                />
+            </template>
+          </el-table-column>
+          <el-table-column prop="totalPrice" :label="t('formDemo.intoMoney')" min-width="132" >
+            <template #default="scope">
+                {{ scope.row.totalPrice }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="note" :label="t('reuse.note')" min-width="300">
+            <template #default="scope">
+              <el-input v-model="scope.row.note" />
+            </template>            
+          </el-table-column>
+          <el-table-column :label="t('formDemo.manipulation')" min-width="86">
+            <template #default="scope">
+              <el-button size="small" type="danger" @click.prevent="deleteRow(scope.$index)">Xóa</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-form>
+      <el-form :disabled="disableForm" label-width="150px">
+        <el-row class="justify-end mt-3 mr-36">
+          <el-col :span="6">
+            <el-form-item :label="t('reuse.totaMoney') " class="margin-0">
+              <span class="w-[170px] text-right">{{ changeMoney.format(form.totalPrice) }}</span>
+            </el-form-item>
+            <el-form-item :label="t('formDemo.deposit') " class="margin-0">
+              <span class="w-[170px] text-right">
+                <el-input @change="autoCalculateFun" placeholder="đ" class="poi_text_right" v-model="form.depositeMoney" />
+              </span>
+            </el-form-item>
+            <el-form-item :label="t('reuse.remaining')" class="margin-0 debtMoney text-red-500" >
+              <span class="w-[170px] text-right">{{ changeMoney.format(form.debtMoney) }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <el-row class="py-5 px-13" :gutter="20">
+        <el-divider content-position="left" >{{ t('formDemo.billingInformation') }}</el-divider>
         <el-col :span=12>
-          <el-form :model="form" :rules="rulesPaymentMethod" label-width="160px" class="basis-1/2" >
-          <el-form-item 
-            prop="totalMoney"
-            :label="t('formDemo.amountSpent')" 
+          <el-form :model="form" :rules="rulesPaymentMethod" :disabled="disableForm" label-width="160px" class="basis-1/2" >
+            <el-form-item 
+              prop="totalMoney"
+              :label="t('formDemo.amountSpent')" 
             >
-            <el-input
-                size="default"
-                v-model="form.totalMoney"
-                :placeholder="t('reuse.placeholderMoney')"
-                :suffixIcon="h('div', 'đ')"
-            />
-          </el-form-item>
-          <el-form-item
-            prop="enterMoney"
-            :label="t('formDemo.writtenWords')"
+                <InputPrice 
+                  v-model="form.totalMoney"
+                  style="width: 100%"
+                  :placeholder="t('reuse.placeholderMoney')"
+                  :suffixIcon="h('div', 'đ')"
+                  :showCurrency="false"
+                  :showPlaceholder="showInputPricePlaceholder"
+                  @update:modelValue="showInputPricePlaceholder = false"
+                />
+            </el-form-item>
+
+            <el-form-item
+              prop="enterMoney"
+              :label="t('formDemo.writtenWords')"
             >
               <el-input v-model="form.enterMoney" :placeholder="t('formDemo.writtenWords')" />
-          </el-form-item>
-          <el-form-item
-            prop="typeOfPayment"
-            :label="t('formDemo.formPayment')" 
-          >
-            <el-select v-model="form.typeOfPayment">
-              <el-option
-                v-for="item in optionsPayments"
-                :key="item.key"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="t('reuse.status')" class="day-update-wrap">
+            </el-form-item>
+
+            <el-form-item
+              prop="typeOfPayment"
+              :label="t('formDemo.formPayment')" 
+            >
+              <el-select v-model="form.typeOfPayment">
+                <el-option
+                  v-for="item in optionsPayments"
+                  :key="item.key"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+
+            <el-form-item :label="t('reuse.status')" class="day-update-wrap">
               <div class="flex flex-col gap-1">
                 <span class="day-updated">
                   {{ t('reuse.initializeAndWrite') }}
@@ -490,19 +595,26 @@ const editData = () => {
                   <label> {{ dateTimeFormat(moment()) }} </label>
                 </span>
               </div>
-          </el-form-item>
-          <el-form-item/>
-          <el-form-item v-if="type === 'add'">
-            <el-button>{{ t('button.print') }}</el-button>
-            <el-button type="primary" @click="postData">{{ t('reuse.saveAndPending') }}</el-button>
-            <el-button type="danger">{{ t('reuse.cancel') }}</el-button>
-          </el-form-item>
-          <el-form-item v-if="type === 'approval'">
-            <el-button @click="approvalPayments(true)" type="warning">{{ t('router.approve') }}</el-button>
-            <el-button @click="approvalPayments(false)">{{ t('router.notApproval') }}</el-button>
-          </el-form-item>
-      </el-form>
-        </el-col>
+            </el-form-item>
+
+          </el-form>
+          <el-form label-width="160px" class="basis-1/2">
+            <el-form-item v-if="type === 'add'">
+              <el-button>{{ t('button.print') }}</el-button>
+              <el-button type="primary" @click="postData">{{ t('reuse.saveAndPending') }}</el-button>
+              <el-button type="danger" @click="cancel">{{ t('reuse.cancel') }}</el-button>
+            </el-form-item>
+
+            <el-form-item v-if="type === 'detail'">
+              <el-button type="danger" @click="delAction">{{ t('reuse.cancel') }}</el-button>
+            </el-form-item>
+            
+            <el-form-item v-if="type === 'approval'">
+              <el-button @click="approvalPayments(true)" type="warning">{{ t('router.approve') }}</el-button>
+              <el-button @click="approvalPayments(false)">{{ t('router.notApproval') }}</el-button>
+            </el-form-item>
+          </el-form>
+      </el-col>
       </el-row>
     </el-collapse-item>
   </el-collapse>
@@ -555,5 +667,15 @@ const editData = () => {
 
 ::v-deep(.el-table td.el-table__cell div) {
   width: 100%;
+}
+
+.margin-0 {
+  margin: 0 !important;
+}
+
+::v-deep(.debtMoney) {
+  .el-form-item__label {
+    color: #ef4444;
+  }
 }
 </style>

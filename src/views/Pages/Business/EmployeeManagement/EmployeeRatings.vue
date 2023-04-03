@@ -7,10 +7,10 @@ import {
   filterStatusRatingEmployee,
 } from '@/utils/filters'
 import {
-      getBranchList,
-      getDepartmentList,
-      getRankList,
-      getTypePersonnelList
+      getBranchs,
+      getDepartments,
+      getRanks,
+      getTypePersonnels
 } from '@/api/HumanResourceManagement'
 import { formatStatusRatingEmployee } from '@/utils/format'
 import { changeMoney } from '@/utils/tsxHelper'
@@ -19,14 +19,13 @@ import { useRouter } from 'vue-router'
 import { ElButton } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useAppStore } from '@/store/modules/app'
-import { localStore } from './store'
 
 // Key must be the same as name filed in columns
 const apiToFilter = {
-  ['branch'] : getBranchList,
-  ['department'] : getDepartmentList,
-  ['rankEmployee'] : getRankList,
-  ['typeEmployee'] : getTypePersonnelList,
+  ['branch'] : getBranchs,
+  ['department'] : getDepartments,
+  ['rankEmployee'] : getRanks,
+  ['typeEmployee'] : getTypePersonnels,
 }
 const { t } = useI18n()
 const dateDefault = {
@@ -44,12 +43,12 @@ const appStore = useAppStore()
 const Utility = appStore.getUtility
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 provide('parameters', {params})
-const { setData } = localStore()
-setData(params)
+
 const action = (row: any, type: string) => {
   push({
-        name: `${String(router.currentRoute.value.name)}.${Utility}`,
-        params: {id: row.id, type: type, tab: row.voucherType}
+    name: `${String(router.currentRoute.value.name)}.${Utility}`,
+    params: {id: row.id, type: type, tab: row.voucherType},
+    query: {startDate: startDate.value, endDate: endDate.value}
   })
 }
 const columns = reactive<TableColumn[]>([
@@ -141,6 +140,8 @@ const columns = reactive<TableColumn[]>([
   }
   
 ])
+
+// Get date from header filter
 const getDate = (date) => {
   if(date.startDate && date.endDate) {
     startDate.value = date.startDate
@@ -148,12 +149,8 @@ const getDate = (date) => {
   }
   startDate.value = date.startDate || startDateDef
   endDate.value = date.endDate || endDateDef
-  const data = {
-    startDate: startDate.value,
-    endDate: endDate.value
-  }
-  setData(data)
 }
+
 </script>
 <template>
   <tableDatetimeFilterBasicVue 

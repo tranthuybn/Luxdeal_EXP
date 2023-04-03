@@ -960,6 +960,7 @@ export default {
   },
   reuse: {
     editPassword: 'Sửa mật khẩu',
+    cancelEditPassword: 'Hủy',
     chooseBirthday: 'Vui lòng chọn ngày sinh',
     descIsTheStandardTime: 'Là thời gian tiêu chuẩn',
     chooseWorkLevel: 'Chọn cấp bậc làm việc',

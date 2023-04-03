@@ -32,6 +32,7 @@ import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getStaffList, getAllCustomer, getAccountantList } from '@/api/Business'
 import { ListImages } from './types'
+import { STATUS_RECEIPTS_AND_PAYMENT } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
@@ -507,6 +508,7 @@ onBeforeMount(async () => {
         item.children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
     }))
 })
+
 const handleScroll = (field) => {
   switch (field) {
     case 'createdBy' :
@@ -555,7 +557,7 @@ watch(pageIndexCustomer, async (newPageIndex) => {
   }
 });
 
-const approvalId = String(route.params.approvalId)
+const approvalId = String(route.query.approvalId)
 const approvalProduct = async (val) => {
   const payload = { ItemType: 5, Id: parseInt(approvalId), IsApprove: val }
   await approvalProducts(FORM_IMAGES(payload))
@@ -728,46 +730,34 @@ const approvalProduct = async (val) => {
         </el-dialog>
       </ElCol>
       <ElCol :span="hasAttachDocument ? 12 : 0" v-if="hasAttachDocument" class="max-h-400px overflow-y-auto">
-        <ElDivider class="text-center font-bold ml-2">{{ t('reuse.attachDocument') }}</ElDivider>
+        <ElDivider content-position="left" class="text-center font-bold ml-2">{{ t('reuse.attachDocument') }}</ElDivider>
       </ElCol>
     </ElRow>
     <template #under>
       <div class="w-[100%]" v-if="props.type === 'add'">
-        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-8">
-          <ElButton :loading="loading" @click="save('add')">
+        <div class="w-[50%] flex justify-left gap-2 ml-8">
+          <div v-if="customBtn == 2">
+            <ElButton type="primary" :loading="loading" @click="save('add')">
+              {{ t('reuse.save') }}
+            </ElButton>
+            <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
+              {{ t('reuse.saveAndAdd') }}
+            </ElButton>
+          </div>
+          <div v-if="customBtn == 1">
+            <ElButton :loading="loading">
               {{ t('button.print') }}
-          </ElButton>
-          <ElButton type="primary" :loading="loading" @click="save('add')">
-            {{ t('reuse.saveAndPending') }}
-          </ElButton>
-          <ElButton type="danger" :loading="loading" @click="cancel()">
-            {{ t('reuse.cancel') }}
-          </ElButton>
-        </div>
-        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
-          <ElButton type="primary" :loading="loading" @click="save('add')">
-            {{ t('reuse.save') }}
-          </ElButton>
-          <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
-            {{ t('reuse.saveAndAdd') }}
-          </ElButton>
-          <ElButton :loading="loading" @click="cancel()">
-            {{ t('reuse.cancel') }}
+            </ElButton>
+            <ElButton type="primary" :loading="loading" @click="save('add')">
+              {{ t('reuse.saveAndPending') }}
+            </ElButton>
+          </div>
+          <ElButton :type="customBtn == 1 ? 'danger' : '' " :loading="loading" @click="cancel()">
+              {{ t('reuse.cancel') }}
           </ElButton>
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'edit'">
-        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
-          <ElButton :loading="loading" @click="save('add')">
-              {{ t('button.print') }}
-          </ElButton>
-          <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
-            {{ t('reuse.saveAndPending') }}
-          </ElButton>
-          <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-            {{ t('reuse.delete') }}
-          </ElButton>
-        </div>
         <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('edit')">
             {{ t('reuse.save') }}
@@ -778,18 +768,20 @@ const approvalProduct = async (val) => {
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'detail'">
-        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-5">
-          <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
-            {{ t('reuse.fix') }}
-          </ElButton>
-          <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-            {{ t('reuse.delete') }}
-          </ElButton>
-        </div>
-        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
-          <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+        <div class="w-[50%] flex justify-left gap-2 ml-5">
+          <div v-if="customBtn == 2">
+            <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
+              {{ t('reuse.fix') }}
+            </ElButton>
+            <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+              {{ t('reuse.delete') }}
+            </ElButton>
+          </div>
+          <div v-if="customBtn == 1">
+            <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
             {{ t('reuse.cancel') }}
-          </ElButton>
+          </ElButton>  
+          </div>
         </div>
       </div>
       <div class="pl-57" v-if="props.type === 'approval'">

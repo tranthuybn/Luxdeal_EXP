@@ -206,11 +206,17 @@ const postData = async (data) => {
     data.isHide = false
   }
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[8].key, ...data })
-    .then(() =>
+    .then(() =>{
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
+      if (data.backRouter == true) {
+    push({
+      name: 'products-services.OriginCategory',
+      params: { backRoute: 'products-services.OriginCategory' }
+    })
+  }}
     )
     .catch((error) =>
     ElNotification({
@@ -218,12 +224,7 @@ const postData = async (data) => {
         type: 'error'
       })
     )
-  if (data.backRouter == true) {
-    push({
-      name: 'products-services.OriginCategory',
-      params: { backRoute: 'products-services.OriginCategory' }
-    })
-  }
+
 }
 // get data from router
 const router = useRouter()

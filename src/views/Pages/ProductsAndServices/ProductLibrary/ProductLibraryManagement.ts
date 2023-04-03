@@ -452,7 +452,8 @@ export const columnProfileProduct = reactive<FormSchema[]>([
     colProps: {
       span: 24
     },
-    value: 1
+    component: 'Checkbox',
+    value: true
   }
 ])
 let callTagAPI = 0

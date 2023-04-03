@@ -4,21 +4,23 @@ import { ElDivider, ElTable, ElTableColumn } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 
 const { t } = useI18n()
+
 const props = defineProps({
   dataEdit: {
     type: Object,
     default: () => {}
   },
-  nameDialog: {
-    type: String,
-    default: () => ''
+  dataSent:{
+    type: Object,
+    default: () => {}
   }
 })
-console.log('props:', props)
+console.log('HUy:' ,props.dataSent )
+console.log('props:', props.dataEdit )
 </script>
 
 <template>
-  <div class="flex pt-6 m-6">
+  <div class="flex pt-6 m-6" style="width: 90%;">
     <div class="basis-4/12">
       <img src="@/assets/imgs/images.png" />
     </div>
@@ -57,7 +59,7 @@ console.log('props:', props)
   <div class="pb-1 m-6">
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3">{{ t('reuse.fullName') }} :</label>
-      <div>Đặng Ngọc Tuyết </div>
+      <div>{{ props.dataEdit.userName ?? '' }} </div>
     </div>
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3"
@@ -86,14 +88,14 @@ console.log('props:', props)
 
   <div class="pb-4 m-6">
     <div class="font-bold text-[16px] pb-5">Bảng kê chi tiết các khoản chi</div>
-    <el-table ref="singleTableRef" :data="[]" border style="width: 100%">
+    <el-table ref="singleTableRef" :data="[]" border>
       <el-table-column label="Chứng từ" align="center">
-        <el-table-column prop="STT" type="index" label="STT" width="60" />
-        <el-table-column prop="No" label="Số" width="80" />
-        <el-table-column prop="Date" label="Ngày" width="80" />
+        <el-table-column prop="STT" type="index" label="STT"  />
+        <el-table-column prop="No" label="Số" />
+        <el-table-column prop="Date" label="Ngày"  />
       </el-table-column>
-      <el-table-column prop="productName" :label="t('formDemo.spendFor')" width="200" />
-      <el-table-column prop="quantity" :label="t('reuse.quantity')" width="auto" />
+      <el-table-column prop="productName" :label="t('formDemo.spendFor')" />
+      <el-table-column prop="quantity" :label="t('reuse.quantity')"  />
       <el-table-column prop="price" :label="t('reuse.unitPrices')">
         <template #default="data">
           <div class="text-right">{{ data.row.price }}</div>
@@ -104,7 +106,7 @@ console.log('props:', props)
           <div class="text-right">{{ data.row.quantity * data.row.price }}</div>
         </template>
       </el-table-column>
-      <el-table-column prop="note" :label="t('reuse.note')" width="auto" />
+      <el-table-column prop="note" :label="t('reuse.note')"  />
     </el-table>
   </div>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
-
 const { t } = useI18n()
+
 const props = defineProps({
   dataEdit: {
     type: Object,
@@ -12,12 +12,21 @@ const props = defineProps({
     default: () => ''
   }
 })
-
+function getUser(arr) {
+  var labelUser= "";
+  for (var i in arr) {
+    if(arr[i].value == props.dataEdit.recharger) {
+      labelUser = arr[i].label
+    }
+  }
+  return labelUser
+}
 console.log('dataEdit: ', props.dataEdit)
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 </script>
 
 <template>
-  <div class="pt-[28px] m-6">
+  <div class="pt-[28px] m-6" style="width: 95%; height: 100%;">
     <div class="flex justify-between items-center pb-4">
       <div class="basis-6/12">
         <img
@@ -61,27 +70,27 @@ console.log('dataEdit: ', props.dataEdit)
     <div class="pb-10">
       <div class="flex pb-3 items-center text-[16px]">
         <label class="basis-1/4">{{ t('reuse.fullName') }} :</label>
-        <div>Chị Loan - 0903667626</div>
+        <div> {{ getUser(props.dataEdit.user) ?? '' }} </div>
       </div>
       <div class="flex pb-3 items-center text-[16px]">
         <label class="basis-1/4">{{ t('reuse.reason') }} :</label>
-        <div>Thu phí</div>
+        <div>{{ props.dataEdit.reasonCollectingMoney ?? '' }}</div>
       </div>
       <div class="flex pb-3 items-center text-[16px]">
         <label class="basis-1/4">{{ t('reuse.amountOfMoney') }} :</label>
-        <div>799.000</div>
+        <div> {{ currencyFormatter.format(props.dataEdit.moneyReceipts)   }}</div>
       </div>
       <div class="flex pb-3 items-center text-[16px]">
         <label class="basis-1/4">{{ t('formDemo.writtenWords') }} :</label>
-        <div>Bảy trăm chín mươi chín ngàn đồng</div>
+        <div>{{ props.dataEdit.enterMoney ?? '' }}</div>
       </div>
       <div class="flex pb-3 items-center text-[16px]">
         <label class="basis-1/4">{{ t('formDemo.formPayment') }} :</label>
-        <div>Tiền mặt</div>
+        <div>{{ props.dataEdit.payment ?? '' }}</div>
       </div>
       <div class="flex pb-3 items-center text-[16px]">
         <label class="basis-1/4">{{ t('formDemo.documentsAttached') }} :</label>
-        <div>Chứng từ gốc</div>
+        <div>{{ props.dataEdit.sellOrderCode ?? '' }}</div>
       </div>
     </div>
     <div class="flex items-center justify-between text-center">

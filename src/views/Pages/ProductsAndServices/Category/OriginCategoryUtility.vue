@@ -324,22 +324,22 @@ const { push } = useRouter()
 const editData = async (data) => {
   data = await customPostData(data)
   await updateCategory({ TypeName: PRODUCTS_AND_SERVICES[8].key, ...data })
-    .then(() =>
+    .then(() =>{
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
       })
+      push({
+      name: 'products-services.OriginCategory',
+      params: { backRoute: 'products-services.OriginCategory' }
+    })}
     )
     .catch(() =>
       ElNotification({
         message: t('reuse.updateFail'),
         type: 'warning'
       })
-    ),
-    push({
-      name: 'products-services.OriginCategory',
-      params: { backRoute: 'products-services.OriginCategory' }
-    })
+    )
 }
 const deleteOrigin = `${t('reuse.deleteOrigin')}`
 </script>

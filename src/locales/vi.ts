@@ -1789,7 +1789,7 @@ export default {
     silver: 'Bạc',
     gold: 'Vàng',
     platinum: 'Bạch kim',
-    cantChooseSameProductCode: 'Không thể tạo sản phẩm cùng mã quản lý',
+    cantChooseSameProductCode: 'Mã sản phẩm đã tồn tại',
     cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm',
     newCreate: 'Tạo mới',
     chooseReceiptAndPayment: 'Chọn phiếu thu/chi',

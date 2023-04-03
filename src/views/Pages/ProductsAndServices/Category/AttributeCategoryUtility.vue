@@ -368,22 +368,22 @@ const { push } = useRouter()
 const editData = async (data) => {
   data = await customPostData(data)
   await updateCategory(data)
-    .then(() =>
+    .then(() =>{
       ElMessage({
         message: t('reuse.updateSuccess'),
         type: 'success'
       })
+      push({
+      name: 'products-services.AttributeCategory',
+      params: { backRoute: `products-services.AttributeCategory`, tab: data.TypeName }
+      })}
     )
     .catch(() =>
       ElMessage({
         message: t('reuse.updateFail'),
         type: 'warning'
       })
-    ),
-    push({
-      name: 'products-services.AttributeCategory',
-      params: { backRoute: `products-services.AttributeCategory`, tab: data.TypeName }
-    })
+    )
 }
 </script>
 

@@ -22,9 +22,16 @@ const { push } = useRouter()
 const escape = useIcon({ icon: 'quill:escape' })
 const activeName = ref('receiptsAddDetails')
 const setFormData = reactive({} as FormData)
+
 const back = async () => {
+  if(type !== 'approval') {
+    push({
+      name: 'accountant.receipts-expenditures.receipts-expenditures-list'
+    }) 
+    return
+  }
   push({
-    name: 'accountant.receipts-expenditures.receipts-expenditures-list'
+      name: 'approve.payment-approval.receipts-and-expenditures'
   })
 }
 const rules = reactive({
@@ -33,6 +40,7 @@ const rules = reactive({
   totalMoney: [required()],
   enterMoney: [required()],
   typeOfPayment: [required()],
+  peopleType: [required()],
 })
 
 //random field code
@@ -302,7 +310,7 @@ const currentCollapse = ref<string>(collapse[0].name)
           :type="type"
           :id="id"
           @post-data="postData"
-          :rules="!(type === 'detail') ? rules : {}"
+          :rules="rules"
           @customize-form-data="customizeData"
           @edit-data="editData"
           :formDataCustomize="setFormData"

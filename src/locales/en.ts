@@ -88,6 +88,7 @@ export default {
     username: 'Username',
     password: 'Password',
     register: 'Register',
+    guide: "Guides",
     checkPassword: 'Confirm password',
     login: 'Sign in',
     otherLogin: 'Sign in with',
@@ -906,6 +907,9 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    editPassword: 'Edit password',
+    cancelEditPassword: 'Cancel',
+    chooseBirthday: 'Choose birthday',
     descIsTheStandardTime: 'Is the standard time',
     chooseWorkLevel: 'Choose work level',
     rankAndType: 'Rank and type',

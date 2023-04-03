@@ -149,7 +149,7 @@ export const useTable = <T = any>(config?: UseTableConfig<T>) => {
             message: t('reuse.getDataSuccess'),
             type: 'success'
           })
-          tableObject.tableList = res.data
+          tableObject.tableList = res.data || res
           tableObject.total = get(res.pagination || {}, config?.response?.total as string) || 0
         })
         .catch(() => {

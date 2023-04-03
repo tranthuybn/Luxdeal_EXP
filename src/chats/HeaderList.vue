@@ -64,7 +64,6 @@ export default {
       this.$emit('userList', this.inUserList)
     },
     changeTextSearch(e) {
-      // console.log(e.target.value)
       this.$emit('changeTextSearch', e.target.value)
     }
   }

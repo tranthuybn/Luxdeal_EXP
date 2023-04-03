@@ -88,6 +88,7 @@ export default {
     username: 'Tên tài khoản',
     password: 'Mật khẩu',
     register: 'Đăng ký',
+    guide : 'Hướng dẫn',
     checkPassword: 'Xác nhận mật khẩu',
     login: 'Đăng nhập',
     otherLogin: 'Đăng nhập với',
@@ -958,6 +959,9 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    editPassword: 'Sửa mật khẩu',
+    cancelEditPassword: 'Hủy',
+    chooseBirthday: 'Vui lòng chọn ngày sinh',
     descIsTheStandardTime: 'Là thời gian tiêu chuẩn',
     chooseWorkLevel: 'Chọn cấp bậc làm việc',
     rankAndType: 'Cấp bậc/loại hình',

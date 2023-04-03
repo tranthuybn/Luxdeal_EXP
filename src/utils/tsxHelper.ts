@@ -1,6 +1,8 @@
-import { Slots } from 'vue'
+import { Slots,ref, computed } from 'vue'
 import { isFunction } from '@/utils/is'
 import moment from 'moment';
+import { usePermissionStore } from '@/store/modules/permission'
+import { useCache } from '@/hooks/web/useCache'
 
 export const getSlot = (slots: Slots, slot = 'default', data?: Recordable) => {
   // Reflect.has determines whether an object exists in a certain attribute
@@ -32,3 +34,12 @@ export const formartDate = (date) => {
   if(date) return moment(date, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY')
   return ''
 }
+
+export const usePermission = (currentRoute) => {
+  const { wsCache } = useCache()
+  const permissionStore = usePermissionStore()
+  permissionStore.checkRoleAndSetPermission(wsCache.get(permissionStore.routerByRoles), currentRoute )
+  const userPermission = computed(()=>permissionStore.getUserPermission)
+  return userPermission.value
+}
+

@@ -14,7 +14,7 @@ export const productCategories = [
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
-    field: 'total',
+    field: 'implementalProduct',
     label: t('reuse.quantity'),
     minWidth: '150',
     sortable: true
@@ -55,7 +55,7 @@ export const colorCategories = [
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
-    field: 'total',
+    field: 'implementalProduct',
     label: t('reuse.quantity'),
     minWidth: '150',
     sortable: true
@@ -99,7 +99,7 @@ export const sizeCategories = [
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
-    field: 'total',
+    field: 'implementalProduct',
     label: t('reuse.quantity'),
     minWidth: '150',
     sortable: true
@@ -143,7 +143,7 @@ export const materialCategories = [
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
-    field: 'total',
+    field: 'implementalProduct',
     label: t('reuse.quantity'),
     minWidth: '150',
     sortable: true
@@ -187,7 +187,7 @@ export const statusCategories = [
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
-    field: 'total',
+    field: 'implementalProduct',
     label: t('reuse.quantity'),
     minWidth: '150',
     sortable: true
@@ -231,7 +231,7 @@ export const genderCategories = [
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
-    field: 'total',
+    field: 'implementalProduct',
     label: t('reuse.quantity'),
     minWidth: '150',
     sortable: true
@@ -275,7 +275,7 @@ export const unitCategories = [
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
-    field: 'total',
+    field: 'implementalProduct',
     label: t('reuse.quantity'),
     minWidth: '150',
     sortable: true
@@ -320,7 +320,7 @@ export const brandCategories = [
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
-    field: 'total',
+    field: 'implementalProduct',
     label: t('reuse.quantity'),
     minWidth: '150',
     sortable: true
@@ -364,7 +364,7 @@ export const originCategories = [
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },
   {
-    field: 'total',
+    field: 'implementalProduct',
     label: t('reuse.quantity'),
     minWidth: '150',
     sortable: true

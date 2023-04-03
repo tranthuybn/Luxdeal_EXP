@@ -90,7 +90,8 @@ const schema = reactive<FormSchema[]>([
         }
       ]
     },
-      colProps: {
+    value: '1',
+    colProps: {
       span: 24
     }
   },

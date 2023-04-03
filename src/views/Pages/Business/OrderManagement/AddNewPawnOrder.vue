@@ -659,6 +659,8 @@ function printPage(id: string, { url, title, w, h }) {
                   </head>
                   <body>
                     ${printContents}
+                    <br>
+                    Thuần HUY
                   </body>
                 </html>`)
 

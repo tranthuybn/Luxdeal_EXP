@@ -40,6 +40,10 @@ const loginOut = () => {
     .catch(() => {})
 }
 
+const userGuide = () => {
+        window.open("/guide", "_blank");
+}
+
 const toDocument = () => {
   window.open('https://cooftech.com/')
 }
@@ -64,6 +68,9 @@ const toDocument = () => {
         </ElDropdownItem>
         <ElDropdownItem divided>
           <div @click="loginOut">{{ t('common.loginOut') }}</div>
+        </ElDropdownItem>
+        <ElDropdownItem divided>
+          <div @click="userGuide">{{ t('login.guide') }}</div>
         </ElDropdownItem>
       </ElDropdownMenu>
     </template>

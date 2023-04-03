@@ -28,7 +28,11 @@ import {
 } from '../../Components/TablesReusabilityFunction'
 import { TableData } from '@/api/table/types'
 import { useTable } from '@/hooks/web/useTable'
+import { usePermission } from '@/utils/tsxHelper'
 import { ElDrawer, ElButton, ElCheckboxGroup, ElCheckboxButton, ElCheckbox } from 'element-plus'
+
+const { currentRoute } = useRouter()
+const userPermission = usePermission(currentRoute.value)
 const { t } = useI18n()
 const columns = reactive<TableColumn[]>([
   {
@@ -143,7 +147,7 @@ const { register, tableObject, methods } = useTable<TableData>({
 onBeforeMount(() => {
   dynamicApi.value = getCommissionPaymentList
   dynamicColumns.value = columns
-  addOperatorColumn(dynamicColumns.value)
+  if(userPermission) addOperatorColumn(dynamicColumns.value)
   getData()
 })
 const appStore = useAppStore()

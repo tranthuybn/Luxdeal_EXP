@@ -35,12 +35,14 @@ const detailedBrowsing = (scope: any) => {
   if (type != 'proposal') {
     push({
       name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
-      params: { type: 'approval', id: scope.row.targetId, approvalId: scope.row.id }
+      params: { type: 'approval', id: scope.row.targetId},
+      query: { approvalId: scope.row.id }
     })
   } else {
     push({
       name: `accountant.payment-proposal.payment-proposal-list.${utility}`,
-      params: { type: 'approval', id: scope.row.targetId, approvalId: scope.row.id }
+      params: { type: 'approval', id: scope.row.targetId},
+      query: { approvalId: scope.row.id }
     })
   }
 }

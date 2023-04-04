@@ -19,7 +19,7 @@ export interface FormData {
     createdAt: string
     createdBy: string
     description: string
-    peopleType: string
+    peopleType: number
     totalMoney: number
     enterMoney: string
     typeOfPayment: 1 | 2

@@ -5165,7 +5165,7 @@ class="min-w-42 min-h-11" type="primary"
               <div class="w-[100%] text-xl font-bold">{{ codePaymentRequest }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right"
+              <label class="w-[30%] text-right hello"
                 >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">

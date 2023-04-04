@@ -22,7 +22,6 @@ const { push } = useRouter()
 const escape = useIcon({ icon: 'quill:escape' })
 const activeName = ref('receiptsAddDetails')
 const setFormData = reactive({} as FormData)
-const paid = ref(false)
 
 const back = async () => {
   if(type !== 'approval') {
@@ -182,7 +181,7 @@ const schema = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.collectedMoney'),
-          value: paid.value
+          value: true
         }
       ]
     }
@@ -203,13 +202,14 @@ const customizeData = async (data) => {
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney
-  setFormData.createdBy = `${data.createdByObject?.name} | ${data.createdByObject?.value}` || ''
+  setFormData.createdBy = data.createdBy
   setFormData.createdAt = formartDate(data.createdAt)
-  setFormData.peopleType = `${data.peopleObject?.name} | ${data.peopleObject?.value}` || ''
+  setFormData.peopleType =  data.peopleId
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
   setFormData.accountNumber = data.accountNumber
   setFormData.paid = data.transacted
+  console.log(setFormData)
 }
 
 const customData = (data) => {

@@ -30,7 +30,7 @@ import { statusService } from '@/utils/status'
 import moment from 'moment'
 import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { getStaffList, getAllCustomer, getAccountantList } from '@/api/Business'
+import { getStaffList, getAllCustomer, getAccountantList, balanceAccount } from '@/api/Business'
 import { ListImages } from './types'
 import { usePermission } from '@/utils/tsxHelper'
 import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
@@ -346,7 +346,6 @@ let title = ref(props.title)
 if (props.title == 'undefined') {
   title.value = 'Category'
 }
-console.log(userPermission)
 
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value?.filter((image) => image.url !== file.url)
@@ -593,7 +592,28 @@ const approvalProduct = async (val) => {
     )
 }
 
-const handleAccounting = () => {
+const handleAccounting = async () => {
+  const payload = {
+    AccountId: formValue.value.accountNumber,
+    ReceiptId: formValue.value.id,
+    User: formValue.value.createdBy,
+  }
+  await balanceAccount(payload)
+  .then(() => {
+      ElNotification({
+        message: t('reuse.accountingSuccess'),
+        type: 'success'
+      })
+      formValue.value.accounted = !formValue.value.accounted
+    })
+  .catch(() =>
+    ElNotification({
+      message: t('reuse.accountingFail') ,
+      type: 'error'
+    })
+  )
+}
+const cancelAccounting = () => {
   formValue.value.accounted = !formValue.value.accounted
 }
 
@@ -897,7 +917,7 @@ function printPage(id: string) {
             </ElButton>
           </div>
           <div v-if="customBtn == 1 && !formValue?.isCancel" class="w-[50%] flex justify-left gap-2 ml-5"> 
-            <div class="flex" v-if="!formValue?.isApproved">
+            <div class="flex" v-if="formValue?.isApproved">
               <ElButton class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
                   {{ t('button.print') }}
               </ElButton>
@@ -907,7 +927,7 @@ function printPage(id: string) {
               <ElButton v-if="!formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted || !formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
                 {{ t('reuse.accounting') }}
               </ElButton>
-              <ElButton v-if="formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
+              <ElButton v-if="formValue?.accounted" type="primary" @click="cancelAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
                 {{ t('reuse.cancelAccounting') }}
               </ElButton>
             </div>

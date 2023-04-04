@@ -244,7 +244,6 @@ type FormDataEdit = {
 
 
 const customEditDataCombo = (data) => {
-  console.log('data', data)
   const customData = {} as FormDataEdit
   customData.Id = id
   customData.Name = data.code

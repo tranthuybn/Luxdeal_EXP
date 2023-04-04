@@ -146,6 +146,9 @@ const rules = reactive<FormRules>({
   Address: [
     ValidService.required,
   ],
+  doB: [
+    ValidService.required,
+  ],
   IsOrganization: [ValidService.required],
   cccdPlaceOfGrant: [ValidService.required],
   accountName: [
@@ -318,8 +321,6 @@ const getTableValue = async () => {
     ruleForm.ProvinceId = formValue.value.provinceId
     ruleForm.DistrictId = formValue.value.districtId
     ruleForm.WardId = formValue.value.wardId
-    console.log(formValue.value)
-
     arrayStatusCollab.value = formValue.value.statusHistory
     
     if (arrayStatusCollab.value?.length) {
@@ -498,25 +499,25 @@ const wardChange = async (value) => {
   ruleForm.WardId = value
   wardName.value = ward.value.find(e => e.value == value)
 }
-const clear = async () => {
-  ;(ruleForm.customerCode = ''),
-    (ruleForm.referralCode = ''),
-    (ruleForm.name = ''),
-    (ruleForm.taxCode = ''),
-    (ruleForm.businessClassification = false),
-    (ruleForm.representative = ''),
-    (ruleForm.phonenumber = ''),
-    (ruleForm.email = ''),
-    (ruleForm.doB = ''),
-    (ruleForm.cccd = ''),
-    (ruleForm.cccdCreateAt = ''),
-    (ruleForm.cccdPlaceOfGrant = ''),
-    (ruleForm.sex = true),
-    (ruleForm.link = ''),
-    (ruleForm.accountName = ''),
-    (ruleForm.accountNumber = ''),
-    (ruleForm.bankName = '')
-}
+// const clear = async () => {
+//   ;(ruleForm.customerCode = ''),
+//     (ruleForm.referralCode = ''),
+//     (ruleForm.name = ''),
+//     (ruleForm.taxCode = ''),
+//     (ruleForm.businessClassification = false),
+//     (ruleForm.representative = ''),
+//     (ruleForm.phonenumber = ''),
+//     (ruleForm.email = ''),
+//     (ruleForm.doB = ''),
+//     (ruleForm.cccd = ''),
+//     (ruleForm.cccdCreateAt = ''),
+//     (ruleForm.cccdPlaceOfGrant = ''),
+//     (ruleForm.sex = true),
+//     (ruleForm.link = ''),
+//     (ruleForm.accountName = ''),
+//     (ruleForm.accountNumber = ''),
+//     (ruleForm.bankName = '')
+// }
 
 const postCustomer = async (typebtn) => {
   const address = ruleForm.Address + ', '
@@ -574,7 +575,6 @@ const postCustomer = async (typebtn) => {
         type: 'error'
       })
      )
-  clear()
 }
 
 const postData = async (typebtn) => {
@@ -594,7 +594,7 @@ const postData = async (typebtn) => {
       .catch((error) =>{
         ElNotification({
           message: error,
-        type: 'error'
+          type: 'error'
       })
      } )
   }
@@ -1055,29 +1055,33 @@ watch(() => valueCommune.value, val => {
                   required
                 >
                   <div class="flex gap-2 w-[100%]">
-                    <div class="flex-1 pl-2 fix-width">
-                      <el-date-picker
-                        prop="doB"
-                        v-model="ruleForm.doB"
-                        type="date"
-                        :placeholder="t('reuse.dateOfBirth')"
-                        :disabled-date="disabledDate"
-                        :size="size"
-                        :editable="false"
-                        format="DD/MM/YYYY"
-                        value-format="YYYY-MM-DD"
-                        @change="formatDate"
-                      />
+                    <div class="flex-1 pl-2  fix-width">
+                      <el-form-item prop="doB">
+                        <el-date-picker
+                          style="width: 100%"
+                          v-model="ruleForm.doB"
+                          type="date"
+                          :placeholder="t('reuse.dateOfBirth')"
+                          :disabled-date="disabledDate"
+                          :size="size"
+                          :editable="false"
+                          format="DD/MM/YYYY"
+                          value-format="YYYY-MM-DD"
+                          @change="formatDate"
+                        />
+                      </el-form-item>
                     </div>
                     <div class="flex-1">
-                      <el-select v-model="ruleForm.sex" clearable placeholder="Select" prop="sex">
-                        <el-option
-                          v-for="item in options"
-                          :key="item.label"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
+                      <el-form-item prop="sex">
+                        <el-select v-model="ruleForm.sex" clearable placeholder="Select">
+                          <el-option
+                            v-for="item in options"
+                            :key="item.label"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </el-form-item>
                     </div>
                   </div>
                 </ElFormItem>

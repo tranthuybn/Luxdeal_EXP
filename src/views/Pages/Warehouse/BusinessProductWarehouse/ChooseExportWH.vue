@@ -188,13 +188,24 @@ const checkExport = (curRow) =>{
   //Phiếu xuất kho bằng tay ko được chọn các lot ký gửi/cầm đồ/spa
   if(props.transactionType == 2 && props.serviceType ==6 && props.orderId == 0){
     if(curRow.serviceType == 2 || curRow.serviceType == 4 || curRow.serviceType == 5){
+      ElMessage({
+      message: 'Phiếu xuất kho bằng tay ko được chọn các lot ký gửi/cầm đồ/spa',
+      type: 'warning'
+    })
       return false
     }
 
   }
-  if(props.transactionType == 2 && props.serviceType != 6 && props.orderId != 0){
+  if(props.transactionType == 2){
     if(curRow.serviceType == 1 || curRow.serviceType == 3 || curRow.serviceType == 5){
-      return curRow.BusinessSetupValue.includes(props.serviceType)
+      const valid = curRow.BusinessSetupValue.includes(props.serviceType)
+      if(!valid){
+        ElMessage({
+          message: 'Chưa cài đặt xuất kho cho lot này',
+          type: 'warning'
+        })
+      }
+      return valid
     }
   }
   return true
@@ -218,10 +229,7 @@ const rowClick = (_selection, curRow) => {
   }
   const checkValidate = checkExport(curRow)
   if(checkValidate == false){
-    ElMessage({
-      message: 'Không cho phép xuất từ lot này',
-      type: 'warning'
-    })
+
     multipleTableRef.value!.toggleRowSelection(curRow, false)
     return
   }

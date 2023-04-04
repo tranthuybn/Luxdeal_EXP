@@ -59,7 +59,7 @@ console.log('props:', props.dataEdit )
   <div class="pb-1 m-6">
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3">{{ t('reuse.fullName') }} :</label>
-      <div>{{ props.dataEdit.userName ?? '' }} </div>
+      <!-- <div>{{ props.dataEdit.userName ?? '' }} </div> -->
     </div>
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3"

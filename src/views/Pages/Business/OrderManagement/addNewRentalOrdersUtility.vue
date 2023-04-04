@@ -1695,6 +1695,9 @@ function openDepositDialog() {
 
 function printPage(id: string) {
   const prtHtml = document.getElementById(id)?.innerHTML
+  console.log(prtHtml)
+  console.log(id)
+  console.log("HUy")
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
@@ -1702,12 +1705,21 @@ function printPage(id: string) {
   const WinPrint = window.open(
     '',
     '',
-    'left=0,top=0,width=1000,height=1100,toolbar=0,scrollbars=0,status=0'
+    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
   )
+  console.log(stylesHtml)
   WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
+                    <style>
+                    html, body {
+                      width: 148mm;
+    height: 297mm;
+    margin: 0 auto;
+    padding: 20mm;
+  }
+                    </style>
                   </head>
                   <body>
                     ${prtHtml}
@@ -1780,15 +1792,18 @@ const moneyReceipts = ref(0)
 const inputRecharger = ref()
 
 const getFormReceipts = () => {
+  console.log(enterMoney.value)
+  nameDialog.value = 'Phiếu thu cho thuê'
   if (enterMoney.value) {
     formReceipts.value = {
       sellOrderCode: ruleForm.orderCode,
       codeReceipts: codeReceipts.value,
       recharger: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
+      user: getStaffList,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
+      payment: payment.value  ? 'Tiền mặt' : 'Tiền thẻ'
     }
   } else {
     ElMessage({
@@ -1797,6 +1812,7 @@ const getFormReceipts = () => {
       type: 'error'
     })
   }
+  printPage('recpPaymentPrint')
 }
 
 // Lấy bảng lịch sử nhập xuất đổi trả
@@ -2892,6 +2908,25 @@ const disabledDate = (time: Date) => {
 const changeDateRanges = (dates) =>{
   startDate.value = dates[0]
 }
+
+
+const formPaymentRequest = ref()
+const printPaymentRequest = () => {
+  formPaymentRequest.value = {
+      // sellOrderCode: sellOrderCode.value,
+      codePaymentRequest: codePaymentRequest.value,
+      recharger: inputRecharger.value,
+      user: getStaffList,
+      inputReasonCollectMoney: inputReasonCollectMoney.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+      moneyReceipts: moneyReceipts.value
+    }
+
+  printPage('IPRFormPrint')
+}
+
 </script>
 
 <template>
@@ -2907,8 +2942,8 @@ const changeDateRanges = (dates) =>{
       <div id="recpPaymentPrint">
         <slot>
           <receiptsPaymentPrint
-            v-if="getFormReceipts"
-            :dataEdit="getFormReceipts"
+            v-if="formReceipts"
+            :dataEdit="formReceipts"
             :nameDialog="nameDialog"
           />
         </slot>
@@ -2916,9 +2951,7 @@ const changeDateRanges = (dates) =>{
 
       <div id="IPRFormPrint">
         <slot>
-          <!-- <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="testDialog" width="40%" align-center> -->
-          <paymentOrderPrint />
-          <!-- </el-dialog> -->
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
         </slot>
       </div>
 
@@ -3194,7 +3227,7 @@ const changeDateRanges = (dates) =>{
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogInformationReceipts = false">{{
+            <el-button @click="getFormReceipts()">{{
               t('button.print')
             }}</el-button>
             <div>
@@ -3320,7 +3353,7 @@ const changeDateRanges = (dates) =>{
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="dialogPaymentVoucher = false">{{ t('button.print') }}</el-button>
+            <el-button @click="getFormReceipts()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -3531,7 +3564,7 @@ const changeDateRanges = (dates) =>{
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button size="large" @click="printPage('IPRFormPrint')">{{
+            <el-button size="large" @click="printPaymentRequest()">{{
               t('button.print')
             }}</el-button>
             <div>

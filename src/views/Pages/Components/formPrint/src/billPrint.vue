@@ -55,10 +55,11 @@ function getArraySum(arr) {
   }
   return total
 }
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 </script>
 
 <template>
-  <div>
+  <div style="width: 95%; height: 100%;">
     <div class="flex items-end pb-[30px]">
       <div class="basis-8/12 text-center">
         <img class="w-[60%] float-right" src="@/assets/imgs/images.png" />
@@ -118,20 +119,19 @@ function getArraySum(arr) {
         ref="singleTableRef"
         :data="dataEdit ? dataEdit.orderDetails : []"
         border
-        style="width: 100%"
       >
-        <el-table-column label="STT" type="index" width="60" align="center" />
-        <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
-        <el-table-column prop="quantity" :label="t('reuse.quantity')" width="90" />
+        <el-table-column label="STT" type="index" align="center" />
+        <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="200" />
+        <el-table-column prop="quantity" :label="t('reuse.quantity')"  />
         <el-table-column prop="unitPrice" :label="t('reuse.unitPrices')">
           <template #default="data">
-            <div class="text-right">{{ data.row.unitPrice  }}</div>
+            <div class="text-right">{{  currencyFormatter.format(data.row.unitPrice)  }}</div>
           </template>
         </el-table-column>
         <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
           <template #default="data">
             <!-- <div class="text-right">{{ data.row.quantity * data.row.unitPrice }}</div> -->
-             <div class="text-right">{{ data.row.totalPrice }}</div>
+             <div class="text-right">{{   currencyFormatter.format(data.row.totalPrice) }}</div>
           </template>
         </el-table-column>
       </el-table>
@@ -151,7 +151,7 @@ function getArraySum(arr) {
         <div v-if="nameDialog === 'bill'">
           <div class="bill flex justify-between">
             <div class="text-[20px]">{{ t('formDemo.total') }}</div>
-            <div v-if="dataEdit">{{ getArraySum(dataEdit.orderDetails) }} VNĐ</div>
+            <div v-if="dataEdit">{{currencyFormatter.format(getArraySum(dataEdit.orderDetails))  }}</div>
           </div>
           <div class="bill flex justify-between">
             <div class="text-[20px]">{{ t('formDemo.status') }}</div>

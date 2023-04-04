@@ -1214,6 +1214,14 @@ function printPage(id: string, { url, title, w, h }) {
                 <html>
                   <head>
                     ${stylesHtml}
+                                        <style>
+                    html, body {
+                      width: 148mm;
+    height: 697mm;
+    margin: 20px auto;
+    padding: 20mm 40mm;
+  }
+                    </style>
                   </head>
                   <body>
                     ${printContents}

@@ -959,6 +959,10 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    receiptForm: 'Phiếu thu',
+    paymentForm: 'Phiếu chi',
+    cashPayment: 'Tiền mặt',
+    cardPayment: 'Tiền thẻ',
     accounting: 'Hạch toán',
     cancelAccounting: 'Bỏ hạch toán',
     resultsAndStatus: 'Kết quả & Trạng thái',

@@ -816,7 +816,7 @@ export default {
     productLibrarypropertiesPropertyStorage: 'Kho tài sản(Step 2)',
     businessPurchases: 'Mua hàng kinh doanh',
     purchaseOrderList: 'Danh sách đơn mua hàng',
-    purchaseOrderAdd: 'Đơn mua hàng',
+    purchaseOrderAdd: 'Thêm mới đơn mua hàng',
     personnelAccounts: 'Nhân sự & Tài khoản',
     potentialCustomerAdd: 'Thêm mới khách hàng tiềm năng',
     potentialCustomerList: 'Danh sách khách hàng tiềm năng',
@@ -959,6 +959,8 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    accountingSuccess: 'Hạch toán thành công',
+    accountingFail: 'Hạch toán thất bại',
     receiptForm: 'Phiếu thu',
     paymentForm: 'Phiếu chi',
     cashPayment: 'Tiền mặt',

@@ -968,6 +968,7 @@ const postData = async (pushBack: boolean) => {
   }
 
   const payload = {
+    StaffId: currentCreator.value.id,
     ServiceType: 3,
     OrderCode: ruleForm.orderCode,
     PromotionCode: promoCode.value ?? '',

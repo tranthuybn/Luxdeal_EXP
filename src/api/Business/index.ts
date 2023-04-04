@@ -1080,6 +1080,16 @@ export const addNewAccountant = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+export const balanceAccount = async (params: any): Promise<IResponse> => {
+  const res = await request.post(
+    {
+      url: `${ACCOUNTANT_API.BALANCE_ACCOUNT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const updateAccountant = async (data): Promise<IResponse> => {
   const res = await request.put({ url: `${ACCOUNTANT_API.UPDATE_BALANCE}?${objectToQueryParams(data)}` }, fixedBaseURL)
   return res && res.data

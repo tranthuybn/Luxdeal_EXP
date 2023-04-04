@@ -79,12 +79,8 @@ const callAPIInfoEmployee = async () => {
   if (!isNaN(id) && type == 'detail') {
     const res = await getEmployeeById({ Id: id })
     if (res) {
-      if (res.data?.list !== undefined) {
-        infoEmployeeRes = res.data.list[0]
-      } else {
-        infoEmployeeRes = res.data[0]
-      }
-      await setInfoEmployeeTableValue()
+      infoEmployeeRes = res.data
+      setInfoEmployeeTableValue()
     } else {
       ElNotification({
         message: t('reuse.cantGetData'),

@@ -1695,9 +1695,6 @@ function openDepositDialog() {
 
 function printPage(id: string) {
   const prtHtml = document.getElementById(id)?.innerHTML
-  console.log(prtHtml)
-  console.log(id)
-  console.log("HUy")
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
@@ -1793,8 +1790,9 @@ const inputRecharger = ref()
 
 const getFormReceipts = () => {
   console.log(enterMoney.value)
-  nameDialog.value = 'Phiếu thu cho thuê'
+  
   if (enterMoney.value) {
+    nameDialog.value = 'Phiếu thu cho thuê'
     formReceipts.value = {
       sellOrderCode: ruleForm.orderCode,
       codeReceipts: codeReceipts.value,

@@ -1738,8 +1738,9 @@ const editData = async () => {
       totalPrincipalDebt.value = orderObj?.principalDebt
 
       totalPawnFee.value = ListOfProductsForSale.value.reduce(function (acc, {interestMoney}) { 
-        return acc +  interestMoney * daysDiff(ruleForm.pawnTerm[0],ruleForm.pawnTerm[1]); }
+        return acc +  interestMoney/1000000 * daysDiff(ruleForm.pawnTerm[0],ruleForm.pawnTerm[1]); }
         , 0)
+        totalPawnFee.value *= totalPrincipalMoney.value
 
       getTotalWarehouse()
 

@@ -141,6 +141,7 @@ const changeWarehouseData = async (warehouseId) => {
         createdAt: item.createdAt,
         exportQuantity: 0,
         orderId: item.orderId,
+        businessSetupValue: item.businessSetupValue,
         consignmentHirePrice: item.consignmentHirePrice,
         consignmentSellPrice: item.consignmentSellPrice
       }))
@@ -183,6 +184,21 @@ const selectAll = ()=>{
     })
   }
 }
+const checkExport = (curRow) =>{
+  //Phiếu xuất kho bằng tay ko được chọn các lot ký gửi/cầm đồ/spa
+  if(props.transactionType == 2 && props.serviceType ==6 && props.orderId == 0){
+    if(curRow.serviceType == 2 || curRow.serviceType == 4 || curRow.serviceType == 5){
+      return false
+    }
+
+  }
+  if(props.transactionType == 2 && props.serviceType != 6 && props.orderId != 0){
+    if(curRow.serviceType == 1 || curRow.serviceType == 3 || curRow.serviceType == 5){
+      return curRow.BusinessSetupValue.includes(props.serviceType)
+    }
+  }
+  return true
+}
 const rowClick = (_selection, curRow) => {
   if (warehouseForm.value.quantity == 0 || warehouseForm.value.quantity == null) {
     ElMessage({
@@ -195,6 +211,15 @@ const rowClick = (_selection, curRow) => {
   if (curRow.inventory < 1) {
     ElMessage({
       message: t('reuse.pleaseChooseLotHasInventory'),
+      type: 'warning'
+    })
+    multipleTableRef.value!.toggleRowSelection(curRow, false)
+    return
+  }
+  const checkValidate = checkExport(curRow)
+  if(checkValidate == false){
+    ElMessage({
+      message: 'Không cho phép xuất từ lot này',
       type: 'warning'
     })
     multipleTableRef.value!.toggleRowSelection(curRow, false)

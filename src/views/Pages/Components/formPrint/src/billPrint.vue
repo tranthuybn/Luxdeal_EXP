@@ -87,7 +87,7 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
       <div class="basis-5/12">
         <div class="flex pb-2 items-center">
           <label class="basis-2/5">{{ t('reuse.customerName') }}:</label>
-          <div v-if="dataEdit" class="basis-3/5">{{ dataEdit.customer.name }}</div>
+          <div v-if="dataEdit" class="basis-3/5">{{ dataEdit?.customer?.name }}</div>
         </div>
         <div class="flex pb-2 items-center">
           <label class="basis-2/5">{{ t('formDemo.address') }}:</label>
@@ -95,7 +95,7 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
         </div>
         <div class="flex pb-2 items-center">
           <label class="basis-2/5">{{ t('reuse.phoneNumber') }}:</label>
-          <div v-if="dataEdit" class="basis-3/5">{{ dataEdit.customer.phonenumber }}</div>
+          <div v-if="dataEdit" class="basis-3/5">{{ dataEdit?.customer?.phonenumber }}</div>
         </div>
       </div>
       <div class="basis-7/12 text-center">

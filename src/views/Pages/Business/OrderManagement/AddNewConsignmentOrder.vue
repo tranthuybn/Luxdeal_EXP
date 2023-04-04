@@ -1120,6 +1120,7 @@ const postData = async () => {
 
     const productPayment = JSON.stringify([...orderDetailsTable])
     const payload = {
+      StaffId: staffItem?.id,
       ServiceType: 2,
       OrderCode: ruleForm.orderCode,
       PromotionCode: 'AA12',

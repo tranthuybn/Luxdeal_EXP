@@ -144,6 +144,12 @@ export const filterPaymentMethod: Array<Filter> = [
   { text: t('reuse.payThroughMoney'), value: 1 },
   { text: t('reuse.payThroughCard'), value: 2 }
 ]
+
+export const filterTransacted: Array<Filter> = [
+  { text: t('reuse.alreadyPaid'), value: true },
+  { text: t('reuse.notPaid'), value: false }
+]
+
 export const filtersCustomerType: Array<Filter> = [
   { text: t('reuse.customerName'), value: 1 },
   { text: t('formDemo.companyName'), value: 2 }

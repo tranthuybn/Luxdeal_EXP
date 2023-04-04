@@ -48,7 +48,7 @@ const rules = reactive({
   taxCode: [requiredOption()],
   customerName: [required()],
   phonenumber: [required(), ValidService.checkPhone],
-  email: [ ValidService.checkEmail],
+  email: [ValidService.required, ValidService.checkEmail],
   percentageOfSales: [ValidService.checkNumber]
 })
 type FormValueType = string | number | boolean
@@ -138,8 +138,7 @@ const postData = async (data) => {
   }
 
   const payload = {
-    name: 
-      data.classify == true ? data.companyName : data.customerName,
+    name: data.classify == true ? data.companyName : data.customerName,
     userName: 'string',
     code: 'string',
     isOrganization: data.classify,
@@ -158,6 +157,7 @@ const postData = async (data) => {
     orderId: 1,
     statusId: 1,
     total: 1,
+    customerOrderId: data.result,
     potentialCustomerHistorys: customerHistory
   }
   await addNewPotentialCustomer(payload)
@@ -300,8 +300,6 @@ const getOrdersOptions = async () => {
             id: tag.id
           }))
         }
-        console.log(res)
-        console.log(orderOptions)
       })
       .catch((err) => {
         console.error(err)
@@ -821,6 +819,7 @@ type setFormCustomData = {
   newCustomerSource: number
   service: number
   classify: boolean
+  result: number
 }
 const emptyFormCustom = {} as setFormCustomData
 const formDataCustomize = ref(emptyFormCustom)
@@ -838,6 +837,7 @@ const customizeData = (formData) => {
   formDataCustomize.value.transactionHistory = formData.historyTransaction
   formDataCustomize.value.Note = formData.note
   formDataCustomize.value.newCustomerSource = formData.source
+  formDataCustomize.value.result = formData.customerOrderId
   
   formDataCustomize.value.customerName = formData.name
   formDataCustomize.value.companyName = formData.name

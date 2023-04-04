@@ -30,7 +30,7 @@ import { statusService } from '@/utils/status'
 import moment from 'moment'
 import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { getStaffList, getAllCustomer, getAccountantList } from '@/api/Business'
+import { getStaffList, getAllCustomer, getAccountantList, balanceAccount } from '@/api/Business'
 import { ListImages } from './types'
 import { usePermission } from '@/utils/tsxHelper'
 import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
@@ -248,7 +248,6 @@ watch(
       setProps({
         disabled: true
       })
-      // const form = await getFormData()
 
       setSchema(
         schema.map((component) => ({
@@ -262,6 +261,13 @@ watch(
           field: 'description',
           path: 'componentProps.disabled',
           value: true
+        }
+      ])
+      setSchema([
+        {
+          field: 'typeOfPayment',
+          path: 'componentProps.disabled',
+          value: false
         }
       ])
     }
@@ -307,7 +313,7 @@ const save = async (type) => {
       //callback cho hàm emit
       if (type == 'add') {
         data.backRouter = true
-        if(optionCreatedBy.value?.id) data.createdById = optionCreatedBy.value.id
+        if(optionCreatedBy.value?.id) data.createdBy = optionCreatedBy.value.name
         if(optionPeopleType.value?.id) data.peopleId = optionPeopleType.value.id
         emit('post-data', data)
         loading.value = false
@@ -340,7 +346,6 @@ let title = ref(props.title)
 if (props.title == 'undefined') {
   title.value = 'Category'
 }
-
 
 const handleRemove = (file: UploadFile) => {
   fileList.value = fileList.value?.filter((image) => image.url !== file.url)
@@ -587,7 +592,28 @@ const approvalProduct = async (val) => {
     )
 }
 
-const handleAccounting = () => {
+const handleAccounting = async () => {
+  const payload = {
+    AccountId: formValue.value.accountNumber,
+    ReceiptId: formValue.value.id,
+    User: formValue.value.createdBy,
+  }
+  await balanceAccount(payload)
+  .then(() => {
+      ElNotification({
+        message: t('reuse.accountingSuccess'),
+        type: 'success'
+      })
+      formValue.value.accounted = !formValue.value.accounted
+    })
+  .catch(() =>
+    ElNotification({
+      message: t('reuse.accountingFail') ,
+      type: 'error'
+    })
+  )
+}
+const cancelAccounting = () => {
   formValue.value.accounted = !formValue.value.accounted
 }
 
@@ -891,18 +917,20 @@ function printPage(id: string) {
             </ElButton>
           </div>
           <div v-if="customBtn == 1 && !formValue?.isCancel" class="w-[50%] flex justify-left gap-2 ml-5"> 
-            <ElButton class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
-                {{ t('button.print') }}
-            </ElButton>
-            <ElButton v-if="!formValue?.accounted" class="pl-8 pr-8" :loading="loading">
-              {{ t('button.carrying') }}
-            </ElButton>
-            <ElButton v-if="!formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted && formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
-              {{ t('reuse.accounting') }}
-            </ElButton>
-            <ElButton v-if="formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
-              {{ t('reuse.cancelAccounting') }}
-            </ElButton>
+            <div class="flex" v-if="formValue?.isApproved">
+              <ElButton class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
+                  {{ t('button.print') }}
+              </ElButton>
+              <ElButton v-if="!formValue?.accounted" class="pl-8 pr-8" :loading="loading">
+                {{ t('button.carrying') }}
+              </ElButton>
+              <ElButton v-if="!formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted || !formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
+                {{ t('reuse.accounting') }}
+              </ElButton>
+              <ElButton v-if="formValue?.accounted" type="primary" @click="cancelAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
+                {{ t('reuse.cancelAccounting') }}
+              </ElButton>
+            </div>
             <ElButton v-if="userPermission?.deletable && !formValue?.accounted" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
              {{ t('reuse.cancel') }}
             </ElButton>  

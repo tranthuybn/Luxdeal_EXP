@@ -960,6 +960,7 @@ export default {
   },
   reuse: {
     accounting: 'Hạch toán',
+    cancelAccounting: 'Bỏ hạch toán',
     resultsAndStatus: 'Kết quả & Trạng thái',
     editPassword: 'Sửa mật khẩu',
     cancelEditPassword: 'Hủy',
@@ -1795,7 +1796,8 @@ export default {
     cantFindDataOfProduct: 'Không thể tìm thấy dữ liệu của sản phẩm',
     newCreate: 'Tạo mới',
     chooseReceiptAndPayment: 'Chọn phiếu thu/chi',
-    checkReceipts: 'Duyệt Phiếu thu',
+    checkReceipts: 'Duyệt phiếu thu',
+    approvalPayment: 'Duyệt phiếu chi',
     collectedMoney: 'Đã thu tiền',
     planned: 'Đã hoạch toán',
     receiptAndPayment: 'Thu/chi',

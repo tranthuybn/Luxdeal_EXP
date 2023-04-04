@@ -32,6 +32,8 @@ import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getStaffList, getAllCustomer, getAccountantList } from '@/api/Business'
 import { ListImages } from './types'
+import { usePermission } from '@/utils/tsxHelper'
+
 // import { STATUS_RECEIPTS_AND_PAYMENT } from '@/utils/API.Variables'
 
 const { t } = useI18n()
@@ -39,6 +41,8 @@ const doCloseOnClickModal = ref(false)
 const { push } = useRouter()
 const router = useRouter()
 const route = useRoute()
+const { currentRoute } = useRouter()
+const userPermission = usePermission(currentRoute.value)
 const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
@@ -164,6 +168,11 @@ const pageIndexCustomer = ref(1)
 const pageSize = ref(10)
 const createdByOptions = ref([{}])
 const peopleTypeOptions = ref([{}])
+// const statusHistory = ref<Array<IStatusHistory>>([{
+//   statusName: t('reuse.initializeAndWrite'),
+//   statusValue: 0,
+//   isActive: true
+// }])
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
 
@@ -235,12 +244,14 @@ const setFormValue = async () => {
 //Get data when click detail or edit button
 watch(
   () => props.type,
-  () => {
+  async () => {
     if (props.type === 'detail' || props.type === 'approval') {
       const { setProps, setSchema } = methods
       setProps({
         disabled: true
       })
+      // const form = await getFormData()
+
       setSchema(
         schema.map((component) => ({
           field: component.field,
@@ -578,14 +589,28 @@ const approvalProduct = async (val) => {
     )
 }
 
+const handleAccounting = () => {
+  formValue.value.accounted = true
+}
+// const statusValue = ref(0)
+// const reloadStatus = async () => {
+//   const res = await props.apiId({Id: props.id})
+//   statusHistory.value = res.data.statusHistory
+//   if(statusHistory.value.length > 0) {
+//     const lastItem = statusHistory.value[statusHistory.value.length - 1]
+//     lastItem.isActive = true
+//     statusValue.value = lastItem.statusValue
+//   }
+// }
+
 </script>
 <template>
   <ContentWrap :title="title" :back-button="backButton">
     <ElRow class="pl-8" :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" >
-          <template #statusHistory="form">
-            <div class="mr-5 flex flex-col justify-start gap-2" v-if="type=='add'">
+          <template #statusHistory>
+              <div class="mr-5 flex flex-col justify-start gap-2" v-if="type=='add'">
                 <div>
                   <span
                       class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
@@ -597,10 +622,10 @@ const approvalProduct = async (val) => {
                 </div>
                 <div class="italic text-xs text-gray-500">{{ currentDate }}</div>
               </div>
-              <div v-else class="flex items-start" >
+              <div v-else class="flex items-start shrink-0" >
                 <div          
                     class="duplicate-status align-top"
-                    v-for="item, index in form['statusHistory']"
+                    v-for="(item, index) in formValue.statusHistory"
                     :key="index"
                 >
                   <div class="mr-5 flex flex-col justify-start gap-2">
@@ -608,7 +633,7 @@ const approvalProduct = async (val) => {
                         <span
                           class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                         ></span>
-                        <span class="box dark:text-divck" :class="statusService(item.status)" >
+                        <span class="box dark:text-divck" :class="statusService(item.statusValue)" >
                           {{item.statusName }}    
                           <span class="triangle-right"></span>
                         </span>
@@ -773,25 +798,30 @@ const approvalProduct = async (val) => {
             <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
               {{ t('reuse.fix') }}
             </ElButton>
-            <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+            <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
               {{ t('reuse.delete') }}
             </ElButton>
           </div>
-          <div v-if="customBtn == 1">
+          <div v-if="customBtn == 1 && !formValue.IsDelete">
             <div v-if="formValue.IsApproved">
-              <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" :loading="loading">
+              <ElButton class="pl-8 pr-8" :loading="loading">
                 {{ t('button.print') }}
               </ElButton>
-              <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" :loading="loading">
-                {{ t('button.carrying') }}
-              </ElButton>
-              <ElButton :disabled="disabledCancelBtn" type="primary" class="pl-8 pr-8" :loading="loading">
-                {{ t('reuse.accounting') }}
+              <div v-if="!formValue.accounted">
+                <ElButton class="pl-8 pr-8" :loading="loading">
+                  {{ t('button.carrying') }}
+                </ElButton>
+                <ElButton type="primary" @click="handleAccounting" :disabled="!formValue.transacted && !formValue.fundID" class="pl-8 pr-8" :loading="loading">
+                  {{ t('reuse.accounting') }}
+                </ElButton>
+              </div>
+              <ElButton v-if="formValue.accounted" type="primary" @click="handleAccounting" :disabled="!formValue.transacted && !formValue.fundID" class="pl-8 pr-8" :loading="loading">
+                {{ t('reuse.cancelAccounting') }}
               </ElButton>
             </div>
-            <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-            {{ t('reuse.cancel') }}
-          </ElButton>  
+            <ElButton v-if="userPermission?.deletable && !formValue.accounted" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+             {{ t('reuse.cancel') }}
+            </ElButton>  
           </div>
         </div>
       </div>
@@ -880,6 +910,10 @@ const approvalProduct = async (val) => {
     box-shadow: none;
     padding: 0
   }
+}
+
+.shrink-0{
+  flex-shrink: 0;
 }
 
 </style>

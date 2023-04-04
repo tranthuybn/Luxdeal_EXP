@@ -1078,6 +1078,7 @@ const postData = async (pushBack: boolean) => {
     return 
   } else {
     const payload = {
+    StaffId: currentCreator.value.id,
       ServiceType: 1,
       OrderCode: ruleForm.orderCode,
       PromotionCode: promoCode.value ?? '',
@@ -1216,8 +1217,8 @@ const editData = async () => {
       sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.discount = orderObj.collaboratorCommission
-      customerID.value = orderObj.customer.id
-      ruleForm.customerName = orderObj.customer.id
+      customerID.value = orderObj.customer?.id
+      ruleForm.customerName = orderObj.customer?.id
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj.warehouseId
 
@@ -1247,6 +1248,7 @@ const editData = async () => {
       customerIdPromo.value = orderObj.customerId
 
       totalFinalOrder.value = orderObj.totalPrice - orderObj.discountMoney
+      if(orderObj.customer){
       if (orderObj.customer?.isOrganization) {
         infoCompany.name = orderObj.customer?.name
         infoCompany.taxCode = orderObj.customer?.taxCode
@@ -1257,9 +1259,9 @@ const editData = async () => {
         infoCompany.taxCode = orderObj.customer?.taxCode
         infoCompany.phone = orderObj.customer?.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer?.email
-      }
+      }}
     }
-    Files.value = orderObj.orderFiles.map((element) => ({
+    Files.value = orderObj.orderFiles?.map((element) => ({
           url: `${API_URL}${element?.path}`,
           name: element?.fileId
       })

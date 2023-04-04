@@ -1049,6 +1049,7 @@ const postData = async () => {
     if (!checkValidatorProduct.value) {
       const productPayment = JSON.stringify([...orderDetailsTable.value])
       const payload = {
+        StaffId: staffItem?.id,
         ServiceType: 6,
         OrderCode: ruleForm.orderCode,
         PromotionCode: 'AA12',

@@ -933,6 +933,7 @@ const postData = async () => {
   const productPayment = JSON.stringify([...orderDetailsTable])
 
   const payload = {
+    StaffId: staffItem?.id,
     ServiceType: 4,
     OrderCode: ruleForm.orderCode,
     PromotionCode: 'DEAL1212',
@@ -1737,8 +1738,9 @@ const editData = async () => {
       totalPrincipalDebt.value = orderObj?.principalDebt
 
       totalPawnFee.value = ListOfProductsForSale.value.reduce(function (acc, {interestMoney}) { 
-        return acc +  interestMoney * daysDiff(ruleForm.pawnTerm[0],ruleForm.pawnTerm[1]); }
+        return acc +  interestMoney/1000000 * daysDiff(ruleForm.pawnTerm[0],ruleForm.pawnTerm[1]); }
         , 0)
+        totalPawnFee.value *= totalPrincipalMoney.value
 
       getTotalWarehouse()
 
@@ -1748,13 +1750,13 @@ const editData = async () => {
         if (orderObj.customer.isOrganization) {
           infoCompany.name = orderObj.customer.name
           infoCompany.taxCode = orderObj.customer.taxCode
-          infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
-          infoCompany.email = 'Email: ' + orderObj.customer.email
+          infoCompany.phone = orderObj.customer.phone
+          infoCompany.email = orderObj.customer.email
         } else {
           infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
           infoCompany.taxCode = orderObj.customer.taxCode
-          infoCompany.phone = 'Số điện thoại: ' + orderObj.customer.phone
-          infoCompany.email = 'Email: ' + orderObj.customer.email
+          infoCompany.phone = orderObj.customer.phone
+          infoCompany.email = orderObj.customer.email
         }
       }
     }
@@ -2731,7 +2733,7 @@ const finishOrder = async () =>{
                 </div>
 
                 <div class="flex-1">
-                  <el-form-item :label="t('formDemo.selectExportWarehouse')" prop="warehouse">
+                  <el-form-item :label="t('formDemo.selectImportWarehouse')" prop="warehouse">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
                         <el-select
@@ -2780,8 +2782,8 @@ const finishOrder = async () =>{
                 <div class="flex">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
-                    <div>{{ infoCompany.phone }}</div>
-                    <div>{{ infoCompany.email }}</div>
+                    <div>Số điện thoại: {{ infoCompany.phone }}</div>
+                    <div>Email:{{ infoCompany.email }}</div>
                   </div>
                 </div>
               </el-form-item>

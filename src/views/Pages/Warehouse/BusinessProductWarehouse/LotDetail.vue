@@ -6,6 +6,7 @@ import { onBeforeMount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { orderType, moneyFormat } from '@/utils/format'
 import { API_URL } from '@/utils/API_URL'
+import { UpdateBusinessSetup } from '@/api/Warehouse'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -56,6 +57,14 @@ const callAPI = async () => {
   })
 }
 onBeforeMount(() => callAPI())
+
+const updateBusinessSetup = async (data) =>{
+  const payload ={
+    lotId: props.id,
+    businessSetup: data.toString()
+  }
+  await UpdateBusinessSetup(JSON.stringify(payload))
+}
 </script>
 <template>
   <div class="flex">
@@ -134,7 +143,7 @@ onBeforeMount(() => callAPI())
           <div class="flex">
             <div class="w-1/4 text-right pr-4">{{ t('reuse.allowToExport') }}</div>
             <div class="w-7/10 break-words">
-              <el-checkbox-group v-model="lotDetail.bussinessSetups">
+              <el-checkbox-group v-model="lotDetail.bussinessSetups" @change="updateBusinessSetup">
                 <el-checkbox :label="1">{{ t('reuse.sell') }}</el-checkbox>
                 <el-checkbox :label="2">{{ t('reuse.rent') }}</el-checkbox>
                 <el-checkbox :label="3">Spa</el-checkbox>

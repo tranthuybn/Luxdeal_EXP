@@ -167,3 +167,13 @@ export const getLotHistory = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const UpdateBusinessSetup = async (params): Promise<IResponse> => {
+  const res = await request.put(
+    {
+      url: `${WAREHOUSE_API.UPDATE_BUSINESS_SETUP}`,
+      data: params
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

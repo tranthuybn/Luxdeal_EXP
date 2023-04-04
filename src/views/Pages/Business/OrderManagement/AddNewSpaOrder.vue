@@ -1244,6 +1244,7 @@ const postData = async (pushBack: boolean) => {
   const productPayment = JSON.stringify([...orderDetailsTable])
 
   const payload = {
+    StaffId: currentCreator.value.id,
     ServiceType: 5,
     SpaType: valueTypeSpa.value,
     OrderCode: ruleForm.orderCode,

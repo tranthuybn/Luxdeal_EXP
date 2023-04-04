@@ -174,7 +174,6 @@ const schema = reactive<FormSchema[]>([
     field: 'paid',
     label: t('reuse.payment'),
     component: 'Radio',
-    value: false,
     colProps: {
       span: 18
     },
@@ -203,19 +202,20 @@ const customizeData = async (data) => {
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney
-  setFormData.createdBy = `${data.createdByObject?.name} | ${data.createdByObject?.value}` || ''
+  setFormData.createdBy = data.createdBy
   setFormData.createdAt = formartDate(data.createdAt)
-  setFormData.peopleType = `${data.peopleObject?.name} | ${data.peopleObject?.value}` || ''
+  setFormData.peopleType =  data.peopleId
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
-  setFormData.accountNumber = data.fundID
+  setFormData.accountNumber = data.accountNumber
   setFormData.paid = data.transacted
+  console.log(setFormData)
 }
 
 const customData = (data) => {
   const customData = {} as FormDataPostAndEdit
   customData.Code = data.code
-  customData.CreatedBy = data.createdById
+  customData.CreatedBy = data.createdBy
   customData.CreateAt = data.createdAt
   customData.Description = data.description
   customData.PeopleId = data.peopleId
@@ -227,6 +227,7 @@ const customData = (data) => {
   customData.Transacted = data.paid
   customData.Type = 1
   customData.Status = 1
+
   return customData
 }
 

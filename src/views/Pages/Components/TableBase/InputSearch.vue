@@ -30,7 +30,6 @@ watch(value, (newValue) => {
         objValue[key] = objValue[key].join(',')
       }
     }
-    console.log(objValue)
     emit('filter-select', objValue)
   }
 })

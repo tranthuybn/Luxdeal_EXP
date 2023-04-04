@@ -8,3 +8,9 @@ export interface Collapse {
   }
 
 export type ListImages = 'text' | 'picture' | 'picture-card'
+
+export interface IStatusHistory {
+  statusName: string
+  statusValue: number
+  isActive: boolean
+}

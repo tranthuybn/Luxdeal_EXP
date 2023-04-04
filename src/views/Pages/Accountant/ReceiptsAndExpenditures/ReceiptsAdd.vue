@@ -22,6 +22,7 @@ const { push } = useRouter()
 const escape = useIcon({ icon: 'quill:escape' })
 const activeName = ref('receiptsAddDetails')
 const setFormData = reactive({} as FormData)
+const paid = ref(false)
 
 const back = async () => {
   if(type !== 'approval') {
@@ -174,7 +175,6 @@ const schema = reactive<FormSchema[]>([
     field: 'paid',
     label: t('reuse.payment'),
     component: 'Radio',
-    value: false,
     colProps: {
       span: 18
     },
@@ -182,7 +182,7 @@ const schema = reactive<FormSchema[]>([
       options: [
         {
           label: t('reuse.collectedMoney'),
-          value: true
+          value: paid.value
         }
       ]
     }
@@ -208,14 +208,14 @@ const customizeData = async (data) => {
   setFormData.peopleType = `${data.peopleObject?.name} | ${data.peopleObject?.value}` || ''
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
-  setFormData.accountNumber = data.fundID
+  setFormData.accountNumber = data.accountNumber
   setFormData.paid = data.transacted
 }
 
 const customData = (data) => {
   const customData = {} as FormDataPostAndEdit
   customData.Code = data.code
-  customData.CreatedBy = data.createdById
+  customData.CreatedBy = data.createdBy
   customData.CreateAt = data.createdAt
   customData.Description = data.description
   customData.PeopleId = data.peopleId
@@ -227,6 +227,7 @@ const customData = (data) => {
   customData.Transacted = data.paid
   customData.Type = 1
   customData.Status = 1
+
   return customData
 }
 

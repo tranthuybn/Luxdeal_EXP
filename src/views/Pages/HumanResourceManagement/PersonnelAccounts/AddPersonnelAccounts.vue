@@ -262,9 +262,6 @@ const alwayShowAdd = ref(false)
 watch(
   () => type,
   () => {
-    if (type === 'add') {
-      alwayShowAdd.value = true
-    }
     if (type === 'detail' || type === 'edit') {
       alwayShowAdd.value = false
     }
@@ -656,10 +653,10 @@ const editData = async (typebtn) => {
       })
       .catch((error) =>
         ElNotification({
-          message: error || t('reuse.updateFail'),
-          type: 'warning'
-        })
-      )
+            message: error.message || t('reuse.updateFail'),
+            type: 'warning'
+          })
+        )
   }
 }
 

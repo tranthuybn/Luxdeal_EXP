@@ -33,6 +33,7 @@ import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getStaffList, getAllCustomer, getAccountantList } from '@/api/Business'
 import { ListImages } from './types'
 import { usePermission } from '@/utils/tsxHelper'
+import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
 
 // import { STATUS_RECEIPTS_AND_PAYMENT } from '@/utils/API.Variables'
 
@@ -168,11 +169,8 @@ const pageIndexCustomer = ref(1)
 const pageSize = ref(10)
 const createdByOptions = ref([{}])
 const peopleTypeOptions = ref([{}])
-// const statusHistory = ref<Array<IStatusHistory>>([{
-//   statusName: t('reuse.initializeAndWrite'),
-//   statusValue: 0,
-//   isActive: true
-// }])
+const nameDialog = ref('')
+
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
 
@@ -590,8 +588,9 @@ const approvalProduct = async (val) => {
 }
 
 const handleAccounting = () => {
-  formValue.value.accounted = true
+  formValue.value.accounted = !formValue.value.accounted
 }
+
 // const statusValue = ref(0)
 // const reloadStatus = async () => {
 //   const res = await props.apiId({Id: props.id})
@@ -603,9 +602,98 @@ const handleAccounting = () => {
 //   }
 // }
 
+const PrintReceipts = ref(false)
+// form phiếu thu
+const formReceipts = ref()
+
+const getFormReceipts = () => {
+  if (formValue.value.enterMoney) {
+    formReceipts.value = {
+      codeReceipts: formValue.value.code,
+      moneyReceipts: formValue.value.totalMoney,
+      reasonCollectingMoney: formValue.value.description,
+      enterMoney: formValue.value.enterMoney,
+      payment: formValue.value.typeOfPayment == 1 ? t('reuse.cashPayment') : t('reuse.cardPayment')
+    }
+    nameDialog.value = formValue.value.type == 1 ? t('reuse.receiptForm') : t('reuse.paymentForm')
+
+    PrintReceipts.value = !PrintReceipts.value
+  } else {
+    ElMessage({
+      showClose: true,
+      message: 'Vui lòng nhập tiền bằng chữ',
+      type: 'error'
+    })
+  }
+}
+
+function printPage(id: string) {
+  const prtHtml = document.getElementById(id)?.innerHTML
+  let stylesHtml = ''
+  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
+    stylesHtml += node.outerHTML
+  }
+  const WinPrint = window.open(
+    '',
+    '',
+    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
+  )
+  WinPrint?.document.write(`<!DOCTYPE html>
+                <html>
+                  <head>
+                    ${stylesHtml}
+                  </head>
+                  <body>
+                    ${prtHtml}
+                  </body>
+                </html>`)
+
+  WinPrint?.document.close()
+  WinPrint?.focus()
+  setTimeout(() => {
+    WinPrint?.print()
+    WinPrint?.close()
+  }, 800)
+}
+
 </script>
 <template>
   <ContentWrap :title="title" :back-button="backButton">
+     <div id="recpPaymentPrint">
+        <slot>
+          <receiptsPaymentPrint
+            v-if="formReceipts"
+            :dataEdit="formReceipts"
+            :nameDialog="nameDialog"
+          />
+        </slot>
+      </div>
+
+    <!-- Dialog In phiếu thu chi -->
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <receiptsPaymentPrint
+                v-if="formReceipts"
+                :dataEdit="formReceipts"
+                :nameDialog="nameDialog"
+              />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
     <ElRow class="pl-8" :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" >
@@ -625,7 +713,7 @@ const handleAccounting = () => {
               <div v-else class="flex items-start shrink-0" >
                 <div          
                     class="duplicate-status align-top"
-                    v-for="(item, index) in formValue.statusHistory"
+                    v-for="(item, index) in formValue?.statusHistory"
                     :key="index"
                 >
                   <div class="mr-5 flex flex-col justify-start gap-2">
@@ -802,24 +890,20 @@ const handleAccounting = () => {
               {{ t('reuse.delete') }}
             </ElButton>
           </div>
-          <div v-if="customBtn == 1 && !formValue.IsDelete">
-            <div v-if="formValue.IsApproved">
-              <ElButton class="pl-8 pr-8" :loading="loading">
+          <div v-if="customBtn == 1 && !formValue?.isCancel" class="w-[50%] flex justify-left gap-2 ml-5"> 
+            <ElButton class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
                 {{ t('button.print') }}
-              </ElButton>
-              <div v-if="!formValue.accounted">
-                <ElButton class="pl-8 pr-8" :loading="loading">
-                  {{ t('button.carrying') }}
-                </ElButton>
-                <ElButton type="primary" @click="handleAccounting" :disabled="!formValue.transacted && !formValue.fundID" class="pl-8 pr-8" :loading="loading">
-                  {{ t('reuse.accounting') }}
-                </ElButton>
-              </div>
-              <ElButton v-if="formValue.accounted" type="primary" @click="handleAccounting" :disabled="!formValue.transacted && !formValue.fundID" class="pl-8 pr-8" :loading="loading">
-                {{ t('reuse.cancelAccounting') }}
-              </ElButton>
-            </div>
-            <ElButton v-if="userPermission?.deletable && !formValue.accounted" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+            </ElButton>
+            <ElButton v-if="!formValue?.accounted" class="pl-8 pr-8" :loading="loading">
+              {{ t('button.carrying') }}
+            </ElButton>
+            <ElButton v-if="!formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted && formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
+              {{ t('reuse.accounting') }}
+            </ElButton>
+            <ElButton v-if="formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
+              {{ t('reuse.cancelAccounting') }}
+            </ElButton>
+            <ElButton v-if="userPermission?.deletable && !formValue?.accounted" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
              {{ t('reuse.cancel') }}
             </ElButton>  
           </div>
@@ -914,6 +998,12 @@ const handleAccounting = () => {
 
 .shrink-0{
   flex-shrink: 0;
+}
+
+@media screen {
+  #recpPaymentPrint {
+    display: none;
+  }
 }
 
 </style>

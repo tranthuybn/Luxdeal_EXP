@@ -907,6 +907,10 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    receiptForm: 'Receipt form',
+    paymentForm: 'Payment form',
+    cashPayment: 'Cash',
+    cardPayment: 'Card',
     cancelAccounting: 'Cancel accounting',
     approvalPayment: 'Approve payment',
     accounting: 'Accounting',

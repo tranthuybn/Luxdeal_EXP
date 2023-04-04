@@ -114,6 +114,7 @@ const sellOrderCode = ref()
 const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
+const PrintpaymentOrderPrint = ref(false)
 const ruleForm = reactive({
   orderCode: '',
   collaborators: '',
@@ -2098,6 +2099,7 @@ const getFormReceipts = () => {
       codeReceipts: codeReceipts.value,
       recharger: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
+      user: optionsRecharger,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
@@ -2451,6 +2453,23 @@ const openCancelReturnRequest = () => {
   typeButtonReturn.value = 3
   getReturnRequestOrder()
 }
+// phieu in thu chi
+const formPaymentRequest = ref()
+const printPaymentRequest = () => {
+  formPaymentRequest.value = {
+      // sellOrderCode: sellOrderCode.value,
+      codePaymentRequest: codePaymentRequest.value,
+      recharger: inputRecharger.value,
+      user: getStaffList,
+      inputReasonCollectMoney: inputReasonCollectMoney.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+      moneyReceipts: moneyReceipts.value
+    }
+
+    PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
+}
 
 //Hoàn thành yêu cầu đổi trả
 const finishReturnRequest = async () => {
@@ -2613,10 +2632,28 @@ onBeforeMount(async () => {
 
       <div id="IPRFormPrint">
         <slot>
-          <paymentOrderPrint v-if="dataEdit" :dataEdit="dataEdit" />
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit"  :dataSent="formPaymentRequest" />
         </slot>
       </div>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
 
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <!-- Dialog Thêm nhanh nhà cung cấp -->
       <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogAddQuick" width="40%" :title="t('formDemo.QuicklyAddSupplier')">
         <div v-if="valueClassify == true">
@@ -2818,14 +2855,14 @@ onBeforeMount(async () => {
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <div @scroll="scrollingRecharger" id="content">
+                <!-- <div @scroll="scrollingRecharger" id="content"> -->
                   <el-option
                     v-for="item in optionsRecharger"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
                   />
-                </div>
+                <!-- </div> -->
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
@@ -2940,14 +2977,14 @@ onBeforeMount(async () => {
                 >{{ t('formDemo.moneyReceiver') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <div @scroll="scrollingRecharger" id="content">
+                <!-- <div @scroll="scrollingRecharger" id="content"> -->
                   <el-option
                     v-for="item in optionsRecharger"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
                   />
-                </div>
+                <!-- </div> -->
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
@@ -3253,7 +3290,7 @@ onBeforeMount(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
+            <el-button @click="printPaymentRequest()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button

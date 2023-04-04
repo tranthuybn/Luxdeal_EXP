@@ -1708,7 +1708,7 @@ function printPage(id: string) {
     '',
     'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
   )
-  console.log(stylesHtml)
+  console.log(prtHtml)
   WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
@@ -1792,11 +1792,13 @@ const formReceipts = ref()
 const moneyReceipts = ref(0)
 const inputRecharger = ref()
 
-const getFormReceipts = () => {
+const getFormReceipts = async (textTitle) => {
   console.log(enterMoney.value)
-  
-  if (enterMoney.value) {
+  if(textTitle == 2){
     nameDialog.value = 'Phiếu thu cho thuê'
+  }else{
+    nameDialog.value = 'Phiếu chi cho thuê'
+  }
     formReceipts.value = {
       sellOrderCode: ruleForm.orderCode,
       codeReceipts: codeReceipts.value,
@@ -1807,16 +1809,9 @@ const getFormReceipts = () => {
       enterMoney: enterMoney.value,
       payment: payment.value  ? 'Tiền mặt' : 'Tiền thẻ'
     }
-  } else {
-    ElMessage({
-      showClose: true,
-      message: 'Vui lòng nhập tiền bằng chữ',
-      type: 'error'
-    })
-  }
-  printPage('recpPaymentPrint')
+    PrintReceipts.value = !PrintReceipts.value
+    // printPage('recpPaymentPrint')
 }
-
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequestForOrder({ CustomerOrderId: id })
@@ -2894,7 +2889,8 @@ onBeforeMount(async() => {
   }
   await callApiStaffList()
 })
-
+const PrintReceipts = ref(false)
+const PrintpaymentOrderPrint = ref(false)
 const disabledPhieu = ref(false)
 const startDate = ref()
 const disabledDate = (time: Date) => {
@@ -2925,7 +2921,7 @@ const printPaymentRequest = () => {
       moneyReceipts: moneyReceipts.value
     }
 
-  printPage('IPRFormPrint')
+    PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
 }
 
 </script>
@@ -2941,21 +2937,61 @@ const printPaymentRequest = () => {
       </div>
 
       <div id="recpPaymentPrint">
-        <slot>
           <receiptsPaymentPrint
             v-if="formReceipts"
             :dataEdit="formReceipts"
             :nameDialog="nameDialog"
           />
-        </slot>
       </div>
+      <!-- Dialog In phiếu thu chi -->
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
 
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <receiptsPaymentPrint
+                v-if="formReceipts"
+                :dataEdit="formReceipts"
+                :nameDialog="nameDialog"
+              />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <div id="IPRFormPrint">
         <slot>
           <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
         </slot>
       </div>
+      <!-- Dialog In phiếu thu chi -->
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
 
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <!-- Dialog Thêm nhanh khách hàng -->
       <el-dialog
 :close-on-click-modal="doCloseOnClickModal"
@@ -3228,7 +3264,7 @@ const printPaymentRequest = () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="getFormReceipts()">{{
+            <el-button @click="getFormReceipts(2)">{{
               t('button.print')
             }}</el-button>
             <div>
@@ -3354,7 +3390,7 @@ const printPaymentRequest = () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="getFormReceipts()">{{ t('button.print') }}</el-button>
+            <el-button @click="getFormReceipts(1)">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button

@@ -59,17 +59,17 @@ console.log('props:', props.dataEdit )
   <div class="pb-1 m-6">
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3">{{ t('reuse.fullName') }} :</label>
-      <!-- <div>{{ props.dataEdit.userName ?? '' }} </div> -->
+      <div>{{ props.dataEdit.userName ?? '' }} </div>
     </div>
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3"
         >{{ t('formDemo.paymentOrder') }} {{ t('reuse.amountOfMoney') }} :</label
       >
-      <div>799.000 Đồng</div>
+      <div>{{ props.dataSent.moneyReceipts ?? '' }} Đồng</div>
     </div>
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3">{{ t('reuse.reason') }} :</label>
-      <div>Thu phí</div>
+      <div>{{ props.dataSent.inputReasonCollectMoney ?? '' }}</div>
     </div>
     <div class="flex pb-3 items-center text-[16px]">
       <label class="font-bold basis-1/3">{{ t('formDemo.formPayment') }} :</label>
@@ -81,7 +81,11 @@ console.log('props:', props.dataEdit )
     </div>
     <div class="flex pb-3 items-center text-[16px]">
       <label class="basis-1/3">{{ t('userDemo.accountNumber') }} :</label>
-      <div>123456789</div>
+      <div>44210000200500</div>
+    </div>
+    <div class="flex pb-3 items-center text-[16px]">
+      <label class="basis-1/3">Ngân hàng :</label>
+      <div>BIDV</div>
     </div>
   </div>
 

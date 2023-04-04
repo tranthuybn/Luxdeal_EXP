@@ -15,12 +15,13 @@ const props = defineProps({
 function getUser(arr) {
   var labelUser= "";
   for (var i in arr) {
-    if(arr[i].value == props.dataEdit.recharger) {
+    if(arr[i].value == props.dataEdit.recharger || arr[i].label == props.dataEdit.recharger) {
       labelUser = arr[i].label
     }
   }
   return labelUser
 }
+console.log('dataEdit: ', props.nameDialog)
 console.log('dataEdit: ', props.dataEdit)
 const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 </script>

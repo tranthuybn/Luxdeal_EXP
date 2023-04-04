@@ -313,7 +313,6 @@ const getTableValue = async () => {
     ruleForm.ProvinceId = formValue.value.provinceId
     ruleForm.DistrictId = formValue.value.districtId
     ruleForm.WardId = formValue.value.wardId
-    console.log(formValue.value)
 
     arrayStatusCollab.value = formValue.value.statusHistory
     

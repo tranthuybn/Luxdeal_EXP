@@ -270,7 +270,7 @@ const addLastRowAttribute = async () => {
         hasPrice: false
       }
     ],
-    isActive: false,
+    isActive: true,
     edited: true, //edit data (turn to treeSelect, input ...)
     newValue: true //check is newValue so dont have to call api
   })
@@ -575,6 +575,7 @@ const postData = async (data) => {
         name: `products-services.productLibrary.Products`
         })
       } else {
+        console.log('disable', disabledTabOpen)
         disabledTabOpen.value = false
         //open collapse 1
         activeName.value = [collapse[1].name]
@@ -681,6 +682,10 @@ const editData = async (data) => {
     )
 }
 const editDataSeo = async (data) => {
+  console.log('run here', data, newId.value)
+  if(newId.value){
+    data.Id = newId.value
+  }
   data.SeoDescription = data.description
   data.SeoTags = data.SeoTags.toString()
   await updateProductSeo(FORM_IMAGES(data))
@@ -1598,7 +1603,7 @@ const disabledEverything = () =>{
                 <el-button
                   :icon="plusIcon"
                   link
-                  :disabled="type == 'detail'"
+                  :disabled="type == 'detail'|| disabledTabOpen"
                   :type="scope.row.bussinessSetups[0].hasPrice ? 'primary' : 'warning'"
                   @click="openSellTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1628,7 +1633,7 @@ const disabledEverything = () =>{
                 <el-button
                   :icon="plusIcon"
                   link
-                  :disabled="type == 'detail'"
+                  :disabled="type == 'detail'|| disabledTabOpen"
                   :type="scope.row.bussinessSetups[1].hasPrice ? 'primary' : 'warning'"
                   @click="openRentTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1717,7 +1722,7 @@ const disabledEverything = () =>{
                 <el-button
                   :icon="plusIcon"
                   link
-                  :disabled="type == 'detail'"
+                  :disabled="type == 'detail'|| disabledTabOpen"
                   :type="scope.row.bussinessSetups[4].hasPrice ? 'primary' : 'warning'"
                   @click="openSpaTable(scope)"
                   >{{ t('reuse.addPrice') }}</el-button
@@ -1781,13 +1786,13 @@ const disabledEverything = () =>{
                 v-else
                 type="default"
                 @click="handleEditRow(scope.row)"
-                :disabled="type == 'detail'"
+                :disabled="type == 'detail'|| disabledTabOpen"
                 >{{ t('reuse.edit') }}</el-button
               >
               <el-button
                 type="danger"
                 @click="handleDeleteRow(scope)"
-                :disabled="type == 'detail'"
+                :disabled="type == 'detail'|| disabledTabOpen"
                 >{{ t('reuse.delete') }}</el-button
               >
             </template>
@@ -2350,6 +2355,7 @@ const disabledEverything = () =>{
         :id="id"
         :imageRequired="true"
         :rules="ruleSEO"
+        @post-data="editDataSeo"
         @edit-data="editDataSeo"
         :formDataCustomize="SEOdata"
         class="infinite-list"

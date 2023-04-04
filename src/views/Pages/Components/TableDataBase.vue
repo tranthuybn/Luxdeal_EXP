@@ -100,10 +100,6 @@ const props = defineProps({
     default: false,
     description: 'Remove button add'
   },
-  apiHasPagination: {
-    type: Boolean,
-    default: false,
-  },
   apiToFilter: {
     type: Object,
     default: () => {}
@@ -258,7 +254,6 @@ const initMappingObject = (el) => {
       :columnsTableChild="columnsTableChild" 
       :paginationType="pagination" 
       ref="tableBase01" 
-      :apiHasPagination="props.apiHasPagination"
       :api="dynamicApi" 
       :maxHeight="'69vh'" 
       :fullColumns="dynamicColumns" 

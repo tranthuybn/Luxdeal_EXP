@@ -16,7 +16,6 @@ import { usePermission } from '@/utils/tsxHelper'
  
 const { currentRoute } = useRouter()
 const userPermission = usePermission(currentRoute.value)
-
 const { t } = useI18n()
 const props = defineProps({
   tabs: {
@@ -71,7 +70,6 @@ onBeforeMount(() => {
 
     dynamicApi.value = theFirstTab.api
     dynamicColumns.value = theFirstTab.column
-    console.log(operatorPermission)
     if (operatorPermission) addOperatorColumn(dynamicColumns.value)
     /*
      * alway set currentTab at the end of function after column and api

@@ -136,24 +136,13 @@ const schema = reactive<FormSchema[]>([
       span: 7
     },
     componentProps: {
+      style: 'display: flex; flex-wrap: nowrap',
       disabled: disableCheckBox,
       options: [
         {
           label: t('reuse.active'),
           value: 1
-        }
-      ]
-    }
-  },
-  {
-    field: 'status',
-    component: 'Radio',
-    colProps: {
-      span: 11
-    },
-    componentProps: {
-      disabled: disableCheckBox,
-      options: [
+        },
         {
           label: t('reuse.stopShowAppWeb'),
           value: 2
@@ -232,11 +221,17 @@ const postData = async (data) => {
   }
 
   await postCategory({ TypeName: PRODUCTS_AND_SERVICES[0].key, ...data })
-    .then(() =>
+    .then(() =>{
       ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
+      if (data.backRouter == true) {
+    push({
+      name: 'products-services.ProductCategory',
+      params: { backRoute: 'products-services.ProductCategory' }
+    })
+  }}
     )
     .catch((error) =>
     ElNotification({
@@ -244,12 +239,7 @@ const postData = async (data) => {
         type: 'error'
       })
     )
-  if (data.backRouter == true) {
-    push({
-      name: 'products-services.ProductCategory',
-      params: { backRoute: 'products-services.ProductCategory' }
-    })
-  }
+
 }
 // get data from router
 const router = useRouter()

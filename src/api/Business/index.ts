@@ -91,6 +91,16 @@ export const getEmployeeRatingList = async (params: any): Promise<IResponse> => 
   return res && res.data
 }
 
+export const getEmployeeById = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${STAFF_API.GET_STAFF_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 export const getEmployeeSaleTrackingList = async (params: any): Promise<IResponse> => {
   const res = await request.get(
     {
@@ -973,6 +983,18 @@ export const getPaymentList = async (params: any): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+export const deletePaymentProposal = async (params): Promise<IResponse> => {
+  const res = await request.delete(
+    {
+      url: `${ACCOUNTANT_API.DELETE_PAYMENT_BY_ID}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+
 export const addNewPaymentRequest = async (data): Promise<IResponse> => {
   const res = await request.post(
     { url: `${ACCOUNTANT_API.POST_COMMISSION_PAYMENT_API}`, data },

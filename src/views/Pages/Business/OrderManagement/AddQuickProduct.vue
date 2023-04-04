@@ -100,7 +100,6 @@ const postQuickProduct = async () => {
     emit('save', payload, res.data.id)  
   })
   .catch((error)=>{
-    console.log('err', error)
     ElNotification({
         message: error.response.data.message ?? t('reuse.addFail'),
         type: 'warning'
@@ -111,7 +110,7 @@ const postQuickProduct = async () => {
 
 const handleChangeQuickAddProduct = async (data) => {
   const dataSelectedObj = props.listProducts.find((product) => product.productPropertyId == data)
-
+console.log('dataSelectedObj', dataSelectedObj)
   // call API checkProduct
   let codeCheckProduct = ref()
   let formProductData = ref()
@@ -187,6 +186,7 @@ onMounted(()=>{
             <el-form-item :label="t('reuse.managementCode')" prop="quickManagementCode">
             <el-input
               :modelValue="ruleForm.quickManagementCode"
+              disabled
               style="width: 100%"
               :placeholder="t('formDemo.addManagementCode')"
             />

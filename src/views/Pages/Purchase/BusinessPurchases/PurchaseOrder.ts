@@ -1,6 +1,6 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
-import { filterStatusOrder } from '@/utils/filters'
+import { filtersStatusOrder, filterStatusOrder } from '@/utils/filters'
 import { dateTimeFormat, statusOrder } from '@/utils/format'
 
 const changeMoney = new Intl.NumberFormat('vi', {
@@ -96,13 +96,12 @@ export const PurchaseOrderColumn = [
     headerFilter: 'Name'
   },
   {
-    field: 'status',
+    field: 'OrderStatusFilter',
     label: t('reuse.status'),
-    minWidth: '150',
-    align: 'left',
-    filters: filterStatusOrder,
-    formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
-      return `${t(statusOrder(cellValue))}`
+    minWidth: '120',
+    filters: filtersStatusOrder,
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return row.statusName
     }
   }
 ]

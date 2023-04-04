@@ -23,8 +23,14 @@ const escape = useIcon({ icon: 'quill:escape' })
 const activeName = ref('receiptsAddDetails')
 const setFormData = reactive({} as FormData)
 const back = async () => {
+  if(type !== 'approval') {
+    push({
+      name: 'accountant.receipts-expenditures.receipts-expenditures-list'
+    }) 
+    return
+  }
   push({
-    name: 'accountant.receipts-expenditures.receipts-expenditures-list'
+      name: 'approve.payment-approval.receipts-and-expenditures'
   })
 }
 const rules = reactive({
@@ -33,10 +39,11 @@ const rules = reactive({
   totalMoney: [required()],
   enterMoney: [required()],
   typeOfPayment: [required()],
+  peopleType: [required()],
 })
 
 //random field code
-const curDate = 'PT' + moment().format('hhmmss')
+const curDate = 'PC' + moment().format('hhmmss')
 const schema = reactive<FormSchema[]>([
   {
     field: 'generalServiceInformation',

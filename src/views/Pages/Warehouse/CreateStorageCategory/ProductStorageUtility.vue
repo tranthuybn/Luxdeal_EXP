@@ -193,28 +193,25 @@ const customizeData = async (formData) => {
   }
   formDataCustomize.status = []
 
-  if (formData[0].isActive == true) {
+  if (formData?.isActive == true) {
     formDataCustomize.status.push('active')
   }
-  if (formData[0].isHide == true) {
+  if (formData.isHide == true) {
     formDataCustomize.status.push('hide')
   }
-  if (formData[0].parentid == 0) {
+  if (formData.parentid == 0) {
     formDataCustomize.rankWarehouse = 1
   } else {
     formDataCustomize.rankWarehouse = 2
-    await addFormSchema(timesCallAPI, formData[0].name)
+    await addFormSchema(timesCallAPI, formData.name)
   }
 
-  console.log('form data', formData[0])
-  console.log('formDataCustomize', formDataCustomize)
-
-  formDataCustomize.Image = formData[0].warehouseImages[0].path
-  formDataCustomize.imageurl = `${API_URL}${formData[0].warehouseImages[0].path}`
-  if (formData[0].parentid == 0) {
-    formDataCustomize.name = formData[0].name
+  formDataCustomize.Image = formData.warehouseImages[0].path
+  formDataCustomize.imageurl = `${API_URL}${formData.warehouseImages[0].path}`
+  if (formData?.parentid == 0) {
+    formDataCustomize.name = formData?.name
   } else {
-    formDataCustomize.name2 = formData[0].name
+    formDataCustomize.name2 = formData?.name
   }
   formDataCustomize.isDelete = false
 }

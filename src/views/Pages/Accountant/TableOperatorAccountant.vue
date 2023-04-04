@@ -32,12 +32,18 @@ import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getStaffList, getAllCustomer, getAccountantList } from '@/api/Business'
 import { ListImages } from './types'
+import { usePermission } from '@/utils/tsxHelper'
+import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
+
+// import { STATUS_RECEIPTS_AND_PAYMENT } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const { push } = useRouter()
 const router = useRouter()
 const route = useRoute()
+const { currentRoute } = useRouter()
+const userPermission = usePermission(currentRoute.value)
 const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
@@ -163,6 +169,8 @@ const pageIndexCustomer = ref(1)
 const pageSize = ref(10)
 const createdByOptions = ref([{}])
 const peopleTypeOptions = ref([{}])
+const nameDialog = ref('')
+
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
 
@@ -234,12 +242,14 @@ const setFormValue = async () => {
 //Get data when click detail or edit button
 watch(
   () => props.type,
-  () => {
+  async () => {
     if (props.type === 'detail' || props.type === 'approval') {
       const { setProps, setSchema } = methods
       setProps({
         disabled: true
       })
+      // const form = await getFormData()
+
       setSchema(
         schema.map((component) => ({
           field: component.field,
@@ -507,6 +517,7 @@ onBeforeMount(async () => {
         item.children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
     }))
 })
+
 const handleScroll = (field) => {
   switch (field) {
     case 'createdBy' :
@@ -555,7 +566,7 @@ watch(pageIndexCustomer, async (newPageIndex) => {
   }
 });
 
-const approvalId = String(route.params.approvalId)
+const approvalId = String(route.query.approvalId)
 const approvalProduct = async (val) => {
   const payload = { ItemType: 5, Id: parseInt(approvalId), IsApprove: val }
   await approvalProducts(FORM_IMAGES(payload))
@@ -576,14 +587,118 @@ const approvalProduct = async (val) => {
     )
 }
 
+const handleAccounting = () => {
+  formValue.value.accounted = !formValue.value.accounted
+}
+
+// const statusValue = ref(0)
+// const reloadStatus = async () => {
+//   const res = await props.apiId({Id: props.id})
+//   statusHistory.value = res.data.statusHistory
+//   if(statusHistory.value.length > 0) {
+//     const lastItem = statusHistory.value[statusHistory.value.length - 1]
+//     lastItem.isActive = true
+//     statusValue.value = lastItem.statusValue
+//   }
+// }
+
+const PrintReceipts = ref(false)
+// form phiếu thu
+const formReceipts = ref()
+
+const getFormReceipts = () => {
+  if (formValue.value.enterMoney) {
+    formReceipts.value = {
+      codeReceipts: formValue.value.code,
+      moneyReceipts: formValue.value.totalMoney,
+      reasonCollectingMoney: formValue.value.description,
+      enterMoney: formValue.value.enterMoney,
+      payment: formValue.value.typeOfPayment == 1 ? t('reuse.cashPayment') : t('reuse.cardPayment')
+    }
+    nameDialog.value = formValue.value.type == 1 ? t('reuse.receiptForm') : t('reuse.paymentForm')
+
+    PrintReceipts.value = !PrintReceipts.value
+  } else {
+    ElMessage({
+      showClose: true,
+      message: 'Vui lòng nhập tiền bằng chữ',
+      type: 'error'
+    })
+  }
+}
+
+function printPage(id: string) {
+  const prtHtml = document.getElementById(id)?.innerHTML
+  let stylesHtml = ''
+  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
+    stylesHtml += node.outerHTML
+  }
+  const WinPrint = window.open(
+    '',
+    '',
+    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
+  )
+  WinPrint?.document.write(`<!DOCTYPE html>
+                <html>
+                  <head>
+                    ${stylesHtml}
+                  </head>
+                  <body>
+                    ${prtHtml}
+                  </body>
+                </html>`)
+
+  WinPrint?.document.close()
+  WinPrint?.focus()
+  setTimeout(() => {
+    WinPrint?.print()
+    WinPrint?.close()
+  }, 800)
+}
+
 </script>
 <template>
   <ContentWrap :title="title" :back-button="backButton">
+     <div id="recpPaymentPrint">
+        <slot>
+          <receiptsPaymentPrint
+            v-if="formReceipts"
+            :dataEdit="formReceipts"
+            :nameDialog="nameDialog"
+          />
+        </slot>
+      </div>
+
+    <!-- Dialog In phiếu thu chi -->
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <receiptsPaymentPrint
+                v-if="formReceipts"
+                :dataEdit="formReceipts"
+                :nameDialog="nameDialog"
+              />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
     <ElRow class="pl-8" :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register" >
-          <template #statusHistory="form">
-            <div class="mr-5 flex flex-col justify-start gap-2" v-if="type=='add'">
+          <template #statusHistory>
+              <div class="mr-5 flex flex-col justify-start gap-2" v-if="type=='add'">
                 <div>
                   <span
                       class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
@@ -595,10 +710,10 @@ const approvalProduct = async (val) => {
                 </div>
                 <div class="italic text-xs text-gray-500">{{ currentDate }}</div>
               </div>
-              <div v-else class="flex items-start" >
+              <div v-else class="flex items-start shrink-0" >
                 <div          
                     class="duplicate-status align-top"
-                    v-for="item, index in form['statusHistory']"
+                    v-for="(item, index) in formValue?.statusHistory"
                     :key="index"
                 >
                   <div class="mr-5 flex flex-col justify-start gap-2">
@@ -606,7 +721,7 @@ const approvalProduct = async (val) => {
                         <span
                           class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
                         ></span>
-                        <span class="box dark:text-divck" :class="statusService(item.status)" >
+                        <span class="box dark:text-divck" :class="statusService(item.statusValue)" >
                           {{item.statusName }}    
                           <span class="triangle-right"></span>
                         </span>
@@ -728,46 +843,34 @@ const approvalProduct = async (val) => {
         </el-dialog>
       </ElCol>
       <ElCol :span="hasAttachDocument ? 12 : 0" v-if="hasAttachDocument" class="max-h-400px overflow-y-auto">
-        <ElDivider class="text-center font-bold ml-2">{{ t('reuse.attachDocument') }}</ElDivider>
+        <ElDivider content-position="left" class="text-center font-bold ml-2">{{ t('reuse.attachDocument') }}</ElDivider>
       </ElCol>
     </ElRow>
     <template #under>
       <div class="w-[100%]" v-if="props.type === 'add'">
-        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-8">
-          <ElButton :loading="loading" @click="save('add')">
+        <div class="w-[50%] flex justify-left gap-2 ml-8">
+          <div v-if="customBtn == 2">
+            <ElButton type="primary" :loading="loading" @click="save('add')">
+              {{ t('reuse.save') }}
+            </ElButton>
+            <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
+              {{ t('reuse.saveAndAdd') }}
+            </ElButton>
+          </div>
+          <div v-if="customBtn == 1">
+            <ElButton :loading="loading">
               {{ t('button.print') }}
-          </ElButton>
-          <ElButton type="primary" :loading="loading" @click="save('add')">
-            {{ t('reuse.saveAndPending') }}
-          </ElButton>
-          <ElButton type="danger" :loading="loading" @click="cancel()">
-            {{ t('reuse.cancel') }}
-          </ElButton>
-        </div>
-        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
-          <ElButton type="primary" :loading="loading" @click="save('add')">
-            {{ t('reuse.save') }}
-          </ElButton>
-          <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
-            {{ t('reuse.saveAndAdd') }}
-          </ElButton>
-          <ElButton :loading="loading" @click="cancel()">
-            {{ t('reuse.cancel') }}
+            </ElButton>
+            <ElButton type="primary" :loading="loading" @click="save('add')">
+              {{ t('reuse.saveAndPending') }}
+            </ElButton>
+          </div>
+          <ElButton :type="customBtn == 1 ? 'danger' : '' " :loading="loading" @click="cancel()">
+              {{ t('reuse.cancel') }}
           </ElButton>
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'edit'">
-        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
-          <ElButton :loading="loading" @click="save('add')">
-              {{ t('button.print') }}
-          </ElButton>
-          <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
-            {{ t('reuse.saveAndPending') }}
-          </ElButton>
-          <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-            {{ t('reuse.delete') }}
-          </ElButton>
-        </div>
         <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('edit')">
             {{ t('reuse.save') }}
@@ -778,18 +881,32 @@ const approvalProduct = async (val) => {
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'detail'">
-        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-5">
-          <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
-            {{ t('reuse.fix') }}
-          </ElButton>
-          <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-            {{ t('reuse.delete') }}
-          </ElButton>
-        </div>
-        <div v-if="customBtn == 1" class="w-[50%] flex justify-left gap-2 ml-5">
-          <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-            {{ t('reuse.cancel') }}
-          </ElButton>
+        <div class="w-[50%] flex justify-left gap-2 ml-5">
+          <div v-if="customBtn == 2">
+            <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
+              {{ t('reuse.fix') }}
+            </ElButton>
+            <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+              {{ t('reuse.delete') }}
+            </ElButton>
+          </div>
+          <div v-if="customBtn == 1 && !formValue?.isCancel" class="w-[50%] flex justify-left gap-2 ml-5"> 
+            <ElButton class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
+                {{ t('button.print') }}
+            </ElButton>
+            <ElButton v-if="!formValue?.accounted" class="pl-8 pr-8" :loading="loading">
+              {{ t('button.carrying') }}
+            </ElButton>
+            <ElButton v-if="!formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted && formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
+              {{ t('reuse.accounting') }}
+            </ElButton>
+            <ElButton v-if="formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
+              {{ t('reuse.cancelAccounting') }}
+            </ElButton>
+            <ElButton v-if="userPermission?.deletable && !formValue?.accounted" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+             {{ t('reuse.cancel') }}
+            </ElButton>  
+          </div>
         </div>
       </div>
       <div class="pl-57" v-if="props.type === 'approval'">
@@ -876,6 +993,16 @@ const approvalProduct = async (val) => {
   .el-input__wrapper{
     box-shadow: none;
     padding: 0
+  }
+}
+
+.shrink-0{
+  flex-shrink: 0;
+}
+
+@media screen {
+  #recpPaymentPrint {
+    display: none;
   }
 }
 

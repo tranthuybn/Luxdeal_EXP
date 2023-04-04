@@ -3,7 +3,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 
 const { t } = useI18n()
 
-export const getFilterList = async (getListFunc, errorMessage, params = {}) => {
+export const getOptionsBySearch = async (getListFunc, errorMessage, params = {}) => {
   const res = await getListFunc(params)
   if (res) {
     return res.data.map((item) => ({ text: item.name, value: item.id }))

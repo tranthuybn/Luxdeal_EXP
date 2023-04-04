@@ -374,7 +374,7 @@ const dialogIPRForm = ref(false)
 const dialogPaymentVoucher = ref(false)
 // tạo đơn hàng
 const router = useRouter()
-const tab = String(router.currentRoute.value.params.tab)
+const tab = 'orderDeposit'
 const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const type = String(route.params.type)
@@ -1618,7 +1618,10 @@ const editData = async () => {
 
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
-
+  if (type == 'approval-order') {
+    statusOrder.value = 200
+    checkDisabled.value = true
+  }
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
     disableCreateOrder.value = true
@@ -3868,7 +3871,7 @@ const createStatusAcountingEntry = () => {
           </el-table-column>
 
           <el-table-column
-            prop="productName"
+            prop="productPropertyName"
             :label="t('formDemo.productInformation')"
             min-width="276"
           />

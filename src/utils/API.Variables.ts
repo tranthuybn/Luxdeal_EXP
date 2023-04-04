@@ -723,3 +723,32 @@ export const Approvement = {
 
   SpaService: 8
 }
+
+export const STATUS_RECEIPTS_AND_PAYMENT = [
+  //0
+  {
+    orderStatus: 0,
+    orderStatusName: 'Khởi tạo & ghi số',
+    createdAt: ''
+  },
+  {//1
+    orderStatus: 1,
+    orderStatusName: 'Duyệt phiếu thu/chi',
+    createdAt: ''
+  },
+  {//2
+    orderStatus: 2,
+    orderStatusName: 'Đã thu/chi tiền',
+    createdAt: ''
+  },
+  {//3
+    orderStatus: 3,
+    orderStatusName: 'Đã hạch toán',
+    createdAt: ''
+  },
+  {//4
+    orderStatus: 4,
+    orderStatusName: 'Hủy',
+    createdAt: ''
+  }
+]

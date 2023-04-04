@@ -92,10 +92,6 @@ const props = defineProps({
     description: 'Tiêu đề thông báo khi ấn nút xóa'
   },
   currentT: [String, Number],
-  apiHasPagination: {
-    type: Boolean,
-    default: false,
-  },
   apiToFilter: {
     type: Object,
     default: () => {}
@@ -378,7 +374,7 @@ const setOperatorType = (type)=> {
           v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
           @cancel="cancel" />
         <InputSearch
-            v-if="header.headerFilter === 'Search'" :apiToFilter="props.apiToFilter[header.field]" :apiHasPagination="props.apiHasPagination" :field="header.field" @filter-select="filterSelect"
+            v-if="header.headerFilter === 'Search'" :apiToFilter="props.apiToFilter[header.field]" :field="header.field" @filter-select="filterSelect"
             @cancel="cancel" />
         <InputName
           v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"

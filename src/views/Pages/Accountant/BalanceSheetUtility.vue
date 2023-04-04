@@ -21,7 +21,7 @@ const currentRoute = String(router.currentRoute.value.params.backRoute)
 const title = router.currentRoute.value.meta.title
 const setFormData = reactive({} as FormData)
 const disabledCancelBtn = ref(false)
-const currentType = ref('')
+const currentType = ref('1')
 
 
 onBeforeMount(async() => {
@@ -90,7 +90,8 @@ const schema = reactive<FormSchema[]>([
         }
       ]
     },
-      colProps: {
+    value: '1',
+    colProps: {
       span: 24
     }
   },

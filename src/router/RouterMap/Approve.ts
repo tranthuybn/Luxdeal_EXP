@@ -4,7 +4,7 @@ const { t } = useI18n()
 export default {
   path: '/approve',
   component: Layout,
-  redirect: '/approve/products-approval',
+  redirect: {name:'approve.products-approval'},
   name: 'approve',
   meta: {
     title: t('router.approve'),

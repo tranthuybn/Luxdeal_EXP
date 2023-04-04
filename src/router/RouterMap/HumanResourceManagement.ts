@@ -6,7 +6,7 @@ const { t } = useI18n()
 export default {
   path: '/human-resource-management',
   component: Layout,
-  redirect: '/human-resource-management',
+  redirect: {name:'human-resource-management.personnel-accounts'},
   name: 'human-resource-management',
   meta: {
     title: t('router.humanResourceManagement'),

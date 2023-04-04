@@ -1304,6 +1304,10 @@ const editData = async () => {
   await orderUtility.getStatusWarehouse(id)
 
   if (type == 'detail') checkDisabled.value = true
+  if (type == 'approval-order') {
+    statusOrder.value = 200
+    checkDisabled.value = true
+  }
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
     disabledDeleteRow.value = true
@@ -2668,7 +2672,7 @@ const updateStatusOrders = async (typeState, idOrder) => {
 const route = useRoute()
 const { push } = useRouter()
 const approvalId = String(route.params.approvalId)
-const tab = String(route.params.tab)
+const tab = 'orderRental'
 
 const approvalFunction = async (checkApproved) => {
   const payload = { ItemType: 2, Id: parseInt(approvalId), IsApprove: checkApproved }
@@ -2896,10 +2900,9 @@ const startDate = ref()
 const disabledDate = (time: Date) => {
   if(startDate.value){
     const day = moment(time)
-    const firstDate = moment(startDate.value).format()
     const endDate = moment(startDate.value).add(ruleForm.leaseTerm, "days").format()
 
-    return day.isBefore(firstDate) || day.isAfter(endDate)
+    return day.isBefore(endDate)
   }
   return false //ko disable
 }
@@ -5000,7 +5003,7 @@ const printPaymentRequest = () => {
             </template>
           </el-table-column>
           <el-table-column
-            prop="productName"
+            prop="productPropertyName"
             :label="t('formDemo.productInformation')"
             width="380"
           />

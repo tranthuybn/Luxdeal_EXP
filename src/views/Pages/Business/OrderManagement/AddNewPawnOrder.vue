@@ -181,7 +181,7 @@ const router = useRouter()
 const route = useRoute()
 
 const id = Number(router.currentRoute.value.params.id)
-const tab = String(router.currentRoute.value.params.tab)
+const tab = 'orderPawn'
 const approvalId = String(route.params.approvalId)
 
 const type = String(route.params.type)
@@ -659,6 +659,8 @@ function printPage(id: string, { url, title, w, h }) {
                   </head>
                   <body>
                     ${printContents}
+                    <br>
+                    Thuần HUY
                   </body>
                 </html>`)
 
@@ -1659,6 +1661,10 @@ const editData = async () => {
 
   if (type == 'detail') checkDisabled.value = true
   disableEditData.value = true
+  if (type == 'approval-order') {
+    statusOrder.value = 200
+    checkDisabled.value = true
+  }
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
 
 
@@ -2845,7 +2851,7 @@ const finishOrder = async () =>{
           </el-table-column>
 
           <el-table-column
-            prop="productName"
+            prop="productPropertyName"
             :label="t('formDemo.productInformation')"
             min-width="620"
           />

@@ -907,6 +907,12 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    cancelAccounting: 'Cancel accounting',
+    approvalPayment: 'Approve payment',
+    accounting: 'Accounting',
+    resultsAndStatus: 'Results & Status',
+    editPassword: 'Edit password',
+    cancelEditPassword: 'Cancel',
     chooseBirthday: 'Choose birthday',
     descIsTheStandardTime: 'Is the standard time',
     chooseWorkLevel: 'Choose work level',

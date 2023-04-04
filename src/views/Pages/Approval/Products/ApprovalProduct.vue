@@ -8,7 +8,7 @@ import { filterTableCategory, filterTableStatus } from '@/utils/filters'
 import { setImageDisplayInDOm } from '@/utils/domUtils'
 import { useRouter } from 'vue-router'
 import { ElButton } from 'element-plus'
-import { businessStatusTransferToText, dateTimeFormat } from '@/utils/format'
+import { dateTimeFormat } from '@/utils/format'
 import { appModules } from '@/config/app'
 const { t } = useI18n()
 const { utility } = appModules
@@ -76,10 +76,7 @@ const columnsApprovalProduct = [
     field: 'statusName',
     label: t('reuse.status'),
     minWidth: '150',
-    filters: filterTableStatus,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return t(`${businessStatusTransferToText(cellValue)}`)
-    }
+    filters: filterTableStatus
   },
   {
     field: 'operator',

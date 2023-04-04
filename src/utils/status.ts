@@ -21,18 +21,16 @@ export const statusCampaign = (status) => {
 
 export const statusService = (status) => {
     switch (status) {
-      case -1:
-        return 'status--cancel';
       case 0:
         return 'status--initial';
       case 1:
-        return 'status--pending';
+        return 'status--approval';
       case 2:
-        return 'status--pending-edit';
+        return 'status--transacted';
       case 3:
-        return 'status--active';
+        return 'status--accounted';
       case 4:
-        return 'status--ending';
+        return 'status--cancel';
       default:
         return '';
     }

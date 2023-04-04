@@ -199,7 +199,7 @@ export const productStatusPending = (val) => {
   return `${t('reuse.pending')}`
 }
 export const productStatusTransferToText = (val) => {
-  if (val.isActive) return `${t('reuse.active')}`
+  if (val) return `${t('reuse.active')}`
   else return `${t('reuse.inactive')}`
 }
 

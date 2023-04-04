@@ -1167,7 +1167,7 @@ let totalOrder = ref(0)
 const router = useRouter()
 let id: any = Number(router.currentRoute.value.params.id)
 const route = useRoute()
-const tab = String(route.params.tab)
+const tab = 'orderSell'
 let type = String(route.params.type)
 const approvalId = String(route.params.approvalId)
 
@@ -1186,6 +1186,10 @@ const outstandingDebt = ref(0)
 const editData = async () => {
   await orderUtility.getStatusWarehouse(id)
   if (type == 'detail') checkDisabled.value = true
+  if (type == 'approval-order') {
+    statusOrder.value = 200
+    checkDisabled.value = true
+  }
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
     disabledEdit.value = true
     disabledDeleteRow.value = true
@@ -1899,8 +1903,8 @@ const openPaymentRequest = () => {
 }
 
 function printPage(id: string) {
+  console.log(id)
   const prtHtml = document.getElementById(id)?.innerHTML
-
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
@@ -1925,7 +1929,7 @@ function printPage(id: string) {
   setTimeout(() => {
     WinPrint?.print()
     WinPrint?.close()
-  }, 500)
+  }, 800)
 }
 
 let childrenTable = ref()
@@ -5109,7 +5113,7 @@ const handleClose = (done: () => void) => {
             </template>
           </el-table-column>
           <el-table-column
-            prop="productName"
+            prop="productPropertyName"
             :label="t('formDemo.productInformation')"
             min-width="620"
           />

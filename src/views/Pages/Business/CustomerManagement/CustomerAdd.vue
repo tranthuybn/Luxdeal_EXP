@@ -38,8 +38,8 @@ import {
   addNewAuthRegister,
   updatedCustomer,
   cancelCustomerAccount,
-approvalOrder,
-getCustomerList
+  approvalOrder,
+  getCustomerList
 } from '@/api/Business'
 import { updatePasswordApi } from '@/api/login/index'
 import { useRouter } from 'vue-router'
@@ -144,6 +144,7 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
+  IsOrganization: [ValidService.required],
   cccdPlaceOfGrant: [{ required: false }],
   accountName: [
     {validator: doNotHaveNumber},
@@ -183,7 +184,8 @@ let ruleForm = reactive({
   ProvinceId: '',
   DistrictId: '',
   WardId: '',
-  Address: ''
+  Address: '',
+  classify: true
 })
 
 let checkValidate = ref(false)
@@ -311,6 +313,7 @@ const getTableValue = async () => {
     ruleForm.ProvinceId = formValue.value.provinceId
     ruleForm.DistrictId = formValue.value.districtId
     ruleForm.WardId = formValue.value.wardId
+    console.log(formValue.value)
 
     arrayStatusCollab.value = formValue.value.statusHistory
     
@@ -583,9 +586,9 @@ const postData = async (typebtn) => {
       .then(() => {
         postCustomer(typebtn)
       })
-      .catch(() =>{
+      .catch((error) =>{
         ElNotification({
-          message: t('reuse.duplicateInformation'),
+          message: error,
         type: 'error'
       })
      } )
@@ -902,7 +905,7 @@ onBeforeMount(() => {
               <el-divider content-position="left">{{
                 t('formDemo.generalInformation')
               }}</el-divider>
-              <ElFormItem :label="t('formDemo.classify')" class="flex items-center w-[100%]">
+              <ElFormItem :label="t('formDemo.classify')" required prop="classify" v-model="ruleForm.classify" class="flex items-center w-[100%]">
                 <div class="flex">
                   <div class="flex w-[100%]">
                     <div class="flex gap-2 pl-2 w-[100%]">
@@ -1279,7 +1282,7 @@ onBeforeMount(() => {
                 </ElFormItem>
               </div>
               <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">
-                <el-checkbox class="ml-4" :disabled="alwaysActive" v-model="ruleForm.isActive">{{
+                <el-checkbox class="ml-4" :checked="alwaysActive" v-model="ruleForm.isActive">{{
                   t('formDemo.isActive')
                 }}</el-checkbox>
               </ElFormItem>

@@ -24,7 +24,6 @@ import {
   ElOption,
   ElButton,
   ElDivider,
-  ElInput,
   ElCheckbox,
   ElNotification,
   UploadProps,
@@ -37,7 +36,11 @@ import {
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
 import moment from 'moment'
+import InputPrice from '@/components/CurrencyInputComponent.vue'
+import { changeMoney } from '@/utils/tsxHelper'
+
 const { t } = useI18n()
+const showInputPricePlaceholder = ref(true)
 const doCloseOnClickModal = ref(false)
 const { push } = useRouter()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -79,8 +82,6 @@ let optionCallAPi = 0
 const callAPiPaymentRequest = async (id) => {
   if (optionCallAPi == 0) {
     const res = await getPaymentList({ PeopleId: id })
-    console.log(res)
-
     listPayments.value = res.data
     optionsPaymentApi.value = listPayments.value.map((payment) => ({
       code: payment.code,
@@ -94,14 +95,14 @@ const callAPiPaymentRequest = async (id) => {
   }
 }
 let optionReceiptPaymentCallAPi = 0
-const callAPiReceiptPaymentRequest = async (id) => {
+const callAPiReceiptPaymentRequest = async () => {
   if (optionReceiptPaymentCallAPi == 0) {
-    const res = await getReceiptPaymentList({ PeopleId: id })
+    const res = await getReceiptPaymentList({})
     listPayments.value = res.data
     optionsReceiptPaymentApi.value = listPayments.value.map((payment) => ({
       code: payment.code,
-      paymentType: payment.paymentType ? 'Thu' : 'Chi',
-      totalMoney: payment.totalMoney,
+      paymentType: payment.type == 1 ? 'Thu' : 'Chi',
+      totalMoney: changeMoney.format(parseInt(payment.totalMoney)),
       createdAt: dateTimeFormat(payment.createdAt),
       createdBy: payment.createdBy
     }))
@@ -111,6 +112,7 @@ const callAPiReceiptPaymentRequest = async (id) => {
 }
 const ReceiptOrPaymentId = ref()
 const changeNameReceiptPayment = (_value, obj, _scope) => {
+  console.log('obj', obj)
   ReceiptOrPaymentId.value = obj.code
 }
 const PaymentId = ref()
@@ -192,6 +194,7 @@ const changeAddressCustomer = (data) => {
     const result = optionsCustomerApi.value.find((e) => e.value == data)
 
     customerAddress.value = optionsCustomerApi.value.find((e) => e.value == data)?.address ?? ''
+    infoCompany.code = result.code
     infoCompany.accountNumber = result.accountNumber
     infoCompany.taxCode = result.taxCode
     infoCompany.email = result.email
@@ -208,7 +211,7 @@ const changeAddressCustomer = (data) => {
     infoCompany.sex = result.sex
     infoCompany.doB = result.doB
     callAPiPaymentRequest(result.id)
-    callAPiReceiptPaymentRequest(result.id)
+    callAPiReceiptPaymentRequest()
   }
 }
 const ruleFormRef = ref<FormInstance>()
@@ -289,7 +292,7 @@ defineExpose({
 
 type FormDataInput = {
   CollaboratorStatus: boolean
-  Price: string
+  Price: number
   collaboratorValue: any
   Code: string
   ReceiptOrPaymentVoucherId: string
@@ -395,8 +398,8 @@ const setFormValue = async () => {
     setValues(formValue.value)
   }
 }
-const EmptyCustomData = {} as FormDataInput
-let FormData = reactive(EmptyCustomData)
+
+let FormData = reactive({} as FormDataInput)
 const customPostData = (FormData) => {
   const customData = {} as FormDataPost
   customData.CollaboratorId = infoCompany.CollaboratorId
@@ -404,7 +407,7 @@ const customPostData = (FormData) => {
   customData.Status = FormData.CollaboratorStatus ? 2 : 1
   customData.Price = parseInt(FormData.Price)
   customData.ReceiptOrPaymentVoucherId =
-    ReceiptOrPaymentId.value === undefined
+      ReceiptOrPaymentId.value === undefined
       ? FormData.ReceiptOrPaymentVoucherId
       : ReceiptOrPaymentId.value
   customData.PaymentOrder = PaymentId.value === undefined ? FormData.PaymentOrder : PaymentId.value
@@ -526,7 +529,6 @@ const activeName = ref(collapse[0].title)
               :model="FormData"
               :disabled="disabledForm"
               :rules="rules"
-              hide-required-asterisk
               label-width="170px"
               @register="register"
               status-icon
@@ -556,144 +558,117 @@ const activeName = ref(collapse[0].title)
                   />
                 </ElSelect>
               </ElFormItem>
-              <ElFormItem :label="t('reuse.collaboratorsCode')" v-if="infoCompany.code">
-                <div class="leading-6">
-                  <div>{{ infoCompany.code }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem :label="t('reuse.collaboratorsName')" v-if="infoCompany.name">
-                <div class="leading-6">
-                  <div>{{ infoCompany.name }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode">
-                <div class="leading-6">
-                  <div>{{ infoCompany.taxCode }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                class="w-[33%]"
-                style="display: inline-block"
-                :label="t('reuse.phoneNumber')"
-                v-if="infoCompany.phonenumber"
-              >
-                <div class="leading-4">
-                  <div>{{ infoCompany.phonenumber }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                class="w-[50%]"
-                style="display: inline-block"
-                :label="t('reuse.email')"
-                v-if="infoCompany.email"
-              >
-                <div class="leading-4">
-                  <div>{{ infoCompany.email }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                class="w-[33%]"
-                style="display: inline-block"
-                :label="t('reuse.citizenIdentificationNumber')"
-                v-if="infoCompany.cccd"
-              >
-                <div class="leading-4">
-                  <div>{{ infoCompany.cccd }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                style="display: inline-block"
-                :label="t('formDemo.supplyDate')"
-                v-if="infoCompany.cccdCreateAt"
-              >
-                <div class="leading-4">
-                  <div>{{ dateTimeFormat(infoCompany.cccdCreateAt) }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                style="display: inline-block"
-                :label="t('formDemo.supplyAddress')"
-                v-if="infoCompany.cccdPlaceOfGrant"
-              >
-                <div class="leading-4">
-                  <div>{{ infoCompany.cccdPlaceOfGrant }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                class="w-[33%]"
-                style="display: inline-block"
-                :label="t('reuse.dateOfBirth')"
-                v-if="infoCompany.doB"
-              >
-                <div class="leading-4">
-                  <div>{{ dateTimeFormat(infoCompany.doB) }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                style="display: inline-block"
-                :label="t('reuse.gender')"
-                v-if="infoCompany.sex"
-              >
-                <div class="leading-4">
-                  <div>{{ infoCompany.sex ? t('reuse.male') : t('reuse.female') }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address">
-                <div class="leading-6">
-                  <div>{{ infoCompany.address }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                style="align-items: flex-start"
-                :label="t('reuse.accountBank')"
-                v-if="infoCompany.taxCode"
-              >
-                <div class="leading-6 mt-1">
+              <div class="infoCTV">
+                <ElFormItem :label="t('reuse.collaboratorsCode')" v-if="infoCompany.code">
+                  <div class="font-bold">{{ infoCompany.code }}</div>
+                </ElFormItem>
+                <ElFormItem :label="t('reuse.collaboratorsName')" v-if="infoCompany.accountName">
                   <div>{{ infoCompany.accountName }}</div>
-                  <div>{{ infoCompany.accountNumber }}</div>
-                  <div>{{ infoCompany.bankName }}</div>
-                </div>
-              </ElFormItem>
+                </ElFormItem>
+                <ElFormItem :label="t('formDemo.taxCode')" v-if="infoCompany.taxCode">
+                  <div class="">
+                    <div>{{ infoCompany.taxCode }}</div>
+                  </div>
+                </ElFormItem>
+                <ElFormItem
+                  class="w-[33%]"
+                  style="display: inline-block"
+                  :label="t('reuse.phoneNumber')"
+                  v-if="infoCompany.phonenumber"
+                >
+                  <div class="leading-4">
+                    <div>{{ infoCompany.phonenumber }}</div>
+                  </div>
+                </ElFormItem>
+                <ElFormItem
+                  class="w-[50%]"
+                  style="display: inline-block"
+                  :label="`${t('reuse.email')} :`"
+                  v-if="infoCompany.email"
+                >
+                  <div class="leading-4">
+                    <div>{{ infoCompany.email }}</div>
+                  </div>
+                </ElFormItem>
+                <ElFormItem
+                  class="w-[33%]"
+                  style="display: inline-block"
+                  :label="t('reuse.citizenIdentificationNumber')"
+                  v-if="infoCompany.cccd"
+                >
+                  <div class="leading-4">
+                    <div>{{ infoCompany.cccd }}</div>
+                  </div>
+                </ElFormItem>
+                <ElFormItem
+                  style="display: inline-block"
+                  :label="`${t('formDemo.supplyDate')} :`"
+                  v-if="infoCompany.cccdCreateAt"
+                >
+                  <div class="leading-4">
+                    <div>{{ dateTimeFormat(infoCompany.cccdCreateAt) }}</div>
+                  </div>
+                </ElFormItem>
+                <ElFormItem
+                  style="display: inline-block"
+                  :label="`${t('formDemo.supplyAddress')} :`"
+                  v-if="infoCompany.cccdPlaceOfGrant"
+                >
+                  <div class="leading-4">
+                    <div>{{ infoCompany.cccdPlaceOfGrant }}</div>
+                  </div>
+                </ElFormItem>
+                <ElFormItem
+                  class="w-[33%]"
+                  style="display: inline-block"
+                  :label="t('reuse.dateOfBirth')"
+                  v-if="infoCompany.doB"
+                >
+                  <div class="leading-4">
+                    <div>{{ dateTimeFormat(infoCompany.doB) }}</div>
+                  </div>
+                </ElFormItem>
+                <ElFormItem
+                  style="display: inline-block"
+                  :label="`${t('reuse.gender')} :`"
+                  v-if="infoCompany.sex"
+                >
+                <div>{{ infoCompany.sex ? t('reuse.male') : t('reuse.female') }}</div>
+                </ElFormItem>
+                <ElFormItem :label="t('formDemo.address')" v-if="infoCompany.address">
+                  <div>{{ infoCompany.address }}</div>
+                </ElFormItem>
+                <ElFormItem
+                  style="align-items: flex-start"
+                  :label="t('reuse.accountBank')"
+                  v-if="infoCompany.taxCode"
+                >
+                  <div class="leading-6 mt-1">
+                    <div>{{ infoCompany.accountName }}</div>
+                    <div>{{ infoCompany.accountNumber }}</div>
+                    <div>{{ infoCompany.bankName }}</div>
+                  </div>
+                </ElFormItem>
+
+              </div>
               <el-divider content-position="left">{{ t('router.paymentRequests') }}</el-divider>
               <ElFormItem :label="t('reuse.codeRequest')" prop="requestCode">
                 <div>{{ requestCode }}</div>
               </ElFormItem>
               <ElFormItem :label="t('reuse.amountOfMoney')" prop="Price">
-                <ElInput
+                <InputPrice 
                   v-model="FormData.Price"
                   size="default"
                   :placeholder="t('reuse.placeholderMoney')"
                   :suffixIcon="h('div', 'đ')"
+                  :showCurrency="false"
+                  :showPlaceholder="showInputPricePlaceholder"
+                  @update:modelValue="showInputPricePlaceholder = false"
                 />
               </ElFormItem>
               <ElFormItem :label="t('router.receiptsAndExpenditures')">
-                <MultipleOptionsBox
-                  style="width: 76%; margin-right: 2%"
-                  :fields="[
-                    t('reuse.proposalCode'),
-                    t('reuse.receiptAndPayment'),
-                    t('reuse.amountOfMoney'),
-                    t('reuse.createDate'),
-                    t('reuse.creator')
-                  ]"
-                  filterable
-                  :items="listReceiptPaymentRequest"
-                  valueKey="code"
-                  labelKey="code"
-                  :hiddenKey="['id']"
-                  :placeHolder="'Chọn mã sản phẩm'"
-                  :defaultValue="FormData.ReceiptOrPaymentVoucherId"
-                  :clearable="false"
-                  @update-value="(value, obj) => changeNameReceiptPayment(value, obj, $props)"
-                />
-                <el-button :icon="plusIcon" style="padding: 8px 34px">{{
-                  t('reuse.createNew')
-                }}</el-button>
-              </ElFormItem>
-              <ElFormItem :label="t('router.paymentProposal')">
-                <template #default="props">
+                <div class="flex justify-between gap-4">
                   <MultipleOptionsBox
-                    style="width: 76%; margin-right: 2%"
                     :fields="[
                       t('reuse.proposalCode'),
                       t('reuse.receiptAndPayment'),
@@ -702,31 +677,42 @@ const activeName = ref(collapse[0].title)
                       t('reuse.creator')
                     ]"
                     filterable
-                    :items="listPaymentRequest"
-                    valueKey="code"
+                    :items="listReceiptPaymentRequest"
+                    valueKey="id"
                     labelKey="code"
                     :hiddenKey="['id']"
-                    :placeHolder="'Chọn mã sản phẩm'"
-                    :defaultValue="FormData.PaymentOrder"
+                    :placeHolder="t('reuse.chooseReceiptAndPayment')"
+                    :defaultValue="FormData.ReceiptOrPaymentVoucherId"
                     :clearable="false"
-                    @update-value="(value, obj) => changeNamePayment(value, obj, props)"
+                    @update-value="(value, obj) => changeNameReceiptPayment(value, obj, $props)"
                   />
-                  <el-button :icon="plusIcon" style="padding: 8px 34px">{{
-                    t('reuse.createNew')
-                  }}</el-button>
+                  <el-button :icon="plusIcon" style="padding: 8px 34px">{{t('reuse.createNew')}}</el-button>
+                </div>
+              </ElFormItem>
+              <ElFormItem :label="t('router.paymentProposal')">
+                <template #default="props">
+                  <div class="flex justify-between gap-4">
+                    <MultipleOptionsBox
+                      :fields="[
+                        t('reuse.proposalCode'),
+                        t('reuse.receiptAndPayment'),
+                        t('reuse.amountOfMoney'),
+                        t('reuse.createDate'),
+                        t('reuse.creator')
+                      ]"
+                      filterable
+                      :items="listPaymentRequest"
+                      valueKey="code"
+                      labelKey="code"
+                      :hiddenKey="['id']"
+                      :placeHolder="t('reuse.choosePaymentProposal')"
+                      :defaultValue="FormData.PaymentOrder"
+                      :clearable="false"
+                      @update-value="(value, obj) => changeNamePayment(value, obj, props)"
+                    />
+                    <el-button :icon="plusIcon" style="padding: 8px 34px">{{t('reuse.createNew')}}</el-button>
+                  </div>
                 </template>
-                <!-- <el-select
-                  v-model="value"
-                  :placeholder="t('reuse.choosePaymentProposal')"
-                  style="width: 78%; margin-right: 2%"
-                >
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select> -->
               </ElFormItem>
               <ElFormItem :label="t('formDemo.statusPayment')" style="align-items: flex-start">
                 <div class="block items-center w-[100%] gap-4">
@@ -804,7 +790,7 @@ const activeName = ref(collapse[0].title)
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 ::v-deep(.el-select) {
   width: 100%;
 }
@@ -909,7 +895,11 @@ const activeName = ref(collapse[0].title)
 ::v-deep(.fix-full-width > .el-select .el-input) {
   width: 100% !important;
 }
-
+::v-deep(.infoCTV) {
+  .el-form-item {
+    margin: 0;
+  }
+}
 .header-icon {
   margin-right: 10px;
 }
@@ -922,4 +912,5 @@ const activeName = ref(collapse[0].title)
 .btn-type {
   margin-left: 170px;
 }
+
 </style>

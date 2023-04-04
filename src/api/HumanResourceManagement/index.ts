@@ -28,6 +28,16 @@ export const getBranchList = async (_params?: Params2): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const getBranchs = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.BRANCH_LIST}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 
 export const addNewBranch = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
@@ -65,6 +75,16 @@ export const getDepartmentList = async (_params?: Params): Promise<IResponse> =>
         PageIndex: 1,
         pagesize: 1000
       }
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const getDepartments = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.DEPARTMENT_LIST}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
@@ -159,6 +179,16 @@ export const getRankList = async (_params?: Params): Promise<IResponse> => {
   )
   return res && res.data
 }
+export const getRanks = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.GET_LIST_POSITION}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
 
 export const addNewPosition = async (data): Promise<IResponse> => {
   data = FORM_DATA(data)
@@ -231,6 +261,16 @@ export const getTypePersonnelList = async (_params?: Params): Promise<IResponse>
         PageIndex: 1,
         pagesize: 1000
       }
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}
+
+export const getTypePersonnels = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${DEPARTMENT_DIRECTORY.GET_LIST_TYPEOFSTAFF}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

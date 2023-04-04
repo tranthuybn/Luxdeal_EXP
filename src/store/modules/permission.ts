@@ -121,7 +121,6 @@ export const usePermissionStore = defineStore({
           routerMap = generateRoutesFn1(cloneDeep(asyncRouterMap), routers as string[])
         // Read the static routing table directly
         else routerMap = cloneDeep(asyncRouterMap)
-
         // Dynamic route, 404 must be placed to the end
         this.addRouters = routerMap.concat([
           {
@@ -146,8 +145,10 @@ export const usePermissionStore = defineStore({
       this.menuTabRouters = routers
     },
     checkRoleAndSetPermission(RoleList: iUserPermission[], currentRoute: RouteLocationNormalizedLoaded): void { 
-      if (Array.isArray(RoleList) && RoleList.length > 0) {
-        const { path } = currentRoute
+      const { matched } = currentRoute
+      console.log(matched)
+      if (Array.isArray(RoleList) && RoleList.length > 0 && matched[1]) {
+        const { path } = matched[1]
         const hasRole = RoleList.find(el => el.url === path)
           this.userPermission = hasRole ?? null
       }else
@@ -156,7 +157,7 @@ export const usePermissionStore = defineStore({
     clearPermission() { 
       if(Array.isArray(this.userPermission) && this.userPermission.length > 0 )
         this.userPermission.splice(0,this.userPermission.length-1)
-    }
+    },
   }
 })
 

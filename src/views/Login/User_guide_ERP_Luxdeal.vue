@@ -1,60 +1,52 @@
 <template>
   <div>
-    <div id="sidebar">
-      <div id="outline"></div>
+    <div id="html" v-html="htmlContent"></div>
+    <div @click="myFunction">
+      <div title="Về đầu trang" id="top-up"> &#8657; <i class="fas fa-arrow-circle-up"></i></div>
     </div>
-    <div id="page-container">
-      <!-- <button onclick="myFunction()">Lên đầu trang</button> -->
-      <iframe src="./UserGuide.html" frameborder="0"></iframe>
-    </div>
-    <div class="loading-indicator">
-    <img alt="" src="@/assets/imgs/imgGuide/pull.png" />
-  </div>
   </div>
 </template>
 <script>
 export default {
-
   data() {
     return {
- 
-    };
+      htmlContent: ''
+    }
   },
-  computed: {
-   
-  },
+  computed: {},
   methods: {
+    async loadHTML() {
+      const response = await fetch('./userGuides.html')
+      const html = await response.text()
+      this.htmlContent = html
+    },
     myFunction() {
-        console.log("huy")
-        window.scrollTo({
-          top: 0,
-          behavior: `smooth`
-        })
-      }
+      document.getElementById('page-container').scrollTop = 0
+    }
   },
 
   mounted() {
-    let recaptchaScript = document.createElement('script')
-      recaptchaScript.setAttribute('src', './component/guide/guide.js')
-      document.head.appendChild(recaptchaScript)
-  },
-};
+    this.loadHTML()
+    document.getElementById('html').style.zoom = '150%'
+  }
+}
 </script>
-<style lang="css" scoped>
-@import '@/styles/guide.css';
-button {
-        padding: 10px;
-        color: white;
-        background-color: rgb(174, 129, 224);
-        position: sticky;
-        border-radius: 5px;
-        border: 0.5px solid rgb(87, 85, 85);
-        top: 10%;
-        left: 5%;
-        z-index: 10;
-      }
-      iframe{
-        height: 100%;
-        width: 100%;
-      }
+<style scoped>
+#top-up {
+  font-size: 2rem;
+  cursor: pointer;
+  position: fixed;
+  z-index: 9999;
+  color: #0281ff;
+  background-color: #edf4fa;
+  bottom: 30px;
+  right: 35px;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 50%;
+  /* display: none; */
+}
+#top-up:hover {
+  color: #333;
+}
 </style>

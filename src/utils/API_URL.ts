@@ -148,6 +148,7 @@ export const ADDRESS_API = {
 // kế toán
 export const ACCOUNTANT_API = {
   PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
+  DELETE_PAYMENT_BY_ID: '',
   GET_RECEIPT_EXPENDITURES_LIST: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   GET_RECEIPT_PAYMENT_BY_ID_API: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',
@@ -188,6 +189,7 @@ export const WAREHOUSE_API = {
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff',
   GET_STAFF_LIST: '/api/v1/AccountStaff/GetAccount',
+  GET_STAFF_BY_ID: '/api/v1/AccountStaff/GetINew',
   GET_EMPLOYEE_RATING_LIST: '/api/v1/SalaryEmployee/GetListSalers',
   GET_EMPLOYEE_SALE_TRACKING_LIST: '/api/v1/SalaryEmployee/GetIdEmployeeId',
 }

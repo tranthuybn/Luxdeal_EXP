@@ -149,6 +149,7 @@ export const ADDRESS_API = {
 export const ACCOUNTANT_API = {
   PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
   DELETE_PAYMENT_BY_ID: '',
+  BALANCE_ACCOUNT: '/api/v1/Accountant/AccountBalance',
   GET_RECEIPT_EXPENDITURES_LIST: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   GET_RECEIPT_PAYMENT_BY_ID_API: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',
   POST_COMMISSION_PAYMENT_API: 'api/v1/Customer/addCommissionPayment',

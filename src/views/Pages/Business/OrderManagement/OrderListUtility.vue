@@ -1746,6 +1746,7 @@ const callApiStaffList = async () => {
     value: el.id,
     label: el.name + ' | ' + el.contact
   }))
+  console.log('res', res)
   getStaffList.value.push(
     {
       value: currentCreator.value.id,
@@ -1905,7 +1906,6 @@ const openPaymentRequest = () => {
 }
 
 function printPage(id: string) {
-  console.log(id)
   const prtHtml = document.getElementById(id)?.innerHTML
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {

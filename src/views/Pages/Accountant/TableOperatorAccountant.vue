@@ -778,6 +778,17 @@ const approvalProduct = async (val) => {
             </ElButton>
           </div>
           <div v-if="customBtn == 1">
+            <div v-if="formValue.IsApproved">
+              <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" :loading="loading">
+                {{ t('button.print') }}
+              </ElButton>
+              <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" :loading="loading">
+                {{ t('button.carrying') }}
+              </ElButton>
+              <ElButton :disabled="disabledCancelBtn" type="primary" class="pl-8 pr-8" :loading="loading">
+                {{ t('reuse.accounting') }}
+              </ElButton>
+            </div>
             <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
             {{ t('reuse.cancel') }}
           </ElButton>  

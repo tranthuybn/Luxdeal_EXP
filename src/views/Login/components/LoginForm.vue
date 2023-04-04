@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {reactive, ref, unref, watch } from 'vue'
+import {reactive, ref, unref } from 'vue'
 import { Form } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton, ElCheckbox, ElLink, ElNotification } from 'element-plus'
@@ -10,7 +10,7 @@ import { getStaffInfoByAccountId } from '@/api/HumanResourceManagement'
 import { useCache } from '@/hooks/web/useCache'
 import { usePermissionStore } from '@/store/modules/permission'
 import { useRouter } from 'vue-router'
-import type { RouteLocationNormalizedLoaded, RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 import { UserType } from '@/api/login/types'
 import { useValidator } from '@/hooks/web/useValidator'
 
@@ -20,7 +20,7 @@ const { required, notSpecialCharacters } = useValidator()
 
 const permissionStore = usePermissionStore()
 
-const { currentRoute, addRoute, push } = useRouter()
+const { addRoute, push } = useRouter()
 
 const { wsCache } = useCache()
 
@@ -103,19 +103,6 @@ const remember = ref(false)
 const { register, elFormRef, methods } = useForm()
 
 const iconColor = '#999'
-
-const redirect = ref<string>('')
-
-watch(
-  () => currentRoute.value,
-  (route: RouteLocationNormalizedLoaded) => {
-    redirect.value = route?.query?.redirect as string
-  },
-  {
-    immediate: true
-  }
-)
-
 // Log in
 const signIn = () => {
   const formRef = unref(elFormRef)
@@ -140,30 +127,35 @@ const signIn = () => {
               message: t('reuse.accountInfo'),
               type: 'error'
             })
-            inValidAccountAccess()
+            inValidAccountAccess(null)
           }
         } else {
           ElNotification({
             message: t('login.incorrectAccount'),
             type: 'error'
           })
-          inValidAccountAccess()
+          inValidAccountAccess(null)
         }
       } catch (err:any){
         ElNotification({
               message: t('router.errorPage'),
               type: 'error'
         })
-        inValidAccountAccess()     
+        inValidAccountAccess(null)     
       }
      
     }
   })
 }
-const inValidAccountAccess = () => { 
-  wsCache.clear()
+const inValidAccountAccess = (key:string|null) => { 
+  if(key)
+    localStorage.removeItem(key)
+  else
+    wsCache.clear()
+  if(Array.isArray(permissionStore.getUserPermission) && permissionStore.getUserPermission.length > 0)
+    permissionStore.clearPermission()
   loading.value = false
-  permissionStore.clearPermission()
+
 }
 // Get role information
 const getRole =  (accountId) => {
@@ -182,39 +174,37 @@ const getRole =  (accountId) => {
       message: 'can not get role',
       type: 'error'
     })
-    inValidAccountAccess()
+    inValidAccountAccess(null)
   })
 
 
 }
 const generateRouter = (routers) => {
-  try {
     // save roles in local storage
-    wsCache.set(permissionStore.getRouterByRoles, routers)
+  wsCache.set(permissionStore.getRouterByRoles, routers)
     //  generate router by roles
-    const urlList = routers.map((el) => el.url)
-    permissionStore.generateRoutes(urlList, 'client').catch(() => { })
-
-    permissionStore.getAddRouters.forEach((route) => {
+  const urlList = routers.map((el) => el.url)
+  permissionStore.generateRoutes(urlList, 'client').then(() => { 
+    if(permissionStore.getAddRouters.length > 0)
+      permissionStore.getAddRouters.forEach((route) => { 
+        console.log('route',route)
       addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table
     })
     permissionStore.setIsAddRouters(true)
-    push({ path: redirect.value || permissionStore.addRouters[0].path })
+    console.log(' path: redirect.value || permissionStore.addRouters[0].path ', permissionStore.addRouters[0].path )
+    push({ path: permissionStore.addRouters[0].path })
     ElNotification({
       message: t('login.welcome'),
       type: 'success'
     })
-  }
-  catch(err )
-  { 
-    console.error(err);
-    ElNotification({
-      message: 'can not generate directory',
-      type: 'error'
-    })
-    inValidAccountAccess()
-  }
- 
+  }).catch((err) => { 
+      console.error(err);
+      ElNotification({
+        message: 'can not generate directory',
+        type: 'error'
+      })
+      inValidAccountAccess(permissionStore.getRouterByRoles)
+  })
 }
 const getUserInfoByAccountId =  (id) => {
    getStaffInfoByAccountId({ Id: id })
@@ -229,7 +219,8 @@ const getUserInfoByAccountId =  (id) => {
         message: t('reuse.accountInfo'),
         type: 'error'
       })
-      inValidAccountAccess()
+      if(permissionStore.getRouters.length > 0)
+      inValidAccountAccess(permissionStore.getStaffInfo)
     }) 
 }
 // store user information

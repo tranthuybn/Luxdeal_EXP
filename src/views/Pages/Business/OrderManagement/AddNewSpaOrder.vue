@@ -1178,7 +1178,7 @@ const chooseDelivery = [
 const router = useRouter()
 let id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
-const tab = String(router.currentRoute.value.params.tab)
+const tab = 'orderSpa'
 const type = String(route.params.type)
 const approvalId = String(route.params.approvalId)
 

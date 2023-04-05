@@ -1339,6 +1339,10 @@ const postOrderStransaction = async (index: number) => {
   }
 
   if (index == 4) {
+    childrenTable.value = ListOfProductsForSale.value.map((val) => ({
+    merchadiseTobePayforId: parseInt(val.id),
+    quantity: val.quantity
+  }))
     tableAccountingEntry.value[0].receiveMoney > tableAccountingEntry.value[0].paidMoney
       ? (checkPTC.value = 1)
       : (checkPTC.value = 0)
@@ -2304,7 +2308,7 @@ const openDetailFullyIntegrated = async (props) => {
       }
   informationWarehouseReceipt.value = true
 }
-const paymentType = ref(3)
+const paymentType = ref(4)
 const paymentTypeOptions = ref([
   {
     label:'Thanh toán tiền gốc',

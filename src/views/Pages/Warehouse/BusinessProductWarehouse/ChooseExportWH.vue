@@ -185,7 +185,6 @@ const selectAll = ()=>{
   }
 }
 const checkExport = (curRow) =>{
-  console.log('check', curRow, props.transactionType,props.serviceType, props.orderId)
   //Phiếu xuất kho bằng tay ko được chọn các lot ký gửi/cầm đồ/spa
   if(props.transactionType == 2 && props.serviceType ==6 && props.orderId == 0){
     if(curRow.orderType == 2 || curRow.orderType == 4 || curRow.orderType == 5){
@@ -200,7 +199,6 @@ const checkExport = (curRow) =>{
   if(props.transactionType == 2){
     if(curRow.orderType == 1 || curRow.orderType == 3 || curRow.orderType == 5){
       const valid = curRow.businessSetupValue?.includes(props.serviceType)
-      console.log('valid', valid)
       if(!valid){
         ElMessage({
           message: 'Chưa cài đặt xuất kho cho lot này',

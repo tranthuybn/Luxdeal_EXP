@@ -1679,7 +1679,8 @@ const getReturnRequestTable = async () => {
       value: e?.productPropertyId,
       warehouseTicketCode: e.warehouseTicketCode,
       warehouseTicketId: e.warehouseTicketId,
-      warehouseTicketStatusName: e.warehouseTicketStatusName
+      warehouseTicketStatusName: e.warehouseTicketStatusName,
+      warehouseTicketStatus: e.warehouseTicketStatus
     }))
     orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }

@@ -151,12 +151,23 @@ export const getStatusWarehouse = async (orderId) => {
         type: 'error'
       })
   })
-  success == TicketStatus.Accepted ? disableStatusWarehouse.value = false : disableStatusWarehouse.value = true
+  if(success == TicketStatus.Accepted || success == TicketStatus.Cancelled || success == TicketStatus.Deposited){
+    disableStatusWarehouse.value = false
+  }
+  else{
+    disableStatusWarehouse.value = true
+  }
 
   return success
 }
 export const checkStatusReturnRequestInWarehouse = (status) => {
-  status == TicketStatus.Accepted ? disableStatusWarehouse.value = false : disableStatusWarehouse.value = true
+  if(status == TicketStatus.Accepted || status == TicketStatus.Cancelled || status == TicketStatus.Deposited){
+    disableStatusWarehouse.value = false
+  }
+  else{
+    disableStatusWarehouse.value = true
+  }
+
 }
 
 export const checkPercent = (_rule: any, value: any, callback: any) => {

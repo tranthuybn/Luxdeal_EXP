@@ -30,6 +30,7 @@ onBeforeMount(async() => {
   allBadgeAccount.value = allBadgeAccount.value.concat(badgeAccount1List.value, badgeAccount2List.value)
 })
 
+
 const { checkNumber, checkLength, checkDuplicate} = useValidator()
 const rules = reactive({
   accountNumber1: [
@@ -124,7 +125,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'accountName',
+    field: 'accountName1',
     label: t('reuse.nameAccount1'),
     component: 'Input',
     colProps: {
@@ -132,7 +133,7 @@ const schema = reactive<FormSchema[]>([
     }
   },
   {
-    field: 'accountName',
+    field: 'accountName2',
     label: t('reuse.nameAccount2'),
     component: 'Input',
     hidden: true,
@@ -190,14 +191,16 @@ const changeValueClassify = (data) => {
 const customData = (data) => {
   const customData = {} as FormDataPostAndEdit
   if(data.typeAccount == '1') {
+    customData.AccountName = data.accountName1
     customData.AccountNumber = Number(data.accountNumber1)
     customData.ParentId = null
   } else {
     customData.AccountNumber = data.accountNumber2
     const id = badgeAccount1List.value.find(item => item.value == Number(data.accountNumber1)).id
     customData.ParentId = id
+    customData.AccountName = data.accountName2
   }
-  customData.AccountName = data.accountName
+  
   customData.Status = data.status
   if(data.Id) customData.Id = data.Id
   return customData
@@ -246,25 +249,24 @@ const editData = async (data) => {
   )
 }
 
-
 // Assign value for form
 const customizeData = async (data) => {
   if(data.iStatus) {
     disabledCancelBtn.value = true
   }
-  setFormData.accountName = data.accountName
   setFormData.status = data.isActive
   setFormData.id = data.id
-
   if(!data.parentId) {
     setFormData.accountNumber1 = data.accountNumber
     setFormData.typeAccount = '1'
+    setFormData.accountName1 = data.accountName
     changeValueClassify('1')
   } else {
     changeValueClassify('2')
     setFormData.typeAccount = '2'
-    setFormData.accountNumber1 = badgeAccount1List.value.find(item => item.id == data.parentId).label
+    setFormData.accountName2 = data.accountName
     setFormData.accountNumber2 = data.accountNumber
+    setFormData.accountNumber1 = badgeAccount1List.value.find(item => item.id == data.parentId).label
   }
 }
 </script>
@@ -286,7 +288,7 @@ const customizeData = async (data) => {
     :formDataCustomize="setFormData"
     :delApi="deleteAccountant"
     :disabledCancelBtn="disabledCancelBtn"
-    :customBtn="2"
+    :module="2"
   />
 </template>
 

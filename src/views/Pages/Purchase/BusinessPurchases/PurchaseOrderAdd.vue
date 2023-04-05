@@ -653,7 +653,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
     totalFinalOrder.value = 0
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     data.unitName = obj.unitName
     callApiWarehouse(scope)
 
@@ -1493,7 +1493,8 @@ const getReturnRequestTable = async () => {
       returnDetailType: e.returnDetailType,
       returnDetailTypeName: e.returnDetailTypeName,
       returnDetailStatusName: e.returnDetailStatusName,
-      warehouseTicketStatusName: e?.warehouseTicketStatusName
+      warehouseTicketStatusName: e?.warehouseTicketStatusName,
+      warehouseTicketStatus: e.warehouseTicketStatus
     }))
     orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }

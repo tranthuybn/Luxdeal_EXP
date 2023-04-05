@@ -3,4 +3,4 @@
 export const ERP_DOMAIN_LOGIN = 'https://dev-login.cftsoft.com/'
 export const ERP_DOMAIN_SOCKET = 'ws://103.81.87.134:8383/'
 export const ERP_DOMAIN_CHATS = 'http://103.81.87.134:8017/'
- //export const ERP_DOMAIN = 'https://localhost:44356/'
+//  export const ERP_DOMAIN = 'https://localhost:44356/'

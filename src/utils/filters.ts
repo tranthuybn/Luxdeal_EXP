@@ -225,7 +225,7 @@ export const filterService: Array<Filter> = [
   { text: t('reuse.rent'), value: 3 },
   { text: t('workplace.mortgage'), value: 4 },
   { text: t('workplace.spa'), value: 5 },
-  { text: t('workplace.spa'), value: 6 },
+  { text: t('router.purchase'), value: 6 },
   { text: t('reuse.internal'), value: 7 }
 ]
 export const filterSource: Array<Filter> = [
@@ -358,4 +358,12 @@ export const filterStatusProductAndService: Array<Filter> = [
   { text: t('reuse.approval'), value: 0 },
   { text: t('reuse.active'), value: 1 },
   { text: t('reuse.pause'), value: 2 },
+]
+export const filterStatusWarehouseTransaction: Array<Filter> = [
+  { text: t('reuse.waitingConfirm'), value: 1 },
+  { text: t('reuse.waitingTransfer'), value: 2 },
+  { text: t('reuse.cancelled'), value: 3 },
+  { text: t('reuse.confirmed'), value: 4 },
+  { text: t('reuse.depositing'), value: 5 },
+  { text: t('formDemo.keepGoodsOnDeposit'), value: 6 }
 ]

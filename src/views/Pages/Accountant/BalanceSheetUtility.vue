@@ -249,11 +249,7 @@ const editData = async (data) => {
 
 // Assign value for form
 const customizeData = async (data) => {
-  if(data.assigned) {
-    schema[1].disabled = true
-    schema[3].disabled = true
-    schema[4].disabled = true
-    schema[8].disabled = true
+  if(data.iStatus) {
     disabledCancelBtn.value = true
   }
   setFormData.accountName = data.accountName
@@ -270,7 +266,6 @@ const customizeData = async (data) => {
     setFormData.accountNumber1 = badgeAccount1List.value.find(item => item.id == data.parentId).label
     setFormData.accountNumber2 = data.accountNumber
   }
-  return 
 }
 </script>
 

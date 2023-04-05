@@ -114,6 +114,7 @@ const sellOrderCode = ref()
 const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
+const PrintpaymentOrderPrint = ref(false)
 const ruleForm = reactive({
   orderCode: '',
   collaborators: '',
@@ -652,7 +653,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
     totalFinalOrder.value = 0
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     data.unitName = obj.unitName
     callApiWarehouse(scope)
 
@@ -1049,6 +1050,7 @@ const postData = async () => {
     if (!checkValidatorProduct.value) {
       const productPayment = JSON.stringify([...orderDetailsTable.value])
       const payload = {
+        StaffId: staffItem?.id,
         ServiceType: 6,
         OrderCode: ruleForm.orderCode,
         PromotionCode: 'AA12',
@@ -1491,7 +1493,8 @@ const getReturnRequestTable = async () => {
       returnDetailType: e.returnDetailType,
       returnDetailTypeName: e.returnDetailTypeName,
       returnDetailStatusName: e.returnDetailStatusName,
-      warehouseTicketStatusName: e?.warehouseTicketStatusName
+      warehouseTicketStatusName: e?.warehouseTicketStatusName,
+      warehouseTicketStatus: e.warehouseTicketStatus
     }))
     orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }
@@ -1684,12 +1687,11 @@ function openPaymentRequestDialog() {
 }
 
 function printPage(id: string) {
-  const prtHtml = document.getElementById(id)?.innerHTML
-
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
+  const printContents = document.getElementById(id)?.innerHTML
   const WinPrint = window.open(
     '',
     '',
@@ -1699,72 +1701,30 @@ function printPage(id: string) {
                 <html>
                   <head>
                     ${stylesHtml}
+                    <style>
+                    html, body {
+                      width: 148mm;
+    height: 420mm;
+    margin: 0 auto;
+    padding: 20mm 40mm;
+  }
+                    </style>
                   </head>
                   <body>
-                    ${prtHtml}
+                    ${printContents}
+                    <br>
                   </body>
                 </html>`)
 
-  WinPrint?.document.close()
-  WinPrint?.focus()
+                WinPrint?.document.close()
+                WinPrint?.focus()
   setTimeout(() => {
     WinPrint?.print()
     WinPrint?.close()
   }, 500)
 }
 
-function printPageLiquidation(id: string, { url, title, w, h }) {
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
 
-  const printContents = document.getElementById(id)?.innerHTML
-
-  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
-  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
-
-  const width = window.innerWidth
-    ? window.innerWidth
-    : document.documentElement.clientWidth
-    ? document.documentElement.clientWidth
-    : screen.width
-  const height = window.innerHeight
-    ? window.innerHeight
-    : document.documentElement.clientHeight
-    ? document.documentElement.clientHeight
-    : screen.height
-
-  const systemZoom = width / window.screen.availWidth
-  const left = (width - w) / 2 / systemZoom + dualScreenLeft
-  const top = (height - h) / 2 / systemZoom + dualScreenTop
-  const newWindow = window.open(
-    url,
-    title,
-    `
-				scrollbars=yes,
-				width=${w / systemZoom},
-				height=${h / systemZoom},
-				top=${top},
-				left=${left}      `
-  )
-  newWindow?.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                  </head>
-                  <body>
-                    ${printContents}
-                  </body>
-                </html>`)
-
-  newWindow?.document.close()
-  newWindow?.focus()
-  setTimeout(() => {
-    newWindow?.print()
-    newWindow?.close()
-  }, 500)
-}
 
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
@@ -2086,6 +2046,8 @@ let moneyDepositPayment = ref()
 const inputRecharger = ref()
 
 const PrintReceipts = ref(false)
+const PrintReceiptsliquidationPurchaseContractPrint = ref(false)
+
 
 // form phiếu thu
 const formReceipts = ref()
@@ -2098,6 +2060,7 @@ const getFormReceipts = () => {
       codeReceipts: codeReceipts.value,
       recharger: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
+      user: optionsRecharger,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
@@ -2451,6 +2414,23 @@ const openCancelReturnRequest = () => {
   typeButtonReturn.value = 3
   getReturnRequestOrder()
 }
+// phieu in thu chi
+const formPaymentRequest = ref()
+const printPaymentRequest = () => {
+  formPaymentRequest.value = {
+      // sellOrderCode: sellOrderCode.value,
+      codePaymentRequest: codePaymentRequest.value,
+      recharger: inputRecharger.value,
+      user: getStaffList,
+      inputReasonCollectMoney: inputReasonCollectMoney.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+      moneyReceipts: moneyReceipts.value
+    }
+
+    PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
+}
 
 //Hoàn thành yêu cầu đổi trả
 const finishReturnRequest = async () => {
@@ -2508,7 +2488,9 @@ const showWarehouseTicket = async (scope) => {
     informationWarehouseReceipt.value = true
   }
 }
-
+const billLiquidationContractClick = () => {
+  PrintReceiptsliquidationPurchaseContractPrint.value = !PrintReceiptsliquidationPurchaseContractPrint.value
+}
 const hiddenButton = ref(false)
 
 const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''
@@ -2582,10 +2564,28 @@ onBeforeMount(async () => {
       <!-- phiếu thanh lý hợp đồng -->
       <div id="billLiquidationContract">
         <slot>
-          <liquidationPurchaseContractPrint :data-customer="customerData" />
+          <liquidationPurchaseContractPrint :data-customer="customerData"  :dataEdit="dataEdit"/>
         </slot>
       </div>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceiptsliquidationPurchaseContractPrint" class="font-bold" width="40%">
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('billLiquidationContract')">{{ t('button.print') }}</el-button>
 
+            <el-button class="btn" @click="PrintReceiptsliquidationPurchaseContractPrint = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+          <liquidationPurchaseContractPrint :data-customer="customerData"  :dataEdit="dataEdit"/>
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintReceiptsliquidationPurchaseContractPrint = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <!-- Dialog In phiếu thu chi -->
       <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%">
         <div class="section-bill">
@@ -2613,10 +2613,28 @@ onBeforeMount(async () => {
 
       <div id="IPRFormPrint">
         <slot>
-          <paymentOrderPrint v-if="dataEdit" :dataEdit="dataEdit" />
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit"  :dataSent="formPaymentRequest" />
         </slot>
       </div>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
 
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <!-- Dialog Thêm nhanh nhà cung cấp -->
       <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogAddQuick" width="40%" :title="t('formDemo.QuicklyAddSupplier')">
         <div v-if="valueClassify == true">
@@ -2818,14 +2836,14 @@ onBeforeMount(async () => {
                 >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <div @scroll="scrollingRecharger" id="content">
+                <!-- <div @scroll="scrollingRecharger" id="content"> -->
                   <el-option
                     v-for="item in optionsRecharger"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
                   />
-                </div>
+                <!-- </div> -->
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
@@ -2940,14 +2958,14 @@ onBeforeMount(async () => {
                 >{{ t('formDemo.moneyReceiver') }} <span class="text-red-500">*</span></label
               >
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <div @scroll="scrollingRecharger" id="content">
+                <!-- <div @scroll="scrollingRecharger" id="content"> -->
                   <el-option
                     v-for="item in optionsRecharger"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
                   />
-                </div>
+                <!-- </div> -->
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
@@ -3253,7 +3271,7 @@ onBeforeMount(async () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
+            <el-button @click="printPaymentRequest()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -3279,12 +3297,7 @@ onBeforeMount(async () => {
           <div class="flex gap-3 justify-end">
             <el-button
               @click="
-                printPageLiquidation('billLiquidationContract', {
-                  url: '',
-                  title: 'In vé',
-                  w: 800,
-                  h: 920
-                })
+                billLiquidationContractClick()
               "
               >{{ t('button.print') }}</el-button
             >
@@ -5037,7 +5050,7 @@ onBeforeMount(async () => {
               statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus ||
               statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus"
               :disabled="doubleDisabled"
-              @click="dialogBillLiquidation = true"
+              @click="PrintReceiptsliquidationPurchaseContractPrint = true"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.printLiquidationContract') }}</el-button
             >

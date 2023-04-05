@@ -25,7 +25,6 @@ const detailedBrowsing = (scope: any) => {
         approvalId: data.id
       }
     })
-  console.log(' data.id',  data.id);
   
 }
 

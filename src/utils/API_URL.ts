@@ -186,7 +186,8 @@ export const WAREHOUSE_API = {
   UPDATE_STATUS_TICKET_FROM_ORDER: '/api/v1/Warehouse/UpdateStatusTicketFromOrder',
   UPDATE_TICKET_MANUALLY: 'api/v1/Warehouse/UpdateTicketManually',
   GET_LOT_HISTORY: '/api/v1/Warehouse/GetWarehouseLotHistory',
-  DETAIL_WAREHOUSE_TRANSACTION: '/api/v1/Warehouse/GetWarehouseTransaction'
+  DETAIL_WAREHOUSE_TRANSACTION: '/api/v1/Warehouse/GetWarehouseTransaction',
+  UPDATE_BUSINESS_SETUP: '/api/v1/Warehouse/UpdateBusinessSetup'
 }
 export const STAFF_API = {
   GET_STAFF: '/api/v1/Staff/GetStaff',

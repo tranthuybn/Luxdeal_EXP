@@ -691,7 +691,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
     data.priceChange = false
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     getTotalWarehouse()
     //TODO
     data.unitPrice = await getProductPropertyPrice(data?.productPropertyId, 1, data.quantity)
@@ -1078,6 +1078,7 @@ const postData = async (pushBack: boolean) => {
     return 
   } else {
     const payload = {
+    StaffId: currentCreator.value.id,
       ServiceType: 1,
       OrderCode: ruleForm.orderCode,
       PromotionCode: promoCode.value ?? '',
@@ -1216,8 +1217,8 @@ const editData = async () => {
       sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.discount = orderObj.collaboratorCommission
-      customerID.value = orderObj.customer.id
-      ruleForm.customerName = orderObj.customer.id
+      customerID.value = orderObj.customer?.id
+      ruleForm.customerName = orderObj.customer?.id
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj.warehouseId
 
@@ -1247,6 +1248,7 @@ const editData = async () => {
       customerIdPromo.value = orderObj.customerId
 
       totalFinalOrder.value = orderObj.totalPrice - orderObj.discountMoney
+      if(orderObj.customer){
       if (orderObj.customer?.isOrganization) {
         infoCompany.name = orderObj.customer?.name
         infoCompany.taxCode = orderObj.customer?.taxCode
@@ -1257,9 +1259,9 @@ const editData = async () => {
         infoCompany.taxCode = orderObj.customer?.taxCode
         infoCompany.phone = orderObj.customer?.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer?.email
-      }
+      }}
     }
-    Files.value = orderObj.orderFiles.map((element) => ({
+    Files.value = orderObj.orderFiles?.map((element) => ({
           url: `${API_URL}${element?.path}`,
           name: element?.fileId
       })
@@ -1677,7 +1679,8 @@ const getReturnRequestTable = async () => {
       value: e?.productPropertyId,
       warehouseTicketCode: e.warehouseTicketCode,
       warehouseTicketId: e.warehouseTicketId,
-      warehouseTicketStatusName: e.warehouseTicketStatusName
+      warehouseTicketStatusName: e.warehouseTicketStatusName,
+      warehouseTicketStatus: e.warehouseTicketStatus
     }))
     orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }
@@ -1917,6 +1920,14 @@ function printPage(id: string) {
                 <html>
                   <head>
                     ${stylesHtml}
+                    <style>
+                    html, body {
+                      width: 148mm;
+    height: 297mm;
+    margin: 0 auto;
+    padding: 20mm;
+  }
+                    </style>
                   </head>
                   <body>
                     ${prtHtml}
@@ -1928,7 +1939,7 @@ function printPage(id: string) {
   setTimeout(() => {
     WinPrint?.print()
     WinPrint?.close()
-  }, 800)
+  }, 500)
 }
 
 let childrenTable = ref()
@@ -2281,10 +2292,11 @@ const getFormReceipts = () => {
       sellOrderCode: sellOrderCode.value,
       codeReceipts: codeReceipts.value,
       recharger: inputRecharger.value,
+      user: getStaffList,
       moneyReceipts: moneyReceipts.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
+      payment: payment.value ? 'Tiền mặt' : 'Tiền thẻ'
     }
 
     PrintReceipts.value = !PrintReceipts.value
@@ -2295,6 +2307,22 @@ const getFormReceipts = () => {
       type: 'error'
     })
   }
+}
+const formPaymentRequest = ref()
+const printPaymentRequest = () => {
+  formPaymentRequest.value = {
+      sellOrderCode: sellOrderCode.value,
+      codePaymentRequest: codePaymentRequest.value,
+      recharger: inputRecharger.value,
+      user: getStaffList,
+      inputReasonCollectMoney: inputReasonCollectMoney.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+      moneyReceipts: moneyReceipts.value
+    }
+
+  printPage('IPRFormPrint')
 }
 
 // Thêm mới mã phiếu đề nghị thanh toán vào debtTable
@@ -2776,7 +2804,7 @@ const handleClose = (done: () => void) => {
 
       <div id="IPRFormPrint">
         <slot>
-          <paymentOrderPrint v-if="dataEdit" :dataEdit="dataEdit" />
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
         </slot>
       </div>
 
@@ -3383,7 +3411,7 @@ const handleClose = (done: () => void) => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button size="large" @click="printPage('IPRFormPrint')">{{
+            <el-button size="large" @click="printPaymentRequest()">{{
               t('button.print')
             }}</el-button>
             <div>

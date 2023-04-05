@@ -531,7 +531,9 @@ const callTableApi = async (collapseItem) => {
   if (callProductProperty == 0) {
     if (collapseItem.api !== undefined) {
       const findId = isNaN(id) ? newId.value : id
-      const res = await collapseItem.api({ ProductId: findId })
+      const res = await collapseItem.api({ ProductId: findId }).finally(()=>{
+        collapseItem.loading = false
+      })
       collapseItem.tableList = res.data
       await getAttributeData()
       callProductProperty++

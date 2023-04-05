@@ -3,7 +3,6 @@ import { TableOperator } from '../../Components/TableBase'
 import { getBranchList } from '@/api/HumanResourceManagement'
 import {
   addNewPotentialCustomer,
-  getCustomer,
   getPotentialCustomerById,
   updatePotentialCustomer,
   UpdatePotentialCustomerHistory,
@@ -11,6 +10,7 @@ import {
   deletePotentialCustomerHistory,
   getOrderList
 } from '@/api/Business'
+import { getEmployeeList } from '@/api/Accountant'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { useValidator } from '@/hooks/web/useValidator'
@@ -733,7 +733,7 @@ const changeValueClassify = (data) => {
 let cutomerOptions = ref<Array<ComponentOptions>>([])
 const getCustomerOptions = async () => {
   if (cutomerOptions.value.length === 0) {
-    const res = await getCustomer({ PageIndex: 1, PageSize: 2000, isOrganization: true })
+    const res = await getEmployeeList({ PageIndex: 1, PageSize: 2000 })
     if (res && res.data.length > 0) {
       cutomerOptions.value = res.data.map((data) => ({
         label: data.name,

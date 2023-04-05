@@ -1353,7 +1353,7 @@ const postOrderStransaction = async (index: number) => {
       index == 1
         ? t('formDemo.bill')
         : index == 2
-        ? t('formDemo.depositSlipAdvance')
+        ? 'Tổng tiền gốc cầm đồ'
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
@@ -2737,7 +2737,7 @@ const finishOrder = async () =>{
                 </div>
 
                 <div class="flex-1">
-                  <el-form-item :label="t('formDemo.selectImportWarehouse')" prop="warehouse">
+                  <el-form-item :label="t('reuse.chooseImportWarehouse')" prop="warehouse">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
                         <el-select

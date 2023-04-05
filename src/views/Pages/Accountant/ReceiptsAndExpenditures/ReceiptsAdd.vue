@@ -12,6 +12,8 @@ import { FORM_IMAGES } from '@/utils/format'
 import { FormDataPostAndEdit, FormData } from '../types/ReceiptsAndExpenditures'
 import { Collapse } from '../types'
 import { formartDate } from '@/utils/tsxHelper'
+
+
 const { required } = useValidator()
 const { t } = useI18n()
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -198,7 +200,9 @@ const schema = reactive<FormSchema[]>([
   }
 ])
 
+
 const customizeData = async (data) => {
+
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney
@@ -207,9 +211,8 @@ const customizeData = async (data) => {
   setFormData.peopleType =  data.peopleId
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
-  setFormData.accountNumber = data.accountNumber
   setFormData.paid = data.transacted
-  console.log(setFormData)
+  setFormData.accountNumber = data.accountNumber
 }
 
 const customData = (data) => {
@@ -318,6 +321,7 @@ const currentCollapse = ref<string>(collapse[0].name)
           :delApi="deleteReceiptOrPayment"
           :hasImage="false"
           :hasAttachDocument="true"
+          :customSetValues="true"
         />
       </el-collapse-item>
     </el-collapse>

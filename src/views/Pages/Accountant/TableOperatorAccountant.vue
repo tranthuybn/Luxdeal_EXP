@@ -30,12 +30,17 @@ import { statusService } from '@/utils/status'
 import moment from 'moment'
 import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { getStaffList, getAllCustomer, getAccountantList, balanceAccount } from '@/api/Business'
+import { getStaffList, getAllCustomer, getAccountantList, balanceAccount, getAccountantById } from '@/api/Business'
 import { ListImages } from './types'
 import { usePermission } from '@/utils/tsxHelper'
 import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
 
 // import { STATUS_RECEIPTS_AND_PAYMENT } from '@/utils/API.Variables'
+
+const getAccount = async (accountNumber) => {
+  return await getAccountantById({Id: accountNumber})
+}
+
 
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
@@ -144,6 +149,10 @@ const props = defineProps({
   splitScreen: {
     type: Boolean,
     default: false
+  },
+  customSetValues: {
+    type: Boolean,
+    default: false
   }
 })
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -217,7 +226,16 @@ const setFormValue = async () => {
   await customizeData()
   const { setValues } = methods
   if (props.formDataCustomize !== undefined) {
-    setValues(props.formDataCustomize)
+    if(props.customSetValues) {
+      await getAccount(formValue.value.accountNumber)
+       .then(res => {
+         const newObj = {...props.formDataCustomize, accountNumber: Number(res.data.accountNumber)}
+         setValues(newObj)
+       })
+       .catch(err => console.log(err))
+    } else {
+      setValues(props.formDataCustomize)
+    }
     const ImageNull = props.formDataCustomize.imageurl
     const linkNull = 'https://dev-luxdeal-api.cftsoft.com/null'
     if (ImageNull == linkNull) {
@@ -240,6 +258,15 @@ const setFormValue = async () => {
   } else {
     setValues(formValue.value)
   }
+  // if(formValue.value.iStatus) {
+  //   setSchema([
+  //     {
+  //       field: 'typeAccount',
+  //       path: 'componentProps.disabled',
+  //       value: true
+  //     }
+  //   ])
+  // }
 }
 //Get data when click detail or edit button
 watch(
@@ -258,20 +285,6 @@ watch(
           value: ''
         }))
       )
-      setSchema([
-        {
-          field: 'description',
-          path: 'componentProps.disabled',
-          value: true
-        }
-      ])
-      setSchema([
-        {
-          field: 'typeOfPayment',
-          path: 'componentProps.disabled',
-          value: false
-        }
-      ])
     }
     if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
       getTableValue()
@@ -699,7 +712,7 @@ const statusHistory = reactive([{
 {
   statusName: data.value?.type === 1 ? t('reuse.approvalPayment') : t('reuse.checkReceipts'),
   statusValue: 1, 
-  approvedAt: ''
+  approvedAt: currentDate
 }, 
 ])
 
@@ -938,7 +951,7 @@ const statusHistory = reactive([{
             </ElButton>
           </div>
           <div v-if="customBtn == 1 && !formValue?.isCancel" class="w-[50%] flex justify-left gap-2 ml-5"> 
-            <div class="flex" v-if="!formValue?.isApproved">
+            <div class="flex">
               <ElButton class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
                   {{ t('button.print') }}
               </ElButton>

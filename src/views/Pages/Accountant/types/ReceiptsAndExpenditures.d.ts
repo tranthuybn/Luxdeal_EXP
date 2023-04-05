@@ -23,7 +23,7 @@ export interface FormData {
     totalMoney: number
     enterMoney: string
     typeOfPayment: 1 | 2
-    accountNumber: number
+    accountNumber: any
     paid: boolean
 }
 

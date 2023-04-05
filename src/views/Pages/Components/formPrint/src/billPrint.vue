@@ -13,6 +13,10 @@ const props = defineProps({
     type: Object,
     default: () => {}
   },
+  dataPriceBill: {
+    type: Object,
+    default: () => {}
+  },
   nameDialog: {
     type: String,
     default: () => ''

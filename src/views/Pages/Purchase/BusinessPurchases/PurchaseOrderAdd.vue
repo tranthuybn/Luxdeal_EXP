@@ -1686,12 +1686,11 @@ function openPaymentRequestDialog() {
 }
 
 function printPage(id: string) {
-  const prtHtml = document.getElementById(id)?.innerHTML
-
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
+  const printContents = document.getElementById(id)?.innerHTML
   const WinPrint = window.open(
     '',
     '',
@@ -1701,72 +1700,30 @@ function printPage(id: string) {
                 <html>
                   <head>
                     ${stylesHtml}
+                    <style>
+                    html, body {
+                      width: 148mm;
+    height: 420mm;
+    margin: 0 auto;
+    padding: 20mm 40mm;
+  }
+                    </style>
                   </head>
                   <body>
-                    ${prtHtml}
+                    ${printContents}
+                    <br>
                   </body>
                 </html>`)
 
-  WinPrint?.document.close()
-  WinPrint?.focus()
+                WinPrint?.document.close()
+                WinPrint?.focus()
   setTimeout(() => {
     WinPrint?.print()
     WinPrint?.close()
   }, 500)
 }
 
-function printPageLiquidation(id: string, { url, title, w, h }) {
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
 
-  const printContents = document.getElementById(id)?.innerHTML
-
-  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
-  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
-
-  const width = window.innerWidth
-    ? window.innerWidth
-    : document.documentElement.clientWidth
-    ? document.documentElement.clientWidth
-    : screen.width
-  const height = window.innerHeight
-    ? window.innerHeight
-    : document.documentElement.clientHeight
-    ? document.documentElement.clientHeight
-    : screen.height
-
-  const systemZoom = width / window.screen.availWidth
-  const left = (width - w) / 2 / systemZoom + dualScreenLeft
-  const top = (height - h) / 2 / systemZoom + dualScreenTop
-  const newWindow = window.open(
-    url,
-    title,
-    `
-				scrollbars=yes,
-				width=${w / systemZoom},
-				height=${h / systemZoom},
-				top=${top},
-				left=${left}      `
-  )
-  newWindow?.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                  </head>
-                  <body>
-                    ${printContents}
-                  </body>
-                </html>`)
-
-  newWindow?.document.close()
-  newWindow?.focus()
-  setTimeout(() => {
-    newWindow?.print()
-    newWindow?.close()
-  }, 500)
-}
 
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
@@ -2088,6 +2045,8 @@ let moneyDepositPayment = ref()
 const inputRecharger = ref()
 
 const PrintReceipts = ref(false)
+const PrintReceiptsliquidationPurchaseContractPrint = ref(false)
+
 
 // form phiếu thu
 const formReceipts = ref()
@@ -2528,7 +2487,9 @@ const showWarehouseTicket = async (scope) => {
     informationWarehouseReceipt.value = true
   }
 }
-
+const billLiquidationContractClick = () => {
+  PrintReceiptsliquidationPurchaseContractPrint.value = !PrintReceiptsliquidationPurchaseContractPrint.value
+}
 const hiddenButton = ref(false)
 
 const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''
@@ -2602,10 +2563,28 @@ onBeforeMount(async () => {
       <!-- phiếu thanh lý hợp đồng -->
       <div id="billLiquidationContract">
         <slot>
-          <liquidationPurchaseContractPrint :data-customer="customerData" />
+          <liquidationPurchaseContractPrint :data-customer="customerData"  :dataEdit="dataEdit"/>
         </slot>
       </div>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceiptsliquidationPurchaseContractPrint" class="font-bold" width="40%">
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('billLiquidationContract')">{{ t('button.print') }}</el-button>
 
+            <el-button class="btn" @click="PrintReceiptsliquidationPurchaseContractPrint = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+          <liquidationPurchaseContractPrint :data-customer="customerData"  :dataEdit="dataEdit"/>
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintReceiptsliquidationPurchaseContractPrint = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <!-- Dialog In phiếu thu chi -->
       <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%">
         <div class="section-bill">
@@ -3317,12 +3296,7 @@ onBeforeMount(async () => {
           <div class="flex gap-3 justify-end">
             <el-button
               @click="
-                printPageLiquidation('billLiquidationContract', {
-                  url: '',
-                  title: 'In vé',
-                  w: 800,
-                  h: 920
-                })
+                billLiquidationContractClick()
               "
               >{{ t('button.print') }}</el-button
             >
@@ -5075,7 +5049,7 @@ onBeforeMount(async () => {
               statusOrder == STATUS_ORDER_PURCHASE[4].orderStatus ||
               statusOrder == STATUS_ORDER_PURCHASE[7].orderStatus"
               :disabled="doubleDisabled"
-              @click="dialogBillLiquidation = true"
+              @click="PrintReceiptsliquidationPurchaseContractPrint = true"
               class="min-w-42 min-h-11"
               >{{ t('formDemo.printLiquidationContract') }}</el-button
             >

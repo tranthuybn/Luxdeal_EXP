@@ -1120,6 +1120,7 @@ const postData = async () => {
 
     const productPayment = JSON.stringify([...orderDetailsTable])
     const payload = {
+      StaffId: staffItem?.id,
       ServiceType: 2,
       OrderCode: ruleForm.orderCode,
       PromotionCode: 'AA12',
@@ -1213,6 +1214,14 @@ function printPage(id: string, { url, title, w, h }) {
                 <html>
                   <head>
                     ${stylesHtml}
+                                        <style>
+                    html, body {
+                      width: 148mm;
+    height: 697mm;
+    margin: 20px auto;
+    padding: 20mm 40mm;
+  }
+                    </style>
                   </head>
                   <body>
                     ${printContents}

@@ -10,7 +10,8 @@ import {
   filtersReceiptExpenditure,
   filterStatusAccounting,
   filterReciprocalProfile,
-  filterPaymentMethod
+  filterPaymentMethod,
+  filterTransacted
 } from '@/utils/filters'
 import { dateTimeFormat, formatStatusAccounting, formatPaymentOrReceipts, formatPaymentMethod } from '@/utils/format'
 
@@ -119,10 +120,11 @@ const columns = reactive<TableColumn[]>([
     field: 'transacted',
     label: t('reuse.alreadyPaid'),
     minWidth: '100',
-    filters: [],
+    filters: filterTransacted,
+    filterMethod: filterHandler,
     align: 'center',
     formatter: (record: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('input', {type: 'checkbox', checked: record.paid})
+      return h('input', {type: 'checkbox', checked: record.transacted})
     },
   },
   {

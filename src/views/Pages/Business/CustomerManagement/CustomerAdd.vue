@@ -107,6 +107,9 @@ const rules = reactive<FormRules>({
     { validator: notSpace }
   ],
   password: [{ required: true, message: t('common.required'), trigger: 'blur' }],
+  city: [ValidService.required],
+  ward: [ValidService.required],
+  district: [ValidService.required],
   confirmPassword: [
     {
       required: true,
@@ -134,18 +137,20 @@ const rules = reactive<FormRules>({
       required: true,
       trigger: 'blur'
     },
-    ValidService.checkCCCD
+    ValidService.checkCCCD,
+    ValidService.required,
   ],
   cccdCreateAt: [
-    {
-      type: 'date',
-      required: false,
-      message: 'Vui lòng chọn ngày cấp',
-      trigger: 'change'
-    }
+    ValidService.required,
+  ],
+  Address: [
+    ValidService.required,
+  ],
+  doB: [
+    ValidService.required,
   ],
   IsOrganization: [ValidService.required],
-  cccdPlaceOfGrant: [{ required: false }],
+  cccdPlaceOfGrant: [ValidService.required],
   accountName: [
     {validator: doNotHaveNumber},
   ],
@@ -185,6 +190,9 @@ let ruleForm = reactive({
   DistrictId: '',
   WardId: '',
   Address: '',
+  city: '',
+  district: '',
+  ward: '',
   classify: true
 })
 
@@ -313,8 +321,6 @@ const getTableValue = async () => {
     ruleForm.ProvinceId = formValue.value.provinceId
     ruleForm.DistrictId = formValue.value.districtId
     ruleForm.WardId = formValue.value.wardId
-    console.log(formValue.value)
-
     arrayStatusCollab.value = formValue.value.statusHistory
     
     if (arrayStatusCollab.value?.length) {
@@ -493,25 +499,25 @@ const wardChange = async (value) => {
   ruleForm.WardId = value
   wardName.value = ward.value.find(e => e.value == value)
 }
-const clear = async () => {
-  ;(ruleForm.customerCode = ''),
-    (ruleForm.referralCode = ''),
-    (ruleForm.name = ''),
-    (ruleForm.taxCode = ''),
-    (ruleForm.businessClassification = false),
-    (ruleForm.representative = ''),
-    (ruleForm.phonenumber = ''),
-    (ruleForm.email = ''),
-    (ruleForm.doB = ''),
-    (ruleForm.cccd = ''),
-    (ruleForm.cccdCreateAt = ''),
-    (ruleForm.cccdPlaceOfGrant = ''),
-    (ruleForm.sex = true),
-    (ruleForm.link = ''),
-    (ruleForm.accountName = ''),
-    (ruleForm.accountNumber = ''),
-    (ruleForm.bankName = '')
-}
+// const clear = async () => {
+//   ;(ruleForm.customerCode = ''),
+//     (ruleForm.referralCode = ''),
+//     (ruleForm.name = ''),
+//     (ruleForm.taxCode = ''),
+//     (ruleForm.businessClassification = false),
+//     (ruleForm.representative = ''),
+//     (ruleForm.phonenumber = ''),
+//     (ruleForm.email = ''),
+//     (ruleForm.doB = ''),
+//     (ruleForm.cccd = ''),
+//     (ruleForm.cccdCreateAt = ''),
+//     (ruleForm.cccdPlaceOfGrant = ''),
+//     (ruleForm.sex = true),
+//     (ruleForm.link = ''),
+//     (ruleForm.accountName = ''),
+//     (ruleForm.accountNumber = ''),
+//     (ruleForm.bankName = '')
+// }
 
 const postCustomer = async (typebtn) => {
   const address = ruleForm.Address + ', '
@@ -569,7 +575,6 @@ const postCustomer = async (typebtn) => {
         type: 'error'
       })
      )
-  clear()
 }
 
 const postData = async (typebtn) => {
@@ -589,7 +594,7 @@ const postData = async (typebtn) => {
       .catch((error) =>{
         ElNotification({
           message: error,
-        type: 'error'
+          type: 'error'
       })
      } )
   }
@@ -605,6 +610,8 @@ interface statusCollabType {
 
 let arrayStatusCollab = ref(Array<statusCollabType>())
 let statusCollab = ref('Khởi tạo mới')
+
+
 
 //hủy tài khoản khách hàng
 const cancelAccountCustomer = async () => {
@@ -814,7 +821,21 @@ onBeforeMount(() => {
   if (type === 'detail' || type === 'edit' || type === 'approval-cus') {
     getTableValue()
   }
+
 })
+
+
+watch(() => valueProvince.value, val => {
+  ruleForm.city = val
+})
+
+watch(() => valueDistrict.value, val => {
+  ruleForm.district = val
+})
+watch(() => valueCommune.value, val => {
+  ruleForm.ward = val
+})
+
 </script>
 
 <template>
@@ -986,7 +1007,7 @@ onBeforeMount(() => {
                   />
                 </el-form-item>
 
-                <el-form-item :label="t('reuse.cmnd')">
+                <el-form-item required :label="t('reuse.cmnd')">
                   <div class="flex gap-2 pl-2 w-[100%] cccd-format">
                     <div class="flex-1 fix-width">
                       <el-form-item prop="cccd">
@@ -1031,31 +1052,36 @@ onBeforeMount(() => {
                 <ElFormItem
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
                   :label="t('reuse.dateOfBirthAnGender')"
+                  required
                 >
                   <div class="flex gap-2 w-[100%]">
-                    <div class="flex-1 pl-2 fix-width">
-                      <el-date-picker
-                        prop="doB"
-                        v-model="ruleForm.doB"
-                        type="date"
-                        :placeholder="t('reuse.dateOfBirth')"
-                        :disabled-date="disabledDate"
-                        :size="size"
-                        :editable="false"
-                        format="DD/MM/YYYY"
-                        value-format="YYYY-MM-DD"
-                        @change="formatDate"
-                      />
+                    <div class="flex-1 pl-2  fix-width">
+                      <el-form-item prop="doB">
+                        <el-date-picker
+                          style="width: 100%"
+                          v-model="ruleForm.doB"
+                          type="date"
+                          :placeholder="t('reuse.dateOfBirth')"
+                          :disabled-date="disabledDate"
+                          :size="size"
+                          :editable="false"
+                          format="DD/MM/YYYY"
+                          value-format="YYYY-MM-DD"
+                          @change="formatDate"
+                        />
+                      </el-form-item>
                     </div>
                     <div class="flex-1">
-                      <el-select v-model="ruleForm.sex" clearable placeholder="Select" prop="sex">
-                        <el-option
-                          v-for="item in options"
-                          :key="item.label"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
+                      <el-form-item prop="sex">
+                        <el-select v-model="ruleForm.sex" clearable placeholder="Select">
+                          <el-option
+                            v-for="item in options"
+                            :key="item.label"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </el-form-item>
                     </div>
                   </div>
                 </ElFormItem>
@@ -1460,7 +1486,6 @@ onBeforeMount(() => {
               ref="ruleFormRef2"
               :model="ruleForm"
               :rules="rules"
-              hide-required-asterisk
               label-width="170px"
               @register="register"
               status-icon
@@ -1472,6 +1497,7 @@ onBeforeMount(() => {
                 <ElFormItem
                   class="flex w-[100%] items-center"
                   :label="t('formDemo.provinceOrCity')"
+                  prop="city"
                 >
                   <el-select
                     v-model="valueProvince"
@@ -1491,6 +1517,7 @@ onBeforeMount(() => {
                 <ElFormItem
                   class="flex w-[100%] items-center"
                   :label="t('formDemo.countyOrDistrict')"
+                  prop="district"
                 >
                   <el-select
                     v-model="valueDistrict"
@@ -1507,7 +1534,7 @@ onBeforeMount(() => {
                     />
                   </el-select>
                 </ElFormItem>
-                <ElFormItem class="flex w-[100%] items-center" :label="t('formDemo.wardOrCommune')">
+                <ElFormItem class="flex w-[100%] items-center" prop="ward" :label="t('formDemo.wardOrCommune')">
                   <el-select
                     v-model="valueCommune"
                     style="width: 96%"
@@ -1526,6 +1553,7 @@ onBeforeMount(() => {
                 <ElFormItem
                   class="flex w-[100%] items-center"
                   :label="t('formDemo.detailedAddress')"
+                  prop="Address"
                 >
                   <el-input
                     v-model="ruleForm.Address"

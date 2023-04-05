@@ -43,10 +43,13 @@ function getArraySum(arr) {
   }
   return total
 }
+console.log('dataEdit: ', props.dataEdit)
+console.log('dataCustomer: ', props.dataCustomer)
+console.log('dataCustomer: ', props.dataUser)
 </script>
 
 <template>
-  <div class="p-5">
+  <div class="p-5" style="width: 100%; height: 100%;">
     <div class="flex flex-end"> </div>
     <div class="flex items-end">
       <div class="basis-8/12 text-center">
@@ -73,7 +76,7 @@ function getArraySum(arr) {
     <div class="flex justify-between">
       <div class="index-trading-code">
         <p class="index">Mẫu số: 6-AU</p>
-        <p class="trading-code">Mã Giao Dịch: NHSG440</p>
+        <p class="trading-code">Mã Giao Dịch: {{ props.dataEdit.code }}</p>
       </div>
       <div class="liquidation-contract-name">
         <h2>HỢP ĐỒNG KÝ GỬI HÀNG HÓA</h2>
@@ -145,18 +148,18 @@ function getArraySum(arr) {
       </p>
 
       <el-table :data="dataEdit ? dataEdit?.orderDetails : []" border class="mt-2">
-        <el-table-column prop="stt" type="index" width="100" label="STT" align="center" />
-        <el-table-column prop="productCode" label="Mã hàng" min-width="150" align="center" />
-        <el-table-column prop="productName" min-width="150" label="Tên hàng" align="center" />
-        <el-table-column prop="code" label="Code" min-width="150" align="center" />
-        <el-table-column prop="accessory" label="Phụ kiện đi kèm" min-width="150" align="center" />
-        <el-table-column prop="consignmentSellPrice" label="Giá nhập" min-width="150" align="center">
+        <el-table-column prop="stt" type="index"  label="STT" align="center" />
+        <el-table-column prop="productCode" label="Mã hàng"  align="center" />
+        <el-table-column prop="productName"  label="Tên hàng" align="center" />
+        <el-table-column prop="code" label="Code"  align="center" />
+        <el-table-column prop="accessory" label="Phụ kiện đi kèm"  align="center" />
+        <el-table-column prop="consignmentSellPrice" label="Giá nhập"  align="center">
           <template #default="data">
             {{ data.row.consignmentSellPrice }} VND
           </template>
         </el-table-column>
-        <el-table-column prop="businessSetupName" label="Loại hàng" min-width="150" align="center" />
-        <el-table-column prop="note" label="Ghi chú" min-width="150" align="center" />
+        <el-table-column prop="businessSetupName" label="Loại hàng"  align="center" />
+        <el-table-column prop="description" label="Ghi chú"  align="center" />
       </el-table>
       
       <div class="total-money text-end pr-[115px] pt-3" v-if="dataEdit">

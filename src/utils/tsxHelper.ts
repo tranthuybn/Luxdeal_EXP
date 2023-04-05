@@ -43,3 +43,31 @@ export const usePermission = (currentRoute) => {
   return userPermission.value
 }
 
+export function printPage(id: string) {
+  const prtHtml = document.getElementById(id)?.innerHTML
+  let stylesHtml = ''
+  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
+    stylesHtml += node.outerHTML
+  }
+  const WinPrint = window.open(
+    '',
+    '',
+    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
+  )
+  WinPrint?.document.write(`<!DOCTYPE html>
+                <html>
+                  <head>
+                    ${stylesHtml}
+                  </head>
+                  <body>
+                    ${prtHtml}
+                  </body>
+                </html>`)
+
+  WinPrint?.document.close()
+  WinPrint?.focus()
+  setTimeout(() => {
+    WinPrint?.print()
+    WinPrint?.close()
+  }, 800)
+}

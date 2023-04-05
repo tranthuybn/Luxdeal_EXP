@@ -1,0 +1,54 @@
+.triangle-left {
+    position: absolute;
+    z-index: 100;
+    width: 0;
+    height: 0;
+  }
+  
+.triangle-right {
+    position: absolute;
+    right: -12px;
+    width: 0;
+    height: 0;
+    border-top: 13px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-left: 11px solid #ccc;
+    }
+.box {
+    position: relative;
+    display: flex;
+    width: fit-content;
+    padding: 0 10px 0 20px;
+    background-color: #ccc;
+    border: 1px solid #ccc;
+    opacity: 1;
+    align-items: center;
+    line-height: 23px;
+    }
+
+.status--approval {
+    color: rgb(234 179 8); 
+    background-color: #fff0d9;
+    border: 1px solid #fff0d9;
+    .triangle-right{
+      border-left: 11px solid #fff0d9 !important;
+    }
+  }
+  
+  .status--transacted, .status--accounted {
+    color: rgb(59 130 246);
+    background-color: #f4f8fd;
+    border: 1px solid #f4f8fd;
+    .triangle-right{
+      border-left: 11px solid #f4f8fd !important;
+    }
+  }
+  
+  .status--cancel{
+    color: rgb(238, 48, 15); 
+    background-color: #fce5e1;
+    border: 1px solid #fce5e1;
+    .triangle-right{
+      border-left: 11px solid #fce5e1 !important;
+    }
+  }

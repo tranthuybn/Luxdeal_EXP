@@ -1417,7 +1417,7 @@ const getValueOfSelected = async (value, obj, scope) => {
    else if (!duplicateProduct.value && dateRangePrice.value) {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     data.priceChange = false
     getTotalWarehouse()
     if (data.fromDate && data.toDate) {

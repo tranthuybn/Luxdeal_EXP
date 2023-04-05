@@ -695,7 +695,7 @@ const getValueOfSelected = async (value, obj, scope) => {
 
   data.productPropertyId = obj?.productPropertyId
   data.productCode = obj.value
-  data.productName = obj.name
+  data.productPropertyName = obj.name
   data.unitName = obj.unit
   data.quantity = 1
   data.spaServices = []
@@ -4115,7 +4115,7 @@ const finishOrder = async () =>{
                 >{{ t('formDemo.saveCloseOrder') }}</el-button
               >
               <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type == 'add'"
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && (type == 'add' || type == ':type')"
                 @click="
                   () => {
                     submitForm(ruleFormRef, ruleFormRef2, false)
@@ -4129,7 +4129,7 @@ const finishOrder = async () =>{
                 Bắt đầu quá trình Spa
               </el-button>
               <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type != 'add'"
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type != 'add' && type != ':type'"
                 @click="
                   () => {
                     startOrder()

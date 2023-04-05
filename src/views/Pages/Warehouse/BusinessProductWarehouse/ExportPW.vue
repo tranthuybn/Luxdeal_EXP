@@ -136,6 +136,7 @@ const removeRow = (props) => {
 }
 const forceRemove = ref(false)
 const changeProduct = (value, obj, scope) => {
+  console.log('obj', obj)
   forceRemove.value = false
   const selected = ListOfProductsForSale.value
     .filter((row) => row !== scope.row)
@@ -154,6 +155,7 @@ const changeProduct = (value, obj, scope) => {
     scope.row.productName = obj.name
     scope.row.productPropertyId = obj.productPropertyId
     scope.row.unitName = obj.unit
+    scope.row.productPropertyCode = obj.productPropertyCode
     scope.row.lot = undefined
   }
 }
@@ -365,7 +367,8 @@ const searchProduct = async (keyword) => {
       productCode: product.code,
       productPropertyId: product.id,
       productPropertyCode: product.productCode,
-      name: product.name
+      name: product.name,
+      inventory: product.tonKho
     }))
   } else {
     tempListProducts.value = listProducts.value
@@ -415,7 +418,7 @@ const disabled = computed(() => {
           width="500px"
           :items="tempListProducts"
           valueKey="productPropertyId"
-          labelKey="productCode"
+          labelKey="productPropertyCode"
           :hiddenKey="['productPropertyId']"
           :placeHolder="t('reuse.chooseProductCode')"
           @scroll-top="ScrollProductTop"

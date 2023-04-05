@@ -726,7 +726,7 @@ const getValueOfSelected = (value, obj, scope) => {
   } else {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     data.price = obj.price
     data.unitName = obj.unit
     callApiWarehouse(scope)

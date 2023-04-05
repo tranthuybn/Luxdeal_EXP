@@ -132,7 +132,10 @@ const columns = reactive<TableColumn[]>([
     label: t('formDemo.sales'),
     minWidth: '200',
     align: 'right',
-    formatter: (_row, _column, cellValue) => changeMoney.format(parseInt(cellValue))
+    formatter: (_row, _column, cellValue) => {
+      if(cellValue) return changeMoney.format(parseInt(cellValue))
+      return changeMoney.format(parseInt('0'))
+    }
   },
   {
     field: 'dateOrder',
@@ -213,6 +216,8 @@ const getSummaries = (param) => {
           :removeDrawer="true"
           :showSummary="true"
           :getSummaries="getSummaries"
+          :customOperator="6"
+          :isOperatorColumnCustomize="true"
           />
       </el-collapse-item>
     </el-collapse>

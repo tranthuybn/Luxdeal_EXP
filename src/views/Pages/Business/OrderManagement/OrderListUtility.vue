@@ -1746,7 +1746,6 @@ const callApiStaffList = async () => {
     value: el.id,
     label: el.name + ' | ' + el.contact
   }))
-  console.log('res', res)
   getStaffList.value.push(
     {
       value: currentCreator.value.id,

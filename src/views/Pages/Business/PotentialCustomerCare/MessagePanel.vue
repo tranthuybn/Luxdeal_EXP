@@ -354,7 +354,6 @@ export default {
 
     },
     showMessage1(val) {
-      console.log("HUYHUYHUH: next")
       messages.innerHTML = "";
       for (var i = 0; i < val.message.length; i++) {
         this.showMessage(val.message[i])

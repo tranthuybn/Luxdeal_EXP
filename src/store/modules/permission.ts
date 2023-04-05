@@ -146,7 +146,6 @@ export const usePermissionStore = defineStore({
     },
     checkRoleAndSetPermission(RoleList: iUserPermission[], currentRoute: RouteLocationNormalizedLoaded): void { 
       const { matched } = currentRoute
-      console.log(matched)
       if (Array.isArray(RoleList) && RoleList.length > 0 && matched[1]) {
         const { path } = matched[1]
         const hasRole = RoleList.find(el => el.url === path)

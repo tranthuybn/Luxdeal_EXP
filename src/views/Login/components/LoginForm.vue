@@ -187,11 +187,9 @@ const generateRouter = (routers) => {
   permissionStore.generateRoutes(urlList, 'client').then(() => { 
     if(permissionStore.getAddRouters.length > 0)
       permissionStore.getAddRouters.forEach((route) => { 
-        console.log('route',route)
       addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table
     })
     permissionStore.setIsAddRouters(true)
-    console.log(' path: redirect.value || permissionStore.addRouters[0].path ', permissionStore.addRouters[0].path )
     push({ path: permissionStore.addRouters[0].path })
     ElNotification({
       message: t('login.welcome'),

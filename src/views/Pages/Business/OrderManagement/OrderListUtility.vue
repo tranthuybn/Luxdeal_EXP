@@ -691,7 +691,7 @@ const getValueOfSelected = async (_value, obj, scope) => {
     data.priceChange = false
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     getTotalWarehouse()
     //TODO
     data.unitPrice = await getProductPropertyPrice(data?.productPropertyId, 1, data.quantity)
@@ -1679,7 +1679,8 @@ const getReturnRequestTable = async () => {
       value: e?.productPropertyId,
       warehouseTicketCode: e.warehouseTicketCode,
       warehouseTicketId: e.warehouseTicketId,
-      warehouseTicketStatusName: e.warehouseTicketStatusName
+      warehouseTicketStatusName: e.warehouseTicketStatusName,
+      warehouseTicketStatus: e.warehouseTicketStatus
     }))
     orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }

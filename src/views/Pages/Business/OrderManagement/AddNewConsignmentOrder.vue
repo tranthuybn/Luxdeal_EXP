@@ -727,7 +727,7 @@ const getValueOfSelected = (value, obj, scope) => {
   } else {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     data.price = obj.price
     data.unitName = obj.unit
     callApiWarehouse(scope)
@@ -1394,13 +1394,32 @@ const postPaymentRequest = async () => {
     OrderId: id,
     Description: '',
     Document: undefined,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    ExpensesDetail: JSON.stringify(detailedListExpenses.value)
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   objIdPayment.value = await addDNTT(formDataPayLoad)
   idPayment.value = objIdPayment.value.paymentRequestId
+  handleChangePaymentOrder()
 }
-
+// Thêm mới mã phiếu đề nghị thanh toán vào debtTable
+const handleChangePaymentOrder = async () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val, index, arr) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: idPayment.value,
+        receiptOrPaymentVoucherId: 0,
+        isReceiptedMoney: true,
+        status: 1,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload).then(() => {
+        if (index == arr.length - 1) getOrderStransactionList()
+      })
+    })
+  }
+}
 const optionsTypeMoney = [
   {
     value: 1,
@@ -1462,7 +1481,6 @@ const postOrderStransaction = async (index: number) => {
     merchadiseTobePayforId: parseInt(val.id),
     quantity: val.quantity
   }))
-
   const payload = {
     orderId: id,
     content: tableAccountingEntry.value[0].content,

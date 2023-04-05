@@ -187,7 +187,7 @@ const selectAll = ()=>{
 const checkExport = (curRow) =>{
   //Phiếu xuất kho bằng tay ko được chọn các lot ký gửi/cầm đồ/spa
   if(props.transactionType == 2 && props.serviceType ==6 && props.orderId == 0){
-    if(curRow.serviceType == 2 || curRow.serviceType == 4 || curRow.serviceType == 5){
+    if(curRow.orderType == 2 || curRow.orderType == 4 || curRow.orderType == 5){
       ElMessage({
       message: 'Phiếu xuất kho bằng tay ko được chọn các lot ký gửi/cầm đồ/spa',
       type: 'warning'
@@ -197,15 +197,15 @@ const checkExport = (curRow) =>{
 
   }
   if(props.transactionType == 2){
-    if(curRow.serviceType == 1 || curRow.serviceType == 3 || curRow.serviceType == 5){
-      const valid = curRow.BusinessSetupValue.includes(props.serviceType)
+    if(curRow.orderType == 1 || curRow.orderType == 3 || curRow.orderType == 5){
+      const valid = curRow.businessSetupValue?.includes(props.serviceType)
       if(!valid){
         ElMessage({
           message: 'Chưa cài đặt xuất kho cho lot này',
           type: 'warning'
         })
+      return false
       }
-      return valid
     }
   }
   return true

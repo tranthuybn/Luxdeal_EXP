@@ -113,7 +113,6 @@ export default [
     timeout,
     response: ({ query }) => {
       const { pageIndex, pageSize } = query
-      console.log('payment', payment)
       const pageList = payment.filter(
         (_, index) => index < pageSize * pageIndex && index >= pageSize * (pageIndex - 1)
       )

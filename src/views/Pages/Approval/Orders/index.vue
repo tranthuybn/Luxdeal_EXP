@@ -21,13 +21,13 @@ const tableListOrder = ref([])
 const getListOrder = async () => {
   try {
     if (type == 'orders-cancel') {
-      const res = await getOrderApproval({ ApproveActionType: 0, pageIndex: 1, pageSize: 20 })
+      const res = await getOrderApproval({ ApproveActionType: 0, pageIndex: 1, pageSize: 10 })
       tableListOrder.value = res.data
     } else if (type == 'orders-new') {
-      const res = await getOrderApproval({ ApproveActionType: 1, pageIndex: 1, pageSize: 20 })
+      const res = await getOrderApproval({ ApproveActionType: 1, pageIndex: 1, pageSize: 10 })
       tableListOrder.value = res.data
     } else if (type == 'orders-edit') {
-      const res = await getOrderApproval({ ApproveActionType: 2, pageIndex: 1, pageSize: 20 })
+      const res = await getOrderApproval({ ApproveActionType: 2, pageIndex: 1, pageSize: 10 })
       tableListOrder.value = res.data
     }
   } catch (e) {

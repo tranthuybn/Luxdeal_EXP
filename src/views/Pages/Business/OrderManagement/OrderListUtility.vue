@@ -1078,7 +1078,6 @@ const postData = async (pushBack: boolean) => {
     return 
   } else {
     const payload = {
-    StaffId: currentCreator.value.id,
       ServiceType: 1,
       OrderCode: ruleForm.orderCode,
       PromotionCode: promoCode.value ?? '',
@@ -1217,8 +1216,8 @@ const editData = async () => {
       sellOrderCode.value = ruleForm.orderCode
       ruleForm.collaborators = orderObj?.collaborator?.id
       ruleForm.discount = orderObj.collaboratorCommission
-      customerID.value = orderObj.customer?.id
-      ruleForm.customerName = orderObj.customer?.id
+      customerID.value = orderObj.customer.id
+      ruleForm.customerName = orderObj.customer.id
       ruleForm.orderNotes = orderObj.description
       ruleForm.warehouse = orderObj.warehouseId
 
@@ -1248,7 +1247,6 @@ const editData = async () => {
       customerIdPromo.value = orderObj.customerId
 
       totalFinalOrder.value = orderObj.totalPrice - orderObj.discountMoney
-      if(orderObj.customer){
       if (orderObj.customer?.isOrganization) {
         infoCompany.name = orderObj.customer?.name
         infoCompany.taxCode = orderObj.customer?.taxCode
@@ -1259,9 +1257,9 @@ const editData = async () => {
         infoCompany.taxCode = orderObj.customer?.taxCode
         infoCompany.phone = orderObj.customer?.phonenumber
         infoCompany.email = 'Email: ' + orderObj.customer?.email
-      }}
+      }
     }
-    Files.value = orderObj.orderFiles?.map((element) => ({
+    Files.value = orderObj.orderFiles.map((element) => ({
           url: `${API_URL}${element?.path}`,
           name: element?.fileId
       })
@@ -1859,7 +1857,8 @@ function openDepositDialog() {
   alreadyPaidForTt.value = true
   dialogDepositSlipAdvance.value = !dialogDepositSlipAdvance.value
   tableSalesSlip.value = ListOfProductsForSale.value
-  nameDialog.value = 'deposit'
+  nameDialog.value = 'billRegiter'
+  
 }
 
 // Thêm mới bút toán bổ sung
@@ -1905,6 +1904,7 @@ const openPaymentRequest = () => {
 }
 
 function printPage(id: string) {
+  console.log(id)
   const prtHtml = document.getElementById(id)?.innerHTML
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
@@ -2092,6 +2092,8 @@ let moneyDeposit = ref(0)
 const inputRecharger = ref()
 
 const PrintReceipts = ref(false)
+const PrintBill = ref(false)
+
 
 // Lý do thu tiền
 const inputReasonCollectMoney = ref()
@@ -2306,6 +2308,13 @@ const getFormReceipts = () => {
       type: 'error'
     })
   }
+}
+const clickBullPrint = () => {
+  dataPriceBill.value = {
+    outstandingDebt : outstandingDebt.value,
+    inputDeposit : inputDeposit.value,
+  }
+  PrintBill.value = !PrintBill.value
 }
 const formPaymentRequest = ref()
 const printPaymentRequest = () => {
@@ -2675,7 +2684,7 @@ const UpdateStatusTransaction = async() => {
   getOrderStransactionList()
   editData()
 }
-
+const dataPriceBill = ref()
 // Giữ hàng đang đặt cọc
 const keepGoodsOnDeposit = ref(false)
 
@@ -2759,8 +2768,9 @@ const handleClose = (done: () => void) => {
         <slot>
           <billPrint
             class="w-[796px] h-[1123px]"
-            v-if="dataEdit"
+            v-if="dataEdit && dataPriceBill"
             :dataEdit="dataEdit"
+            :dataPriceBill= "dataPriceBill"
             :nameDialog="nameDialog"
           />
         </slot>
@@ -2775,7 +2785,32 @@ const handleClose = (done: () => void) => {
           />
         </slot>
       </div>
+<!-- Phhieeus đat coc -->
+<el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintBill" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('billDepositPrint')">{{ t('button.print') }}</el-button>
 
+            <el-button class="btn" @click="PrintBill = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <billPrint
+            class="w-[796px] h-[1123px]"
+            v-if="dataEdit && dataPriceBill"
+            :dataEdit="dataEdit"
+            :dataPriceBill = "dataPriceBill"
+            :nameDialog="nameDialog"
+          />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintBill = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <!-- Dialog In phiếu thu chi -->
       <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%" align-center >
         <div class="section-bill">
@@ -2807,7 +2842,7 @@ const handleClose = (done: () => void) => {
         </slot>
       </div>
 
-      <!-- Dialog Thêm nhanh khách hàng -->
+      <!-- Dialog In đề nghị khách hàng -->
       <el-dialog
         class="pb-3"
         :close-on-click-modal="doCloseOnClickModal"
@@ -3843,7 +3878,7 @@ const handleClose = (done: () => void) => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="printPage('billDepositPrint')">{{ t('button.print') }}</el-button>
+            <el-button @click="clickBullPrint()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button

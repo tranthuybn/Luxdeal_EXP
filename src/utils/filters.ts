@@ -355,9 +355,9 @@ export const filterStatusBalance: Array<Filter> = [
 ]
 
 export const filterStatusProductAndService: Array<Filter> = [
-  { text: t('reuse.approval'), value: 0 },
-  { text: t('reuse.active'), value: 1 },
-  { text: t('reuse.pause'), value: 2 },
+  { text: t('reuse.approval'), value: 1 },
+  { text: t('reuse.active'), value: 2 },
+  { text: t('reuse.stopActive'), value: 3 },
 ]
 export const filterStatusWarehouseTransaction: Array<Filter> = [
   { text: t('reuse.waitingConfirm'), value: 1 },

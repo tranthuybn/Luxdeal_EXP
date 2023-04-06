@@ -19,17 +19,17 @@ const route = useRoute()
 let nameRoute = route.name?.toString()
 const type = nameRoute?.slice(25, nameRoute.length)
 const operatorColumn = reactive<TableColumn>({
-    field: 'operator',
-    label: t('reuse.operator'),
-    minWidth: '200',
-    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
-    return h('div', { class: 'btn-detail_Approval' }, [
-        h(ElButton, { type: 'primary', onClick: () => action(row, 'detail') }, 'Duyệt chi tiết '),
-        h('span', { class: 'arrowRight' })
-    ])
-    }
+  field: 'operator',
+  label: t('reuse.operator'),
+  minWidth: '200',
+  formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+  return h('div', { class: 'btn-detail_Approval' }, [
+      h(ElButton, { type: 'primary', onClick: () => action(row, 'detail') }, 'Duyệt chi tiết '),
+      h('span', { class: 'arrowRight' })
+  ])
+  }
 })
-const params = { IsPayment: type !== 'proposal', }
+const params = { IsPayment: type !== 'proposal' }
 provide('parameters', {
   params
 })

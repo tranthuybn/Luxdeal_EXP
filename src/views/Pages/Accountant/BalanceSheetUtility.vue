@@ -266,7 +266,7 @@ const customizeData = async (data) => {
     setFormData.typeAccount = '2'
     setFormData.accountName2 = data.accountName
     setFormData.accountNumber2 = data.accountNumber
-    setFormData.accountNumber1 = badgeAccount1List.value.find(item => item.id == data.parentId).label
+    setFormData.accountNumber1 = data.fatherNumber
   }
 }
 </script>

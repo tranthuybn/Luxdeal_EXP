@@ -211,7 +211,7 @@ const customizeData = async () => {
   if(props.module == 1) {
     await getAccountantById({Id: formValue.value.accountNumber})
       .then(res => {
-        formValue.value.accountNumber = Number(res.data.accountNumber) 
+        formValue.value.account = Number(res.data.accountNumber) 
       })
       .catch(err => console.log(err))
   }
@@ -263,7 +263,7 @@ const setFormValue = async () => {
   }
 
   // If a receiptForm (or paymentForm) is approval in detail page, cancel disabled some filed
-  if(formValue.value.isApproved && props.type == 'edit' && props.module == 1) {
+  if(formValue.value.isApproved && props.type == 'detail' && props.module == 1) {
     const arrField = ['createdBy', 'description', 'peopleType', 'totalMoney', 'enterMoney' ]
     const config = arrField.map(item => (
       {
@@ -283,9 +283,7 @@ watch(
   async () => {
     if (props.type === 'detail' || props.type === 'approval') {
       const { setProps, setSchema } = methods
-      setProps({
-        disabled: true
-      })
+      if(props.module === 2) setProps({disabled: true})
 
       setSchema(
         schema.map((component) => ({
@@ -968,34 +966,35 @@ const statusHistory = reactive([{
             {{ t('reuse.cancel') }}
           </ElButton>  
         </div>
-        <div v-if="module == 1 && !formValue?.isCancel" class="w-[50%] flex justify-left gap-2 ml-5"> 
-            <div v-if="formValue?.isApproved" class="flex">
-              <ElButton class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
-                  {{ t('button.print') }}
-              </ElButton>
-              <ElButton v-if="formValue?.accounted" @click="handleCarrying" class="pl-8 pr-8" :loading="loading">
-                {{ t('button.carrying') }}
-              </ElButton>
-              <ElButton v-if="formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted || !formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
-                {{ t('reuse.accounting') }}
-              </ElButton>
-              <ElButton v-if="!formValue?.accounted" type="primary" @click="cancelAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
-                {{ t('reuse.cancelAccounting') }}
-              </ElButton>
-            </div>
-            <ElButton v-if="userPermission?.deletable && formValue?.accounted" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-             {{ t('reuse.cancel') }}
-            </ElButton>  
-        </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'detail'">
         <div class="w-[50%] flex justify-left gap-2 ml-5">
-          <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
-            {{ t('reuse.fix') }}
-          </ElButton>
-          <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-            {{ t('reuse.delete') }}
-          </ElButton>
+          <div v-if="module == 2">
+            <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
+              {{ t('reuse.fix') }}
+            </ElButton>
+            <ElButton :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+              {{ t('reuse.delete') }}
+            </ElButton>
+          </div>
+          <div v-if="module == 1" >
+             <ElButton v-if="formValue?.isApproved" class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
+                {{ t('button.print') }}
+              </ElButton>
+              <ElButton v-if="formValue?.accounted && formValue?.isApproved" @click="handleCarrying" class="pl-8 pr-8" :loading="loading">
+                {{ t('button.carrying') }}
+              </ElButton>
+              <ElButton v-if="formValue?.accounted && formValue?.isApproved " type="primary" @click="handleAccounting" :disabled="!formValue?.transacted || !formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
+                {{ t('reuse.accounting') }}
+              </ElButton>
+              <ElButton v-if="!formValue?.accounted && formValue?.isApproved" type="primary" @click="cancelAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
+                {{ t('reuse.cancelAccounting') }}
+              </ElButton>
+             <ElButton v-if="userPermission?.deletable && !formValue?.accounted" :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+              {{ t('reuse.cancel') }}
+             </ElButton>
+          </div>
+          
         </div>
       </div>
       <div class="pl-57" v-if="props.type === 'approval'">

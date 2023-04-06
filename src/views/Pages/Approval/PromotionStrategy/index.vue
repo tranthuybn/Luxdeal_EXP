@@ -105,8 +105,9 @@ const action = (row: any, _type: string) => {
   const params: any =  { type:'approval', id: row.targetId, targetId: row.id}
   if(row.approveActionType == 2) params.approveRequestId = row.id
   push({
-    path: routeToDetailScreen.value ?? '',
-    params: params
+    name: routeToDetailScreen.value ?? '',
+    params: params,
+    query: {approveRequestId : row.id}
   })
   }
 </script>

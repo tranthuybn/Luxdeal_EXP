@@ -119,7 +119,7 @@ export const businessProductLibrary = [
     headerFilter: 'Name'
   },
   {
-    field: 'productStatusName',
+    field: 'productStatus',
     label: t('reuse.status'),
     minWidth: '150',
     filterMethod: filterHandler,

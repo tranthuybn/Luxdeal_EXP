@@ -959,6 +959,8 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    approveUserAccount: 'Duyệt tài khoản người dùng',
+    approveCollaborator: 'Duyệt tài khoản CTV',
     labelPaymentProposalprint: 'Giấy đề nghị thanh toán',
     cancelAccountingSuccess: 'Bỏ hạch toán thành công',
     cancelAccountingFail: 'Bỏ hạch toán thất bại',

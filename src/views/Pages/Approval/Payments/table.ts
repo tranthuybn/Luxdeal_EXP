@@ -1,9 +1,8 @@
 import { reactive, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { filterStatusAccounting, filterTransacted, filterPaymentMethod, filterReciprocalProfile, filtersReceiptExpenditure, filterStatusGeneral } from '@/utils/filters'
-import { dateTimeFormat, formatPaymentOrReceipts, formatPaymentMethod, formatStatusAccounting, formatStatusGeneral } from '@/utils/format'
+import { filterStatusAccounting, filterStatusGeneral } from '@/utils/filters'
+import { dateTimeFormat, formatStatusAccounting, formatStatusGeneral } from '@/utils/format'
 import { filterHandler, changeMoney } from '@/utils/tsxHelper'
-import { ATTACH_DOCUMENT } from '@/utils/API.Variables'
 
 const { t } = useI18n()
 
@@ -37,7 +36,7 @@ const recepitAndPayment = reactive<TableColumn[]>([
       }
     },
     {
-      field: 'peopleName',
+      field: 'customerName',
       label: t('reuse.subject'),
       minWidth: '200',
       headerFilter: 'Name',
@@ -99,7 +98,7 @@ const paymentProposal = reactive<TableColumn[]>([
     formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.totalMoney))
   },
   {
-    field: 'peopleName',
+    field: 'customerName',
     label: t('reuse.subject'),
     minWidth: '450',
   },

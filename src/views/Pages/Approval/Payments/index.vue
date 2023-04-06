@@ -77,8 +77,8 @@ const action = (scope: any, _type: string) => {
       :api="getOrderPayments"
       isOperatorColumnCustomize
       :selection="false"
-      :removeHeaderFilter="true"
       :customOperator="3"
+      :removeButtonAdd="true"
     />
   </ContentWrap>
 

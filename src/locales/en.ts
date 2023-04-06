@@ -907,6 +907,8 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    approveUserAccount: 'Approve user account',
+    approveCollaborator: 'Approve collaborator',
     labelPaymentProposalprint: 'Payment demand letter',
     cancelAccountingSuccess: 'Cancel accounting success',
     cancelAccountingFail: 'Cancel accounting fail',

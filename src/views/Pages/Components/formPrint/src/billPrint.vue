@@ -24,6 +24,7 @@ const props = defineProps({
 })
 
 console.log('props:', props)
+console.log('dataPriceBill:', props.dataPriceBill)
 
 const policySale = [
   {

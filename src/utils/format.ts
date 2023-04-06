@@ -153,6 +153,8 @@ export const formatPaymentOrReceipts = (val) => {
 
 export const formatStatusAccounting = (val) => {
   switch (val) {
+    case 0:
+      return t('reuse.pending')
     case 1:
       return t('reuse.pending')
     case 2:

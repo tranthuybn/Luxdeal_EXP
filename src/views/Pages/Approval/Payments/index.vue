@@ -1,124 +1,106 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
-import { onBeforeMount, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ElTable, ElTableColumn, ElButton, ElPagination } from 'element-plus'
-import { getOrderPayments } from '@/api/Approval'
+import { useRouter, useRoute } from 'vue-router'
+import { ElButton } from 'element-plus'
 import { appModules } from '@/config/app'
-import { changeMoney } from '@/utils/tsxHelper'
-const { utility } = appModules
-const { t } = useI18n()
+import { computed, h, reactive,provide } from 'vue'
+import { recepitAndPayment, paymentProposal } from './table'
+import { getOrderPayments } from '@/api/Approval'
+import TableType01 from '../../Components/TableDataBase.vue'
+import { ContentWrap } from '@/components/ContentWrap'
 
-const route = useRoute()
+const { utility } = appModules
+const { currentRoute } = useRouter()
+
+const { t } = useI18n()
 const { push } = useRouter()
+const route = useRoute()
+
 let nameRoute = route.name?.toString()
 const type = nameRoute?.slice(25, nameRoute.length)
-
-const tableDNTT = ref([])
-const tablePTC = ref([])
-
-const getListOrder = async () => {
-  try {
-    if (type == 'proposal') {
-      const res = await getOrderPayments({ IsPayment: false, pageIndex: 1, pageSize: 20 })
-      tableDNTT.value = res.data
-    } else {
-      const res = await getOrderPayments({ IsPayment: true, pageIndex: 1, pageSize: 20 })
-      tablePTC.value = res.data
+const operatorColumn = reactive<TableColumn>({
+    field: 'operator',
+    label: t('reuse.operator'),
+    minWidth: '200',
+    formatter: (row: Recordable, __: TableColumn, _cellValue: boolean) => {
+    return h('div', { class: 'btn-detail_Approval' }, [
+        h(ElButton, { type: 'primary', onClick: () => action(row, 'detail') }, 'Duyệt chi tiết '),
+        h('span', { class: 'arrowRight' })
+    ])
     }
-  } catch (e) {
-    console.error(e)
-  }
-}
+})
+const params = { IsPayment: type !== 'proposal', }
+provide('parameters', {
+  params
+})
+ 
 
-const detailedBrowsing = (scope: any) => {
+const tableColumns = computed(():Array<TableColumn> => {
+  switch (currentRoute.value.meta.title) {
+    case 'router.receiptsAndExpenditures':
+     return setTableColumn(recepitAndPayment)   
+    case 'router.paymentProposal':
+     return setTableColumn(paymentProposal)     
+    default:
+      return setTableColumn([])
+  }
+})
+
+const setTableColumn = (arr:Array<TableColumn>) => { 
+ return [...arr, operatorColumn].slice()
+} 
+
+const action = (scope: any, _type: string) => {
   if (type != 'proposal') {
     push({
       name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
-      params: { type: 'approval', id: scope.row.targetId},
-      query: { approvalId: scope.row.id }
+      params: { type: 'approval', id: scope.targetId},
+      query: { approvalId: scope.id }
     })
   } else {
     push({
       name: `accountant.payment-proposal.payment-proposal-list.${utility}`,
-      params: { type: 'approval', id: scope.row.targetId},
-      query: { approvalId: scope.row.id }
+      params: { type: 'approval', id: scope.targetId},
+      query: { approvalId: scope.id }
     })
   }
 }
-
-onBeforeMount(() => {
-  getListOrder()
-})
-
 </script>
-
 <template>
-  <div class="bg-white p-4 font-bold text-lg">
-    <div class="pb-2">{{ type == 'proposal' ? 'Đề nghị thanh toán' : 'Phiếu thu chi' }}</div>
-    <el-table v-if="type == 'proposal'" :data="tableDNTT" border style="width: 100%">
-      <el-table-column type="index" width="50" />
-      <el-table-column prop="code" :label="t('reuse.proposalCode')" width="150" />
-      <el-table-column prop="description" :label="t('formDemo.reasonsSpendMoney')" />
-      <el-table-column prop="totalMoney" :label="t('reuse.amountOfMoney')">
-        <template #default="props">
-          <div class="text-right">{{ changeMoney.format(props.row.totalMoney) }}</div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="name" :label="t('reuse.subject')" />
-      <el-table-column prop="customerName" :label="t('formDemo.createdAtEdit')" width="180" />
-      <el-table-column prop="createdBy" :label="t('formDemo.createdByEdit')" width="180" />
-      <el-table-column prop="approveAction" :label="t('formDemo.browsingConditions')" width="180" />
-      <el-table-column prop="status" :label="t('formDemo.status')" width="180">
-        <template #default="props">
-          {{ props.row.status == 0 ? 'Chờ duyệt' : 'Đang hoạt động' }}
-        </template>
-      </el-table-column>
-      <el-table-column fixed="right" :label="t('formDemo.manipulation')" width="150">
-        <template #default="props">
-          <el-button @click="() => detailedBrowsing(props)" type="primary"
-            ><span class="text-sm">{{ t('formDemo.BrowseDetails') }} ></span>
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-table v-else :data="tablePTC" border style="width: 100%">
-      <el-table-column type="index" width="50" />
-      <el-table-column prop="code" :label="t('formDemo.formCode')" width="150" />
-      <el-table-column prop="description" :label="t('formDemo.reasonRevenueExpenditure')" />
-      <el-table-column prop="totalMoney" :label="t('reuse.amountOfMoney')">
-        <template #default="props">
-          <div class="text-right">{{ changeMoney.format(props.row.totalMoney) }}</div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="name" :label="t('reuse.subject')" />
-      <el-table-column prop="customerName" :label="t('formDemo.createdAtEdit')" width="180" />
-      <el-table-column prop="createdBy" :label="t('formDemo.createdByEdit')" width="180" />
-      <el-table-column prop="approveAction" :label="t('formDemo.browsingConditions')" width="180" />
-      <el-table-column prop="status" :label="t('formDemo.status')" width="180">
-        <template #default="props">
-          {{ props.row.status == 0 ? 'Chờ duyệt' : 'Đang hoạt động' }}
-        </template>
-      </el-table-column>
-      <el-table-column fixed="right" :label="t('formDemo.manipulation')" width="150">
-        <template #default="props">
-          <el-button @click="() => detailedBrowsing(props)" type="primary"
-            ><span class="text-sm">{{ t('formDemo.BrowseDetails') }} ></span>
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination :page-size="20" :pager-count="11" layout="prev, pager, next" :total="1000" />
-  </div>
+  <ContentWrap
+    class="relative"
+    :title="t(currentRoute?.meta?.title ? currentRoute?.meta?.title?.toString() : '')"
+    :message="t(currentRoute?.meta?.title ? currentRoute?.meta?.title?.toString() : '')"
+  >
+    <TableType01
+      :columns="tableColumns"
+      :api="getOrderPayments"
+      isOperatorColumnCustomize
+      :selection="false"
+      :customOperator="3"
+      :removeButtonAdd="true"
+    />
+  </ContentWrap>
+
 </template>
 
+
 <style scoped>
-::v-deep(.cell) {
-  word-break: break-word;
+::v-deep(.arrowRight) {
+  position: relative;
+  top: 12px;
+  right: 20px;
+  height: 0;
 }
 
-::v-deep(.el-table td.el-table__cell div) {
-  font-weight: 400;
-  color: black;
+::v-deep(.btn-detail_Approval) {
+  display: flex;
+  justify-content: center;
+}
+
+::v-deep(.btn-detail_Approval > button) {
+  padding: 8px 24px 8px 10px;
 }
 </style>
+
+<style></style>

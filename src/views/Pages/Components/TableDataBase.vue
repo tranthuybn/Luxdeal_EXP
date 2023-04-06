@@ -231,7 +231,7 @@ const initMappingObject = (el) => {
 </script>
 <template>
   <section>
-    <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter" :removeButtonAdd="props.removeButtonAdd">
+    <HeaderFiler @get-data="getData" @refresh-data="getData" v-if="!removeHeaderFilter">
         <template #headerFilterSlot v-if="!removeHeaderFilterSlot && userPermission">
           <el-button v-if="!removeButtonAdd && userPermission?.addable" type="primary" :icon="createIcon" @click="pushAdd()">
             {{ t(`${props.titleAdd}`) }}

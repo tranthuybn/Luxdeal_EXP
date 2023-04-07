@@ -74,6 +74,7 @@ import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import billPrint from '../../Components/formPrint/src/billPrint.vue'
+import billPrintRentalFee from '../../Components/formPrint/src/billPrintRentalFee.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 
 import type { FormInstance, FormRules } from 'element-plus'
@@ -1417,7 +1418,7 @@ const getValueOfSelected = async (value, obj, scope) => {
    else if (!duplicateProduct.value && dateRangePrice.value) {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     data.priceChange = false
     getTotalWarehouse()
     if (data.fromDate && data.toDate) {
@@ -1813,6 +1814,10 @@ const getFormReceipts = async (textTitle) => {
     PrintReceipts.value = !PrintReceipts.value
     // printPage('recpPaymentPrint')
 }
+const getFormRentalfee = () =>{
+  PrintBills.value = !PrintBills.value
+  
+}
 // Lấy bảng lịch sử nhập xuất đổi trả
 const getReturnRequestTable = async () => {
   const res = await getReturnRequestForOrder({ CustomerOrderId: id })
@@ -1831,7 +1836,8 @@ const getReturnRequestTable = async () => {
       returnDetailStatusName: e?.returnDetailStatusName,
       warehouseTicketCode: e?.warehouseTicketCode,
       warehouseTicketId: e?.warehouseTicketId,
-      warehouseTicketStatusName: e?.warehouseTicketStatusName
+      warehouseTicketStatusName: e?.warehouseTicketStatusName,
+      warehouseTicketStatus: e.warehouseTicketStatus
     }))
     orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }
@@ -2227,7 +2233,7 @@ statusAccountingEntry.value.push({
 })
 
 // Xem chi tiết phiếu thanh toán tiền phí thuê
-let countApi = ref(0)
+ //let countApi = ref(0)
 const openDetailRentalPaymentBill = () => {
   optionAcountingEntry.value = []
   nameDialog.value = 'bill'
@@ -2239,10 +2245,10 @@ const openDetailRentalPaymentBill = () => {
       })
     }
   })
-  
-  feePaymentPeriod.value = optionAcountingEntry.value[0].value
-  if (countApi.value == 0) callApiDetailAccountingEntry(feePaymentPeriod.value)
-  countApi.value++
+  console.log(dataEdit)
+  // feePaymentPeriod.value = optionAcountingEntry.value[0].value
+  // if (countApi.value == 0) callApiDetailAccountingEntry(feePaymentPeriod.value)
+  // countApi.value++
   
   dialogRentalPaymentInformation.value = true
 }
@@ -2496,6 +2502,7 @@ const changePriceVAT = (val) => {
 
 // check disabled
 const disabledEdit = ref(false)
+const dataPriceBill = ref()
 
 const autoCollaboratorCommission = (index) => {
   optionsCollaborators.value.map((val) => {
@@ -2891,6 +2898,9 @@ onBeforeMount(async() => {
   await callApiStaffList()
 })
 const PrintReceipts = ref(false)
+const PrintBill = ref(false)
+const PrintBills = ref(false)
+
 const PrintpaymentOrderPrint = ref(false)
 const disabledPhieu = ref(false)
 const startDate = ref()
@@ -2924,8 +2934,13 @@ const printPaymentRequest = () => {
 
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
 }
-
-</script>
+// const billPrintClick = () =>{
+//   dataPriceBill.value = {
+//     totalDeposit : 123
+//   }
+//   PrintBill.value = !PrintBill.value
+// }
+</script> 
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -2933,10 +2948,53 @@ const printPaymentRequest = () => {
       <!-- phieu in -->
       <div id="billDepositPrint">
         <slot>
-          <billPrint :nameDialog="nameDialog" />
+          <billPrint :nameDialog="nameDialog" :dataPriceBill="dataPriceBill" :dataEdit="dataEdit" />
         </slot>
       </div>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintBill" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('billDepositPrint')">{{ t('button.print') }}</el-button>
 
+            <el-button class="btn" @click="PrintBill = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+          <billPrint :nameDialog="nameDialog" :dataPriceBill="dataPriceBill" :dataEdit="dataEdit" />
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintBill = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+      <!-- Phiếu thanh toán cho thue -->
+      <div id="billPrintRentalFee">
+        <slot>
+          <billPrintRentalFee :nameDialog="nameDialog" :dataPriceBill="dataPriceBill" :dataEdit="dataEdit" />
+        </slot>
+      </div>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintBills" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('billPrintRentalFee')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="PrintBills = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+          <billPrintRentalFee :nameDialog="nameDialog" :dataPriceBill="dataPriceBill" :dataEdit="dataEdit" />
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintBills = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <div id="recpPaymentPrint">
           <receiptsPaymentPrint
             v-if="formReceipts"
@@ -3717,7 +3775,8 @@ const printPaymentRequest = () => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table :data="tableRentalProducts" border style="width: 100%">
+          <el-table :data="dataEdit.orderDetails
+" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="270" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" width="80" />
@@ -3746,11 +3805,11 @@ const printPaymentRequest = () => {
             </div>
             <div class="w-[145px] text-right">
               <p class="pr-2">{{
-                totalRentalProduct != undefined ? changeMoney.format(totalRentalProduct) : '0 đ'
+                totalRentalProduct != undefined ? changeMoney.format(dataEdit.totalPrice) : '0 đ'
               }}</p>
               <p class="pr-2">đ</p>
               <p class="pr-2 text-black font-bold dark:text-white">{{
-                totalRentalProduct != undefined ? changeMoney.format(totalRentalProduct) : '0 đ'
+                totalRentalProduct != undefined ? changeMoney.format(dataEdit.totalPrice) : '0 đ'
               }}</p>
             </div>
           </div>
@@ -3833,7 +3892,7 @@ const printPaymentRequest = () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
+            <el-button @click="getFormRentalfee()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -4046,7 +4105,7 @@ const printPaymentRequest = () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="printPage('billDepositPrint')">{{ t('button.print') }}</el-button>
+            <el-button @click="getFormRentalfee()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -6169,6 +6228,9 @@ const printPaymentRequest = () => {
   }
 
   #billDepositPrint {
+    display: none;
+  }
+  #billPrintRentalFee{
     display: none;
   }
 

@@ -113,18 +113,17 @@ const tradingCode = ref('CDSG0273')
     <div class="pawn-property">
       <p class="title-table mt-3">Tài sản cầm đồ: </p>
       <el-table :data="dataEdit ? dataEdit?.orderDetails : []" border class="mt-2">
-        <el-table-column prop="stt" type="index" width="80" label="STT" align="center" />
-        <el-table-column prop="productCode" min-width="150" :label="t('reuse.productCode')" align="center" />
-        <el-table-column prop="productName" min-width="150" :label="t('formDemo.commodityName')" align="center" />
-        <el-table-column prop="accessory" min-width="150" label="Phụ kiện đi kèm" align="center" />
-        <el-table-column prop="quantity" min-width="150" :label="t('reuse.quantity')" align="center" />
-        <el-table-column prop="unitName" min-width="150" :label="t('reuse.unitNamePawn')" align="center" />
-        <el-table-column prop="interestMoney" :label="t('reuse.intoMoneyByday')" width="150" align="center" >
+        <el-table-column prop="productCode"  :label="t('reuse.productCode')" align="center" />
+        <el-table-column prop="productName"  :label="t('formDemo.commodityName')" align="center" />
+        <el-table-column prop="accessory"  label="Phụ kiện đi kèm" align="center" />
+        <el-table-column prop="quantity"  :label="t('reuse.quantity')" align="center" />
+        <el-table-column prop="unitName" width="50" :label="t('reuse.unitNamePawn')" align="center" />
+        <el-table-column prop="interestMoney" :label="t('reuse.intoMoneyByday')"  align="center" >
           <template #default="data">
             {{ changeMoney.format(data.row.interestMoney) }}
           </template>
         </el-table-column>
-        <el-table-column prop="unitPrice" :label="t('formDemo.moneyPawnGOC')" width="150" align="center" >
+        <el-table-column prop="unitPrice" :label="t('formDemo.moneyPawnGOC')"  align="center" >
           <template #default="data">
             {{ changeMoney.format(data.row.unitPrice) }}
           </template>

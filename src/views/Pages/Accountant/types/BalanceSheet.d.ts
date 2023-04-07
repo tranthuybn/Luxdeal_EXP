@@ -9,8 +9,9 @@ export interface FormDataPostAndEdit {
 export interface FormData {
     typeAccount: '1' | '2'
     accountNumber2?: number
-    accountNumber1: number
-    accountName: string
+    accountNumber1: string | number
+    accountName1: string
+    accountName2: string
     status: boolean
     id: number
   }

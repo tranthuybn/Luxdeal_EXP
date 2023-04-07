@@ -2,7 +2,8 @@ import {
   filterService,
   filterDeposit,
   filterTransactionType,
-  filterLotStatus
+  filterLotStatus,
+  filterStatusWarehouseTransaction
 } from '@/utils/filters'
 import { h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -391,6 +392,7 @@ export const wareHouseContainer = [
     field: 'status',
     label: t('reuse.status'),
     minWidth: '100',
+    filters: filterStatusWarehouseTransaction,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${formatTransactionStatus(cellValue)}`)
     }

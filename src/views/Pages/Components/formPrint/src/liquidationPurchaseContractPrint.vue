@@ -22,6 +22,7 @@ function getArraySum(arr) {
   }
   return total
 }
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 console.log('props: ', props)
 </script>
 
@@ -30,7 +31,7 @@ console.log('props: ', props)
     <div class="flex">
       <div class="flex-1">
         <div class="text-center">
-          <img class="w-[30%]" src="@/assets/imgs/images.png" />
+          <img class="w-[40%]" src="@/assets/imgs/images.png" />
         </div>
         <div class="mt-1">
           <div class="flex pb-1 items-center">
@@ -109,10 +110,9 @@ console.log('props: ', props)
             <el-table-column prop="description" label="Tình trạng" align="center" />
             <el-table-column prop="unitPrice" label="Giá nhập" align="center" />
             <el-table-column prop="businessSetupName" label="Loại hàng" align="center" />
-            <el-table-column prop="note" label="Ghi chú" align="center" />
           </el-table>
           <div class="total-money text-end pr-[115px]" v-if="dataEdit">
-            <p>Tổng tiền {{ getArraySum(dataEdit.orderDetails) }}</p>
+            <p>Tổng tiền {{  currencyFormatter.format(getArraySum(dataEdit.orderDetails))   }}</p>
           </div>
           <div class="mt-2">
             <p
@@ -164,12 +164,12 @@ console.log('props: ', props)
 </template>
 
 <style lang="scss" scoped>
-@import '@/styles/variables.scss';
-.content {
-  font-family: $foundry;
-  font-size: 13px;
-}
-::v-deep(table) {
-  font-size: 13px;
-}
+// @import '@/styles/variables.scss';
+// .content {
+//   font-family: $foundry;
+//   font-size: 13px;
+// }
+// ::v-deep(table) {
+//   font-size: 13px;
+// }
 </style>

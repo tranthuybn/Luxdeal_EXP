@@ -79,7 +79,8 @@ import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, ge
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
 import { changeMoney } from '@/utils/tsxHelper'
 import AddQuickProduct from './AddQuickProduct.vue'
-
+import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
+import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import * as orderUtility from './OrderFixbug'
 import { TicketType } from '../../Warehouse/BusinessProductWarehouse/TicketEnum'
 import UploadMultipleImages from './UploadMultipleImages.vue'
@@ -726,7 +727,7 @@ const getValueOfSelected = (value, obj, scope) => {
   } else {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     data.price = obj.price
     data.unitName = obj.unit
     callApiWarehouse(scope)
@@ -1175,42 +1176,18 @@ const batDauKyGui = async () =>{
 
 }
 
-function printPage(id: string, { url, title, w, h }) {
+function printPage(id: string) {
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
-
   const printContents = document.getElementById(id)?.innerHTML
-
-  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
-  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
-
-  const width = window.innerWidth
-    ? window.innerWidth
-    : document.documentElement.clientWidth
-    ? document.documentElement.clientWidth
-    : screen.width
-  const height = window.innerHeight
-    ? window.innerHeight
-    : document.documentElement.clientHeight
-    ? document.documentElement.clientHeight
-    : screen.height
-
-  const systemZoom = width / window.screen.availWidth
-  const left = (width - w) / 2 / systemZoom + dualScreenLeft
-  const top = (height - h) / 2 / systemZoom + dualScreenTop
-  const newWindow = window.open(
-    url,
-    title,
-    `
-				scrollbars=yes,
-				width=${w / systemZoom},
-				height=${h / systemZoom},
-				top=${top},
-				left=${left}      `
+  const WinPrint = window.open(
+    '',
+    '',
+    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
   )
-  newWindow?.document.write(`<!DOCTYPE html>
+  WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
@@ -1228,11 +1205,11 @@ function printPage(id: string, { url, title, w, h }) {
                   </body>
                 </html>`)
 
-  newWindow?.document.close()
-  newWindow?.focus()
+                WinPrint?.document.close()
+                WinPrint?.focus()
   setTimeout(() => {
-    newWindow?.print()
-    newWindow?.close()
+    WinPrint?.print()
+    WinPrint?.close()
   }, 500)
 }
 
@@ -1334,32 +1311,9 @@ watch(
 )
 
 const radioTracking = ref('2')
-
+const enterMoney = ref()
 const inputRecharger = ref()
 const moneyReceipts = ref(0)
-const formReceipts = ref()
-// input nhập tiền viết bằng chữ
-const enterMoney = ref()
-
-const getFormReceipts = () => {
-  if (enterMoney.value) {
-    formReceipts.value = {
-      sellOrderCode: ruleForm.orderCode,
-      codeReceipts: codeReceipts.value,
-      recharger: inputRecharger.value,
-      moneyReceipts: moneyReceipts.value,
-      reasonCollectingMoney: inputReasonCollectMoney.value,
-      enterMoney: enterMoney.value,
-      payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
-    }
-  } else {
-    ElMessage({
-      showClose: true,
-      message: 'Vui lòng nhập tiền bằng chữ',
-      type: 'error'
-    })
-  }
-}
 
 // Thêm mã phiếu thu/chi vào debtTable
 const handleChangeReceipts = async () => {
@@ -1440,13 +1394,32 @@ const postPaymentRequest = async () => {
     OrderId: id,
     Description: '',
     Document: undefined,
-    AccountingEntryId: undefined
+    AccountingEntryId: undefined,
+    ExpensesDetail: JSON.stringify(detailedListExpenses.value)
   }
   const formDataPayLoad = FORM_IMAGES(payload)
   objIdPayment.value = await addDNTT(formDataPayLoad)
   idPayment.value = objIdPayment.value.paymentRequestId
+  handleChangePaymentOrder()
 }
-
+// Thêm mới mã phiếu đề nghị thanh toán vào debtTable
+const handleChangePaymentOrder = async () => {
+  if (newTable.value?.length) {
+    newTable.value.forEach((val, index, arr) => {
+      const payload = {
+        accountingEntryId: val.id,
+        paymentRequestId: idPayment.value,
+        receiptOrPaymentVoucherId: 0,
+        isReceiptedMoney: true,
+        status: 1,
+        paymentMethods: 1
+      }
+      updateOrderTransaction(payload).then(() => {
+        if (index == arr.length - 1) getOrderStransactionList()
+      })
+    })
+  }
+}
 const optionsTypeMoney = [
   {
     value: 1,
@@ -1508,7 +1481,6 @@ const postOrderStransaction = async (index: number) => {
     merchadiseTobePayforId: parseInt(val.id),
     quantity: val.quantity
   }))
-
   const payload = {
     orderId: id,
     content: tableAccountingEntry.value[0].content,
@@ -2354,6 +2326,44 @@ const createStatusAcountingEntry = () => {
     isActive: true
   })
 }
+const formReceipts = ref()
+const PrintReceipts = ref(false)
+const getFormReceipts = async (textTitle) => {
+  if(textTitle == 2){
+    nameDialog.value = 'Phiếu thu đơn hàng ký gửi'
+  }else{
+    nameDialog.value = 'Phiếu chi đơn hàng ký gửi'
+  }
+    formReceipts.value = {
+      sellOrderCode: ruleForm.orderCode,
+      codeReceipts: codeReceipts.value,
+      recharger: inputRecharger.value,
+      moneyReceipts: moneyReceipts.value,
+      user: optionsCollaborators,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value  ? 'Tiền mặt' : 'Tiền thẻ'
+    }
+    PrintReceipts.value = !PrintReceipts.value
+}
+const formPaymentRequest = ref()
+const PrintpaymentOrderPrint = ref(false)
+const printPaymentRequest = () => {
+  formPaymentRequest.value = {
+      // sellOrderCode: sellOrderCode.value,
+      codePaymentRequest: codePaymentRequest.value,
+      recharger: inputRecharger.value,
+      user: optionsCollaborators,
+      inputReasonCollectMoney: inputReasonCollectMoney.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+      moneyReceipts: moneyReceipts.value
+    }
+
+    PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
+}
+
 </script>
 
 <template>
@@ -2365,6 +2375,60 @@ const createStatusAcountingEntry = () => {
         'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
       ]"
     >
+    <div id="recpPaymentPrint">
+          <receiptsPaymentPrint
+            v-if="formReceipts"
+            :dataEdit="formReceipts"
+            :nameDialog="nameDialog"
+          />
+      </div>
+      <div id="IPRFormPrint">
+        <slot>
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+        </slot>
+      </div>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <receiptsPaymentPrint
+                v-if="formReceipts"
+                :dataEdit="formReceipts"
+                :nameDialog="nameDialog"
+              />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <!-- Dialog thêm nhanh khách hàng -->
       <el-dialog
       :close-on-click-modal="doCloseOnClickModal"
@@ -2570,12 +2634,7 @@ const createStatusAcountingEntry = () => {
           <div class="flex gap-3 justify-end">
             <el-button
               @click="
-                printPage('billLiquidationContract', {
-                  url: '',
-                  title: 'In vé',
-                  w: 800,
-                  h: 920
-                })
+                printPage('billLiquidationContract')
               "
               >{{ t('button.print') }}</el-button
             >
@@ -2697,7 +2756,7 @@ const createStatusAcountingEntry = () => {
 
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="getFormReceipts()">{{ t('button.print') }}</el-button>
+            <el-button @click="getFormReceipts(2)">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -2817,8 +2876,7 @@ const createStatusAcountingEntry = () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <!-- <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button> -->
-            <el-button>In phiếu</el-button>
+            <el-button @click="getFormReceipts(1)">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -2989,8 +3047,7 @@ const createStatusAcountingEntry = () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <!-- <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button> -->
-            <el-button>In phiếu</el-button>
+            <el-button @click="printPaymentRequest()" >{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button

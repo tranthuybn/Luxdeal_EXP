@@ -76,7 +76,8 @@ import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, ge
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
 import AddQuickProduct from './AddQuickProduct.vue'
 import StatusWarehouse from '@/views/Pages/Warehouse/BusinessProductWarehouse/StatusWarehouse.vue'
-
+import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
+import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import UploadMultipleImages from './UploadMultipleImages.vue'
 import { API_URL } from '@/utils/API_URL'
 import * as orderUtility from './OrderFixbug'
@@ -619,56 +620,41 @@ interface historyTableType {
 
 const pawnOrderCode = ref()
 
-function printPage(id: string, { url, title, w, h }) {
+function printPage(id: string) {
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
   const printContents = document.getElementById(id)?.innerHTML
-  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
-  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
-
-  const width = window.innerWidth
-    ? window.innerWidth
-    : document.documentElement.clientWidth
-    ? document.documentElement.clientWidth
-    : screen.width
-  const height = window.innerHeight
-    ? window.innerHeight
-    : document.documentElement.clientHeight
-    ? document.documentElement.clientHeight
-    : screen.height
-
-  const systemZoom = width / window.screen.availWidth
-  const left = (width - w) / 2 / systemZoom + dualScreenLeft
-  const top = (height - h) / 2 / systemZoom + dualScreenTop
-  const newWindow = window.open(
-    url,
-    title,
-    `
-				scrollbars=yes,
-				width=${w / systemZoom},
-				height=${h / systemZoom},
-				top=${top},
-				left=${left}      `
+  const WinPrint = window.open(
+    '',
+    '',
+    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
   )
-  newWindow?.document.write(`<!DOCTYPE html>
+  WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
+                    <style>
+                    html, body {
+                      width: 148mm;
+    height: 397mm;
+    margin: 0 auto;
+    padding: 20mm;
+  }
+                    </style>
                   </head>
                   <body>
                     ${printContents}
                     <br>
-                    Thuần HUY
                   </body>
                 </html>`)
 
-  newWindow?.document.close()
-  newWindow?.focus()
+                WinPrint?.document.close()
+                WinPrint?.focus()
   setTimeout(() => {
-    newWindow?.print()
-    newWindow?.close()
+    WinPrint?.print()
+    WinPrint?.close()
   }, 500)
 }
 const radioTracking = ref('2')
@@ -774,7 +760,7 @@ const getValueOfSelected = (_value, obj, scope) => {
   } else {
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     data.unitName = obj.unit
     data.price = obj.price
     callApiWarehouse(scope)
@@ -1339,6 +1325,10 @@ const postOrderStransaction = async (index: number) => {
   }
 
   if (index == 4) {
+    childrenTable.value = ListOfProductsForSale.value.map((val) => ({
+    merchadiseTobePayforId: parseInt(val.id),
+    quantity: val.quantity
+  }))
     tableAccountingEntry.value[0].receiveMoney > tableAccountingEntry.value[0].paidMoney
       ? (checkPTC.value = 1)
       : (checkPTC.value = 0)
@@ -1349,7 +1339,7 @@ const postOrderStransaction = async (index: number) => {
       index == 1
         ? t('formDemo.bill')
         : index == 2
-        ? t('formDemo.depositSlipAdvance')
+        ? 'Tổng tiền gốc cầm đồ'
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
@@ -2304,7 +2294,7 @@ const openDetailFullyIntegrated = async (props) => {
       }
   informationWarehouseReceipt.value = true
 }
-const paymentType = ref(3)
+const paymentType = ref(4)
 const paymentTypeOptions = ref([
   {
     label:'Thanh toán tiền gốc',
@@ -2377,7 +2367,43 @@ const finishOrder = async () =>{
   await orderUtility.finishOrderAPI(id)
   await reloadStatusOrder()
 }
+const formReceipts = ref()
+const PrintReceipts = ref(false)
+const getFormReceipts = async (textTitle) => {
+  if(textTitle == 2){
+    nameDialog.value = 'Phiếu thu cầm đồ'
+  }else{
+    nameDialog.value = 'Phiếu chi cầm đồ'
+  }
+    formReceipts.value = {
+      sellOrderCode: ruleForm.orderCode,
+      codeReceipts: codeReceipts.value,
+      recharger: inputRecharger.value,
+      moneyReceipts: moneyReceipts.value,
+      user: optionsCollaborators,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value  ? 'Tiền mặt' : 'Tiền thẻ'
+    }
+    PrintReceipts.value = !PrintReceipts.value
+}
+const formPaymentRequest = ref()
+const PrintpaymentOrderPrint = ref(false)
+const printPaymentRequest = () => {
+  formPaymentRequest.value = {
+      // sellOrderCode: sellOrderCode.value,
+      codePaymentRequest: codePaymentRequest.value,
+      recharger: inputRecharger.value,
+      user: optionsCollaborators,
+      inputReasonCollectMoney: inputReasonCollectMoney.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+      moneyReceipts: moneyReceipts.value
+    }
 
+    PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
+}
 </script>
 
 <template>
@@ -2389,6 +2415,60 @@ const finishOrder = async () =>{
         'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
       ]"
     >
+     <div id="recpPaymentPrint">
+          <receiptsPaymentPrint
+            v-if="formReceipts"
+            :dataEdit="formReceipts"
+            :nameDialog="nameDialog"
+          />
+      </div>
+      <div id="IPRFormPrint">
+        <slot>
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+        </slot>
+      </div>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <receiptsPaymentPrint
+                v-if="formReceipts"
+                :dataEdit="formReceipts"
+                :nameDialog="nameDialog"
+              />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintReceipts = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <!-- Dialog thêm nhanh khách hàng -->
       <el-dialog
       :close-on-click-modal="doCloseOnClickModal"
@@ -2733,7 +2813,7 @@ const finishOrder = async () =>{
                 </div>
 
                 <div class="flex-1">
-                  <el-form-item :label="t('formDemo.selectImportWarehouse')" prop="warehouse">
+                  <el-form-item :label="t('reuse.chooseImportWarehouse')" prop="warehouse">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
                         <el-select
@@ -3427,12 +3507,7 @@ const finishOrder = async () =>{
           <div class="flex gap-3 justify-end">
             <el-button
               @click="
-                printPage('billPawn', {
-                  url: '',
-                  title: 'In vé',
-                  w: 800,
-                  h: 920
-                })
+                printPage('billPawn')
               "
               >{{ t('button.print') }}</el-button
             >
@@ -4951,8 +5026,8 @@ class="min-w-42 min-h-11" type="primary"
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <!-- <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button> -->
-            <el-button>In phiếu</el-button>
+            <el-button @click="getFormReceipts(2)">{{ t('button.print') }}</el-button>
+            <!-- <el-button>In phiếu</el-button> -->
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -5071,8 +5146,7 @@ class="min-w-42 min-h-11" type="primary"
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <!-- <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button> -->
-            <el-button>In phiếu</el-button>
+            <el-button @click="getFormReceipts(1)">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -5288,8 +5362,7 @@ class="min-w-42 min-h-11" type="primary"
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <!-- <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button> -->
-            <el-button>In phiếu</el-button>
+            <el-button @click="printPaymentRequest()" >{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button

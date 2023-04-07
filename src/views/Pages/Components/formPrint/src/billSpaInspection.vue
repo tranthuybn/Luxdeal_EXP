@@ -20,6 +20,7 @@ const props = defineProps({
 
 let dataEditor = ref(props.dataEditor)
 let titleCategory = ref(props.titleCategory)
+console.log('props:', props)
 // const locateIcon = useIcon({ icon: 'entypo:location' })
 
 // const tableData = [

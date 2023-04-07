@@ -79,6 +79,7 @@ import billSpaInspection from '../../Components/formPrint/src/billSpaInspection.
 import billSpaRepair from '../../Components/formPrint/src/billSpaRepair.vue'
 import { useRoute, useRouter } from 'vue-router'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
+import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import { STATUS_ORDER_SPA } from '@/utils/API.Variables'
 import ReturnOrder from './ReturnOrder.vue'
 import { getProductStorage, getWarehouseLot } from '@/api/Warehouse'
@@ -695,7 +696,7 @@ const getValueOfSelected = async (value, obj, scope) => {
 
   data.productPropertyId = obj?.productPropertyId
   data.productCode = obj.value
-  data.productName = obj.name
+  data.productPropertyName = obj.name
   data.unitName = obj.unit
   data.quantity = 1
   data.spaServices = []
@@ -1538,137 +1539,43 @@ const saveContentEditor = () => {
   ListOfProductsForSale.value[currentRow2.value].description = editor.value
 }
 
-function printPage(id: string, { url, title, w, h }) {
+function printPage(id: string) {
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
-
-  const child = document.getElementById('main-content')
-  const printContents = document.getElementById(id) ?? null
-  if (printContents) {
-    if (child) printContents.removeChild(child)
-    const tempNode = document.createElement('p')
-    tempNode.id = 'main-content'
-    tempNode.innerHTML = editor.value
-    printContents?.appendChild(tempNode)
-  }
-
-  // open new window at the center of screen
-  const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
-  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
-
-  const width = window.innerWidth
-    ? window.innerWidth
-    : document.documentElement.clientWidth
-    ? document.documentElement.clientWidth
-    : screen.width
-  const height = window.innerHeight
-    ? window.innerHeight
-    : document.documentElement.clientHeight
-    ? document.documentElement.clientHeight
-    : screen.height
-
-  const systemZoom = width / window.screen.availWidth
-  const left = (width - w) / 2 / systemZoom + dualScreenLeft
-  const top = (height - h) / 2 / systemZoom + dualScreenTop
-  const newWindow = window.open(
-    url,
-    title,
-    `
-				scrollbars=yes,
-				width=${w / systemZoom},
-				height=${h / systemZoom},
-				top=${top},
-				left=${left}      `
+  const printContents = document.getElementById(id)?.innerHTML
+  const WinPrint = window.open(
+    '',
+    '',
+    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
   )
-  newWindow?.document.write(`<!DOCTYPE html>
+  WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
+                                        <style>
+                    html, body {
+                      width: 148mm;
+    height: 297mm;
+    margin: 20px auto;
+    padding: 20mm 40mm;
+  }
+                    </style>
                   </head>
                   <body>
-                    ${printContents?.innerHTML}
-
+                    ${printContents}
                   </body>
                 </html>`)
 
-  newWindow?.document.close()
-  newWindow?.focus()
-  setTimeout(() => {
-    newWindow?.print()
-    newWindow?.close()
-  }, 500)
-}
-
-const printPages = (className: string, { url, title, w, h })=>{
-  // Get HTML to print from element
-const prtHtml = document.getElementsByClassName(className)!;
-
-// Get all stylesheets HTML
-let stylesHtml = '';
-for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-  stylesHtml += node.outerHTML;
-}
-
-// Open the print window
-// open new window at the center of screen
-const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
-  const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
-
-  const width = window.innerWidth
-    ? window.innerWidth
-    : document.documentElement.clientWidth
-    ? document.documentElement.clientWidth
-    : screen.width
-  const height = window.innerHeight
-    ? window.innerHeight
-    : document.documentElement.clientHeight
-    ? document.documentElement.clientHeight
-    : screen.height
-
-  const systemZoom = width / window.screen.availWidth
-  const left = (width - w) / 2 / systemZoom + dualScreenLeft
-  const top = (height - h) / 2 / systemZoom + dualScreenTop
-
-const WinPrint = window.open(
-    url,
-    title,
-    `
-				scrollbars=yes,
-				width=${w / systemZoom},
-				height=${h / systemZoom},
-				top=${top},
-				left=${left}      `
-  )!
-let html = ''
-for(var i =0;i<prtHtml.length;i++){
-  html += prtHtml[i].innerHTML
-}
-
-WinPrint.document.write(`<!DOCTYPE html>
-<html>
-  <head>
-    <style>
-    body {
-        overflow: visible !important;
-    }
-    .page { page-break-after:always;}
-    ${stylesHtml}
-  </style>
-  </head>
-  <body>
-    ${html}
-  </body>
-</html>`);
-
-WinPrint?.document.close()
-WinPrint?.focus()
+                WinPrint?.document.close()
+                WinPrint?.focus()
   setTimeout(() => {
     WinPrint?.print()
     WinPrint?.close()
   }, 500)
 }
+
 const choosePayment = [
   {
     value: 0,
@@ -2519,7 +2426,12 @@ const moneyReceipts = ref(0)
 const inputRecharger = ref()
 const PrintReceipts = ref(false)
 
-const getFormReceipts = () => {
+const getFormReceipts = (text) => {
+  if(text == 1){
+    nameDialog.value = 'Phiếu chi đơn hàng Spa'
+  }else {
+    nameDialog.value = 'Phiếu thu đơn hàng Spa'
+  }
   if (enterMoney.value) {
     formReceipts.value = {
       sellOrderCode: spaOrderCode.value,
@@ -2868,6 +2780,25 @@ const finishOrder = async () =>{
   await orderUtility.finishOrderAPI(id)
   await reloadStatusOrder()
 }
+
+const formPaymentRequest = ref()
+const PrintpaymentOrderPrint = ref(false)
+const printPaymentRequest = () => {
+  formPaymentRequest.value = {
+      // sellOrderCode: sellOrderCode.value,
+      codePaymentRequest: codePaymentRequest.value,
+      recharger: inputRecharger.value,
+      user: optionsCollaborators,
+      inputReasonCollectMoney: inputReasonCollectMoney.value,
+      reasonCollectingMoney: inputReasonCollectMoney.value,
+      enterMoney: enterMoney.value,
+      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+      moneyReceipts: moneyReceipts.value
+    }
+
+    PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
+}
+
 </script>
 
 <template>
@@ -2888,14 +2819,37 @@ const finishOrder = async () =>{
           />
         </slot>
       </div>
-      <div v-for="(item,index) in billRepairData" :key="index" class="hidden">
-          <div class="repairSpa">
-              <div class="page">
-                <billSpaRepair :billRepairData="item" />
-              </div>
+   <div id="repairSpa">
+    <div v-for="(item,index) in billRepairData" :key="index">
+              <slot>
+            <billSpaRepair :billRepairData="item" />
+              </slot>
           </div>
+   </div>
+      <div id="IPRFormPrint">
+        <slot>
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+        </slot>
       </div>
-      
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <ChooseWarehousePR
         :showDialog="dialogWarehouse"
         @close-dialog-warehouse="closeDialogWarehouse"
@@ -2913,12 +2867,7 @@ const finishOrder = async () =>{
           <div class="flex gap-3 justify-end">
             <el-button
               @click="
-                printPage('recpPaymentPrint', {
-                  url: '',
-                  title: 'In vé',
-                  w: 800,
-                  h: 920
-                })
+                printPage('recpPaymentPrint')
               "
               >{{ t('button.print') }}</el-button
             >
@@ -4115,7 +4064,7 @@ const finishOrder = async () =>{
                 >{{ t('formDemo.saveCloseOrder') }}</el-button
               >
               <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type == 'add'"
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && (type == 'add' || type == ':type')"
                 @click="
                   () => {
                     submitForm(ruleFormRef, ruleFormRef2, false)
@@ -4129,7 +4078,7 @@ const finishOrder = async () =>{
                 Bắt đầu quá trình Spa
               </el-button>
               <el-button
-                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type != 'add'"
+                v-if="statusOrder == STATUS_ORDER_SPA[1].orderStatus && type != 'add' && type != ':type'"
                 @click="
                   () => {
                     startOrder()
@@ -4549,12 +4498,7 @@ const finishOrder = async () =>{
           <div class="flex gap-3 justify-end">
             <el-button
               @click="
-                printPage('billSpa', {
-                  url: '',
-                  title: 'In vé',
-                  w: 800,
-                  h: 920
-                })
+                printPage('billSpa')
               "
               >{{ t('button.print') }}</el-button
             >
@@ -4582,12 +4526,7 @@ const finishOrder = async () =>{
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button
-              @click="printPages('repairSpa', {
-                  url: '',
-                  title: 'In phiếu sửa chữa',
-                  w: 800,
-                  h: 920
-                })"
+              @click="printPage('repairSpa')"
               >{{ t('button.print') }}</el-button
             >
 
@@ -5007,7 +4946,7 @@ const finishOrder = async () =>{
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="getFormReceipts()">{{ t('button.print') }}</el-button>
+            <el-button @click="getFormReceipts(2)">{{ t('button.print') }}</el-button>
 
             <div>
               <span class="dialog-footer">
@@ -5127,7 +5066,7 @@ const finishOrder = async () =>{
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="getFormReceipts()">{{ t('button.print') }}</el-button>
+            <el-button @click="getFormReceipts(1)">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button
@@ -5340,8 +5279,7 @@ const finishOrder = async () =>{
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <!-- <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button> -->
-            <el-button>In phiếu</el-button>
+            <el-button @click="printPaymentRequest()" >{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button

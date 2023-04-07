@@ -10,6 +10,7 @@ import {
   ElButton,
   ElDivider,
   ElTable,
+  ElDialog,
   ElTableColumn,
   ElInput,
   ElForm,
@@ -36,9 +37,12 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment';
 import { useRoute, useRouter } from 'vue-router'
-import { changeMoney } from '@/utils/tsxHelper'
+import { changeMoney, printPage } from '@/utils/tsxHelper'
 import { IDetailExpenses } from '../types/PaymentProposal.d'
 import { useValidator } from '@/hooks/web/useValidator'
+import { statusService } from '@/utils/status'
+import paymentOrderPrint from '@/views/Pages/Components/formPrint/src/paymentOrderPrint.vue'
+
 
 const { t } = useI18n()
 const escape = useIcon({ icon: 'quill:escape' })
@@ -48,6 +52,7 @@ const ruleFormRef = ref<FormInstance>()
 const formValue = ref()
 const router = useRouter()
 const route = useRoute()
+const currentDate = ref(moment().format("DD/MM/YYYY"))
 const curCode = 'DNTT' + moment().format('hhmmss')
 const createdByOptions = ref([{}])
 const peopleOptions = ref([{}])
@@ -62,6 +67,10 @@ const type = String(route.params.type) == ':type' ? 'add' : String(route.params.
 const tableData = ref<Array<IDetailExpenses>>([])
 const showInputPricePlaceholder = ref(true)
 const disableForm = ref(false)
+const formPaymentProposal = ref()
+const nameDialog = ref('')
+const printPayment = ref(false)
+const doCloseOnClickModal = ref(false)
 const detailedListExpenses = ref<Array<IDetailExpenses>>([])
 const { ValidService } = useValidator()
 const rules = reactive<FormRules>({  
@@ -74,6 +83,18 @@ const rulesPaymentMethod = reactive<FormRules>({
   enterMoney: [ValidService.required],
   typeOfPayment : [ValidService.required]
 })
+const statusHistory = reactive([{
+  statusName: t('reuse.initializeAndWrite'),
+  statusValue: 0, 
+  approvedAt: currentDate
+}, 
+{
+  statusName: t('reuse.approvalPayment'),
+  statusValue: 1, 
+  approvedAt: currentDate
+}, 
+])
+
 const back = async () => {
   push({
     name: 'accountant.payment-proposal.payment-proposal-list'
@@ -221,7 +242,7 @@ const postData = async() => {
     Code: form.value.code,
     TotalMoney: form.value.totalMoney,
     PaymentType : form.value.typeOfPayment,
-    PeopleId: form.value.peopleId,
+    PeopleId: optionPeople.value.id,
     status: 1,
     PeopleType: 1,
     Description: form.value.description,
@@ -232,6 +253,22 @@ const postData = async() => {
     TotalPrice: form.value.totalPrice
   }
   await postNewPaymentRequest(FORM_IMAGES(payload))
+  .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      }),
+        push({
+          name: 'accountant.payment-proposal.payment-proposal-list',
+          params: { backRoute: 'accountant.payment-proposal.payment-proposal-list' }
+        })
+    })
+    .catch((res) =>
+      ElNotification({
+        message: res.response.data.message,
+        type: 'warning'
+      })
+    )
 }
 
 const getDetailPayment = async() => {
@@ -379,8 +416,54 @@ const delAction = () => {
   }
 }
 
+const getFormPayment = () => {
+  if (formValue.value.enterMoney) {
+    formPaymentProposal.value = {
+      codeReceipts: formValue.value.code,
+      moneyReceipts: formValue.value.totalMoney,
+      reasonCollectingMoney: formValue.value.description,
+      enterMoney: formValue.value.enterMoney,
+      payment: formValue.value.typeOfPayment == 1 ? t('reuse.cashPayment') : t('reuse.cardPayment')
+    }
+    nameDialog.value = t('reuse.labelPaymentProposalprint')
+
+    printPayment.value = !printPayment.value
+    console.log('printPayment.value', printPayment.value)
+  }
+}
+
 </script>
 <template>
+  <div id="IPRFormPrint">
+    <slot>
+      <paymentOrderPrint v-if="formPaymentProposal" :dataEdit="formPaymentProposal" />
+    </slot>
+  </div>
+
+      <!-- Dialog In phiếu thanh toán -->
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="printPayment" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="printPayment = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <paymentOrderPrint
+                v-if="formPaymentProposal"
+                :dataEdit="formPaymentProposal"
+                :nameDialog="nameDialog"
+              />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="printPayment = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
   <el-collapse
     v-model="activeName" 
     @change="collapseChangeEvent" 
@@ -587,15 +670,40 @@ const delAction = () => {
             </el-form-item>
 
             <el-form-item :label="t('reuse.status')" class="day-update-wrap">
-              <div class="flex flex-col gap-1">
-                <span class="day-updated">
-                  {{ t('reuse.initializeAndWrite') }}
-                </span>
-                <span class="italic text-xs text-gray-500">
-                  <label> {{ dateTimeFormat(moment()) }} </label>
-                </span>
+              <div class="mr-5 flex flex-col justify-start gap-2" v-if="type=='add'">
+                <div>
+                  <span
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                    ></span>
+                    <span class="box status--initial dark:text-divck" >
+                      {{ t('reuse.initializeAndWrite') }}
+                      <span class="triangle-right"></span>
+                    </span>
+                </div>
+                <div class="italic text-xs text-gray-500">{{ currentDate }}</div>
+              </div>
+              <div v-else class="flex items-start shrink-0" >
+                <div          
+                    class="duplicate-status align-top"
+                    v-for="(item, index) in statusHistory"
+                    :key="index"
+                >
+                  <div class="mr-5 flex flex-col justify-start gap-2">
+                      <div>
+                        <span
+                          class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                        ></span>
+                        <span class="box dark:text-divck" :class="statusService(item.statusValue)" >
+                          {{item.statusName }}    
+                          <span class="triangle-right"></span>
+                        </span>
+                      </div>
+                      <div class="italic text-xs text-gray-500">{{dateTimeFormat(item.approvedAt)}}</div>
+                  </div>
+                </div>
               </div>
             </el-form-item>
+
 
           </el-form>
           <el-form label-width="160px" class="basis-1/2">
@@ -606,7 +714,8 @@ const delAction = () => {
             </el-form-item>
 
             <el-form-item v-if="type === 'detail'">
-              <el-button type="danger" @click="delAction">{{ t('reuse.cancel') }}</el-button>
+              <el-button v-if="!formValue?.isApproved" @click="getFormPayment">{{ t('button.print') }}</el-button>
+              <el-button v-else type="danger" @click="delAction">{{ t('reuse.cancel') }}</el-button>
             </el-form-item>
             
             <el-form-item v-if="type === 'approval'">
@@ -621,6 +730,7 @@ const delAction = () => {
 
 </template>  
 <style scoped lang="less">
+@import '../style.scss';
 ::v-deep(.el-select){
   width: 100%;
 }
@@ -676,6 +786,13 @@ const delAction = () => {
 ::v-deep(.debtMoney) {
   .el-form-item__label {
     color: #ef4444;
+  }
+}
+
+@media screen {
+
+  #IPRFormPrint {
+    display: none;
   }
 }
 </style>

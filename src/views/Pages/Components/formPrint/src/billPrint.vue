@@ -24,6 +24,7 @@ const props = defineProps({
 })
 
 console.log('props:', props)
+console.log('dataPriceBill:', props.dataPriceBill)
 
 const policySale = [
   {
@@ -162,18 +163,18 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
             <div>{{currencyFormatter.format(getArraySum(dataEdit.orderDetails))  }}</div>
           </div>
         </div>
-        <div v-else>
+        <div v-if="nameDialog === 'billRegiter'">
           <div class="deposit flex justify-between">
             <div class="text-[20px]">{{ t('formDemo.total') }}</div>
-            <div v-if="dataEdit">{{currencyFormatter.format(getArraySum(dataEdit.orderDetails))  }}</div>
+            <div v-if="dataEdit">{{currencyFormatter.format(dataPriceBill.outstandingDebt)  }}</div>
           </div>
           <div class="deposit flex justify-between text-[#409eff]">
             <div class="text-[20px]">{{ t('formDemo.deposit') }}</div>
-            <div v-if="dataEdit">{{currencyFormatter.format(getArraySum(dataEdit.orderDetails))  }}</div>
+            <div v-if="dataEdit">{{currencyFormatter.format(dataPriceBill.inputDeposit)  }}</div>
           </div>
           <div class="deposit flex justify-between text-[#f56c6c]">
             <div class="text-[20px]">{{ t('router.cashReturn') }}</div>
-            <div v-if="dataEdit">{{currencyFormatter.format(getArraySum(dataEdit.orderDetails))  }}</div>
+            <div v-if="dataEdit">{{currencyFormatter.format(dataPriceBill.outstandingDebt-dataPriceBill.inputDeposit)  }}</div>
           </div>
         </div>
       </div>

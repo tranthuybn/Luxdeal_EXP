@@ -2819,13 +2819,13 @@ const printPaymentRequest = () => {
           />
         </slot>
       </div>
-      <div v-for="(item,index) in billRepairData" :key="index" class="hidden">
-          <div class="repairSpa">
-              <div class="page">
-                <billSpaRepair :billRepairData="item" />
-              </div>
+   <div id="repairSpa">
+    <div v-for="(item,index) in billRepairData" :key="index">
+              <slot>
+            <billSpaRepair :billRepairData="item" />
+              </slot>
           </div>
-      </div>
+   </div>
       <div id="IPRFormPrint">
         <slot>
           <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />

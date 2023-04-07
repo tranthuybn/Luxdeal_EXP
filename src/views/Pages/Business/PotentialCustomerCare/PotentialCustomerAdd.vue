@@ -8,24 +8,23 @@ import {
   UpdatePotentialCustomerHistory,
   deletePotentialCustomer,
   deletePotentialCustomerHistory,
-  getOrderList
+  getOrderList,
+  getEmployeeRatingList
 } from '@/api/Business'
-import { getEmployeeList } from '@/api/Accountant'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { useValidator } from '@/hooks/web/useValidator'
-import { onBeforeMount, onBeforeUpdate, reactive, ref, watch } from 'vue'
+import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/hooks/web/useI18n'
 import moment from 'moment'
 import {
-  ElInputNumber,
+  ElInput,
   ElCollapse,
   ElCollapseItem,
   ElButton,
   ElTable,
   ElTableColumn,
-  ElInput,
   ElDatePicker,
   ElOption,
   ElSelect,
@@ -36,11 +35,18 @@ import {
 } from 'element-plus'
 import { dateTimeFormat } from '@/utils/format'
 import { orderType } from '@/utils/format'
+import {ComponentOptions, tableChildren, tableDataType, potentialCustomerInfo, potentialCustomerHistoryInfo } from './type.d'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const { required, ValidService, requiredOption } = useValidator()
 const { t } = useI18n()
+const percentIcon = useIcon({ icon: 'material-symbols:percent' })
+const tableData = ref<tableDataType[]>([])
+const ExpandedRow = ref([])
+const router = useRouter()
+const id = Number(router.currentRoute.value.params.id)
+const type = router.currentRoute.value.params.type == ':type' ? 'add' : String(router.currentRoute.value.params.type)
 const rules = reactive({
   classify: [required(), requiredOption()],
   supplier: [required(), requiredOption()],
@@ -49,85 +55,15 @@ const rules = reactive({
   customerName: [required()],
   phonenumber: [required(), ValidService.checkPhone],
   email: [ValidService.required, ValidService.checkEmail],
-  percentageOfSales: [ValidService.checkNumber]
 })
-type FormValueType = string | number | boolean
-type ComponentOptions = {
-  label?: string
-  value?: FormValueType
-  disabled?: boolean
-  key?: string | number
-  children?: ComponentOptions[]
-  options?: ComponentOptions[]
-}
-interface tableChildren {
-  date?: string
-  customerCareContent?: String
-  manipulation?: string
-  editedChild?: Boolean
-}
-interface tableDataType {
-  id: any
-  staffId: Number
-  staffName: String
-  content: String
-  createdAt: String
-  date: any
-  percentageOfSales: number
-  manipulation: string
-  edited: Boolean
-  family: Array<tableChildren>
-}
-const percentIcon = useIcon({ icon: 'material-symbols:percent' })
 
-interface potentialCustomerInfo {
-  id: any
-  name: String
-  userName: String
-  code: String
-  phonenumber: String
-  email: String
-  link: String
-  taxCode: String
-  isOrganization: boolean
-  historyTransaction: Number
-  isOnline: Boolean
-  accessChannel: Number
-  source: Number
-  note: String
-  service: any
-  serviceDetail: string
-  orderCode: string
-  statusId: Number
-  total: Number
-}
-
-interface potentialCustomerHistoryInfo {
-  id: any
-  staffId: Number
-  content: string
-  percentageOfSales: Number
-}
-
-let tableData = ref<tableDataType[]>([])
-const ExpandedRow = ref([])
-
-//lay du lieu tu router
-const router = useRouter()
-const id = Number(router.currentRoute.value.params.id)
-let type = String(router.currentRoute.value.params.type)
-if (type == ':type') {
-  type = 'add'
-}
 const postData = async (data) => {
-  const customerHistory = reactive<
-    Array<{ id: Number; staffId: Number; content: String; percentageOfSales: Number }>
-  >([])
+  const potentialSaleList = reactive<Array<potentialCustomerHistoryInfo>>([])
   if (tableData.value.length > 0) {
     tableData.value.forEach((element) => {
       if (element.family && Array.isArray(element.family) && element.family.length > 0)
         element.family.forEach((ChildEl) => {
-          customerHistory.push({
+          potentialSaleList.push({
             id: element.staffId,
             staffId: element.staffId,
             content: ChildEl?.customerCareContent ?? '',
@@ -152,13 +88,13 @@ const postData = async (data) => {
     accessChannel: data.customerContactChannel,
     source: data.newCustomerSource,
     note: data.Note,
-    service: data.service,
+    service: data.service || NaN,
     serviceDetail: data.serviceDetails,
     orderId: 1,
     statusId: 1,
     total: 1,
     customerOrderId: data.result,
-    potentialCustomerHistorys: customerHistory
+    potentialCustomerHistorys: potentialSaleList
   }
   await addNewPotentialCustomer(payload)
     .then(() => {
@@ -603,7 +539,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     component: 'Select',
     componentProps: {
       allowCreate: true,
-      // multiple: true,
       filterable: true,
       placeholder: t('reuse.selectService'),
       style: 'width: 100%',
@@ -714,7 +649,6 @@ const collapse: Array<Collapse> = [
 
 const changeValueClassify = (data) => {
     if(data == true){
-      getCustomerOptions()
       columnProfileCustomer[3].hidden = true
       columnProfileCustomer[4].hidden = false
       columnProfileCustomer[5].hidden = false
@@ -728,15 +662,14 @@ const changeValueClassify = (data) => {
 }
 
 
-
 // get list company
 let cutomerOptions = ref<Array<ComponentOptions>>([])
-const getCustomerOptions = async () => {
+const getSaleOptions = async () => {
   if (cutomerOptions.value.length === 0) {
-    const res = await getEmployeeList({ PageIndex: 1, PageSize: 2000 })
+    const res = await getEmployeeRatingList({ PageIndex: 1, PageSize: 2000 })
     if (res && res.data.length > 0) {
       cutomerOptions.value = res.data.map((data) => ({
-        label: data.name,
+        label: data.employeeName,
         value: data.id,
         tax: data?.taxCode,
         phonenumber: data?.phonenumber,
@@ -767,7 +700,7 @@ const form = ref<FormInstance>()
 
 
 onBeforeMount(async () => {
-  await getCustomerOptions()
+  await getSaleOptions()
   await getOrdersOptions()
 })
 // add history for sale
@@ -783,13 +716,11 @@ const historyRow = reactive<tableDataType>({
   edited: true,
   family: []
 })
-onBeforeUpdate(async () => {
-  await getCustomerOptions()
-})
+
 const addNewSale = () => {
   const tempObj = { ...historyRow }
   tempObj.staffId =  tableData.value.length + 1
-  tempObj.content =  'Gặp mặt trực tiếp'
+  tempObj.content =  ''
   tempObj.date = moment().format('YYYY/MM/DD')
   tempObj.family = [
     {
@@ -825,7 +756,6 @@ const emptyFormCustom = {} as setFormCustomData
 const formDataCustomize = ref(emptyFormCustom)
 //set form value
 const customizeData = (formData) => {
-  
   formDataCustomize.value.email = formData.email
   formDataCustomize.value.phonenumber = formData.phonenumber
   formDataCustomize.value.link = formData.link
@@ -846,7 +776,7 @@ const customizeData = (formData) => {
   changeValueClassify(formDataCustomize.value.classify)
 
   formDataCustomize.value.service = formData.service
-
+  tableData.value = formData.potentialCustomerHistorys
   if (formData.statusId == 1) {
     formDataCustomize.value['status'] = 1
   }
@@ -856,11 +786,6 @@ const customizeData = (formData) => {
   if (formData.statusId == 3) {
     formDataCustomize.value['status'] = 3
   }
-
-  // tableData.value[0].family = [{}]
-  // tableData.value[0] = formData?.potentialCustomerHistorys[0]
-  // tableData.value[0].family[0].customerCareContent = formData.potentialCustomerHistorys[0]?.content?
-  // tableData.value[0].family[0].date = formData.potentialCustomerHistorys[0].createdAt?
 
 }
 
@@ -885,7 +810,7 @@ const customPostData = (data) => {
   customData.source = data.newCustomerSource
   customData.note = data.Note
   // customData.service = []
-  customData.service = data.service
+  customData.service = data.service || 0
   
   customData.serviceDetail = data.serviceDetails
   customData.orderCode = ''
@@ -903,22 +828,6 @@ const customPostDataHistory = (data) => {
   customDataHistory.content = data.content
   customDataHistory.percentageOfSales = data.percentageOfSales
   return customDataHistory
-}
-const curPercent = ref(0)
-const checkPercentage = () => {
-  curPercent.value = 0.
-  
-  tableData.value.forEach(element => {
-    curPercent.value += element?.percentageOfSales
-  });
-  
-  curPercent.value > 100 ? ElNotification({
-    message: 'Tổng các doanh số đơn hàng không được lớn hơn 100%, nhập lại!',
-    type: 'warning',
-  }) : ElNotification({
-    message: 'Đã hợp lệ',
-    type: 'success',
-  })
 }
 
 const editData = async (data) => {
@@ -941,16 +850,11 @@ const editData = async (data) => {
     )
 }
 
-const disabelForm = ref(false)
+const disabledForm = ref(false)
 const btnAddSale = ref(false)
 watch(
   () => type,
   () => {
-    if ( type === 'add' || type === ':type') {
-      disabelForm.value = true
-      btnAddSale.value = true
-    }
-
     if(type == 'detail'){
       btnAddSale.value = true
     }
@@ -994,202 +898,191 @@ watch(
           <el-button class="header-icon" :icon="collapse[0].icon" link />
           <span class="text-center text-xl">{{ t('reuse.saleHistoryCustomerCare') }}</span>
         </template>
-        <el-form ref="form" :disabled="disabelForm" label-width="20px">
-          <div>
-            <div>
-              <el-table
-                :data="tableData"
-                :border="true"
-                :expand-row-keys="ExpandedRow"
-                row-key="id"
-              >
-                <el-table-column type="expand">
-                  <template #default="props">
-                    <div>
-                      <h3 style="text-align: center" class="font-medium text-lg">{{
-                        t('reuse.historySaleCustomerCare')
-                      }}</h3>
-                      <div class="flex w-[100%] justify-center">
-                        <el-table fixed class="flex justify-center" :data="props.row.family">
-                          <el-table-column
-                            :label="`${t('reuse.customerCareContent')}`"
-                            prop="customerCareContent"
-                            width="700"
+        <el-form class="px-4" ref="form" :disabled="disabledForm" label-width="20px">
+          <el-table
+            :data="tableData"
+            :border="true"
+            :expand-row-keys="ExpandedRow"
+            row-key="id"
+          >
+            <el-table-column type="expand">
+              <template #default="props">
+                <div class="my-5">
+                  <h3 class="font-medium text-lg text-center py-4">
+                    {{ t('reuse.historySaleCustomerCare') }}
+                  </h3>
+                  <div class="flex w-[100%] justify-center">
+                    <el-table fixed class="flex justify-center" :data="props.row.family" :border="true">
+                      <el-table-column
+                        :label="`${t('reuse.customerCareContent')}`"
+                        prop="customerCareContent"
+                        width="700"
+                      >
+                        <template #default="data">
+                          <ElInput
+                            v-model="data.row.customerCareContent"
+                            v-if="data.row.editedChild"
+                          />
+                          <div v-else>{{ data.row.customerCareContent }}</div>
+                        </template>
+                      </el-table-column>
+                      <el-table-column :label="`${t('reuse.date')}`" prop="date" width="220">
+                        <template #default="data">
+                          <!-- <ElInput v-model="data.row.date" v-if="data.row.editedChild" />
+                        <div v-else>{{ data.row.date }}</div> -->
+                          <el-date-picker
+                            v-model="data.row.date"
+                            v-if="data.row.editedChild"
+                            type="date"
+                            placeholder="Pick a day"
+                            :disabled-date="disabledDate"
+                            :size="size"
+                            format="DD/MM/YYYY"
+                            value-format="YYYY-MM-DD"
+                          />
+                          <div v-else type="date" :size="size">{{
+                            dateTimeFormat(data.row.date)
+                          }}</div>
+                        </template>
+                      </el-table-column>
+                      <el-table-column
+                        :label="`${t('formDemo.manipulation')}`"
+                        prop="manipulation"
+                        width="150"
+                      >
+                        <template #default="child">
+                          <el-button
+                            v-if="child.row.editedChild"
+                            type="primary"
+                            size="default"
+                            @click.prevent="handleItemEdit(child, props)"
                           >
-                            <template #default="data">
-                              <ElInput
-                                v-model="data.row.customerCareContent"
-                                v-if="data.row.editedChild"
-                              />
-                              <div v-else>{{ data.row.customerCareContent }}</div>
-                            </template>
-                          </el-table-column>
-                          <el-table-column :label="`${t('reuse.date')}`" prop="date" width="220">
-                            <template #default="data">
-                              <!-- <ElInput v-model="data.row.date" v-if="data.row.editedChild" />
-                            <div v-else>{{ data.row.date }}</div> -->
-                              <el-date-picker
-                                v-model="data.row.date"
-                                v-if="data.row.editedChild"
-                                type="date"
-                                placeholder="Pick a day"
-                                :disabled-date="disabledDate"
-                                :size="size"
-                                format="DD/MM/YYYY"
-                                value-format="YYYY-MM-DD"
-                              />
-                              <div v-else type="date" :size="size">{{
-                                dateTimeFormat(data.row.date)
-                              }}</div>
-                            </template>
-                          </el-table-column>
-                          <el-table-column
-                            :label="`${t('formDemo.manipulation')}`"
-                            prop="manipulation"
-                            width="180"
+                            {{ t('reuse.save') }}
+                          </el-button>
+                          <el-button
+                            v-else
+                            size="default"
+                            @click="handleItemEdit(child, props)"
+                            >{{ t('formDemo.edit') }}</el-button
                           >
-                            <template #default="child">
-                              <el-button
-                                v-if="child.row.editedChild"
-                                type="primary"
-                                size="default"
-                                @click.prevent="handleItemEdit(child, props)"
-                              >
-                                {{ t('reuse.save') }}
-                              </el-button>
-                              <el-button
-                                v-else
-                                size="default"
-                                @click="handleItemEdit(child, props)"
-                                >{{ t('formDemo.edit') }}</el-button
-                              >
-                              <el-button
-                                size="default"
-                                type="danger"
-                                @click="handleItemDelete(child.$index, props)"
-                                >{{ t('reuse.delete') }}</el-button
-                              >
-                            </template>
-                          </el-table-column>
-                        </el-table>
-                      </div>
-                      <div class="flex w-[100%] justify-center">
-                        <div class="w-[1040px]"
-                          ><el-button
-                            class="mt-4"
-                            style="width: 14%"
-                            @click="addActions(props.$index)"
-                            >+ {{ t('reuse.addActions') }}</el-button
-                          ></div
-                        >
-                      </div>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  :label="`${t('reuse.sale')}`"
-                  prop="staffId"
-                  class="text-black font-bold"
-                  width="150"
+                          <el-button
+                            size="default"
+                            type="danger"
+                            @click="handleItemDelete(child.$index, props)"
+                            >{{ t('reuse.delete') }}</el-button
+                          >
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </div>
+                  <div class="flex w-[100%] justify-center">
+                    <div class="w-[1040px]"><el-button
+                        class="mt-4 w-36"
+                        @click="addActions(props.$index)"
+                        >+ {{ t('reuse.addActions') }}
+                      </el-button>
+                      </div
+                    >
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+
+            <el-table-column
+              :label="`${t('reuse.sale')}`"
+              prop="staffId"
+              class="text-black font-bold"
+              min-width="150"
+            >
+              <template #default="data">
+                Sale {{ data.row.staffId }}
+              </template>
+            </el-table-column>
+            <el-table-column :label="`${t('reuse.lastContent')}`" prop="content" min-width="720">
+              <template #default="scope">
+                <!-- <el-input v-model="scope.row.lastContent" v-if="scope.row.edited" /> -->
+                <div>{{ scope.row.content }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column :label="`${t('reuse.date')}`" prop="createdAt" min-width="220">
+              <template #default="data">
+                <!-- <ElInput v-model="data.row.date" v-if="data.row.edited" /> -->
+                <div> {{ dateTimeFormat(data.row.createdAt) }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column :label="`${t('reuse.saleName')}`" prop="staffName" min-width="250">
+              <template #default="props">
+                <el-select
+                  v-model="props.row.staffName"
+                  filterable
+                  class="m-2"
+                  size="large"
+                  v-if="props.row.edited"
                 >
-                  <template #default="data">
-                    {{ data.row.staffId }}
-                  </template>
-                </el-table-column>
-                <el-table-column :label="`${t('reuse.lastContent')}`" prop="content" width="720">
-                  <template #default="scope">
-                    <!-- <el-input v-model="scope.row.lastContent" v-if="scope.row.edited" /> -->
-                    <div>{{ scope.row.content }}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column :label="`${t('reuse.date')}`" prop="createdAt" width="220">
-                  <template #default="data">
-                    <!-- <ElInput v-model="data.row.date" v-if="data.row.edited" /> -->
-                    <div> {{ dateTimeFormat(data.row.createdAt) }}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column :label="`${t('reuse.saleName')}`" prop="staffName" width="250">
-                  <!-- <template #default="data">
-                  <ElInput v-model="data.row.saleName" v-if="data.row.edited" />
-                  <div v-else>{{ data.row.saleName }}</div>
-                </template> -->
-                  <template #default="props">
-                    <el-select
-                      v-model="props.row.staffName"
-                      filterable
-                      class="m-2"
-                      size="large"
-                      v-if="props.row.edited"
-                    >
-                      <el-option
-                        v-for="(item, index) in cutomerOptions"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value!"
-                      />
-                    </el-select>
-                    <div v-else>{{ props.row.staffName }}</div>
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  :label="`${t('reuse.orderSalesAssign')}`"
-                  prop="percentageOfSales"
-                  :rules="rules.percentageOfSales"
+                  <el-option
+                    v-for="(item, index) in cutomerOptions"
+                    :key="index"
+                    :label="item.label"
+                    :value="item.value!"
+                  />
+                </el-select>
+                <div v-else>{{ props.row.staffName }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              :label="`${t('reuse.orderSalesAssign')}`"
+              prop="percentageOfSales"
+              min-width="200"
+            >
+              <template #default="data">
+                <el-form-item
+                  v-if="data && data.$index >= 0"
+                  label=" "
+                  :prop="'dataList.' + data.$index + '.name'"
+                  style="margin: 0"
+                  size="large"
                 >
-                  <template #default="data">
-                    <el-form-item
-                      v-if="data && data.$index >= 0"
-                      label=" "
-                      :prop="'dataList.' + data.$index + '.name'"
-                      :rules="[]"
-                    >
-                      <el-input-number
-                        controls-position="right"
-                        :min="0"
-                        :max="100"
-                        @change="checkPercentage"
-                        v-model="data.row.percentageOfSales"
-                        :suffix-icon="percentIcon"
-                        v-if="data.row.edited"
-                      />
-                      <div v-else>{{ data.row.percentageOfSales }}</div>
-                    </el-form-item>
-                  </template>
-                </el-table-column>
-                <el-table-column :label="`${t('formDemo.manipulation')}`" prop="manipulation">
-                  <template #default="scope">
-                    <el-button
-                      v-if="scope.row.edited"
-                      type="primary"
-                      size="default"
-                      @click.prevent="handleSave(scope.row)"
-                    >
-                      {{ t('reuse.save') }}
-                    </el-button>
-                    <el-button
-                      v-else
-                      type="primary"
-                      size="default"
-                      @click.prevent="handleEdit(scope.row)"
-                    >
-                      {{ t('formDemo.edit') }}
-                    </el-button>
-                    <el-button
-                      type="danger"
-                      size="default"
-                      @click.prevent="handleDelete(scope.$index)"
-                    >
-                      {{ t('reuse.delete') }}
-                    </el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </div>
-          </div>
+                  <el-input
+                    controls-position="right"
+                    v-model="data.row.percentageOfSales"
+                    :suffix-icon="percentIcon"
+                    v-if="data.row.edited"
+                  />
+                  <div v-else>{{ data.row.percentageOfSales }}</div>
+                </el-form-item>
+              </template>
+            </el-table-column>
+            <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="150" prop="manipulation">
+              <template #default="scope">
+                <el-button
+                  v-if="scope.row.edited"
+                  type="primary"
+                  size="default"
+                  @click.prevent="handleSave(scope.row)"
+                >
+                  {{ t('reuse.save') }}
+                </el-button>
+                <el-button
+                  v-else
+                  size="default"
+                  @click.prevent="handleEdit(scope.row)"
+                >
+                  {{ t('formDemo.edit') }}
+                </el-button>
+                <el-button
+                  type="danger"
+                  size="default"
+                  @click.prevent="handleDelete(scope.$index)"
+                >
+                  {{ t('reuse.delete') }}
+                </el-button>
+              </template>
+            </el-table-column>
+            </el-table>
         </el-form>
-        <el-button class="mt-4" style="width: 7%" @click="addNewSale" :disabled="btnAddSale"
-                >+ {{ t('reuse.addSale') }} </el-button
-              >
+        <el-button class="mt-4 w-32 mx-4" @click="addNewSale" :disabled="btnAddSale"> 
+          + {{ t('reuse.addSale') }} 
+        </el-button>
       </el-collapse-item>
     </el-collapse>
   </div>

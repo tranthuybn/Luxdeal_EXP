@@ -551,6 +551,7 @@ const postCustomer = async (typebtn) => {
     BankId: ruleForm.bankName,
     Files: ListFileUpload.value.map((file) => file.raw).filter((file) => file !== undefined)
   }
+
   const formDataPayLoad = FORM_IMAGES(payload)
   await addNewCustomer(formDataPayLoad)
     .then(() => {
@@ -571,7 +572,7 @@ const postCustomer = async (typebtn) => {
     })
     .catch(() => 
        ElNotification({
-        message: t('reuse.duplicateInformation'),
+        message: t('reuse.addFail'),
         type: 'error'
       })
      )

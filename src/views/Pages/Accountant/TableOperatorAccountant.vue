@@ -222,7 +222,7 @@ const customizeData = async () => {
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
-  const { setValues, setSchema } = methods
+  const { setValues, setSchema, setProps } = methods
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
     const ImageNull = props.formDataCustomize.imageurl
@@ -247,7 +247,6 @@ const setFormValue = async () => {
   } else {
     setValues(formValue.value)
   }
-
   // If an accountNumber in detail balance is assigned in a receiptForm (or paymentForm), disabled some filed
   if(formValue.value.iStatus && props.type == 'edit' && props.module == 2) {
     const arrField = ['typeAccount', 'accountNumber1', 'accountNumber2', 'status']
@@ -274,25 +273,17 @@ const setFormValue = async () => {
     ))
     isDisabled.value = true
     setSchema(config)
+  } else if(!formValue.value.isApproved && props.module == 1) {
+    setProps({disabled: true})
   }
-
 }
+
 //Get data when click detail or edit button
 watch(
   () => props.type,
   async () => {
-    if (props.type === 'detail' || props.type === 'approval') {
-      const { setProps, setSchema } = methods
-      if(props.module === 2) setProps({disabled: true})
-
-      setSchema(
-        schema.map((component) => ({
-          field: component.field,
-          path: 'componentProps.placeholder',
-          value: ''
-        }))
-      )
-    }
+    const { setProps } = methods
+    if (props.type === 'detail' && props.module === 2 || props.type === 'approval') setProps({disabled: true})
     if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
       getTableValue()
     }
@@ -302,6 +293,7 @@ watch(
     immediate: true
   }
 )
+
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData,
@@ -981,20 +973,19 @@ const statusHistory = reactive([{
              <ElButton v-if="formValue?.isApproved" class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
                 {{ t('button.print') }}
               </ElButton>
-              <ElButton v-if="formValue?.accounted && formValue?.isApproved" @click="handleCarrying" class="pl-8 pr-8" :loading="loading">
+              <ElButton v-if="!formValue?.accounted && formValue?.isApproved" @click="handleCarrying" class="pl-8 pr-8" :loading="loading">
                 {{ t('button.carrying') }}
               </ElButton>
-              <ElButton v-if="formValue?.accounted && formValue?.isApproved " type="primary" @click="handleAccounting" :disabled="!formValue?.transacted || !formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
+              <ElButton v-if="!formValue?.accounted && formValue?.isApproved " type="primary" @click="handleAccounting" :disabled="!formValue?.transacted || !formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
                 {{ t('reuse.accounting') }}
               </ElButton>
-              <ElButton v-if="!formValue?.accounted && formValue?.isApproved" type="primary" @click="cancelAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
+              <ElButton v-if="formValue?.accounted && formValue?.isApproved" type="primary" @click="cancelAccounting" class="pl-8 pr-8" :loading="loading">
                 {{ t('reuse.cancelAccounting') }}
               </ElButton>
              <ElButton v-if="userPermission?.deletable && !formValue?.accounted" :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
               {{ t('reuse.cancel') }}
              </ElButton>
           </div>
-          
         </div>
       </div>
       <div class="pl-57" v-if="props.type === 'approval'">

@@ -43,10 +43,12 @@ import {
   updeteStaffAccount,
   deleteStaffAccount
 } from '@/api/HumanResourceManagement'
-
 import { useValidator } from '@/hooks/web/useValidator'
 import { getEmployeeById } from '@/api/Accountant'
 import { API_URL } from '@/utils/API_URL'
+
+const centerDialogCancelAccount = ref(false)
+const { push } = useRouter()
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const showPassword = ref(true)
@@ -259,18 +261,7 @@ const bankList = [
 ]
 
 const alwayShowAdd = ref(false)
-watch(
-  () => type,
-  () => {
-    if (type === 'detail' || type === 'edit') {
-      alwayShowAdd.value = false
-    }
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
+
 const { register } = useForm()
 let disableData = ref(false)
 
@@ -383,6 +374,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
       checkValidateForm.value = false
     }
   })
+
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
       checkValidate.value = true
@@ -398,11 +390,6 @@ const cancel = async () => {
     name: 'human-resource-management.personnel-accounts',
   })
 }
-
-// const resetForm = (formEl: FormInstance | undefined) => {
-//   if (!formEl) return
-//   formEl.resetFields()
-// }
 
 let FileDeleteIds: any = []
 
@@ -454,7 +441,7 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
     `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
       'reuse.total'
-    )}${files.length + uploadFiles.length}`
+    )} ${files.length + uploadFiles.length}`
   )
 }
 
@@ -462,9 +449,6 @@ const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
 }
-const centerDialogCancelAccount = ref(false)
-
-const { push } = useRouter()
 const editPage = async () => {
   push({
     name: `${String(router.currentRoute.value.name)}`,
@@ -507,8 +491,6 @@ const postData = async (typebtn) => {
       ConfirmPassword: ruleForm.confirmPassword,
       RoleId: ruleForm.roleAcces || 0,
     }
-
-    console.log('post lên', payload)
     const formDataPayLoad = FORM_IMAGES(payload)
     await addNewStaff(formDataPayLoad)
       .then(() => {
@@ -668,8 +650,20 @@ onBeforeMount(() => {
   CallApiPosition()
   CallApiStaff()
   callApiGetRoleList()
-
 })
+watch(
+  () => type,
+  () => {
+    if (type === 'detail' || type === 'edit') {
+      getTableValue()
+      alwayShowAdd.value = false
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 
 const deleteAccount = async () => {
   await deleteStaffAccount({ Id: id })
@@ -1064,7 +1058,7 @@ const cancelEditPassword = () => {
               <div class="flex">
                 <div class="pl-5">
                   <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
-                  <div class="text-right text-[#FECB80] italic">Dưới 10 hồ sơ</div>
+                  <div class="text-right text-[#FECB80] italic">{{ t('formDemo.lessThanTenProfiles') }}</div>
                 </div>
                 <div class="pl-4">
                   <el-upload

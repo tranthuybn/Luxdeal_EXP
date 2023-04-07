@@ -43,6 +43,7 @@ const rules = reactive({
   enterMoney: [required()],
   typeOfPayment: [required()],
   peopleType: [required()],
+  accountNumber: [required()],
 })
 
 //random field code
@@ -175,17 +176,12 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'paid',
     label: t('reuse.payment'),
-    component: 'Radio',
+    component: 'CheckboxSingle',
     colProps: {
       span: 18
     },
     componentProps: {
-      options: [
-        {
-          label: t('reuse.collectedMoney'),
-          value: true
-        }
-      ]
+      label: t('reuse.collectedMoney')
     }
   },
   {
@@ -328,7 +324,7 @@ const currentCollapse = ref<string>(collapse[0].name)
 <style lang="less" scoped>
 
   ::v-deep(.btn-wrap) {
-    margin-left: 150px;
+    margin-left: 168px;
   }
 
   ::v-deep(.el-select) {

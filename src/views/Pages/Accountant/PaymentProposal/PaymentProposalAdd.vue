@@ -315,7 +315,7 @@ onBeforeMount(async () => {
     PageSize: pageSize.value
   })
   peopleOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
-  editData()
+  getData()
 })
 
 const handleScroll = (field) => {
@@ -367,7 +367,7 @@ const approvalPayments = async (val) => {
 }
 
 // Xem detail or edit or approved 
-const editData = () => {
+const getData = () => {
   if (type == 'approval' || type == 'detail' || type == 'edit') {
     getDetailPayment()
     disableForm.value = type == 'approval' || type == 'detail'

@@ -172,18 +172,14 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'paid',
     label: t('reuse.payment'),
-    component: 'Radio',
-    value: false,
+    component: 'CheckboxSingle',
     colProps: {
       span: 18
     },
     componentProps: {
-      options: [
-        {
-          label: t('formDemo.paidMoney'),
-          value: true
-        }
-      ]
+      componentProps: {
+      label: t('reuse.collectedMoney')
+    }
     }
   },
   {
@@ -202,9 +198,9 @@ const customizeData = async (data) => {
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney
-  setFormData.createdBy = `${data.createdByObject?.name} | ${data.createdByObject?.value}` || ''
+  setFormData.createdBy = data.createdBy
   setFormData.createdAt = formartDate(data.createdAt)
-  setFormData.peopleType = `${data.peopleObject?.name} | ${data.peopleObject?.value}` || ''
+  setFormData.peopleType = data.peopleId
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
   setFormData.accountNumber = data.fundID

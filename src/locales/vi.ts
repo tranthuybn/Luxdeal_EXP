@@ -959,6 +959,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    chooseOptions: 'Chọn',
     approveUserAccount: 'Duyệt tài khoản người dùng',
     approveCollaborator: 'Duyệt tài khoản CTV',
     labelPaymentProposalprint: 'Giấy đề nghị thanh toán',

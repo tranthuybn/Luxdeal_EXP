@@ -493,12 +493,12 @@ export const statusOrder = (val) => {
 
 export const formatStatusProductAndService = (val) => {
   switch (val) {
-    case 0:
-      return t('reuse.approval')
     case 1:
-      return t('reuse.active')
+      return t('reuse.approval')
     case 2:
-      return t('reuse.pause')
+      return t('reuse.active')
+    case 3:
+      return t('reuse.stopActive')
     default:
       return ''
   }

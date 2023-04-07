@@ -211,7 +211,7 @@ const customizeData = async (data) => {
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
   setFormData.paid = data.transacted
-  setFormData.accountNumber = data.accountNumber
+  setFormData.accountNumber = data.account
 }
 
 const customData = (data) => {

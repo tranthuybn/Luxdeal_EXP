@@ -1560,4 +1560,3 @@ export default [
     }
   }
 ] as MockMethod[]
-

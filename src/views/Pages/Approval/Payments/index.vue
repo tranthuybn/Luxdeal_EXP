@@ -65,6 +65,7 @@ const action = (scope: any, _type: string) => {
     })
   }
 }
+
 </script>
 <template>
   <ContentWrap

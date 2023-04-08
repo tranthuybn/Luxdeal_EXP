@@ -152,5 +152,6 @@ export const testList: string[] = [
     "/human-resource-management/department-directory",
     "/human-resource-management/department-directory-utility/:type?/:tab?/:id?",
     "/human-resource-management/set-role",
-    "/human-resource-management/set-role-utility/:type?/:id?"
+    "/human-resource-management/set-role-utility/:type?/:id?",
+    
   ]

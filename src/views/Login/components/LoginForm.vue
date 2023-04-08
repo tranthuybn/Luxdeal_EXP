@@ -13,7 +13,7 @@ import { useRouter } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { UserType } from '@/api/login/types'
 import { useValidator } from '@/hooks/web/useValidator'
-import {testList} from '../../../testRouter'
+
 const { required, notSpecialCharacters } = useValidator()
 
 // const emit = defineEmits(['to-register'])
@@ -183,27 +183,26 @@ const generateRouter = (routers) => {
     // save roles in local storage
   wsCache.set(permissionStore.getRouterByRoles, routers)
     //  generate router by roles
-  // const urlList = routers.map((el) => el.url)
-
-  permissionStore.generateRoutes(testList, 'client').then(() => { 
-      if(permissionStore.getAddRouters.length > 0)
-        permissionStore.getAddRouters.forEach((route) => { 
-        addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table
-      })
-      permissionStore.setIsAddRouters(true)
-      push({ path: permissionStore.addRouters[0].path })
-      ElNotification({
-        message: t('login.welcome'),
-        type: 'success'
-      })
-    }).catch((err) => { 
-        console.error(err);
-        ElNotification({
-          message: 'can not generate directory',
-          type: 'error'
-        })
-        inValidAccountAccess(permissionStore.getRouterByRoles)
+  const urlList = routers.map((el) => el.url)
+  permissionStore.generateRoutes(urlList, 'client').then(() => { 
+    if(permissionStore.getAddRouters.length > 0)
+      permissionStore.getAddRouters.forEach((route) => { 
+      addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table
     })
+    permissionStore.setIsAddRouters(true)
+    push({ path: permissionStore.addRouters[0].path })
+    ElNotification({
+      message: t('login.welcome'),
+      type: 'success'
+    })
+  }).catch((err) => { 
+      console.error(err);
+      ElNotification({
+        message: 'can not generate directory',
+        type: 'error'
+      })
+      inValidAccountAccess(permissionStore.getRouterByRoles)
+  })
 }
 const getUserInfoByAccountId =  (id) => {
    getStaffInfoByAccountId({ Id: id })

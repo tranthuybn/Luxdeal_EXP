@@ -37,13 +37,13 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment';
 import { useRoute, useRouter } from 'vue-router'
-import { changeMoney, printPage, currentUser } from '@/utils/tsxHelper'
+import { changeMoney, printPage } from '@/utils/tsxHelper'
 import { IDetailExpenses } from '../types/PaymentProposal.d'
 import { useValidator } from '@/hooks/web/useValidator'
 import { statusService } from '@/utils/status'
 import paymentOrderPrint from '@/views/Pages/Components/formPrint/src/paymentOrderPrint.vue'
 
-
+const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 const { t } = useI18n()
 const escape = useIcon({ icon: 'quill:escape' })
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })

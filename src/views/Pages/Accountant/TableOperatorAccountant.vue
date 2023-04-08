@@ -32,9 +32,10 @@ import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getStaffList, getAllCustomer, getAccountantList, balanceAccount, cancelBalanceAccount } from '@/api/Business'
 import { IStatusHistory, ListImages } from './types'
-import { usePermission, printPage, formartDate, currentUser } from '@/utils/tsxHelper'
+import { usePermission, printPage, formartDate } from '@/utils/tsxHelper'
 import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
 
+const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const { push } = useRouter()
@@ -600,14 +601,6 @@ const approvalProduct = async (val) => {
 }
 
 const handleAccounting = async () => {
-  statusHistory.push(
-    {
-    statusName: t('reuse.planned'),
-    statusValue: 3, 
-    approvedAt: currentDate.value,
-    isActive: true
-    }, 
-  )
   const payload = {
     AccountId: formValue.value.accountNumber,
     ReceiptId: formValue.value.id,
@@ -632,13 +625,10 @@ const handleAccounting = async () => {
 }
 const cancelAccounting = async () => {
   const payload = {
-    AccountId: formValue.value.accountNumber,
+    AccountingId: formValue.value.accountNumber,
     ReceiptId: formValue.value.id,
     User: formValue.value.createdBy,
   }
-  formValue.value.isAccounted = !formValue.value.isAccounted
-  formValue.value.isTransacted = !formValue.value.isTransacted
-  setStatusHistory()
   await cancelBalanceAccount(payload)
   .then(() => {
       ElNotification({
@@ -646,6 +636,9 @@ const cancelAccounting = async () => {
         type: 'success'
       })
 
+      formValue.value.isAccounted = !formValue.value.isAccounted
+      formValue.value.isTransacted = !formValue.value.isTransacted
+      setStatusHistory()
     })
   .catch(() =>
     ElNotification({
@@ -707,13 +700,13 @@ const setStatusHistory = () => {
     {
       statusName: formValue.value?.type == 1 ? t('reuse.collectedMoney') : t('formDemo.paidMoney'),
       statusValue: 2, 
-      approvedAt: formartDate(formValue.value?.transactedAt),
+      approvedAt: formartDate(formValue.value?.transactedAt) || currentDate.value,
       isActive: formValue.value?.isTransacted,
     }, 
     {
       statusName: t('reuse.planned'),
       statusValue: 3, 
-      approvedAt: formartDate(formValue.value?.accountedAt),
+      approvedAt: formartDate(formValue.value?.accountedAt) || currentDate.value,
       isActive: formValue.value?.isAccounted ,
     }, 
     {
@@ -970,7 +963,7 @@ const setStatusHistory = () => {
               <ElButton v-if="!formValue?.isAccounted  && formValue?.isApproved" @click="save('edit')" class="pl-8 pr-8" :loading="loading">
                 {{ t('button.carrying') }}
               </ElButton>
-              <ElButton v-if="!formValue?.isAccounted  && formValue?.isApproved " type="primary" @click="handleAccounting" :disabled="!formValue?.transacted || !formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
+              <ElButton v-if="!formValue?.isAccounted  && formValue?.isApproved " type="primary" @click="handleAccounting" class="pl-8 pr-8" :loading="loading">
                 {{ t('reuse.accounting') }}
               </ElButton>
               <ElButton v-if="formValue?.isAccounted  && formValue?.isApproved" type="primary" @click="cancelAccounting" class="pl-8 pr-8" :loading="loading">

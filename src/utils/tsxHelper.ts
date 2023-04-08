@@ -71,4 +71,3 @@ export function printPage(id: string) {
     WinPrint?.close()
   }, 800)
 }
-export const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}

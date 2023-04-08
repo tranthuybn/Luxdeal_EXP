@@ -261,4 +261,5 @@ export const CHAT_API = {
   USER_LIST_CHAT: '/api/users',
   MESSAGE_LIST_GROUP_CHAT: '/api/message/',
   GROUP_CHAT: '/api/groupChat/',
+  TYPECHAT: './api/chat_types'
 }

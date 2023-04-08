@@ -1,33 +1,29 @@
 <template>
   <section class="!h-87vh">
     <el-tabs v-model="activeName" class="library-tab h-full" tab-position="left" stretch>
-      <el-tab-pane
-:name="item.value" v-for="item in listTypeMessage" :key="item.value"
-        @click="getTypeMessage(item.value)">
+      <el-tab-pane :name="item.name" v-for="item in listTypeMessages" :key="item.name"
+        @click="getTypeMessage(item)">
         <template #label>
           <div
             class="library-tab__name pr-2 w-full h-full dark:(text-white) text-center flex flex-col content-center items-center pt-4"
             :class="{ active: item.isActive }">
             <Icon icon="ps:headset" :size="24" />
-            <div
-style="word-break: break-word"
-              class="whitespace-normal overflow-ellipsis w-full overflow-hidden leading-normal">{{ item.label }}</div>
+            <div style="word-break: break-word"
+              class="whitespace-normal overflow-ellipsis w-full overflow-hidden leading-normal">{{ item.name }}</div>
           </div>
         </template>
       </el-tab-pane>
       <div class="message-box h-full">
         <el-row class="h-full w-full bg-white dark:bg-[var(--el-bg-color)]">
           <div class="border-x dark:!bg-[var(--el-bg-color)] flex-grow min-w-1/2 h-full">
-            <MessagePanel
-v-if="selectedUser" :user="selectedUser" ref="childComponentRef"
+            <MessagePanel v-if="selectedUser" :user="selectedUser" ref="childComponentRef"
               :messagesOfCurrentUser="selectedUser" @send-data="receiveDataFromChild" :typeMessage="typeMessageSelected"
               :channelId="isChannelId" @input="onMessage" />
           </div>
           <el-col :span="5" class="h-full" id="hideDocument">
             <el-card class="message-box__right-site flex flex-col !h-full">
               <div class="message-box__child-title !sticky top-0 z-5 bg-white dark:!bg-[var(--el-bg-color)] py-4 mb-4">
-                <el-button
-:icon="rightArrow" @click="hideDocumentList()"
+                <el-button :icon="rightArrow" @click="hideDocumentList()"
                   class="!flex !border-0 !w-full !justify-between !font-bold !py-4 !rounded-none">{{ t('reuse.document')
                   }}</el-button>
               </div>
@@ -75,15 +71,12 @@ v-if="selectedUser" :user="selectedUser" ref="childComponentRef"
           </el-col>
           <el-col :span="5" class="h-full user_input">
             <el-card class="message-box__left-site h-full">
-              <div
-class="!sticky top-0 z-5 bg-white dark:!bg-[var(--el-bg-color)] mb-4"
+              <div class="!sticky top-0 z-5 bg-white dark:!bg-[var(--el-bg-color)] mb-4"
                 style="box-shadow: var(--el-box-shadow-light)">
-                <el-input
-class="p-4 h-70px" :placeholder="`${t('reuse.findNameAccount')} ...`" v-model="searchPeople"
-                  :suffix-icon="searchIcon" @keydown.enter="SearchUser"  />
+                <el-input class="p-4 h-70px" :placeholder="`${t('reuse.findNameAccount')} ...`" v-model="searchPeople"
+                  :suffix-icon="searchIcon" @keydown.enter="SearchUser" />
               </div>
-              <UserList
-v-for="user in users" :key="user._id" :user="user" :typeMessage="typeMessageSelected"
+              <UserList v-for="user in users" :key="user._id" :user="user" :typeMessage="typeMessageSelected"
                 :selected="selectedUser === user" @select="onSelectUser(user)" @send-data="handleData" />
               <!-- <div class="absolute bottom-10px right-10px"><el-avatar
 :src="user.avatar" v-for="user in popUpChat"
@@ -108,7 +101,7 @@ import dIcon from '@/assets/svgs/chat/d.svg'
 import emptyIcon from '@/assets/svgs/chat/emtpy.svg'
 import moment from 'moment'
 import MessagePanel from './MessagePanel.vue'
-import { getEmployeeList } from '@/api/ChatBot'
+import { getEmployeeList,getTypeChat } from '@/api/ChatBot'
 import { ERP_DOMAIN_CHATS_URL, ERP_DOMAIN_SOCKET_URL } from '@/utils/API_URL'
 
 import {
@@ -122,6 +115,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useCache } from '@/hooks/web/useCache'
 import { usePermissionStore } from '@/store/modules/permission'
+import { getMessageChat ,getGroupIDChat} from '@/api/ChatBot'
 import { ref } from 'vue';
 const childComponentRef = ref(0);
 const { t } = useI18n()
@@ -137,6 +131,7 @@ export default {
   components: {
     MessagePanel
   },
+  
   data() {
     return {
       TYPE_OF_MESSAGE_PAWN,
@@ -146,7 +141,7 @@ export default {
       ws,
       emptyIcon,
       searchIcon,
-      activeName: TYPE_OF_MESSAGE_SELECTED,
+      activeName: null,
       typeMessageSelected: TYPE_OF_MESSAGE_SELECTED,
       search: '',
       searchPeople: '',
@@ -262,6 +257,7 @@ export default {
         }
       ],
       listTypeMessage: TYPE_OF_MESSAGE,
+      listTypeMessages: null,
       dataSocket: null,
       selfs
     }
@@ -269,7 +265,6 @@ export default {
   watch: {
     selectedUser: {
       handler() {
-        //this.documentList = []
         this.getDocument()
       }
     },
@@ -290,6 +285,11 @@ export default {
           this.handleData(val)
         }
       }
+    },
+    searchPeople: {
+      handler() {
+        this.SearchUser()
+      }
     }
 
   },
@@ -297,10 +297,12 @@ export default {
 
   },
   created() {
+    this.getTypeChats();
     this.getUser();
   },
-  mounted() {
+  async mounted() {
     // this.handleData("HHHHH")
+    await this.getUser();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this
     if (ws) {
@@ -312,7 +314,13 @@ export default {
       console.log("Connection opened!");
     };
     ws.addEventListener("message", function incoming(data) {
-      _this.dataSocketSent(data)
+      // console.log(data)
+      if(data.data == "close" || data.data == "open"){
+        _this.getUser()
+      }else{
+        _this.dataSocketSent(data)
+      }
+     
     });
     ws.onclose = function () {
       ws = null;
@@ -324,12 +332,18 @@ export default {
       // this.$refs.childComponentRef.showMessage(JSON.parse(data))
     },
     handleData(data) {
+      console.log("66666666666666666666")
+      console.log(data)
       this.$refs.childComponentRef.showMessage1(data.message)
+    },
+    handleDataType(data) {
+      console.log(data)
+      this.$refs.childComponentRef.showMessage1(data)
     },
     dataSocketSent(data) {
       // this.users
       var dataSK = JSON.parse(data.data);
-      // console.log( data)
+      console.log("999999999999999999999999999999999")
 
       if (dataSK.sender.id != wsCache.get(permissionStore.getUserIDReceive)) {
         for (var i = 0; i < this.users.length; i++) {
@@ -341,7 +355,6 @@ export default {
       this.$refs.childComponentRef.showMessageSocketRe(dataSK)
     },
     onSelectUser(user) {
-      console.log(user)
       user.countMessage = 0;
       this.selectedUser = user
       user.hasNewMessages = true
@@ -357,9 +370,35 @@ export default {
     getDocument() {
       console.log('getDocument')
     },
-    getTypeMessage(val) {
-      this.selectedUser = this.users[0]
+   async getTypeMessage(val) {
+      for(let i = 0 ; i < this.listTypeMessages.length ; i++) {
+        if(this.listTypeMessages[i].name == val){
+          wsCache.set(permissionStore.getTypeChat, this.listTypeMessages[i]._id);
+        }
+      }
+      var a = {
+        group_id : null,
+        user_id : wsCache.get(permissionStore.getUserIDSentChat),
+        user_id_sent: wsCache.get(permissionStore.getUserIDReceive),
+        name : wsCache.get(permissionStore.getUserNameReceive),
+        name_sent: wsCache.get(permissionStore.getUserNameSentChat),
+        chatTypeId: wsCache.get(permissionStore.getTypeChat),
+      }
+      const idGroup = await getGroupIDChat(JSON.stringify(a))
+      if(idGroup.message == null){
+        a.group_id = null
+      } else{
+        a.group_id = idGroup.message._id;
+      wsCache.set(permissionStore.getGroupChatID, idGroup.message._id );
+      }
+
+      const res = await getMessageChat(JSON.stringify(a))
+      if(res){
+        this.handleDataType(res)
+      }
+
     },
+
     SearchUser() {
       if (this.searchPeople == "") {
         this.users = this.userSearch;
@@ -384,7 +423,7 @@ export default {
           datafu.countMessage = 0;
         })
         this.users = res.message;
-        this.userSearch = this.users;
+
         const STAFF_INFO = wsCache.get(permissionStore.getStaffInfo);
 
         var userInfo = this.users.filter((user) => {
@@ -394,8 +433,24 @@ export default {
         })
         wsCache.set(permissionStore.getUserNameSentChat, userInfo[0].userName);
         wsCache.set(permissionStore.getUserIDSentChat, userInfo[0]._id)
+        this.users = this.users.filter(function (obj) {
+          return obj._id !== wsCache.get(permissionStore.getUserIDSentChat);
+        });
+        this.userSearch = this.users;
       }
 
+    },
+    async getTypeChats() {
+      const res = await getTypeChat()
+      if (res) {
+        res.message.map((datafu, index) => {
+          if(datafu.isActive == true){
+            this.activeName = datafu.name;
+            wsCache.set(permissionStore.getTypeChat, datafu._id);
+          }
+        })
+        this.listTypeMessages = res.message;
+      }
     }
   }
 }

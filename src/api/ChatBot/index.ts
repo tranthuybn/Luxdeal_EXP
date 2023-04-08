@@ -33,3 +33,14 @@ export const getGroupIDChat = async (params): Promise<IResponse> => {
   )
   return res && res.data
 }
+
+
+export const getTypeChat = async (params): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${CHAT_API.TYPECHAT}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+  return res && res.data
+}

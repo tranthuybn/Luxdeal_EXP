@@ -127,6 +127,12 @@ class="h-45px" :placeholder="`${t('reuse.inputContent')} ...`" v-model="messageI
             <small>{{ t('reuse.contract') }}</small>
           </div>
         </el-upload>
+        <el-upload class="message-box__feel" action="#" :show-file-list="false">
+          <div size="small" class="message-box__icon">
+            <Icon icon="ion:document-text-outline" :size="27" />
+            <small>Sản phẩm deal giá</small>
+          </div>
+        </el-upload>
       </div>
     </div>
   </el-card>
@@ -264,7 +270,7 @@ export default {
           var a = {
             chatGroupId: wsCache.get(permissionStore.getGroupChatID),
             text: this.messageInputForm.chatContent,
-            chatTypeId: null,
+            chatTypeId: wsCache.get(permissionStore.getTypeChat),
             productId: null,
             file: null,
             sender: {
@@ -290,8 +296,9 @@ export default {
       }
     },
     showMessage(message) {
-
-      if (message.sender.id != wsCache.get(permissionStore.getUserIDSentChat)) {
+      console.log(message)
+      if(message.chatTypeId == wsCache.get(permissionStore.getTypeChat)) {
+        if (message.sender.id != wsCache.get(permissionStore.getUserIDSentChat)) {
         messages.innerHTML += `
         <div class="message" style="  display: flex;
   align-items: center;
@@ -319,9 +326,12 @@ export default {
     </div>
   </div>`;
       }
+      }
+
       messages.scrollTop = messages.scrollHeight;
     },
     showMessageSocket(message) {
+      console.log("55555555555555555555555555")
       if (message.id == wsCache.get(permissionStore.getUserIDSentChat)) {
         messages.innerHTML += `
         <div class="message" style="  display: flex;

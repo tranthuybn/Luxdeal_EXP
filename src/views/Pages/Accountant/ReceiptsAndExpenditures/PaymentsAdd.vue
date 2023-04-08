@@ -206,7 +206,6 @@ const customizeData = async (data) => {
 }
 
 const customData = (data) => {
-  console.log(data)
   const customData = {} as FormDataPostAndEdit
   customData.Id = id || NaN
   customData.Code = data.code

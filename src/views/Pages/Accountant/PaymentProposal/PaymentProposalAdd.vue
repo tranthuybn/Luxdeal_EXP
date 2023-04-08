@@ -37,7 +37,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment';
 import { useRoute, useRouter } from 'vue-router'
-import { changeMoney, printPage } from '@/utils/tsxHelper'
+import { changeMoney, printPage, currentUser } from '@/utils/tsxHelper'
 import { IDetailExpenses } from '../types/PaymentProposal.d'
 import { useValidator } from '@/hooks/web/useValidator'
 import { statusService } from '@/utils/status'
@@ -428,7 +428,6 @@ const getFormPayment = () => {
     nameDialog.value = t('reuse.labelPaymentProposalprint')
 
     printPayment.value = !printPayment.value
-    console.log('printPayment.value', printPayment.value)
   }
 }
 
@@ -502,7 +501,7 @@ const getFormPayment = () => {
                 :clearable="false"
                 :items="createdByOptions"
                 @scroll-bottom="() => handleScroll('createdBy')"
-                :defaultValue="form.createdBy"
+                :defaultValue="form.createdBy ? form.createdBy : `${currentUser.name} | ${currentUser.phonenumber}`"
                 @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
              />
             </el-form-item>

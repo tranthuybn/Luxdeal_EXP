@@ -85,7 +85,7 @@ const paymentProposal = reactive<TableColumn[]>([
     minWidth: '130',
   },
   {
-    field: 'description',
+    field: 'describe',
     label: t('reuse.reasonSpendMoney'),
     minWidth: '200',  
   },

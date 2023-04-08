@@ -199,12 +199,11 @@ const rules = reactive<FormRules>({
         callback()
       },
       required: true,
-      trigger: 'change'
+      trigger: 'blur'
     }
   ],
-  cccdPlaceOfGrant: [ValidService.required],
+  cccdPlaceOfGrant: [{ required: true, message: t('common.required'), trigger: 'blur' }],
   cccd: [
-    ValidService.required,
     {
       validator: (_rule: any, value: any, callback: any) => {
         if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
@@ -212,7 +211,7 @@ const rules = reactive<FormRules>({
         callback()
       },
       required: true,
-      trigger: 'change'
+      trigger: 'blur'
     },
     ValidService.checkCCCD
   ],
@@ -231,7 +230,7 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  desc: [{ required: true, message: 'Please input activity form', trigger: 'change' }]
+  desc: [{ required: true, message: 'Please input activity form', trigger: 'blur' }]
 })
 
 const optionsGender = [
@@ -315,6 +314,21 @@ const CallApiDepartment = async () => {
   }
 }
 
+// const listViTris = ref()
+// const CallApiViTri = async () => {
+//   const res = await getBranchList()
+//   if (res) {
+//     listViTris.value = res.data.map((vitri) => ({ label: vitri.name, value: vitri.id }))
+//     return listViTris.value
+//   } else {
+//     ElMessage({
+//       message: t('reuse.cantGetData'),
+//       type: 'error'
+//     })
+//     return
+//   }
+// }
+
 const listTypeOfStaff = ref()
 const CallApiStaff = async () => {
   const res = await getTypePersonnelList()
@@ -374,7 +388,6 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
       checkValidateForm.value = false
     }
   })
-
   await formEl2.validate((valid, _fields) => {
     if (valid && checkValidateForm.value) {
       checkValidate.value = true
@@ -388,6 +401,7 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
 const cancel = async () => {
   push({
     name: 'human-resource-management.personnel-accounts',
+    params: { backRoute: 'human-resource-management.personnel-accounts' }
   })
 }
 
@@ -474,7 +488,7 @@ const postData = async (typebtn) => {
       IsActive: true,
       Gender: ruleForm.sex,
       Contact: ruleForm.link,
-      FileId: JSON.stringify(ListFileUpload.value) || [],
+      FileId: ListFileUpload.value || [],
       BranchId: ruleForm.branch,
       DepartmentId: ruleForm.department,
       PositionId: ruleForm.jobPosition,
@@ -578,7 +592,7 @@ const getTableValue = async () => {
     ruleForm.Address = formValue.value.address
     ruleForm.userName = formValue.value.username
     ruleForm.roleAcces = formValue.value.roleId
-    ListFileUpload.value =  formValue.value.path
+    // ListFileUpload.value = formValue.value.fieldId
   }
 }
 
@@ -586,7 +600,7 @@ const getTableValue = async () => {
 const editData = async (typebtn) => {
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
-    const payload : any = {
+    const payload :any = {
       Id: formValue.value.id,
       Code: ruleForm.staffCode,
       Name: ruleForm.name,

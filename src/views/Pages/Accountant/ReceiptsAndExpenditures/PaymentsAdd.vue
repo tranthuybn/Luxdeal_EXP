@@ -101,7 +101,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'peopleType',
+    field: 'peopleId',
     label: t('reuse.selectObject'),
     component: 'Select',
     colProps: {
@@ -177,9 +177,7 @@ const schema = reactive<FormSchema[]>([
       span: 18
     },
     componentProps: {
-      componentProps: {
-      label: t('reuse.collectedMoney')
-    }
+      label: t('formDemo.paidMoney')
     }
   },
   {
@@ -200,17 +198,18 @@ const customizeData = async (data) => {
   setFormData.totalMoney = data.totalMoney
   setFormData.createdBy = data.createdBy
   setFormData.createdAt = formartDate(data.createdAt)
-  setFormData.peopleType = data.peopleId
+  setFormData.peopleId = data.peopleId
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
-  setFormData.accountNumber = data.fundID
   setFormData.paid = data.transacted
+  setFormData.accountNumber = Number(data.accountNumber)
 }
 
 const customData = (data) => {
   const customData = {} as FormDataPostAndEdit
+  customData.Id = id || NaN
   customData.Code = data.code
-  customData.CreatedBy = data.createdById
+  customData.CreatedBy = data.createdBy
   customData.CreateAt = data.createdAt
   customData.Description = data.description
   customData.PeopleId = data.peopleId

@@ -1,4 +1,5 @@
 export interface FormDataPostAndEdit  {
+    Id: number
     Code: string
     CreateAt: string
     CreatedBy: string
@@ -19,7 +20,7 @@ export interface FormData {
     createdAt: string
     createdBy: string
     description: string
-    peopleType: number
+    peopleId: number
     totalMoney: number
     enterMoney: string
     typeOfPayment: 1 | 2

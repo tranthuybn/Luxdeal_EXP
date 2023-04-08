@@ -258,23 +258,25 @@ const delData = async (row: TableData | null, _multiple: boolean) => {
           await props
             .delApi({ Id: row.id })
             .then((res) => {
-              if(res?.succeeded) {
+              if (res?.succeeded) {
                 ElNotification({
-                  message: t('reuse.deleteSuccess'),
+                  message: res.data.message || res.message || t('reuse.deleteSuccess'),
                   type: 'success'
                 })
               } else {
                 ElNotification({
-                  message: res.message || t('reuse.deleteSuccess'),
+                  message: res.data.message || res.message || t('reuse.deleteSuccess'),
                   type: 'warning'
                 })
               }
             })
-            .catch(() =>
+            .catch((err) => {
+              console.error(err.response)
               ElNotification({
-                message: t('reuse.deleteFail'),
+                message: err.response.data.message || err.response.message || t('reuse.deleteFail'),
                 type: 'error'
               })
+            }
             )
             .finally(() => getData())
         }

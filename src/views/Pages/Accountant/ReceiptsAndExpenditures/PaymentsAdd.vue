@@ -41,6 +41,7 @@ const rules = reactive({
   typeOfPayment: [required()],
   peopleType: [required()],
 })
+const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 
 //random field code
 const curDate = 'PC' + moment().format('hhmmss')
@@ -82,7 +83,8 @@ const schema = reactive<FormSchema[]>([
     component: 'Select',
     colProps: {
       span: 24
-    }
+    },
+    value: Number(currentUser.id)
   },
   {
     field: 'description',
@@ -231,11 +233,7 @@ const editData = async (data) => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      }),
-        push({
-          name: 'accountant.receipts-expenditures.receipts-expenditures-list',
-          params: { backRoute: 'accountant.receipts-expenditures.receipts-expenditures-list' }
-        })
+      })
     })
     .catch(() =>
       ElNotification({

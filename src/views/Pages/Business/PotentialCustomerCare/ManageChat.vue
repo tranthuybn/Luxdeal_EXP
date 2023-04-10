@@ -1,8 +1,7 @@
 <template>
   <section class="!h-87vh">
     <el-tabs v-model="activeName" class="library-tab h-full" tab-position="left" stretch>
-      <el-tab-pane :name="item.name" v-for="item in listTypeMessages" :key="item.name"
-        @click="getTypeMessage(item)">
+      <el-tab-pane :name="item.name" v-for="item in listTypeMessages" :key="item.name" @click="getTypeMessage(item)">
         <template #label>
           <div
             class="library-tab__name pr-2 w-full h-full dark:(text-white) text-center flex flex-col content-center items-center pt-4"
@@ -101,7 +100,7 @@ import dIcon from '@/assets/svgs/chat/d.svg'
 import emptyIcon from '@/assets/svgs/chat/emtpy.svg'
 import moment from 'moment'
 import MessagePanel from './MessagePanel.vue'
-import { getEmployeeList,getTypeChat } from '@/api/ChatBot'
+import { getEmployeeList, getTypeChat } from '@/api/ChatBot'
 import { ERP_DOMAIN_CHATS_URL, ERP_DOMAIN_SOCKET_URL } from '@/utils/API_URL'
 
 import {
@@ -115,7 +114,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useCache } from '@/hooks/web/useCache'
 import { usePermissionStore } from '@/store/modules/permission'
-import { getMessageChat ,getGroupIDChat} from '@/api/ChatBot'
+import { getMessageChat, getGroupIDChat } from '@/api/ChatBot'
 import { ref } from 'vue';
 const childComponentRef = ref(0);
 const { t } = useI18n()
@@ -131,7 +130,7 @@ export default {
   components: {
     MessagePanel
   },
-  
+
   data() {
     return {
       TYPE_OF_MESSAGE_PAWN,
@@ -315,12 +314,12 @@ export default {
     };
     ws.addEventListener("message", function incoming(data) {
       // console.log(data)
-      if(data.data == "close" || data.data == "open"){
+      if (data.data == "close" || data.data == "open") {
         _this.getUser()
-      }else{
+      } else {
         _this.dataSocketSent(data)
       }
-     
+
     });
     ws.onclose = function () {
       ws = null;
@@ -332,19 +331,15 @@ export default {
       // this.$refs.childComponentRef.showMessage(JSON.parse(data))
     },
     handleData(data) {
-      console.log("66666666666666666666")
-      console.log(data)
+      wsCache.set(permissionStore.getGroupChatID, data.message.groud_chat );
       this.$refs.childComponentRef.showMessage1(data.message)
     },
     handleDataType(data) {
-      console.log(data)
       this.$refs.childComponentRef.showMessage1(data)
     },
     dataSocketSent(data) {
       // this.users
       var dataSK = JSON.parse(data.data);
-      console.log("999999999999999999999999999999999")
-
       if (dataSK.sender.id != wsCache.get(permissionStore.getUserIDReceive)) {
         for (var i = 0; i < this.users.length; i++) {
           if (this.users[i]._id == dataSK.sender.id) {
@@ -352,6 +347,16 @@ export default {
           }
         }
       }
+      this.users =  this.users.sort((a, b) => {
+        // Sắp xếp theo countmessage
+        if (a.countmessage > b.countmessage) {
+          return -1;
+        } else if (a.countmessage < b.countmessage) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
       this.$refs.childComponentRef.showMessageSocketRe(dataSK)
     },
     onSelectUser(user) {
@@ -370,33 +375,33 @@ export default {
     getDocument() {
       console.log('getDocument')
     },
-   async getTypeMessage(val) {
-      for(let i = 0 ; i < this.listTypeMessages.length ; i++) {
-        if(this.listTypeMessages[i].name == val){
+    async getTypeMessage(val) {
+      for (let i = 0; i < this.listTypeMessages.length; i++) {
+        if (this.listTypeMessages[i].name == val) {
           wsCache.set(permissionStore.getTypeChat, this.listTypeMessages[i]._id);
         }
       }
       var a = {
-        group_id : null,
-        user_id : wsCache.get(permissionStore.getUserIDSentChat),
+        group_id: null,
+        user_id: wsCache.get(permissionStore.getUserIDSentChat),
         user_id_sent: wsCache.get(permissionStore.getUserIDReceive),
-        name : wsCache.get(permissionStore.getUserNameReceive),
+        name: wsCache.get(permissionStore.getUserNameReceive),
         name_sent: wsCache.get(permissionStore.getUserNameSentChat),
         chatTypeId: wsCache.get(permissionStore.getTypeChat),
       }
       const idGroup = await getGroupIDChat(JSON.stringify(a))
-      if(idGroup.message == null){
+      if (idGroup.message == null) {
         a.group_id = null
-      } else{
+      } else {
         a.group_id = idGroup.message._id;
-      wsCache.set(permissionStore.getGroupChatID, idGroup.message._id );
+        wsCache.set(permissionStore.getGroupChatID, idGroup.message._id);
       }
 
       const res = await getMessageChat(JSON.stringify(a))
-      if(res){
+      if (res) {
         this.handleDataType(res)
       }
-
+      this.$refs.childComponentRef.displayDealPrice()
     },
 
     SearchUser() {
@@ -444,7 +449,7 @@ export default {
       const res = await getTypeChat()
       if (res) {
         res.message.map((datafu, index) => {
-          if(datafu.isActive == true){
+          if (datafu.isActive == true) {
             this.activeName = datafu.name;
             wsCache.set(permissionStore.getTypeChat, datafu._id);
           }

@@ -255,19 +255,21 @@ const setFormValue = async () => {
   }
 
   // If a receiptForm (or paymentForm) is approval in detail page, cancel disabled some filed
-  if(formValue.value.isApproved && props.type == 'detail' && props.module == 1) {
-    const arrField = ['createdBy', 'description', 'peopleId', 'totalMoney', 'enterMoney' ]
-    const config = arrField.map(item => (
-      {
-        field: item,
-        path: 'componentProps.disabled',
-        value: true
-      }
-    ))
-    isDisabled.value = true
-    setSchema(config)
-  } else if(!formValue.value.isApproved && props.module == 1) {
-    setProps({disabled: true})
+  if(props.module == 1) {
+    if(formValue.value.isApproved && !formValue.value.isCancel) {
+      const arrField = ['createdBy', 'description', 'peopleId', 'totalMoney', 'enterMoney' ]
+      const config = arrField.map(item => (
+        {
+          field: item,
+          path: 'componentProps.disabled',
+          value: true
+        }
+      ))
+      isDisabled.value = true
+      setSchema(config)
+    } else if(!formValue.value.isApproved || formValue.value.isCancel) {
+      setProps({disabled: true})
+    }
   }
 }
 

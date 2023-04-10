@@ -24,6 +24,7 @@ const { push } = useRouter()
 const escape = useIcon({ icon: 'quill:escape' })
 const activeName = ref('receiptsAddDetails')
 const setFormData = reactive({} as FormData)
+const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 
 const back = async () => {
   if(type !== 'approval') {
@@ -86,7 +87,8 @@ const schema = reactive<FormSchema[]>([
     component: 'Select',
     colProps: {
       span: 24
-    }
+    },
+    value: Number(currentUser.id)
   },
   {
     field: 'description',
@@ -226,6 +228,7 @@ const customData = (data) => {
   customData.Transacted = data.paid
   customData.Type = 1
   customData.Status = 1
+  if(type == 'detail') customData.Carrying = true
   return customData
 }
 
@@ -236,11 +239,7 @@ const editData = async (data) => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      }),
-        push({
-          name: 'accountant.receipts-expenditures.receipts-expenditures-list',
-          params: { backRoute: 'accountant.receipts-expenditures.receipts-expenditures-list' }
-        })
+      })
     })
     .catch(() =>
       ElNotification({

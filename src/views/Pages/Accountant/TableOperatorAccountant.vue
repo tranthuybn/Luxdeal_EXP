@@ -32,9 +32,10 @@ import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { getStaffList, getAllCustomer, getAccountantList, balanceAccount, cancelBalanceAccount } from '@/api/Business'
 import { IStatusHistory, ListImages } from './types'
-import { usePermission, printPage, formartDate, currentUser } from '@/utils/tsxHelper'
+import { usePermission, printPage, formartDate } from '@/utils/tsxHelper'
 import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
 
+const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const { push } = useRouter()
@@ -162,7 +163,7 @@ const loading = ref(false)
 const fullSpan = ref<number>()
 const rawUploadFile = ref<UploadFile>()
 const optionPeopleType = ref()
-const optionCreatedBy = ref()
+const optionCreatedBy = ref(currentUser)
 const accountNumberOptions = ref()
 const pageIndexStaff = ref(1)
 const pageIndexCustomer = ref(1)
@@ -206,8 +207,6 @@ const getTableValue = async () => {
 
 //formValue lay tu api
 const customizeData = async () => {
-  optionPeopleType.value = formValue.value?.peopleObject
-  optionCreatedBy.value = formValue.value?.createdByObject
   emit('customize-form-data', formValue.value)
 }
 
@@ -321,7 +320,6 @@ const save = async (type) => {
       if (type == 'add') {
         data.backRouter = true
         if(optionCreatedBy.value?.id) data.createdBy = optionCreatedBy.value.name
-        if(optionPeopleType.value?.id) data.peopleId = optionPeopleType.value.id
         emit('post-data', data)
         loading.value = false
       }
@@ -339,6 +337,10 @@ const save = async (type) => {
         data.DeleteFileIds = deleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
         emit('edit-data', data)
+        if(props.module == 2) {
+          formValue.value.isTransacted = !formValue.value.isTransacted
+          setStatusHistory()
+        }
         loading.value = false
       }
       fileList.value = []
@@ -512,13 +514,13 @@ onBeforeMount(async () => {
     PageIndex: pageIndexStaff.value,
     PageSize: pageSize.value
   })
-  createdByOptions.value = staffList.data.map(({code, phonenumber, name, id}) => ({label: code, value: phonenumber, name, id}))
+  createdByOptions.value = staffList.data.map(({code, phonenumber, name, id}) => ({label: `${name} | ${phonenumber}`,code, value: phonenumber, name, id}))
   
   const customerList = await getAllCustomer({
     PageIndex: pageIndexCustomer.value,
     PageSize: pageSize.value
   })
-  peopleTypeOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
+  peopleTypeOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email }))
   
   const accountNumberList = await getAccountantList({})
   accountNumberOptions.value = accountNumberList.data.filter(item => item.isActive)
@@ -541,15 +543,15 @@ const handleScroll = (field) => {
     default: return ''
   }
 };
-const handleChangeOptions = (option, form, formType) => {
+const handleChangeOptions = (option,form, formType) => {
   switch (formType) {
     case 'createdBy' :
-      form.createdBy = `${option.name} | ${option.value}`
       optionCreatedBy.value = option
+      form.createdBy = Number(option.id)
       return
     case 'peopleId' : 
-      form.peopleId = `${option.name} | ${option.value}`
       optionPeopleType.value = option
+      form.peopleId = Number(option.id)
       return
     default: return ''
   }
@@ -561,7 +563,7 @@ watch(pageIndexStaff, async (newPageIndex) => {
   })
 
   if(response.data.length > 0) {
-    const arr = response.data.map(item => ({label: item.code, value: item.phonenumber, name: item.name, id: item.id,  }))
+    const arr = response.data.map(({code, phonenumber,name, id}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id,  }))
     createdByOptions.value.push(...arr); 
   }
 });
@@ -573,7 +575,7 @@ watch(pageIndexCustomer, async (newPageIndex) => {
   })
 
   if(response.data.length > 0) {
-    const arr = response.data.map(({code, phonenumber,name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
+    const arr = response.data.map(({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email }))
     peopleTypeOptions.value.push(...arr); 
   }
 });
@@ -598,16 +600,16 @@ const approvalProduct = async (val) => {
       })
     )
 }
-
+const { getFormData, setProps } = methods
 const handleAccounting = async () => {
-  statusHistory.push(
-    {
-    statusName: t('reuse.planned'),
-    statusValue: 3, 
-    approvedAt: currentDate.value,
-    isActive: true
-    }, 
-  )
+  const form = await getFormData()
+  if(!form?.paid) {
+    ElNotification({
+      message: t('reuse.accountingWarnMessage'),
+      type: 'warning'
+    })
+    return
+  }
   const payload = {
     AccountId: formValue.value.accountNumber,
     ReceiptId: formValue.value.id,
@@ -619,6 +621,7 @@ const handleAccounting = async () => {
         message: t('reuse.accountingSuccess'),
         type: 'success'
       })
+      setProps({disabled: true})
       formValue.value.isAccounted = !formValue.value.isAccounted
       if(!formValue.value.isTransacted) formValue.value.isTransacted = !formValue.value.isTransacted
       setStatusHistory()
@@ -632,20 +635,21 @@ const handleAccounting = async () => {
 }
 const cancelAccounting = async () => {
   const payload = {
-    AccountId: formValue.value.accountNumber,
+    AccountingId: formValue.value.accountNumber,
     ReceiptId: formValue.value.id,
     User: formValue.value.createdBy,
   }
-  formValue.value.isAccounted = !formValue.value.isAccounted
-  formValue.value.isTransacted = !formValue.value.isTransacted
-  setStatusHistory()
+
   await cancelBalanceAccount(payload)
   .then(() => {
       ElNotification({
         message: t('reuse.cancelAccountingSuccess'),
         type: 'success'
       })
-
+      setProps({disabled: false})
+      formValue.value.isAccounted = !formValue.value.isAccounted
+      formValue.value.isTransacted = !formValue.value.isTransacted
+      setStatusHistory()
     })
   .catch(() =>
     ElNotification({
@@ -654,16 +658,6 @@ const cancelAccounting = async () => {
     })
   )
 }
-
-// const handleCarrying = () => {
-//   statusHistory.push(
-//     {
-//     statusName: t('reuse.collectedMoney'),
-//     statusValue: 2, 
-//     approvedAt: currentDate.value
-//     }, 
-//   )
-// }
 
 const PrintReceipts = ref(false)
 // form phiếu thu
@@ -707,14 +701,14 @@ const setStatusHistory = () => {
     {
       statusName: formValue.value?.type == 1 ? t('reuse.collectedMoney') : t('formDemo.paidMoney'),
       statusValue: 2, 
-      approvedAt: formartDate(formValue.value?.transactedAt),
-      isActive: formValue.value?.isTransacted,
+      approvedAt: formartDate(formValue.value?.transactedAt) || currentDate.value,
+      isActive: formValue.value?.isTransacted ,
     }, 
     {
       statusName: t('reuse.planned'),
       statusValue: 3, 
-      approvedAt: formartDate(formValue.value?.accountedAt),
-      isActive: formValue.value?.isAccounted ,
+      approvedAt: formartDate(formValue.value?.accountedAt) || currentDate.value,
+      isActive: formValue.value?.isAccounted,
     }, 
     {
       statusName: t('button.cancel'),
@@ -809,12 +803,12 @@ const setStatusHistory = () => {
               min-width="500px"
               valueKey="id" 
               labelKey="label"
-              :hiddenKey="['id']"
+              :hiddenKey="['id', 'label']"
               :clearable="false"
               :items="createdByOptions"
               :disabled="isDisabled"
               @scroll-bottom="() => handleScroll('createdBy')"
-              :defaultValue="form.createdBy ? form.createdBy : `${currentUser.name} | ${currentUser.phonenumber}`"
+              :defaultValue="form.createdBy"
               @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
             />
           </template>
@@ -835,14 +829,14 @@ const setStatusHistory = () => {
               min-width="500px"
               valueKey="id" 
               labelKey="label"
-              :hiddenKey="['id', 'email']"
+              :hiddenKey="['id', 'email', 'label']"
               :clearable="false"
               :placeHolder="t('reuse.selectObject')"
               :items="peopleTypeOptions"
               :disabled="isDisabled"
               @scroll-bottom="() => handleScroll('peopleId')"
               :defaultValue="form.peopleId"
-              @update-value="(_value, option) =>  handleChangeOptions(option, form, 'peopleId')"
+              @update-value="(_value, option) => handleChangeOptions(option, form, 'peopleId')"
             />
             <ul class="mt-2">
               <li v-if="optionPeopleType?.name" class="leading-5">{{ optionPeopleType.name }}</li>
@@ -954,7 +948,7 @@ const setStatusHistory = () => {
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'detail'">
-        <div class="w-[50%] flex justify-left gap-2 ml-5">
+        <div class="flex justify-left gap-2 ml-5">
           <div v-if="module == 2">
             <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
               {{ t('reuse.fix') }}
@@ -970,7 +964,7 @@ const setStatusHistory = () => {
               <ElButton v-if="!formValue?.isAccounted  && formValue?.isApproved" @click="save('edit')" class="pl-8 pr-8" :loading="loading">
                 {{ t('button.carrying') }}
               </ElButton>
-              <ElButton v-if="!formValue?.isAccounted  && formValue?.isApproved " type="primary" @click="handleAccounting" :disabled="!formValue?.transacted || !formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
+              <ElButton v-if="!formValue?.isAccounted  && formValue?.isApproved" type="primary" @click="handleAccounting" class="pl-8 pr-8" :loading="loading">
                 {{ t('reuse.accounting') }}
               </ElButton>
               <ElButton v-if="formValue?.isAccounted  && formValue?.isApproved" type="primary" @click="cancelAccounting" class="pl-8 pr-8" :loading="loading">

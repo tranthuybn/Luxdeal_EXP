@@ -21,7 +21,7 @@
       <ul class="message-box__body !h-full !dark:bg-[var(--el-bg-color)] border-top-1 dark:border-transparent">
         <div class="messages-chat" id="messages" style=" overflow: auto;">
         </div>
-        <div class="content-message dark:bg-[var(--el-bg-color)]" id="box-product">
+        <div v-if="dataProduct != null" class="content-message dark:bg-[var(--el-bg-color)]" id="box-product">
           <section class="friend-send" >
             <div class="media">
               <div class="media-body h-250px ml-0">
@@ -30,9 +30,9 @@
                       <div class="basis-1/2"><img src="@/assets/imgs/avatar.jpg" class="w-full" />
                       </div>
                       <div class="pl-4">
-                        <div class="font-bold">productBrand</div>
+                        <div class="font-bold">{{ dataProduct.name }}</div>
                         <div>Túi </div>
-                        <div>1000000 đ</div>
+                        <div>{{ dataProduct.price }} đ</div>
                       </div>
                     </div>
                     <div class="flex flex-col">
@@ -90,7 +90,7 @@
         </div>
       </div>
     </div>
-    <modal :title="modalTitle" v-if="showModal" @close="showModal = false">
+    <modal :title="modalTitle"  v-if="showModal" @dataProductClick="dataProductClick" @close="showModal = false">
       <div>{{ modalContent }}</div>
     </modal>
 
@@ -141,6 +141,7 @@ export default {
   },
   data() {
     return {
+      dataProduct: null,
       showModal: false,
       modalTitle: 'Modal Title',
       modalContent: '',
@@ -230,14 +231,17 @@ export default {
     this.displayDealPrice()
   },
   methods: {
+    dataProductClick(newMessage) {
+      this.dataProduct = newMessage;
+    },
     displayDealPrice() {
       console.log(wsCache.get(permissionStore.getTypeChat))
       if (wsCache.get(permissionStore.getTypeChat) == "6430ec70d761c80ca0c1c1d1") {
         document.getElementById("priceDeal").style.display = "block";
-        document.getElementById("box-product").style.display = "block";
+      //  document.getElementById("box-product").style.display = "block";
       } else {
         document.getElementById("priceDeal").style.display = "none";
-        document.getElementById("box-product").style.display = "none";
+      //  document.getElementById("box-product").style.display = "none";
       }
     },
     showProductDeal() {
@@ -341,6 +345,7 @@ export default {
 
     },
     showMessage1(val) {
+      console.log(val)
       messages.innerHTML = "";
       for (var i = 0; i < val.message.length; i++) {
         this.showMessage(val.message[i])

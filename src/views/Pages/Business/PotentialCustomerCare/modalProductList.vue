@@ -6,7 +6,7 @@
     </div>
     <div class="modal-body">
       <div v-for="index in dataProducts" :key="index.id">
-        <div class="flex border-bottom-1">
+        <div class="flex border-bottom-1" @click="clickProduct(index)">
           <div><img src="@/assets/imgs/avatar.jpg" class="w-full" />
           </div>
           <div class="pl-4">
@@ -42,6 +42,10 @@ export default {
       getBusinessProductLibrary().then((res) => {
         this.dataProducts = res.data
       })
+    },
+    clickProduct(data) {
+      this.$emit('dataProductClick', data)
+      this.$emit('close')
     }
   }
 };

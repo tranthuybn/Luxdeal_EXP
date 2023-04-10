@@ -13,6 +13,7 @@ export interface FormDataPostAndEdit  {
     Transacted: boolean
     Type: 1 | 0
     Status: number
+    Carrying: boolean
 }
 
 export interface FormData {

@@ -182,6 +182,7 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 18
     },
+    value: false,
     componentProps: {
       label: t('reuse.collectedMoney')
     }
@@ -234,7 +235,7 @@ const customData = (data) => {
 
 const editData = async (data) => {
   data = customData(data)
-  await updateReceiptOrPayment(data)
+  await updateReceiptOrPayment(FORM_IMAGES(data))
     .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),

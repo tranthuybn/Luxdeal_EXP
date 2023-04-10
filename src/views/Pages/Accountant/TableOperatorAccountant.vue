@@ -30,7 +30,7 @@ import { statusService } from '@/utils/status'
 import moment from 'moment'
 import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { getStaffList, getAllCustomer, getAccountantList, balanceAccount, cancelBalanceAccount } from '@/api/Business'
+import { getStaffList, getAllCustomer, getAccountantList, balanceAccount } from '@/api/Business'
 import { IStatusHistory, ListImages } from './types'
 import { usePermission, printPage, formartDate } from '@/utils/tsxHelper'
 import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
@@ -175,6 +175,7 @@ const isDisabled = ref(false)
 
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
+const { getFormData, setProps } = methods
 
 //if schema has image then split screen
 props.hasImage || props.hasAttachDocument || props.splitScreen ? (fullSpan.value = 12) : (fullSpan.value = 24)
@@ -336,11 +337,20 @@ const save = async (type) => {
         data.NewPhotos = fileList.value
         data.DeleteFileIds = deleteFileIds
         data.Imageurl = data.Image ? null : imageUrl.value
-        emit('edit-data', data)
-        if(props.module == 2) {
-          formValue.value.isTransacted = !formValue.value.isTransacted
+        if(props.module == 1) {
+          const form = await getFormData()
+          if(!form?.paid) {
+            ElNotification({
+              message: t('reuse.carryingWarnMessage'),
+              type: 'warning'
+            })
+            loading.value = false
+            return
+          }
+          if(!formValue.value.isTransacted) formValue.value.isTransacted = !formValue.value.isTransacted
           setStatusHistory()
         }
+        emit('edit-data', data)
         loading.value = false
       }
       fileList.value = []
@@ -600,7 +610,7 @@ const approvalProduct = async (val) => {
       })
     )
 }
-const { getFormData, setProps } = methods
+
 const handleAccounting = async () => {
   const form = await getFormData()
   if(!form?.paid) {
@@ -610,10 +620,12 @@ const handleAccounting = async () => {
     })
     return
   }
+  await save('edit')
   const payload = {
     AccountId: formValue.value.accountNumber,
     ReceiptId: formValue.value.id,
     User: formValue.value.createdBy,
+    IsActive: true
   }
   await balanceAccount(payload)
   .then(() => {
@@ -635,12 +647,13 @@ const handleAccounting = async () => {
 }
 const cancelAccounting = async () => {
   const payload = {
-    AccountingId: formValue.value.accountNumber,
+    AccountId: formValue.value.accountNumber,
     ReceiptId: formValue.value.id,
     User: formValue.value.createdBy,
+    IsActive: false
   }
 
-  await cancelBalanceAccount(payload)
+  await balanceAccount(payload)
   .then(() => {
       ElNotification({
         message: t('reuse.cancelAccountingSuccess'),

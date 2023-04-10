@@ -24,6 +24,7 @@ const { push } = useRouter()
 const escape = useIcon({ icon: 'quill:escape' })
 const activeName = ref('receiptsAddDetails')
 const setFormData = reactive({} as FormData)
+const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 
 const back = async () => {
   if(type !== 'approval') {
@@ -43,6 +44,7 @@ const rules = reactive({
   enterMoney: [required()],
   typeOfPayment: [required()],
   peopleType: [required()],
+  accountNumber: [required()],
 })
 
 //random field code
@@ -85,7 +87,8 @@ const schema = reactive<FormSchema[]>([
     component: 'Select',
     colProps: {
       span: 24
-    }
+    },
+    value: Number(currentUser.id)
   },
   {
     field: 'description',
@@ -104,7 +107,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'peopleType',
+    field: 'peopleId',
     label: t('reuse.selectObject'),
     component: 'Select',
     colProps: {
@@ -175,17 +178,12 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'paid',
     label: t('reuse.payment'),
-    component: 'Radio',
+    component: 'CheckboxSingle',
     colProps: {
       span: 18
     },
     componentProps: {
-      options: [
-        {
-          label: t('reuse.collectedMoney'),
-          value: true
-        }
-      ]
+      label: t('reuse.collectedMoney')
     }
   },
   {
@@ -207,15 +205,16 @@ const customizeData = async (data) => {
   setFormData.totalMoney = data.totalMoney
   setFormData.createdBy = data.createdBy
   setFormData.createdAt = formartDate(data.createdAt)
-  setFormData.peopleType =  data.peopleId
+  setFormData.peopleId =  data.peopleId
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
   setFormData.paid = data.transacted
-  setFormData.accountNumber = data.account
+  setFormData.accountNumber = Number(data.accountNumber)
 }
 
 const customData = (data) => {
   const customData = {} as FormDataPostAndEdit
+  customData.Id = id || NaN
   customData.Code = data.code
   customData.CreatedBy = data.createdBy
   customData.CreateAt = data.createdAt
@@ -229,7 +228,7 @@ const customData = (data) => {
   customData.Transacted = data.paid
   customData.Type = 1
   customData.Status = 1
-
+  if(type == 'detail') customData.Carrying = true
   return customData
 }
 
@@ -240,11 +239,7 @@ const editData = async (data) => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      }),
-        push({
-          name: 'accountant.receipts-expenditures.receipts-expenditures-list',
-          params: { backRoute: 'accountant.receipts-expenditures.receipts-expenditures-list' }
-        })
+      })
     })
     .catch(() =>
       ElNotification({
@@ -328,7 +323,7 @@ const currentCollapse = ref<string>(collapse[0].name)
 <style lang="less" scoped>
 
   ::v-deep(.btn-wrap) {
-    margin-left: 150px;
+    margin-left: 168px;
   }
 
   ::v-deep(.el-select) {

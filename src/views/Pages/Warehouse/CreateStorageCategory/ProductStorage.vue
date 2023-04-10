@@ -32,6 +32,11 @@ const columns = reactive<TableColumn[]>([
     }
   },
   {
+    field: 'inventory',
+    label: t('reuse.inventory'),
+    minWidth: '100',
+  },
+  {
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '100',

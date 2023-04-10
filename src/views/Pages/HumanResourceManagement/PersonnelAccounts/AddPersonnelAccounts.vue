@@ -43,10 +43,12 @@ import {
   updeteStaffAccount,
   deleteStaffAccount
 } from '@/api/HumanResourceManagement'
-
 import { useValidator } from '@/hooks/web/useValidator'
 import { getEmployeeById } from '@/api/Accountant'
 import { API_URL } from '@/utils/API_URL'
+
+const centerDialogCancelAccount = ref(false)
+const { push } = useRouter()
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const showPassword = ref(true)
@@ -197,12 +199,11 @@ const rules = reactive<FormRules>({
         callback()
       },
       required: true,
-      trigger: 'change'
+      trigger: 'blur'
     }
   ],
-  cccdPlaceOfGrant: [ValidService.required],
+  cccdPlaceOfGrant: [{ required: true, message: t('common.required'), trigger: 'blur' }],
   cccd: [
-    ValidService.required,
     {
       validator: (_rule: any, value: any, callback: any) => {
         if (isNaN(value)) callback(new Error(t('reuse.numberFormat')))
@@ -210,7 +211,7 @@ const rules = reactive<FormRules>({
         callback()
       },
       required: true,
-      trigger: 'change'
+      trigger: 'blur'
     },
     ValidService.checkCCCD
   ],
@@ -229,7 +230,7 @@ const rules = reactive<FormRules>({
       trigger: 'change'
     }
   ],
-  desc: [{ required: true, message: 'Please input activity form', trigger: 'change' }]
+  desc: [{ required: true, message: 'Please input activity form', trigger: 'blur' }]
 })
 
 const optionsGender = [
@@ -259,18 +260,7 @@ const bankList = [
 ]
 
 const alwayShowAdd = ref(false)
-watch(
-  () => type,
-  () => {
-    if (type === 'detail' || type === 'edit') {
-      alwayShowAdd.value = false
-    }
-  },
-  {
-    deep: true,
-    immediate: true
-  }
-)
+
 const { register } = useForm()
 let disableData = ref(false)
 
@@ -323,6 +313,21 @@ const CallApiDepartment = async () => {
     return
   }
 }
+
+// const listViTris = ref()
+// const CallApiViTri = async () => {
+//   const res = await getBranchList()
+//   if (res) {
+//     listViTris.value = res.data.map((vitri) => ({ label: vitri.name, value: vitri.id }))
+//     return listViTris.value
+//   } else {
+//     ElMessage({
+//       message: t('reuse.cantGetData'),
+//       type: 'error'
+//     })
+//     return
+//   }
+// }
 
 const listTypeOfStaff = ref()
 const CallApiStaff = async () => {
@@ -396,13 +401,9 @@ const submitForm = async (formEl: FormInstance | undefined, formEl2: FormInstanc
 const cancel = async () => {
   push({
     name: 'human-resource-management.personnel-accounts',
+    params: { backRoute: 'human-resource-management.personnel-accounts' }
   })
 }
-
-// const resetForm = (formEl: FormInstance | undefined) => {
-//   if (!formEl) return
-//   formEl.resetFields()
-// }
 
 let FileDeleteIds: any = []
 
@@ -454,7 +455,7 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(
     `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
       'reuse.total'
-    )}${files.length + uploadFiles.length}`
+    )} ${files.length + uploadFiles.length}`
   )
 }
 
@@ -462,9 +463,6 @@ const ListFileUpload = ref()
 const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
   ListFileUpload.value = uploadFiles
 }
-const centerDialogCancelAccount = ref(false)
-
-const { push } = useRouter()
 const editPage = async () => {
   push({
     name: `${String(router.currentRoute.value.name)}`,
@@ -490,7 +488,7 @@ const postData = async (typebtn) => {
       IsActive: true,
       Gender: ruleForm.sex,
       Contact: ruleForm.link,
-      FileId: JSON.stringify(ListFileUpload.value) || [],
+      FileId: ListFileUpload.value || [],
       BranchId: ruleForm.branch,
       DepartmentId: ruleForm.department,
       PositionId: ruleForm.jobPosition,
@@ -507,8 +505,6 @@ const postData = async (typebtn) => {
       ConfirmPassword: ruleForm.confirmPassword,
       RoleId: ruleForm.roleAcces || 0,
     }
-
-    console.log('post lên', payload)
     const formDataPayLoad = FORM_IMAGES(payload)
     await addNewStaff(formDataPayLoad)
       .then(() => {
@@ -596,7 +592,7 @@ const getTableValue = async () => {
     ruleForm.Address = formValue.value.address
     ruleForm.userName = formValue.value.username
     ruleForm.roleAcces = formValue.value.roleId
-    ListFileUpload.value =  formValue.value.path
+    // ListFileUpload.value = formValue.value.fieldId
   }
 }
 
@@ -604,7 +600,7 @@ const getTableValue = async () => {
 const editData = async (typebtn) => {
   await submitForm(ruleFormRef.value, ruleFormRef2.value)
   if (checkValidate.value) {
-    const payload : any = {
+    const payload :any = {
       Id: formValue.value.id,
       Code: ruleForm.staffCode,
       Name: ruleForm.name,
@@ -668,8 +664,20 @@ onBeforeMount(() => {
   CallApiPosition()
   CallApiStaff()
   callApiGetRoleList()
-
 })
+watch(
+  () => type,
+  () => {
+    if (type === 'detail' || type === 'edit') {
+      getTableValue()
+      alwayShowAdd.value = false
+    }
+  },
+  {
+    deep: true,
+    immediate: true
+  }
+)
 
 const deleteAccount = async () => {
   await deleteStaffAccount({ Id: id })
@@ -1064,7 +1072,7 @@ const cancelEditPassword = () => {
               <div class="flex">
                 <div class="pl-5">
                   <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
-                  <div class="text-right text-[#FECB80] italic">Dưới 10 hồ sơ</div>
+                  <div class="text-right text-[#FECB80] italic">{{ t('formDemo.lessThanTenProfiles') }}</div>
                 </div>
                 <div class="pl-4">
                   <el-upload

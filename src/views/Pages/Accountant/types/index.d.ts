@@ -12,5 +12,6 @@ export type ListImages = 'text' | 'picture' | 'picture-card'
 export interface IStatusHistory {
   statusName: string
   statusValue: number
+  approvedAt: string
   isActive: boolean
 }

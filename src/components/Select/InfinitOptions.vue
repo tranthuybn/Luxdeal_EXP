@@ -1,10 +1,8 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
-import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
+import { ElRow, ElCol, ElOption, ElSelect } from 'element-plus'
 import { computed, ref, watchEffect } from 'vue'
-import { useI18n } from '@/hooks/web/useI18n'
 
-const { t } = useI18n()
 const propsObj = defineProps({
   // columns name
   fields: {
@@ -18,12 +16,11 @@ const propsObj = defineProps({
     type: Array<any>,
     default: () => [],
     require: true,
-    description: 'array options'
+    description: 'Mảng các giá trị truyền vào để chọn'
   },
   placeHolder: {
     type: String,
-    // eslint-disable-next-line vue/valid-define-props
-    default: t('reuse.chooseOptions')
+    default: 'Vui lòng chọn bản ghi'
   },
   // value key of record you want to use
   valueKey: {
@@ -41,9 +38,9 @@ const propsObj = defineProps({
     type: Array,
     default: () => [],
     require: true,
-    description: 'which key will be hidden '
+    description: 'Trường nào sẽ bị ẩn đi '
   },
-  modelValue: {
+  defaultValue: {
     type: [String, Number],
     default: null,
     description: 'Dùng khi xem chi tiết, truyền giá trị mặc định vào'
@@ -67,21 +64,45 @@ const propsObj = defineProps({
 })
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
 
-const selected = computed(() => {
-  return propsObj.modelValue
+let selected = computed(() => {
+  return propsObj.defaultValue
 })
 const options = ref<Array<any>>([])
 
 // if have not value, it will be set by first value key
 const identifyKey = ref(propsObj.valueKey)
 const identifyLabel = ref(propsObj.labelKey)
+// const identifyKey = computed(() => {
+//   const { valueKey, items } = propsObj
+//   if (valueKey) {
+//     return valueKey
+//   } else if (Array.isArray(items) && items.length > 0) {
+//     //returns an array of a given object's own enumerable property
+//     return Object.keys(items[0])[0]
+//   } else return 'value'
+// })
+// const identifyLabel = computed(() => {
+//   const { labelKey, items } = propsObj
+//   if (labelKey) {
+//     return labelKey
+//   } else if (Array.isArray(items) && items.length > 0) {
+//     return Object.keys(items[0])[0]
+//   } else return 'label'
+// })
 
-// set value for multiple select if modelValue available
+// set value for multiple select if defaultValue available
 watchEffect(() => {
   if (propsObj.items?.length > 0)
     // set options for select box
     options.value = propsObj.items
 })
+// watch(
+//   () => propsObj.defaultValue,
+//   () => {
+//     selected.value = propsObj.defaultValue
+//   },
+//   { immediate: true }
+// )
 
 const acceptKey = (item) => {
   const { hiddenKey } = propsObj
@@ -107,7 +128,11 @@ const filter = (str) => {
     options.value = items
   }
 }
-
+// const appearsEvent = () => {
+//   const { items } = propsObj
+//   options.value = items
+//   loadOption.value = false
+// }
 const valueChangeEvent = (val) => {
   if (val) {
     const { items, valueKey } = propsObj
@@ -132,7 +157,6 @@ const scrolling = (e) => {
     emit('scrollBottom')
   }
 }
-
 </script>
 <template>
   <ElSelect
@@ -150,27 +174,26 @@ const scrolling = (e) => {
     :value-key="identifyKey"
     :disabled="disabled"
   >
+    <!-- value is tje first object when click on title -->
     <ElOption
       :value="items.length > 0 && items[0][identifyKey] ? items[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
     >
       <div>
-        <ElRow type="flex" justify="space-between" v-if="fields.length > 0">
+        <ElRow type="flex" justify="space-between" class="px-" v-if="fields.length > 0">
           <ElCol
             :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
             :key="index"
             class="text-ellipsis text-center text-black bg-white"
           >
-            <ElTooltip placement="left-end" :content="filed?.toString()" effect="light">
-              <strong>{{ filed }}</strong>
-            </ElTooltip>
+           <strong>{{ filed }}</strong>
           </ElCol>
         </ElRow>
       </div>
     </ElOption>
-    <div @scroll="scrolling" id="content">
+    <div @scroll="scrolling" class="h-52 px-2.5 overflow-auto">
       <ElOption
         :style="`width: ${width}`"
         v-for="(item, index) in options"
@@ -187,13 +210,7 @@ const scrolling = (e) => {
               class="text-ellipsis text-center"
               :span="Math.floor(24 / fields.length)"
             >
-              <ElTooltip
-                placement="left-end"
-                :content="item[key] ? item[key].toString() : ''"
-                effect="light"
-              >
-                <span> {{ item[key] }}</span>
-              </ElTooltip>
+             <span> {{ item[key] }}</span>
             </ElCol>
           </ElRow>
         </div>
@@ -203,12 +220,6 @@ const scrolling = (e) => {
   </ElSelect>
 </template>
 <style lang="css" scoped>
-#content {
-  height: 200px;
-  padding: 0 10px;
-  overflow: auto;
-}
-
 .el-select-custom {
   width: 100%;
 }

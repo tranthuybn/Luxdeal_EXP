@@ -27,6 +27,7 @@ declare global {
     | 'Descriptions'
     | 'Tag'
     | 'InputPrice'
+    | 'CheckboxSingle'
     | 'SelectMultipleOption'
 
   declare type ColProps = {

@@ -124,7 +124,7 @@ const columns = reactive<TableColumn[]>([
     filterMethod: filterHandler,
     align: 'center',
     formatter: (record: Recordable, __: TableColumn, _cellValue: boolean) => {
-      return h('input', {type: 'checkbox', checked: record.transacted})
+      return h('input', {type: 'checkbox', checked: record.transacted, disabled: true})
     },
   },
   {

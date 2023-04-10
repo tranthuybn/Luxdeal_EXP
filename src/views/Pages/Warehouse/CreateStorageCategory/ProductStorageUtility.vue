@@ -11,7 +11,7 @@ import {
 } from '@/api/Warehouse'
 import { API_URL } from '@/utils/API_URL'
 import { useValidator } from '@/hooks/web/useValidator'
-import { ElNotification } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import moment from 'moment'
 const { t } = useI18n()
@@ -114,7 +114,7 @@ const schema = reactive<FormSchema[]>([
     field: 'status',
     label: t('reuse.status'),
     component: 'Checkbox',
-    value: [],
+    value: ['active'],
     colProps: {
       span: 24
     },
@@ -271,7 +271,7 @@ const customPostData = (data) => {
   customData.Name = data?.name
   customData.Code = curDate
   customData.ParentId = data?.parentid
-  customData.Images = data?.NewPhotos
+  customData.Images = data?.Images
   customData.DeleteFileIds = data.DeleteFileIds.toString()
   data?.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
   return customData
@@ -282,52 +282,93 @@ const fixBugPost = (data) => {
   customData.Name = data.name ? data.name : data.name2
   customData.Code = curDate
   customData.ParentId = data?.parentid
-  customData.Images = data?.Image
+  customData.Images = data.Image ?? []
   data?.status.includes('active') ? (customData.isActive = true) : (customData.isActive = false)
   return customData
 }
 const postData = async (data) => {
   //manipulate Data
-  data = fixBugPost(data)
-  await createNewProductStorage(FORM_IMAGES(data))
-    .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      }),
-        push({
-          name: 'Inventorymanagement.CreateStorageCategory.ProductStorage',
-          params: { backRoute: 'Inventorymanagement.CreateStorageCategory.ProductStorage' }
-        })
+  const payload = fixBugPost(data)
+  let message = t('reuse.addSuccess')
+  if (!payload) {
+    message = t('common.inputText')
+    ElMessage({
+      showClose: true,
+      message: message,
+      type: 'error',
     })
-    .catch((error) =>
-      ElNotification({
-        message: error,
-        type: 'warning'
+  }
+  else if (!payload.Images || payload.Images.length == 0) {
+    message = t('formDemo.addPhotosOrFiles')
+    ElMessage({
+      showClose: true,
+      message: message,
+      type: 'error',
+    })
+  }
+  else {
+    await createNewProductStorage(FORM_IMAGES(payload))
+      .then(() => {
+        ElNotification({
+          message: message,
+          type: 'success'
+        }),
+          push({
+            name: 'Inventorymanagement.CreateStorageCategory.ProductStorage',
+            params: { backRoute: 'Inventorymanagement.CreateStorageCategory.ProductStorage' }
+          })
       })
-    )
+      .catch((error) => {
+        console.error(error);
+        ElNotification({
+          message: error.response.data.message ?? error,
+          type: 'warning'
+        })
+      })
+  }
+    
 }
 const { push } = useRouter()
 
 const editData = async (data) => {
-  data = customPostData(data)
-  await updateProductStorage(data)
-    .then(() => {
-      ElNotification({
-        message: t('reuse.updateSuccess'),
-        type: 'success'
-      }),
-        push({
-          name: 'Inventorymanagement.CreateStorageCategory.ProductStorage',
-          params: { backRoute: 'Inventorymanagement.CreateStorageCategory.ProductStorage' }
-        })
+  const payload  = customPostData(data)
+  let message = t('reuse.addSuccess')
+  if (!payload) {
+    message = t('common.inputText')
+    ElMessage({
+      showClose: true,
+      message: message,
+      type: 'error',
     })
-    .catch(() =>
-      ElNotification({
-        message: t('reuse.updateFail'),
-        type: 'warning'
+  }
+  else if (!payload.Images || payload.Images.length == 0) {
+    message = t('formDemo.addPhotosOrFiles')
+    ElMessage({
+      showClose: true,
+      message: message,
+      type: 'error',
+    })
+  }
+  else {
+    await updateProductStorage(payload)
+      .then(() => {
+        ElNotification({
+          message: t('reuse.updateSuccess'),
+          type: 'success'
+        }),
+          push({
+            name: 'Inventorymanagement.CreateStorageCategory.ProductStorage',
+            params: { backRoute: 'Inventorymanagement.CreateStorageCategory.ProductStorage' }
+          })
       })
-    )
+      .catch((err) => {
+        console.error(err)
+        ElNotification({
+          message:  err.response.data.message ?? t('reuse.updateFail'),
+          type: 'warning'
+        })
+      })
+  }
 }
 </script>
 

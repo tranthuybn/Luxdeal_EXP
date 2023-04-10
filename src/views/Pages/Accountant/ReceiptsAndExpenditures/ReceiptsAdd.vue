@@ -169,7 +169,7 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
-      style: 'width: 100%',
+      style: 'width: 100%'
     }
   },
   {
@@ -202,7 +202,6 @@ const schema = reactive<FormSchema[]>([
 
 
 const customizeData = async (data) => {
-
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney
@@ -212,7 +211,7 @@ const customizeData = async (data) => {
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
   setFormData.paid = data.transacted
-  setFormData.accountNumber = data.accountNumber
+  setFormData.accountNumber = data.account
 }
 
 const customData = (data) => {
@@ -321,7 +320,6 @@ const currentCollapse = ref<string>(collapse[0].name)
           :delApi="deleteReceiptOrPayment"
           :hasImage="false"
           :hasAttachDocument="true"
-          :customSetValues="true"
         />
       </el-collapse-item>
     </el-collapse>

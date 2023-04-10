@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref, onBeforeMount, reactive, computed } from 'vue'
+import { PropType, watch, ref, unref, onBeforeMount, reactive } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -30,17 +30,12 @@ import { statusService } from '@/utils/status'
 import moment from 'moment'
 import { TableResponse } from '@/views/Pages/Components/Type'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { getStaffList, getAllCustomer, getAccountantList, balanceAccount, getAccountantById } from '@/api/Business'
+import { getStaffList, getAllCustomer, getAccountantList, balanceAccount, getAccountantById, cancelBalanceAccount } from '@/api/Business'
 import { ListImages } from './types'
 import { usePermission } from '@/utils/tsxHelper'
 import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
 
 // import { STATUS_RECEIPTS_AND_PAYMENT } from '@/utils/API.Variables'
-
-const getAccount = async (accountNumber) => {
-  return await getAccountantById({Id: accountNumber})
-}
-
 
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
@@ -142,15 +137,12 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  customBtn: {
+  module: {
     type: Number,
-    default: 1
+    default: 1,
+    descriptions: '1: Receipt and Payment, 2: Balance'
   },
   splitScreen: {
-    type: Boolean,
-    default: false
-  },
-  customSetValues: {
     type: Boolean,
     default: false
   }
@@ -179,6 +171,7 @@ const pageSize = ref(10)
 const createdByOptions = ref([{}])
 const peopleTypeOptions = ref([{}])
 const nameDialog = ref('')
+const isDisabled = ref(false)
 
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
@@ -211,12 +204,17 @@ const getTableValue = async () => {
   }
 }
 
-const data = computed(() => formValue.value)
-
 //formValue lay tu api
 const customizeData = async () => {
   optionPeopleType.value = formValue.value?.peopleObject
   optionCreatedBy.value = formValue.value?.createdByObject
+  if(props.module == 1) {
+    await getAccountantById({Id: formValue.value.accountNumber})
+      .then(res => {
+        formValue.value.account = Number(res.data.accountNumber) 
+      })
+      .catch(err => console.log(err))
+  }
   emit('customize-form-data', formValue.value)
 }
 
@@ -224,18 +222,9 @@ const customizeData = async () => {
 const setFormValue = async () => {
   //neu can xu li du lieu thi emit len component de tu xu li du lieu
   await customizeData()
-  const { setValues } = methods
+  const { setValues, setSchema } = methods
   if (props.formDataCustomize !== undefined) {
-    if(props.customSetValues) {
-      await getAccount(formValue.value.accountNumber)
-       .then(res => {
-         const newObj = {...props.formDataCustomize, accountNumber: Number(res.data.accountNumber)}
-         setValues(newObj)
-       })
-       .catch(err => console.log(err))
-    } else {
-      setValues(props.formDataCustomize)
-    }
+    setValues(props.formDataCustomize)
     const ImageNull = props.formDataCustomize.imageurl
     const linkNull = 'https://dev-luxdeal-api.cftsoft.com/null'
     if (ImageNull == linkNull) {
@@ -258,15 +247,35 @@ const setFormValue = async () => {
   } else {
     setValues(formValue.value)
   }
-  // if(formValue.value.iStatus) {
-  //   setSchema([
-  //     {
-  //       field: 'typeAccount',
-  //       path: 'componentProps.disabled',
-  //       value: true
-  //     }
-  //   ])
-  // }
+
+  // If an accountNumber in detail balance is assigned in a receiptForm (or paymentForm), disabled some filed
+  if(formValue.value.iStatus && props.type == 'edit' && props.module == 2) {
+    const arrField = ['typeAccount', 'accountNumber1', 'accountNumber2', 'status']
+    const config = arrField.map(item => (
+      {
+        field: item,
+        path: 'componentProps.disabled',
+        value: true
+      }
+    )
+    )
+    setSchema(config)
+  }
+
+  // If a receiptForm (or paymentForm) is approval in detail page, cancel disabled some filed
+  if(formValue.value.isApproved && props.type == 'detail' && props.module == 1) {
+    const arrField = ['createdBy', 'description', 'peopleType', 'totalMoney', 'enterMoney' ]
+    const config = arrField.map(item => (
+      {
+        field: item,
+        path: 'componentProps.disabled',
+        value: true
+      }
+    ))
+    isDisabled.value = true
+    setSchema(config)
+  }
+
 }
 //Get data when click detail or edit button
 watch(
@@ -274,9 +283,7 @@ watch(
   async () => {
     if (props.type === 'detail' || props.type === 'approval') {
       const { setProps, setSchema } = methods
-      setProps({
-        disabled: true
-      })
+      if(props.module === 2) setProps({disabled: true})
 
       setSchema(
         schema.map((component) => ({
@@ -635,8 +642,26 @@ const handleAccounting = async () => {
     })
   )
 }
-const cancelAccounting = () => {
-  formValue.value.accounted = !formValue.value.accounted
+const cancelAccounting = async () => {
+  const payload = {
+    AccountId: formValue.value.accountNumber,
+    ReceiptId: formValue.value.id,
+    User: formValue.value.createdBy,
+  }
+  await cancelBalanceAccount(payload)
+  .then(() => {
+      ElNotification({
+        message: t('reuse.cancelAccountingSuccess'),
+        type: 'success'
+      })
+      formValue.value.accounted = !formValue.value.accounted
+    })
+  .catch(() =>
+    ElNotification({
+      message: t('reuse.cancelAccountingFail') ,
+      type: 'error'
+    })
+  )
 }
 
 const handleCarrying = () => {
@@ -710,7 +735,7 @@ const statusHistory = reactive([{
   approvedAt: currentDate
 }, 
 {
-  statusName: data.value?.type === 1 ? t('reuse.approvalPayment') : t('reuse.checkReceipts'),
+  statusName: t('reuse.approvalPayment'),
   statusValue: 1, 
   approvedAt: currentDate
 }, 
@@ -801,6 +826,7 @@ const statusHistory = reactive([{
               :hiddenKey="['id']"
               :clearable="false"
               :items="createdByOptions"
+              :disabled="isDisabled"
               @scroll-bottom="() => handleScroll('createdBy')"
               :defaultValue="form.createdBy"
               @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
@@ -827,6 +853,7 @@ const statusHistory = reactive([{
               :clearable="false"
               :placeHolder="t('reuse.selectObject')"
               :items="peopleTypeOptions"
+              :disabled="isDisabled"
               @scroll-bottom="() => handleScroll('peopleType')"
               :defaultValue="form.peopleType"
               @update-value="(_value, option) =>  handleChangeOptions(option, form, 'peopleType')"
@@ -909,7 +936,7 @@ const statusHistory = reactive([{
     <template #under>
       <div class="w-[100%]" v-if="props.type === 'add'">
         <div class="w-[50%] flex justify-left gap-2 ml-8">
-          <div v-if="customBtn == 2">
+          <div v-if="module == 2">
             <ElButton type="primary" :loading="loading" @click="save('add')">
               {{ t('reuse.save') }}
             </ElButton>
@@ -917,7 +944,7 @@ const statusHistory = reactive([{
               {{ t('reuse.saveAndAdd') }}
             </ElButton>
           </div>
-          <div v-if="customBtn == 1">
+          <div v-if="module == 1">
             <ElButton :loading="loading">
               {{ t('button.print') }}
             </ElButton>
@@ -925,13 +952,13 @@ const statusHistory = reactive([{
               {{ t('reuse.saveAndPending') }}
             </ElButton>
           </div>
-          <ElButton :type="customBtn == 1 ? 'danger' : '' " :loading="loading" @click="cancel()">
+          <ElButton :type="module == 1 ? 'danger' : '' " :loading="loading" @click="cancel()">
               {{ t('reuse.cancel') }}
           </ElButton>
         </div>
       </div>
       <div class="w-[100%]" v-if="props.type === 'edit'">
-        <div v-if="customBtn == 2" class="w-[50%] flex justify-left gap-2 ml-8">
+        <div v-if="module == 2" class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('edit')">
             {{ t('reuse.save') }}
           </ElButton>
@@ -942,7 +969,7 @@ const statusHistory = reactive([{
       </div>
       <div class="w-[100%]" v-if="props.type === 'detail'">
         <div class="w-[50%] flex justify-left gap-2 ml-5">
-          <div v-if="customBtn == 2">
+          <div v-if="module == 2">
             <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
               {{ t('reuse.fix') }}
             </ElButton>
@@ -950,25 +977,24 @@ const statusHistory = reactive([{
               {{ t('reuse.delete') }}
             </ElButton>
           </div>
-          <div v-if="customBtn == 1 && !formValue?.isCancel" class="w-[50%] flex justify-left gap-2 ml-5"> 
-            <div class="flex">
-              <ElButton class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
-                  {{ t('button.print') }}
+          <div v-if="module == 1" >
+             <ElButton v-if="formValue?.isApproved" class="pl-8 pr-8" @click="getFormReceipts" :loading="loading">
+                {{ t('button.print') }}
               </ElButton>
-              <ElButton v-if="formValue?.accounted" @click="handleCarrying" class="pl-8 pr-8" :loading="loading">
+              <ElButton v-if="formValue?.accounted && formValue?.isApproved" @click="handleCarrying" class="pl-8 pr-8" :loading="loading">
                 {{ t('button.carrying') }}
               </ElButton>
-              <ElButton v-if="formValue?.accounted" type="primary" @click="handleAccounting" :disabled="!formValue?.transacted || !formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
+              <ElButton v-if="formValue?.accounted && formValue?.isApproved " type="primary" @click="handleAccounting" :disabled="!formValue?.transacted || !formValue?.accountNumber" class="pl-8 pr-8" :loading="loading">
                 {{ t('reuse.accounting') }}
               </ElButton>
-              <ElButton v-if="!formValue?.accounted" type="primary" @click="cancelAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
+              <ElButton v-if="!formValue?.accounted && formValue?.isApproved" type="primary" @click="cancelAccounting" :disabled="!formValue?.transacted" class="pl-8 pr-8" :loading="loading">
                 {{ t('reuse.cancelAccounting') }}
               </ElButton>
-            </div>
-            <ElButton v-if="userPermission?.deletable && formValue?.accounted" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-             {{ t('reuse.cancel') }}
-            </ElButton>  
+             <ElButton v-if="userPermission?.deletable && !formValue?.accounted" :disabled="disabledCancelBtn" class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
+              {{ t('reuse.cancel') }}
+             </ElButton>
           </div>
+          
         </div>
       </div>
       <div class="pl-57" v-if="props.type === 'approval'">

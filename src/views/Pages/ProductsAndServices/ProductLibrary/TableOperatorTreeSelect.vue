@@ -589,7 +589,7 @@ const callApiAttribute = async () => {
 
 onBeforeMount(() => {
   callApiAttribute()
-  setValues({ ProductStatus: 1 })
+  // setValues({ ProductStatus: 1 })
 })
 //key up enter
 const changeTreeData = (data) => {

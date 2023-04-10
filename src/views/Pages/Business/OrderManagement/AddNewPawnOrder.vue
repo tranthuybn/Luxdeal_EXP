@@ -760,7 +760,7 @@ const getValueOfSelected = (_value, obj, scope) => {
   } else {
     data.productPropertyId = obj?.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     data.unitName = obj.unit
     data.price = obj.price
     callApiWarehouse(scope)
@@ -1325,6 +1325,10 @@ const postOrderStransaction = async (index: number) => {
   }
 
   if (index == 4) {
+    childrenTable.value = ListOfProductsForSale.value.map((val) => ({
+    merchadiseTobePayforId: parseInt(val.id),
+    quantity: val.quantity
+  }))
     tableAccountingEntry.value[0].receiveMoney > tableAccountingEntry.value[0].paidMoney
       ? (checkPTC.value = 1)
       : (checkPTC.value = 0)
@@ -1335,7 +1339,7 @@ const postOrderStransaction = async (index: number) => {
       index == 1
         ? t('formDemo.bill')
         : index == 2
-        ? t('formDemo.depositSlipAdvance')
+        ? 'Tổng tiền gốc cầm đồ'
         : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
@@ -2290,7 +2294,7 @@ const openDetailFullyIntegrated = async (props) => {
       }
   informationWarehouseReceipt.value = true
 }
-const paymentType = ref(3)
+const paymentType = ref(4)
 const paymentTypeOptions = ref([
   {
     label:'Thanh toán tiền gốc',
@@ -2809,7 +2813,7 @@ const printPaymentRequest = () => {
                 </div>
 
                 <div class="flex-1">
-                  <el-form-item :label="t('formDemo.selectImportWarehouse')" prop="warehouse">
+                  <el-form-item :label="t('reuse.chooseImportWarehouse')" prop="warehouse">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
                         <el-select

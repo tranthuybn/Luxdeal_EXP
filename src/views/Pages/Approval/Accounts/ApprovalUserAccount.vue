@@ -8,9 +8,10 @@ import { listApprovalUserAccount } from '@/api/Approval';
 import { appModules } from '@/config/app'
 const { utility } = appModules
 const { t } = useI18n()
-
+const { currentRoute } = useRouter()
 const { push } = useRouter()
-
+const type = currentRoute.value.meta.title
+console.log('type', type)
 
 const tableListOrder = ref([])
 

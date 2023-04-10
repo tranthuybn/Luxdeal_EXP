@@ -1418,7 +1418,7 @@ const getValueOfSelected = async (value, obj, scope) => {
    else if (!duplicateProduct.value && dateRangePrice.value) {
     data.productPropertyId = obj.productPropertyId
     data.productCode = obj.value
-    data.productName = obj.name
+    data.productPropertyName = obj.name
     data.priceChange = false
     getTotalWarehouse()
     if (data.fromDate && data.toDate) {
@@ -1836,7 +1836,8 @@ const getReturnRequestTable = async () => {
       returnDetailStatusName: e?.returnDetailStatusName,
       warehouseTicketCode: e?.warehouseTicketCode,
       warehouseTicketId: e?.warehouseTicketId,
-      warehouseTicketStatusName: e?.warehouseTicketStatusName
+      warehouseTicketStatusName: e?.warehouseTicketStatusName,
+      warehouseTicketStatus: e.warehouseTicketStatus
     }))
     orderUtility.checkStatusReturnRequestInWarehouse(historyTable.value[0]?.warehouseTicketStatus)
   }

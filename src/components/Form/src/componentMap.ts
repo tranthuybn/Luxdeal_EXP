@@ -5,6 +5,7 @@ import {
   ElColorPicker,
   ElDatePicker,
   ElInput,
+  ElCheckbox,
   ElInputNumber,
   ElRadioGroup,
   ElRate,
@@ -28,6 +29,7 @@ import { Editor } from '@/components/Editor'
 const componentMap: Recordable<Component, ComponentName> = {
   Radio: ElRadioGroup,
   Checkbox: ElCheckboxGroup,
+  CheckboxSingle: ElCheckbox,
   CheckboxButton: ElCheckboxGroup,
   Input: ElInput,
   Autocomplete: ElAutocomplete,

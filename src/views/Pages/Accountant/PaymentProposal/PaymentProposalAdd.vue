@@ -43,7 +43,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { statusService } from '@/utils/status'
 import paymentOrderPrint from '@/views/Pages/Components/formPrint/src/paymentOrderPrint.vue'
 
-
+const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 const { t } = useI18n()
 const escape = useIcon({ icon: 'quill:escape' })
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -315,7 +315,7 @@ onBeforeMount(async () => {
     PageSize: pageSize.value
   })
   peopleOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
-  editData()
+  getData()
 })
 
 const handleScroll = (field) => {
@@ -367,7 +367,7 @@ const approvalPayments = async (val) => {
 }
 
 // Xem detail or edit or approved 
-const editData = () => {
+const getData = () => {
   if (type == 'approval' || type == 'detail' || type == 'edit') {
     getDetailPayment()
     disableForm.value = type == 'approval' || type == 'detail'
@@ -428,7 +428,6 @@ const getFormPayment = () => {
     nameDialog.value = t('reuse.labelPaymentProposalprint')
 
     printPayment.value = !printPayment.value
-    console.log('printPayment.value', printPayment.value)
   }
 }
 
@@ -502,7 +501,7 @@ const getFormPayment = () => {
                 :clearable="false"
                 :items="createdByOptions"
                 @scroll-bottom="() => handleScroll('createdBy')"
-                :defaultValue="form.createdBy"
+                :defaultValue="form.createdBy ? form.createdBy : `${currentUser.name} | ${currentUser.phonenumber}`"
                 @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
              />
             </el-form-item>

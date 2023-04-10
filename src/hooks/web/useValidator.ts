@@ -255,7 +255,7 @@ export const useValidator = () => {
       validator: (_rule: any, value: any, callback: any) => {
         if (value && value.length > 2) {
           callback(new Error(t('reuse.maxPercent')))
-        }
+        } 
         callback()
       },
       required: false,

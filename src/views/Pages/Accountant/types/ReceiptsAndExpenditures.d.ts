@@ -1,4 +1,5 @@
 export interface FormDataPostAndEdit  {
+    Id: number
     Code: string
     CreateAt: string
     CreatedBy: string
@@ -12,6 +13,7 @@ export interface FormDataPostAndEdit  {
     Transacted: boolean
     Type: 1 | 0
     Status: number
+    Carrying: boolean
 }
 
 export interface FormData {
@@ -19,7 +21,7 @@ export interface FormData {
     createdAt: string
     createdBy: string
     description: string
-    peopleType: number
+    peopleId: number
     totalMoney: number
     enterMoney: string
     typeOfPayment: 1 | 2

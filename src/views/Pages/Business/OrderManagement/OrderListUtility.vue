@@ -1390,6 +1390,7 @@ const openAcountingEntryDialog = async (index, num) => {
   checkEditAcountingEntryPaymentType.value = true
 
   getReturnOrder()
+  dialogDepositSlipAdvance.value = false
   if (num == 1) {
     dialogSalesSlipInfomation.value = true
   } else if (num == 2) {
@@ -1905,7 +1906,14 @@ const openPaymentRequest = () => {
 }
 
 function printPage(id: string) {
+  console.log("888888888888888888888888888888888888")
   console.log(id)
+  var indexHeight = 0;
+  if(id == "recpPaymentPrint"){
+    indexHeight = 210;
+  }else {
+    indexHeight = 297;
+  }
   const prtHtml = document.getElementById(id)?.innerHTML
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
@@ -1923,13 +1931,13 @@ function printPage(id: string) {
                     <style>
                     html, body {
                       width: 148mm;
-    height: 297mm;
+    height: ${indexHeight}mm;
     margin: 0 auto;
     padding: 20mm;
   }
                     </style>
                   </head>
-                  <body>
+                  <body style="width: 98%;">
                     ${prtHtml}
                   </body>
                 </html>`)

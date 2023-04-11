@@ -22,47 +22,52 @@
         <div class="messages-chat" id="messages" style=" overflow: auto;">
         </div>
         <div v-if="dataProduct != null" class="content-message dark:bg-[var(--el-bg-color)]" id="box-product">
-          <section class="friend-send" >
+          <section class="friend-send">
             <div class="media">
               <div class="media-body h-250px ml-0">
-                  <el-card class="w-1/3  m-auto">
-                    <div class="flex border-bottom-1">
-                      <div class="basis-1/2"><img src="@/assets/imgs/avatar.jpg" class="w-full" />
-                        
-                      </div>
-                      <div class="pl-4">
-                        <div class="font-bold">{{ dataProduct.name }}</div>
-                        <div>Túi </div>
-                        <div>{{ currencyFormatter.format(dataProduct.price) }}</div>
-                      </div>
-                      <div class="pl-4">
-                        <button class="close-box" @click="close_box()"><b>X</b></button>
-                      </div>
-                      
+                <el-card class="w-1/3  m-auto">
+                  <div class="flex border-bottom-1">
+                    <div class="basis-1/2"><img src="@/assets/imgs/avatar.jpg" class="w-full" />
+
                     </div>
-                    <div class="flex flex-col">
-                      <div class="my-2 font-bold text-center">
-                        <div>
-                          {{ t('reuse.negotiationPrice') }}
+                    <div class="pl-4">
+                      <div class="font-bold">{{ dataProduct.name }}</div>
+                      <div>Túi </div>
+                      <div>{{ currencyFormatter.format(dataProduct.price) }}</div>
+                    </div>
+                    <div class="pl-4">
+                      <button class="close-box" @click="close_box()"><b>X</b></button>
+                    </div>
+
+                  </div>
+                  <div class="flex flex-col">
+                    <div class="my-2 font-bold text-center">
+                      <div v-if="wsCache.get(permissionStore.getStaffInfo).id == 32">
+                        {{ t('reuse.negotiationPrice') }}
                         20000 đ
-                        </div>
-                        <div>
-                          trả giá: <input class="font-bold text-center input-deal" type="number"/>
-                        </div>
                       </div>
-                      <div  class="flex justify-center">
+                      <div v-else>
+                        trả giá: <input class="font-bold text-center input-deal" type="number" />
+                      </div>
+                    </div>
+                    <div class="flex justify-center">
+                      <div v-if="wsCache.get(permissionStore.getStaffInfo).id == 32" class="flex justify-center">
                         <el-button class="w-full !font-bold" @click="documentAction(0)">{{
                           t('reuse.cancel')
                         }}</el-button>
-                        <el-button class="w-full !bg-black !font-bold" @click="documentAction(1)"><span
-                            class="text-white">Trả giá</span></el-button>
-                            <el-button class="w-full !bg-blue-400 !font-bold" @click="documentAction(1)"><span
-                            class="text-white">Đồng ý mua</span></el-button>
-                            <el-button class="w-full !bg-blue-400 !font-bold" @click="documentAction(1)"><span
+                        <el-button class="w-full !bg-blue-400 !font-bold" @click="documentAction(1)"><span
                             class="text-white">Đồng ý giá deal</span></el-button>
                       </div>
+                      <div v-else class="flex justify-center">
+                        <el-button class="w-full !bg-black !font-bold" @click="documentAction(1)"><span
+                            class="text-white">Trả giá</span></el-button>
+                        <el-button class="w-full !bg-blue-400 !font-bold" @click="documentAction(1)"><span
+                            class="text-white">Đồng ý mua</span></el-button>
+                      </div>
+
                     </div>
-                  </el-card>
+                  </div>
+                </el-card>
               </div>
             </div>
           </section>
@@ -106,11 +111,11 @@
         </div>
       </div>
     </div>
-    <modal :title="modalTitle"  v-if="showModal" @dataProductClick="dataProductClick" @close="showModal = false">
+    <modal :title="modalTitle" v-if="showModal" @dataProductClick="dataProductClick" @close="showModal = false">
       <div>{{ modalContent }}</div>
     </modal>
 
-    
+
   </el-card>
 </template>
 <script setup>
@@ -159,7 +164,7 @@ export default {
     return {
       dataProduct: null,
       showModal: false,
-      currencyFormatter : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }),
+      currencyFormatter: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }),
       modalTitle: 'Modal Title',
       modalContent: '',
       message: [],
@@ -257,12 +262,12 @@ export default {
     },
     displayDealPrice() {
       console.log(wsCache.get(permissionStore.getTypeChat))
-      if (wsCache.get(permissionStore.getTypeChat) == "6430ec70d761c80ca0c1c1d1") {
+      if (wsCache.get(permissionStore.getTypeChat) == "6434e9fab7d107a03d2654fb") {
         document.getElementById("priceDeal").style.display = "block";
-      //  document.getElementById("box-product").style.display = "block";
+        //  document.getElementById("box-product").style.display = "block";
       } else {
         document.getElementById("priceDeal").style.display = "none";
-      //  document.getElementById("box-product").style.display = "none";
+        //  document.getElementById("box-product").style.display = "none";
       }
     },
     showProductDeal() {
@@ -599,8 +604,12 @@ ul {
 .response .text {
   background-color: #e3effd !important;
 }
-.input-deal{
+
+.input-deal {
   border: 0.5px solid rgb(141, 137, 137);
   border-radius: 5px;
+}
+.lose-box{
+  float: right;
 }
 </style>

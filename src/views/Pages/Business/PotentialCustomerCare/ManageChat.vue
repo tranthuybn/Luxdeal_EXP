@@ -332,7 +332,7 @@ export default {
     },
     handleData(data) {
       wsCache.set(permissionStore.getGroupChatID, data.message.groud_chat );
-    //  this.$refs.childComponentRef.showMessage1(data.message)
+      this.$refs.childComponentRef.showMessage1(data.message)
     },
     handleDataType(data) {
       this.$refs.childComponentRef.showMessage1(data)

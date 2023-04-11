@@ -64,7 +64,7 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
 </script>
 
 <template>
-  <div style="width: 95%; height: 100%;">
+  <div style="width: 100%; height: 100%;">
     <div class="flex items-end pb-[30px]">
       <div class="basis-8/12 text-center">
         <img class="w-[60%] float-right" src="@/assets/imgs/images.png" />
@@ -74,11 +74,11 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
     <div class="flex justify-between">
       <div>
         <div class="flex pb-1 items-center">
-          <label class="mr-2">{{ t('formDemo.address') }} 1:</label>
+          <label class="mr-3">{{ t('formDemo.address') }} 1:</label>
           <div>TP. Hồ Chí Minh</div>
         </div>
         <div class="flex items-center">
-          <label class="mr-2">{{ t('formDemo.address') }} 2:</label>
+          <label class="mr-3">{{ t('formDemo.address') }} 2:</label>
           <div>TP. Hà Nội</div>
         </div>
       </div>

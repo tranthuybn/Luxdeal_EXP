@@ -2543,7 +2543,6 @@ onBeforeMount(async () => {
       <div id="billDepositPrint">
         <slot>
           <billPrint
-            class="w-[796px] h-[1123px]"
             v-if="dataEdit"
             :dataEdit="dataEdit"
             :nameDialog="nameDialog"

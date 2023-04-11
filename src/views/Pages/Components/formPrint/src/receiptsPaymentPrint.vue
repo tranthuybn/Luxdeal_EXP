@@ -27,7 +27,7 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
 </script>
 
 <template>
-  <div class="pt-[28px] m-6" style="width: 95%; height: 100%;">
+  <div  style="width: 100%; height: 100%; font-size: 14px;">
     <div class="flex justify-between items-center pb-4">
       <div class="basis-6/12">
         <img
@@ -43,22 +43,22 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
     <div class="pb-6">
       <div class="flex pb-1 items-center">
         <label class="font-bold basis-1/5">{{ t('formDemo.address') }} :</label>
-        <div class="text-[16px]">
+        <div >
           <div class="mb-2">73B Lý Nam Đế - Hoàn Kiếm - Hà Nội</div>
           <div>116 Nguyễn Cư Trinh - Quận 1 - Hồ Chí Minh</div>
         </div>
       </div>
       <div class="flex pb-1 items-center">
         <label class="font-bold basis-1/5">{{ t('reuse.phoneNumber') }} :</label>
-        <div class="text-[16px]">098 23 56789 - 098 202 1919</div>
+        <div >098 23 56789 - 098 202 1919</div>
       </div>
       <div class="flex pb-1 items-center">
         <label class="font-bold basis-1/5">{{ t('reuse.email') }} :</label>
-        <div class="text-[16px]">info@authonlyluxury.com</div>
+        <div >info@authonlyluxury.com</div>
       </div>
       <div class="flex pb-1 items-center">
         <label class="font-bold basis-1/5">Website :</label>
-        <div class="text-[16px]">authonlyluxury.com</div>
+        <div >authonlyluxury.com</div>
       </div>
     </div>
     <div class="text-center pb-6">
@@ -94,10 +94,10 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
         <div>{{ props.dataEdit.sellOrderCode ?? '' }}</div>
       </div>
     </div>
-    <div class="flex items-center justify-between text-center">
+    <div class="flex items-center justify-between text-center " style="font-size: 11px;">
       <div class="basis-2/10">
         <div class="font-bold mb-1">Giám đốc</div>
-        <div class="text-[14px] italic">(Ký, họ tên, đóng dấu)</div>
+        <div class="italic">(Ký, họ tên, đóng dấu)</div>
       </div>
       <div class="basis-2/10">
         <div class="font-bold">Kế toán</div>

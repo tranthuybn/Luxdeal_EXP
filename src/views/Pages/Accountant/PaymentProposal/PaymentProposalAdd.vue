@@ -17,7 +17,8 @@ import {
   ElFormItem,
   ElDatePicker,
   ElNotification,
-  ElMessageBox
+  ElMessageBox,
+  ElMessage
 } from 'element-plus'
 import type {FormRules, FormInstance} from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -30,25 +31,28 @@ import {
 } from '@/api/Business'
 import { postNewPaymentRequest } from '@/api/Accountant'
 import InputPrice from '@/components/CurrencyInputComponent.vue'
-import { onBeforeMount, reactive, ref, watch, h } from 'vue'
+import { onBeforeMount, reactive, ref, watch, unref, h } from 'vue'
 import { FORM_IMAGES } from '@/utils/format'
 import { dateTimeFormat } from '@/utils/format'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment';
 import { useRoute, useRouter } from 'vue-router'
-import { changeMoney, printPage } from '@/utils/tsxHelper'
+import { changeMoney, printPage, formartDate } from '@/utils/tsxHelper'
 import { IDetailExpenses } from '../types/PaymentProposal.d'
 import { useValidator } from '@/hooks/web/useValidator'
 import { statusService } from '@/utils/status'
+import { IStatusHistory } from '../types'
 import paymentOrderPrint from '@/views/Pages/Components/formPrint/src/paymentOrderPrint.vue'
 
+const statusHistory = reactive<Array<IStatusHistory>>([])
 const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 const { t } = useI18n()
 const escape = useIcon({ icon: 'quill:escape' })
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const ruleFormRef = ref<FormInstance>()
+const rulePaymentFormRef = ref<FormInstance>()
 const formValue = ref()
 const router = useRouter()
 const route = useRoute()
@@ -83,17 +87,32 @@ const rulesPaymentMethod = reactive<FormRules>({
   enterMoney: [ValidService.required],
   typeOfPayment : [ValidService.required]
 })
-const statusHistory = reactive([{
-  statusName: t('reuse.initializeAndWrite'),
-  statusValue: 0, 
-  approvedAt: currentDate
-}, 
-{
-  statusName: t('reuse.approvalPayment'),
-  statusValue: 1, 
-  approvedAt: currentDate
-}, 
-])
+ 
+const setStatusHistory = () => {
+  const newStatus = [
+    {
+      statusName: t('reuse.initializeAndWrite'),
+      statusValue: 0, 
+      approvedAt: currentDate.value,
+      isActive: true
+    }, 
+    {
+      statusName: t('reuse.approvePaymentProposal'),
+      statusValue: 1, 
+      approvedAt: formartDate(formValue.value?.approvedAt),
+      isActive: true
+    }, 
+    {
+      statusName: t('button.cancel'),
+      statusValue: 4, 
+      approvedAt: formartDate(formValue.value?.cancelAt),
+      isActive: formValue.value?.isCancel ,
+    },
+  ]
+    if(statusHistory.length > 0) statusHistory.splice(0, statusHistory.length)
+    statusHistory.push(...newStatus)
+    console.log(statusHistory)
+}
 
 const back = async () => {
   push({
@@ -107,7 +126,7 @@ const optionsPayments = [
     label: t('reuse.payThroughMoney')
   },
   {
-    value: 2,
+    value: 0,
     key: 1,
     label: t('reuse.payThroughCard'),
   }
@@ -208,7 +227,7 @@ watch(pageIndexCustomer, async (newPageIndex) => {
   })
 
   if(response.data.length > 0) {
-    const arr = response.data.map(({code, phonenumber,name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
+    const arr = response.data.map(({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`,code, value: phonenumber, name, id, email }))
     peopleOptions.value.push(...arr); 
   }
 });
@@ -227,49 +246,57 @@ const autoCalculateFun = () => {
   form.value.debtMoney = form.value.totalPrice - form.value.depositeMoney
 }
 const postData = async() => {
-  if (!tableData.value[tableData.value.length - 1].numberVouchers) tableData.value.pop()
-  detailedListExpenses.value = tableData.value.map((el) => ({
-    numberVouchers: el.numberVouchers,
-    dayVouchers: el.dayVouchers,
-    spendFor: el.spendFor,
-    quantity: el.quantity,
-    unitPrice: el.unitPrice,
-    totalPrice: el.totalPrice,
-    note: el.note
-  }))
+  // const reusult = await Promise.all([unref(ruleFormRef), unref(rulePaymentFormRef)])
+  await unref(ruleFormRef)!.validate(async (isValid) => {
+  if(isValid) {
+    if (!tableData.value[tableData.value.length - 1].numberVouchers) tableData.value.pop()
+      detailedListExpenses.value = tableData.value.map((el) => ({
+      numberVouchers: el.numberVouchers,
+      dayVouchers: el.dayVouchers,
+      spendFor: el.spendFor,
+      quantity: el.quantity,
+      unitPrice: el.unitPrice,
+      totalPrice: el.totalPrice,
+      note: el.note
+    }))
 
-  const payload = {
-    Code: form.value.code,
-    TotalMoney: form.value.totalMoney,
-    PaymentType : form.value.typeOfPayment,
-    PeopleId: optionPeople.value.id,
-    status: 1,
-    PeopleType: 1,
-    Description: form.value.description,
-    EnterMoney: form.value.enterMoney,
-    ExpensesDetail: JSON.stringify(detailedListExpenses.value),
-    DepositeMoney: form.value.depositeMoney,
-    DebtMoney: form.value.debtMoney,
-    TotalPrice: form.value.totalPrice
-  }
-  await postNewPaymentRequest(FORM_IMAGES(payload))
-  .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      }),
-        push({
-          name: 'accountant.payment-proposal.payment-proposal-list',
-          params: { backRoute: 'accountant.payment-proposal.payment-proposal-list' }
+    const payload = {
+      Code: form.value.code,
+      TotalMoney: form.value.totalMoney,
+      PaymentType : form.value.typeOfPayment,
+      PeopleId: optionPeople.value.id,
+      status: 0,
+      PeopleType: 1,
+      Description: form.value.description,
+      EnterMoney: form.value.enterMoney,
+      ExpensesDetail: JSON.stringify(detailedListExpenses.value),
+      DepositeMoney: form.value.depositeMoney,
+      DebtMoney: form.value.debtMoney,
+      TotalPrice: form.value.totalPrice
+    }
+    await postNewPaymentRequest(FORM_IMAGES(payload))
+      .then(() => {
+        ElNotification({
+          message: t('reuse.addSuccess'),
+          type: 'success'
+        }),
+          push({
+            name: 'accountant.payment-proposal.payment-proposal-list',
+            params: { backRoute: 'accountant.payment-proposal.payment-proposal-list' }
+          })
         })
-    })
-    .catch((res) =>
-      ElNotification({
-        message: res.response.data.message,
-        type: 'warning'
-      })
+      .catch((res) =>
+        ElNotification({
+          message: res.response.data.message,
+          type: 'warning'
+        })
     )
-}
+
+  } else {
+    ElMessage.error(t('reuse.notFillAllInformation'))
+  }
+
+})}
 
 const getDetailPayment = async() => {
   if(!isNaN(id)) {
@@ -301,6 +328,8 @@ const setFormValue = () => {
   form.value.totalMoney = data.totalMoney
   form.value.enterMoney = data.enterMoney
   form.value.totalPrice = data.totalPrice
+  form
+  setStatusHistory()
 }
 
 onBeforeMount(async () => {
@@ -314,7 +343,7 @@ onBeforeMount(async () => {
     PageIndex: pageIndexCustomer.value,
     PageSize: pageSize.value
   })
-  peopleOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: code, value: phonenumber, name, id, email }))
+  peopleOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: `${name} | ${phonenumber}`,code, value: phonenumber, name, id, email }))
   getData()
 })
 
@@ -415,6 +444,7 @@ const delAction = () => {
       })
   }
 }
+const formPaymentProposalPeopleId = ref()
 
 const getFormPayment = () => {
   if (formValue.value.enterMoney) {
@@ -424,6 +454,9 @@ const getFormPayment = () => {
       reasonCollectingMoney: formValue.value.description,
       enterMoney: formValue.value.enterMoney,
       payment: formValue.value.typeOfPayment == 1 ? t('reuse.cashPayment') : t('reuse.cardPayment')
+    }
+    formPaymentProposalPeopleId.value = {
+      username: optionPeople.value
     }
     nameDialog.value = t('reuse.labelPaymentProposalprint')
 
@@ -435,7 +468,7 @@ const getFormPayment = () => {
 <template>
   <div id="IPRFormPrint">
     <slot>
-      <paymentOrderPrint v-if="formPaymentProposal" :dataEdit="formPaymentProposal" />
+      <paymentOrderPrint v-if="formPaymentProposal" :dataEdit="formPaymentProposalPeopleId" :dataSent="formPaymentProposal"/>
     </slot>
   </div>
 
@@ -451,7 +484,8 @@ const getFormPayment = () => {
             <slot>
               <paymentOrderPrint
                 v-if="formPaymentProposal"
-                :dataEdit="formPaymentProposal"
+                :dataEdit="formPaymentProposalPeopleId"
+                :dataSent="formPaymentProposal"
                 :nameDialog="nameDialog"
               />
             </slot>
@@ -516,7 +550,7 @@ const getFormPayment = () => {
                 valueKey="id" 
                 :placeHolder="t('reuse.selectObject')"
                 labelKey="label"
-                :hiddenKey="['id', 'email']"
+                :hiddenKey="['id', 'email', 'label']"
                 :clearable="false"
                 :defaultValue="form.peopleId"
                 :items="peopleOptions"
@@ -545,7 +579,7 @@ const getFormPayment = () => {
         <el-button class="header-icon" :icon="collapse[1].icon" link/>
         <span class="text-center text-xl">{{ collapse[1].title }}</span>
       </template>
-      <el-form :disabled="disableForm">
+      <el-form ref="rulePaymentFormRef" :disabled="disableForm">
         <el-table class="px-4" :data="tableData" border header-row-class-name="dark:text-white text-black">
           <el-table-column type="index" :label="t('reuse.index')" align="center" width="70" />
           <el-table-column prop="numberVouchers" :label="t('formDemo.numberVouchers')" min-width="132" >
@@ -687,7 +721,7 @@ const getFormPayment = () => {
                     v-for="(item, index) in statusHistory"
                     :key="index"
                 >
-                  <div class="mr-5 flex flex-col justify-start gap-2">
+                  <div v-if="item.isActive" class="mr-5 flex flex-col justify-start gap-2">
                       <div>
                         <span
                           class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
@@ -713,7 +747,7 @@ const getFormPayment = () => {
             </el-form-item>
 
             <el-form-item v-if="type === 'detail'">
-              <el-button v-if="!formValue?.isApproved" @click="getFormPayment">{{ t('button.print') }}</el-button>
+              <el-button v-if="formValue?.isApproved" @click="getFormPayment">{{ t('button.print') }}</el-button>
               <el-button v-else type="danger" @click="delAction">{{ t('reuse.cancel') }}</el-button>
             </el-form-item>
             

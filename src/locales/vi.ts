@@ -959,7 +959,9 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    approvePaymentProposal: 'Duyệt đề nghị',
     accountingWarnMessage: 'Chưa thu/chi tiền không thể hạch toán',
+    carryingWarnMessage: 'Chưa thu/chi tiền không thể ghi sổ',
     chooseOptions: 'Chọn',
     approveUserAccount: 'Duyệt tài khoản người dùng',
     approveCollaborator: 'Duyệt tài khoản CTV',

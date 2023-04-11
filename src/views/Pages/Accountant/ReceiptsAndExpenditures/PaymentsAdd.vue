@@ -175,6 +175,7 @@ const schema = reactive<FormSchema[]>([
     field: 'paid',
     label: t('reuse.payment'),
     component: 'CheckboxSingle',
+    value: false,
     colProps: {
       span: 18
     },
@@ -229,7 +230,7 @@ const customData = (data) => {
 
 const editData = async (data) => {
   data = customData(data)
-  await updateReceiptOrPayment(data)
+  await updateReceiptOrPayment(FORM_IMAGES(data))
     .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),

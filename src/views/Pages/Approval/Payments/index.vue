@@ -59,7 +59,7 @@ const action = (scope: any, _type: string) => {
     })
   } else {
     push({
-      name: `accountant.payment-proposal.payment-proposal-list.${utility}`,
+      name: `approve.payment-approval.proposal.${utility}`,
       params: { type: 'approval', id: scope.targetId},
       query: { approvalId: scope.id }
     })

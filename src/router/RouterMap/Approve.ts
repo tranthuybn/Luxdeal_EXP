@@ -1,5 +1,8 @@
 import { Layout } from '@/utils/routerHelper'
 import { useI18n } from '@/hooks/web/useI18n'
+import { appModules } from '@/config/app'
+
+const { utility } = appModules
 const { t } = useI18n()
 export default {
   path: '/approve',
@@ -86,7 +89,17 @@ export default {
           name: 'approve.payment-approval.proposal',
           meta: {
             title: t('router.paymentProposal')
-          }
+          },
+        },
+        {
+          path: 'proposal-utility/:type?/:id?',
+          component: () => import('@/views/Pages/Accountant/PaymentProposal/PaymentProposalAdd.vue'),
+          name: `approve.payment-approval.proposal.${utility}`,
+          meta: {
+            title: t('formDemo.detailsOfPaymentRequest'),
+            canTo: true,
+            hidden: true,
+          },
         },
         {
           path: 'receipts-and-expenditures',

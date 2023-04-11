@@ -13,6 +13,7 @@ import { useRouter } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { UserType } from '@/api/login/types'
 import { useValidator } from '@/hooks/web/useValidator'
+import { testList } from '@/testRouter'
 
 const { required, notSpecialCharacters } = useValidator()
 
@@ -183,8 +184,9 @@ const generateRouter = (routers) => {
     // save roles in local storage
   wsCache.set(permissionStore.getRouterByRoles, routers)
     //  generate router by roles
-  const urlList = routers.map((el) => el.url)
-  permissionStore.generateRoutes(urlList, 'client').then(() => { 
+  // const urlList = routers.map((el) => el.url)
+  
+  permissionStore.generateRoutes(testList, 'client').then(() => { 
     if(permissionStore.getAddRouters.length > 0)
       permissionStore.getAddRouters.forEach((route) => { 
       addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table

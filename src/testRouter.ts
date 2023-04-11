@@ -119,6 +119,7 @@ export const testList: string[] = [
     "/approve/orders-approval/orders-cancel",
     "/approve/payment-approval",
     "/approve/payment-approval/proposal",
+    "/approve/payment-approval/proposal-utility/:type?/:id?",
     "/approve/payment-approval/receipts-and-expenditures",
   
     "/approve/accounts-approval",

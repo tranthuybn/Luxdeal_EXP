@@ -19,6 +19,7 @@ import { Form, FormExpose } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
 
 // declare variables
+
 const emit = defineEmits(['refreshData', 'getData'])
 const dateFilterFormRefer = ref<FormExpose>()
 type momentDateType = Date | moment.Moment | null
@@ -53,6 +54,30 @@ const checkEndDate = (_, startDate: any, callback: Callback) => {
       : callback()
   )
 }
+const checkRequiredEndDate = (_, endDate: any, callback: Callback) => {
+  getFormData().then((res) =>
+    {
+      if(!endDate && res?.startDate) {
+        callback(new Error(t('common.required')))
+        return
+      }
+      callback()
+    }
+  )
+  
+}
+const checkRequiredStartDate = (_, startDate: any, callback: Callback) => {
+  getFormData().then((res) =>
+    {
+      if(!startDate && res?.endDate) {
+        callback(new Error(t('common.required')))
+        return
+      }
+      callback()
+    }
+  )
+}
+
 // Define the disabledDate function for the startDate picker
 const disabledStartDate = (date) => {
   const { endDate } = toRefs(state)
@@ -124,8 +149,8 @@ watch(
 )
 
 const rule = reactive({
-  startDate: [{ validator: checkEndDate }],
-  endDate: [{ validator: checkStartDate }]
+  startDate: [{ validator: checkEndDate }, {validator: checkRequiredStartDate} ],
+  endDate: [{ validator: checkStartDate }, {validator: checkRequiredEndDate}]
 })
 const periodFilter = reactive([
   { value: '3', label: 'Hôm qua' },
@@ -228,7 +253,7 @@ async function getDataEvent() {
                 .set('second', 59)
                 .format('YYYY-MM-DD HH:mm:ss'))
             : ''
-          emit('getData', { ...res, Keyword: validateHeaderInput.searchingKey })
+            emit('getData', { ...res, Keyword: validateHeaderInput.searchingKey })
         })
         .catch((error) => {
           console.error(error)

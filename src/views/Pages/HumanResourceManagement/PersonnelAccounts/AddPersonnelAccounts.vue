@@ -521,8 +521,8 @@ const postData = async (typebtn) => {
       })
       .catch((error) =>
         ElNotification({
-          message: error,
-          type: 'warning'
+            message: error.response.data.message,
+            type: 'warning'
         })
       )
   }

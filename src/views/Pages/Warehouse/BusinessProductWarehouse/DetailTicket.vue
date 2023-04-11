@@ -245,9 +245,9 @@ const callAPIWarehouse = async () => {
     pageSize: 1000,
     pageIndex: 1
   }).then((res) => {
-    warehouseOptions.value = res.data.map((item) => ({
-      value: item.id,
-      label: item.name
+    warehouseOptions.value = res.data.filter(el=>el.isActive)?.map((item) => ({
+          value: item.id,
+          label: item.name 
     }))
   })
 }
@@ -307,10 +307,11 @@ const chooseExportWarehouse = (warehouseId) => {
 v-model="FormData.fromWarehouseId" @change="chooseExportWarehouse"
     :disabled="props.type == 'detail'">
             <el-option
-              v-for="item in warehouseOptions"
-              :key="item.value"
+              v-for="item,key in warehouseOptions"
+              :key="key"
               :label="item.label"
               :value="item.value"
+              :disabled="FormData.toWarehouseId === item.value "
             />
           </el-select>
         </ElFormItem>
@@ -323,10 +324,11 @@ v-model="FormData.fromWarehouseId" @change="chooseExportWarehouse"
 v-model="FormData.toWarehouseId" @change="chooseImportWarehouse"
     :disabled="props.type == 'detail' && typeTransaction !== 3">
             <el-option
-              v-for="item in warehouseOptions"
-              :key="item.value"
+              v-for="item,key in warehouseOptions"
+              :key="key"
               :label="item.label"
               :value="item.value"
+              :disabled="FormData.fromWarehouseId === item.value "
             />
           </el-select>
         </ElFormItem>

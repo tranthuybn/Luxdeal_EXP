@@ -170,11 +170,11 @@ export const formatStatusAccounting = (val) => {
 
 export const formatStatusGeneral = (val) => {
   switch (val) {
-    case 0:
-      return t('reuse.pending')
     case 1:
-      return t('reuse.finishPending')
+      return t('reuse.pending')
     case 2:
+      return t('reuse.finishPending')
+    case 0:
       return t('reuse.cancelled')
     default:
       return ''

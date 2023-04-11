@@ -15,8 +15,7 @@ const props = defineProps({
     default: () => {}
   }
 })
-console.log('HUy:' ,props.dataSent )
-console.log('props:', props.dataEdit )
+console.log(props)
 </script>
 
 <template>

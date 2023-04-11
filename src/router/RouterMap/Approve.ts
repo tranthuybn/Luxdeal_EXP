@@ -38,6 +38,31 @@ export default {
           meta: {
             title: t('router.edit')
           }
+        },
+        {
+          path: `products-approval-utility/:type?/:id?/:approvalId?`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/ProductLibrary/ProductUtility.vue'),
+          name: `approve.products-approval.products-approval-utility.${utility}`,
+          meta: {
+            title: t('router.productLibraryProducts'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
+          path: `service-approval-utility/:type?/:id?/:approvalId?`,
+          component: () =>
+            import('@/views/Pages/ProductsAndServices/ServiceLibrary/SpaServiceUtility.vue'),
+          name: `approve.products-approval.service-approval-utility.${utility}`,
+          meta: {
+            title: t('router.ServiceLibrarySpaService'),
+            noTagsView: true,
+            noCache: true,
+            canTo: true,
+            hidden: true,
+            canto: true
+          }
         }
       ]
     },
@@ -72,6 +97,30 @@ export default {
           meta: {
             title: t('router.odersCancel')
           }
+        },
+        {
+          path: 'orders-utility/:type?/:tab?/:id?/:approvalId?',
+          component: () => import('@/views/Pages/Business/OrderManagement/index.vue'),
+          name: `approve.orders-approval.orders-utility.${utility}`,
+          meta: {
+            title: t('reuse.ordersDetail'),
+            noCache: true,
+            showMainRoute: true,
+            hidden: true,
+            canTo: true
+          }
+        },
+        {
+          path: 'purchase-utility/:type?/:tab?/:id?/:approvalId?',
+          component: () => import('@/views/Pages/Purchase/BusinessPurchases/PurchaseOrderAdd.vue'),
+          name: `approve.orders-approval.purchase-utility.${utility}`,
+          meta: {
+            title: t('reuse.purchaseOrdersDetail'),
+            noCache: true,
+            showMainRoute: true,
+            hidden: true,
+            canTo: true
+          }
         }
       ]
     },
@@ -92,7 +141,7 @@ export default {
           },
         },
         {
-          path: 'proposal-utility/:type?/:id?',
+          path: 'proposal-utility/:type?/:id?/:approvalId?',
           component: () => import('@/views/Pages/Accountant/PaymentProposal/PaymentProposalAdd.vue'),
           name: `approve.payment-approval.proposal.${utility}`,
           meta: {
@@ -107,6 +156,16 @@ export default {
           name: 'approve.payment-approval.receipts-and-expenditures',
           meta: {
             title: t('router.receiptsAndExpenditures')
+          }
+        },
+        {
+          path: 'receipts-and-expenditures-utility/:type?/:id?/:approvalId?',
+          component: () => import('@/views/Pages/Accountant/ReceiptsAndExpenditures/ReceiptsAdd.vue'),
+          name: `approve.payment-approval.receipts-and-expenditures.${utility}`,
+          meta: {
+            title: t('reuse.receiptsAddDetails'),
+            hidden: true,
+            canTo: true,
           }
         }
       ]
@@ -134,7 +193,29 @@ export default {
           meta: {
             title: t('router.collaboratorAccount')
           }
-        }
+        },
+        {
+          path: `customer-accounts-approval-utility/:type?/:id?/:approvalId?`,
+          component: () =>
+          import('@/views/Pages/Business/CustomerManagement/CustomerAdd.vue'),
+          name: `approve.accounts-approval.customer-accounts-approval-utility.${utility}`,
+          meta: {
+            title: t('reuse.userAccountApprovaeDetail'),
+            hidden: true,
+            canTo: true,
+          }
+        },
+        {
+          path: `collaborators-accounts-approval-utility/:type?/:id?/:approvalId?`,
+          component: () =>
+            import('@/views/Pages/Business/Collaborators/PaymentRequestAdd.vue'),
+          name: `approve.accounts-approval.collaborators-accounts-approval-utility.${utility}`,
+          meta: {
+            title: t('reuse.collaboratorsAccountApprovaeDetail'),
+            hidden: true,
+            canTo: true,
+          }
+        },
       ]
     },
     {
@@ -200,7 +281,67 @@ export default {
           meta: {
             title: t('router.advertisingBanner')
           }
-        }
+        },
+        {
+          path: 'approve-flash-sale-utility/:type?/:id?/:targetId?/:approveRequestId?',
+          name: `approve.approve-promotion-strategy.approve-flash-sale-utility.${utility}`,
+          component: () => import('@/views/Pages/Business/PromotionStrategy/FlashSaleUtility.vue'),
+          meta: {
+            title: t('reuse.flashSaleDetail'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
+          path: 'approve-collection-utility/:type?/:id?/:targetId?/:approveRequestId?',
+          name: `approve.approve-promotion-strategy.approve-collection-utility.${utility}`,
+          component: () => import('@/views/Pages/Business/PromotionStrategy/CollectionUtility.vue'),
+          meta: {
+            title: t('reuse.collectionDetail'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
+          path: 'approve-new-product-utility/:type?/:id?/:targetId?/:approveRequestId?',
+          name: `approve.approve-promotion-strategy.approve-new-product-utility.${utility}`,
+          component: () => import('@/views/Pages/Business/PromotionStrategy/NewProductUtility.vue'),
+          meta: {
+            title: t('reuse.newProductDetail'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
+          path: 'approve-voucher-utility/:type?/:id?/:targetId?/:approveRequestId?',
+          name: `approve.approve-promotion-strategy.approve-voucher-utility.${utility}`,
+          component: () => import('@/views/Pages/Business/PromotionStrategy/indexVoucher.vue'),
+          meta: {
+            title: t('router.voucher'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
+          path: 'approve-combo-utility/:type?/:id?/:targetId?/:approveRequestId?',
+          name: `approve.approve-promotion-strategy.approve-combo-utility.${utility}`,
+          component: () => import('@/views/Pages/Business/PromotionStrategy/ComboUtility.vue'),
+          meta: {
+            title: t('router.comboTitle'),
+            canTo: true,
+            hidden: true
+          }
+        },
+        {
+          path: 'approve-auction-utility/:type?/:id?/:targetId?/:approveRequestId?',
+          name: `approve.approve-promotion-strategy.approve-auction-utility.${utility}`,
+          component: () => import('@/views/Pages/Business/PromotionStrategy/Auction.vue'),
+          meta: {
+            title: t('router.auction'),
+            canTo: true,
+            hidden: true
+          }
+        },
       ]
     },
     {

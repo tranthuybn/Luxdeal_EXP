@@ -163,7 +163,8 @@ const getRole =  (accountId) => {
   // get role list
   GetRouterByStaffAccountId({ id: accountId }).then(routers => { 
     if (routers?.data && routers.data.length > 0) {   
-      generateRouter(routers.data)
+      // generateRouter(routers.data)
+      generateRouter(testList)
     } else {
       ElNotification({
         message: t('reuse.authorized'),
@@ -184,9 +185,10 @@ const generateRouter = (routers) => {
     // save roles in local storage
   wsCache.set(permissionStore.getRouterByRoles, routers)
     //  generate router by roles
+    // Tran Thi Thuy
   // const urlList = routers.map((el) => el.url)
-  
-  permissionStore.generateRoutes(testList, 'client').then(() => { 
+  const urlList = [...routers]
+  permissionStore.generateRoutes(urlList, 'client').then(() => { 
     if(permissionStore.getAddRouters.length > 0)
       permissionStore.getAddRouters.forEach((route) => { 
       addRoute(route as RouteRecordRaw) //Dynamic adding accessible routing table

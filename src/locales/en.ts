@@ -907,6 +907,11 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    userAccountApproveDetail: 'User account browsing details',
+    collaboratorsAccountApproveDetail: 'Details of collaborator account browsing',
+    addEmployeeAccount: 'Add new employee and accounts',
+    purchaseOrdersDetail: 'Purchase orders detail',
+    ordersDetail: 'Orders detail',
     approvePaymentProposal: 'Approve payment proposal',
     accountingWarnMessage: 'Not yet collect money can not account',
     carryingWarnMessage: 'Not yet collect money can not carrying',

@@ -257,6 +257,7 @@ const setFormValue = async () => {
   // If a receiptForm (or paymentForm) is approval in detail page, cancel disabled some filed
   if(props.module == 1) {
     if(formValue.value.isApproved && !formValue.value.isCancel) {
+      console.log('1')
       const arrField = ['createdBy', 'description', 'peopleId', 'totalMoney', 'enterMoney' ]
       const config = arrField.map(item => (
         {
@@ -267,8 +268,10 @@ const setFormValue = async () => {
       ))
       isDisabled.value = true
       setSchema(config)
-    } else if(!formValue.value.isApproved || formValue.value.isCancel) {
+    } else if(!formValue.value.isApproved || formValue.value.isCancel || formValue.value.isAccounted) {
+      console.log('')
       setProps({disabled: true})
+
     }
   }
 }
@@ -592,7 +595,7 @@ watch(pageIndexCustomer, async (newPageIndex) => {
   }
 });
 
-const approvalId = String(route.query.approvalId)
+const approvalId = String(route.params.approvalId)
 const approvalProduct = async (val) => {
   const payload = { ItemType: 5, Id: parseInt(approvalId), IsApprove: val }
   await approvalProducts(FORM_IMAGES(payload))

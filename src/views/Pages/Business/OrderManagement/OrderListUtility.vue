@@ -431,6 +431,7 @@ const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value = val
   countExisted.value = 0
   countExistedDNTT.value = 0
+  console.log('newTable.value ', newTable.value )
   newTable.value.map((el) => {
     if (el.receiptOrPaymentVoucherId) {
       countExisted.value++
@@ -451,6 +452,11 @@ const handleSelectionChange = (val: tableDataType[]) => {
         disabledDNTTAccountingEntry.value = false
       }
     }
+
+    disabledPCAccountingEntry.value = el.isReceiptedMoney
+    disabledDNTTAccountingEntry.value = el.isReceiptedMoney
+    disabledPTAccountingEntry.value = !el.isReceiptedMoney
+    disabledTypeAdd.value = true
   })
   // moneyReceipts.value = val.reduce((total, value) => {
   //   total += parseInt(value.receiveMoney)
@@ -1905,7 +1911,6 @@ const openPaymentRequest = () => {
 }
 
 function printPage(id: string) {
-  console.log(id)
   const prtHtml = document.getElementById(id)?.innerHTML
   let stylesHtml = ''
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {

@@ -1189,7 +1189,7 @@ const spaMoney = ref(0)
               </div>
               <div class="italic text-xs text-gray-500">{{ currentDate }}</div>
             </div>
-            <div v-else class="flex items-start" >
+            <div v-else class="flex items-start flex-wrap gap-y-3" >
               <div          
                   class="duplicate-status align-top"
                   v-for="item, index in form['statusHistory']"

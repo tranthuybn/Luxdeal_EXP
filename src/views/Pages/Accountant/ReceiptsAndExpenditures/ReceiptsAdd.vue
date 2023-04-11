@@ -218,6 +218,7 @@ const customData = (data) => {
   customData.Id = id || NaN
   customData.Code = data.code
   customData.CreatedBy = data.createdBy
+  customData.CreatedId = data.createdById
   customData.CreateAt = data.createdAt
   customData.Description = data.description
   customData.PeopleId = data.peopleId

@@ -48,6 +48,7 @@ const back = async () => {
 
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
+const type = String(router.currentRoute.value.params.type)
 </script>
 
 <template>
@@ -66,7 +67,7 @@ const id = Number(router.currentRoute.value.params.id)
             </div>
           </div>
         </template>
-        <LotDetail :id="id" />
+        <LotDetail :id="id" :type="type"/>
       </el-collapse-item>
 
       <el-collapse-item :name="collapse[1].name">
@@ -74,7 +75,7 @@ const id = Number(router.currentRoute.value.params.id)
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <LotHistoryTransaction :id="id" />
+        <LotHistoryTransaction :id="id" :type="type" />
       </el-collapse-item>
     </el-collapse>
   </div>

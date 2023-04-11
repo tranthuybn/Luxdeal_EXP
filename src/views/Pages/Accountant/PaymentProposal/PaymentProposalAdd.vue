@@ -46,7 +46,7 @@ import { IStatusHistory } from '../types'
 import paymentOrderPrint from '@/views/Pages/Components/formPrint/src/paymentOrderPrint.vue'
 
 const statusHistory = reactive<Array<IStatusHistory>>([])
-const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
+// const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 const { t } = useI18n()
 const escape = useIcon({ icon: 'quill:escape' })
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -265,6 +265,8 @@ const postData = async() => {
       TotalMoney: form.value.totalMoney,
       PaymentType : form.value.typeOfPayment,
       PeopleId: optionPeople.value.id,
+      CreatedBy: '',
+      CreatedById: 1,
       status: 0,
       PeopleType: 1,
       Description: form.value.description,
@@ -535,7 +537,7 @@ const getFormPayment = () => {
                 :clearable="false"
                 :items="createdByOptions"
                 @scroll-bottom="() => handleScroll('createdBy')"
-                :defaultValue="form.createdBy ? form.createdBy : `${currentUser.name} | ${currentUser.phonenumber}`"
+                :defaultValue="form.createdBy"
                 @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
              />
             </el-form-item>

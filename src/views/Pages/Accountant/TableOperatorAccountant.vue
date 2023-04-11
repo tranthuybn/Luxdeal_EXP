@@ -322,7 +322,10 @@ const save = async (type) => {
       //callback cho hàm emit
       if (type == 'add') {
         data.backRouter = true
-        if(optionCreatedBy.value?.id) data.createdBy = optionCreatedBy.value.name
+        if(optionCreatedBy.value?.id) {
+          data.createdBy = optionCreatedBy.value.name
+          data.createdById = optionCreatedBy.value.id
+        }
         emit('post-data', data)
         loading.value = false
       }
@@ -822,6 +825,8 @@ const setStatusHistory = () => {
               :clearable="false"
               :items="createdByOptions"
               :disabled="isDisabled"
+              :pageIndex="pageIndexStaff"
+              :api="getStaffList"
               @scroll-bottom="() => handleScroll('createdBy')"
               :defaultValue="form.createdBy"
               @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"

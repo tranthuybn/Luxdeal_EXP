@@ -265,7 +265,7 @@ const postData = async() => {
       TotalMoney: form.value.totalMoney,
       PaymentType : form.value.typeOfPayment,
       PeopleId: optionPeople.value.id,
-      status: 0,
+      status: 1,
       PeopleType: 1,
       Description: form.value.description,
       EnterMoney: form.value.enterMoney,

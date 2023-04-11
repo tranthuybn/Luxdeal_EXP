@@ -28,22 +28,38 @@
                   <el-card class="w-1/3  m-auto">
                     <div class="flex border-bottom-1">
                       <div class="basis-1/2"><img src="@/assets/imgs/avatar.jpg" class="w-full" />
+                        
                       </div>
                       <div class="pl-4">
                         <div class="font-bold">{{ dataProduct.name }}</div>
                         <div>Túi </div>
-                        <div>{{ dataProduct.price }} đ</div>
+                        <div>{{ currencyFormatter.format(dataProduct.price) }}</div>
                       </div>
+                      <div class="pl-4">
+                        <button class="close-box" @click="close_box()"><b>X</b></button>
+                      </div>
+                      
                     </div>
                     <div class="flex flex-col">
-                      <div class="my-2 font-bold text-center">{{ t('reuse.negotiationPrice') }}
-                        20000 đ</div>
+                      <div class="my-2 font-bold text-center">
+                        <div>
+                          {{ t('reuse.negotiationPrice') }}
+                        20000 đ
+                        </div>
+                        <div>
+                          trả giá: <input class="font-bold text-center input-deal" type="number"/>
+                        </div>
+                      </div>
                       <div  class="flex justify-center">
                         <el-button class="w-full !font-bold" @click="documentAction(0)">{{
                           t('reuse.cancel')
                         }}</el-button>
                         <el-button class="w-full !bg-black !font-bold" @click="documentAction(1)"><span
-                            class="text-white">Đồng ý</span></el-button>
+                            class="text-white">Trả giá</span></el-button>
+                            <el-button class="w-full !bg-blue-400 !font-bold" @click="documentAction(1)"><span
+                            class="text-white">Đồng ý mua</span></el-button>
+                            <el-button class="w-full !bg-blue-400 !font-bold" @click="documentAction(1)"><span
+                            class="text-white">Đồng ý giá deal</span></el-button>
                       </div>
                     </div>
                   </el-card>
@@ -143,6 +159,7 @@ export default {
     return {
       dataProduct: null,
       showModal: false,
+      currencyFormatter : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }),
       modalTitle: 'Modal Title',
       modalContent: '',
       message: [],
@@ -233,6 +250,10 @@ export default {
   methods: {
     dataProductClick(newMessage) {
       this.dataProduct = newMessage;
+    },
+    close_box() {
+      this.dataProduct = null;
+      //document.getElementById("box-product").style.display = "none";
     },
     displayDealPrice() {
       console.log(wsCache.get(permissionStore.getTypeChat))
@@ -577,5 +598,9 @@ ul {
 
 .response .text {
   background-color: #e3effd !important;
+}
+.input-deal{
+  border: 0.5px solid rgb(141, 137, 137);
+  border-radius: 5px;
 }
 </style>

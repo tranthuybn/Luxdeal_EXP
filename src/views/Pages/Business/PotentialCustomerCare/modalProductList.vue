@@ -12,7 +12,7 @@
           <div class="pl-4">
             <div class="font-bold">{{ index.name }}</div>
             <div>Túi </div>
-            <div>{{ index.price }} đ</div>
+            <div>{{ currencyFormatter.format(index.price) }}</div>
           </div>
         </div>
       </div>
@@ -31,7 +31,8 @@ export default {
   },
   data() {
     return {
-       dataProducts: null
+       dataProducts: null,
+       currencyFormatter: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
     }
   },
   mounted(){

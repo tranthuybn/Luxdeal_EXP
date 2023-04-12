@@ -1503,18 +1503,26 @@ const testList: string[] = [
   "/approve/products-approval",
   "/approve/products-approval/newly-initialized",
   "/approve/products-approval/edit",
+  "/approve/products-approval/products-approval-utility/:type?/:id?/:approvalId?", //new
+  "/approve/products-approval/service-approval-utility/:type?/:id?/:approvalId?", //new
   "/approve/orders-approval",
   "/approve/orders-approval/orders-new",
   "/approve/orders-approval/orders-edit",
   "/approve/orders-approval/orders-cancel",
+  "/approve/orders-approval/orders-utility/:type?/:tab?/:id?/:approvalId?",  //new
+  "/approve/orders-approval/purchase-utility/:type?/:tab?/:id?/:approvalId?",  //new
   "/approve/payment-approval",
   "/approve/payment-approval/proposal",
+  "/approve/payment-approval/proposal-utility/:type?/:id?/:approvalId?", //new
   "/approve/payment-approval/receipts-and-expenditures",
+  "/approve/payment-approval/receipts-and-expenditures-utility/:type?/:id?/:approvalId?", //new
 
   "/approve/accounts-approval",
   "/approve/accounts-approval/user-account",
   "/approve/accounts-approval/collaborator-account",
   "/approve/accounts-approval/internal-account",
+  "/approve/accounts-approval/customer-accounts-approval-utility/:type?/:id?/:approvalId?", //new
+  "/approve/accounts-approval/collaborators-accounts-approval-utility/:type?/:id?/:approvalId?", //new
   "/approve/approve-promotion-strategy",
   "/approve/approve-promotion-strategy/approve-flashsale",
   "/approve/approve-promotion-strategy/approve-collection",
@@ -1523,6 +1531,12 @@ const testList: string[] = [
   "/approve/approve-promotion-strategy/approve-combo",
   "/approve/approve-promotion-strategy/approve-auction",
   "/approve/approve-promotion-strategy/approve-advertisingBanner",
+  "/approve/approve-promotion-strategy/approve-flash-sale-utility/:type?/:id?/:targetId?/:approveRequestId?", //new
+  "/approve/approve-promotion-strategy/approve-collection-utility/:type?/:id?/:targetId?/:approveRequestId?", //new
+  "/approve/approve-promotion-strategy/approve-new-product-utility/:type?/:id?/:targetId?/:approveRequestId?", //new
+  "/approve/approve-promotion-strategy/approve-voucher-utility/:type?/:id?/:targetId?/:approveRequestId?", //new
+  "/approve/approve-promotion-strategy/approve-combo-utility/:type?/:id?/:targetId?/:approveRequestId?", //new
+  "/approve/approve-promotion-strategy/approve-auction-utility/:type?/:id?/:targetId?/:approveRequestId?", //new
   "/approve/approve-management",
   "/new-and-advertisement",
   "/new-and-advertisement/notify",
@@ -1542,7 +1556,7 @@ const testList: string[] = [
   "/human-resource-management/department-directory",
   "/human-resource-management/department-directory-utility/:type?/:tab?/:id?",
   "/human-resource-management/set-role",
-  "/human-resource-management/set-role-utility/:type?/:id?"
+  "/human-resource-management/set-role-utility/:type?/:id?",
 ]
 
 export default [

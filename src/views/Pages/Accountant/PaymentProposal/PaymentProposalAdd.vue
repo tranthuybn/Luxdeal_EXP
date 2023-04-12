@@ -21,7 +21,7 @@ import {
   ElMessage
 } from 'element-plus'
 import type {FormRules, FormInstance} from 'element-plus'
-import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import InfinitOptions from '@/components/Select/InfinitOptions.vue'
 import {
   GetPaymentRequestDetail,
   deletePaymentProposal,
@@ -60,11 +60,8 @@ const currentDate = ref(moment().format("DD/MM/YYYY"))
 const curCode = 'DNTT' + moment().format('hhmmss')
 const createdByOptions = ref([{}])
 const peopleOptions = ref([{}])
-const pageIndexStaff = ref(1)
-const pageIndexCustomer = ref(1)
 const optionPeople = ref()
 const optionCreatedBy = ref()
-const pageSize = ref(10)
 const id = Number(router.currentRoute.value.params.id)
 const approvalId = String(route.query.approvalId)
 const type = String(route.params.type) == ':type' ? 'add' : String(route.params.type)
@@ -74,6 +71,7 @@ const disableForm = ref(false)
 const formPaymentProposal = ref()
 const nameDialog = ref('')
 const printPayment = ref(false)
+const pageIndex = ref(1)
 const doCloseOnClickModal = ref(false)
 const detailedListExpenses = ref<Array<IDetailExpenses>>([])
 const { ValidService } = useValidator()
@@ -161,7 +159,7 @@ const activeName = ref([collapse[0].name, collapse[1].name])
 const form = ref({
   code: curCode,
   createdAt: new Date(),
-  createdBy: "",
+  createdBy: Number(currentUser.id),
   description: "",
   peopleId: "",
   debtMoney: 0,
@@ -208,30 +206,6 @@ watch(
   }
 )
 
-watch(pageIndexStaff, async (newPageIndex) => {
-  const response = await getStaffList({
-    PageIndex: newPageIndex,
-    PageSize: pageSize.value
-  })
-
-  if(response.data.length > 0) {
-    const arr = response.data.map(item => ({label: item.code, value: item.phonenumber, name: item.name, id: item.id }))
-    createdByOptions.value.push(...arr); 
-  }
-});
-
-watch(pageIndexCustomer, async (newPageIndex) => {
-  const response = await getAllCustomer({
-    PageIndex: newPageIndex,
-    PageSize: pageSize.value
-  })
-
-  if(response.data.length > 0) {
-    const arr = response.data.map(({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`,code, value: phonenumber, name, id, email }))
-    peopleOptions.value.push(...arr); 
-  }
-});
-
 const autoCalculate = () =>{
   form.value.totalPrice = 0
   tableData.value.forEach((el) => {
@@ -265,7 +239,9 @@ const postData = async() => {
       TotalMoney: form.value.totalMoney,
       PaymentType : form.value.typeOfPayment,
       PeopleId: optionPeople.value.id,
-      status: 1,
+      CreatedBy: '',
+      CreatedById: 1,
+      status: 0,
       PeopleType: 1,
       Description: form.value.description,
       EnterMoney: form.value.enterMoney,
@@ -333,31 +309,9 @@ const setFormValue = () => {
 }
 
 onBeforeMount(async () => {
-  const staffList = await getStaffList({
-    PageIndex: pageIndexStaff.value,
-    PageSize: pageSize.value
-  })
-  createdByOptions.value = staffList.data.map(({code, phonenumber, name, id}) => ({label: code, value: phonenumber, name, id}))
-  
-  const customerList = await getAllCustomer({
-    PageIndex: pageIndexCustomer.value,
-    PageSize: pageSize.value
-  })
-  peopleOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: `${name} | ${phonenumber}`,code, value: phonenumber, name, id, email }))
   getData()
 })
 
-const handleScroll = (field) => {
-  switch (field) {
-    case 'createdBy' :
-      pageIndexStaff.value += 1
-      return
-    case 'peopleId' : 
-      pageIndexCustomer.value += 1
-      return
-    default: return ''
-  }
-};
 const handleChangeOptions = (option, form, formType) => {
   switch (formType) {
     case 'createdBy' :
@@ -463,7 +417,7 @@ const getFormPayment = () => {
     printPayment.value = !printPayment.value
   }
 }
-
+const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email  })
 </script>
 <template>
   <div id="IPRFormPrint">
@@ -526,16 +480,18 @@ const getFormPayment = () => {
               <div>{{ dateTimeFormat(form.createdAt) }}</div>
             </el-form-item>
             <el-form-item :label="t('reuse.petitioner')" prop="createdBy">
-              <MultipleOptionsBox 
+              <InfinitOptions 
                 :fields="[t('reuse.employeeCode'),t('reuse.phoneNumber'),t('reuse.employeeName')]"
                 min-width="500px"
                 valueKey="id" 
                 labelKey="label"
-                :hiddenKey="['id']"
+                :hiddenKey="['id', 'label', 'email']"
                 :clearable="false"
                 :items="createdByOptions"
-                @scroll-bottom="() => handleScroll('createdBy')"
-                :defaultValue="form.createdBy ? form.createdBy : `${currentUser.name} | ${currentUser.phonenumber}`"
+                :pageIndex="pageIndex"
+                :api="getStaffList"
+                :mapFunction="getMapData"
+                :defaultValue="form.createdBy"
                 @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
              />
             </el-form-item>
@@ -544,7 +500,7 @@ const getFormPayment = () => {
             </el-form-item>
             <el-divider content-position="left">{{ t('reuse.subject') }}</el-divider>
             <el-form-item :label="t('reuse.selectObject')" prop="peopleId">
-              <MultipleOptionsBox 
+              <InfinitOptions 
                 :fields="[t('reuse.customerCode'),t('reuse.phoneNumber'),t('reuse.customerName')]"
                 min-width="500px"
                 valueKey="id" 
@@ -554,7 +510,9 @@ const getFormPayment = () => {
                 :clearable="false"
                 :defaultValue="form.peopleId"
                 :items="peopleOptions"
-                @scroll-bottom="() => handleScroll('peopleId')"
+                :pageIndex="pageIndex"
+                :api="getAllCustomer"
+                :mapFunction="getMapData"
                 @update-value="(_value, option) =>  handleChangeOptions(option, form, 'peopleId')"
               />
             </el-form-item>

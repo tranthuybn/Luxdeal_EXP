@@ -13,9 +13,13 @@ const props = defineProps({
   id: {
     type: Number,
     default: NaN
+  },
+  type: {
+    type: String,
+    default: ''
   }
 })
-
+console.log('type', props.type)
 const lotDetail = ref({
   productPropertyName: '',
   productCode: '',
@@ -143,8 +147,8 @@ const updateBusinessSetup = async (data) =>{
           <div class="flex">
             <div class="w-1/4 text-right pr-4">{{ t('reuse.allowToExport') }}</div>
             <div class="w-7/10 break-words">
-              <el-checkbox-group v-model="lotDetail.bussinessSetups" @change="updateBusinessSetup">
-                <el-checkbox :label="1">{{ t('reuse.sell') }}</el-checkbox>
+              <el-checkbox-group :disabled="type === 'detail'" v-model="lotDetail.bussinessSetups" @change="updateBusinessSetup">
+                <el-checkbox  :label="1">{{ t('reuse.sell') }}</el-checkbox>
                 <el-checkbox :label="2">{{ t('reuse.rent') }}</el-checkbox>
                 <el-checkbox :label="3">Spa</el-checkbox>
               </el-checkbox-group>

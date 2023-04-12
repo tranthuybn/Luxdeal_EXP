@@ -41,6 +41,7 @@ const rules = reactive({
   typeOfPayment: [required()],
   peopleType: [required()],
 })
+const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 
 //random field code
 const curDate = 'PC' + moment().format('hhmmss')
@@ -82,7 +83,8 @@ const schema = reactive<FormSchema[]>([
     component: 'Select',
     colProps: {
       span: 24
-    }
+    },
+    value: Number(currentUser.id)
   },
   {
     field: 'description',
@@ -101,7 +103,7 @@ const schema = reactive<FormSchema[]>([
     component: 'Divider'
   },
   {
-    field: 'peopleType',
+    field: 'peopleId',
     label: t('reuse.selectObject'),
     component: 'Select',
     colProps: {
@@ -172,18 +174,13 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'paid',
     label: t('reuse.payment'),
-    component: 'Radio',
+    component: 'CheckboxSingle',
     value: false,
     colProps: {
       span: 18
     },
     componentProps: {
-      options: [
-        {
-          label: t('formDemo.paidMoney'),
-          value: true
-        }
-      ]
+      label: t('formDemo.paidMoney')
     }
   },
   {
@@ -202,19 +199,20 @@ const customizeData = async (data) => {
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney
-  setFormData.createdBy = `${data.createdByObject?.name} | ${data.createdByObject?.value}` || ''
+  setFormData.createdBy = data.createdBy
   setFormData.createdAt = formartDate(data.createdAt)
-  setFormData.peopleType = `${data.peopleObject?.name} | ${data.peopleObject?.value}` || ''
+  setFormData.peopleId = data.peopleId
   setFormData.enterMoney = data.enterMoney
   setFormData.typeOfPayment = data.typeOfPayment
-  setFormData.accountNumber = data.fundID
   setFormData.paid = data.transacted
+  setFormData.accountNumber = Number(data.accountNumber)
 }
 
 const customData = (data) => {
   const customData = {} as FormDataPostAndEdit
+  customData.Id = id || NaN
   customData.Code = data.code
-  customData.CreatedBy = data.createdById
+  customData.CreatedBy = data.createdBy
   customData.CreateAt = data.createdAt
   customData.Description = data.description
   customData.PeopleId = data.peopleId
@@ -226,21 +224,18 @@ const customData = (data) => {
   customData.Transacted = data.paid
   customData.Type = 0
   customData.Status = 1
+  if(type == 'detail') customData.Carrying = true
   return customData
 }
 
 const editData = async (data) => {
   data = customData(data)
-  await updateReceiptOrPayment(data)
+  await updateReceiptOrPayment(FORM_IMAGES(data))
     .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),
         type: 'success'
-      }),
-        push({
-          name: 'accountant.receipts-expenditures.receipts-expenditures-list',
-          params: { backRoute: 'accountant.receipts-expenditures.receipts-expenditures-list' }
-        })
+      })
     })
     .catch(() =>
       ElNotification({

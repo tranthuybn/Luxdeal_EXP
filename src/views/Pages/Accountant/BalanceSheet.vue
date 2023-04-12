@@ -23,14 +23,15 @@ const getSummaries = (param) => {
     }
     const values = data.map((item) => Number(item[column.property]))
     if (!values.every((value) => Number.isNaN(value))) {
-      sums[index] = `${values.reduce((prev, curr) => {
+      const total = `${values.reduce((prev, curr) => {
         const value = Number(curr)
         if (!Number.isNaN(value)) {
           return prev + curr
         } else {
           return prev
         }
-      }, 0)} đ`
+      }, 0)}`
+      sums[index] = changeMoney.format(parseInt(total))
     } else {
       sums[index] = ''
     }

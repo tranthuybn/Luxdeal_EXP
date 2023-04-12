@@ -291,7 +291,7 @@ const save = async (type) => {
         // fix cung theo api (nen theo 1 quy tac)
         data.NewPhotos = fileList.value
         data.DeleteFileIds = DeleteFileIds
-        data.Imageurl = data.Image ? null : imageUrl.value
+        data.Images = data.imageurl ?? imageUrl.value
         emit('edit-data', data)
         loading.value = false
       }
@@ -420,19 +420,27 @@ const delAction = async () => {
       confirmButtonClass: 'ElButton--danger'
     })
       .then(() => {
-        const res = props.delApi({ Id: props.id })
-        if (res) {
-          ElNotification({
-            message: t('reuse.deleteSuccess'),
-            type: 'success'
-          }),
-            router.go(-1)
-        } else {
-          ElNotification({
-            message: t('reuse.deleteFail'),
-            type: 'warning'
-          })
+        props.delApi({ Id: props.id }).then(res => {
+          if (res?.statusCode === 200) {
+            ElNotification({
+              message: res.data.message ?? t('reuse.deleteSuccess'),
+              type: 'success'
+            }),
+              router.go(-1)
+          } else {
+            ElNotification({
+              message: res.data.message ?? t('reuse.deleteFail'),
+              type: 'warning'
+            })
+          }
         }
+        ).catch(err => { 
+          console.error(err);
+          ElNotification({
+              message: err.response.data.message ?? t('reuse.deleteFail'),
+              type: 'error'
+            })
+        })       
       })
       .catch(() => {
         ElNotification({
@@ -591,7 +599,7 @@ const approvalProduct = async () => {
           <ElButton v-if="props.showSaveAndAddBtnOnTypeEdit" :loading="loading" type="primary" @click="save('saveAndAdd')">
             {{ t('reuse.saveAndAdd') }}
           </ElButton>
-          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="props.showSaveAndAddBtnOnTypeEdit ? delAction : cancel">
+          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="cancel">
             {{ t('reuse.cancel') }}
           </ElButton>
         </div>

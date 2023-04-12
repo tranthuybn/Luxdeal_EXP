@@ -152,20 +152,14 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'status',
     label: t('reuse.status'),
-    component: 'Radio',
-    value: false,
+    component: 'CheckboxSingle',
     colProps: {
       span: 24
     },
     componentProps: {
-      options: [
-        {
-          label: t('reuse.active'),
-          value: true
-        }
-      ]
+      label: t('reuse.active')
     }
-  }
+  },
   
 ])
 

@@ -148,7 +148,7 @@ export const ADDRESS_API = {
 // kế toán
 export const ACCOUNTANT_API = {
   PAYMENT_LIST: '/api/v1/Accountant/GetPaymentRequestList',
-  DELETE_PAYMENT_BY_ID: '',
+  DELETE_PAYMENT_BY_ID: '/api/v1/Accountant/DeletePaymentRequest',
   BALANCE_ACCOUNT: '/api/v1/Accountant/AccountBalance',
   CANCEL_BALANCE_ACCOUNT: '/api/v1/Accountant/CancelAccountBalance',
   GET_RECEIPT_EXPENDITURES_LIST: 'api/v1/Accountant/GetListOfReceiptOrPaymentVoucher',

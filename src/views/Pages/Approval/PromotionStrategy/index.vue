@@ -57,17 +57,17 @@ provide('parameters', {
 const routeToDetailScreen = computed(():string => {
 switch (currentRoute.value.meta.title) {
     case 'router.flashsale':
-    return `business.promotion-strategy.flash-sale.${utility}`
+    return `approve.approve-promotion-strategy.approve-flash-sale-utility.${utility}`
     case 'router.collection':
-    return `business.promotion-strategy.collection.${utility}`
+    return `approve.approve-promotion-strategy.approve-collection-utility.${utility}`
     case 'router.newproduct':
-    return `business.promotion-strategy.new-product.${utility}`
+    return `approve.approve-promotion-strategy.approve-new-product-utility.${utility}`
     case 'router.voucher':
-    return `business.promotion-strategy.voucher.${utility}`  
+    return `approve.approve-promotion-strategy.approve-voucher-utility.${utility}` 
     case 'router.combo':
-    return `business.promotion-strategy.combo.${utility}` 
+    return `approve.approve-promotion-strategy.approve-combo-utility.${utility}`
     case 'router.auction':
-    return  `business.promotion-strategy.auction.${utility}` 
+    return `approve.approve-promotion-strategy.approve-auction-utility.${utility}` 
     case 'router.advertisingBanner':
     return  `business.promotion-strategy.advertisingBanner.${utility}` 
     default:
@@ -104,10 +104,10 @@ const setTableColumn = (arr:Array<TableColumn>) => {
 const action = (row: any, _type: string) => {
   const params: any =  { type:'approval', id: row.targetId, targetId: row.id}
   if(row.approveActionType == 2) params.approveRequestId = row.id
+
   push({
     name: routeToDetailScreen.value ?? '',
     params: params,
-    query: {approveRequestId : row.id}
   })
   }
 </script>

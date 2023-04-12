@@ -95,12 +95,12 @@ const { push } = useRouter()
 const action = (row: any, _type: string) => {
   if (row.approveItemType == 1) {
     push({
-      name: `products-services.productLibrary.Products.${utility}`,
+      name:  `approve.products-approval.products-approval-utility.${utility}`,
       params: { id: row.targetId, type: 'approval-product', approvalId: row.id }
     })
   } else {
     push({
-      name: `products-services.ServiceLibrary.SpaService.${utility}`,
+      name: `approve.products-approval.service-approval-utility.${utility}`,
       params: { id: row.targetId, type: 'approval-product', approvalId: row.id }
     })
   }
@@ -119,8 +119,8 @@ const action = (row: any, _type: string) => {
       :api="getProductsApproval"
       isOperatorColumnCustomize
       :selection="false"
-      :removeHeaderFilter="true"
       :customOperator="3"
+      :removeButtonAdd="true"
     />
   </ContentWrap>
 </template>

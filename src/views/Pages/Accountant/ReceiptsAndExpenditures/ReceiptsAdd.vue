@@ -218,6 +218,7 @@ const customData = (data) => {
   customData.Id = id || NaN
   customData.Code = data.code
   customData.CreatedBy = data.createdBy
+  customData.CreatedId = data.createdById
   customData.CreateAt = data.createdAt
   customData.Description = data.description
   customData.PeopleId = data.peopleId
@@ -229,7 +230,11 @@ const customData = (data) => {
   customData.Transacted = data.paid
   customData.Type = 1
   customData.Status = 1
-  if(type == 'detail') customData.Carrying = true
+  
+  if(type == 'detail') {
+    customData.Carrying = true
+    customData.Status = 2
+  }
   return customData
 }
 

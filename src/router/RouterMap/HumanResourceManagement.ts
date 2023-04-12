@@ -31,7 +31,7 @@ export default {
         import('@/views/Pages/HumanResourceManagement/PersonnelAccounts/AddPersonnelAccounts.vue'),
       name: `human-resource-management.personnel-accounts.${utility}`,
       meta: {
-        title: 'Thêm mới nhân sự & tài khoản',
+        title: t('reuse.addEmployeeAccount'),
         noTagsView: true,
         noCache: true,
         hidden: true,

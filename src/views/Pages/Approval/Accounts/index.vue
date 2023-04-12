@@ -45,7 +45,7 @@ const setTableColumn = (arr:Array<TableColumn>) => {
 const action = (scope: any, _type: string) => {
   if (type === 'router.userAccount') {
     push({
-      name: `business.customer-management.customerAdd.${utility}`,
+      name: `approve.accounts-approval.customer-accounts-approval-utility.${utility}`,
       params: {
         type: 'approval-cus',
         id: scope.targetId,
@@ -54,7 +54,7 @@ const action = (scope: any, _type: string) => {
     })
   } else {
     push({
-      name: `business.collaborators.collaboratorsList.${utility}`,
+      name: `approve.accounts-approval.collaborators-accounts-approval-utility.${utility}`,
       params: {
         type: 'approval-collab',
         id: scope.targetId,

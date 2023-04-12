@@ -58,7 +58,7 @@ const action = (scope: any, _type: string) => {
   const typeServiceOrder = API_ORDER.find((e) => e.key == scope.serviceType)
   if (typeServiceOrder?.key == 6) {
     push({
-      name: `purchase.business-purchases.purchase-order-list.${utility}`,
+      name: `approve.orders-approval.purchase-utility.${utility}`,
       params: {
         type: 'approval-order',
         id: scope.targetId,
@@ -67,7 +67,7 @@ const action = (scope: any, _type: string) => {
     })
   } else {
     push({
-      name: `business.order-management.order-list.${utility}`,
+      name: `approve.orders-approval.orders-utility.${utility}`,
       params: {
         type: 'approval-order',
         tab: typeServiceOrder?.label,

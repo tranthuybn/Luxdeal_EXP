@@ -312,12 +312,12 @@ export const filterStatusAccounting: Array<Filter> = [
   { text: t('reuse.pending'), value: 1 },
   { text: t('reuse.finishPending'), value: 2 },
   { text: t('reuse.accounted'), value: 3 },
-  { text: t('reuse.cancelled'), value: 4 }
+  { text: t('reuse.cancelled'), value: 0 }
 ]
 export const filterStatusGeneral: Array<Filter> = [
-  { text: t('reuse.pending'), value: 0 },
-  { text: t('reuse.finishPending'), value: 1 },
-  { text: t('reuse.cancelled'), value: 2 }
+  { text: t('reuse.pending'), value: 1 },
+  { text: t('reuse.finishPending'), value: 2 },
+  { text: t('reuse.cancelled'), value: 0 }
 ]
 export const filterReciprocalProfile: Array<Filter> = [
   { text: t('reuse.yes'), value: 1 },

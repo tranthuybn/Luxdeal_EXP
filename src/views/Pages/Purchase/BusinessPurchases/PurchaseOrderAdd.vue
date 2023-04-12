@@ -1706,7 +1706,7 @@ function printPage(id: string) {
                       width: 148mm;
     height: 420mm;
     margin: 0 auto;
-    padding: 20mm 40mm;
+    padding: 20mm;
   }
                     </style>
                   </head>

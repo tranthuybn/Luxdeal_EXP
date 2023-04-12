@@ -1807,6 +1807,7 @@ const getFormReceipts = async (textTitle) => {
       recharger: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
       user: getStaffList,
+      name: inputRecharger.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value  ? 'Tiền mặt' : 'Tiền thẻ'
@@ -2929,7 +2930,8 @@ const printPaymentRequest = () => {
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value
+      moneyReceipts: moneyReceipts.value,
+      detailedListExpenses: detailedListExpenses
     }
 
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value

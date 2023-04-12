@@ -2303,6 +2303,7 @@ const getFormReceipts = () => {
       codeReceipts: codeReceipts.value,
       recharger: inputRecharger.value,
       user: getStaffList,
+      name: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
@@ -2326,6 +2327,7 @@ const clickBullPrint = () => {
   PrintBill.value = !PrintBill.value
 }
 const formPaymentRequest = ref()
+const PrintpaymentOrderPrint = ref(false)
 const printPaymentRequest = () => {
   formPaymentRequest.value = {
       sellOrderCode: sellOrderCode.value,
@@ -2336,9 +2338,10 @@ const printPaymentRequest = () => {
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value
+      moneyReceipts: moneyReceipts.value,
+      detailedListExpenses: detailedListExpenses
     }
-
+    PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
   printPage('IPRFormPrint')
 }
 
@@ -2794,6 +2797,27 @@ const handleClose = (done: () => void) => {
           />
         </slot>
       </div>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold" width="40%" align-center >
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <slot>
+          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
+        </slot>
+        </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="PrintpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
 <!-- Phhieeus đat coc -->
 <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintBill" class="font-bold" width="40%" align-center >
         <div class="section-bill">

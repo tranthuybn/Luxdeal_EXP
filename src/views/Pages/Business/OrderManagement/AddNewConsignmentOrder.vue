@@ -1184,6 +1184,8 @@ function printPage(id: string) {
   var indexHeight = 0;
   if(id == "billLiquidationContract"){
     indexHeight = 630;
+  }else if(id == "recpPaymentPrint"){
+    indexHeight = 210;
   }else {
     indexHeight = 297;
   }
@@ -2345,7 +2347,8 @@ const getFormReceipts = async (textTitle) => {
       codeReceipts: codeReceipts.value,
       recharger: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
-      user: optionsCollaborators,
+      user: optionsCustomerApi,
+      name: inputRecharger.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value  ? 'Tiền mặt' : 'Tiền thẻ'
@@ -2364,7 +2367,8 @@ const printPaymentRequest = () => {
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value
+      moneyReceipts: moneyReceipts.value,
+      detailedListExpenses: detailedListExpenses
     }
 
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value

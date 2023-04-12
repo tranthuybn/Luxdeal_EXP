@@ -13,7 +13,6 @@ import { useRouter } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { UserType } from '@/api/login/types'
 import { useValidator } from '@/hooks/web/useValidator'
-import { testList } from '@/testRouter'
 
 const { required, notSpecialCharacters } = useValidator()
 
@@ -163,8 +162,7 @@ const getRole =  (accountId) => {
   // get role list
   GetRouterByStaffAccountId({ id: accountId }).then(routers => { 
     if (routers?.data && routers.data.length > 0) {   
-      // generateRouter(routers.data)
-      generateRouter(testList)
+      generateRouter(routers.data)
     } else {
       ElNotification({
         message: t('reuse.authorized'),
@@ -185,9 +183,7 @@ const generateRouter = (routers) => {
     // save roles in local storage
   wsCache.set(permissionStore.getRouterByRoles, routers)
     //  generate router by roles
-    // Tran Thi Thuy
-  // const urlList = routers.map((el) => el.url)
-  const urlList = [...routers]
+  const urlList = routers.map((el) => el.url)
   permissionStore.generateRoutes(urlList, 'client').then(() => { 
     if(permissionStore.getAddRouters.length > 0)
       permissionStore.getAddRouters.forEach((route) => { 

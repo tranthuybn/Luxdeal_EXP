@@ -50,9 +50,8 @@ router.beforeEach(async (to, from, next) => {
         next({ path: '/login' })
         return
       }
-      // await permissionStore.generateRoutes(routesPermission.map(el=>el.url) as AppCustomRouteRecordRaw[], 'client')
-      // Tran thi thuy
-      await permissionStore.generateRoutes(routesPermission as AppCustomRouteRecordRaw[], 'client')
+      await permissionStore.generateRoutes(routesPermission.map(el=>el.url) as AppCustomRouteRecordRaw[], 'client')
+  
       permissionStore.getAddRouters.forEach((route) => {
         router.addRoute(route as unknown as RouteRecordRaw) // Dynamic adding accessible routing table
       })

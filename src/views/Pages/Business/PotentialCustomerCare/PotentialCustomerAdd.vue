@@ -72,7 +72,9 @@ const postData = async (data) => {
         })
     })
   }
-
+   if(data.result == "") {
+    data.result = null;
+   }
   const payload = {
     name: data.classify == true ? data.companyName : data.customerName,
     userName: 'string',

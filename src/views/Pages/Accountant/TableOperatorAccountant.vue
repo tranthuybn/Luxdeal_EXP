@@ -29,7 +29,7 @@ import { FORM_IMAGES, dateTimeFormat } from '@/utils/format'
 import { statusService } from '@/utils/status'
 import moment from 'moment'
 import { TableResponse } from '@/views/Pages/Components/Type'
-import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import InfinitOptions from '@/components/Select/InfinitOptions.vue'
 import { getStaffList, getAllCustomer, getAccountantList, balanceAccount } from '@/api/Business'
 import { IStatusHistory, ListImages } from './types'
 import { usePermission, printPage, formartDate } from '@/utils/tsxHelper'
@@ -165,9 +165,7 @@ const rawUploadFile = ref<UploadFile>()
 const optionPeopleType = ref()
 const optionCreatedBy = ref(currentUser)
 const accountNumberOptions = ref()
-const pageIndexStaff = ref(1)
-const pageIndexCustomer = ref(1)
-const pageSize = ref(10)
+const pageIndex = ref(1)
 const createdByOptions = ref([{}])
 const peopleTypeOptions = ref([{}])
 const nameDialog = ref('')
@@ -525,18 +523,6 @@ const listType = ref<ListImages>('text')
 
 
 onBeforeMount(async () => {
-  const staffList = await getStaffList({
-    PageIndex: pageIndexStaff.value,
-    PageSize: pageSize.value
-  })
-  createdByOptions.value = staffList.data.map(({code, phonenumber, name, id}) => ({label: `${name} | ${phonenumber}`,code, value: phonenumber, name, id}))
-  
-  const customerList = await getAllCustomer({
-    PageIndex: pageIndexCustomer.value,
-    PageSize: pageSize.value
-  })
-  peopleTypeOptions.value = customerList.data.map(({code, phonenumber, name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email }))
-  
   const accountNumberList = await getAccountantList({})
   accountNumberOptions.value = accountNumberList.data.filter(item => item.isActive)
     .map(item => ({
@@ -547,17 +533,6 @@ onBeforeMount(async () => {
     }))
 })
 
-const handleScroll = (field) => {
-  switch (field) {
-    case 'createdBy' :
-      pageIndexStaff.value += 1
-      return
-    case 'peopleId' : 
-      pageIndexCustomer.value += 1
-      return
-    default: return ''
-  }
-};
 const handleChangeOptions = (option,form, formType) => {
   switch (formType) {
     case 'createdBy' :
@@ -571,29 +546,6 @@ const handleChangeOptions = (option,form, formType) => {
     default: return ''
   }
 }
-watch(pageIndexStaff, async (newPageIndex) => {
-  const response = await getStaffList({
-    PageIndex: newPageIndex,
-    PageSize: pageSize.value
-  })
-
-  if(response.data.length > 0) {
-    const arr = response.data.map(({code, phonenumber,name, id}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id,  }))
-    createdByOptions.value.push(...arr); 
-  }
-});
-
-watch(pageIndexCustomer, async (newPageIndex) => {
-  const response = await getAllCustomer({
-    PageIndex: newPageIndex,
-    PageSize: pageSize.value
-  })
-
-  if(response.data.length > 0) {
-    const arr = response.data.map(({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email }))
-    peopleTypeOptions.value.push(...arr); 
-  }
-});
 
 const approvalId = String(route.query.approvalId)
 const approvalProduct = async (val) => {
@@ -739,6 +691,7 @@ const setStatusHistory = () => {
   statusHistory.push(...newStatus)
 }
 
+const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email  })
 </script>
 <template>
   <ContentWrap :title="title" :back-button="backButton">
@@ -816,18 +769,18 @@ const setStatusHistory = () => {
           </template>
           
           <template #createdBy="form">
-            <MultipleOptionsBox 
+            <InfinitOptions 
               :fields="[t('reuse.employeeCode'),t('reuse.phoneNumber'),t('reuse.employeeName')]"
               min-width="500px"
               valueKey="id" 
               labelKey="label"
-              :hiddenKey="['id', 'label']"
+              :hiddenKey="['id', 'label', 'email']"
               :clearable="false"
               :items="createdByOptions"
               :disabled="isDisabled"
-              :pageIndex="pageIndexStaff"
+              :pageIndex="pageIndex"
               :api="getStaffList"
-              @scroll-bottom="() => handleScroll('createdBy')"
+              :mapFunction="getMapData"
               :defaultValue="form.createdBy"
               @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
             />
@@ -844,7 +797,7 @@ const setStatusHistory = () => {
           </template>
 
           <template #peopleId="form">
-            <MultipleOptionsBox 
+            <InfinitOptions 
               :fields="[t('reuse.customerCode'),t('reuse.phoneNumber'),t('reuse.customerName')]"
               min-width="500px"
               valueKey="id" 
@@ -854,7 +807,9 @@ const setStatusHistory = () => {
               :placeHolder="t('reuse.selectObject')"
               :items="peopleTypeOptions"
               :disabled="isDisabled"
-              @scroll-bottom="() => handleScroll('peopleId')"
+              :pageIndex="pageIndex"
+              :api="getAllCustomer"
+              :mapFunction="getMapData"
               :defaultValue="form.peopleId"
               @update-value="(_value, option) => handleChangeOptions(option, form, 'peopleId')"
             />

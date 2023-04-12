@@ -53,18 +53,17 @@ const setTableColumn = (arr:Array<TableColumn>) => {
 const action = (scope: any, _type: string) => {
   if (type != 'proposal') {
     push({
-      name: `accountant.receipts-expenditures.receipts-expenditures-list.${utility}`,
-      params: { type: 'approval', id: scope.targetId},
-      query: { approvalId: scope.id }
+      name: `approve.payment-approval.receipts-and-expenditures.${utility}`,
+      params: { type: 'approval', id: scope.targetId, approvalId: scope.id},
     })
   } else {
     push({
-      name: `accountant.payment-proposal.payment-proposal-list.${utility}`,
-      params: { type: 'approval', id: scope.targetId},
-      query: { approvalId: scope.id }
+      name: `approve.payment-approval.proposal.${utility}`,
+      params: { type: 'approval', id: scope.targetId, approvalId: scope.id},
     })
   }
 }
+
 </script>
 <template>
   <ContentWrap

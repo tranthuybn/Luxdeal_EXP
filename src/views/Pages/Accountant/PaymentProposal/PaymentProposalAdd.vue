@@ -63,7 +63,7 @@ const peopleOptions = ref([{}])
 const optionPeople = ref()
 const optionCreatedBy = ref()
 const id = Number(router.currentRoute.value.params.id)
-const approvalId = String(route.query.approvalId)
+const approvalId = String(route.params.approvalId)
 const type = String(route.params.type) == ':type' ? 'add' : String(route.params.type)
 const tableData = ref<Array<IDetailExpenses>>([])
 const showInputPricePlaceholder = ref(true)
@@ -80,6 +80,7 @@ const rules = reactive<FormRules>({
   description: [ValidService.required],
   peopleId: [ValidService.required],        
 })
+
 const rulesPaymentMethod = reactive<FormRules>({
   totalMoney : [ValidService.required],
   enterMoney: [ValidService.required],
@@ -109,7 +110,6 @@ const setStatusHistory = () => {
   ]
     if(statusHistory.length > 0) statusHistory.splice(0, statusHistory.length)
     statusHistory.push(...newStatus)
-    console.log(statusHistory)
 }
 
 const back = async () => {

@@ -77,15 +77,15 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
     </div>
     <div class="flex pb-4 items-center ">
       <label class="font-bold basis-6/12">{{ t('userDemo.accountInfo') }} :</label>
-      <div class="uppercase">dang ngoc tuyet</div>
+      <div class="uppercase">.....................................</div>
     </div>
     <div class="flex pb-4 items-center ">
       <label class="basis-6/12">{{ t('userDemo.accountNumber') }} :</label>
-      <div>44210000200500</div>
+      <div>.....................................</div>
     </div>
     <div class="flex pb-4 items-center ">
       <label class="basis-6/12">Ngân hàng :</label>
-      <div>BIDV</div>
+      <div>.....................................</div>
     </div>
   </div>
 

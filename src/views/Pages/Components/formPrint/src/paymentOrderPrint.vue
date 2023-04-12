@@ -15,11 +15,10 @@ const props = defineProps({
     default: () => {}
   }
 })
-console.log(props)
 </script>
 
 <template>
-  <div class="flex pt-6 m-6" style="width: 90%;">
+  <div class="flex" style="width: 100%;">
     <div class="basis-4/12">
       <img src="@/assets/imgs/images.png" />
     </div>

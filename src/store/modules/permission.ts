@@ -31,6 +31,7 @@ export interface PermissionState {
   userNameReceive: string
   userIDReceive: string
   accountId: string
+  typeChat: string
 }
 
 export const usePermissionStore = defineStore({
@@ -51,7 +52,8 @@ export const usePermissionStore = defineStore({
     userIDSentChat: "userIDSentChat",
     userNameReceive : "userNameReceive",
     userIDReceive: "userIDReceive",
-    accountId: 'ACCOUNT_ID'
+    accountId: 'ACCOUNT_ID',
+    typeChat : 'TYPECHAT'
   }),
   persist: {
     enabled: true
@@ -104,7 +106,10 @@ export const usePermissionStore = defineStore({
     },
     getUserPermission(): iUserPermission|Nullable<iUserPermission> { 
       return this.userPermission
-    }
+    },
+    getTypeChat(): string {
+      return this.typeChat
+    },
   },
   actions: {
     generateRoutes(

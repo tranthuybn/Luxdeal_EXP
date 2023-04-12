@@ -19,6 +19,9 @@ function getUser(arr) {
       labelUser = arr[i].label
     }
   }
+  if(labelUser == ""){
+    labelUser = props.dataEdit.name
+  }
   return labelUser
 }
 console.log('dataEdit: ', props.nameDialog)

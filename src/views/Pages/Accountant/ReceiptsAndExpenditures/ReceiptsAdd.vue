@@ -230,7 +230,11 @@ const customData = (data) => {
   customData.Transacted = data.paid
   customData.Type = 1
   customData.Status = 1
-  if(type == 'detail') customData.Carrying = true
+  
+  if(type == 'detail') {
+    customData.Carrying = true
+    customData.Status = 2
+  }
   return customData
 }
 

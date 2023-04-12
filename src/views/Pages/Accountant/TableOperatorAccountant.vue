@@ -582,7 +582,8 @@ const handleAccounting = async () => {
     AccountId: formValue.value.accountNumber,
     ReceiptId: formValue.value.id,
     User: formValue.value.createdBy,
-    IsActive: true
+    IsActive: true,
+    Status: 3
   }
   await balanceAccount(payload)
   .then(() => {
@@ -607,7 +608,8 @@ const cancelAccounting = async () => {
     AccountId: formValue.value.accountNumber,
     ReceiptId: formValue.value.id,
     User: formValue.value.createdBy,
-    IsActive: false
+    IsActive: false,
+    Status: 1
   }
 
   await balanceAccount(payload)

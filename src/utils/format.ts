@@ -174,8 +174,8 @@ export const formatStatusGeneral = (val) => {
       return t('reuse.pending')
     case 1:
       return t('reuse.finishPending')
-    case 2:
-      return t('reuse.cancelled')
+    case 3:
+      return  t('reuse.cancelled')
     default:
       return ''
   }

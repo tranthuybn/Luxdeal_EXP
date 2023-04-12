@@ -7,9 +7,8 @@
         <span class="pl-2">{{ user.userName }}</span>
       </div>
       <div class="flex items-center w-1/4">
-        <el-input
-:placeholder="`${t('reuse.findContent')} ...`" v-model="search" :suffix-icon="searchIcon"
-class="p-4 h-70px"  />
+        <el-input :placeholder="`${t('reuse.findContent')} ...`" v-model="search" :suffix-icon="searchIcon"
+          class="p-4 h-70px" />
         <div id="showDocument">
           <el-button :icon="leftArrow" class="!pl-4 !border-0 !font-bold hidden" @click="showDocumentList(0)">Tài
             liệu</el-button>
@@ -22,87 +21,64 @@ class="p-4 h-70px"  />
       <ul class="message-box__body !h-full !dark:bg-[var(--el-bg-color)] border-top-1 dark:border-transparent">
         <div class="messages-chat" id="messages" style=" overflow: auto;">
         </div>
-      <!-- <li
-          class="content-message dark:bg-[var(--el-bg-color)]"
-          v-for="(mess, index) in messageStreamContent"
-          :key="index"
-        >
-          <section class="friend-send" v-if="mess.user !== 'admin'">
+        <div v-if="dataProduct != null" class="content-message dark:bg-[var(--el-bg-color)]" id="box-product">
+          <section class="friend-send">
             <div class="media">
-              <div class="media-body ml-0">
-                <section v-if="typeof mess.content === 'object'">
-                  <el-card class="w-1/3 h-250px m-auto">
-                    <div class="flex border-bottom-1">
-                      <div class="basis-1/2"
-                        ><img :src="mess.content.productImagePath" class="w-full" />
+              <div class="media-body h-250px ml-0">
+                <el-card class="w-1/3  m-auto">
+                  <div class="flex border-bottom-1">
+                    <div class="basis-1/2"><img src="@/assets/imgs/avatar.jpg" class="w-full" />
+
+                    </div>
+                    <div class="pl-4">
+                      <div class="font-bold">{{ dataProduct.name }}</div>
+                      <div>Túi </div>
+                      <div>{{ currencyFormatter.format(dataProduct.price) }}</div>
+                    </div>
+                    <div class="pl-4">
+                      <button class="close-box" @click="close_box()"><b>X</b></button>
+                    </div>
+
+                  </div>
+                  <div class="flex flex-col">
+                    <div class="my-2 font-bold text-center">
+                      <div v-if="wsCache.get(permissionStore.getStaffInfo).id == 32">
+                        {{ t('reuse.negotiationPrice') }}
+                        20000 đ
                       </div>
-                      <div class="pl-4">
-                        <div class="font-bold">{{ mess.content.productBrand }}</div>
-                        <div>{{ mess.content.productName }}</div>
-                        <div>{{ formatMoneyInput(mess.content.totalMoney) }}đ</div>
-                      </div> </div
-                    ><div class="flex flex-col"
-                      ><div class="my-2 font-bold text-center"
-                        >{{ t('reuse.negotiationPrice') }}
-                        {{ formatMoneyInput(mess.content.currentInterestMoney) }}đ</div
-                      >
-                      <div v-if="mess.content.orderStatus == 3" class="flex justify-center">
+                      <div v-else>
+                        trả giá: <input class="font-bold text-center input-deal" type="number" />
+                      </div>
+                    </div>
+                    <div class="flex justify-center">
+                      <div v-if="wsCache.get(permissionStore.getStaffInfo).id == 32" class="flex justify-center">
                         <el-button class="w-full !font-bold" @click="documentAction(0)">{{
                           t('reuse.cancel')
                         }}</el-button>
-                        <el-button class="w-full !bg-black !font-bold" @click="documentAction(1)"
-                          ><span class="text-white">{{ t('reuse.agreeToSell') }}</span></el-button
-                        >
+                        <el-button class="w-full !bg-blue-400 !font-bold" @click="documentAction(1)"><span
+                            class="text-white">Đồng ý giá deal</span></el-button>
                       </div>
-                      <div v-if="mess.content.orderStatus == 2" class="font-bold text-red-500">
-                        {{ t('reuse.cancelled') }}!
+                      <div v-else class="flex justify-center">
+                        <el-button class="w-full !bg-black !font-bold" @click="documentAction(1)"><span
+                            class="text-white">Trả giá</span></el-button>
+                        <el-button class="w-full !bg-blue-400 !font-bold" @click="documentAction(1)"><span
+                            class="text-white">Đồng ý mua</span></el-button>
                       </div>
-                      <div v-if="mess.content.orderStatus == 1" class="font-bold">
-                        {{ t('reuse.agreeToSell') }}!
-                      </div>
+
                     </div>
-                  </el-card>
-                </section>
-                <section
-                  class="!ml-4"
-                  v-else-if="typeof mess.content === 'string' && mess.content !== ''"
-                >
-                  <div class="flex message-box__customer items-center">
-                    <img :src="defaultImg" alt="..." width="35" height="35" />
-                    <span class="pl-2 text-black">{{ user.Name ? user.Name : user.UserName }}</span>
                   </div>
-                  <div class="friend-send__message ml-11 rounded-10px">{{ mess.content }}</div>
-                  <div class="ml-11 text-xs text-[#949494] pt-1 pb-2">20/10/2021</div>
-                </section>
-                <section class="content-message__time" v-else-if="mess.content !== ''">
-                  {{ moment(mess.createdDate).format('HH:mm A') }}
-                </section>
+                </el-card>
               </div>
             </div>
           </section>
-          <section class="you-send" v-if="mess.user === 'admin'">
-            <section v-if="typeof mess.content === 'object'" class="rounded-10px">
-              {{ mess.content }}
-            </section>
-            <section v-else>
-              <div class="you-send__message">
-                {{ mess.content }}
-              </div>
-              <div class="content-message__time text-xs text-[#949494] pb-2">
-                {{ moment(mess.createdDate).format('HH:mm A') }}
-              </div></section
-            >
-          </section>
-                  </li> -->
+        </div>
       </ul>
     </section>
     <div class="message-box__footer p-3 h-1/10">
-      <el-form
-class="message-box__send h-full flex-grow pr-4" ref="messageInput" :model="messageInputForm"
+      <el-form class="message-box__send h-full flex-grow pr-4" ref="messageInput" :model="messageInputForm"
         @submit.native.prevent>
         <el-form-item prop="chatContent" class="h-full relative" style="margin: 0">
-          <el-input
-class="h-45px" :placeholder="`${t('reuse.inputContent')} ...`" v-model="messageInputForm.chatContent"
+          <el-input class="h-45px" :placeholder="`${t('reuse.inputContent')} ...`" v-model="messageInputForm.chatContent"
             @keyup.enter.native="onSubmit" />
           <el-button :icon="sendIcon" @click="onSubmit" class="absolute right-1 !text-blue-500 biggerIcon" />
         </el-form-item>
@@ -127,8 +103,19 @@ class="h-45px" :placeholder="`${t('reuse.inputContent')} ...`" v-model="messageI
             <small>{{ t('reuse.contract') }}</small>
           </div>
         </el-upload>
+        <div class="message-box__feel" id="priceDeal" action="#" :show-file-list="false" @click="showModal = true">
+          <div size="small" class="message-box__icon">
+            <Icon icon="ion:document-text-outline" :size="27" />
+            <small>Deal giá</small>
+          </div>
+        </div>
       </div>
     </div>
+    <modal :title="modalTitle" v-if="showModal" @dataProductClick="dataProductClick" @close="showModal = false">
+      <div>{{ modalContent }}</div>
+    </modal>
+
+
   </el-card>
 </template>
 <script setup>
@@ -136,6 +123,7 @@ import { ElUpload, ElForm, ElFormItem, ElInput, ElButton, ElAlert, ElCard } from
 import { Icon } from '@/components/Icon'
 </script>
 <script>
+import Modal from './modalProductList.vue';
 import contractIcon from '@/assets/svgs/chat/contract.svg'
 import albumIcon from '@/assets/svgs/chat/album.svg'
 import faceIcon from '@/assets/svgs/chat/face.svg'
@@ -168,9 +156,17 @@ export default {
     messagesOfCurrentUser: Array,
     refss: Array
   },
-  expose: ['showMessage1', 'showMessage', 'showMessageSocketRe'],
+  expose: ['showMessage1', 'showMessage', 'showMessageSocketRe', 'displayDealPrice'],
+  components: {
+    Modal,
+  },
   data() {
     return {
+      dataProduct: null,
+      showModal: false,
+      currencyFormatter: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }),
+      modalTitle: 'Modal Title',
+      modalContent: '',
       message: [],
       TYPE_OF_MESSAGE_SELECTED,
       TYPE_OF_MESSAGE_PAWN,
@@ -254,8 +250,29 @@ export default {
     this.message = this.messagesOfCurrentUser
   },
   mounted() {
+    this.displayDealPrice()
   },
   methods: {
+    dataProductClick(newMessage) {
+      this.dataProduct = newMessage;
+    },
+    close_box() {
+      this.dataProduct = null;
+      //document.getElementById("box-product").style.display = "none";
+    },
+    displayDealPrice() {
+      console.log(wsCache.get(permissionStore.getTypeChat))
+      if (wsCache.get(permissionStore.getTypeChat) == "6434e9fab7d107a03d2654fb") {
+        document.getElementById("priceDeal").style.display = "block";
+        //  document.getElementById("box-product").style.display = "block";
+      } else {
+        document.getElementById("priceDeal").style.display = "none";
+        //  document.getElementById("box-product").style.display = "none";
+      }
+    },
+    showProductDeal() {
+
+    },
     onSubmit() {
       this.$refs.messageInput.validate(async (valid) => {
         if (valid) {
@@ -264,7 +281,7 @@ export default {
           var a = {
             chatGroupId: wsCache.get(permissionStore.getGroupChatID),
             text: this.messageInputForm.chatContent,
-            chatTypeId: null,
+            chatTypeId: wsCache.get(permissionStore.getTypeChat),
             productId: null,
             file: null,
             sender: {
@@ -284,8 +301,8 @@ export default {
     },
     showMessageSocketRe(message) {
       console.log(wsCache.get(permissionStore.getUserIDReceive))
-      console.log(message)
-      if (message.sender.id == wsCache.get(permissionStore.getUserIDReceive)) {
+      console.log("6666666666666666666666666666")
+      if (message.sender.id == wsCache.get(permissionStore.getUserIDReceive) && message.chatTypeId == wsCache.get(permissionStore.getTypeChat)) {
         this.showMessage(message);
       }
     },
@@ -311,7 +328,7 @@ export default {
   <p class="time" style="    font-size: 10px;
   color: lightgrey;
   margin-bottom: 10px;
-  margin-left: 85px;"> ${ moment(message.createAT).format('DD/MM/YYYY hh:ss:mm') }</p>`
+  margin-left: 85px;"> ${moment(message.createAT).format('DD/MM/YYYY hh:ss:mm')}</p>`
       } else {
         messages.innerHTML += `<div class="message text-only" style="display: flex;align-items: center;margin-bottom: 10px;">
     <div class="response" style="float: right;margin-right: 0px !important;margin-left: auto;">
@@ -342,7 +359,7 @@ export default {
   <p class="time" style="    font-size: 10px;
   color: lightgrey;
   margin-bottom: 10px;
-  margin-left: 85px;"> ${ moment(message.createAT).format('hh:ss:mm') }</p>`
+  margin-left: 85px;"> ${moment(message.createAT).format('hh:ss:mm')}</p>`
       } else {
         messages.innerHTML += `<div class="message text-only" style="display: flex;align-items: center;margin-bottom: 10px;">
     <div class="response" style="float: right;margin-right: 0px !important;margin-left: auto;">
@@ -354,6 +371,7 @@ export default {
 
     },
     showMessage1(val) {
+      console.log(val)
       messages.innerHTML = "";
       for (var i = 0; i < val.message.length; i++) {
         this.showMessage(val.message[i])
@@ -585,5 +603,13 @@ ul {
 
 .response .text {
   background-color: #e3effd !important;
+}
+
+.input-deal {
+  border: 0.5px solid rgb(141, 137, 137);
+  border-radius: 5px;
+}
+.lose-box{
+  float: right;
 }
 </style>

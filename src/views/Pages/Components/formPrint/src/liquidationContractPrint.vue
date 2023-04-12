@@ -43,13 +43,11 @@ function getArraySum(arr) {
   }
   return total
 }
-console.log('dataEdit: ', props.dataEdit)
-console.log('dataCustomer: ', props.dataCustomer)
-console.log('dataCustomer: ', props.dataUser)
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 </script>
 
 <template>
-  <div class="p-5" style="width: 100%; height: 100%;">
+  <div  style="width: 100%; height: 100%;">
     <div class="flex flex-end"> </div>
     <div class="flex items-end">
       <div class="basis-8/12 text-center">
@@ -58,7 +56,7 @@ console.log('dataCustomer: ', props.dataUser)
       <div class="basis-4/12 text-right text-base"> AUTHONLYLUXURY.COM </div>
     </div>
     <div class="flex justify-between text-sm">
-      <div>
+      <div class="basis-5/12">
         <div class="flex pb-1 items-center">
           <label class="mr-2">{{ t('formDemo.address') }} 1:</label>
           <div>TP. Hồ Chí Minh</div>
@@ -155,15 +153,15 @@ console.log('dataCustomer: ', props.dataUser)
         <el-table-column prop="accessory" label="Phụ kiện đi kèm"  align="center" />
         <el-table-column prop="consignmentSellPrice" label="Giá nhập"  align="center">
           <template #default="data">
-            {{ data.row.consignmentSellPrice }} VND
+            {{ currencyFormatter.format(data.row.consignmentSellPrice)}}
           </template>
         </el-table-column>
         <el-table-column prop="businessSetupName" label="Loại hàng"  align="center" />
-        <el-table-column prop="description" label="Ghi chú"  align="center" />
+        <!-- <el-table-column prop="description" label="Ghi chú"  align="center" /> -->
       </el-table>
       
       <div class="total-money text-end pr-[115px] pt-3" v-if="dataEdit">
-        <p>Tổng tiền | {{ getArraySum(dataEdit.orderDetails) }} VND</p>
+        <p>Tổng tiền | {{  currencyFormatter.format(getArraySum(dataEdit.orderDetails))  }} </p>
       </div>
     </div>
     <el-divider />

@@ -451,6 +451,11 @@ const handleSelectionChange = (val: tableDataType[]) => {
         disabledDNTTAccountingEntry.value = false
       }
     }
+
+    disabledPCAccountingEntry.value = el.isReceiptedMoney
+    disabledDNTTAccountingEntry.value = el.isReceiptedMoney
+    disabledPTAccountingEntry.value = !el.isReceiptedMoney
+    disabledTypeAdd.value = true
   })
   // moneyReceipts.value = val.reduce((total, value) => {
   //   total += parseInt(value.receiveMoney)
@@ -1906,8 +1911,6 @@ const openPaymentRequest = () => {
 }
 
 function printPage(id: string) {
-  console.log("888888888888888888888888888888888888")
-  console.log(id)
   var indexHeight = 0;
   if(id == "recpPaymentPrint"){
     indexHeight = 210;

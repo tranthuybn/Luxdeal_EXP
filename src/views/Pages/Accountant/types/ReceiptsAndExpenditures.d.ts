@@ -14,6 +14,7 @@ export interface FormDataPostAndEdit  {
     Type: 1 | 0
     Status: number
     Carrying: boolean
+    CreatedId: number
 }
 
 export interface FormData {

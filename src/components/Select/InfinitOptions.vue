@@ -1,7 +1,9 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect } from 'element-plus'
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, PropType, watch, onBeforeMount } from 'vue'
+import { TableResponse } from '@/views/Pages/Components/Type'
+import { TableData } from '@/api/table/types'
 
 const propsObj = defineProps({
   // columns name
@@ -60,56 +62,54 @@ const propsObj = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  pageIndex :{
+    type: Number,
+    default: 1
+  },
+  api: {
+    type: Function as PropType<any>,
+    default: () => Promise<IResponse<TableResponse<TableData>>>
+  },
+  mapFunction: {
+    type: Function,
+    default: () => {}
   }
 })
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
+const pageIndex = ref(propsObj.pageIndex)
+const pageSize = ref(10)
 
 let selected = computed(() => {
   return propsObj.defaultValue
 })
-const options = ref<Array<any>>([])
-
+const opTionList = ref([])
+const options: any = computed(() => opTionList.value)
 // if have not value, it will be set by first value key
 const identifyKey = ref(propsObj.valueKey)
 const identifyLabel = ref(propsObj.labelKey)
-// const identifyKey = computed(() => {
-//   const { valueKey, items } = propsObj
-//   if (valueKey) {
-//     return valueKey
-//   } else if (Array.isArray(items) && items.length > 0) {
-//     //returns an array of a given object's own enumerable property
-//     return Object.keys(items[0])[0]
-//   } else return 'value'
-// })
-// const identifyLabel = computed(() => {
-//   const { labelKey, items } = propsObj
-//   if (labelKey) {
-//     return labelKey
-//   } else if (Array.isArray(items) && items.length > 0) {
-//     return Object.keys(items[0])[0]
-//   } else return 'label'
-// })
 
 // set value for multiple select if defaultValue available
-watchEffect(() => {
-  if (propsObj.items?.length > 0)
-    // set options for select box
-    options.value = propsObj.items
-})
-// watch(
-//   () => propsObj.defaultValue,
-//   () => {
-//     selected.value = propsObj.defaultValue
-//   },
-//   { immediate: true }
-// )
 
+onBeforeMount(async () => {
+  if(pageIndex.value == 1) {
+    const response = await propsObj.api({
+      PageIndex: pageIndex.value,
+      PageSize: pageSize.value
+    })
+    if(response.data.length > 0) {
+      const arr = response.data.map(propsObj.mapFunction)
+      options.value.push(...arr);  
+    }
+  }
+})
 const acceptKey = (item) => {
   const { hiddenKey } = propsObj
   if (hiddenKey.length > 0) {
     return Object.keys(item).filter((el) => hiddenKey.indexOf(el) === -1)
   } else options.value = Object.keys(item)
 }
+
 const filter = (str) => {
   const { items } = propsObj
   if (str) {
@@ -128,16 +128,12 @@ const filter = (str) => {
     options.value = items
   }
 }
-// const appearsEvent = () => {
-//   const { items } = propsObj
-//   options.value = items
-//   loadOption.value = false
-// }
+
 const valueChangeEvent = (val) => {
   if (val) {
-    const { items, valueKey } = propsObj
+    const { valueKey } = propsObj
     // find label
-    const obj = items.find((el) => {
+    const obj = options.value.find((el) => {
       if (el) {
         return el[valueKey] === val
       }
@@ -154,9 +150,26 @@ const scrolling = (e) => {
     emit('scrollTop')
   }
   if (scrollTop + clientHeight >= scrollHeight) {
-    emit('scrollBottom')
+    getData()
   }
 }
+
+const getData = () => {
+  pageIndex.value +=1
+}
+
+watch(pageIndex, async (newPageIndex) => {
+  const response = await propsObj.api({
+    PageIndex: newPageIndex,
+    PageSize: pageSize.value
+  })
+  if(response.data.length > 0) {
+    const arr = response.data.map(propsObj.mapFunction)
+    options.value.push(...arr);  
+  }
+});
+
+
 </script>
 <template>
   <ElSelect

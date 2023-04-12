@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
-import { ElRow, ElCol, ElOption, ElSelect, ElTooltip } from 'element-plus'
+import { ElRow, ElCol, ElOption, ElSelect } from 'element-plus'
 import { computed, ref, watchEffect } from 'vue'
 
 const propsObj = defineProps({
@@ -158,6 +158,9 @@ const scrolling = (e) => {
   }
 }
 
+// const getData = () => {
+
+// }
 </script>
 <template>
   <ElSelect
@@ -182,21 +185,19 @@ const scrolling = (e) => {
       style="position: sticky; top: 0; z-index: 13"
     >
       <div>
-        <ElRow type="flex" justify="space-between" v-if="fields.length > 0">
+        <ElRow type="flex" justify="space-between" class="px-" v-if="fields.length > 0">
           <ElCol
             :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
             :key="index"
             class="text-ellipsis text-center text-black bg-white"
           >
-            <ElTooltip placement="left-end" :content="filed?.toString()" effect="light">
-              <strong>{{ filed }}</strong>
-            </ElTooltip>
+           <strong>{{ filed }}</strong>
           </ElCol>
         </ElRow>
       </div>
     </ElOption>
-    <div @scroll="scrolling" id="content">
+    <div @scroll="scrolling" class="h-52 px-2.5 overflow-auto">
       <ElOption
         :style="`width: ${width}`"
         v-for="(item, index) in options"
@@ -213,13 +214,7 @@ const scrolling = (e) => {
               class="text-ellipsis text-center"
               :span="Math.floor(24 / fields.length)"
             >
-              <ElTooltip
-                placement="left-end"
-                :content="item[key] ? item[key].toString() : ''"
-                effect="light"
-              >
-                <span> {{ item[key] }}</span>
-              </ElTooltip>
+             <span> {{ item[key] }}</span>
             </ElCol>
           </ElRow>
         </div>
@@ -229,12 +224,6 @@ const scrolling = (e) => {
   </ElSelect>
 </template>
 <style lang="css" scoped>
-#content {
-  height: 200px;
-  padding: 0 10px;
-  overflow: auto;
-}
-
 .el-select-custom {
   width: 100%;
 }

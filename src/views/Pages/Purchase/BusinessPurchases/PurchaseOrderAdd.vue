@@ -428,7 +428,8 @@ interface tableDataType {
 }
 
 const checkAccountEntry = ref(false)
-const checkReceiptOrPayment = ref(true)
+const checkReceipt = ref(true)
+const checkPayment = ref(true)
 const checkPaymentRequest = ref(true)
 let countExisted = ref(0)
 let countExistedDNTT = ref(0)
@@ -439,7 +440,8 @@ let newTable = ref()
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 const handleSelectionChange = (val: tableDataType[]) => {
   if(val.length ==0){
-    checkReceiptOrPayment.value = true
+    checkReceipt.value = true
+    checkPayment.value = true
     checkPaymentRequest.value = true
     return
   }
@@ -449,10 +451,12 @@ const handleSelectionChange = (val: tableDataType[]) => {
   newTable.value.map((el) => {
     if (el.receiptOrPaymentVoucherId) {
       countExisted.value++
-      checkReceiptOrPayment.value = true
+      checkReceipt.value = true
+      checkPayment.value = true
     } else {
       if (countExisted.value == 0) {
-        checkReceiptOrPayment.value = false
+        checkReceipt.value = false
+        checkPayment.value = false
       }
     }
 
@@ -464,6 +468,11 @@ const handleSelectionChange = (val: tableDataType[]) => {
         checkPaymentRequest.value = false
       }
     }
+
+    checkPayment.value = el.isReceiptedMoney
+    checkPaymentRequest.value = el.isReceiptedMoney
+    checkReceipt.value = !el.isReceiptedMoney
+    checkAccountEntry.value = true
   })
   // if (newTable.value[0].paymentRequestCode) {
   //   checkPaymentRequest.value = true
@@ -1227,7 +1236,8 @@ const editData = async () => {
 
     if (arrayStatusOrder.value.find((e) => e.orderStatus == 61 && e?.approvedAt == '')) {
       checkPaymentRequest.value = true
-      checkReceiptOrPayment.value = true
+      checkReceipt.value = true
+      checkPayment.value = true
       checkAccountEntry.value = true
     }
 
@@ -2524,7 +2534,8 @@ onBeforeMount(async () => {
 
   if (type === 'approval-order') {
     checkAccountEntry.value = true
-    checkReceiptOrPayment.value = true
+    checkReceipt.value = true
+    checkPayment.value = true
     checkPaymentRequest.value = true
   }
 })
@@ -4165,7 +4176,7 @@ onBeforeMount(async () => {
 
       <!-- dialog quản lý kinh doanh -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+        :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogbusinessManagement"
         :title="t('formDemo.businessManagement')"
         width="40%"
@@ -5227,10 +5238,10 @@ onBeforeMount(async () => {
           :disabled="checkAccountEntry"
           >+ {{ t('reuse.addAccountingEntry') }}</el-button
         >
-        <el-button :disabled="checkReceiptOrPayment" @click="openReceiptDialog" text
+        <el-button :disabled="checkReceipt" @click="openReceiptDialog" text
           >+ {{ t('reuse.addReceiptBill') }}</el-button
         >
-        <el-button :disabled="checkReceiptOrPayment" @click="openPaymentDialog" text
+        <el-button :disabled="checkPayment" @click="openPaymentDialog" text
           >+ {{ t('reuse.addPaymentBill') }}</el-button
         >
         <el-button :disabled="checkPaymentRequest" @click="openPaymentRequestDialog" text

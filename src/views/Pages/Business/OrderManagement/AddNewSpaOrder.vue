@@ -1550,17 +1550,25 @@ function printPage(id: string) {
     '',
     'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
   )
+  var indexHeight = 0;
+  if(id == "recpPaymentPrint"){
+    indexHeight = 210;
+  }else {
+    indexHeight = 297;
+  }
+  console.log(id)
+  console.log(indexHeight)
   WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
                     ${stylesHtml}
-                                        <style>
+                    <style>
                     html, body {
                       width: 148mm;
-    height: 297mm;
-    margin: 20px auto;
-    padding: 20mm 40mm;
-  }
+                      height: ${indexHeight}mm;
+                      margin: 0px auto;
+                      padding: 20mm;
+                    }
                     </style>
                   </head>
                   <body>

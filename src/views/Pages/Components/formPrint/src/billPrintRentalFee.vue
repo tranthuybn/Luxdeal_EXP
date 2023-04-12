@@ -72,7 +72,7 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
 </script>
 
 <template>
-  <div style="width: 95%; height: 100%;">
+  <div style="width: 100%; height: 100%;">
     <div class="flex items-end pb-[30px]">
       <div class="basis-8/12 text-center">
         <img class="w-[60%] float-right" src="@/assets/imgs/images.png" />
@@ -80,7 +80,7 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
       <div class="basis-4/12 text-right"> AUTHONLYLUXURY.COM </div>
     </div>
     <div class="flex justify-between">
-      <div>
+      <div class="basis-6/12">
         <div class="flex pb-1 items-center">
           <label class="mr-2">{{ t('formDemo.address') }} 1:</label>
           <div>TP. Hồ Chí Minh</div>
@@ -134,14 +134,14 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
         border
       >
         <el-table-column label="STT" type="index" align="center" />
-        <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="200" />
+        <el-table-column prop="productName" width="200" :label="t('formDemo.commodityName')"  />
         <el-table-column prop="quantity" :label="t('reuse.quantity')"  />
-        <el-table-column prop="unitPrice" :label="t('formDemo.rentalUnitPrice')">
+        <el-table-column width="120" prop="unitPrice" :label="t('formDemo.rentalUnitPrice')">
           <template #default="data">
             <div class="text-right">{{  currencyFormatter.format(data.row.hirePrice)  }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="finalPrice" :label="t('formDemo.rentalFee')">
+        <el-table-column width="120" prop="finalPrice" :label="t('formDemo.rentalFee')">
           <template #default="data">
             <!-- <div class="text-right">{{ data.row.quantity * data.row.unitPrice }}</div> -->
              <div class="text-right">{{   currencyFormatter.format(data.row.hirePrice * data.row.quantity ) }}</div>

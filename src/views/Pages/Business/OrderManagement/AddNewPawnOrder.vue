@@ -625,6 +625,12 @@ function printPage(id: string) {
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
+  var indexHeight = 0;
+  if(id == "recpPaymentPrint"){
+    indexHeight = 210;
+  }else {
+    indexHeight = 297;
+  }
   const printContents = document.getElementById(id)?.innerHTML
   const WinPrint = window.open(
     '',
@@ -638,13 +644,13 @@ function printPage(id: string) {
                     <style>
                     html, body {
                       width: 148mm;
-    height: 397mm;
+                      height: ${indexHeight}mm;
     margin: 0 auto;
     padding: 20mm;
   }
                     </style>
                   </head>
-                  <body>
+                  <body >
                     ${printContents}
                     <br>
                   </body>
@@ -5259,6 +5265,7 @@ class="min-w-42 min-h-11" type="primary"
               >
               <el-input
                 style="width: 100%"
+                v-model="inputReasonCollectMoney"
                 :placeholder="t('formDemo.enterReasonPaymentRequest')"
               />
             </div>
@@ -5332,7 +5339,7 @@ class="min-w-42 min-h-11" type="primary"
             <label class="w-[30%] text-right"
               >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
             >
-            <el-input style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <el-input  v-model="enterMoney" style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"

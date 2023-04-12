@@ -6,7 +6,7 @@
       :class="{ selected: selected }"
     >
       <div class="media message-list" :class="{ active: user.hasNewMessages }">
-        <el-badge :is-dot="unreadMessage" class="brage" type="primary">
+        <el-badge :is-dot="status==1" class="brage" type="primary">
           <img :src="defaultImg" alt="..."
         /></el-badge>
         <div class="media-body pl-2">
@@ -15,10 +15,10 @@
         </div>
       </div>
       <div class="message-box__note" style="padding-right: 4px; font-size: 12px;">
-        <div v-if="user.countMessage!=0">
-          <div style="font-size: 17px;color: red; text-align: right;">{{ user.countMessage }}<sup>+</sup></div>
+        <div v-if="user.countMessage!=0" class="icon-count">
+          <div style="font-size: 15px;color: red; text-align: center;">{{ user.countMessage }}<sup>+</sup></div>
         </div>
-        <div>{{ moment(user.createAT).format('DD/MM/YYYY') }}</div>
+        <!-- <div>{{ moment(user.createAT).format('DD/MM/YYYY') }}</div> -->
       </div>
     </div>
   </section>
@@ -53,7 +53,7 @@ export default {
   },
   computed: {
     status() {
-      return this.user.connected ? 'online' : 'offline'
+      return this.user.status ? '1' : '0'
     },
     getLastMessage() {
       return this.user.phone
@@ -90,6 +90,7 @@ export default {
         user_id_sent: this.user._id,
         name : this.user.userName,
         name_sent: wsCache.get(permissionStore.getUserNameSentChat),
+        chatTypeId: wsCache.get(permissionStore.getTypeChat),
       }
       wsCache.set(permissionStore.getUserNameReceive, this.user.userName )
       wsCache.set(permissionStore.getUserIDReceive, this.user._id )
@@ -120,4 +121,11 @@ export default {
 
 <style lang="scss" scoped>
 @import '@/styles/chat.scss';
+.icon-count{
+  float: right;
+  padding: 2px;
+  background-color: pink;
+  width: 100%;
+  border-radius: 50%;
+}
 </style>

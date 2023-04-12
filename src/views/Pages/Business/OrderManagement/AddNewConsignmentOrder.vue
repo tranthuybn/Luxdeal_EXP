@@ -1181,6 +1181,12 @@ function printPage(id: string) {
   for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
     stylesHtml += node.outerHTML
   }
+  var indexHeight = 0;
+  if(id == "billLiquidationContract"){
+    indexHeight = 630;
+  }else {
+    indexHeight = 297;
+  }
   const printContents = document.getElementById(id)?.innerHTML
   const WinPrint = window.open(
     '',
@@ -1194,9 +1200,9 @@ function printPage(id: string) {
                                         <style>
                     html, body {
                       width: 148mm;
-    height: 697mm;
-    margin: 20px auto;
-    padding: 20mm 40mm;
+    height: ${indexHeight}mm;
+    margin: 0px auto;
+    padding: 20mm;
   }
                     </style>
                   </head>

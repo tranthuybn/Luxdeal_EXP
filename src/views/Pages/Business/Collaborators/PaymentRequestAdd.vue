@@ -4,7 +4,6 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { h, onBeforeMount, reactive, ref, unref, watch } from 'vue'
 import { useForm } from '@/hooks/web/useForm'
-import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   getCommissionPaymentByIdList,
@@ -12,7 +11,8 @@ import {
   updateCommissionPayment,
   getCollaboratorsList,
   getPaymentList,
-  getReceiptPaymentList
+  getReceiptPaymentList,
+  getReceiptsExpendituresList
 } from '@/api/Business'
 import { useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
@@ -37,8 +37,10 @@ import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
 import moment from 'moment'
 import InputPrice from '@/components/CurrencyInputComponent.vue'
-import { changeMoney } from '@/utils/tsxHelper'
+import { changeMoney, formartDate } from '@/utils/tsxHelper'
+import InfinitOptions from '@/components/Select/InfinitOptions.vue'
 
+const pageIndex = ref(1)
 const { t } = useI18n()
 const showInputPricePlaceholder = ref(true)
 const doCloseOnClickModal = ref(false)
@@ -80,6 +82,7 @@ let optionsPaymentApi = ref()
 let optionsReceiptPaymentApi = ref()
 let optionCallAPi = 0
 const callAPiPaymentRequest = async (id) => {
+
   if (optionCallAPi == 0) {
     const res = await getPaymentList({ PeopleId: id })
     listPayments.value = res.data
@@ -110,14 +113,11 @@ const callAPiReceiptPaymentRequest = async () => {
     listReceiptPaymentRequest.value = optionsReceiptPaymentApi.value
   }
 }
-const ReceiptOrPaymentId = ref()
 const changeNameReceiptPayment = (_value, obj, _scope) => {
-  console.log('obj', obj)
-  ReceiptOrPaymentId.value = obj.code
+  FormData.ReceiptOrPaymentVoucherId = Number(obj.id)
 }
-const PaymentId = ref()
 const changeNamePayment = (_value, obj, _scope) => {
-  PaymentId.value = obj.code
+  FormData.PaymentOrder = Number(obj.id)
 }
 // const changeNameReceiptPayment = (optionID, scope) => {
 //   const option = optionsReceiptPaymentApi.value.find((option) => option.code == optionID)
@@ -295,16 +295,16 @@ type FormDataInput = {
   Price: number
   collaboratorValue: any
   Code: string
-  ReceiptOrPaymentVoucherId: string
-  PaymentOrder: string
+  ReceiptOrPaymentVoucherId: number
+  PaymentOrder: number
 }
 type FormDataPost = {
   CollaboratorId: string
   Code: string
   Status?: number
   Price: number
-  ReceiptOrPaymentVoucherId: string
-  PaymentOrder: string
+  ReceiptOrPaymentVoucherId: number
+  PaymentOrder: number
   Files?: any
 }
 
@@ -406,11 +406,8 @@ const customPostData = (FormData) => {
   customData.Code = requestCode.value
   customData.Status = FormData.CollaboratorStatus ? 2 : 1
   customData.Price = parseInt(FormData.Price)
-  customData.ReceiptOrPaymentVoucherId =
-      ReceiptOrPaymentId.value === undefined
-      ? FormData.ReceiptOrPaymentVoucherId
-      : ReceiptOrPaymentId.value
-  customData.PaymentOrder = PaymentId.value === undefined ? FormData.PaymentOrder : PaymentId.value
+  customData.ReceiptOrPaymentVoucherId = FormData.ReceiptOrPaymentVoucherId
+  customData.PaymentOrder = FormData.PaymentOrder
   customData.Files = ListFileUpload.value.map((file) => file.raw)
   return customData
 }
@@ -505,6 +502,9 @@ const fix = async () => {
   })
 }
 const activeName = ref(collapse[0].title)
+const getMapData = ({code, type,totalMoney, createdBy, createdAt, id}) => ({label: code, type: type == 1 ? t('reuse.get') : t('reuse.spend') , totalMoney, createdBy, createdAt: formartDate(createdAt), id  })
+
+
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -668,7 +668,7 @@ const activeName = ref(collapse[0].title)
               </ElFormItem>
               <ElFormItem :label="t('router.receiptsAndExpenditures')">
                 <div class="flex justify-between gap-4">
-                  <MultipleOptionsBox
+                  <InfinitOptions
                     :fields="[
                       t('reuse.proposalCode'),
                       t('reuse.receiptAndPayment'),
@@ -677,12 +677,15 @@ const activeName = ref(collapse[0].title)
                       t('reuse.creator')
                     ]"
                     filterable
-                    :items="listReceiptPaymentRequest"
                     valueKey="id"
-                    labelKey="code"
+                    labelKey="label"
                     :hiddenKey="['id']"
                     :placeHolder="t('reuse.chooseReceiptAndPayment')"
                     :defaultValue="FormData.ReceiptOrPaymentVoucherId"
+                    :pageIndex="pageIndex"
+                    :type="type"
+                    :api="getReceiptsExpendituresList"
+                    :mapFunction="getMapData"
                     :clearable="false"
                     @update-value="(value, obj) => changeNameReceiptPayment(value, obj, $props)"
                   />
@@ -692,21 +695,24 @@ const activeName = ref(collapse[0].title)
               <ElFormItem :label="t('router.paymentProposal')">
                 <template #default="props">
                   <div class="flex justify-between gap-4">
-                    <MultipleOptionsBox
+                    <InfinitOptions
                       :fields="[
                         t('reuse.proposalCode'),
-                        t('reuse.receiptAndPayment'),
                         t('reuse.amountOfMoney'),
                         t('reuse.createDate'),
                         t('reuse.creator')
                       ]"
                       filterable
                       :items="listPaymentRequest"
-                      valueKey="code"
-                      labelKey="code"
-                      :hiddenKey="['id']"
+                      valueKey="id"
+                      labelKey="label"
+                      :hiddenKey="['id', 'type']"
                       :placeHolder="t('reuse.choosePaymentProposal')"
                       :defaultValue="FormData.PaymentOrder"
+                      :pageIndex="pageIndex"
+                      :type="type"
+                      :api="getPaymentList"
+                      :mapFunction="getMapData"
                       :clearable="false"
                       @update-value="(value, obj) => changeNamePayment(value, obj, props)"
                     />

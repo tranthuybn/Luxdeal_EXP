@@ -30,7 +30,7 @@ import { statusService } from '@/utils/status'
 import moment from 'moment'
 import { TableResponse } from '@/views/Pages/Components/Type'
 import InfinitOptions from '@/components/Select/InfinitOptions.vue'
-import { getStaffList, getAllCustomer, getAccountantList, balanceAccount } from '@/api/Business'
+import { getStaffList, getAllCustomer, getAccountantList, balanceAccount, getCustomerById } from '@/api/Business'
 import { IStatusHistory, ListImages } from './types'
 import { usePermission, printPage, formartDate } from '@/utils/tsxHelper'
 import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
@@ -167,7 +167,6 @@ const optionCreatedBy = ref(currentUser)
 const accountNumberOptions = ref()
 const pageIndex = ref(1)
 const createdByOptions = ref([{}])
-const peopleTypeOptions = ref([{}])
 const nameDialog = ref('')
 const isDisabled = ref(false)
 
@@ -255,7 +254,6 @@ const setFormValue = async () => {
   // If a receiptForm (or paymentForm) is approval in detail page, cancel disabled some filed
   if(props.module == 1) {
     if(formValue.value.isApproved && !formValue.value.isCancel) {
-      console.log('1')
       const arrField = ['createdBy', 'description', 'peopleId', 'totalMoney', 'enterMoney' ]
       const config = arrField.map(item => (
         {
@@ -267,10 +265,20 @@ const setFormValue = async () => {
       isDisabled.value = true
       setSchema(config)
     } else if(!formValue.value.isApproved || formValue.value.isCancel || formValue.value.isAccounted) {
-      console.log('')
       setProps({disabled: true})
 
     }
+    await getCustomerById({Id: formValue.value.peopleId})
+    .then(res => optionPeopleType.value = {
+      label: `${res.data.name} | ${res.data.phonenumber}`,
+      code: res.data.code,
+      value: res.data.phonenumber,
+      name: res.data.name,
+      id: res.data.id,
+      email: res.data.email
+    })
+    .catch(error => {throw new Error(error)})
+
   }
 }
 
@@ -784,6 +792,7 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
               :items="createdByOptions"
               :disabled="isDisabled"
               :pageIndex="pageIndex"
+              :type="type"
               :api="getStaffList"
               :mapFunction="getMapData"
               :defaultValue="form.createdBy"
@@ -810,11 +819,11 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
               :hiddenKey="['id', 'email', 'label']"
               :clearable="false"
               :placeHolder="t('reuse.selectObject')"
-              :items="peopleTypeOptions"
               :disabled="isDisabled"
               :pageIndex="pageIndex"
               :api="getAllCustomer"
               :mapFunction="getMapData"
+              :type="type"
               :defaultValue="form.peopleId"
               @update-value="(_value, option) => handleChangeOptions(option, form, 'peopleId')"
             />

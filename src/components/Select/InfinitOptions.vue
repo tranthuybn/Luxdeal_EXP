@@ -24,6 +24,10 @@ const propsObj = defineProps({
     type: String,
     default: 'Vui lòng chọn bản ghi'
   },
+  type: {
+    type: String,
+    default: 'undefined'
+  },
   // value key of record you want to use
   valueKey: {
     type: String,
@@ -45,7 +49,7 @@ const propsObj = defineProps({
   defaultValue: {
     type: [String, Number],
     default: null,
-    description: 'Dùng khi xem chi tiết, truyền giá trị mặc định vào'
+    description: 'id of option'
   },
   disabled: {
     type: Boolean,
@@ -91,6 +95,8 @@ const identifyLabel = ref(propsObj.labelKey)
 
 // set value for multiple select if defaultValue available
 
+const checkType = propsObj.type === 'detail' || propsObj.type === 'edit'
+
 onBeforeMount(async () => {
   if(pageIndex.value == 1) {
     const response = await propsObj.api({
@@ -102,7 +108,12 @@ onBeforeMount(async () => {
       options.value.push(...arr);  
     }
   }
+  if(checkType){
+    const result = options.value.filter(option => option.id === propsObj.defaultValue)
+    if(!result?.length) getData()
+  }
 })
+
 const acceptKey = (item) => {
   const { hiddenKey } = propsObj
   if (hiddenKey.length > 0) {
@@ -166,9 +177,12 @@ watch(pageIndex, async (newPageIndex) => {
   if(response.data.length > 0) {
     const arr = response.data.map(propsObj.mapFunction)
     options.value.push(...arr);  
+    if(checkType){
+      const result = arr.filter(option => option.id === propsObj.defaultValue)
+      if(!result?.length) getData()
+    }
   }
 });
-
 
 </script>
 <template>

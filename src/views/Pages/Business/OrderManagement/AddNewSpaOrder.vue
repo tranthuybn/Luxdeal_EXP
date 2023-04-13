@@ -2448,6 +2448,7 @@ const getFormReceipts = (text) => {
       moneyReceipts: moneyReceipts.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
+      name: inputRecharger.value,
       payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
     }
 
@@ -2801,7 +2802,8 @@ const printPaymentRequest = () => {
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value
+      moneyReceipts: moneyReceipts.value,
+      detailedListExpenses: detailedListExpenses
     }
 
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value

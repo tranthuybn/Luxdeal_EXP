@@ -15,16 +15,18 @@ const props = defineProps({
     default: () => {}
   }
 })
+console.log(props)
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 </script>
 
 <template>
-  <div class="flex" style="width: 100%;">
+  <div class="flex" style="width: 100%; font-size: 12px;">
     <div class="basis-4/12">
       <img src="@/assets/imgs/images.png" />
     </div>
 
     <div class="basis-8/12">
-      <div class="font-bold text-2xl uppercase pl-[32px]"> Giấy đề nghị thanh toán </div>
+      <div class="font-bold text-2xl uppercase pl-[30px]"> Giấy đề nghị thanh toán </div>
       <el-divider />
       <div class="flex justify-between">
         <div class="pl-[72px]"
@@ -55,56 +57,56 @@ const props = defineProps({
   </div>
 
   <div class="pb-1 m-6">
-    <div class="flex pb-3 items-center text-[16px]">
-      <label class="font-bold basis-1/3">{{ t('reuse.fullName') }} :</label>
+    <div class="flex pb-4 items-center ">
+      <label class="font-bold basis-6/12">{{ t('reuse.fullName') }} :</label>
       <div>{{ props.dataEdit.userName ?? '' }} </div>
     </div>
-    <div class="flex pb-3 items-center text-[16px]">
-      <label class="font-bold basis-1/3"
+    <div class="flex pb-4 items-center ">
+      <label class="font-bold basis-6/12"
         >{{ t('formDemo.paymentOrder') }} {{ t('reuse.amountOfMoney') }} :</label
       >
       <div>{{ props.dataSent.moneyReceipts ?? '' }} Đồng</div>
     </div>
-    <div class="flex pb-3 items-center text-[16px]">
-      <label class="font-bold basis-1/3">{{ t('reuse.reason') }} :</label>
+    <div class="flex pb-4 items-center ">
+      <label class="font-bold basis-6/12">{{ t('reuse.reason') }} :</label>
       <div>{{ props.dataSent.inputReasonCollectMoney ?? '' }}</div>
     </div>
-    <div class="flex pb-3 items-center text-[16px]">
-      <label class="font-bold basis-1/3">{{ t('formDemo.formPayment') }} :</label>
+    <div class="flex pb-4 items-center ">
+      <label class="font-bold basis-6/12">{{ t('formDemo.formPayment') }} :</label>
       <div class="mr-2">{{ props.dataSent.payment}}</div>
     </div>
-    <div class="flex pb-3 items-center text-[16px]">
-      <label class="font-bold basis-1/3">{{ t('userDemo.accountInfo') }} :</label>
-      <div class="uppercase">dang ngoc tuyet</div>
+    <div class="flex pb-4 items-center ">
+      <label class="font-bold basis-6/12">{{ t('userDemo.accountInfo') }} :</label>
+      <div class="uppercase">.....................................</div>
     </div>
-    <div class="flex pb-3 items-center text-[16px]">
-      <label class="basis-1/3">{{ t('userDemo.accountNumber') }} :</label>
-      <div>44210000200500</div>
+    <div class="flex pb-4 items-center ">
+      <label class="basis-6/12">{{ t('userDemo.accountNumber') }} :</label>
+      <div>.....................................</div>
     </div>
-    <div class="flex pb-3 items-center text-[16px]">
-      <label class="basis-1/3">Ngân hàng :</label>
-      <div>BIDV</div>
+    <div class="flex pb-4 items-center ">
+      <label class="basis-6/12">Ngân hàng :</label>
+      <div>.....................................</div>
     </div>
   </div>
 
   <div class="pb-4 m-6">
-    <div class="font-bold text-[16px] pb-5">Bảng kê chi tiết các khoản chi</div>
-    <el-table ref="singleTableRef" :data="[]" border>
+    <div class="font-bold  pb-5">Bảng kê chi tiết các khoản chi</div>
+    <el-table ref="singleTableRef" style="margin-right: 5px ;" v-if="dataSent"  :data="dataSent ? dataSent.detailedListExpenses : []"  border>
       <el-table-column label="Chứng từ" align="center">
         <el-table-column prop="STT" type="index" label="STT"  />
-        <el-table-column prop="No" label="Số" />
-        <el-table-column prop="Date" label="Ngày"  />
+        <el-table-column prop="numberVouchers" label="Số" />
+        <el-table-column prop="dayVouchers" label="Ngày"  />
       </el-table-column>
-      <el-table-column prop="productName" :label="t('formDemo.spendFor')" />
+      <el-table-column prop="spentFor" :label="t('formDemo.spendFor')" />
       <el-table-column prop="quantity" :label="t('reuse.quantity')"  />
-      <el-table-column prop="price" :label="t('reuse.unitPrices')">
+      <el-table-column prop="unitPrice" :label="t('reuse.unitPrices')">
         <template #default="data">
-          <div class="text-right">{{ data.row.price }}</div>
+          <div class="text-right">{{ currencyFormatter.format(data.row.unitPrice) }}</div>
         </template>
       </el-table-column>
       <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
         <template #default="data">
-          <div class="text-right">{{ data.row.quantity * data.row.price }}</div>
+          <div class="text-right">{{ currencyFormatter.format(data.row.quantity * data.row.unitPrice) }}</div>
         </template>
       </el-table-column>
       <el-table-column prop="note" :label="t('reuse.note')"  />

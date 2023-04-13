@@ -2,12 +2,13 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {
   filterAccount,
   filterGender,
-  filtersCustomerType,
   filterStatusCustomer
 } from '@/utils/filters'
 import { CUSTOMER_TYPE } from '@/utils/API.Variables'
 import { dateTimeFormat } from '@/utils/format'
 import { h } from 'vue'
+import { filterHandler } from '@/utils/tsxHelper'
+
 const { t } = useI18n()
 
 export const CustomerList = [
@@ -26,7 +27,7 @@ export const CustomerList = [
     field: 'name',
     label: t('reuse.customerName'),
     minWidth: '170',
-    filters: filtersCustomerType
+    headerFilter: 'Search',
   },
   {
     field: 'referralCode',
@@ -39,6 +40,7 @@ export const CustomerList = [
     label: t('reuse.gender'),
     minWidth: '130',
     filters: filterGender,
+    filterMethod: filterHandler,
     formatter: (row: Recordable, __: TableColumn, cellValue: boolean) => {
       return row['isOrganization']
         ? ''
@@ -82,6 +84,7 @@ export const CustomerList = [
     label: t('reuse.accountType'),
     minWidth: '160',
     filters: filterAccount,
+    filterMethod: filterHandler,
     formatter: (record: Recordable, __: TableColumn, _cellValue: TableSlotDefault) => {
       if (record.customerType == 0) {
         return h('div', CUSTOMER_TYPE[0].label)
@@ -112,6 +115,7 @@ export const CustomerList = [
     field: 'isActive',
     label: t('reuse.status'),
     minWidth: '150',
+    filterMethod: filterHandler,
     filters: filterStatusCustomer,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return cellValue ? h('div', 'Đang hoạt động') : h('div', 'Tạm dừng')

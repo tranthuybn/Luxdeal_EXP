@@ -240,7 +240,7 @@ const postData = async() => {
       PaymentType : form.value.typeOfPayment,
       PeopleId: optionPeople.value.id,
       CreatedBy: '',
-      CreatedById: 1,
+      CreatedById: form.value.createdBy,
       status: 0,
       PeopleType: 1,
       Description: form.value.description,

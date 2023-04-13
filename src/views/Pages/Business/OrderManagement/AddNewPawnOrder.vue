@@ -946,7 +946,7 @@ const postData = async () => {
     OrderDetail: productPayment,
     fromDate: postDateTime(ruleForm.pawnTerm[0]),
     toDate: postDateTime(ruleForm.pawnTerm[1]),
-    CampaignId: 2,
+    CampaignId: null,
     VAT: 1,
     WarehouseId: ruleForm.warehouse,
     Days: ruleForm.paymentPeriod,

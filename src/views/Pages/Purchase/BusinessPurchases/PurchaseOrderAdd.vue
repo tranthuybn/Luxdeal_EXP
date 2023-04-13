@@ -1075,7 +1075,7 @@ const postData = async () => {
         WardId: formAddress.wardCommune ?? 1,
         Address: customerAddress.value,
         OrderDetail: productPayment,
-        CampaignId: 2,
+        CampaignId: null,
         TotalPrice: totalFinalOrder.value,
         DepositePrice: 0,
         DiscountMoney: 0,

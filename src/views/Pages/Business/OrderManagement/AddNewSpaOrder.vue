@@ -1551,7 +1551,7 @@ function printPage(id: string) {
     'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
   )
   var indexHeight = 0;
-  if(id == "recpPaymentPrint"){
+  if(id == "recpPaymentPrint" || id == 'billSpa'){
     indexHeight = 210;
   }else {
     indexHeight = 297;
@@ -4492,7 +4492,7 @@ const printPaymentRequest = () => {
       <!-- phieu in -->
       <div id="billSpa">
         <slot>
-          <billSpaInspection :dataEditor="editor" />
+          <billSpaInspection :dataEditor="editor" :dataProduc="dataEdit" />
         </slot>
       </div>
 
@@ -4519,7 +4519,7 @@ const printPaymentRequest = () => {
           </div>
           <div class="dialog-content">
             <slot>
-              <billSpaInspection :dataEditor="editor" />
+              <billSpaInspection :dataEditor="editor" :dataProduc="dataEdit" />
             </slot>
           </div>
         </div>

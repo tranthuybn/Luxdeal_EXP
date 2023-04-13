@@ -72,12 +72,12 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
       <div class="basis-4/12 text-right"> AUTHONLYLUXURY.COM </div>
     </div>
     <div class="flex justify-between">
-      <div>
+      <div class="basis-6/12">
         <div class="flex pb-1 items-center">
           <label class="mr-3">{{ t('formDemo.address') }} 1:</label>
           <div>TP. Hồ Chí Minh</div>
         </div>
-        <div class="flex items-center">
+        <div class=" basis-6/12 flex items-center">
           <label class="mr-3">{{ t('formDemo.address') }} 2:</label>
           <div>TP. Hà Nội</div>
         </div>
@@ -87,9 +87,8 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
     </div>
 
     <el-divider />
-
     <div class="flex justify-between items-center divide-x">
-      <div class="basis-5/12">
+      <div class="basis-6/12">
         <div class="flex pb-2 items-center">
           <label class="basis-2/5">{{ t('reuse.customerName') }}:</label>
           <div v-if="dataEdit" class="basis-3/5">{{ dataEdit?.customer?.name }}</div>
@@ -103,7 +102,7 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
           <div v-if="dataEdit" class="basis-3/5">{{ dataEdit?.customer?.phonenumber }}</div>
         </div>
       </div>
-      <div class="basis-7/12 text-center">
+      <div class="basis-6/12 text-center">
         <p v-if="nameDialog === 'bill'" class="text-4xl">Phiếu thanh toán</p>
         <p v-else class="text-4xl">Phiếu đặt cọc</p>
         <div class="flex justify-center pb-3">

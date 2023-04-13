@@ -323,6 +323,12 @@ export const filterReciprocalProfile: Array<Filter> = [
   { text: t('reuse.yes'), value: 1 },
   { text: t('reuse.no'), value: 2 }
 ]
+
+export const filterYesOrNo: Array<Filter> = [
+  { text: t('reuse.yes'), value: true},
+  { text: t('reuse.no'), value: false }
+]
+
 export const filterTypeNotification: Array<Filter> = [
   { text: t('reuse.auto'), value: 1 },
   { text: t('reuse.handmade'), value: 2 }

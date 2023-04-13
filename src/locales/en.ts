@@ -907,6 +907,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    generateCodeFail: 'Automatic code fetch failed',
     userAccountApproveDetail: 'User account browsing details',
     collaboratorsAccountApproveDetail: 'Details of collaborator account browsing',
     addEmployeeAccount: 'Add new employee and accounts',

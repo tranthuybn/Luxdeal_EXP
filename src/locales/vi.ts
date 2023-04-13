@@ -959,6 +959,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    generateCodeFail: 'Lấy mã tự động thất bại',
     userAccountApprovaeDetail: 'Chi tiết duyệt tài khoản khách hàng',
     collaboratorsAccountApprovaeDetail: 'Chi tiết duyệt tài khoản CTV',
     addEmployeeAccount: 'Thêm mới nhân sự & tài khoản',

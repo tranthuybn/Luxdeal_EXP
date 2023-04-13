@@ -1,9 +1,10 @@
 <template>
   <section class="!h-87vh">
     <el-tabs v-model="activeName" class="library-tab h-full" tab-position="left" stretch>
-      <el-tab-pane :name="item.name" v-for="item in listTypeMessages" :key="item.name" @click="getTypeMessage(item)">
+      <el-tab-pane :name="item.name" v-for="item in listTypeMessages" :key="item.name" >
         <template #label>
           <div
+           @click="getTypeMessage(item)"
             class="library-tab__name pr-2 w-full h-full dark:(text-white) text-center flex flex-col content-center items-center pt-4"
             :class="{ active: item.isActive }">
             <Icon icon="ps:headset" :size="24" />
@@ -376,6 +377,9 @@ export default {
       console.log('getDocument')
     },
     async getTypeMessage(val) {
+      console.log("NGAY LAM VIEC")
+      console.log(val)
+      console.log("-------------LAM VIEC------------")
       for (let i = 0; i < this.listTypeMessages.length; i++) {
         if (this.listTypeMessages[i].name == val) {
           wsCache.set(permissionStore.getTypeChat, this.listTypeMessages[i]._id);

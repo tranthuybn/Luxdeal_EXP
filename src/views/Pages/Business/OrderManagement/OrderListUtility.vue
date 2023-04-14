@@ -911,16 +911,21 @@ let promoActive = ref()
 let campaignId = ref()
 let isActivePromo = ref()
 
-const handleCurrentChange = (val: undefined) => {
-  promoCash.value = 0
-  promoValue.value = 0
-  currentRow.value = val
-  promo.value = val
-  promo.value?.reduceCash != 0
-    ? (promoCash.value = promo.value.reduceCash)
-    : (promoValue.value = promo.value?.reducePercent)
-  changeRowPromo()
-  checkPromo.value = true
+const handleCurrentChange = (val) => {
+  const { min, reduceCash, reducePercent } = val || {}
+  if (!min) return;
+  if (totalPriceOrder.value > min) {
+    promoCash.value = reduceCash || 0;
+    promoValue.value = reducePercent || 0;
+    currentRow.value = promo.value = val;
+    changeRowPromo();
+    checkPromo.value = true;
+  } else {
+    ElNotification({
+      message: t('reuse.orderIsNotEligibleForPromotion'),
+      type: 'warning',
+    });
+  }
 }
 
 const changeRowPromo = () => {
@@ -990,16 +995,43 @@ const getProductPropertyPrice = async (
   return price
 }
 const autoCalculateOrder = () => {
-  totalPriceOrder.value = 0
-  totalFinalOrder.value = 0
-  ListOfProductsForSale.value.map((val) => {
-    if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
-  })
+  // totalPriceOrder.value = 0
+  // totalFinalOrder.value = 0
+  // ListOfProductsForSale.value.map((val) => {
+  //   if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
+  // })
 
-  promoCash.value != 0
-    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
-    : (totalFinalOrder.value =
-        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+  // if(promoMin.value) {
+  //   if(totalPriceOrder.value > promoMin.value){
+  //     promoCash.value != 0
+  //       ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+  //       : (totalFinalOrder.value =
+  //           totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+  //       showPromo.value = true
+  //       openDialogChoosePromotion.value = false
+  //   } else {
+  //     ElNotification({
+  //         message: t('reuse.orderIsNotEligibleForPromotion'),
+  //         type: 'warning'
+  //     })
+  //   }
+  // }
+  
+  totalPriceOrder.value = ListOfProductsForSale.value
+    .filter((val) => val.totalPrice)
+    .reduce((acc, val) => acc + parseInt(val.totalPrice), 0);
+  if (promoMin.value && totalPriceOrder.value > promoMin.value) {
+    totalFinalOrder.value = promoCash.value !== 0
+      ? totalPriceOrder.value - promoCash.value
+      : totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100;
+    showPromo.value = true;
+    openDialogChoosePromotion.value = false;
+  } else if (promoMin.value) {
+    ElNotification({
+      message: t('reuse.orderIsNotEligibleForPromotion'),
+      type: 'warning',
+    });
+  }
 
   /* Tạm thời bỏ VAT ngày cmt 21/02/2023
   // if (radioVAT.value.length < 4) {
@@ -4749,7 +4781,7 @@ const handleClose = (done: () => void) => {
 
       <!-- DialogPromotion -->
       <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
+        :close-on-click-modal="doCloseOnClickModal"
         v-model="openDialogChoosePromotion"
         :title="t('formDemo.choosePromotion')"
         width="40%"
@@ -4773,13 +4805,7 @@ const handleClose = (done: () => void) => {
               />
             </el-select>
             <el-button
-              @click="
-                () => {
-                  autoCalculateOrder()
-                  showPromo = true
-                  openDialogChoosePromotion = false
-                }
-              "
+              @click="autoCalculateOrder"
               class="w-[150px] border-1 border-blue-500"
               plain
               >{{ t('formDemo.apply') }}</el-button
@@ -4813,7 +4839,7 @@ const handleClose = (done: () => void) => {
               <template #default="props">
                 <div>{{ props.row.label }}</div>
                 <div>{{ props.row.description }}</div>
-                <div>{{ t('formDemo.appliesToOrdersFrom') }} {{ props.row.min }}</div>
+                <div>{{ t('formDemo.appliesToOrdersFrom') }} {{changeMoney.format(props.row.min)}}</div>
               </template>
             </el-table-column>
             <el-table-column prop="toDate" width="180" align="left">

@@ -308,7 +308,7 @@ const getTableValue = async () => {
     ruleForm.email = formValue.value.email
     ruleForm.phonenumber = formValue.value.phonenumber
     ruleForm.link = formValue.value.link
-    ruleForm.bankName = formValue.value.bank?.id
+    ruleForm.bankName = formValue.value.bankId
     ruleForm.accountNumber = formValue.value.accountNumber
     ruleForm.doB = formValue.value.doB
     ruleForm.taxCode = formValue.value.taxCode

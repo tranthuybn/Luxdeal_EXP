@@ -35,7 +35,8 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
-      disabled: true
+      readonly: true,
+      class: 'readonly-info',
     },
     value: curDate
   },
@@ -67,7 +68,7 @@ const schema = reactive<FormSchema[]>([
     value: '',
     componentProps: {
       placeholder: t('formDemo.enterPercent'),
-      suffixIcon: h('span', '%')
+      suffixIcon: h('span', '%'),
     },
     formItemProps: {
       labelWidth: '0px'
@@ -76,14 +77,15 @@ const schema = reactive<FormSchema[]>([
   },
   {
     field: 'money',
-    component: 'Input',
+    component: 'InputPrice',
     colProps: {
       span: 6
     },
     value: '',
     componentProps: {
       placeholder: t('reuse.placeholderMoney'),
-      suffixIcon: h('span', 'đ')
+      suffixIcon: h('span', 'đ'),
+      showCurrency: false
     },
     formItemProps: {
       labelWidth: '0px'
@@ -116,7 +118,11 @@ const schema = reactive<FormSchema[]>([
       span: 6
     },
     componentProps: {
-      style: 'width: 100%'
+      style: 'width: 100%',
+      placeholder: t('formDemo.appliesToOrdersFrom'),
+      showPlaceholder: true,
+      suffixIcon: h('span', 'đ'),
+      showCurrency: false
     },
     formItemProps: {
       labelWidth: '0px'
@@ -153,6 +159,7 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 20
     },
+    value: 1,
     componentProps: {
       style: 'width: 100%',
       disabled: true,
@@ -359,7 +366,7 @@ const customEditDataVoucher = (data) => {
     customData.ReducePercent = null
     customData.ReduceCash = null
   }
-  customData.MinimumPriceToGetReduce = 10000
+  customData.MinimumPriceToGetReduce = data.orderInput
   customData.MaximumReduce = 10000
   customData.VoucherConditionType = data.condition.value
   customData.StartDate = data.date[0]
@@ -378,9 +385,9 @@ const customEditDataVoucher = (data) => {
   customData.ProductPropertyIdJson = '[]'
   customData.VoucherStatus = data.statusVoucher
 
+  console.log('data khi edit', data)
   return customData
-}
-
+}  
 const activeName = ref(collapse[0].name)
 
 const router = useRouter()
@@ -413,7 +420,6 @@ type FormDataPost = {
 }
 
 const customPostDataVoucher = (data) => {
-  console.log('data', data)
   const customData = {} as FormDataPost
   customData.VoucherType = 1
   customData.CampaignType = 4
@@ -428,7 +434,7 @@ const customPostDataVoucher = (data) => {
     customData.ReducePercent = null
     customData.ReduceCash = null
   }
-  customData.MinimumPriceToGetReduce = 10000
+  customData.MinimumPriceToGetReduce = data.orderInput
   customData.MaximumReduce = 10000
   customData.Code = data.code
   customData.Name = data.code
@@ -489,6 +495,8 @@ type SetFormData = {
   imageurl?: string
   statusHistory?: any
   statusVoucher?: boolean
+  orderInput: number
+  order: number
 }
 const emptyFormData = {} as SetFormData
 const setFormData = reactive(emptyFormData)
@@ -505,6 +513,7 @@ const customizeData = async (data) => {
 
   setFormData.condition = data[0].voucherConditionTypeName
   setFormData.code = data[0].code
+  setFormData.orderInput = Number(data[0].minimumPriceToGetReduce)
   setFormData.date = [data[0].fromDate, data[0].toDate]
   setFormData.reduce = data[0].reduce
   setFormData.shortDescription = data[0].description
@@ -512,7 +521,8 @@ const customizeData = async (data) => {
   setFormData.Image = data[0].images[0].path
   setFormData.imageurl = `${API_URL}${data[0].images[0].path}`
   setFormData.statusHistory = data[0].statusHistory
-  setFormData.statusVoucher = data[0].VoucherStatus
+  setFormData.statusVoucher = data[0].voucherStatus
+  setFormData.order = data[0].serviceType
 }
 const { push } = useRouter()
 

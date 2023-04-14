@@ -667,7 +667,7 @@ const listPromotions = ref()
 let optionCallPromoAPi = 0
 const callPromoApi = async () => {
   if (optionCallPromoAPi == 0) {
-    const res = await getPromotionsList({ ServiceType: 1, CustomerId: customerIdPromo.value })
+    const res = await getPromotionsList({ ServiceType: 3, CustomerId: customerIdPromo.value })
     listPromotions.value = res.data
     promoTable.value = listPromotions.value.map((product) => ({
       id: product.id,
@@ -709,16 +709,23 @@ let promoActive = ref()
 let campaignId = ref()
 let isActivePromo = ref()
 
-const handleCurrentChange = (val: undefined) => {
-  promoCash.value = 0
-  promoValue.value = 0
-  currentRow.value = val
-  promo.value = val
-  promo.value?.reduceCash != 0
-    ? (promoCash.value = promo.value.reduceCash)
-    : (promoValue.value = promo.value?.reducePercent)
-  changeRowPromo()
-  checkPromo.value = true
+const handleCurrentChange = (val) => {
+  if(totalPriceOrder.value > val?.min) {
+    promoCash.value = 0
+    promoValue.value = 0
+    currentRow.value = val
+    promo.value = val
+    promo.value?.reduceCash != 0
+      ? (promoCash.value = promo.value.reduceCash)
+      : (promoValue.value = promo.value?.reducePercent)
+    changeRowPromo()
+    checkPromo.value = true
+    return
+  }
+  ElNotification({
+    message: t('reuse.orderIsNotEligibleForPromotion'),
+    type: 'warning'
+  })
 }
 
 const changeRowPromo = () => {
@@ -828,13 +835,19 @@ const autoCalculateOrder = () => {
     if (val.totalPrice) totalPriceOrder.value += val.totalPrice
     if (val.depositePrice) totalDeposit.value += val.depositePrice
   })
-
-  promoCash.value != 0
-    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
-    : (totalFinalOrder.value =
-        totalPriceOrder.value -
-        (totalPriceOrder.value * promoValue.value) / 100 +
-        totalDeposit.value)
+  if(totalPriceOrder.value > promoMin.value) {
+    promoCash.value != 0
+      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
+      : (totalFinalOrder.value =
+          totalPriceOrder.value -
+          (totalPriceOrder.value * promoValue.value) / 100 +
+          totalDeposit.value)
+  } else {
+    ElNotification({
+        message: t('reuse.orderIsNotEligibleForPromotion'),
+        type: 'warning'
+    })
+  }
 
   /* Tạm thời bỏ VAT 21/02/2023
   if (radioVAT.value.length < 4) {
@@ -3777,7 +3790,8 @@ const printPaymentRequest = () => {
           </div>
         </div>
         <div class="pt-2 pb-2">
-          <el-table :data="dataEdit.orderDetails
+          <el-table
+:data="dataEdit.orderDetails
 " border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="270" />

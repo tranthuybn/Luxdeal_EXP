@@ -671,8 +671,8 @@ const getMapData = ({code, type,totalMoney, createdBy, createdAt, id}) => ({labe
                       t('reuse.proposalCode'),
                       t('reuse.receiptAndPayment'),
                       t('reuse.amountOfMoney'),
+                      t('reuse.creator'),
                       t('reuse.createDate'),
-                      t('reuse.creator')
                     ]"
                     filterable
                     valueKey="id"

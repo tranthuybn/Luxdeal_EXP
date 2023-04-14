@@ -469,10 +469,6 @@ const handleSelectionChange = (val: tableDataType[]) => {
       }
     }
 
-    checkPayment.value = el.isReceiptedMoney
-    checkPaymentRequest.value = el.isReceiptedMoney
-    checkReceipt.value = !el.isReceiptedMoney
-    checkAccountEntry.value = true
   })
   // if (newTable.value[0].paymentRequestCode) {
   //   checkPaymentRequest.value = true

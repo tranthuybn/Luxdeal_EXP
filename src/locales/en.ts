@@ -907,6 +907,9 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    orderIsNotEligibleForPromotion: 'Order value is not eligible for promotion',
+    sendVoucherSuccess: 'Send voucher success',
+    sendVoucherFail: 'Send voucher fail',
     generateCodeFail: 'Automatic code fetch failed',
     userAccountApproveDetail: 'User account browsing details',
     collaboratorsAccountApproveDetail: 'Details of collaborator account browsing',

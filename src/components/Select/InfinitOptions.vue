@@ -227,7 +227,7 @@ watch(pageIndex, async (newPageIndex) => {
         :disabled="disabled"
       >
         <div class="select-table">
-          <ElRow type="flex" justify="space-between">
+          <ElRow type="flex" :gutter="10">
             <ElCol
               v-for="(key, i) in acceptKey(item)"
               :key="i"
@@ -236,7 +236,7 @@ watch(pageIndex, async (newPageIndex) => {
             >
              <div v-if="key !== 'logo'"> {{ item[key] }}</div>
              <div v-else>
-              <el-image style="width: 100px; height: 100px" :src="item[key]" fit="fill" />
+              <img style="height: 25px" :src="item[key]" fit="fill" />
              </div>
             </ElCol>
           </ElRow>

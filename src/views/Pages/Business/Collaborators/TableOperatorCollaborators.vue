@@ -512,7 +512,11 @@ const approvalProduct = async () => {
   <ContentWrap :title="props.title" :back-button="props.backButton">
     <ElRow class="pl-8" :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
-        <Form :rules="rules" @register="register" />
+        <Form :rules="rules" @register="register">
+        <template #customerDetail>
+          <slot name="customer"></slot>
+        </template>
+        </Form>
       </ElCol>
       <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
         <ElDivider class="text-center font-bold ml-2">{{ t('reuse.addImage') }}</ElDivider>

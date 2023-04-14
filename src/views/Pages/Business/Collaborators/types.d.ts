@@ -13,3 +13,21 @@ export interface FormDataPostAndEdit {
     BankId: number | null
     Files?: any
 }
+
+export interface ICustomer {
+    name: string
+    taxCode: number
+    representative: string
+    phonenumber: string
+    email: string
+    cccd: number
+    cccdCreateAt: string
+    cccdPlaceOfGrant: string
+    doB: string
+    sex: boolean
+    address: string
+    bankId: number
+    accountName: string
+    accountNumber: string
+    bankName: string
+}

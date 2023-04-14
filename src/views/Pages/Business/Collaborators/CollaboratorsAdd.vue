@@ -2,7 +2,7 @@
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { dateTimeFormat, moneyFormat } from '@/utils/format'
-import { TableOperator } from '@/views/Pages/Components/TableBase'
+import TableOperatorCollaborators from './TableOperatorCollaborators.vue'
 import { onBeforeMount, reactive, ref, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
@@ -19,6 +19,8 @@ import { useRouter } from 'vue-router'
 import { getAllCustomer, getCustomerById } from '@/api/Business'
 import { GenerateCodeOrder } from '@/api/common'
 import {
+  ElForm,
+  ElFormItem,
   ElCollapse,
   ElCollapseItem,
   ElButton,
@@ -29,7 +31,7 @@ import {
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormRules } from 'element-plus'
 // import { appModules } from '@/config/app'
-import { IFormData, FormDataPostAndEdit } from './types'
+import { IFormData, FormDataPostAndEdit, ICustomer } from './types'
 import moment from 'moment'
 
 // const { utility } = appModules
@@ -48,7 +50,7 @@ const totalFinalPrice = ref(0)
 const totalPriceCumulativeCom = ref(0)
 const totalReceivePrice = ref(0)
 const totalCumulativeCom = ref(0)
-const customerObj = ref()
+const customerObj = ref({} as ICustomer)
 const orderList = ref()
 const commissionPaymentList = ref()
 
@@ -72,7 +74,6 @@ onBeforeMount(async () => {
   await GenerateCodeOrder({CodeType :3})
   .then(res => {
     schema[1].value = res.data
-    // codeDefault.value = res.data
   })
   .catch(() => {
     ElNotification({
@@ -80,6 +81,7 @@ onBeforeMount(async () => {
         type: 'warning'
     })
   })
+
 })
 const getOrderByCollaborator = async (formValue) => {
   const res = await GetOrderByCollabolatorId({ Id: id })
@@ -190,6 +192,12 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 24
     }
+  },
+  {
+    field: 'customerDetail',
+    colProps: {
+      span: 24
+    },
   },
   {
     field: 'generalInformation',
@@ -335,7 +343,7 @@ const postData = async (data) => {
           </div>
         </template>
 
-        <TableOperator
+        <TableOperatorCollaborators
           :apiId="getCollaboratorsById"
           :schema="schema"
           :type="type"
@@ -347,7 +355,112 @@ const postData = async (data) => {
           :formDataCustomize="setFormData"
           :delApi="cancelCustomerCollabolator"
           :multipleImages="true"
-        />
+        >
+          <template #customer>
+            <ElForm :model="customerObj" label-width="120px">
+              <ElFormItem :label="t('formDemo.customerName')" prop="name" v-if="customerObj.name">
+                <div class="leading-4">
+                  <div class="ml-5">{{ customerObj.name }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem :label="t('formDemo.taxCode')" v-if="customerObj.taxCode">
+                <div class="leading-4">
+                  <div class="ml-5">{{ customerObj.taxCode }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem :label="t('formDemo.represent')" v-if="customerObj.representative">
+                <div class="leading-4">
+                  <div class="ml-5">{{ customerObj.representative }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.phoneNumber')"
+                v-if="customerObj.phonenumber"
+              >
+                <div class="leading-4">
+                  <div class="ml-5">{{ customerObj.phonenumber }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                class="w-[50%]"
+                style="display: inline-block"
+                :label="t('reuse.email')"
+                v-if="customerObj.email"
+              >
+                <div class="leading-4">
+                  <div class="ml-5">{{ customerObj.email }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                class="w-[35%]"
+                style="display: inline-block"
+                :label="t('reuse.citizenIdentificationNumber')"
+                v-if="customerObj.cccd"
+              >
+                <div class="leading-4">
+                  <div class="ml-5">{{ customerObj.cccd }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('formDemo.supplyDate')"
+                v-if="customerObj.cccdCreateAt"
+              >
+                <div class="leading-4">
+                  <div class="ml-5">{{ dateTimeFormat(customerObj.cccdCreateAt) }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('formDemo.supplyAddress')"
+                v-if="customerObj.cccdPlaceOfGrant"
+              >
+                <div class="leading-4">
+                  <div class="ml-5">{{ customerObj.cccdPlaceOfGrant }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                class="w-[33%]"
+                style="display: inline-block"
+                :label="t('reuse.dateOfBirth')"
+                v-if="customerObj.doB"
+              >
+                <div class="leading-4">
+                  <div class="ml-5">{{ dateTimeFormat(customerObj.doB) }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="display: inline-block"
+                :label="t('reuse.gender')"
+                v-if="customerObj.sex"
+              >
+                <div class="leading-4">
+                  <div class="ml-5">{{
+                    customerObj.sex ? t('reuse.male') : t('reuse.female')
+                  }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem :label="t('formDemo.address')" v-if="customerObj.address">
+                <div class="leading-4">
+                  <div class="ml-5">{{ customerObj.address }}</div>
+                </div>
+              </ElFormItem>
+              <ElFormItem
+                style="align-items: flex-start"
+                :label="t('reuse.accountBank')"
+                v-if="customerObj.bankId"
+              >
+                <div class="leading-4">
+                  <div class="ml-5">{{ customerObj.accountName }}</div>
+                  <div class="ml-5">{{ customerObj.accountNumber }}</div>
+                  <div class="ml-5">{{ customerObj.bankName }}</div>
+                </div>
+              </ElFormItem>
+            </ElForm>
+          </template>
+         </TableOperatorCollaborators>
         
       </el-collapse-item>
       <el-collapse-item :name="collapse[1].title">

@@ -256,7 +256,6 @@ const classify2 = [
   }
 ]
 
-const bankList = ref()
 const duplicateStatusButton = ref(false)
 
 const formValue = ref()
@@ -471,15 +470,6 @@ const callApiCity = async () => {
   cities.value = await getCity()
   cities.value
 }
-const callApiBank = async () => {
-  const res = await getCategories({TypeName: 'nganhang', PageSize: 100, PageIndex: 1})
-  if(res){
-    bankList.value = res.data.data.map(e=>({
-      value: e.id,
-      label: e.name,
-    }))
-  }
-}
 const getMapData = ({id, name, logo}) => ({logo: logo, label: name, value: id,}) 
 const CityChange = async (value) => {
   ruleForm.ProvinceId = value
@@ -516,7 +506,7 @@ const wardChange = async (value) => {
 //     (ruleForm.bankName = '')
 // }
 const handleChangeOptions = (option) => {
-  ruleForm.bankName = option.label
+  ruleForm.bankName = option.value
 }
 
 const postCustomer = async (typebtn) => {
@@ -806,7 +796,6 @@ onBeforeMount(() => {
   callAPICustomer()
   change()
   callApiCity()
-  callApiBank()
   if(type === 'add' || type === ':type'){
     alwaysActive.value = true
     getGenCodeCustomer()
@@ -1600,12 +1589,11 @@ watch(() => valueCommune.value, val => {
                 </ElFormItem>
 
                 <ElFormItem
-                  class="flex items-center w-[98%]"
+                  class="flex items-center w-[98%] pl-2"
                   :label="t('reuse.bank')"
                   prop="bankName"
                 >
                   <InfinitOptions 
-                    min-width="500px"
                     :placeholder="t('reuse.selectBank')"
                     valueKey="value" 
                     labelKey="label"

@@ -241,7 +241,7 @@ const postData = async() => {
       PeopleId: optionPeople.value.id,
       CreatedBy: '',
       CreatedById: form.value.createdBy,
-      status: 0,
+      status: 1,
       PeopleType: 1,
       Description: form.value.description,
       EnterMoney: form.value.enterMoney,

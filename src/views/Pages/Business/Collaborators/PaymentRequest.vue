@@ -7,13 +7,11 @@ import {
   commissionPaymentStatusTransferToText,
   dateTimeFormat,
   isFileTransferToText,
-  paidTransferToText,
-  priceTransferToText
 } from '@/utils/format'
 import { HeaderFiler } from '../../Components/HeaderFilter'
 import { TableExtension } from '../../Components/TableBase'
 import { getCommissionPaymentList } from '@/api/Business'
-import { filterStatusCustomer } from '@/utils/filters'
+import { filterStatusCustomer, filterYesOrNo, filterPaymentCheckbox } from '@/utils/filters'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useAppStore } from '@/store/modules/app'
 import { useRouter, useRoute } from 'vue-router'
@@ -28,8 +26,10 @@ import {
 } from '../../Components/TablesReusabilityFunction'
 import { TableData } from '@/api/table/types'
 import { useTable } from '@/hooks/web/useTable'
-import { usePermission } from '@/utils/tsxHelper'
-import { ElDrawer, ElButton, ElCheckboxGroup, ElCheckboxButton, ElCheckbox } from 'element-plus'
+import { usePermission, filterHandler, changeMoney } from '@/utils/tsxHelper'
+import { ElDrawer, ElButton, ElCheckboxGroup, ElCheckboxButton } from 'element-plus'
+import { InputSearch } from '@/views/Pages/Components/TableBase/index'
+
 
 const { currentRoute } = useRouter()
 const userPermission = usePermission(currentRoute.value)
@@ -39,38 +39,44 @@ const columns = reactive<TableColumn[]>([
     field: 'index',
     label: t('reuse.index'),
     type: 'index',
-    align: 'center'
+    align: 'center',
   },
   {
     field: 'collaborator.code',
     label: t('reuse.collaboratorsCode'),
-    minWidth: '100'
+    minWidth: '120',
+    headerAlign: 'left'
   },
   {
     field: 'collaborator.accountName',
     label: t('reuse.collaboratorsName'),
-    minWidth: '150'
+    minWidth: '290',
+    headerAlign: 'left'
   },
 
   {
     field: 'price',
     label: t('reuse.amountOfMoney'),
-    minWidth: '250',
+    minWidth: '120',
     align: 'right',
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return h('div', priceTransferToText(cellValue))
-    }
+    sortable: true,
+    headerAlign: 'left',
+    formatter: (_: Recordable, __: TableColumn, cellValue) => changeMoney.format(parseInt(cellValue))
   },
   {
     field: 'code',
     label: t('reuse.codeRequest'),
-    minWidth: '200'
+    minWidth: '120',
+    headerAlign: 'left',
+    headerFilter: 'Search'
   },
   {
     field: 'isFile',
     label: t('formDemo.attachments'),
     minWidth: '150',
-    align: 'center',
+    headerAlign: 'left',
+    filters: filterYesOrNo,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${isFileTransferToText(cellValue)}`)
     }
@@ -79,54 +85,61 @@ const columns = reactive<TableColumn[]>([
     field: 'receiptOrPaymentVoucherId',
     label: t('router.receiptsAndExpenditures'),
     minWidth: '150',
-    align: 'right'
+    align: 'right',
+    headerAlign: 'left',
+    headerFilter: 'Search'
   },
   {
     field: 'paymentOrder',
     label: t('router.paymentProposal'),
     minWidth: '150',
-    align: 'center',
-    formatter: (_: Recordable, __: TableColumn, ___: boolean) => {
-      return h(ElCheckbox)
-    }
+    headerAlign: 'left',
+    headerFilter: 'Search'
   },
   {
     field: 'paid',
     label: t('reuse.alreadyPaid'),
     minWidth: '150',
-    align: 'right',
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return t(`${paidTransferToText(cellValue)}`)
-    }
+    formatter: (record: Recordable, __: TableColumn, _cellValue: boolean) => {
+      return h('input', {type: 'checkbox', checked: record.paid, disabled: true})
+    },
+    filters: filterPaymentCheckbox,
+    filterMethod: filterHandler,
+    align: 'center',
+    headerAlign: 'left'
   },
   {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
-    align: 'center',
     sortable: true,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return dateTimeFormat(cellValue)
-    }
+    },
+    headerAlign: 'left'
   },
   {
     field: 'createdBy',
     label: t('reuse.creator'),
-    minWidth: '130'
+    minWidth: '150',
+    headerAlign: 'left'
   },
   {
     field: 'status',
     label: t('reuse.status'),
-    minWidth: '200',
-    align: 'center',
-
+    minWidth: '150',
     filters: filterStatusCustomer,
+    filterMethod: filterHandler,
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${commissionPaymentStatusTransferToText(cellValue)}`)
-    }
+    },
+    headerAlign: 'left'
   }
 ])
 
+const apiToFilter = [
+
+]
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })
@@ -189,7 +202,7 @@ async function getTableSelected() {
     })
     .catch(() => {})
 }
-const { setSearchParams } = methods
+const { setSearchParams, clearSearchParams } = methods
 const filterChange = (filterValue) => {
   if (filterValue && typeof unref(filterValue) === 'object')
     for (let key in filterValue) {
@@ -205,6 +218,12 @@ const action = (row: TableData, type: string) => {
       params: { id: row.id, type: type }
     })
   }
+}
+const cancel = (field) => {
+  clearSearchParams(field)
+}
+const filterSelect = (value) => {
+  setSearchParams(value)
 }
 const getData = (data = {}) => {
   methods.setSearchParams({ ...data })
@@ -224,6 +243,8 @@ watch(
     immediate: true
   }
 )
+const ColumnsHaveHeaderFilter = columns.filter((col) => col.headerFilter)
+
 </script>
 <template>
   <HeaderFiler @get-data="getData" @refresh-data="getData">
@@ -279,6 +300,12 @@ watch(
       <template #operator="{ row }">
         <ElButton @click="action(row, 'detail')" :icon="eyeIcon" />
         <ElButton @click="action(row, 'edit')" :icon="editIcon" />
+      </template>
+      <template v-for="(header, index) in ColumnsHaveHeaderFilter" #[`${header.field}-header`] :key="index">
+        {{ header.label }}
+        <InputSearch
+            v-if="header.headerFilter === 'Search'" :apiToFilter="apiToFilter[header.field]" :field="header.field" @filter-select="filterSelect"
+            @cancel="cancel" />
       </template>
     </Table>
   </ContentWrap>

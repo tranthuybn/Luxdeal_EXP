@@ -586,9 +586,7 @@ const getMapData = ({code, type,totalMoney, createdBy, createdAt, id}) => ({labe
                   :label="`${t('reuse.email')} :`"
                   v-if="infoCompany.email"
                 >
-                  <div class="leading-4">
-                    <div>{{ infoCompany.email }}</div>
-                  </div>
+                  {{ infoCompany.email }}
                 </ElFormItem>
                 <ElFormItem
                   class="w-[33%]"

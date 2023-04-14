@@ -63,7 +63,7 @@ const columns = [
         minWidth: '100',
         headerAlign: 'center',
         align: 'right',
-        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.beginningPeriodRevenue))
+        formatter: (_row, _column, cellValue) => changeMoney.format(parseInt(cellValue))
       },
       {
         field: 'beginningPeriodPayment',
@@ -71,7 +71,7 @@ const columns = [
         minWidth: '100',
         headerAlign: 'center',
         align: 'right',
-        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.beginningPeriodPayment))
+        formatter: (_row, _column, cellValue) => changeMoney.format(parseInt(cellValue))
       }
     ]
   },
@@ -87,7 +87,7 @@ const columns = [
         minWidth: '100',
         headerAlign: 'center',
         align: 'right',
-        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.duringPeriodRevenue))
+        formatter: (_row, _column, cellValue) => changeMoney.format(parseInt(cellValue))
       },
       {
         field: 'duringPeriodPayment',
@@ -95,7 +95,7 @@ const columns = [
         minWidth: '100',
         headerAlign: 'center',
         align: 'right',
-        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.duringPeriodPayment))
+        formatter: (_row, _column, cellValue) => changeMoney.format(parseInt(cellValue))
       }
     ]
   },
@@ -111,7 +111,7 @@ const columns = [
         minWidth: '100',
         headerAlign: 'center',
         align: 'right',
-        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.endPeriodRevenue))
+        formatter: (_row, _column, cellValue) => changeMoney.format(parseInt(cellValue))
       },
       {
         field: 'endPeriodpayment',
@@ -119,7 +119,7 @@ const columns = [
         minWidth: '100',
         headerAlign: 'center',
         align: 'right',
-        formatter: (row, _column, _cellValue) => changeMoney.format(parseInt(row.endPeriodpayment))
+        formatter: (_row, _column, cellValue) => changeMoney.format(parseInt(cellValue))
       }
     ]
   },

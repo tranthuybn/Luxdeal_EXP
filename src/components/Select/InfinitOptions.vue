@@ -78,6 +78,14 @@ const propsObj = defineProps({
   mapFunction: {
     type: Function,
     default: () => {}
+  },
+  params: {
+    type: Object,
+    default: () => {}
+  },
+  getMoreAPI: {
+    type: Boolean,
+    default: true
   }
 })
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
@@ -95,24 +103,23 @@ const identifyLabel = ref(propsObj.labelKey)
 
 // set value for multiple select if defaultValue available
 
-const checkType = propsObj.type === 'detail' || propsObj.type === 'edit'
-
 onBeforeMount(async () => {
-  if(pageIndex.value == 1) {
-    const response = await propsObj.api({
-      PageIndex: pageIndex.value,
-      PageSize: pageSize.value
-    })
-    if(response.data.length > 0) {
-      const arr = response.data.map(propsObj.mapFunction)
-      options.value.push(...arr);  
-    }
-  }
-  if(checkType){
-    const result = options.value.filter(option => option.id === propsObj.defaultValue)
-    if(!result?.length) getData()
-  }
+  callAPI(pageIndex.value)
 })
+
+const callAPI = async (pageIndex: number) => {
+  const response = await propsObj.api({
+      PageIndex: pageIndex,
+      PageSize: pageSize.value,
+      ...propsObj.params
+  })
+  const data = response.data?.data ? response.data.data : response.data
+  if(data.length > 0) {
+    const arr = data.map(propsObj.mapFunction)
+    options.value.push(...arr);  
+    console.log('options', options.value)
+  }
+}
 
 const acceptKey = (item) => {
   const { hiddenKey } = propsObj
@@ -160,28 +167,17 @@ const scrolling = (e) => {
   if (scrollTop == 0) {
     emit('scrollTop')
   }
-  if (scrollTop + clientHeight >= scrollHeight) {
-    getData()
+  if (scrollTop + clientHeight >= scrollHeight && propsObj.getMoreAPI) {
+    increasePageIndex()
   }
 }
 
-const getData = () => {
+const increasePageIndex = () => {
   pageIndex.value +=1
 }
 
 watch(pageIndex, async (newPageIndex) => {
-  const response = await propsObj.api({
-    PageIndex: newPageIndex,
-    PageSize: pageSize.value
-  })
-  if(response.data.length > 0) {
-    const arr = response.data.map(propsObj.mapFunction)
-    options.value.push(...arr);  
-    if(checkType){
-      const result = arr.filter(option => option.id === propsObj.defaultValue)
-      if(!result?.length) getData()
-    }
-  }
+  callAPI(newPageIndex)
 });
 
 </script>
@@ -206,9 +202,10 @@ watch(pageIndex, async (newPageIndex) => {
       :value="items.length > 0 && items[0][identifyKey] ? items[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
+      v-if="fields.length > 0"
     >
       <div>
-        <ElRow type="flex" justify="space-between" class="px-" v-if="fields.length > 0">
+        <ElRow type="flex" justify="space-between">
           <ElCol
             :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"
@@ -230,14 +227,17 @@ watch(pageIndex, async (newPageIndex) => {
         :disabled="disabled"
       >
         <div class="select-table">
-          <ElRow type="flex" justify="space-between">
+          <ElRow type="flex" :gutter="10">
             <ElCol
               v-for="(key, i) in acceptKey(item)"
               :key="i"
               class="text-ellipsis text-center"
               :span="Math.floor(24 / fields.length)"
             >
-             <span> {{ item[key] }}</span>
+             <div v-if="key !== 'logo'"> {{ item[key] }}</div>
+             <div v-else>
+              <img style="height: 25px" :src="item[key]" fit="fill" />
+             </div>
             </ElCol>
           </ElRow>
         </div>

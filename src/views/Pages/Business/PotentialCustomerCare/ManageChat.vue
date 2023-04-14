@@ -268,15 +268,11 @@ export default {
         this.getDocument()
       }
     },
-    // activeName: {
-    //   immediate: true,
-    //   handler(val) {
-    //     // load user immediate
-    //     if (val) {
-    //       this.getTypeMessage(val)
-    //     }
-    //   }
-    // },
+    activeName: {
+      handler(val) {
+          this.getTypeMessage(val)
+      }
+    },
     dataSocket: {
       immediate: true,
       handler(val) {

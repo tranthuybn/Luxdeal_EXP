@@ -1075,7 +1075,7 @@ const postData = async () => {
         WardId: formAddress.wardCommune ?? 1,
         Address: customerAddress.value,
         OrderDetail: productPayment,
-        CampaignId: 2,
+        CampaignId: null,
         TotalPrice: totalFinalOrder.value,
         DepositePrice: 0,
         DiscountMoney: 0,
@@ -2071,6 +2071,7 @@ const getFormReceipts = () => {
       recharger: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
       user: optionsRecharger,
+      name: inputRecharger.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
@@ -2436,7 +2437,8 @@ const printPaymentRequest = () => {
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value
+      moneyReceipts: moneyReceipts.value,
+      detailedListExpenses: detailedListExpenses
     }
 
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value

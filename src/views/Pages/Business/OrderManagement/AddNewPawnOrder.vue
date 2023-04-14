@@ -23,7 +23,8 @@ import {
   UploadUserFile,
   ElNotification,
   ElMessage,
-  ElTooltip} from 'element-plus'
+  ElTooltip
+} from 'element-plus'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { appModules } from '@/config/app'
 
@@ -57,13 +58,13 @@ import {
   approvalOrder,
   GetPaymentRequestDetail,
   updateOrderTransaction,
-createTicketFromReturnOrder,
-GenerateCodeOrder,
-cancelReturnOrder,
-finishReturnOrder,
-GetWarehouseTransaction,
-updateStatusTransaction,
-GetMoneyAndDatePayment
+  createTicketFromReturnOrder,
+  GenerateCodeOrder,
+  cancelReturnOrder,
+  finishReturnOrder,
+  GetWarehouseTransaction,
+  updateStatusTransaction,
+  GetMoneyAndDatePayment
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -76,6 +77,7 @@ import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, ge
 import { deleteProductProperty } from '@/api/LibraryAndSetting'
 import AddQuickProduct from './AddQuickProduct.vue'
 import StatusWarehouse from '@/views/Pages/Warehouse/BusinessProductWarehouse/StatusWarehouse.vue'
+import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
 import UploadMultipleImages from './UploadMultipleImages.vue'
@@ -115,7 +117,7 @@ const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
     name: 'productAndPayment',
-    title: t('formDemo.listOfPawnProducts') ,
+    title: t('formDemo.listOfPawnProducts'),
     columns: [],
     api: undefined,
     buttonAdd: '',
@@ -248,7 +250,7 @@ const productForSale = reactive<ListOfProductsForSaleType>({
   edited: true,
   warehouseId: undefined,
   warehouseName: '',
-  newProduct:false,
+  newProduct: false,
   returnedQuantity: 0
 })
 
@@ -305,14 +307,14 @@ let dataEdit = ref()
 const removeListProductsSale = async (index) => {
   if (!ListOfProductsForSale[ListOfProductsForSale.value.length - 1]) {
 
-    if(ListOfProductsForSale.value[index].newProduct == true){
-      listProducts.value.splice(listProducts.value.findIndex(product => product.productPropertyId == ListOfProductsForSale.value[index].productPropertyId),1)
-      await deleteProductProperty({Id: ListOfProductsForSale.value[index].productPropertyId})
+    if (ListOfProductsForSale.value[index].newProduct == true) {
+      listProducts.value.splice(listProducts.value.findIndex(product => product.productPropertyId == ListOfProductsForSale.value[index].productPropertyId), 1)
+      await deleteProductProperty({ Id: ListOfProductsForSale.value[index].productPropertyId })
     }
 
     ListOfProductsForSale.value.splice(index, 1)
   }
-  if(ListOfProductsForSale.value.length == 0){
+  if (ListOfProductsForSale.value.length == 0) {
     addLastIndexSellTable()
   }
 }
@@ -377,21 +379,21 @@ const createQuickCustomer = async () => {
     CustomerType: valueSelectCustomer.value
   }
   const formCustomerPayLoad = FORM_IMAGES(payload)
-  const res =  await addQuickCustomer(formCustomerPayLoad)
-        if (res) {
-          ElNotification({
-              message: t('reuse.addSuccess'),
-              type: 'success'
-            })
-          callCustomersApi()
+  const res = await addQuickCustomer(formCustomerPayLoad)
+  if (res) {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
+    })
+    callCustomersApi()
 
-        } else {
-          ElNotification({
-              message: t('reuse.addFail'),
-              type: 'warning'
-            })
-        }  
-      }
+  } else {
+    ElNotification({
+      message: t('reuse.addFail'),
+      type: 'warning'
+    })
+  }
+}
 
 const valueMoneyAccoungtingEntry = ref(0)
 
@@ -481,21 +483,21 @@ const ScrollCollaboratorBottom = () => {
   noMoreCollaboratorData.value
     ? ''
     : getCollaboratorsInOrderList({ PageIndex: pageIndexCollaborator.value, PageSize: 20 })
-        .then((res) => {
-          res.data.length == 0
-            ? (noMoreCollaboratorData.value = true)
-            : res.data.map((el) =>
-                optionsCollaborators.value.push({
-                  label: el.code + ' | ' + el.accountName,
-                  value: el.id,
-                  collaboratorCommission: el.discount,
-                  phone: el.accountNumber
-                })
-              )
-        })
-        .catch(() => {
-          noMoreCollaboratorData.value = true
-        })
+      .then((res) => {
+        res.data.length == 0
+          ? (noMoreCollaboratorData.value = true)
+          : res.data.map((el) =>
+            optionsCollaborators.value.push({
+              label: el.code + ' | ' + el.accountName,
+              value: el.id,
+              collaboratorCommission: el.discount,
+              phone: el.accountNumber
+            })
+          )
+      })
+      .catch(() => {
+        noMoreCollaboratorData.value = true
+      })
 }
 
 const scrolling = (e) => {
@@ -536,17 +538,19 @@ const postPaymentRequest = async () => {
 
   const formDataPayLoad = FORM_IMAGES(payload)
   await addDNTT(formDataPayLoad)
-  .then((res)=>{
-    idPayment.value = res.paymentRequestId
-    ElNotification({
-      message: t('reuse.addSuccess'),
-      type: 'success'
-    })})
-  .catch(()=>{
-    ElNotification({
-      message: t('reuse.addFail'),
-      type: 'error'
-    })})
+    .then((res) => {
+      idPayment.value = res.paymentRequestId
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+    })
+    .catch(() => {
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'error'
+      })
+    })
   handleChangePaymentRequest()
 }
 
@@ -557,29 +561,29 @@ const currentNewProductRow = ref(-1)
 const addnewproduct = (currentRow) => {
   currentNewProductRow.value = currentRow
   dialogAddProduct.value = true
-  if(callProductApi == 0){
-    Promise.all([getBrandSelectOptions(),getUnitSelectOptions(),getOriginSelectOptions(),getCategory()])
+  if (callProductApi == 0) {
+    Promise.all([getBrandSelectOptions(), getUnitSelectOptions(), getOriginSelectOptions(), getCategory()])
   }
   callProductApi++
 }
 
-const postQuickProduct = (product,productId)=>{
+const postQuickProduct = (product, productId) => {
   listProducts.value?.unshift({
-      productCode: product.productCode,
-      value: product.code,
-      name: product.name ?? '',
-      unit: '',
-      price: 0,
-      productPropertyId: productId,
-      productPropertyCode: product.productPropertyCode
-    })
+    productCode: product.productCode,
+    value: product.code,
+    name: product.name ?? '',
+    unit: '',
+    price: 0,
+    productPropertyId: productId,
+    productPropertyCode: product.productPropertyCode
+  })
 
-    //Change productpropertyId of currentNewProductRow
-    ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
-    ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
-    //set value like newProduct:true
-    ListOfProductsForSale.value[currentNewProductRow.value].newProduct = true
-    //when remove row check newProduct if(true){call api remove proudct(id), shift listProducts}
+  //Change productpropertyId of currentNewProductRow
+  ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
+  ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
+  //set value like newProduct:true
+  ListOfProductsForSale.value[currentNewProductRow.value].newProduct = true
+  //when remove row check newProduct if(true){call api remove proudct(id), shift listProducts}
 }
 //end thêm nhanh sp
 
@@ -626,9 +630,9 @@ function printPage(id: string) {
     stylesHtml += node.outerHTML
   }
   var indexHeight = 0;
-  if(id == "recpPaymentPrint"){
+  if (id == "recpPaymentPrint") {
     indexHeight = 210;
-  }else {
+  } else {
     indexHeight = 297;
   }
   const printContents = document.getElementById(id)?.innerHTML
@@ -656,8 +660,8 @@ function printPage(id: string) {
                   </body>
                 </html>`)
 
-                WinPrint?.document.close()
-                WinPrint?.focus()
+  WinPrint?.document.close()
+  WinPrint?.focus()
   setTimeout(() => {
     WinPrint?.print()
     WinPrint?.close()
@@ -674,42 +678,42 @@ const listProducts = ref()
 
 const pageIndexProducts = ref(1)
 const callAPIProduct = async () => {
-  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20,  ServiceType: 4, IsApprove: true })
+  const res = await getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20, ServiceType: 4, IsApprove: true })
   if (res.data && res.data?.length > 0) {
     listProducts.value = res.data.map((product) => ({
       productCode: product.productCode,
       value: product.code,
       name: product.name ?? '',
-      inventory:product.tonKho??0,
+      inventory: product.tonKho ?? 0,
       unit: product.unitName,
       price: product.price,
       productPropertyId: product.id,
       productPropertyCode: product.productPropertyCode
     }))
   }
-  if(disabledEdit.value){
-    ListOfProductsForSale.value.forEach((row)=>{
-      const found = listProducts.value.find((product)=>product.productPropertyId == row.productPropertyId)
-      if(!found){
+  if (disabledEdit.value) {
+    ListOfProductsForSale.value.forEach((row) => {
+      const found = listProducts.value.find((product) => product.productPropertyId == row.productPropertyId)
+      if (!found) {
         getProductsList({ Keyword: row.productPropertyCode, ServiceType: 2, IsApprove: true })
-        .then((res)=>{
-          listProducts.value?.unshift({
-            productCode: res.data[0].productCode,
-            value: res.data[0].code,
-            name: res.data[0].name ?? '',
-            inventory:res.data[0].tonKho?? 0,
-            unit: res.data[0].unitName,
-            price: res.data[0].price,
-            productPropertyId: res.data[0].id,
-            productPropertyCode: res.data[0].productPropertyCode
+          .then((res) => {
+            listProducts.value?.unshift({
+              productCode: res.data[0].productCode,
+              value: res.data[0].code,
+              name: res.data[0].name ?? '',
+              inventory: res.data[0].tonKho ?? 0,
+              unit: res.data[0].unitName,
+              price: res.data[0].price,
+              productPropertyId: res.data[0].id,
+              productPropertyCode: res.data[0].productPropertyCode
+            })
           })
-        })
-        .catch(()=>{
-          ElNotification({
-            message: t('reuse.cantFindProduct'),
-            type: 'error'
+          .catch(() => {
+            ElNotification({
+              message: t('reuse.cantFindProduct'),
+              type: 'error'
+            })
           })
-        })
       }
     })
   }
@@ -729,24 +733,24 @@ const ScrollProductBottom = () => {
   noMoreProductData.value
     ? ''
     : getProductsList({ PageIndex: pageIndexProducts.value, PageSize: 20 })
-        .then((res) => {
-          res.data.length == 0
-            ? (noMoreProductData.value = true)
-            : res.data.map((product) =>
-                listProducts.value.push({
-                  productCode: product.productCode,
-                  value: product.code,
-                  name: product.name ?? '',
-                  inventory:product.tonKho??0,
-                  price: product.price.toString(),
-                  productPropertyId: product.id.toString(),
-                  productPropertyCode: product.productPropertyCode
-                })
-              )
-        })
-        .catch(() => {
-          noMoreProductData.value = true
-        })
+      .then((res) => {
+        res.data.length == 0
+          ? (noMoreProductData.value = true)
+          : res.data.map((product) =>
+            listProducts.value.push({
+              productCode: product.productCode,
+              value: product.code,
+              name: product.name ?? '',
+              inventory: product.tonKho ?? 0,
+              price: product.price.toString(),
+              productPropertyId: product.id.toString(),
+              productPropertyCode: product.productPropertyCode
+            })
+          )
+      })
+      .catch(() => {
+        noMoreProductData.value = true
+      })
 }
 
 const duplicateProductMessage = () => {
@@ -838,7 +842,7 @@ interface IRuleForm {
   orderFiles: Array<any>
 }
 
-const ruleForm = reactive({paymentPeriod: 10, delivery: 1} as IRuleForm )
+const ruleForm = reactive({ paymentPeriod: 10, delivery: 1 } as IRuleForm)
 const inputDeposit = ref(0)
 
 const rules = reactive<FormRules>({
@@ -898,30 +902,30 @@ let idOrderPost = ref()
 
 const postData = async () => {
   orderDetailsTable = ListOfProductsForSale.value
-  .filter((row)=>row.productPropertyId && row.productPropertyId !== '' && row.productPropertyId != null)
-  .map((val) => ({
-    ProductPropertyId: parseInt(val.productPropertyId),
-    Quantity: val.quantity,
-    ProductPrice: 0,
-    UnitPrice: 0,
-    HirePrice: 0,
-    DepositePrice: 0,
-    InterestMoney: val.interestMoney,
-    TotalPrice: 0,
-    BusinessSetup: val.businessSetup,
-    ConsignmentSellPrice: 0,
-    ConsignmentHirePrice: 0,
-    Accessory: val.accessory,
-    Code: val.code,
-    Description: val.description,
-    PrincipalMoney: val.principalMoney,
-    PrincipalDebt: val.principalDebt
-  }))
+    .filter((row) => row.productPropertyId && row.productPropertyId !== '' && row.productPropertyId != null)
+    .map((val) => ({
+      ProductPropertyId: parseInt(val.productPropertyId),
+      Quantity: val.quantity,
+      ProductPrice: 0,
+      UnitPrice: 0,
+      HirePrice: 0,
+      DepositePrice: 0,
+      InterestMoney: val.interestMoney,
+      TotalPrice: 0,
+      BusinessSetup: val.businessSetup,
+      ConsignmentSellPrice: 0,
+      ConsignmentHirePrice: 0,
+      Accessory: val.accessory,
+      Code: val.code,
+      Description: val.description,
+      PrincipalMoney: val.principalMoney,
+      PrincipalDebt: val.principalDebt
+    }))
 
-  if(orderUtility.ValidatePostData(ListOfProductsForSale.value) == false){
-      return
-    }
-    
+  if (orderUtility.ValidatePostData(ListOfProductsForSale.value) == false) {
+    return
+  }
+
   const productPayment = JSON.stringify([...orderDetailsTable])
 
   const payload = {
@@ -942,7 +946,7 @@ const postData = async () => {
     OrderDetail: productPayment,
     fromDate: postDateTime(ruleForm.pawnTerm[0]),
     toDate: postDateTime(ruleForm.pawnTerm[1]),
-    CampaignId: 2,
+    CampaignId: null,
     VAT: 1,
     WarehouseId: ruleForm.warehouse,
     Days: ruleForm.paymentPeriod,
@@ -952,7 +956,7 @@ const postData = async () => {
     InterestMoney: priceintoMoneyByday.value,
     Status: 4
   }
- 
+
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
@@ -989,10 +993,10 @@ const reloadStatusOrder = async () => {
     else duplicateStatusButton.value = false
 
     let arrayLength = arrayStatusOrder.value?.length
-          while(statusOrder.value == 49 /*Trả 1 phần*/){
-            arrayLength -= 2
-            statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
-          }
+    while (statusOrder.value == 49 /*Trả 1 phần*/) {
+      arrayLength -= 2
+      statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+    }
   }
 }
 
@@ -1045,21 +1049,22 @@ let payment = ref(choosePayment[0].value)
 const nameDialog = ref('')
 
 const dialogFeePaymentSlip = ref(false)
-const initDataTablePawnSlip = () =>{
-  ListOfProductsForSale.value.forEach(async (row,index)=>{
-    if(index ==0){//Can only show 1 product
-      await GetMoneyAndDatePayment({CustomerOrderId: id, ProductPropertyId:row.productPropertyId})
-      .then((res)=>{
-        tablePawnSlip.value[index].id = row.id
-        tablePawnSlip.value[index].productPropertyId = row.productPropertyId
-        tablePawnSlip.value[index].productName = row.productName
-        tablePawnSlip.value[index].productCode = row.productCode
-        tablePawnSlip.value[index].quantity = row.quantity
-        tablePawnSlip.value[index].interestMoney = row.interestMoney
-        tablePawnSlip.value[index].principalDebt = res.data.principalDebt
-        tablePawnSlip.value[index].lastPaymentDate = res.data.lastPaymentDate
-        tablePawnSlip.value[index].nextPaymentDate = moment().isBefore(moment(res.data.lastPaymentDate), 'day') ? moment(res.data.lastPaymentDate).format() : moment().format()
-      })}
+const initDataTablePawnSlip = () => {
+  ListOfProductsForSale.value.forEach(async (row, index) => {
+    if (index == 0) {//Can only show 1 product
+      await GetMoneyAndDatePayment({ CustomerOrderId: id, ProductPropertyId: row.productPropertyId })
+        .then((res) => {
+          tablePawnSlip.value[index].id = row.id
+          tablePawnSlip.value[index].productPropertyId = row.productPropertyId
+          tablePawnSlip.value[index].productName = row.productName
+          tablePawnSlip.value[index].productCode = row.productCode
+          tablePawnSlip.value[index].quantity = row.quantity
+          tablePawnSlip.value[index].interestMoney = row.interestMoney
+          tablePawnSlip.value[index].principalDebt = res.data.principalDebt
+          tablePawnSlip.value[index].lastPaymentDate = res.data.lastPaymentDate
+          tablePawnSlip.value[index].nextPaymentDate = moment().isBefore(moment(res.data.lastPaymentDate), 'day') ? moment(res.data.lastPaymentDate).format() : moment().format()
+        })
+    }
   })
 }
 
@@ -1100,22 +1105,22 @@ const postReturnRequest = async (reason) => {
     description: formatOrderReturnReason(reason),
     returnRequestType: reason,
     targetDate: reason == 5 ? rentReturnOrder.value.extendDate : null,
-    giaHanDetails: reason == 5 ? tableReturnPost :[],
+    giaHanDetails: reason == 5 ? tableReturnPost : [],
     nhapDetails: [],
     xuatDetails: reason != 5 ? tableReturnPost : [],
   }
-  await createReturnRequest(payload).then(async (res)=>{
+  await createReturnRequest(payload).then(async (res) => {
     idReturnRequest.value = res
-    if(reason != 5) {await createTicketFromReturnOrders()}
+    if (reason != 5) { await createTicketFromReturnOrders() }
     getReturnRequestTable()
     editData()
   })
-  .catch((err) => {
+    .catch((err) => {
       ElNotification({
-      message: err?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
-      type: 'warning'
+        message: err?.response?.data?.message || 'Đơn hàng chưa được xuất kho',
+        type: 'warning'
+      })
     })
-  })
 }
 
 const idReturnRequest = ref()
@@ -1125,12 +1130,12 @@ const createTicketFromReturnOrders = async () => {
     orderId: id,
     returnRequestId: idReturnRequest.value
   }
-    await createTicketFromReturnOrder(payload).then(() => {
-      ElNotification({
-        message: 'Tạo phiếu đổi trả thành công',
-        type: 'success'
-      })
+  await createTicketFromReturnOrder(payload).then(() => {
+    ElNotification({
+      message: 'Tạo phiếu đổi trả thành công',
+      type: 'success'
     })
+  })
     .catch(() =>
       ElNotification({
         message: 'Tạo phiếu đổi trả thất bại',
@@ -1183,13 +1188,13 @@ const getDetailPaymentRequest = async (_index, scope) => {
     inputRecharger.value = formDetailPaymentReceipt.value.paymentRequest.peopleId
 
     detailedListExpenses.value = formDetailPaymentReceipt.value.paymentRequestDetail
-    
-    if(scope.row.typeOfAccountingEntry == 5){
+
+    if (scope.row.typeOfAccountingEntry == 5) {
       openAccountingEntry(scope.row.id, scope.row.orderTypeBTSpa)
       paymentRequestFromAnotherOrder.value = true
     }
-    else{
-    dialogIPRForm.value = true
+    else {
+      dialogIPRForm.value = true
     }
   }
 }
@@ -1205,10 +1210,10 @@ const giaHan = ref(false)
 const getOrderStransactionList = async () => {
   const transaction = await getOrderTransaction({ id: id })
   debtTable.value = transaction.data
-  
-  if(transaction.data.length > 0){
-      DoiPhieuCamDo.value = false
-    }
+
+  if (transaction.data.length > 0) {
+    DoiPhieuCamDo.value = false
+  }
 }
 // Thêm mã phiếu thu/chi vào debtTable
 const handleChangeReceipts = async () => {
@@ -1281,34 +1286,34 @@ const checkPTC = ref(0)
 let moneyDeposit = ref(0)
 
 const updateDetailAcountingEntry = ref(false)
-const updateInfoAcountingEntry = async(index) => {
+const updateInfoAcountingEntry = async (index) => {
   if (updateDetailAcountingEntry.value) {
     updateOrderStransaction()
-  }else {
+  } else {
     postOrderStransaction(index)
   }
 }
 
 // cập nhật bút toán
-const updateOrderStransaction = async() => {
+const updateOrderStransaction = async () => {
   const payload = {
     accountingEntryId: idAccounting.value,
     isReceiptedMoney: alreadyPaidForTt.value,
     paymentMethods: payment.value
   }
   await updateOrderTransaction(payload)
-  .then(()=>{
-    ElNotification({
+    .then(() => {
+      ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-  })
-  .catch(()=>{
-    ElNotification({
+    })
+    .catch(() => {
+      ElNotification({
         message: t('reuse.addFail'),
         type: 'error'
       })
-  })
+    })
   getOrderStransactionList()
 }
 
@@ -1324,17 +1329,17 @@ const postOrderStransaction = async (index: number) => {
     nextPaymentDate: val.nextPaymentDate
   }))
   let deibtPawnFee = 0
-  if(paymentType.value == 4){
-    moment().isBefore(moment(tablePawnSlip.value[0]?.lastPaymentDate), 'day') 
-    ? deibtPawnFee = 0 - tablePawnSlip.value[0]?.pawnPrice
-    : deibtPawnFee =  daysDiff(tablePawnSlip.value[0]?.lastPaymentDate,moment().format()) * (tablePawnSlip.value[0]?.interestMoney) * (tablePawnSlip.value[0]?.principalDebt/ 1000000) - tablePawnSlip.value[0]?.pawnPrice
+  if (paymentType.value == 4) {
+    moment().isBefore(moment(tablePawnSlip.value[0]?.lastPaymentDate), 'day')
+      ? deibtPawnFee = 0 - tablePawnSlip.value[0]?.pawnPrice
+      : deibtPawnFee = daysDiff(tablePawnSlip.value[0]?.lastPaymentDate, moment().format()) * (tablePawnSlip.value[0]?.interestMoney) * (tablePawnSlip.value[0]?.principalDebt / 1000000) - tablePawnSlip.value[0]?.pawnPrice
   }
 
   if (index == 4) {
     childrenTable.value = ListOfProductsForSale.value.map((val) => ({
-    merchadiseTobePayforId: parseInt(val.id),
-    quantity: val.quantity
-  }))
+      merchadiseTobePayforId: parseInt(val.id),
+      quantity: val.quantity
+    }))
     tableAccountingEntry.value[0].receiveMoney > tableAccountingEntry.value[0].paidMoney
       ? (checkPTC.value = 1)
       : (checkPTC.value = 0)
@@ -1345,23 +1350,23 @@ const postOrderStransaction = async (index: number) => {
       index == 1
         ? t('formDemo.bill')
         : index == 2
-        ? 'Tổng tiền gốc cầm đồ'
-        : tableAccountingEntry.value[0].content,
+          ? 'Tổng tiền gốc cầm đồ'
+          : tableAccountingEntry.value[0].content,
     paymentRequestId: null,
     receiptOrPaymentVoucherId: null,
     receiveMoney:
       index == 1
         ? tablePawnSlip.value[0].pawnPrice
         : index == 2
-        ? 0
-        : tableAccountingEntry.value[0].receiveMoney,
+          ? 0
+          : tableAccountingEntry.value[0].receiveMoney,
     paidMoney:
-      index == 1 
+      index == 1
         ? 0
-        : 
-      index == 2
-        ? totalPrincipalMoney.value
-        : tableAccountingEntry.value[0].paidMoney,
+        :
+        index == 2
+          ? totalPrincipalMoney.value
+          : tableAccountingEntry.value[0].paidMoney,
     deibt: index == 1 ? deibtPawnFee : index == 2 || index == 3 || index == 4 ? 0 : moneyDeposit.value,
     typeOfPayment: index == 1 || index == 2 ? 1 : index == 3 || index == 4 ? checkPTC.value : 0,
     paymentMethods: payment.value,
@@ -1373,42 +1378,42 @@ const postOrderStransaction = async (index: number) => {
     returnRequestId: idReturnRequest.value
   }
   objOrderStransaction.value = await addOrderStransaction(payload)
-  .then(()=>{
-    ElNotification({
+    .then(() => {
+      ElNotification({
         message: t('reuse.addSuccess'),
         type: 'success'
       })
-  })
-  .catch(()=>{
-    ElNotification({
+    })
+    .catch(() => {
+      ElNotification({
         message: t('reuse.addFail'),
         type: 'error'
       })
-  })
+    })
   inputDeposit.value = 0
   getOrderStransactionList()
 }
 
 // Cập nhật trạng thái bút toán
-const UpdateStatusTransaction = async() => {
+const UpdateStatusTransaction = async () => {
   const payload = {
     AccountingEntryId: idAccounting.value,
     OrderTransactionStatus: 0
   }
 
   await updateStatusTransaction(FORM_IMAGES(payload))
-  .then(()=>{
-    ElNotification({
+    .then(() => {
+      ElNotification({
         message: t('reuse.cancelSuccess'),
         type: 'success'
       })
-  })
-  .catch(()=>{
-    ElNotification({
+    })
+    .catch(() => {
+      ElNotification({
         message: t('reuse.cancelFail'),
         type: 'error'
       })
-  })
+    })
   // Cập nhật lại bảng lịch sử công nợ
   await getOrderStransactionList()
 }
@@ -1581,10 +1586,10 @@ let countExistedDNTT = ref(0)
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 
 const handleSelectionChange = (val: tableDataType[]) => {
-  if(val.length ==0){
+  if (val.length == 0) {
     disabledPTAccountingEntry.value = true
-      disabledPCAccountingEntry.value = true
-      disabledDNTTAccountingEntry.value = true
+    disabledPCAccountingEntry.value = true
+    disabledDNTTAccountingEntry.value = true
     return
   }
   newTable.value = val
@@ -1672,7 +1677,7 @@ const editData = async () => {
     if (debtTable.value.length > 0) debtTable.value.splice(0, debtTable.value.length - 1)
     debtTable.value = transaction.data
 
-    if(transaction.data.length > 0){
+    if (transaction.data.length > 0) {
       DoiPhieuCamDo.value = false
     }
     getReturnRequestTable()
@@ -1692,16 +1697,16 @@ const editData = async () => {
     }
     //sửa trạng thái trả hàng
     let arrayLength = arrayStatusOrder.value?.length
-          while(statusOrder.value == 49 /*Trả 1 phần*/){
-            arrayLength -= 2
-            statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
-          }
+    while (statusOrder.value == 49 /*Trả 1 phần*/) {
+      arrayLength -= 2
+      statusOrder.value = arrayStatusOrder.value[arrayLength - 1]?.orderStatus
+    }
 
     //để render button
-    if(statusOrder.value == 46){
+    if (statusOrder.value == 46) {
       statusOrder.value = 41
     }
-    if(statusOrder.value == 47){
+    if (statusOrder.value == 47) {
       statusOrder.value = 43
     }
 
@@ -1733,16 +1738,17 @@ const editData = async () => {
       totalPrincipalMoney.value = orderObj?.principalMoney
       totalPrincipalDebt.value = orderObj?.principalDebt
 
-      totalPawnFee.value = ListOfProductsForSale.value.reduce(function (acc, {interestMoney}) { 
-        return acc +  interestMoney/1000000 * daysDiff(ruleForm.pawnTerm[0],ruleForm.pawnTerm[1]); }
+      totalPawnFee.value = ListOfProductsForSale.value.reduce(function (acc, { interestMoney }) {
+        return acc + interestMoney / 1000000 * daysDiff(ruleForm.pawnTerm[0], ruleForm.pawnTerm[1]);
+      }
         , 0)
-        totalPawnFee.value *= totalPrincipalMoney.value
+      totalPawnFee.value *= totalPrincipalMoney.value
 
       getTotalWarehouse()
 
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
-      if(orderObj.customer != null){
+      if (orderObj.customer != null) {
         if (orderObj.customer.isOrganization) {
           infoCompany.name = orderObj.customer.name
           infoCompany.taxCode = orderObj.customer.taxCode
@@ -1757,9 +1763,9 @@ const editData = async () => {
       }
     }
     Files.value = orderObj.orderFiles.map((element) => ({
-          url: `${API_URL}${element?.path}`,
-          name: element?.fileId
-      })
+      url: `${API_URL}${element?.path}`,
+      name: element?.fileId
+    })
     )
   } else if (type == 'add' || !type) {
     disabledTypeAdd.value = true
@@ -1826,11 +1832,11 @@ function openPaymentDialog() {
 const openPaymentRequest = () => {
   newCodePaymentRequest()
   clearData()
-  if(newTable.value[0].typeOfAccountingEntry == 5){
+  if (newTable.value[0].typeOfAccountingEntry == 5) {
     openAccountingEntry(newTable.value[0].id, newTable.value[0].orderTypeBTSpa)
     paymentRequestFromAnotherOrder.value = true
   }
-  else{
+  else {
     dialogIPRForm.value = true
   }
 }
@@ -1925,7 +1931,7 @@ const openDialogAcountingEntry = (scope) => {
       getAccountingEntry(data.id, 4)
       break
     case 5:
-    dialogDepositSlip.value = true
+      dialogDepositSlip.value = true
       openAccountingEntry(data.id, data.orderTypeBTSpa)
       break
   }
@@ -2028,12 +2034,12 @@ statusAccountingEntry.value.push({
 const createStatusAcountingEntry = () => {
   statusAccountingEntry.value = []
   statusAccountingEntry.value.push({
-  transactionStatus: 1,
-  transactionStatusName: t('formDemo.initializationBookkeeping'),
-  approvedAt: '',
-  createdAt: '',
-  isActive: true
-})
+    transactionStatus: 1,
+    transactionStatusName: t('formDemo.initializationBookkeeping'),
+    approvedAt: '',
+    createdAt: '',
+    isActive: true
+  })
 }
 
 const typeButToan = ref('')
@@ -2043,7 +2049,7 @@ const getAccountingEntry = async (index, num) => {
   formAccountingId.value = { ...res.data }
   paymentType.value = formAccountingId.value.accountingEntry?.typeOfMoney
   tablePawnSlip.value = formAccountingId.value.paidMerchandises.map(
-    (row)=>({
+    (row) => ({
       productPropertyId: row.productPropertyId,
       productCode: row.productPropertyCode,
       productName: row.productName,
@@ -2067,8 +2073,8 @@ const getAccountingEntry = async (index, num) => {
   })
   alreadyPaidForTt.value = formAccountingId.value.accountingEntry?.isReceiptedMoney
   statusAccountingEntry.value = formAccountingId.value.statusHistorys
-  statusAccountingEntry.value[statusAccountingEntry.value.length-1].isActive = true
-  if (statusAccountingEntry.value[statusAccountingEntry.value.length-1].transactionStatus == 0) {
+  statusAccountingEntry.value[statusAccountingEntry.value.length - 1].isActive = true
+  if (statusAccountingEntry.value[statusAccountingEntry.value.length - 1].transactionStatus == 0) {
     showCancelAcountingEntry.value = false
     showCreatedOrUpdateButton.value = false
 
@@ -2090,19 +2096,19 @@ const getAccountingEntry = async (index, num) => {
 }
 const checkEditAcountingEntryPaymentType = ref(false)
 // Đúng thì hiển thị button Lưu và ghi sổ và hủy bút toán
-const showCreatedOrUpdateButton = ref (false)
+const showCreatedOrUpdateButton = ref(false)
 const showCancelAcountingEntry = ref(true)
 const openAdditionalDialog = () => {
 
   tableAccountingEntry.value = [
-  {
-    content: '',
-    kindOfMoney: '',
-    receiveMoney: 0,
-    paidMoney: 0,
-    intoMoney: 0
-  }
-]
+    {
+      content: '',
+      kindOfMoney: '',
+      receiveMoney: 0,
+      paidMoney: 0,
+      intoMoney: 0
+    }
+  ]
   showCreatedOrUpdateButton.value = true
   showCancelAcountingEntry.value = false
   updateDetailAcountingEntry.value = false
@@ -2164,7 +2170,7 @@ onBeforeMount(async () => {
     disableCreateOrder.value = true
     disabledPhieu.value = true
     disableEditData.value = false
-    await GenerateCodeOrder ({CodeType:5,ServiceType:5}).then((res) =>{
+    await GenerateCodeOrder({ CodeType: 5, ServiceType: 5 }).then((res) => {
       ruleForm.orderCode = res.data
     })
     pawnOrderCode.value = autoCodePawnOrder
@@ -2173,11 +2179,11 @@ onBeforeMount(async () => {
     codePaymentRequest.value = autoCodePaymentRequest
   }
 
-  if ( typeof(Storage) !== "undefined") {
+  if (typeof (Storage) !== "undefined") {
 
-  var data:any = localStorage.getItem('STAFF_INFO');
-  const datas = JSON.parse(data)
-  currentCreator.value = JSON.parse(datas.v)
+    var data: any = localStorage.getItem('STAFF_INFO');
+    const datas = JSON.parse(data)
+    currentCreator.value = JSON.parse(datas.v)
   } else {
     alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
   }
@@ -2204,31 +2210,31 @@ const setDataForReturnOrder = () => {
   rentReturnOrder.value.phone = infoCompany.phone
   rentReturnOrder.value.inputReturnReason = inputReasonReturn
   rentReturnOrder.value.tableData = [{
-    productPropertyId : '',
-    accessory : '',
-    quantity : '',
-    maxQuantity : '',
-    productPropertyCode : '',
-    description : '',
-    code : '',
+    productPropertyId: '',
+    accessory: '',
+    quantity: '',
+    maxQuantity: '',
+    productPropertyCode: '',
+    description: '',
+    code: '',
     importWarehousePrice: ''
   }]
-  ListOfProductsForSale.value.forEach(async (row,index)=>{
+  ListOfProductsForSale.value.forEach(async (row, index) => {
 
-    if(dutHang.value){
-      await GetMoneyAndDatePayment({CustomerOrderId: id, ProductPropertyId: row.productPropertyId})
-      .then((res)=>{
-        rentReturnOrder.value.tableData[index].importWarehousePrice = res.data.principalDebt - res.data.principalFeeDebt
-      })
+    if (dutHang.value) {
+      await GetMoneyAndDatePayment({ CustomerOrderId: id, ProductPropertyId: row.productPropertyId })
+        .then((res) => {
+          rentReturnOrder.value.tableData[index].importWarehousePrice = res.data.principalDebt - res.data.principalFeeDebt
+        })
     }
 
-    rentReturnOrder.value.tableData[index].productPropertyId =row.productPropertyId,
-    rentReturnOrder.value.tableData[index].accessory =row.accessory,
-    rentReturnOrder.value.tableData[index].quantity =row.quantity,
-    rentReturnOrder.value.tableData[index].maxQuantity = row.quantity - row.returnedQuantity,
-    rentReturnOrder.value.tableData[index].productPropertyCode = row.productPropertyCode,
-    rentReturnOrder.value.tableData[index].description = row.description,
-    rentReturnOrder.value.tableData[index].code = row.code
+    rentReturnOrder.value.tableData[index].productPropertyId = row.productPropertyId,
+      rentReturnOrder.value.tableData[index].accessory = row.accessory,
+      rentReturnOrder.value.tableData[index].quantity = row.quantity,
+      rentReturnOrder.value.tableData[index].maxQuantity = row.quantity - row.returnedQuantity,
+      rentReturnOrder.value.tableData[index].productPropertyCode = row.productPropertyCode,
+      rentReturnOrder.value.tableData[index].description = row.description,
+      rentReturnOrder.value.tableData[index].code = row.code
   })
 }
 const addRow = () => {
@@ -2240,8 +2246,8 @@ const removeRow = (index) => {
 
 const disabledPhieu = ref(false)
 
-const cancelReturnRequest = async () =>{
-    const res = await cancelReturnOrder(FORM_IMAGES({OrderId:id}))
+const cancelReturnRequest = async () => {
+  const res = await cancelReturnOrder(FORM_IMAGES({ OrderId: id }))
     .then(() =>
       ElNotification({
         message: t('reuse.success'),
@@ -2254,10 +2260,10 @@ const cancelReturnRequest = async () =>{
         type: 'warning'
       })
     )
-    if(res) await editData()
-  }
-  const finishReturnRequest = async () =>{
-    await finishReturnOrder(FORM_IMAGES({OrderId:id}))
+  if (res) await editData()
+}
+const finishReturnRequest = async () => {
+  await finishReturnOrder(FORM_IMAGES({ OrderId: id }))
     .then(() =>
       ElNotification({
         message: t('reuse.success'),
@@ -2270,12 +2276,12 @@ const cancelReturnRequest = async () =>{
         type: 'warning'
       })
     )
-    await reloadStatusOrder()
+  await reloadStatusOrder()
 
-  }
+}
 
-const changePrincipalMoney = () =>{
-  totalPrincipalMoney.value = ListOfProductsForSale.value.reduce( ( sum, { principalMoney } ) => sum + principalMoney , 0)
+const changePrincipalMoney = () => {
+  totalPrincipalMoney.value = ListOfProductsForSale.value.reduce((sum, { principalMoney }) => sum + principalMoney, 0)
 }
 const warehouseTicketCode = ref()
 const arrayStatusWH = ref()
@@ -2286,68 +2292,68 @@ const openDetailFullyIntegrated = async (props) => {
   const res = await GetWarehouseTransaction({ Id: parseInt(props.row.warehouseTicketId) })
   warehouseTicketCode.value = res.data[0].transactionCode
   staffId.value = res.data[0].staffId
-  warehouseTicketData.value = res.data[0].transactionDetails.map((row)=>({
+  warehouseTicketData.value = res.data[0].transactionDetails.map((row) => ({
     productPropertyName: row.productPropertyName,
     productPropertyCode: row.productPropertyCode,
-    accessory:props.row.accessory,
-    code:props.row.code,
+    accessory: props.row.accessory,
+    code: props.row.code,
     description: props.row.description,
     quantity: props.row.quantity
   }))
-      arrayStatusWH.value = res.data[0]?.statusHistory
-      if (arrayStatusWH.value?.length) {
-        arrayStatusWH.value[arrayStatusWH.value?.length - 1].isActive = true
-      }
+  arrayStatusWH.value = res.data[0]?.statusHistory
+  if (arrayStatusWH.value?.length) {
+    arrayStatusWH.value[arrayStatusWH.value?.length - 1].isActive = true
+  }
   informationWarehouseReceipt.value = true
 }
 const paymentType = ref(4)
 const paymentTypeOptions = ref([
   {
-    label:'Thanh toán tiền gốc',
+    label: 'Thanh toán tiền gốc',
     value: 3
   },
   {
-    label:'Thanh toán tiền phí',
+    label: 'Thanh toán tiền phí',
     value: 4
   }
 ])
-const calculateTotalMoney = () =>{
-  intoMoneyPawnGOC.value = tablePawnSlip.value.reduce( ( sum, { principalDebt, pawnPrice } ) => sum + principalDebt - pawnPrice , 0)
+const calculateTotalMoney = () => {
+  intoMoneyPawnGOC.value = tablePawnSlip.value.reduce((sum, { principalDebt, pawnPrice }) => sum + principalDebt - pawnPrice, 0)
   return intoMoneyPawnGOC.value
 }
 const intoMoneyPawnGOC = ref(0)
 
-const changeValueTablePawnSlip = async (value, obj, scope) =>{
-  await GetMoneyAndDatePayment({CustomerOrderId: id, ProductPropertyId: scope.row.productPropertyId})
-  .then((res)=>{
-    scope.row.id = value
-    scope.row.principalDebt = res.data.principalDebt
-    scope.row.lastPaymentDate = dateTimeFormat(res.data.lastPaymentDate)
-    scope.row.productPropertyId = obj?.productPropertyId
-    scope.row.productCode = obj.value
-    scope.row.productName = obj.name
-  })
+const changeValueTablePawnSlip = async (value, obj, scope) => {
+  await GetMoneyAndDatePayment({ CustomerOrderId: id, ProductPropertyId: scope.row.productPropertyId })
+    .then((res) => {
+      scope.row.id = value
+      scope.row.principalDebt = res.data.principalDebt
+      scope.row.lastPaymentDate = dateTimeFormat(res.data.lastPaymentDate)
+      scope.row.productPropertyId = obj?.productPropertyId
+      scope.row.productCode = obj.value
+      scope.row.productName = obj.name
+    })
 }
 
 //Difference in number of days
-const daysDiff = (startDate, endDate)=>{
+const daysDiff = (startDate, endDate) => {
   var start = moment(moment(startDate).format('YYYY-MM-DD'), "YYYY-MM-DD");
   var end = moment(moment(endDate).format('YYYY-MM-DD'), "YYYY-MM-DD");
   var days = Math.abs(start.diff(end, 'days'))
-  if(days == 0){
+  if (days == 0) {
     days = 1
   }
   return days
 }
 
-const calculatePaidMoney = (row) =>{
-  const days = daysDiff(row.lastPaymentDate,row.nextPaymentDate)
+const calculatePaidMoney = (row) => {
+  const days = daysDiff(row.lastPaymentDate, row.nextPaymentDate)
   row.pawnPrice = row.interestMoney * (row.principalDebt / 1000000) * days;
   return row.pawnPrice
 }
 
-const disabledDatePawnFee= (time : Date,row) =>{
-  if(moment(time) >= moment(row.lastPaymentDate) && moment(time) <= moment(ruleForm.pawnTerm[1])){
+const disabledDatePawnFee = (time: Date, row) => {
+  if (moment(time) >= moment(row.lastPaymentDate) && moment(time) <= moment(ruleForm.pawnTerm[1])) {
     return false
   }
   return true
@@ -2355,85 +2361,121 @@ const disabledDatePawnFee= (time : Date,row) =>{
 const DoiPhieuCamDo = ref(true)
 const totalPawnFee = ref(0)
 
-const startOrder = async () =>{
-  await orderUtility.automaticCouponWareHouse(TicketType.NhapKho,id)
-    await orderUtility.startOrder(id,orderUtility.ServiceType.CamDo)
-    await reloadStatusOrder()
+const startOrder = async () => {
+  await orderUtility.automaticCouponWareHouse(TicketType.NhapKho, id)
+  await orderUtility.startOrder(id, orderUtility.ServiceType.CamDo)
+  await reloadStatusOrder()
 }
-const cancelOrder = async () =>{
+const cancelOrder = async () => {
   const res = await orderUtility.cancelOrderAPI(id, orderUtility.ServiceType.CamDo)
-   if(res){
+  if (res) {
     await deleteTempCode({
-     Code:ruleForm.orderCode
-      })
-    }
-    await reloadStatusOrder()
+      Code: ruleForm.orderCode
+    })
+  }
+  await reloadStatusOrder()
 }
-const finishOrder = async () =>{
+const finishOrder = async () => {
   await orderUtility.finishOrderAPI(id)
   await reloadStatusOrder()
 }
 const formReceipts = ref()
 const PrintReceipts = ref(false)
 const getFormReceipts = async (textTitle) => {
-  if(textTitle == 2){
+  if (textTitle == 2) {
     nameDialog.value = 'Phiếu thu cầm đồ'
-  }else{
+  } else {
     nameDialog.value = 'Phiếu chi cầm đồ'
   }
-    formReceipts.value = {
-      sellOrderCode: ruleForm.orderCode,
-      codeReceipts: codeReceipts.value,
-      recharger: inputRecharger.value,
-      moneyReceipts: moneyReceipts.value,
-      user: optionsCollaborators,
-      reasonCollectingMoney: inputReasonCollectMoney.value,
-      enterMoney: enterMoney.value,
-      payment: payment.value  ? 'Tiền mặt' : 'Tiền thẻ'
-    }
-    PrintReceipts.value = !PrintReceipts.value
+  formReceipts.value = {
+    sellOrderCode: ruleForm.orderCode,
+    codeReceipts: codeReceipts.value,
+    recharger: inputRecharger.value,
+    moneyReceipts: moneyReceipts.value,
+    user: optionsCollaborators,
+    name: inputRecharger.value,
+    reasonCollectingMoney: inputReasonCollectMoney.value,
+    enterMoney: enterMoney.value,
+    payment: payment.value ? 'Tiền mặt' : 'Tiền thẻ'
+  }
+  PrintReceipts.value = !PrintReceipts.value
 }
 const formPaymentRequest = ref()
 const PrintpaymentOrderPrint = ref(false)
 const printPaymentRequest = () => {
   formPaymentRequest.value = {
-      // sellOrderCode: sellOrderCode.value,
-      codePaymentRequest: codePaymentRequest.value,
-      recharger: inputRecharger.value,
-      user: optionsCollaborators,
-      inputReasonCollectMoney: inputReasonCollectMoney.value,
-      reasonCollectingMoney: inputReasonCollectMoney.value,
-      enterMoney: enterMoney.value,
-      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value
-    }
+    // sellOrderCode: sellOrderCode.value,
+    codePaymentRequest: codePaymentRequest.value,
+    recharger: inputRecharger.value,
+    user: optionsCollaborators,
+    name: inputRecharger.value,
+    inputReasonCollectMoney: inputReasonCollectMoney.value,
+    reasonCollectingMoney: inputReasonCollectMoney.value,
+    enterMoney: enterMoney.value,
+    payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+    moneyReceipts: moneyReceipts.value,
+    detailedListExpenses: detailedListExpenses
+  }
 
-    PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
+  PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
+}
+const Printpayment = ref(false)
+const dataPriceBill = ref()
+const getFormPayment = () => {
+  console.log(dataEdit)
+  console.log(nameDialog)
+  nameDialog.value = "bill"
+  dataPriceBill.value = {
+    user: optionsCollaborators,
+  };
+  Printpayment.value = !Printpayment.value
 }
 </script>
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
-    <el-collapse
-      v-model="activeName"
-      @change="collapseChangeEvent"
-      :class="[
-        'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
-      ]"
-    >
-     <div id="recpPaymentPrint">
-          <receiptsPaymentPrint
-            v-if="formReceipts"
-            :dataEdit="formReceipts"
-            :nameDialog="nameDialog"
-          />
+    <el-collapse v-model="activeName" @change="collapseChangeEvent" :class="[
+      'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+    ]">
+      <div id="recpPaymentPrint">
+        <receiptsPaymentPrint v-if="formReceipts" :dataEdit="formReceipts" :nameDialog="nameDialog" />
       </div>
       <div id="IPRFormPrint">
         <slot>
           <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
         </slot>
       </div>
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold" width="40%" align-center >
+      <div id="billPrint">
+            <slot>
+              <billPrint v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceBill"
+                :nameDialog="nameDialog" />
+            </slot>
+          </div>
+      <!-- Thông tin dialog in phiếu thanh toán cầm đồ -->
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="Printpayment" class="font-bold" width="40%"
+        align-center>
+        <div class="section-bill">
+          <div class="flex gap-3 justify-end">
+            <el-button @click="printPage('billPrint')">{{ t('button.print') }}</el-button>
+
+            <el-button class="btn" @click="Printpayment = false">{{ t('reuse.exit') }}</el-button>
+          </div>
+          <div class="dialog-content">
+            <slot>
+              <billPrint v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceBill"
+                :nameDialog="nameDialog" />
+            </slot>
+          </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button class="btn" @click="Printpayment = false">{{ t('reuse.exit') }}</el-button>
+          </span>
+        </template>
+      </el-dialog>
+      <!--  -->
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold"
+        width="40%" align-center>
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>
@@ -2442,8 +2484,9 @@ const printPaymentRequest = () => {
           </div>
           <div class="dialog-content">
             <slot>
-          <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit" :dataSent="formPaymentRequest" />
-        </slot>
+              <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit"
+                :dataSent="formPaymentRequest" />
+            </slot>
           </div>
         </div>
         <template #footer>
@@ -2452,7 +2495,8 @@ const printPaymentRequest = () => {
           </span>
         </template>
       </el-dialog>
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%" align-center >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%"
+        align-center>
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button @click="printPage('recpPaymentPrint')">{{ t('button.print') }}</el-button>
@@ -2461,11 +2505,7 @@ const printPaymentRequest = () => {
           </div>
           <div class="dialog-content">
             <slot>
-              <receiptsPaymentPrint
-                v-if="formReceipts"
-                :dataEdit="formReceipts"
-                :nameDialog="nameDialog"
-              />
+              <receiptsPaymentPrint v-if="formReceipts" :dataEdit="formReceipts" :nameDialog="nameDialog" />
             </slot>
           </div>
         </div>
@@ -2476,88 +2516,50 @@ const printPaymentRequest = () => {
         </template>
       </el-dialog>
       <!-- Dialog thêm nhanh khách hàng -->
-      <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogAddQuick"
-        width="40%"
-        align-center
-        :title="t('formDemo.QuicklyAddCustomers')"
-      >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogAddQuick" width="40%" align-center
+        :title="t('formDemo.QuicklyAddCustomers')">
         <div v-if="valueClassify == true">
           <el-divider />
           <div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right max-w-[162.73px]"
-                >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-              >
+              <label class="w-[30%] text-right max-w-[162.73px]">{{ t('formDemo.classify') }} <span
+                  class="text-red-500">*</span></label>
               <div class="w-[80%] flex gap-2">
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueClassify" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.value"
-                    />
+                    <el-option v-for="item in optionsClassify" :key="item.id" :label="item.label" :value="item.value" />
                   </el-select>
                 </div>
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsCustomer"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
+                    <el-option v-for="item in optionsCustomer" :key="item.value" :label="item.label"
+                      :value="item.value" />
                   </el-select>
                 </div>
               </div>
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.companyName') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="addQuickCustomerName"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterCompanyName')"
-              />
+              <label class="w-[30%] text-right">{{ t('formDemo.companyName') }} <span
+                  class="text-red-500">*</span></label>
+              <el-input v-model="addQuickCustomerName" style="width: 100%"
+                :placeholder="t('formDemo.enterCompanyName')" />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.taxCode') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickTaxCode"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterTaxCode')"
-              />
+              <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }} <span class="text-red-500">*</span></label>
+              <el-input v-model="quickTaxCode" style="width: 100%" :placeholder="t('formDemo.enterTaxCode')" />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right">{{ t('formDemo.representative') }}</label>
-              <el-input
-                v-model="quickRepresentative"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterRepresentative')"
-              />
+              <el-input v-model="quickRepresentative" style="width: 100%"
+                :placeholder="t('formDemo.enterRepresentative')" />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickPhoneNumber"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterPhoneNumber')"
-              />
+              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label>
+              <el-input v-model="quickPhoneNumber" style="width: 100%" :placeholder="t('formDemo.enterPhoneNumber')" />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
-              <el-input
-                v-model="quickEmail"
-                style="width: 100%"
-                :placeholder="`${t('formDemo.enterEmail')}`"
-              />
+              <el-input v-model="quickEmail" style="width: 100%" :placeholder="`${t('formDemo.enterEmail')}`" />
             </div>
           </div>
         </div>
@@ -2565,78 +2567,48 @@ const printPaymentRequest = () => {
           <el-divider />
           <div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right max-w-[162.73px]"
-                >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-              >
+              <label class="w-[30%] text-right max-w-[162.73px]">{{ t('formDemo.classify') }} <span
+                  class="text-red-500">*</span></label>
               <div class="w-[80%] flex gap-2">
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueClassify" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.value"
-                    />
+                    <el-option v-for="item in optionsClassify" :key="item.id" :label="item.label" :value="item.value" />
                   </el-select>
                 </div>
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsCustomer"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
+                    <el-option v-for="item in optionsCustomer" :key="item.value" :label="item.label"
+                      :value="item.value" />
                   </el-select>
                 </div>
               </div>
             </div>
 
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="addQuickCustomerName"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterCustomerName')"
-              />
+              <label class="w-[30%] text-right">{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label>
+              <el-input v-model="addQuickCustomerName" style="width: 100%"
+                :placeholder="t('formDemo.enterCustomerName')" />
             </div>
 
             <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickPhoneNumber"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterPhoneNumber')"
-              />
+              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label>
+              <el-input v-model="quickPhoneNumber" style="width: 100%" :placeholder="t('formDemo.enterPhoneNumber')" />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-              <el-input
-                v-model="quickEmail"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterEmail')"
-              />
+              <el-input v-model="quickEmail" style="width: 100%" :placeholder="t('formDemo.enterEmail')" />
             </div>
           </div>
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button
-              type="primary"
-              class="w-[150px]"
-              @click.stop.prevent="
-                () => {
-                  dialogAddQuick = false
-                  createQuickCustomer()
-                  callCustomersApi()
-                }
-              "
-              >{{ t('reuse.save') }}</el-button
-            >
+            <el-button type="primary" class="w-[150px]" @click.stop.prevent="
+              () => {
+                dialogAddQuick = false
+                createQuickCustomer()
+                callCustomersApi()
+              }
+            ">{{ t('reuse.save') }}</el-button>
             <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -2651,66 +2623,42 @@ const printPaymentRequest = () => {
         </template>
         <div class="flex w-[100%] gap-6">
           <div class="w-[50%]">
-            <el-form
-              ref="ruleFormRef"
-              :model="ruleForm"
-              :rules="rules"
-              label-width="181px"
-              class="demo-ruleForm"
-              status-icon
-            >
+            <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="181px" class="demo-ruleForm"
+              status-icon>
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
 
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
-                <el-input
-                :disabled="disableCreateOrder"
-                  v-model="ruleForm.orderCode"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterOrderCode')"
-                />
+                <el-input :disabled="disableCreateOrder" v-model="ruleForm.orderCode" style="width: 100%"
+                  :placeholder="t('formDemo.enterOrderCode')" />
                 <!-- :disabled="disableCreateOrder" -->
               </el-form-item>
 
               <div class="css-form_has-child mb-2">
-              <el-form-item :label="t('formDemo.pawnTerm')" prop="pawnTerm">
-                <el-date-picker
-                  :disabled="disableEditData"
-                  v-model="ruleForm.pawnTerm"
-                  type="daterange"
-                  :start-placeholder="t('formDemo.startDay')"
-                  :end-placeholder="t('formDemo.endDay')"
-                  :disabled-date="disabledDate"
-                  format="DD/MM/YYYY"
-                />
-                <template #label>
-                  <div style="translate: 0px -10px">
-                  <div class="text-right h-15px">{{t('formDemo.pawnTerm')}}</div>
-                    <div class="text-right text-[#FECB80] w-[165px]">{{
-                    t('formDemo.atLeastTenDays')
-                  }}</div>
-                  </div>
-                </template>
-              </el-form-item>
+                <el-form-item :label="t('formDemo.pawnTerm')" prop="pawnTerm">
+                  <el-date-picker :disabled="disableEditData" v-model="ruleForm.pawnTerm" type="daterange"
+                    :start-placeholder="t('formDemo.startDay')" :end-placeholder="t('formDemo.endDay')"
+                    :disabled-date="disabledDate" format="DD/MM/YYYY" />
+                  <template #label>
+                    <div style="translate: 0px -10px">
+                      <div class="text-right h-15px">{{ t('formDemo.pawnTerm') }}</div>
+                      <div class="text-right text-[#FECB80] w-[165px]">{{
+                        t('formDemo.atLeastTenDays')
+                      }}</div>
+                    </div>
+                  </template>
+                </el-form-item>
 
-                </div>
+              </div>
 
               <div class="flex gap-2 items-center">
                 <div class="w-[60%] max-w-[531.5px]">
                   <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
-                    <el-select
-                      :disabled="checkDisabled"
-                      v-model="ruleForm.collaborators"
+                    <el-select :disabled="checkDisabled" v-model="ruleForm.collaborators"
                       @change="(data) => autoCollaboratorCommission(data)"
-                      :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')"
-                      filterable
-                    >
+                      :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')" filterable>
                       <div @scroll="scrolling" id="content">
-                        <el-option
-                          v-for="(item, index) in optionsCollaborators"
-                          :key="index"
-                          :label="item.label"
-                          :value="item.value"
-                        />
+                        <el-option v-for="(item, index) in optionsCollaborators" :key="index" :label="item.label"
+                          :value="item.value" />
                       </div>
                     </el-select>
                   </el-form-item>
@@ -2718,26 +2666,17 @@ const printPaymentRequest = () => {
                 <div class="w-[40%]">
                   <el-form-item prop="collaboratorCommission" class="fix-err" label-width="0">
                     <div class="flex items-center">
-                      <el-input
-                        :disabled="checkDisabled"
-                        v-model="ruleForm.collaboratorCommission"
+                      <el-input :disabled="checkDisabled" v-model="ruleForm.collaboratorCommission"
                         class="w-[100%] border-none outline-none pl-2 bg-transparent"
-                        :placeholder="t('formDemo.enterDiscount')"
-                        :suffix-icon="percentIcon"
-                      />
+                        :placeholder="t('formDemo.enterDiscount')" :suffix-icon="percentIcon" />
                     </div>
                   </el-form-item>
                 </div>
               </div>
 
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
-                <el-input
-                  v-model="ruleForm.orderNotes"
-                  :disabled="checkDisabled"
-                  style="width: 100%"
-                  type="text"
-                  :placeholder="`${t('formDemo.addNotes')}`"
-                />
+                <el-input v-model="ruleForm.orderNotes" :disabled="checkDisabled" style="width: 100%" type="text"
+                  :placeholder="`${t('formDemo.addNotes')}`" />
               </el-form-item>
             </el-form>
           </div>
@@ -2759,14 +2698,8 @@ const printPaymentRequest = () => {
         </div>
         <div class="flex w-[100%]">
           <div class="w-[100%]">
-            <el-form
-              ref="ruleFormRef2"
-              :model="ruleForm"
-              status-icon
-              :rules="rules"
-              label-width="180px"
-              class="demo-ruleForm"
-            >
+            <el-form ref="ruleFormRef2" :model="ruleForm" status-icon :rules="rules" label-width="180px"
+              class="demo-ruleForm">
               <div class="flex w-[100%] gap-8">
                 <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
                 <el-divider content-position="left">{{ t('formDemo.delivery') }}</el-divider>
@@ -2780,60 +2713,37 @@ const printPaymentRequest = () => {
                     <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
-                          <MultipleOptionsBox
-                            :fields="[
-                              t('reuse.customerCode'),
-                              t('reuse.customerName'),
-                              t('reuse.customerInfo')
-                            ]"
-                            filterable
-                            width="700px"
-                            :disabled="checkDisabled"
-                            :items="optionsCustomerApi"
-                            valueKey="value"
-                            labelKey="label"
-                            :hiddenKey="['id']"
-                            :placeHolder="'Chọn khách hàng'"
-                            :defaultValue="ruleForm.customerName"
-                            :clearable="false"
-                            @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)"
-                          />
-                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true"
-                            >+ {{ t('button.add') }}</el-button
-                          >
+                          <MultipleOptionsBox :fields="[
+                            t('reuse.customerCode'),
+                            t('reuse.customerName'),
+                            t('reuse.customerInfo')
+                          ]" filterable width="700px" :disabled="checkDisabled" :items="optionsCustomerApi"
+                            valueKey="value" labelKey="label" :hiddenKey="['id']" :placeHolder="'Chọn khách hàng'"
+                            :defaultValue="ruleForm.customerName" :clearable="false"
+                            @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)" />
+                          <el-button :disabled="checkDisabled" @click="dialogAddQuick = true">+ {{ t('button.add')
+                          }}</el-button>
                         </div>
                       </div>
                     </el-form-item>
                   </div>
                   <div class="flex w-[100%] gap-6">
-                <div>
-                  <el-form-item>
-                    <p
-                      v-if="ruleForm.customerName !== ''"
-                      class="bg-[#F4F8FD] pl-2 text-blue-500 dark:bg-[#3B3B3B]"
-                      >{{ t('formDemo.noDebt') }}</p
-                    >
-                  </el-form-item>
-                </div>
-              </div>
+                    <div>
+                      <el-form-item>
+                        <p v-if="ruleForm.customerName !== ''" class="bg-[#F4F8FD] pl-2 text-blue-500 dark:bg-[#3B3B3B]">
+                          {{ t('formDemo.noDebt') }}</p>
+                      </el-form-item>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="flex-1">
                   <el-form-item :label="t('reuse.chooseImportWarehouse')" prop="warehouse">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
-                        <el-select
-                          :disabled="checkDisabled"
-                          v-model="ruleForm.warehouse"
-                          class="fix-full-width"
-                          :placeholder="t('formDemo.selectAWarehouse')"
-                        >
-                          <el-option
-                            v-for="i in chooseWarehouse"
-                            :key="i.value"
-                            :label="i.label"
-                            :value="i.value"
-                          />
+                        <el-select :disabled="checkDisabled" v-model="ruleForm.warehouse" class="fix-full-width"
+                          :placeholder="t('formDemo.selectAWarehouse')">
+                          <el-option v-for="i in chooseWarehouse" :key="i.value" :label="i.label" :value="i.value" />
                         </el-select>
                       </div>
                     </div>
@@ -2841,18 +2751,9 @@ const printPaymentRequest = () => {
                   <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
-                        <el-select
-                          :disabled="checkDisabled"
-                          v-model="ruleForm.delivery"
-                          class="fix-full-width"
-                          :placeholder="`${t('formDemo.choseDeliveryMethod')}`"
-                        >
-                          <el-option
-                            v-for="i in chooseDelivery"
-                            :key="i.value"
-                            :label="i.label"
-                            :value="i.value"
-                          />
+                        <el-select :disabled="checkDisabled" v-model="ruleForm.delivery" class="fix-full-width"
+                          :placeholder="`${t('formDemo.choseDeliveryMethod')}`">
+                          <el-option v-for="i in chooseDelivery" :key="i.value" :label="i.label" :value="i.value" />
                         </el-select>
                       </div>
                     </div>
@@ -2860,11 +2761,7 @@ const printPaymentRequest = () => {
                 </div>
               </div>
 
-              <el-form-item
-                v-if="ruleForm.customerName !== ''"
-                class="poi-self"
-                :label="t('reuse.customerInfo')"
-              >
+              <el-form-item v-if="ruleForm.customerName !== ''" class="poi-self" :label="t('reuse.customerInfo')">
                 <div class="flex">
                   <div class="leading-6 mt-2">
                     <div>{{ infoCompany.name }}</div>
@@ -2879,7 +2776,8 @@ const printPaymentRequest = () => {
       </el-collapse-item>
 
       <!-- Dialog Thêm nhanh sản phẩm -->
-      <AddQuickProduct :list-products="listProducts" v-model="dialogAddProduct" @save="postQuickProduct" v-if="dialogAddProduct"/>
+      <AddQuickProduct :list-products="listProducts" v-model="dialogAddProduct" @save="postQuickProduct"
+        v-if="dialogAddProduct" />
 
 
       <el-collapse-item :name="collapse[1].name">
@@ -2887,76 +2785,39 @@ const printPaymentRequest = () => {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <el-table
-          :data="ListOfProductsForSale"
-          border
-          :class="[
-            'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
-          ]"
-        >
-          <el-table-column
-            :label="t('formDemo.productManagementCode')"
-            min-width="200"
-            prop="productPropertyId"
-          >
+        <el-table :data="ListOfProductsForSale" border :class="[
+          'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
+        ]">
+          <el-table-column :label="t('formDemo.productManagementCode')" min-width="200" prop="productPropertyId">
             <template #default="props">
-              <MultipleOptionsBox
-                :fields="[
-                  t('reuse.productCode'),
-                  t('reuse.managementCode'),
-                  t('formDemo.productInformation'),
-                  t('reuse.inventory')
-                ]"
-                filterable
-                width="650px"
-                :items="listProducts"
-                valueKey="productPropertyId"
-                :disabled="disabledEdit || props.row.newProduct"
-                labelKey="value"
-                :hiddenKey="['id']"
-                :placeHolder="t('reuse.chooseProductCode')"
-                :defaultValue="props.row.productPropertyId"
-                :clearable="false"
-                @scroll-top="ScrollProductTop"
-                @scroll-bottom="ScrollProductBottom"
-                @update-value="(value, obj) => getValueOfSelected(value, obj, props)"
-                ><template #underButton>
+              <MultipleOptionsBox :fields="[
+                t('reuse.productCode'),
+                t('reuse.managementCode'),
+                t('formDemo.productInformation'),
+                t('reuse.inventory')
+              ]" filterable width="650px" :items="listProducts" valueKey="productPropertyId"
+                :disabled="disabledEdit || props.row.newProduct" labelKey="value" :hiddenKey="['id']"
+                :placeHolder="t('reuse.chooseProductCode')" :defaultValue="props.row.productPropertyId" :clearable="false"
+                @scroll-top="ScrollProductTop" @scroll-bottom="ScrollProductBottom"
+                @update-value="(value, obj) => getValueOfSelected(value, obj, props)"><template #underButton>
                   <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
                     <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
-                    <div
-                      class="text-base text-blue-400 cursor-pointer pl-2"
-                      @click="
-                        () => {
-                          addnewproduct(props.$index)
-                        }
-                      "
-                      >+ {{ t('formDemo.quicklyAddProducts') }}</div
-                    >
+                    <div class="text-base text-blue-400 cursor-pointer pl-2" @click="
+                      () => {
+                        addnewproduct(props.$index)
+                      }
+                    ">+ {{ t('formDemo.quicklyAddProducts') }}</div>
                   </div>
-                </template></MultipleOptionsBox
-              >
+                </template></MultipleOptionsBox>
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="productPropertyName"
-            :label="t('formDemo.productInformation')"
-            min-width="620"
-          />
-          <el-table-column
-            :disabled="disabledEdit"
-            prop="accessory"
-            :label="t('reuse.accessory')"
-            width="180"
-          >
+          <el-table-column prop="productPropertyName" :label="t('formDemo.productInformation')" min-width="620" />
+          <el-table-column :disabled="disabledEdit" prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
               <div v-if="disabledEdit">{{ data.row.accessory }}</div>
-              <el-input
-                v-else
-                class="max-w-[150px]"
-                v-model="data.row.accessory"
-                :placeholder="`/${t('formDemo.selfImportAccessories')}/`"
-              />
+              <el-input v-else class="max-w-[150px]" v-model="data.row.accessory"
+                :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
             </template>
           </el-table-column>
 
@@ -2965,10 +2826,7 @@ const printPaymentRequest = () => {
               <div v-if="type == 'detail'">
                 {{ data.row.code }}
               </div>
-              <el-input
-                v-else 
-                :disabled="disabledEdit" 
-                v-model="data.row.code"
+              <el-input v-else :disabled="disabledEdit" v-model="data.row.code"
                 :placeholder="`/${t('formDemo.selfImportCode')}/`" />
             </template>
           </el-table-column>
@@ -2978,10 +2836,7 @@ const printPaymentRequest = () => {
               <div v-if="type == 'detail'">
                 {{ data.row.description }}
               </div>
-              <el-input
-                v-else 
-                :disabled="disabledEdit" 
-                v-model="data.row.description"
+              <el-input v-else :disabled="disabledEdit" v-model="data.row.description"
                 :placeholder="`/${t('formDemo.selfImportDescription')}/`" />
             </template>
           </el-table-column>
@@ -2989,10 +2844,7 @@ const printPaymentRequest = () => {
           <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
-              <el-input
-                v-else 
-                v-model="data.row.quantity" 
-                :disabled="disabledEdit" @change="handleTotal(data)"
+              <el-input v-else v-model="data.row.quantity" :disabled="disabledEdit" @change="handleTotal(data)"
                 style="width: 100%" />
             </template>
           </el-table-column>
@@ -3002,10 +2854,7 @@ const printPaymentRequest = () => {
           <el-table-column prop="interestMoney" :label="t('reuse.intoMoneyByday')" width="150">
             <template #default="data">
               <div v-if="type === 'detail'">{{ changeMoney.format(data.row.interestMoney) }}</div>
-              <CurrencyInputComponent
-                v-else 
-                v-model="data.row.interestMoney" 
-                :disabled="disabledEdit"
+              <CurrencyInputComponent v-else v-model="data.row.interestMoney" :disabled="disabledEdit"
                 style="width: 100%" />
             </template>
           </el-table-column>
@@ -3013,12 +2862,8 @@ const printPaymentRequest = () => {
           <el-table-column prop="principalMoney" :label="t('formDemo.moneyPawnGOC')" width="150">
             <template #default="data">
               <div v-if="type === 'detail'">{{ changeMoney.format(data.row.principalMoney) }}</div>
-              <CurrencyInputComponent 
-                v-else 
-                @change="changePrincipalMoney"
-                v-model="data.row.principalMoney" 
-                :disabled="disabledEdit"
-                style="width: 100%" />
+              <CurrencyInputComponent v-else @change="changePrincipalMoney" v-model="data.row.principalMoney"
+                :disabled="disabledEdit" style="width: 100%" />
             </template>
           </el-table-column>
 
@@ -3028,31 +2873,20 @@ const printPaymentRequest = () => {
             </template>
           </el-table-column>
 
-          <el-table-column
-            :label="t('formDemo.businessManagement')"
-            width="200"
-            prop="businessSetupName"
-          >
+          <el-table-column :label="t('formDemo.businessManagement')" width="200" prop="businessSetupName">
             <template #default="data">
               <div class="flex w-[100%]">
                 <div class="flex-1 limit-text">
                   <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">
-                  <el-button
-                    :disabled="disabledEdit"
-                    text
-                    border
-                    class="text-blue-500"
-                    @click="
-                      () => {
-                        indexRow = data.$index
-                        ckeckChooseProduct(data)
-                      }
-                    "
-                  >
-                    <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button
-                  >
+                  <el-button :disabled="disabledEdit" text border class="text-blue-500" @click="
+                    () => {
+                      indexRow = data.$index
+                      ckeckChooseProduct(data)
+                    }
+                  ">
+                    <span class="text-blue-500">+ {{ t('router.business') }}</span></el-button>
                 </div>
               </div>
             </template>
@@ -3061,16 +2895,12 @@ const printPaymentRequest = () => {
           <el-table-column prop="warehouseTotal" :label="t('reuse.inventory')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
-                <el-button
-                  text
-                  :disabled="disabledEdit"
-                  @click="
-                    () => {
-                      callApiWarehouse(props)
-                      openDialogChooseWarehouse = true
-                    }
-                  "
-                >
+                <el-button text :disabled="disabledEdit" @click="
+                  () => {
+                    callApiWarehouse(props)
+                    openDialogChooseWarehouse = true
+                  }
+                ">
                   <span v-if="props.row.warehouseTotal != 0" class="text-blue-500">{{
                     props.row.warehouseTotal
                   }}</span>
@@ -3083,33 +2913,24 @@ const printPaymentRequest = () => {
           <el-table-column :label="t('formDemo.manipulation')" align="center" min-width="90">
             <template #default="scope">
               <div class="flex gap-2">
-                <el-button
-                  :disabled="disabledEdit"
-                  @click.prevent="removeListProductsSale(scope.$index)"
-                  type="danger"
-                  >{{ t('reuse.delete') }}</el-button
-                >
+                <el-button :disabled="disabledEdit" @click.prevent="removeListProductsSale(scope.$index)" type="danger">{{
+                  t('reuse.delete') }}</el-button>
               </div>
             </template>
           </el-table-column>
         </el-table>
-        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable" :disabled="disabledEdit"
-          >+ {{ t('formDemo.add') }}</el-button
-        >
+        <el-button class="ml-4 mt-4" @click="addLastIndexSellTable" :disabled="disabledEdit">+ {{ t('formDemo.add')
+        }}</el-button>
 
         <div class="flex justify-end pt-4">
           <div>
             <div class="flex justify-between">
-              <div class="text-black font-bold dark:text-[#fff]"
-                >{{ t('formDemo.intoMoneyPawnGOC') }}</div
-              >
+              <div class="text-black font-bold dark:text-[#fff]">{{ t('formDemo.intoMoneyPawnGOC') }}</div>
               <div class="pl-20px"> {{ changeMoney.format(totalPrincipalMoney) }} </div>
             </div>
             <div class="flex justify-between">
-              <div class="text-black font-bold dark:text-[#fff]"
-                >{{ t('reuse.totalPrincipalDebt') }}</div
-              >
-            <div class="pl-20px"> {{ changeMoney.format(totalPrincipalDebt) }} </div>
+              <div class="text-black font-bold dark:text-[#fff]">{{ t('reuse.totalPrincipalDebt') }}</div>
+              <div class="pl-20px"> {{ changeMoney.format(totalPrincipalDebt) }} </div>
 
             </div>
           </div>
@@ -3138,95 +2959,69 @@ const printPaymentRequest = () => {
           <label class="w-[11%] text-right">{{ t('formDemo.orderStatus') }}</label>
           <div class="w-[89%] pl-15px">
             <div class="flex items-center w-[100%] flex-wrap">
-              <div
-                class="duplicate-status"
-                v-for="item in arrayStatusOrder"
-                :key="item.orderStatus"
-              >
-                <div
-                  v-if="
-                    item.orderStatus == STATUS_ORDER_PAWN[3].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[4].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[6].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[12].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[8].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[9].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[13].orderStatus 
-                  "
-                >
+              <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.orderStatus">
+                <div v-if="
+                  item.orderStatus == STATUS_ORDER_PAWN[3].orderStatus ||
+                  item.orderStatus == STATUS_ORDER_PAWN[4].orderStatus ||
+                  item.orderStatus == STATUS_ORDER_PAWN[6].orderStatus ||
+                  item.orderStatus == STATUS_ORDER_PAWN[12].orderStatus ||
+                  item.orderStatus == STATUS_ORDER_PAWN[8].orderStatus ||
+                  item.orderStatus == STATUS_ORDER_PAWN[9].orderStatus ||
+                  item.orderStatus == STATUS_ORDER_PAWN[13].orderStatus
+                ">
                   <span
-                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                  ></span>
-                  <span
-                    class="box box_1 text-yellow-500 dark:text-divck"
-                    :class="{ active: item.isActive }"
-                  >
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                  <span class="box box_1 text-yellow-500 dark:text-divck" :class="{ active: item.isActive }">
                     {{ item.orderStatusName }}
 
                     <span class="triangle-right right_1"> </span>
                   </span>
-                   <p v-if="item?.approvedAt">{{
+                  <p v-if="item?.approvedAt">{{
                     item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</p>
                   <p v-else class="text-transparent">s</p>
                 </div>
-                <div
-                  v-else-if="
-                    item.orderStatus == STATUS_ORDER_PAWN[1].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[5].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[7].orderStatus
-                  "
-                >
+                <div v-else-if="
+                  item.orderStatus == STATUS_ORDER_PAWN[1].orderStatus ||
+                  item.orderStatus == STATUS_ORDER_PAWN[5].orderStatus ||
+                  item.orderStatus == STATUS_ORDER_PAWN[7].orderStatus
+                ">
                   <span
-                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                  ></span>
-                  <span
-                    class="box box_2 text-blue-500 dark:text-black"
-                    :class="{ active: item.isActive }"
-                  >
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                  <span class="box box_2 text-blue-500 dark:text-black" :class="{ active: item.isActive }">
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_2"> </span>
                   </span>
-                   <p v-if="item?.approvedAt">{{
+                  <p v-if="item?.approvedAt">{{
                     item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</p>
                   <p v-else class="text-transparent">s</p>
                 </div>
                 <div v-else-if="item.orderStatus == STATUS_ORDER_PAWN[2].orderStatus">
                   <span
-                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                  ></span>
-                  <span
-                    class="box box_3 text-black dark:text-black"
-                    :class="{ active: item.isActive }"
-                  >
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                  <span class="box box_3 text-black dark:text-black" :class="{ active: item.isActive }">
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_3"> </span>
                   </span>
-                   <p v-if="item?.approvedAt">{{
+                  <p v-if="item?.approvedAt">{{
                     item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</p>
                   <p v-else class="text-transparent">s</p>
                 </div>
-                <div
-                  v-else-if="
-                    item.orderStatus == STATUS_ORDER_PAWN[0].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[11].orderStatus ||
-                    item.orderStatus == STATUS_ORDER_PAWN[10].orderStatus 
+                <div v-else-if="
+                  item.orderStatus == STATUS_ORDER_PAWN[0].orderStatus ||
+                  item.orderStatus == STATUS_ORDER_PAWN[11].orderStatus ||
+                  item.orderStatus == STATUS_ORDER_PAWN[10].orderStatus
 
-                  "
-                >
+                ">
                   <span
-                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                  ></span>
-                  <span
-                    class="box box_4 text-rose-500 dark:text-black"
-                    :class="{ active: item.isActive }"
-                  >
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                  <span class="box box_4 text-rose-500 dark:text-black" :class="{ active: item.isActive }">
                     {{ item.orderStatusName }}
                     <span class="triangle-right right_4"> </span>
                   </span>
-                   <p v-if="item?.approvedAt">{{
+                  <p v-if="item?.approvedAt">{{
                     item?.approvedAt ? dateTimeFormat(item?.approvedAt) : ''
                   }}</p>
                   <p v-else class="text-transparent">s</p>
@@ -3239,241 +3034,151 @@ const printPaymentRequest = () => {
           <div class="w-[12%]"></div>
           <!-- edit -->
           <div v-if="editButton" class="w-[100%] flex ml-1 gap-4">
-            <el-button
-              :disabled="checkDisabled"
-              @click="
-                () => {
-                  editOrderInfo()
-                  changeButtonEdit = false
-                }
-              "
-              type="primary"
-              class="min-w-42 min-h-11"
-              >{{ t('reuse.save') }}</el-button
-            >
-            <el-button
-              @click="
-                () => {
-                  router.go(-1)
-                }
-              "
-              :disabled="checkDisabled"
-              type="danger"
-              class="min-w-42 min-h-11"
-              >{{ t('button.cancel') }}</el-button
-            >
+            <el-button :disabled="checkDisabled" @click="
+              () => {
+                editOrderInfo()
+                changeButtonEdit = false
+              }
+            " type="primary" class="min-w-42 min-h-11">{{ t('reuse.save') }}</el-button>
+            <el-button @click="
+              () => {
+                router.go(-1)
+              }
+            " :disabled="checkDisabled" type="danger" class="min-w-42 min-h-11">{{ t('button.cancel') }}</el-button>
           </div>
 
           <div class="w-[100%] flex ml-1 gap-4" v-if="!editButton">
-            <el-button
-              v-if="
-                statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[5].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[12].orderStatus ||
-                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type'))
-              "
-              class="min-w-42 min-h-11"
-              @click="openBillPawnDialog"
-              :disabled="disabledPhieu"
-              >{{ t('formDemo.billPawn') }}</el-button
-            >
+            <el-button v-if="
+              statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
+              statusOrder == STATUS_ORDER_PAWN[5].orderStatus ||
+              statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
+              statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
+              statusOrder == STATUS_ORDER_PAWN[12].orderStatus ||
+              (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type'))
+            " class="min-w-42 min-h-11" @click="openBillPawnDialog" :disabled="disabledPhieu">{{
+  t('formDemo.billPawn') }}</el-button>
 
-            <el-button
-              v-if="
-                statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[5].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[12].orderStatus ||
-                (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type'))
-              "
-              class="min-w-42 min-h-11"
-              @click="openDepositDialog"
-              :disabled="disabledPhieu || DoiPhieuCamDo"
-              >{{ t('formDemo.bill') }}</el-button
-            >
+            <el-button v-if="
+              statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
+              statusOrder == STATUS_ORDER_PAWN[5].orderStatus ||
+              statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
+              statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
+              statusOrder == STATUS_ORDER_PAWN[12].orderStatus ||
+              (statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type'))
+            " class="min-w-42 min-h-11" @click="openDepositDialog" :disabled="disabledPhieu || DoiPhieuCamDo">{{
+  t('formDemo.bill') }}</el-button>
 
-            <el-button
-              v-if="
-                statusOrder == STATUS_ORDER_PAWN[1].orderStatus
-              "
-              type="primary"
-              @click="startOrder"
-              class="min-w-43 min-h-11"
-              >Bắt đầu cầm đồ theo kỳ hạn</el-button
-            >
-            <el-button
-              v-if="statusOrder == STATUS_ORDER_PAWN[1].orderStatus"
-              @click="changeEditInDetail"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.editOrder') }}</el-button
-            >
-            <el-button
-              v-if="statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type')"
+            <el-button v-if="
+              statusOrder == STATUS_ORDER_PAWN[1].orderStatus
+            " type="primary" @click="startOrder" class="min-w-43 min-h-11">Bắt đầu cầm đồ theo kỳ hạn</el-button>
+            <el-button v-if="statusOrder == STATUS_ORDER_PAWN[1].orderStatus" @click="changeEditInDetail"
+              class="min-w-42 min-h-11">{{ t('formDemo.editOrder') }}</el-button>
+            <el-button v-if="statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type')"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
                 }
-              "
-              type="primary"
-              class="min-w-42 min-h-11"
-              >{{ t('formDemo.saveAndPending') }}</el-button
-            >
-            <el-button
-              v-if="
-                statusOrder == STATUS_ORDER_PAWN[3].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
-                (statusOrder == STATUS_ORDER_PAWN[1].orderStatus &&
-                  !duplicateStatusButton &&
-                  type != 'add')
-              "
-              @click="cancelOrder"
-              type="danger"
-              class="min-w-42 min-h-11"
-              >{{ t('button.cancelOrder') }}</el-button
-            >
+              " type="primary" class="min-w-42 min-h-11">{{ t('formDemo.saveAndPending') }}</el-button>
+            <el-button v-if="
+              statusOrder == STATUS_ORDER_PAWN[3].orderStatus ||
+              statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
+              (statusOrder == STATUS_ORDER_PAWN[1].orderStatus &&
+                !duplicateStatusButton &&
+                type != 'add')
+            " @click="cancelOrder" type="danger" class="min-w-42 min-h-11">{{ t('button.cancelOrder') }}</el-button>
 
             <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
               <template #content>
-                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+                <span>{{ t('reuse.orderStillInWarehouse') }}</span>
               </template>
               <div>
-            <el-button
-              v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus"
-              @click="
-                () => {
-                  chuocTruocHan = true
-                  earlyEedemption = true
-                  setDataForReturnOrder()
-                }
-              "
-              :disabled="unref(orderUtility.disableStatusWarehouse)"
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Chuộc hàng trước hạn</el-button
-            >
-            </div>
-            </el-tooltip>
-
-            <div v-if="statusOrder == STATUS_ORDER_PAWN[6].orderStatus || statusOrder == STATUS_ORDER_PAWN[8].orderStatus">
-              <el-button
-                v-if="duplicateStatusButton"
-                @click="finishReturnRequest"
-                type="warning"
-                class="min-w-42 min-h-11"
-                >Hoàn thành chuộc hàng</el-button
-              >
-              <el-button
-                @click="cancelReturnRequest"
-                class="min-w-42 min-h-11"
-                >Hủy chuộc hàng</el-button
-              >
-            </div>
-            <el-button
-              v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus"
-              @click="finishReturnRequest"
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Hoàn thành đứt hàng</el-button
-            >
-            <el-button
-              v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus"
-              @click="cancelReturnRequest"
-              class="min-w-42 min-h-11"
-              >Hủy đứt hàng</el-button
-            >
-            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
-              <template #content>
-                <span>{{t('reuse.orderStillInWarehouse')}}</span>
-              </template>
-              <div>
-            <el-button
-            :disabled="unref(orderUtility.disableStatusWarehouse)"
-              v-if="
-                statusOrder == STATUS_ORDER_PAWN[12].orderStatus
-              "
-              @click="
-                () => {
-                  finishOrder()
-                }
-              "
-              type="info"
-              class="min-w-42 min-h-11"
-              >Đối soát & kết thúc</el-button
-            >
+                <el-button v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus" @click="
+                  () => {
+                    chuocTruocHan = true
+                    earlyEedemption = true
+                    setDataForReturnOrder()
+                  }
+                " :disabled="unref(orderUtility.disableStatusWarehouse)" type="warning" class="min-w-42 min-h-11">Chuộc
+                  hàng trước hạn</el-button>
               </div>
-              </el-tooltip>
+            </el-tooltip>
+
+            <div
+              v-if="statusOrder == STATUS_ORDER_PAWN[6].orderStatus || statusOrder == STATUS_ORDER_PAWN[8].orderStatus">
+              <el-button v-if="duplicateStatusButton" @click="finishReturnRequest" type="warning"
+                class="min-w-42 min-h-11">Hoàn thành chuộc hàng</el-button>
+              <el-button @click="cancelReturnRequest" class="min-w-42 min-h-11">Hủy chuộc hàng</el-button>
+            </div>
+            <el-button v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus" @click="finishReturnRequest" type="warning"
+              class="min-w-42 min-h-11">Hoàn thành đứt hàng</el-button>
+            <el-button v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus" @click="cancelReturnRequest"
+              class="min-w-42 min-h-11">Hủy đứt hàng</el-button>
             <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
               <template #content>
-                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+                <span>{{ t('reuse.orderStillInWarehouse') }}</span>
               </template>
               <div>
-            <el-button
-              v-if="
-                statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[7].orderStatus
-              "
-              @click="
-                () => {
-                  giaHan = true
-                  setDataForReturnOrder()
-                }
-              "
-              :disabled="unref(orderUtility.disableStatusWarehouse)"
-              class="min-w-42 min-h-11 !border-red-500"
-              ><p class="text-red-500">Gia hạn cầm đồ</p></el-button
-            >
-            </div>
+                <el-button :disabled="unref(orderUtility.disableStatusWarehouse)" v-if="
+                  statusOrder == STATUS_ORDER_PAWN[12].orderStatus
+                " @click="
+  () => {
+    finishOrder()
+  }
+" type="info" class="min-w-42 min-h-11">Đối soát & kết thúc</el-button>
+              </div>
+            </el-tooltip>
+            <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
+              <template #content>
+                <span>{{ t('reuse.orderStillInWarehouse') }}</span>
+              </template>
+              <div>
+                <el-button v-if="
+                  statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
+                  statusOrder == STATUS_ORDER_PAWN[7].orderStatus
+                " @click="
+  () => {
+    giaHan = true
+    setDataForReturnOrder()
+  }
+" :disabled="unref(orderUtility.disableStatusWarehouse)" class="min-w-42 min-h-11 !border-red-500">
+                  <p class="text-red-500">Gia hạn cầm đồ</p>
+                </el-button>
+              </div>
             </el-tooltip>
 
             <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
               <template #content>
-                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+                <span>{{ t('reuse.orderStillInWarehouse') }}</span>
               </template>
               <div>
-            <el-button
-              v-if="
-                statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[7].orderStatus
-              "
-              @click="
-                () => {
-                  dutHang = true
-                  setDataForReturnOrder()
-                }
-              "
-              :disabled="unref(orderUtility.disableStatusWarehouse)"
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Đứt hàng hết hạn</el-button
-            >
-            </div>
+                <el-button v-if="
+                  statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
+                  statusOrder == STATUS_ORDER_PAWN[7].orderStatus
+                " @click="
+  () => {
+    dutHang = true
+    setDataForReturnOrder()
+  }
+" :disabled="unref(orderUtility.disableStatusWarehouse)" type="warning" class="min-w-42 min-h-11">Đứt
+                  hàng hết hạn</el-button>
+              </div>
             </el-tooltip>
-            
+
             <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
               <template #content>
-                <span>{{t('reuse.orderStillInWarehouse')}}</span>
+                <span>{{ t('reuse.orderStillInWarehouse') }}</span>
               </template>
               <div>
-            <el-button
-              v-if="
-                statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
-                statusOrder == STATUS_ORDER_PAWN[11].orderStatus
-              "
-              :disabled="unref(orderUtility.disableStatusWarehouse)"
-              @click="
-                () => {
-                  chuocHetHan = true
-                  setDataForReturnOrder()
-                }
-              "
-              type="warning"
-              class="min-w-42 min-h-11"
-              >Chuộc hàng hết hạn</el-button
-            >
-            </div>
+                <el-button v-if="
+                  statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
+                  statusOrder == STATUS_ORDER_PAWN[11].orderStatus
+                " :disabled="unref(orderUtility.disableStatusWarehouse)" @click="
+  () => {
+    chuocHetHan = true
+    setDataForReturnOrder()
+  }
+" type="warning" class="min-w-42 min-h-11">Chuộc hàng hết hạn</el-button>
+              </div>
             </el-tooltip>
 
             <div v-if="statusOrder == 200" class="w-[100%] flex ml-1 gap-4">
@@ -3491,32 +3196,19 @@ const printPaymentRequest = () => {
       <!-- phieu in -->
       <div id="billPawn">
         <slot>
-          <billLoanConfirmation
-            v-if="dataEdit"
-            :dataCustomer="customerData"
-            :dataEdit="dataEdit"
-            :priceBillPawn="totalPrincipalMoney"
-            :dayPayment="ruleForm.paymentPeriod"
-          />
+          <billLoanConfirmation v-if="dataEdit" :dataCustomer="customerData" :dataEdit="dataEdit"
+            :priceBillPawn="totalPrincipalMoney" :dayPayment="ruleForm.paymentPeriod" />
         </slot>
       </div>
 
       <!-- Dialog thông tin hợp đồng thanh lý-->
-      <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogBillLiquidation"
-        title="Thông tin hợp đồng thanh lý"
-        width="40%"
-        align-center
-      >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogBillLiquidation"
+        title="Thông tin hợp đồng thanh lý" width="40%" align-center>
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
-            <el-button
-              @click="
-                printPage('billPawn')
-              "
-              >{{ t('button.print') }}</el-button
-            >
+            <el-button @click="
+              printPage('billPawn')
+            ">{{ t('button.print') }}</el-button>
 
             <el-button class="btn" @click="dialogBillLiquidation = false">{{
               t('reuse.exit')
@@ -3524,34 +3216,20 @@ const printPaymentRequest = () => {
           </div>
           <div class="dialog-content">
             <slot>
-              <billLoanConfirmation
-                v-if="dataEdit"
-                :dataCustomer="customerData"
-                :dataEdit="dataEdit"
-                :priceBillPawn="totalPrincipalMoney"
-                :dayPayment="ruleForm.paymentPeriod"
-              />
+              <billLoanConfirmation v-if="dataEdit" :dataCustomer="customerData" :dataEdit="dataEdit"
+                :priceBillPawn="totalPrincipalMoney" :dayPayment="ruleForm.paymentPeriod" />
             </slot>
           </div>
         </div>
       </el-dialog>
 
       <!-- dialog quản lý kinh doanh -->
-      <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogbusinessManagement"
-        :title="t('formDemo.businessManagement')"
-        width="40%"
-        align-center
-      >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogbusinessManagement"
+        :title="t('formDemo.businessManagement')" width="40%" align-center>
         <el-divider />
         <el-form :model="formBusuness">
-          <el-table
-            ref="multipleTableRef"
-            border
-            :data="listApplyExport"
-            @selection-change="handleSelectionbusinessManagement"
-          >
+          <el-table ref="multipleTableRef" border :data="listApplyExport"
+            @selection-change="handleSelectionbusinessManagement">
             <el-table-column type="selection" width="55" />
             <el-table-column class="font-normal" prop="applyExport" label="Cho phép xuất hàng" />
           </el-table>
@@ -3559,29 +3237,19 @@ const printPaymentRequest = () => {
 
         <template #footer>
           <span class="dialog-footer">
-            <el-button
-              type="primary"
-              @click="
-                () => {
-                  dialogbusinessManagement = false
-                }
-              "
-              >{{ t('reuse.save') }}</el-button
-            >
+            <el-button type="primary" @click="
+              () => {
+                dialogbusinessManagement = false
+              }
+            ">{{ t('reuse.save') }}</el-button>
             <el-button @click="dialogbusinessManagement = false">{{ t('reuse.exit') }}</el-button>
           </span>
         </template>
       </el-dialog>
 
       <!-- DialogChooseWarehouse -->
-      <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
-        v-model="openDialogChooseWarehouse"
-        :title="t('formDemo.inventoryInformation')"
-        width="35%"
-        align-center
-        class="z-50"
-      >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="openDialogChooseWarehouse"
+        :title="t('formDemo.inventoryInformation')" width="35%" align-center class="z-50">
         <el-divider />
         <el-table :data="tableWarehouse" border>
           <el-table-column prop="name" :label="t('formDemo.warehouseInformation')" width="360" />
@@ -3615,101 +3283,55 @@ const printPaymentRequest = () => {
           <el-button class="header-icon" :icon="collapse[2].icon" link />
           <span class="text-center text-xl">{{ collapse[2].title }}</span>
         </template>
-        <el-button text @click="openAdditionalDialog" :disabled="disabledTypeAdd">+ {{ t('reuse.addAccountingEntry') }}</el-button>
-        <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text
-          >+ {{ t('reuse.addReceiptBill') }}</el-button
-        >
-        <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog" text
-          >+ {{ t('reuse.addPaymentBill') }}</el-button
-        >
-        <el-button :disabled="disabledDNTTAccountingEntry" @click="openPaymentRequest" text
-          >+ {{ t('reuse.addPaymentRequestBill') }}</el-button
-        >
-        <el-table
-          ref="multipleTableRef"
-          :data="debtTable"
-          border
-          @selection-change="handleSelectionChange"
-        >
+        <el-button text @click="openAdditionalDialog" :disabled="disabledTypeAdd">+ {{ t('reuse.addAccountingEntry')
+        }}</el-button>
+        <el-button :disabled="disabledPTAccountingEntry" @click="openReceiptDialog" text>+ {{ t('reuse.addReceiptBill')
+        }}</el-button>
+        <el-button :disabled="disabledPCAccountingEntry" @click="openPaymentDialog" text>+ {{ t('reuse.addPaymentBill')
+        }}</el-button>
+        <el-button :disabled="disabledDNTTAccountingEntry" @click="openPaymentRequest" text>+ {{
+          t('reuse.addPaymentRequestBill') }}</el-button>
+        <el-table ref="multipleTableRef" :data="debtTable" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="40" />
-          <el-table-column
-            prop="createdAt"
-            :label="t('formDemo.initializationDate')"
-            min-width="150"
-            align="center"
-          >
+          <el-table-column prop="createdAt" :label="t('formDemo.initializationDate')" min-width="150" align="center">
             <template #default="data">
               {{ dateTimeFormat(data.row.createdAt) }}
             </template>
           </el-table-column>
-          <el-table-column
-            prop="content"
-            :label="t('formDemo.certificateInformation')"
-            min-width="240"
-          />
-          <el-table-column
-            prop="receiptOrPaymentVoucherCode"
-            :label="t('formDemo.receiptOrPayment')"
-            min-width="120"
-            align="left"
-          >
+          <el-table-column prop="content" :label="t('formDemo.certificateInformation')" min-width="240" />
+          <el-table-column prop="receiptOrPaymentVoucherCode" :label="t('formDemo.receiptOrPayment')" min-width="120"
+            align="left">
             <template #default="data">
-              <div
-                @click="(index) => getDetailPayment(index, data)"
-                class="cursor-pointer text-blue-500"
-              >
+              <div @click="(index) => getDetailPayment(index, data)" class="cursor-pointer text-blue-500">
                 {{ data.row.receiptOrPaymentVoucherCode }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="paymentRequestCode"
-            :label="t('formDemo.paymentOrder')"
-            align="left"
-            min-width="150"
-          >
+          <el-table-column prop="paymentRequestCode" :label="t('formDemo.paymentOrder')" align="left" min-width="150">
             <template #default="props">
-              <div
-                @click="(index) => getDetailPaymentRequest(index, props)"
-                class="cursor-pointer text-blue-500"
-                >{{ props.row.paymentRequestCode }}</div
-              >
+              <div @click="(index) => getDetailPaymentRequest(index, props)" class="cursor-pointer text-blue-500">{{
+                props.row.paymentRequestCode }}</div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="kindOfMoney"
-            :label="t('formDemo.kindOfMoney')"
-            align="left"
-            min-width="150"
-          >
-          <template #default="props">
-              <div>{{ props.row.paidMoney == 0 ? moneyFormat(props.row.receiveMoney) : moneyFormat(props.row.paidMoney) }}</div>
+          <el-table-column prop="kindOfMoney" :label="t('formDemo.kindOfMoney')" align="left" min-width="150">
+            <template #default="props">
+              <div>{{ props.row.paidMoney == 0 ? moneyFormat(props.row.receiveMoney) : moneyFormat(props.row.paidMoney) }}
+              </div>
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="receiveMoney"
-            :label="t('formDemo.collected')"
-            align="left"
-            min-width="150"
-          >
+          <el-table-column prop="receiveMoney" :label="t('formDemo.collected')" align="left" min-width="150">
             <template #default="data">
-              <el-input
-                v-model="data.row.receiveMoney"
-                v-if="type != 'detail'"
-                style="width: 100%; border: none; outline: none"
-              />
+              <el-input v-model="data.row.receiveMoney" v-if="type != 'detail'"
+                style="width: 100%; border: none; outline: none" />
               <div v-else>{{ moneyFormat(data.row.receiveMoney) }}</div>
             </template>
           </el-table-column>
 
           <el-table-column prop="paidMoney" :label="t('formDemo.spent')" min-width="150">
             <template #default="data">
-              <el-input
-                v-model="data.row.paidMoney"
-                v-if="type != 'detail'"
-                style="width: 100%; border: none; outline: none"
-              />
+              <el-input v-model="data.row.paidMoney" v-if="type != 'detail'"
+                style="width: 100%; border: none; outline: none" />
               <div v-else>{{ moneyFormat(data.row.paidMoney) }}</div>
             </template>
           </el-table-column>
@@ -3722,42 +3344,26 @@ const printPaymentRequest = () => {
             </template>
           </el-table-column>
 
-          <el-table-column
-            prop="typeOfPayment"
-            :label="t('formDemo.receivableOrPayable')"
-            min-width="100"
-          >
+          <el-table-column prop="typeOfPayment" :label="t('formDemo.receivableOrPayable')" min-width="100">
             <template #default="props">
               <div>{{ props.row.typeOfPayment == 1 ? 'Phải thu' : 'Phải chi' }}</div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="paymentMethods"
-            :label="t('formDemo.choosePayment')"
-            min-width="160"
-          >
+          <el-table-column prop="paymentMethods" :label="t('formDemo.choosePayment')" min-width="160">
             <template #default="props">
               <div>{{
                 props.row.paymentMethods == 0
-                  ? t('formDemo.cashPayment')
-                  : t('formDemo.cardPayment')
+                ? t('formDemo.cashPayment')
+                : t('formDemo.cardPayment')
               }}</div>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="isReceiptedMoney"
-            :label="t('formDemo.alreadyPaidForTt')"
-            min-width="80"
-          >
+          <el-table-column prop="isReceiptedMoney" :label="t('formDemo.alreadyPaidForTt')" min-width="80">
             <template #default="scope">
               <el-checkbox :disabled="checkDisabled" v-model="scope.row.isReceiptedMoney" />
             </template>
           </el-table-column>
-          <el-table-column
-            :label="t('formDemo.statusAccountingEntry')"
-            prop="status"
-            min-width="120"
-          >
+          <el-table-column :label="t('formDemo.statusAccountingEntry')" prop="status" min-width="120">
             <template #default="props">
               <div>{{
                 props.row.status == 1 ? t('formDemo.recorded') : t('formDemo.cancelled')
@@ -3767,10 +3373,8 @@ const printPaymentRequest = () => {
           <el-table-column :label="t('formDemo.manipulation')" align="center">
             <template #default="data">
               <div class="flex">
-                <button
-                  @click="() => openDialogAcountingEntry(data)"
-                  class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded"
-                >
+                <button @click="() => openDialogAcountingEntry(data)"
+                  class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded">
                   {{ t('reuse.detail') }}
                 </button>
               </div>
@@ -3782,9 +3386,7 @@ const printPaymentRequest = () => {
         <div class="flex justify-center pt-4">
           <div>
             <div class="flex justify-between">
-              <div class="text-black font-bold dark:text-[#fff]"
-                >{{ t('reuse.totalPawnFee') }}</div
-              >
+              <div class="text-black font-bold dark:text-[#fff]">{{ t('reuse.totalPawnFee') }}</div>
               <div class="pl-20px font-bold"> {{ changeMoney.format(totalPawnFee) }} </div>
             </div>
           </div>
@@ -3792,13 +3394,8 @@ const printPaymentRequest = () => {
       </el-collapse-item>
 
       <!-- Thông tin phiếu cầm đồ -->
-      <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogPawnCouponInfomation"
-        :title="t('formDemo.informationPawn')"
-        width="40%"
-        align-center
-      >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogPawnCouponInfomation"
+        :title="t('formDemo.informationPawn')" width="40%" align-center>
         <div>
           <!-- <Qrcode :text="'abc'" /> -->
           <el-divider />
@@ -3814,15 +3411,12 @@ const printPaymentRequest = () => {
               </div>
               <div class="flex gap-4 py-2 items-center">
                 <label class="text-right w-[170px]">{{ t('formDemo.pawnTime') }}</label>
-                <div class="w-[60%] text-black dark:text-light-50"
-                  >{{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
-                  {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}</div
-                >
+                <div class="w-[60%] text-black dark:text-light-50">{{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
+                  {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}</div>
               </div>
               <div class="flex gap-4 pb-4 items-center">
-                <label class="text-right w-[170px]"
-                  >{{ t('formDemo.pawnFeePaymentTime') }}<span class="text-red-500">*</span></label
-                >
+                <label class="text-right w-[170px]">{{ t('formDemo.pawnFeePaymentTime') }}<span
+                    class="text-red-500">*</span></label>
                 <div class=""> {{ ruleForm.paymentPeriod }} {{ t('formDemo.day') }} </div>
               </div>
             </div>
@@ -3833,7 +3427,9 @@ const printPaymentRequest = () => {
                   <div>Mã QR đơn hàng</div>
                 </span>
 
-                <span class="border"><Qrcode :width="100" :text="'QR'" /></span>
+                <span class="border">
+                  <Qrcode :width="100" :text="'QR'" />
+                </span>
               </div>
             </div>
           </div>
@@ -3865,11 +3461,7 @@ const printPaymentRequest = () => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tablePawnSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column
-            :label="t('formDemo.productManagementCode')"
-            min-width="200"
-            prop="productCode"
-          />
+            <el-table-column :label="t('formDemo.productManagementCode')" min-width="200" prop="productCode" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="100" />
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
@@ -3906,43 +3498,24 @@ const printPaymentRequest = () => {
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.paymentSpa') }}</label>
             <div class="w-[100%]">
-              <el-checkbox
-                v-model="alreadyPaidForTt"
-                :label="t('formDemo.alreadyPaidForTt')"
-                size="large"
-              />
+              <el-checkbox v-model="alreadyPaidForTt" :label="t('formDemo.alreadyPaidForTt')" size="large" />
             </div>
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
             <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in choosePayment" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
           <div class="flex gap-4 pt-2 pb-4">
             <label class="w-[30%] text-right">{{ t('formDemo.status') }}</label>
             <div class="w-[100%]">
               <div class="flex items-center w-[100%] flex-wrap">
-                <div
-                  class="duplicate-status"
-                  v-for="item in statusAccountingEntry"
-                  :key="item.transactionStatus"
-                >
-                  <div
-                    v-if="item.transactionStatus == 1"
-                  >
+                <div class="duplicate-status" v-for="item in statusAccountingEntry" :key="item.transactionStatus">
+                  <div v-if="item.transactionStatus == 1">
                     <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span
-                      class="box box_2 text-blue-500 dark:text-black"
-                      :class="{ active: item.isActive }"
-                    >
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                    <span class="box box_2 text-blue-500 dark:text-black" :class="{ active: item.isActive }">
                       {{ item.transactionStatusName }}
                       <span class="triangle-right right_2"> </span>
                     </span>
@@ -3951,16 +3524,10 @@ const printPaymentRequest = () => {
                     }}</p>
                     <p v-else class="text-transparent">s</p>
                   </div>
-                  <div
-                    v-else-if="item.transactionStatus == 0"
-                  >
+                  <div v-else-if="item.transactionStatus == 0">
                     <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span
-                    class="box box_4 text-rose-500 dark:text-black"
-                      :class="{ active: item.isActive }"
-                    >
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                    <span class="box box_4 text-rose-500 dark:text-black" :class="{ active: item.isActive }">
                       {{ item.transactionStatusName }}
                       <span class="triangle-right right_4"> </span>
                     </span>
@@ -3971,46 +3538,31 @@ const printPaymentRequest = () => {
                   </div>
                 </div>
               </div>
-          </div>
+            </div>
           </div>
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button
-              class="min-w-42 min-h-11"
-              @click="
-                () => {
-                  dialogBillLiquidation = true
-                }
-              "
-              >{{ t('button.print') }}</el-button
-            >
+            <el-button class="min-w-42 min-h-11" @click="
+              () => {
+                dialogBillLiquidation = true
+              }
+            ">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button
-                  class="min-w-42 min-h-11"
-                  type="primary"
-                  v-if="showCreatedOrUpdateButton"
-                  @click="
-                    () => {
-                      dialogPawnCouponInfomation = false
-                      updateInfoAcountingEntry(2)
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
-                <el-button
-                  type="danger"
-                  class="min-w-42 min-h-11"
-                  v-if="showCancelAcountingEntry"
-                  @click="
-                    () => {
-                      UpdateStatusTransaction()
-                      dialogPawnCouponInfomation = false
-                    }
-                  "
-                > 
-                  {{t('formDemo.cancelAccountingEntry')}}
+                <el-button class="min-w-42 min-h-11" type="primary" v-if="showCreatedOrUpdateButton" @click="
+                  () => {
+                    dialogPawnCouponInfomation = false
+                    updateInfoAcountingEntry(2)
+                  }
+                ">{{ t('formDemo.saveRecordDebts') }}</el-button>
+                <el-button type="danger" class="min-w-42 min-h-11" v-if="showCancelAcountingEntry" @click="
+                  () => {
+                    UpdateStatusTransaction()
+                    dialogPawnCouponInfomation = false
+                  }
+                ">
+                  {{ t('formDemo.cancelAccountingEntry') }}
                 </el-button>
                 <el-button class="min-w-32 min-h-11" @click="dialogPawnCouponInfomation = false">{{
                   t('reuse.exit')
@@ -4021,15 +3573,10 @@ const printPaymentRequest = () => {
         </template>
       </el-dialog>
 
-      
+
       <!-- Thông tin phiếu thanh toán cầm đồ -->
-      <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogFeePaymentSlip"
-        :title="t('reuse.pawnPaymentInformation')"
-        width="50%"
-        align-center
-      >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogFeePaymentSlip"
+        :title="t('reuse.pawnPaymentInformation')" width="50%" align-center>
         <div>
           <el-divider />
           <div class="flex items-center">
@@ -4044,24 +3591,18 @@ const printPaymentRequest = () => {
               </div>
               <div class="flex gap-4 py-2 items-center">
                 <label class="text-right w-[170px]">{{ t('formDemo.pawnTerm') }}</label>
-                <div class=" text-black dark:text-light-50"
-                  >{{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
-                  {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}</div
-                >
+                <div class=" text-black dark:text-light-50">{{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
+                  {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}</div>
               </div>
               <div class="flex gap-4 pb-4 items-center">
-                <label class="text-right w-[170px]"
-                  >{{ t('reuse.paymentType') }}<span class="text-red-500">*</span></label
-                >
+                <label class="text-right w-[170px]">{{ t('reuse.paymentType') }}<span
+                    class="text-red-500">*</span></label>
 
                 <div class="">
-                  <el-select v-model="paymentType" :disabled="typeButToan == 'detail'" class="m-2" placeholder="Select" size="large">
-                    <el-option
-                      v-for="item in paymentTypeOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
+                  <el-select v-model="paymentType" :disabled="typeButToan == 'detail'" class="m-2" placeholder="Select"
+                    size="large">
+                    <el-option v-for="item in paymentTypeOptions" :key="item.value" :label="item.label"
+                      :value="item.value" />
                   </el-select>
                 </div>
               </div>
@@ -4073,8 +3614,11 @@ const printPaymentRequest = () => {
                   <div>Mã QR đơn hàng</div>
                 </span>
 
-                <span class="border"><Qrcode :width="100" :text="'QR'" /></span> </div
-            ></div>
+                <span class="border">
+                  <Qrcode :width="100" :text="'QR'" />
+                </span>
+              </div>
+            </div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.customerInfo') }}</span>
@@ -4104,59 +3648,41 @@ const printPaymentRequest = () => {
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="tablePawnSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column
-            :label="t('formDemo.productManagementCode')"
-            min-width="200"
-            prop="productPropertyId"
-          >
-            <template #default="props">
-              <MultipleOptionsBox
-                :fields="[
+            <el-table-column :label="t('formDemo.productManagementCode')" min-width="200" prop="productPropertyId">
+              <template #default="props">
+                <MultipleOptionsBox :fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation'),
-                ]"
-                filterable
-                width="650px"
-                :items="listOfOrderProduct"
-                valueKey="productPropertyId"
-                labelKey="productCode"
-                :hiddenKey="['id']"
-                :placeHolder="t('reuse.chooseProductCode')"
-                :defaultValue="props.row.productPropertyId"
-                :clearable="false"
-                @scroll-top="ScrollProductTop"
-                @scroll-bottom="ScrollProductBottom"
-                @update-value="(value, obj) => changeValueTablePawnSlip(value, obj, props)"
-                />
-            </template>
-          </el-table-column>
+                ]" filterable width="650px" :items="listOfOrderProduct" valueKey="productPropertyId"
+                  labelKey="productCode" :hiddenKey="['id']" :placeHolder="t('reuse.chooseProductCode')"
+                  :defaultValue="props.row.productPropertyId" :clearable="false" @scroll-top="ScrollProductTop"
+                  @scroll-bottom="ScrollProductBottom"
+                  @update-value="(value, obj) => changeValueTablePawnSlip(value, obj, props)" />
+              </template>
+            </el-table-column>
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" width="280" />
             <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="100" />
-            <el-table-column v-if="paymentType == 4" prop="lastDatePaid" :label="t('reuse.lastDatePaid')" width="100" >
+            <el-table-column v-if="paymentType == 4" prop="lastDatePaid" :label="t('reuse.lastDatePaid')" width="100">
               <template #default="scope">
-                  {{dateTimeFormat(scope.row.lastPaymentDate)}}
-              </template>  
+                {{ dateTimeFormat(scope.row.lastPaymentDate) }}
+              </template>
             </el-table-column>
-            <el-table-column v-if="paymentType == 4" prop="nextPaymentDate" :label="t('reuse.nextDatePaid')" width="100" >
+            <el-table-column v-if="paymentType == 4" prop="nextPaymentDate" :label="t('reuse.nextDatePaid')" width="100">
               <template #default="scope">
-                <el-date-picker
-                  v-model="scope.row.nextPaymentDate"
-                  type="date"
-                  placeholder="Pick a day"
-                  format="DD/MM/YYYY"
-                  value-format="YYYY-MM-DD"
-                  :disabled-date="(time)=>disabledDatePawnFee(time,scope.row)"
-                />  
-              </template>  
+                <el-date-picker v-model="scope.row.nextPaymentDate" type="date" placeholder="Pick a day"
+                  format="DD/MM/YYYY" value-format="YYYY-MM-DD"
+                  :disabled-date="(time) => disabledDatePawnFee(time, scope.row)" />
+              </template>
             </el-table-column>
-            <el-table-column v-if="paymentType == 4" prop="interestMoney" :label="t('reuse.intoMoneyByday')" width="100" />
-            <el-table-column prop="principalDebt" :label="t('reuse.originalDebt')" width="100"/>
+            <el-table-column v-if="paymentType == 4" prop="interestMoney" :label="t('reuse.intoMoneyByday')"
+              width="100" />
+            <el-table-column prop="principalDebt" :label="t('reuse.originalDebt')" width="100" />
             <el-table-column prop="pawnPrice" :label="t('reuse.paidMoney')" width="100">
               <template #default="scope">
-                <CurrencyInputComponent v-model="scope.row.pawnPrice" v-if="paymentType == 3"/>
+                <CurrencyInputComponent v-model="scope.row.pawnPrice" v-if="paymentType == 3" />
                 <div v-if="paymentType == 4">
-                  {{calculatePaidMoney(scope.row)}}
+                  {{ calculatePaidMoney(scope.row) }}
                 </div>
               </template>
             </el-table-column>
@@ -4188,43 +3714,24 @@ const printPaymentRequest = () => {
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.paymentOfPawnPrincipal') }}</label>
             <div class="w-[100%]">
-              <el-checkbox
-                v-model="alreadyPaidForTt"
-                :label="t('formDemo.alreadyPaidForTt')"
-                size="large"
-              />
+              <el-checkbox v-model="alreadyPaidForTt" :label="t('formDemo.alreadyPaidForTt')" size="large" />
             </div>
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
             <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in choosePayment" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
           <div class="flex gap-4 pt-2 pb-4">
             <label class="w-[30%] text-right">{{ t('formDemo.status') }}</label>
             <div class="w-[100%]">
               <div class="flex items-center w-[100%] flex-wrap">
-                <div
-                  class="duplicate-status"
-                  v-for="item in statusAccountingEntry"
-                  :key="item.transactionStatus"
-                >
-                  <div
-                    v-if="item.transactionStatus == 1"
-                  >
+                <div class="duplicate-status" v-for="item in statusAccountingEntry" :key="item.transactionStatus">
+                  <div v-if="item.transactionStatus == 1">
                     <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span
-                      class="box box_2 text-blue-500 dark:text-black"
-                      :class="{ active: item.isActive }"
-                    >
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                    <span class="box box_2 text-blue-500 dark:text-black" :class="{ active: item.isActive }">
                       {{ item.transactionStatusName }}
                       <span class="triangle-right right_2"> </span>
                     </span>
@@ -4233,16 +3740,10 @@ const printPaymentRequest = () => {
                     }}</p>
                     <p v-else class="text-transparent">s</p>
                   </div>
-                  <div
-                    v-else-if="item.transactionStatus == 0"
-                  >
+                  <div v-else-if="item.transactionStatus == 0">
                     <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span
-                    class="box box_4 text-rose-500 dark:text-black"
-                      :class="{ active: item.isActive }"
-                    >
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                    <span class="box box_4 text-rose-500 dark:text-black" :class="{ active: item.isActive }">
                       {{ item.transactionStatusName }}
                       <span class="triangle-right right_4"> </span>
                     </span>
@@ -4253,49 +3754,39 @@ const printPaymentRequest = () => {
                   </div>
                 </div>
               </div>
-          </div>
+            </div>
           </div>
         </div>
         <template #footer>
-          <span class="dialog-footer">
-            <el-button
-              type="primary"
-              class="min-w-42 min-h-11"
-              v-if="showCreatedOrUpdateButton"
-              @click="
-                () => {
-                  dialogFeePaymentSlip = false
-                  updateInfoAcountingEntry(1)
-                }
-              "
-              >{{ t('formDemo.saveRecordDebts') }}</el-button
-            >
-            <el-button
-                class="min-w-42 min-h-11"
-                  type="danger"
-                  v-if="showCancelAcountingEntry"
-                  @click="
-                    () => {
-                      UpdateStatusTransaction()
-                      dialogFeePaymentSlip = false
-                    }
-                  "
-                > 
-                  {{t('formDemo.cancelAccountingEntry')}}
+          <div class="flex justify-between">
+            <el-button @click="getFormPayment()">{{ t('button.print') }}</el-button>
+            <div>
+              <span class="dialog-footer">
+                <el-button type="primary" class="min-w-42 min-h-11" v-if="showCreatedOrUpdateButton" @click="
+                  () => {
+                    dialogFeePaymentSlip = false
+                    updateInfoAcountingEntry(1)
+                  }
+                ">{{ t('formDemo.saveRecordDebts') }}</el-button>
+                <el-button class="min-w-42 min-h-11" type="danger" v-if="showCancelAcountingEntry" @click="
+                  () => {
+                    UpdateStatusTransaction()
+                    dialogFeePaymentSlip = false
+                  }
+                ">
+                  {{ t('formDemo.cancelAccountingEntry') }}
                 </el-button>
-            <el-button class="min-w-42 min-h-11" @click="dialogFeePaymentSlip = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
+                <el-button class="min-w-42 min-h-11" @click="dialogFeePaymentSlip = false">{{
+                  t('reuse.exit')
+                }}</el-button>
+              </span>
+            </div>
+          </div>
         </template>
       </el-dialog>
 
-      <el-dialog 
-        :close-on-click-modal="doCloseOnClickModal" 
-        v-model="paymentRequestFromAnotherOrder" 
-        :title="t('reuse.paymentRequestInformationTicket')" 
-        width="40%" 
-        align-center>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="paymentRequestFromAnotherOrder"
+        :title="t('reuse.paymentRequestInformationTicket')" width="40%" align-center>
         <div>
           <el-divider />
           <div class="flex items-center">
@@ -4323,35 +3814,28 @@ const printPaymentRequest = () => {
               <label class="w-[30%] text-right">{{ t('formDemo.proponent') }}</label>
               <div class="w-[100%]">
                 <el-select v-model="inputRecharger" placeholder="Chọn người nộp tiền">
-                  <el-option
-                    v-for="item in optionsCollaborators"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
+                  <el-option v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+                    :value="item.value" />
                 </el-select>
               </div>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.reasonsSpendMoney') }}</label>
               <div class="w-[100%]">
-                <el-input
-                v-model="inputReasonCollectMoney"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterReasonCollectingMoney')"
-              />
+                <el-input v-model="inputReasonCollectMoney" style="width: 100%"
+                  :placeholder="t('formDemo.enterReasonCollectingMoney')" />
               </div>
             </div>
           </div>
           <div class="flex items-center">
             <span v-if="typeDialog == 1" class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.productInformationSaleConsign')
+              t('formDemo.productInformationSaleConsign')
             }}</span>
             <span v-else-if="typeDialog == 3" class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.productInformationSaleRental')
+              t('formDemo.productInformationSaleRental')
             }}</span>
             <span v-else class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.productInformationSaleSpa')
+              t('formDemo.productInformationSaleSpa')
             }}</span>
             <span class="block h-1 w-[60%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
@@ -4361,7 +3845,7 @@ const printPaymentRequest = () => {
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
-      
+
             <el-table-column prop="createdAt" :label="t('formDemo.saleDate')" min-width="150">
               <template #default="data">
                 <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
@@ -4379,7 +3863,7 @@ const printPaymentRequest = () => {
             </el-table-column>
             <el-table-column prop="negotiablePrice" :label="t('formDemo.negotiablePrice')" min-width="150">
               <template #default="data">
-                <div> {{changeMoney.format(data.row.negotiablePrice)}} </div>
+                <div> {{ changeMoney.format(data.row.negotiablePrice) }} </div>
               </template>
             </el-table-column>
             <el-table-column prop="totatlPriceSale" :label="t('formDemo.payment')" min-width="150">
@@ -4394,12 +3878,12 @@ const printPaymentRequest = () => {
               </div>
             </div>
           </el-table>
-      
+
           <el-table v-else-if="typeDialog == 3" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
-      
+
             <el-table-column prop="createdAt" :label="t('formDemo.rentalDate')" min-width="150">
               <template #default="data">
                 <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
@@ -4417,7 +3901,7 @@ const printPaymentRequest = () => {
             </el-table-column>
             <el-table-column prop="negotiablePrice" :label="t('formDemo.negotiablePrice')" min-width="150">
               <template #default="data">
-                <div> {{changeMoney.format(data.row.negotiablePrice)}} </div>
+                <div> {{ changeMoney.format(data.row.negotiablePrice) }} </div>
               </template>
             </el-table-column>
             <el-table-column prop="totatlPricesRental" :label="t('formDemo.payment')" min-width="150">
@@ -4426,12 +3910,12 @@ const printPaymentRequest = () => {
               </template>
             </el-table-column>
           </el-table>
-      
+
           <el-table v-else ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
-      
+
             <el-table-column prop="createdAt" :label="t('formDemo.spaDate')" min-width="150">
               <template #default="data">
                 <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
@@ -4445,9 +3929,9 @@ const printPaymentRequest = () => {
             </el-table-column>
           </el-table>
           <div class="flex justify-end">
-              {{changeMoney.format(totalPayment)}}
-            </div>
-            
+            {{ changeMoney.format(totalPayment) }}
+          </div>
+
         </div>
         <div>
           <div class="flex items-center">
@@ -4455,20 +3939,14 @@ const printPaymentRequest = () => {
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
           <div class="flex gap-4 pt-2 items-center">
-            <label class="w-[30%] text-right">{{t('formDemo.amountSpent')}}</label>
+            <label class="w-[30%] text-right">{{ t('formDemo.amountSpent') }}</label>
             <div class="w-[100%]">
-              {{changeMoney.format(totalPayment)}}
+              {{ changeMoney.format(totalPayment) }}
             </div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="enterMoney"
-              style="width: 100%"
-              :placeholder="t('formDemo.writtenWords')"
-            />
+            <label class="w-[30%] text-right">{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label>
+            <el-input v-model="enterMoney" style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
@@ -4492,16 +3970,14 @@ const printPaymentRequest = () => {
           <div class="flex justify-end">
             <div>
               <span class="dialog-footer">
-                <el-button
-class="min-w-42 min-h-11" type="primary" 
-                @click="()=>{
+                <el-button class="min-w-42 min-h-11" type="primary" @click="() => {
                   postPaymentRequest
                   paymentRequestFromAnotherOrder = false
                 }">
                   {{ t('formDemo.saveRecordDebts') }}
                 </el-button>
                 <el-button class="min-w-42 min-h-11 pl-2" @click="paymentRequestFromAnotherOrder = false">{{
-                t('reuse.exit')
+                  t('reuse.exit')
                 }}</el-button>
               </span>
             </div>
@@ -4510,7 +3986,8 @@ class="min-w-42 min-h-11" type="primary"
       </el-dialog>
 
       <!-- Thông tin phiếu thanh toán tiền đàm phán -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogDepositSlip" :title="t('formDemo.negotiatedPaymentInformation')" width="40%" align-center>
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogDepositSlip"
+        :title="t('formDemo.negotiatedPaymentInformation')" width="40%" align-center>
         <div>
           <el-divider />
           <div class="flex items-center">
@@ -4524,9 +4001,8 @@ class="min-w-42 min-h-11" type="primary"
                 <p class="font-bold text-xl">{{ pawnOrderCode }}</p>
               </div>
               <div class="flex gap-4 pb-4 items-center">
-                <label class="text-right w-[170px]"
-                  >{{ t('formDemo.pawnTime') }}<span class="text-red-500">*</span></label
-                >
+                <label class="text-right w-[170px]">{{ t('formDemo.pawnTime') }}<span
+                    class="text-red-500">*</span></label>
                 <div class="w-[60%] text-black dark:text-light-50">
                   {{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
                   {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}
@@ -4538,7 +4014,7 @@ class="min-w-42 min-h-11" type="primary"
                 <span>
                   <div>Mã QR đơn hàng</div>
                 </span>
-      
+
                 <span class="border">
                   <Qrcode :width="100" :text="'QR'" />
                 </span>
@@ -4565,13 +4041,13 @@ class="min-w-42 min-h-11" type="primary"
           </div>
           <div class="flex items-center">
             <span v-if="typeDialog == 1" class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.productInformationSaleConsign')
+              t('formDemo.productInformationSaleConsign')
             }}</span>
             <span v-else-if="typeDialog == 3" class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.productInformationSaleRental')
+              t('formDemo.productInformationSaleRental')
             }}</span>
             <span v-else class="w-[35%] text-base font-bold break-w">{{
-            t('formDemo.productInformationSaleSpa')
+              t('formDemo.productInformationSaleSpa')
             }}</span>
             <span class="block h-1 w-[60%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
@@ -4581,7 +4057,7 @@ class="min-w-42 min-h-11" type="primary"
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
-      
+
             <el-table-column prop="createdAt" :label="t('formDemo.saleDate')" min-width="150">
               <template #default="data">
                 <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
@@ -4614,12 +4090,12 @@ class="min-w-42 min-h-11" type="primary"
               </div>
             </div>
           </el-table>
-      
+
           <el-table v-else-if="typeDialog == 3" ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
-      
+
             <el-table-column prop="createdAt" :label="t('formDemo.rentalDate')" min-width="150">
               <template #default="data">
                 <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
@@ -4646,12 +4122,12 @@ class="min-w-42 min-h-11" type="primary"
               </template>
             </el-table-column>
           </el-table>
-      
+
           <el-table v-else ref="singleTableRef" :data="tablePaymentSlip" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column prop="productCode" :label="t('reuse.productCode')" min-width="180" />
             <el-table-column prop="productName" :label="t('formDemo.commodityName')" min-width="280" />
-      
+
             <el-table-column prop="createdAt" :label="t('formDemo.spaDate')" min-width="150">
               <template #default="data">
                 <div>{{ dateTimeFormat(data.row.createdAt) }}</div>
@@ -4698,7 +4174,7 @@ class="min-w-42 min-h-11" type="primary"
                   {{ t('formDemo.saveRecordDebts') }}
                 </el-button>
                 <el-button class="min-w-42 min-h-11 pl-2" @click="dialogDepositSlip = false">{{
-                t('reuse.exit')
+                  t('reuse.exit')
                 }}</el-button>
               </span>
             </div>
@@ -4707,13 +4183,8 @@ class="min-w-42 min-h-11" type="primary"
       </el-dialog>
 
       <!-- Bút toán bổ sung -->
-      <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogAccountingEntryAdditional"
-        :title="t('formDemo.accountingEntryAdditional')"
-        width="60%"
-        align-center
-      >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogAccountingEntryAdditional"
+        :title="t('formDemo.accountingEntryAdditional')" width="60%" align-center>
         <div>
           <el-divider />
           <div class="flex items-center">
@@ -4728,13 +4199,9 @@ class="min-w-42 min-h-11" type="primary"
                 <div class="text-xl">{{ pawnOrderCode }}</div>
               </div>
               <div class="flex gap-4 pb-4 items-center">
-                <label class="text-right w-[170px]"
-                  >{{ t('formDemo.pawnTime') }}</label
-                >
-                <div class="w-[60%] text-black dark:text-light-50"
-              >{{ dateTimeFormat(ruleForm?.pawnTerm[0]) }} đến
-              {{ dateTimeFormat(ruleForm?.pawnTerm[1]) }}</div
-            >
+                <label class="text-right w-[170px]">{{ t('formDemo.pawnTime') }}</label>
+                <div class="w-[60%] text-black dark:text-light-50">{{ dateTimeFormat(ruleForm?.pawnTerm[0]) }} đến
+                  {{ dateTimeFormat(ruleForm?.pawnTerm[1]) }}</div>
               </div>
             </div>
 
@@ -4744,7 +4211,9 @@ class="min-w-42 min-h-11" type="primary"
                   <div>Mã QR đơn hàng</div>
                 </span>
 
-                <span class="border"><Qrcode :width="100" :text="'QR'" /></span>
+                <span class="border">
+                  <Qrcode :width="100" :text="'QR'" />
+                </span>
               </div>
             </div>
           </div>
@@ -4784,31 +4253,21 @@ class="min-w-42 min-h-11" type="primary"
               </template>
             </el-table-column>
             <el-table-column prop="content" :label="t('formDemo.kindOfMoney')">
-                <el-select v-model="paymentType" class="m-2" placeholder="Select">
-                  <el-option
-                    v-for="item in optionsChooseMoneyType"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
+              <el-select v-model="paymentType" class="m-2" placeholder="Select">
+                <el-option v-for="item in optionsChooseMoneyType" :key="item.value" :label="item.label"
+                  :value="item.value" />
+              </el-select>
             </el-table-column>
             <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
               <template #default="props">
-                <CurrencyInputComponent
-                  @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
-                  class="handle-fix"
-                  v-model="props.row.receiveMoney"
-                />
+                <CurrencyInputComponent @change="(data) => autoChangeMoneyAccountingEntry(data, props)" class="handle-fix"
+                  v-model="props.row.receiveMoney" />
               </template>
             </el-table-column>
             <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
               <template #default="props">
-                <CurrencyInputComponent
-                  @change="(data) => autoChangeMoneyAccountingEntry(data, props)"
-                  class="handle-fix"
-                  v-model="props.row.paidMoney"
-                />
+                <CurrencyInputComponent @change="(data) => autoChangeMoneyAccountingEntry(data, props)" class="handle-fix"
+                  v-model="props.row.paidMoney" />
               </template>
             </el-table-column>
             <el-table-column prop="intoMoney" :label="t('formDemo.intoMoney')">
@@ -4836,43 +4295,24 @@ class="min-w-42 min-h-11" type="primary"
           <div class="flex gap-4 pt-2 items-center">
             <label class="w-[30%] text-right">Thanh toán</label>
             <div class="w-[100%]">
-              <el-checkbox
-                v-model="alreadyPaidForTt"
-                :label="t('formDemo.alreadyPaidForTt')"
-                size="large"
-              />
+              <el-checkbox v-model="alreadyPaidForTt" :label="t('formDemo.alreadyPaidForTt')" size="large" />
             </div>
           </div>
           <div class="flex gap-4 pt-2 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
             <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in choosePayment" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
           <div class="flex gap-4 pt-2 pb-4">
             <label class="w-[30%] text-right">{{ t('formDemo.status') }}</label>
             <div class="w-[100%]">
               <div class="flex items-center w-[100%] flex-wrap">
-                <div
-                  class="duplicate-status"
-                  v-for="item in statusAccountingEntry"
-                  :key="item.transactionStatus"
-                >
-                  <div
-                    v-if="item.transactionStatus == 1"
-                  >
+                <div class="duplicate-status" v-for="item in statusAccountingEntry" :key="item.transactionStatus">
+                  <div v-if="item.transactionStatus == 1">
                     <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span
-                      class="box box_2 text-blue-500 dark:text-black"
-                      :class="{ active: item.isActive }"
-                    >
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                    <span class="box box_2 text-blue-500 dark:text-black" :class="{ active: item.isActive }">
                       {{ item.transactionStatusName }}
                       <span class="triangle-right right_2"> </span>
                     </span>
@@ -4881,16 +4321,10 @@ class="min-w-42 min-h-11" type="primary"
                     }}</p>
                     <p v-else class="text-transparent">s</p>
                   </div>
-                  <div
-                    v-else-if="item.transactionStatus == 0"
-                  >
+                  <div v-else-if="item.transactionStatus == 0">
                     <span
-                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                    ></span>
-                    <span
-                    class="box box_4 text-rose-500 dark:text-black"
-                      :class="{ active: item.isActive }"
-                    >
+                      class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"></span>
+                    <span class="box box_4 text-rose-500 dark:text-black" :class="{ active: item.isActive }">
                       {{ item.transactionStatusName }}
                       <span class="triangle-right right_4"> </span>
                     </span>
@@ -4901,36 +4335,27 @@ class="min-w-42 min-h-11" type="primary"
                   </div>
                 </div>
               </div>
-          </div>
+            </div>
           </div>
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button
-              size="large"
-              type="primary"
-              v-if="showCreatedOrUpdateButton"
-              @click="
-                () => {
-                  updateInfoAcountingEntry(4)
-                  dialogAccountingEntryAdditional = false
-                }
-              "
-              >
+            <el-button size="large" type="primary" v-if="showCreatedOrUpdateButton" @click="
+              () => {
+                updateInfoAcountingEntry(4)
+                dialogAccountingEntryAdditional = false
+              }
+            ">
               {{ t('formDemo.saveRecordDebts') }}
             </el-button>
-            <el-button
-              type="danger"
-              v-if="showCancelAcountingEntry"
-              @click="
-                () => {
-                  UpdateStatusTransaction()
-                  dialogAccountingEntryAdditional = false
-                }
-              "
-                > 
-                 {{t('formDemo.cancelAccountingEntry')}}
-              </el-button>
+            <el-button type="danger" v-if="showCancelAcountingEntry" @click="
+              () => {
+                UpdateStatusTransaction()
+                dialogAccountingEntryAdditional = false
+              }
+            ">
+              {{ t('formDemo.cancelAccountingEntry') }}
+            </el-button>
             <el-button size="large" @click="dialogAccountingEntryAdditional = false">{{
               t('reuse.exit')
             }}</el-button>
@@ -4939,13 +4364,8 @@ class="min-w-42 min-h-11" type="primary"
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu thu -->
-      <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogInformationReceipts"
-        :title="t('formDemo.informationReceipts')"
-        width="40%"
-        align-center
-      >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogInformationReceipts"
+        :title="t('formDemo.informationReceipts')" width="40%" align-center>
         <div>
           <el-divider />
           <div class="flex items-center">
@@ -4966,28 +4386,17 @@ class="min-w-42 min-h-11" type="primary"
               <div class="w-[100%] text-xl font-bold">{{ codeReceipts }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label
-              >
+              <label class="w-[30%] text-right">{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label>
               <el-select v-model="inputRecharger" placeholder="Chọn người nộp tiền">
-                <el-option
-                  v-for="item in optionsCollaborators"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <el-option v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+                  :value="item.value" />
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.reasonCollectingMoney') }}
-                <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="inputReasonCollectMoney"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterReasonCollectingMoney')"
-              />
+              <label class="w-[30%] text-right">{{ t('formDemo.reasonCollectingMoney') }}
+                <span class="text-red-500">*</span></label>
+              <el-input v-model="inputReasonCollectMoney" style="width: 100%"
+                :placeholder="t('formDemo.enterReasonCollectingMoney')" />
             </div>
           </div>
           <div class="flex items-center">
@@ -5001,28 +4410,20 @@ class="min-w-42 min-h-11" type="primary"
             <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
-            >
+            <label class="w-[30%] text-right">{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label>
             <el-input v-model="enterMoney" style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
             <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in choosePayment" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
             <div class="flex items-center w-[100%]">
               <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"></span>
               <span class="box dark:text-black">
                 Khởi tạo & ghi sổ
                 <span class="triangle-right"> </span>
@@ -5036,16 +4437,12 @@ class="min-w-42 min-h-11" type="primary"
             <!-- <el-button>In phiếu</el-button> -->
             <div>
               <span class="dialog-footer">
-                <el-button
-                  type="primary"
-                  @click="
-                    () => {
-                      dialogInformationReceipts = false
-                      postPT()
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
+                <el-button type="primary" @click="
+                  () => {
+                    dialogInformationReceipts = false
+                    postPT()
+                  }
+                ">{{ t('formDemo.saveRecordDebts') }}</el-button>
                 <el-button @click="dialogInformationReceipts = false">{{
                   t('reuse.exit')
                 }}</el-button>
@@ -5056,13 +4453,8 @@ class="min-w-42 min-h-11" type="primary"
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu chi -->
-      <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogPaymentVoucher"
-        :title="t('formDemo.paymentVoucherInformation')"
-        width="40%"
-        align-center
-      >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogPaymentVoucher"
+        :title="t('formDemo.paymentVoucherInformation')" width="40%" align-center>
         <div>
           <el-divider />
           <div class="flex items-center">
@@ -5083,27 +4475,18 @@ class="min-w-42 min-h-11" type="primary"
               <div class="w-[100%] text-xl font-bold">{{ codeExpenditures }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.moneyReceiver') }} <span class="text-red-500">*</span></label
-              >
+              <label class="w-[30%] text-right">{{ t('formDemo.moneyReceiver') }} <span
+                  class="text-red-500">*</span></label>
               <el-select v-model="inputRecharger" placeholder="Chọn người nhận tiền">
-                <el-option
-                  v-for="item in optionsCollaborators"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <el-option v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+                  :value="item.value" />
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.reasonsSpendMoney') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="inputReasonCollectMoney"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterReasonForThePayment')"
-              />
+              <label class="w-[30%] text-right">{{ t('formDemo.reasonsSpendMoney') }} <span
+                  class="text-red-500">*</span></label>
+              <el-input v-model="inputReasonCollectMoney" style="width: 100%"
+                :placeholder="t('formDemo.enterReasonForThePayment')" />
             </div>
           </div>
           <div class="flex items-center">
@@ -5117,32 +4500,20 @@ class="min-w-42 min-h-11" type="primary"
             <div class="w-[100%] text-xl">{{ changeMoney.format(moneyReceipts) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
-            >
-            <el-input
-              v-model="enterMoney"
-              style="width: 100%"
-              :placeholder="t('formDemo.writtenWords')"
-            />
+            <label class="w-[30%] text-right">{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label>
+            <el-input v-model="enterMoney" style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }}</label>
             <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in choosePayment" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
             <div class="flex items-center w-[100%]">
               <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"></span>
               <span class="box dark:text-black">
                 Khởi tạo & ghi sổ
                 <span class="triangle-right"> </span>
@@ -5155,16 +4526,12 @@ class="min-w-42 min-h-11" type="primary"
             <el-button @click="getFormReceipts(1)">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button
-                  type="primary"
-                  @click="
-                    () => {
-                      dialogPaymentVoucher = false
-                      postPC()
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
+                <el-button type="primary" @click="
+                  () => {
+                    dialogPaymentVoucher = false
+                    postPC()
+                  }
+                ">{{ t('formDemo.saveRecordDebts') }}</el-button>
                 <el-button @click="dialogPaymentVoucher = false">{{ t('reuse.exit') }}</el-button>
               </span>
             </div>
@@ -5173,57 +4540,21 @@ class="min-w-42 min-h-11" type="primary"
       </el-dialog>
 
       <!-- Thông tin chuộc hàng trước thời hạn-->
-      <ReturnOrder
-        v-model="chuocTruocHan"
-        :orderId="id"
-        :orderData="rentReturnOrder"
-        :listProductsTable="listOfOrderProduct"
-        @add-row="addRow"
-        @remove-row="removeRow"
-        @post-return-request="postReturnRequest"
-        :orderStatusType="5"
-        :type="4"
-      />
-      <ReturnOrder
-        v-model="chuocHetHan"
-        :orderId="id"
-        :orderData="rentReturnOrder"
-        :listProductsTable="listOfOrderProduct"
-        @add-row="addRow"
-        @post-return-request="postReturnRequest"
-        :orderStatusType="51"
-        :type="4"
-      />
-      <ReturnOrder
-        v-model="dutHang"
-        :orderId="id"
-        :orderData="rentReturnOrder"
-        :listProductsTable="listOfOrderProduct"
-        @add-row="addRow"
-        @post-return-request="postReturnRequest"
-        :orderStatusType="6"
-        :type="4"
-      />
-      <ReturnOrder
-        v-model="giaHan"
-        :orderId="id"
-        :orderData="rentReturnOrder"
-        :listProductsTable="listOfOrderProduct"
-        @add-row="addRow"
-        @post-return-request="postReturnRequest"
-        :orderStatusType="7"
-        @extend-date="extendDate"
-        :type="4"
-      />
+      <ReturnOrder v-model="chuocTruocHan" :orderId="id" :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct" @add-row="addRow" @remove-row="removeRow"
+        @post-return-request="postReturnRequest" :orderStatusType="5" :type="4" />
+      <ReturnOrder v-model="chuocHetHan" :orderId="id" :orderData="rentReturnOrder"
+        :listProductsTable="listOfOrderProduct" @add-row="addRow" @post-return-request="postReturnRequest"
+        :orderStatusType="51" :type="4" />
+      <ReturnOrder v-model="dutHang" :orderId="id" :orderData="rentReturnOrder" :listProductsTable="listOfOrderProduct"
+        @add-row="addRow" @post-return-request="postReturnRequest" :orderStatusType="6" :type="4" />
+      <ReturnOrder v-model="giaHan" :orderId="id" :orderData="rentReturnOrder" :listProductsTable="listOfOrderProduct"
+        @add-row="addRow" @post-return-request="postReturnRequest" :orderStatusType="7" @extend-date="extendDate"
+        :type="4" />
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
-      <el-dialog
-      :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogIPRForm"
-        :title="t('formDemo.informationPaymentRequestForm')"
-        width="40%"
-        align-center
-      >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogIPRForm"
+        :title="t('formDemo.informationPaymentRequestForm')" width="40%" align-center>
         <div>
           <el-divider />
           <div class="flex items-center">
@@ -5247,27 +4578,18 @@ class="min-w-42 min-h-11" type="primary"
               <div class="w-[100%] text-xl font-bold">{{ codePaymentRequest }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right hello"
-                >{{ t('formDemo.proponent') }} <span class="text-red-500">*</span></label
-              >
+              <label class="w-[30%] text-right hello">{{ t('formDemo.proponent') }} <span
+                  class="text-red-500">*</span></label>
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <el-option
-                  v-for="item in optionsCollaborators"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <el-option v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+                  :value="item.value" />
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.reasonsSpendMoney') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                style="width: 100%"
-                v-model="inputReasonCollectMoney"
-                :placeholder="t('formDemo.enterReasonPaymentRequest')"
-              />
+              <label class="w-[30%] text-right">{{ t('formDemo.reasonsSpendMoney') }} <span
+                  class="text-red-500">*</span></label>
+              <el-input style="width: 100%" v-model="inputReasonCollectMoney"
+                :placeholder="t('formDemo.enterReasonPaymentRequest')" />
             </div>
           </div>
           <div class="flex items-center">
@@ -5279,11 +4601,7 @@ class="min-w-42 min-h-11" type="primary"
           <div class="pt-2 pb-2">
             <el-table ref="singleTableRef" :data="detailedListExpenses" border style="width: 100%">
               <el-table-column label="STT" type="index" width="60" align="center" />
-              <el-table-column
-                prop="numberVouchers"
-                :label="t('formDemo.numberVouchers')"
-                width="80"
-              />
+              <el-table-column prop="numberVouchers" :label="t('formDemo.numberVouchers')" width="80" />
               <el-table-column prop="dayVouchers" :label="t('formDemo.dayVouchers')" width="80" />
               <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" width="120" />
               <el-table-column prop="quantity" :label="t('formDemo.sl')" width="50" />
@@ -5308,19 +4626,14 @@ class="min-w-42 min-h-11" type="primary"
               <p class="pr-2 text-black font-bold dark:text-white">đ</p>
             </div>
           </div>
-          <span
-            class="block h-1 float-right w-[45%] border-t-1 dark:border-[#4c4d4f] mt-2 mb-2"
-          ></span>
+          <span class="block h-1 float-right w-[45%] border-t-1 dark:border-[#4c4d4f] mt-2 mb-2"></span>
           <div class="flex w-[100%] justify-end">
             <div class="w-[145px] text-right">
               <p class="text-blue-400 mb-2">Đặt cọc <span class="text-red-500">*</span></p>
               <p class="text-red-600">Còn lại</p>
             </div>
             <div class="w-[145px] text-right">
-              <input
-                v-model="inputDeposit"
-                class="pr-2 w-[130px] text-right border-1 outline-none rounded mb-2"
-              />
+              <input v-model="inputDeposit" class="pr-2 w-[130px] text-right border-1 outline-none rounded mb-2" />
               <p class="pr-2 text-red-600">đ</p>
             </div>
             <div class="w-[90px]"></div>
@@ -5336,30 +4649,20 @@ class="min-w-42 min-h-11" type="primary"
             <div class="w-[100%] text-xl">10,000,000 đ</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label
-            >
-            <el-input  v-model="enterMoney" style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
+            <label class="w-[30%] text-right">{{ t('formDemo.writtenWords') }} <span class="text-red-500">*</span></label>
+            <el-input v-model="enterMoney" style="width: 100%" :placeholder="t('formDemo.writtenWords')" />
           </div>
           <div class="flex gap-4 pt-4 items-center">
-            <label class="w-[30%] text-right"
-              >{{ t('formDemo.formPayment') }} <span class="text-red-500">*</span></label
-            >
+            <label class="w-[30%] text-right">{{ t('formDemo.formPayment') }} <span class="text-red-500">*</span></label>
             <el-select :disabled="checkEditAcountingEntryPaymentType" v-model="payment" placeholder="Select">
-              <el-option
-                v-for="item in choosePayment"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in choosePayment" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
           <div class="flex gap-4 pt-4 pb-4 items-center">
             <label class="w-[30%] text-right">Trạng thái</label>
             <div class="flex items-center w-[100%]">
               <span
-                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"
-              ></span>
+                class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-neutral-900 dark:bg-transparent"></span>
               <span class="box dark:text-black">
                 Khởi tạo & ghi sổ
                 <span class="triangle-right"> </span>
@@ -5369,34 +4672,26 @@ class="min-w-42 min-h-11" type="primary"
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="printPaymentRequest()" >{{ t('button.print') }}</el-button>
+            <el-button @click="printPaymentRequest()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button
-                  type="primary"
-                  @click="
-                    () => {
-                      dialogIPRForm = false
-                      handleChangePaymentRequest()
-                      postPaymentRequest()
-                    }
-                  "
-                  >{{ t('formDemo.saveRecordDebts') }}</el-button
-                >
+                <el-button type="primary" @click="
+                  () => {
+                    dialogIPRForm = false
+                    handleChangePaymentRequest()
+                    postPaymentRequest()
+                  }
+                ">{{ t('formDemo.saveRecordDebts') }}</el-button>
                 <el-button @click="dialogIPRForm = false">{{ t('reuse.exit') }}</el-button>
               </span>
             </div>
           </div>
         </template>
       </el-dialog>
-            <!-- Thông tin phiếu xuất đổi -->
-            <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
-        v-model="informationWarehouseReceipt"
-        :title="warehouseTicketData?.transactionType == 2 ? t('reuse.informationExportReturnSpaTicket') :  t('reuse.informationTransferReturnSpaTicket') "
-        width="40%"
-        align-center
-      >
+      <!-- Thông tin phiếu xuất đổi -->
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="informationWarehouseReceipt"
+        :title="warehouseTicketData?.transactionType == 2 ? t('reuse.informationExportReturnSpaTicket') : t('reuse.informationTransferReturnSpaTicket')"
+        width="40%" align-center>
         <div>
           <el-divider />
           <div class="flex items-center">
@@ -5409,10 +4704,8 @@ class="min-w-42 min-h-11" type="primary"
           </div>
           <div class="flex gap-4 pb-4 items-center">
             <label class="w-[30%] text-right">{{ t('reuse.pawnTime') }}</label>
-            <div class="w-[100%] text-black dark:text-light-50"
-              >{{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
-              {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}</div
-            >
+            <div class="w-[100%] text-black dark:text-light-50">{{ dateTimeFormat(ruleForm.pawnTerm[0]) }} đến
+              {{ dateTimeFormat(ruleForm.pawnTerm[1]) }}</div>
           </div>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('reuse.generalInformation') }}</span>
@@ -5424,16 +4717,11 @@ class="min-w-42 min-h-11" type="primary"
               <div class="w-[100%]">{{ warehouseTicketCode }}</div>
             </div>
             <div class="flex gap-4 pt-4 items-center">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.warehouserExport') }} <span class="text-red-500">*</span></label
-              >
+              <label class="w-[30%] text-right">{{ t('formDemo.warehouserExport') }} <span
+                  class="text-red-500">*</span></label>
               <el-select v-model="warehouseTicketData.staffId" placeholder="Trần Hữu Dương | 0998844533">
-                <el-option
-                  v-for="item in optionsCollaborators"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <el-option v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+                  :value="item.value" />
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
@@ -5443,7 +4731,8 @@ class="min-w-42 min-h-11" type="primary"
           </div>
           <div class="flex items-center">
             <span class="w-[45%] text-base font-bold break-w">{{
-                warehouseTicketData?.transactionType == 2 ? t('formDemo.productInformationExportChange') : t('reuse.informationProductTransferReturn')
+              warehouseTicketData?.transactionType == 2 ? t('formDemo.productInformationExportChange') :
+              t('reuse.informationProductTransferReturn')
             }}</span>
             <span class="block h-1 w-[55%] border-t-1 dark:border-[#4c4d4f]"></span>
           </div>
@@ -5451,18 +4740,11 @@ class="min-w-42 min-h-11" type="primary"
         <div class="pt-2 pb-2">
           <el-table ref="singleTableRef" :data="warehouseTicketData" border style="width: 100%">
             <el-table-column label="STT" type="index" width="60" align="center" />
-            <el-table-column
-              prop="productPropertyCode"
-              :label="t('formDemo.productManagementCode')"
-            />
-            <el-table-column
-              prop="productPropertyName"
-              :label="t('formDemo.commodityName')"
-              width="200"
-            />
-            <el-table-column prop="accessory" :label="t('reuse.accessory')"/>
-            <el-table-column prop="code" label="Code"/>
-            <el-table-column prop="description" :label="t('formDemo.descriptionProduct')"/>
+            <el-table-column prop="productPropertyCode" :label="t('formDemo.productManagementCode')" />
+            <el-table-column prop="productPropertyName" :label="t('formDemo.commodityName')" width="200" />
+            <el-table-column prop="accessory" :label="t('reuse.accessory')" />
+            <el-table-column prop="code" label="Code" />
+            <el-table-column prop="description" :label="t('formDemo.descriptionProduct')" />
             <el-table-column prop="quantity" :label="t('reuse.quantity')" />
           </el-table>
         </div>
@@ -5470,8 +4752,8 @@ class="min-w-42 min-h-11" type="primary"
           <span class="w-[25%] text-base font-bold">{{ t('formDemo.status') }}</span>
           <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
         </div>
-        
-        <StatusWarehouse :arrayStatusWH="arrayStatusWH" :label="t('reuse.exportTicketStatus')"/>
+
+        <StatusWarehouse :arrayStatusWH="arrayStatusWH" :label="t('reuse.exportTicketStatus')" />
 
         <template #footer>
           <div class="flex justify-end">
@@ -5499,16 +4781,8 @@ class="min-w-42 min-h-11" type="primary"
                 {{ dateTimeFormat(props.row.createdAt) }}
               </template>
             </el-table-column>
-            <el-table-column
-              prop="productPropertyId"
-              :label="t('formDemo.productManagementCode')"
-              width="150"
-            />
-            <el-table-column
-              prop="productPropertyName"
-              :label="t('formDemo.productInformation')"
-              min-width="600"
-            />
+            <el-table-column prop="productPropertyId" :label="t('formDemo.productManagementCode')" width="150" />
+            <el-table-column prop="productPropertyName" :label="t('formDemo.productInformation')" min-width="600" />
             <el-table-column prop="accessory" :label="t('reuse.accessory')" width="180">
               <template #default="data">
                 <div>{{ data.row.accessory }}</div>
@@ -5518,17 +4792,13 @@ class="min-w-42 min-h-11" type="primary"
             <el-table-column prop="quantity" :label="t('formDemo.amount')" width="150" />
             <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
 
-            <el-table-column
-              prop="warehouseTicketCode"
-              :label="t('formDemo.deliveryNotesExportWarehouse')"
-              align="left"
-              width="200"
-            >
-                <template #default="props">
-                  <div @click="() => openDetailFullyIntegrated(props)" class="text-blue-500" role="button">
-                    {{ props.row.warehouseTicketCode }}
-                  </div>
-                </template>
+            <el-table-column prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" align="left"
+              width="200">
+              <template #default="props">
+                <div @click="() => openDetailFullyIntegrated(props)" class="text-blue-500" role="button">
+                  {{ props.row.warehouseTicketCode }}
+                </div>
+              </template>
             </el-table-column>
             <el-table-column prop="warehouseTicketStatusName" :label="t('formDemo.status')" />
           </el-table>
@@ -5549,7 +4819,7 @@ class="min-w-42 min-h-11" type="primary"
   }
 }
 
-.css-form_has-child > .el-form-item {
+.css-form_has-child>.el-form-item {
   margin: 0;
 }
 
@@ -5630,7 +4900,7 @@ class="min-w-42 min-h-11" type="primary"
   border-left: 11px solid #fce5e1 !important;
 }
 
-.duplicate-status + .duplicate-status {
+.duplicate-status+.duplicate-status {
   margin-left: 10px;
 }
 
@@ -5768,7 +5038,7 @@ class="min-w-42 min-h-11" type="primary"
   padding: 12px 18px;
 }
 
-.fix-label-color > .el-radio {
+.fix-label-color>.el-radio {
   color: transparent;
 }
 
@@ -5776,7 +5046,7 @@ class="min-w-42 min-h-11" type="primary"
   color: transparent;
 }
 
-.fix-width > .el-form-item {
+.fix-width>.el-form-item {
   width: 80%;
 }
 

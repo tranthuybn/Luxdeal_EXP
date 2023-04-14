@@ -23,7 +23,7 @@ import {
 } from 'element-plus'
 import { InputPassword } from '@/components/InputPassword'
 import InputPrice from '@/components/CurrencyInputComponent.vue'
-import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
+import InfinitOptions from '@/components/Select/InfinitOptions.vue'
 import { Editor } from '@/components/Editor'
 
 const componentMap: Recordable<Component, ComponentName> = {
@@ -52,7 +52,7 @@ const componentMap: Recordable<Component, ComponentName> = {
   Descriptions: ElDescriptionsItem,
   Tag: ElTag,
   InputPrice: InputPrice,
-  SelectMultipleOption: MultipleOptionsBox
+  SelectMultipleOption: InfinitOptions
 }
 
 export { componentMap }

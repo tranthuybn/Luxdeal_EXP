@@ -48,6 +48,8 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
 import { getCategories } from '@/api/LibraryAndSetting'
+import InfinitOptions from '@/components/Select/InfinitOptions.vue'
+
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const size = ref<'' | 'large' | 'small'>('')
@@ -59,7 +61,7 @@ const type = String(router.currentRoute.value.params.type)
 const approvalId = Number(router.currentRoute.value.params.approvalId)
 const accountNumberList = ref()
 const customerClassification = ref('Khách hàng')
-
+const pageIndex = ref(1)
 const escape = useIcon({ icon: 'quill:escape' })
 
 const { ValidService, notSpace, removeVietnameseTones, checkLength, doNotHaveNumber, checkNumber, checkDuplicate } = useValidator()
@@ -254,12 +256,6 @@ const classify2 = [
   }
 ]
 
-const bankList = ref([
-  {
-    value: '',
-    label: ''
-  }
-])
 const duplicateStatusButton = ref(false)
 
 const formValue = ref()
@@ -474,16 +470,7 @@ const callApiCity = async () => {
   cities.value = await getCity()
   cities.value
 }
-const callApiBank = async () => {
-  const res = await getCategories({TypeName: 'nganhang', PageSize: 20, PageIndex: 1})
-  if(res){
-    bankList.value = res.data.map(e=>({
-      value: e.id,
-      label: e.name,
-    }))
-
-  }
-}
+const getMapData = ({id, name, logo}) => ({logo: logo, label: name, value: id,}) 
 const CityChange = async (value) => {
   ruleForm.ProvinceId = value
   district.value = await getDistrict(value)
@@ -518,6 +505,9 @@ const wardChange = async (value) => {
 //     (ruleForm.accountNumber = ''),
 //     (ruleForm.bankName = '')
 // }
+const handleChangeOptions = (option) => {
+  ruleForm.bankName = option.value
+}
 
 const postCustomer = async (typebtn) => {
   const address = ruleForm.Address + ', '
@@ -806,7 +796,6 @@ onBeforeMount(() => {
   callAPICustomer()
   change()
   callApiCity()
-  callApiBank()
   if(type === 'add' || type === ':type'){
     alwaysActive.value = true
     getGenCodeCustomer()
@@ -1600,23 +1589,24 @@ watch(() => valueCommune.value, val => {
                 </ElFormItem>
 
                 <ElFormItem
-                  class="flex items-center w-[98%]"
+                  class="flex items-center w-[98%] pl-2"
                   :label="t('reuse.bank')"
                   prop="bankName"
                 >
-                  <el-select
-                    v-model="ruleForm.bankName"
-                    class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                    type="text"
+                  <InfinitOptions 
                     :placeholder="t('reuse.selectBank')"
-                  >
-                    <el-option
-                      v-for="item in bankList"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
+                    valueKey="value" 
+                    labelKey="label"
+                    :hiddenKey="['value']"
+                    :clearable="false"
+                    :pageIndex="pageIndex"
+                    :params="{TypeName: 'nganhang'}"
+                    :api="getCategories"
+                    :mapFunction="getMapData"
+                    :defaultValue="ruleForm.bankName"
+                    :getMoreAPI="false"
+                    @update-value="(_value, option) => handleChangeOptions(option)"
+                  />
                 </ElFormItem>
               </div>
               <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">

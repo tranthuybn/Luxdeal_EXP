@@ -46,8 +46,11 @@ import {
 import { useValidator } from '@/hooks/web/useValidator'
 import { getEmployeeById } from '@/api/Accountant'
 import { API_URL } from '@/utils/API_URL'
+import InfinitOptions from '@/components/Select/InfinitOptions.vue'
+import { getCategories } from '@/api/LibraryAndSetting'
 
 const centerDialogCancelAccount = ref(false)
+const getMapData = ({id, name, logo}) => ({logo: logo, label: name, value: id,}) 
 const { push } = useRouter()
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
@@ -57,6 +60,7 @@ const curDate = 'NV' + moment().format('hhmmss')
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const escape = useIcon({ icon: 'quill:escape' })
+const pageIndex = ref(1)
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -241,21 +245,6 @@ const optionsGender = [
   {
     value: false,
     label: 'Nữ'
-  }
-]
-
-const bankList = [
-  {
-    value: 499,
-    label: 'Ngân hàng đầu tư và phát triển Việt Nam'
-  },
-  {
-    value: 500,
-    label: 'Ngân hàng công thương Việt Nam'
-  },
-  {
-    value: 501,
-    label: 'Ngân hàng quốc tế'
   }
 ]
 
@@ -678,6 +667,10 @@ watch(
     immediate: true
   }
 )
+
+const handleChangeOptions = (option) => {
+  ruleForm.bankName = option.value
+}
 
 const deleteAccount = async () => {
   await deleteStaffAccount({ Id: id })
@@ -1218,24 +1211,25 @@ const cancelEditPassword = () => {
                   </ElFormItem>
 
                   <ElFormItem
-                    class="flex items-center w-[98%]"
+                    class="flex items-center w-[98%] pl-2"
                     :label="t('reuse.bank')"
                     prop="bankName"
                   >
-                    <el-select
-                      v-model="ruleForm.bankName"
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
+                    <InfinitOptions 
                       :placeholder="t('reuse.selectBank')"
+                      valueKey="value" 
+                      labelKey="label"
                       :disabled="isDisable"
-                    >
-                      <el-option
-                        v-for="item in bankList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
+                      :hiddenKey="['value']"
+                      :clearable="false"
+                      :pageIndex="pageIndex"
+                      :params="{TypeName: 'nganhang'}"
+                      :api="getCategories"
+                      :mapFunction="getMapData"
+                      :defaultValue="ruleForm.bankName"
+                      :getMoreAPI="false"
+                      @update-value="(_value, option) => handleChangeOptions(option)"
+                    />
                   </ElFormItem>
                 </div>
                 <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">

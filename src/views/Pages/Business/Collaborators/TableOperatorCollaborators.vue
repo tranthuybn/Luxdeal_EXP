@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref, onBeforeMount } from 'vue'
+import { PropType, watch, ref, unref, onBeforeMount, reactive } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -14,8 +14,9 @@ import {
   ElMessage,
   ElMessageBox,
   ElNotification,
-  ElImage,
-  ElDivider
+  ElDivider,
+  ElForm,
+  ElFormItem,
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -25,10 +26,23 @@ import { TableResponse } from '@/views/Pages/Components/Type'
 import { useRoute, useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 import { approvalProducts } from '@/api/Approval'
-import { FORM_IMAGES } from '@/utils/format'
+import { FORM_IMAGES, dateTimeFormat } from '@/utils/format'
+import moment from 'moment'
+import { renderStatus } from '@/utils/status'
+
 
 const { t } = useI18n()
-const doCloseOnClickModal = ref(false)
+const dialogImageUrl = ref()
+const route = useRoute()
+const loading = ref(false)
+const tabs = ref()
+const formValue = ref()
+const addIcon = useIcon({ icon: 'uil:plus' })
+const fileList = ref<UploadUserFile[]>([])
+const { push } = useRouter()
+const router = useRouter()
+const currentDate = ref(moment().format("DD/MM/YYYY"))
+const statusHistory = reactive<Array<IStatusHistory>>([])
 const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
@@ -126,10 +140,23 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  customerObj: {
+    type: Object,
+    default: () => {},
+    descriptions: 'Detail customerObj'
+  },
+  model: {
+    type: Number,
+    default: 1
+  }
 })
-const formValue = ref()
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
-
+interface IStatusHistory {
+  statusName: string
+  statusValue: number
+  approveAt: string
+  isActive: boolean
+}
 //get data from table
 const getTableValue = async () => {
   if(props.apiId == null){
@@ -159,13 +186,12 @@ const schema = props.schema
 const { register, methods, elFormRef } = useForm({
   schema
 })
-let fileList = ref<UploadUserFile[]>([])
 
 //formValue lay tu api
 const customizeData = async () => {
   emit('customize-form-data', formValue.value)
 }
-const dialogImageUrl = ref('')
+// const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const imageUrl = ref()
 //set data for form edit and detail
@@ -204,26 +230,12 @@ watch(
   () => props.type,
   () => {
     if (props.type === 'detail') {
-      const { setProps, setSchema } = methods
+      const { setProps } = methods
       setProps({
         disabled: true
       })
-      setSchema(
-        schema.map((component) => ({
-          field: component.field,
-          path: 'componentProps.placeholder',
-          value: ''
-        }))
-      )
-      setSchema([
-        {
-          field: 'description',
-          path: 'componentProps.disabled',
-          value: true
-        }
-      ])
     }
-    if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval-product') {
+    if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval-collab') {
       getTableValue()
     }
   },
@@ -238,12 +250,6 @@ defineExpose({
   setValues: methods.setValues
 })
 
-const route = useRoute()
-const loading = ref(false)
-
-//doc du lieu tu bang roi emit len goi API
-
-const tabs = ref()
 const save = async (type) => {
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
@@ -302,9 +308,6 @@ const save = async (type) => {
     }
   })
 }
-const addIcon = useIcon({ icon: 'uil:plus' })
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 
 //if schema has image then split screen
 let fullSpan = ref<number>()
@@ -331,20 +334,11 @@ const handleRemove = (file: UploadFile) => {
   }
 }
 
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
 //validate Ảnh
-const validImageType = ['jpeg', 'png']
+const validImageType = ['jpeg', 'png', 'pdf', 'vnd.openxmlformats-officedocument.wordprocessingml.document']
 const beforeAvatarUpload = async (rawFile, type: string) => {
   if (rawFile) {
-    //nếu là 1 ảnh
-    if (type === 'single') {
-      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
-        return false
-      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+      if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
         ElMessage.error(t('reuse.onlyAcceptValidImageType'))
         return false
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
@@ -354,29 +348,6 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
         ElMessage.error(t('reuse.checkNameImageLength'))
         return false
       }
-    }
-    //nếu là 1 list ảnh
-    else if (type === 'list') {
-      let inValid = true
-      rawFile.map((file) => {
-        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
-          ElMessage.error(t('reuse.notImageFile'))
-          inValid = false
-        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
-          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-          inValid = false
-          return false
-        } else if (file.size / 1024 / 1024 > 4) {
-          ElMessage.error(t('reuse.imageOver4MB'))
-          inValid = false
-        } else if (file.name?.split('.')[0].length > 100) {
-          ElMessage.error(t('reuse.checkNameImageLength'))
-          inValid = false
-          return false
-        }
-      })
-      return inValid
-    }
     return true
   } else {
     if (props.imageRequired) {
@@ -395,8 +366,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
   }
 }
 //chuyển sang edit nếu ấn nút edit ở chỉnh sửa khi đang ở chế độ xem
-const { push } = useRouter()
-const router = useRouter()
+
 const edit = () => {
   push({
     // name: `human-resource-management.department-directory.${utility}`,
@@ -455,41 +425,32 @@ const cancel = () => {
 }
 //xử lí ảnh
 const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) => {
-  if (!props.multipleImages) {
-    const validImage = await beforeAvatarUpload(uploadFile, 'single')
-    if (validImage) {
-      rawUploadFile.value = uploadFile
-      imageUrl.value = URL.createObjectURL(uploadFile.raw!)
-    } else {
-    }
-  } else {
-    ListFileUpload.value = uploadFiles
-    uploadFiles.map(async (file) => {
-      ;(await beforeAvatarUpload(file, 'single')) ? '' : file.raw ? handleRemove(file) : ''
-    })
+const handleChange: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  // uploadFiles.map(async (file) => {
+  //   ;(await beforeAvatarUpload(file, 'list')) ? '' : file.raw ? handleRemove(file) : ''
+  // })
+  const lastItem = uploadFiles.at(-1)
+  if(lastItem) {
+    ;(await beforeAvatarUpload(lastItem, 'list')) ? '' : lastItem.raw ? handleRemove(lastItem) : ''
   }
 }
-const previewImage = () => {
-  dialogVisible.value = true
-  dialogImageUrl.value = imageUrl.value
-}
-const removeImage = () => {
-  rawUploadFile.value = undefined
-  imageUrl.value = undefined
-}
-
-type ListImages = 'text' | 'picture' | 'picture-card'
-const listType = ref<ListImages>('text')
-!props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 
 onBeforeMount(() => {
   tabs.value = String(route.params.tab)
+  if(props.type === 'add' || props.type === ':type') {
+    statusHistory.push({
+      statusName: t('reuse.newInitialization'),
+      statusValue: 1,
+      isActive: true,
+      approveAt: currentDate.value
+    })
+  }
 })
 
 const approvalId = String(route.params.approvalId)
 const approvalProduct = async () => {
-  const payload = { ItemType: 1, Id: parseInt(approvalId), IsApprove: true }
+  const payload = { ItemType: 4, Id: parseInt(approvalId), IsApprove: true }
   await approvalProducts(FORM_IMAGES(payload))
     .then(() => {
       ElNotification({
@@ -497,7 +458,7 @@ const approvalProduct = async () => {
         type: 'success'
       })
       push({
-        name: `approve.products-approval.newly-initialized`
+        name: `approve.accounts-approval.collaborator-account`
       })
     })
     .catch(() =>
@@ -507,6 +468,33 @@ const approvalProduct = async () => {
       })
     )
 }
+let FileDeleteIds: any = []
+const beforeRemove : any = (uploadFile) => {
+  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Hủy',
+    type: 'warning',
+    draggable: true
+  })
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Delete completed'
+      })
+      let imageRemove = uploadFile.id
+      FileDeleteIds.push(imageRemove)
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Delete canceled'
+      })
+    })
+}
+const handlePictureCardPreview = (file: UploadFile) => {
+  dialogImageUrl.value = file.url!
+  dialogVisible.value = true
+}
 </script>
 <template>
   <ContentWrap :title="props.title" :back-button="props.backButton">
@@ -514,156 +502,192 @@ const approvalProduct = async () => {
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register">
         <template #customerDetail>
-          <slot name="customer"></slot>
+          <ElForm :model="customerObj" label-width="146px">
+              <ElFormItem :label="t('formDemo.customerName')" prop="name" v-if="customerObj.name">
+                {{ customerObj.name }}
+              </ElFormItem>
+              <ElFormItem :label="t('formDemo.taxCode')" v-if="customerObj.taxCode">
+                {{ customerObj.taxCode }}
+              </ElFormItem>
+              <ElFormItem :label="t('formDemo.represent')" v-if="customerObj.representative">
+                {{ customerObj.representative }}
+              </ElFormItem>
+              <ElRow :gutter="10">
+                <ElCol :span="10">
+                  <ElFormItem
+                    :label="t('reuse.phoneNumber')"
+                    v-if="customerObj.phonenumber"
+                  >
+                    {{ customerObj.phonenumber }}
+                  </ElFormItem>
+                </ElCol>
+                <ElCol :span="8">
+                  <ElFormItem
+                    label-width="auto"
+                    :label="`${t('reuse.email')}:`"
+                    v-if="customerObj.email"
+                  >
+                    {{ customerObj.email }}
+                  </ElFormItem>
+                </ElCol>
+              </ElRow>
+              <ElRow :gutter="10">
+                <ElCol :span="10">
+                  <ElFormItem
+                    :label="t('reuse.citizenIdentificationNumber')"
+                    v-if="customerObj.cccd"
+                  >
+                    {{ customerObj.cccd }}
+                  </ElFormItem>
+                </ElCol>
+                <ElCol :span="7">
+                  <ElFormItem
+                    label-width="auto"
+                    :label="`${t('formDemo.supplyDate')}:`"
+                    v-if="customerObj.cccdCreateAt"
+                  >
+                    {{ dateTimeFormat(customerObj.cccdCreateAt) }}
+                  </ElFormItem>
+                </ElCol>
+                <ElCol :span="7">
+                  <ElFormItem
+                    label-width="auto"
+                    :label="`${t('formDemo.supplyAddress')}:`"
+                    v-if="customerObj.cccdPlaceOfGrant"
+                  >
+                    <span class="leading-5">{{ customerObj.cccdPlaceOfGrant }}</span>
+                  </ElFormItem>
+                </ElCol>
+              </ElRow>
+              <ElFormItem
+                :label="t('reuse.dateOfBirth')"
+                v-if="customerObj.doB"
+              >
+                {{ dateTimeFormat(customerObj.doB) }}
+              </ElFormItem>
+              <ElFormItem
+                :label="t('reuse.gender')"
+                v-if="customerObj.sex"
+              >
+                {{ customerObj.sex ? t('reuse.male') : t('reuse.female') }}
+              </ElFormItem>
+              <ElFormItem :label="t('formDemo.address')" v-if="customerObj.address">
+                {{ customerObj.address }}
+              </ElFormItem>
+              <ElFormItem
+                class="leading-5"
+                :label="t('reuse.accountBank')"
+                v-if="customerObj.bankId"
+              >
+                <ul class="leading-7">
+                  <li>{{ customerObj.accountName }}</li>
+                  <li>{{ customerObj.accountNumber }}</li>
+                  <li>{{ customerObj.bankName }}</li>
+                </ul>
+              </ElFormItem>
+            </ElForm>
+        </template>
+        <template #status>
+          <div          
+            v-for="(item, index) in statusHistory"
+            :key="index"
+           >
+            <div class="mr-5 flex flex-col justify-start gap-2 ">
+                <div>
+                  <span
+                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                  ></span>
+                  <span class="box dark:text-divck" :class="[renderStatus(item.statusValue), {'active': index == statusHistory.length - 1}]" >
+                    {{item.statusName }}    
+                    <span class="right"></span>
+                  </span>
+                </div>
+                <div class="italic text-xs text-gray-500">{{dateTimeFormat(item.approveAt)}}</div>
+            </div>
+          </div>
         </template>
         </Form>
       </ElCol>
       <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
-        <ElDivider class="text-center font-bold ml-2">{{ t('reuse.addImage') }}</ElDivider>
-        <el-upload
-          action="#"
-          :disabled="props.type === 'detail'"
-          :auto-upload="false"
-          :show-file-list="multipleImages"
-          v-model:file-list="fileList"
-          :list-type="listType"
-          :limit="limitUpload"
-          :on-change="handleChange"
-          :multiple="multipleImages"
-          :class="multipleImages ? '' : 'avatar-uploader'"
-        >
-          <div v-if="!multipleImages">
-            <div
-              v-if="imageUrl"
-              style="width: 148px; height: 148px; border-radius: 4px"
-              class="flex justify-center relative mb-2"
-            >
-              <ElImage fit="contain" :src="imageUrl" class="avatar" />
-            </div>
-            <ElButton
-              v-else
-              :icon="addIcon"
-              style="border: dashed 1px #e5e7eb"
-              class="avatar-uploader-icon"
-            />
-          </div>
-          <div v-else>
-            <ElButton :icon="addIcon" />
-          </div>
-          <template #file="{ file }">
-            <div class="ml-auto mr-auto">
-              <ElImage fit="contain" style="width: 148px; height: 148px" :src="file.url" alt="" />
-              <span class="el-upload-list__item-actions">
-                <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
-                  <ElButton :icon="viewIcon" />
-                </span>
-                <span
-                  v-if="props.type !== 'detail'"
-                  class="el-upload-list__item-delete"
-                  @click="handleRemove(file)"
-                >
-                  <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" />
-                </span>
-              </span>
-            </div>
-          </template>
-        </el-upload>
-        <div
-          class="w-250px flex justify-center"
-          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
-          v-if="imageUrl"
-        >
-          <ElButton :icon="viewIcon" @click="previewImage" />
-          <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
+        <ElDivider content-position="left" class="font-bold ml-2">{{ t('formDemo.attachments') }}</ElDivider>
+       <div class="flex">
+        <div class="pr-4">
+          <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
+          <div class="text-right text-[#FECB80] italic">{{ t('formDemo.lessThanTenProfiles') }}</div>
         </div>
-        <el-dialog :close-on-click-modal="doCloseOnClickModal" top="5vh" v-model="dialogVisible" width="130vh">
-          <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
-        </el-dialog>
+        <div>
+          <el-upload
+            ref="upload"
+            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            :disabled="props.type === 'detail'"
+            :auto-upload="false"
+            list-type="picture"
+            v-model:file-list="fileList"
+            :limit="10"
+            :on-change="handleChange"
+            :multiple="true"
+            :before-remove="beforeRemove"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+          >
+           <ElButton :icon="addIcon">{{ t('formDemo.addPhotosOrFiles') }}</ElButton>
+          </el-upload>
+          <el-dialog v-model="dialogVisible">
+             <img h-full :src="dialogImageUrl" alt="Preview Image" />
+          </el-dialog>
+        </div>
+       </div>
       </ElCol>
     </ElRow>
     <template #under v-if="!removeButton">
-      <div class="w-[100%]" v-if="props.type === 'add'">
+      <div class="w-[100%]" v-if="type === 'add'">
         <div class="w-[50%] flex justify-left gap-2 ml-8">
           <ElButton type="primary" :loading="loading" @click="save('add')">
-            {{ t('reuse.save') }}
+            {{ model === 1 ?  t('reuse.saveAndPending') : t('reuse.saveAndComfirm')}}
           </ElButton>
-          <ElButton type="primary" :loading="loading" @click="save('saveAndAdd')">
-            {{ t('reuse.saveAndAdd') }}
+          <ElButton v-if="model === 2" type="primary" :loading="loading">
+            {{ t('reuse.paidAndFinish')}}
           </ElButton>
-          <ElButton :loading="loading" @click="cancel()">
-            {{ t('reuse.cancel') }}
+          <ElButton type="danger" :loading="loading" @click="cancel()">
+            {{ model === 1 ? t('formDemo.cancelAccount') : t('formDemo.cancelRequest') }}
           </ElButton>
         </div>
       </div>
-      <div class="w-[100%]" v-if="props.type === 'edit'">
+      <div class="w-[100%]" v-if="type === 'edit'">
         <div class="w-[50%] flex justify-left gap-2 ml-5">
           <ElButton :loading="loading" type="primary" @click="save('edit')">
             {{ t('reuse.save') }}
           </ElButton>
-          <ElButton v-if="props.showSaveAndAddBtnOnTypeEdit" :loading="loading" type="primary" @click="save('saveAndAdd')">
+          <ElButton v-if="showSaveAndAddBtnOnTypeEdit" :loading="loading" type="primary" @click="save('saveAndAdd')">
             {{ t('reuse.saveAndAdd') }}
           </ElButton>
-          <ElButton :disabled="props.disabledCancelBtn" :loading="loading" @click="cancel">
+          <ElButton :loading="loading" @click="cancel">
             {{ t('reuse.cancel') }}
           </ElButton>
         </div>
       </div>
-      <div class="w-[100%]" v-if="props.type === 'detail'">
-        <div class="w-[50%] flex justify-left gap-2 ml-5">
+      <div class="w-[100%]" v-if="type === 'detail'">
+        <div v-if="model === 1 && formValue.isApp" class="w-[50%] flex justify-left gap-2 ml-5">
           <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
             {{ t('reuse.fix') }}
           </ElButton>
           <ElButton class="pl-8 pr-8" type="danger" :loading="loading" @click="delAction">
-            {{ t('reuse.delete') }}
+            {{ model === 1 ? t('formDemo.cancelAccount') : t('formDemo.cancelRequest') }}
           </ElButton>
         </div>
       </div>
-      <div class="pl-57" v-if="props.type === 'approval-product'">
-        <el-button @click="approvalProduct" class="min-w-[120px]" type="warning">Duyệt</el-button>
-        <el-button class="min-w-[120px]">Không duyệt</el-button>
+      <div class="pl-57" v-if="type === 'approval-collab'">
+        <el-button @click="approvalProduct" class="min-w-[120px]" type="warning">{{ t('router.approve') }}</el-button>
+        <el-button class="min-w-[120px]">{{ t('router.notApproval') }}</el-button>
       </div>
     </template>
   </ContentWrap>
 </template>
-<style scoped>
-.avatar-uploader .avatar {
-  display: block;
-  width: 250px;
-  padding-bottom: 1rem;
-}
-
-.avatar-uploader .el-upload {
-  position: relative;
-  margin-left: 2rem;
-  overflow: hidden;
-  cursor: pointer;
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader :deep(.el-upload) {
-  display: flex;
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.avatar-uploader-icon {
-  width: 148px;
-  height: 148px;
-}
-
-.one-avatar-uploader {
-  display: flex;
-  justify-content: center;
-  margin: 0 auto;
-}
+<style lang="scss" scoped>
+@import '@/styles/statusHistory.scss' ;
 
 :deep(.el-dialog__body) {
   display: flex;
-  max-height: 85vh;
   overflow: auto;
   justify-content: center;
 }
@@ -673,4 +697,22 @@ const approvalProduct = async () => {
   min-height: 40px;
 }
 
+::v-deep(.el-upload--picture-card) {
+  background-color: unset;
+  border: unset;
+  align-items: flex-start;
+  button {
+    font-size: 13px;
+  }
+}
+
+::v-deep(.readonly-info) {
+  .el-input__wrapper{
+    box-shadow: none;
+    padding: 0
+  }
+}
+.box{ 
+    line-height: 23px !important; 
+ }
 </style>

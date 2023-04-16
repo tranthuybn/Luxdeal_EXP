@@ -907,6 +907,8 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    paidAndFinish: 'Paid & Finish',
+    saveAndComfirm: 'Save & comfirm',
     orderIsNotEligibleForPromotion: 'Order value is not eligible for promotion',
     sendVoucherSuccess: 'Send voucher success',
     sendVoucherFail: 'Send voucher fail',

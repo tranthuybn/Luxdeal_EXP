@@ -371,8 +371,9 @@ export const VoucherType = (val) => {
 }
 
 export const dateTimeFormat = (val) => {
-  if (val) return moment(val).format('DD/MM/YYYY')
-  return ''
+  const format = 'YYYY-MM-DD HH:mm:ss';
+  if (moment(val, format, true).isValid()) return moment(val).format('DD/MM/YYYY')
+  return val
 }
 
 export const statusBranch = (val) => {

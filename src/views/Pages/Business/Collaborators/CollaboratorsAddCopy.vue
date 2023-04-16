@@ -19,8 +19,6 @@ import { useRouter } from 'vue-router'
 import { getAllCustomer, getCustomerById } from '@/api/Business'
 import { GenerateCodeOrder } from '@/api/common'
 import {
-  ElForm,
-  ElFormItem,
   ElCollapse,
   ElCollapseItem,
   ElButton,
@@ -68,7 +66,7 @@ const collapse: Array<Collapse> = [
   }
 ]
 
-const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email  })
+const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, phonenumber, name, id, email  })
 
 onBeforeMount(async () => {
   await GenerateCodeOrder({CodeType :3})
@@ -187,7 +185,7 @@ const schema = reactive<FormSchema[]>([
       clearable: false,
       showDetailOption: true,
       fields: [t('reuse.customerCode'),t('reuse.phoneNumber'),t('reuse.customerName')],
-      onChange: setCustomer
+      onChange: setCustomer,
     },
     colProps: {
       span: 24
@@ -213,11 +211,12 @@ const schema = reactive<FormSchema[]>([
     },
     value: false,
     componentProps: {
-      label: t('formDemo.isActive')
+      label: t('formDemo.isActive'),
+      disabled: true
     }
   },
   {
-    field: 'statusHistory',
+    field: 'status',
     label: t('formDemo.statusAccount'),
     colProps: {
       span: 24
@@ -261,7 +260,6 @@ const cancel = async () => {
 
 
 const customizeData = async (data) => {
-  console.log('data', data)
   setFormData.code = data.code
   setFormData.discount = data.discount
   setFormData.customerId = data.customerId
@@ -355,112 +353,8 @@ const postData = async (data) => {
           :formDataCustomize="setFormData"
           :delApi="cancelCustomerCollabolator"
           :multipleImages="true"
-        >
-          <template #customer>
-            <ElForm :model="customerObj" label-width="120px">
-              <ElFormItem :label="t('formDemo.customerName')" prop="name" v-if="customerObj.name">
-                <div class="leading-4">
-                  <div class="ml-5">{{ customerObj.name }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem :label="t('formDemo.taxCode')" v-if="customerObj.taxCode">
-                <div class="leading-4">
-                  <div class="ml-5">{{ customerObj.taxCode }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem :label="t('formDemo.represent')" v-if="customerObj.representative">
-                <div class="leading-4">
-                  <div class="ml-5">{{ customerObj.representative }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                class="w-[33%]"
-                style="display: inline-block"
-                :label="t('reuse.phoneNumber')"
-                v-if="customerObj.phonenumber"
-              >
-                <div class="leading-4">
-                  <div class="ml-5">{{ customerObj.phonenumber }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                class="w-[50%]"
-                style="display: inline-block"
-                :label="t('reuse.email')"
-                v-if="customerObj.email"
-              >
-                <div class="leading-4">
-                  <div class="ml-5">{{ customerObj.email }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                class="w-[35%]"
-                style="display: inline-block"
-                :label="t('reuse.citizenIdentificationNumber')"
-                v-if="customerObj.cccd"
-              >
-                <div class="leading-4">
-                  <div class="ml-5">{{ customerObj.cccd }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                style="display: inline-block"
-                :label="t('formDemo.supplyDate')"
-                v-if="customerObj.cccdCreateAt"
-              >
-                <div class="leading-4">
-                  <div class="ml-5">{{ dateTimeFormat(customerObj.cccdCreateAt) }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                style="display: inline-block"
-                :label="t('formDemo.supplyAddress')"
-                v-if="customerObj.cccdPlaceOfGrant"
-              >
-                <div class="leading-4">
-                  <div class="ml-5">{{ customerObj.cccdPlaceOfGrant }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                class="w-[33%]"
-                style="display: inline-block"
-                :label="t('reuse.dateOfBirth')"
-                v-if="customerObj.doB"
-              >
-                <div class="leading-4">
-                  <div class="ml-5">{{ dateTimeFormat(customerObj.doB) }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                style="display: inline-block"
-                :label="t('reuse.gender')"
-                v-if="customerObj.sex"
-              >
-                <div class="leading-4">
-                  <div class="ml-5">{{
-                    customerObj.sex ? t('reuse.male') : t('reuse.female')
-                  }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem :label="t('formDemo.address')" v-if="customerObj.address">
-                <div class="leading-4">
-                  <div class="ml-5">{{ customerObj.address }}</div>
-                </div>
-              </ElFormItem>
-              <ElFormItem
-                style="align-items: flex-start"
-                :label="t('reuse.accountBank')"
-                v-if="customerObj.bankId"
-              >
-                <div class="leading-4">
-                  <div class="ml-5">{{ customerObj.accountName }}</div>
-                  <div class="ml-5">{{ customerObj.accountNumber }}</div>
-                  <div class="ml-5">{{ customerObj.bankName }}</div>
-                </div>
-              </ElFormItem>
-            </ElForm>
-          </template>
-         </TableOperatorCollaborators>
+          :customerObj="customerObj"
+        />
         
       </el-collapse-item>
       <el-collapse-item :name="collapse[1].title">
@@ -525,11 +419,5 @@ const postData = async (data) => {
 <style lang="less" scoped>
   ::v-deep(.btn-wrap) {
     margin-left: 150px;
-  }
-  ::v-deep(.readonly-info) {
-    .el-input__wrapper{
-      box-shadow: none;
-      padding: 0
-    }
   }
 </style>

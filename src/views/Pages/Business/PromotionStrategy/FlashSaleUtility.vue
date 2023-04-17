@@ -36,7 +36,10 @@ const rules = reactive({
   shortDescription: [required(), { validator: ValidService.checkDescriptionLength.validator }]
 })
 //
-
+const disabledDate = (date) => {
+  console.log('date', date)
+  return date.getTime() < Date.now()
+}
 
 const schema = reactive<FormSchema[]>([
   {
@@ -55,7 +58,8 @@ const schema = reactive<FormSchema[]>([
       span: 24
     },
     componentProps: {
-      disabled: true
+      readonly: true,
+      class: 'readonly-info',
     },
     value: curDate
   },
@@ -120,7 +124,8 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       format: 'DD/MM/YYYY',
       valueFormat: 'YYYY-MM-DD',
-      type: 'daterange'
+      type: 'daterange',
+      disabledDate: disabledDate
     }
   },
   {
@@ -512,3 +517,10 @@ const editData = async (data) => {
     </el-collapse>
   </div>
 </template>
+<style lang="less" scoped>
+
+  ::v-deep(.btn-wrap) {
+    margin-left: 185px;
+  }
+
+</style>

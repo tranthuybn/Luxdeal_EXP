@@ -25,7 +25,7 @@ import type { UploadFile } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { API_URL } from '@/utils/API_URL'
 import { approvalProducts } from '@/api/Approval'
-import { FORM_IMAGES, dateTimeFormat } from '@/utils/format'
+import { FORM_IMAGES } from '@/utils/format'
 import { statusService } from '@/utils/status'
 import moment from 'moment'
 import { TableResponse } from '@/views/Pages/Components/Type'
@@ -702,6 +702,7 @@ const setStatusHistory = () => {
   ]
   if(statusHistory.length > 0) statusHistory.splice(0, statusHistory.length)
   statusHistory.push(...newStatus)
+  console.log('statusHistory', statusHistory)
 }
 
 const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email  })
@@ -775,7 +776,7 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
                           <span class="triangle-right"></span>
                         </span>
                       </div>
-                      <div class="italic text-xs text-gray-500">{{dateTimeFormat(item.approvedAt)}}</div>
+                      <div class="italic text-xs text-gray-500">{{item.approvedAt}}</div>
                   </div>
                 </div>
               </div>

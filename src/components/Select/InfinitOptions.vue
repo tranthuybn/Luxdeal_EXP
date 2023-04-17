@@ -117,7 +117,6 @@ const callAPI = async (pageIndex: number) => {
   if(data.length > 0) {
     const arr = data.map(propsObj.mapFunction)
     options.value.push(...arr);  
-    console.log('options', options.value)
   }
 }
 

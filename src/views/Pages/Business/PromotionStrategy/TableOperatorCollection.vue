@@ -1519,4 +1519,10 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
   }
 }
 
+::v-deep(.readonly-info) {
+  .el-input__wrapper{
+    box-shadow: none;
+    padding: 0
+  }
+}
 </style>

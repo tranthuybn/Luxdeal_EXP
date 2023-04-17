@@ -371,8 +371,7 @@ export const VoucherType = (val) => {
 }
 
 export const dateTimeFormat = (val) => {
-  const format = 'YYYY-MM-DD HH:mm:ss';
-  if (moment(val, format, true).isValid()) return moment(val).format('DD/MM/YYYY')
+  if (val) return moment(val).format('DD/MM/YYYY')
   return val
 }
 

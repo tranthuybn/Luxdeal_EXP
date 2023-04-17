@@ -31,7 +31,6 @@ export const changeMoney = new Intl.NumberFormat('vi', {
 })
 
 export const formartDate = (date) => {
-  console.log('date',  moment(date, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY'))
   if(date) return moment(date, 'YYYY-MM-DD HH:mm:ss').format('DD/MM/YYYY')
   return ''
 }

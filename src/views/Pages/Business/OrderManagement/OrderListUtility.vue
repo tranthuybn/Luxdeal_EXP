@@ -1019,7 +1019,7 @@ const autoCalculateOrder = () => {
   
   totalPriceOrder.value = ListOfProductsForSale.value
     .filter((val) => val.totalPrice)
-    .reduce((acc, val) => acc + parseInt(val.totalPrice), 0);
+    .reduce((acc, val) => acc + Number(val.totalPrice), 0);
   if (promoMin.value && totalPriceOrder.value > promoMin.value) {
     totalFinalOrder.value = promoCash.value !== 0
       ? totalPriceOrder.value - promoCash.value

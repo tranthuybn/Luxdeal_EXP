@@ -15,7 +15,7 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { ElMessage, ElNotification } from 'element-plus'
 import { API_URL } from '@/utils/API_URL'
 
-const { required, ValidService, notSpecialCharacters } = useValidator()
+const { required, ValidService } = useValidator()
 const { t } = useI18n()
 let rank1SelectOptions = reactive([])
 let timesCallAPI = 0
@@ -178,13 +178,11 @@ const rules = reactive({
   rankCategory: [required()],
   name: [
     required(),
-    { validator: notSpecialCharacters },
     { validator: ValidService.checkNameServiceLength.validator },
     { validator: ValidService.checkSpace.validator }
   ],
   parentid: [
     required(),
-    { validator: notSpecialCharacters },
     { validator: ValidService.checkNameServiceLength.validator },
     { validator: ValidService.checkSpace.validator }
   ],
@@ -407,3 +405,9 @@ const editData = async (data) => {
     :delApi="deleteCategory"
   />
 </template>
+
+<style lange="less" scoped>
+  ::v-deep(.btn-wrap) {
+    margin-left: 140px;
+  }
+</style>

@@ -731,22 +731,21 @@ const getValueOfSelected = async (value, obj, scope) => {
 
 const autoCalculateOrder = () => {
   checkInputPriceChange.value = false
-  totalPriceOrder.value = 0
-  totalFinalOrder.value = 0
-  ListOfProductsForSale.value.forEach((val) => {
-    if (val.totalPrice) totalPriceOrder.value += val.totalPrice
-  })
 
-  if(totalPriceOrder.value > promoMin.value) {
-    promoCash.value != 0
-      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
-      : (totalFinalOrder.value =
-          totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
-  } else {
+  totalPriceOrder.value = ListOfProductsForSale.value
+    .filter((val) => val.totalPrice)
+    .reduce((acc, val) => acc + Number(val.totalPrice), 0);
+  if (promoMin.value && totalPriceOrder.value > promoMin.value) {
+    totalFinalOrder.value = promoCash.value !== 0
+      ? totalPriceOrder.value - promoCash.value
+      : totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100;
+    showPromo.value = true;
+    openDialogChoosePromotion.value = false;
+  } else if (promoMin.value) {
     ElNotification({
-        message: t('reuse.orderIsNotEligibleForPromotion'),
-        type: 'warning'
-    })
+      message: t('reuse.orderIsNotEligibleForPromotion'),
+      type: 'warning',
+    });
   }
 
 
@@ -869,22 +868,36 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val) => {
-  if(totalPriceOrder.value > val?.min) {
-    promoCash.value = 0
-    promoValue.value = 0
-    currentRow.value = val
-    promo.value = val
-    promo.value?.reduceCash != 0
-      ? (promoCash.value = promo.value.reduceCash)
-      : (promoValue.value = promo.value?.reducePercent)
-    changeRowPromo()
-    checkPromo.value = true
-    return
+  // if(totalPriceOrder.value > val?.min) {
+  //   promoCash.value = 0
+  //   promoValue.value = 0
+  //   currentRow.value = val
+  //   promo.value = val
+  //   promo.value?.reduceCash != 0
+  //     ? (promoCash.value = promo.value.reduceCash)
+  //     : (promoValue.value = promo.value?.reducePercent)
+  //   changeRowPromo()
+  //   checkPromo.value = true
+  //   return
+  // }
+  // ElNotification({
+  //   message: t('reuse.orderIsNotEligibleForPromotion'),
+  //   type: 'warning'
+  // })
+  const { min, reduceCash, reducePercent } = val || {}
+  if (!min) return;
+  if (totalPriceOrder.value > min) {
+    promoCash.value = reduceCash || 0;
+    promoValue.value = reducePercent || 0;
+    currentRow.value = promo.value = val;
+    changeRowPromo();
+    checkPromo.value = true;
+  } else {
+    ElNotification({
+      message: t('reuse.orderIsNotEligibleForPromotion'),
+      type: 'warning',
+    });
   }
-  ElNotification({
-    message: t('reuse.orderIsNotEligibleForPromotion'),
-    type: 'warning'
-  })
 }
 
 const dialogPaymentVoucher = ref(false)

@@ -39,6 +39,9 @@ import {
 } from './ProductLibraryManagement'
 import { approvalProducts } from '@/api/Approval'
 import { FORM_IMAGES } from '@/utils/format'
+import ProductAttribute from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductAttribute.vue'
+import { GenerateCodeOrder } from '@/api/common'
+
 const { t } = useI18n()
 
 const props = defineProps({
@@ -105,6 +108,18 @@ const props = defineProps({
   apiStatus: {
     type: Boolean,
     default: true
+  },
+  showButton: {
+    type: Boolean,
+    default: true
+  },
+  addQuickProduct: {
+    type: Boolean,
+    default: false
+  },
+  close: {
+    type: Function as PropType<(evt: MouseEvent) => void>,
+    default: (_event: MouseEvent) => {}
   }
 })
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data','disabled'])
@@ -265,6 +280,11 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
         data.disabledTabOpen = true
+        if(props.addQuickProduct) {
+          await GenerateCodeOrder({CodeType:1,Code:'SP'}).then((res)=>{
+            data.quickManagementCode = res.data
+          })
+        }
         emit('post-data', data)
         //emit a callback function to check if Promise success or fail
         //use this to get the statusResult of emit event
@@ -675,6 +695,14 @@ const approvalProduct = async () => {
     )
 }
 const loading = ref(false)
+const attributeChange = (attributeArray, form) => {
+  form.productCharacteristics = attributeArray.map(e=>({
+    id:e.value,
+    key: e.label,
+    value: e.label
+  }))
+}
+
 </script>
 <template>
   <ContentWrap :title="props.title">
@@ -709,8 +737,8 @@ const loading = ref(false)
               <p class="text-[#FECB80]">{{ t('reuse.forAllAttribute') }}</p>
             </div>
           </template>
-          <template #ProductCode-label>
-            <div class="w-2/3 text-right ml-2 leading-5">
+          <template  #ProductCode-label>
+            <div v-if="!addQuickProduct" class="w-2/3 text-right ml-2 leading-5">
               <label>{{ t('reuse.productCode') }}</label>
               <p class="text-[#a1a1a1]">{{ t('reuse.productCodeDescription') }}</p>
             </div>
@@ -799,6 +827,9 @@ const loading = ref(false)
               <span class="bg-orange-100 text-orange-300 px-2">{{ t('reuse.pendings') }}</span>
               </div>
           </template>
+          <template #productCharacteristics="form">
+            <ProductAttribute @change-value="(attributeArray) => attributeChange(attributeArray, form)" class="w-full"/>
+          </template>
         </Form>
       </ElCol>
       <ElCol
@@ -864,7 +895,6 @@ const loading = ref(false)
       </ElCol>
     </ElRow>
     <template #under>
-      <!-- <div class="w-\[12\%\]"></div> -->
       <div v-if="props.type === 'add' || isNaN(props.id)">
         <!-- <div v-if="props.typeButton === 'form01'">
                       <ElButton type="primary"  @click="save('add')">
@@ -882,11 +912,14 @@ const loading = ref(false)
         <ElButton type="primary" @click="save('add')" :disabled="disabledUpload">
           {{ t('reuse.save') }}
         </ElButton>
-        <ElButton type="primary" @click="save('saveAndAdd')" :disabled="disabledUpload">
+        <ElButton v-if="showButton" type="primary" @click="save('saveAndAdd')" :disabled="disabledUpload">
           {{ t('reuse.saveAndAdd') }}
         </ElButton>
-        <ElButton @click="cancel">
+        <ElButton v-if="showButton"  @click="cancel">
           {{ t('reuse.cancel') }}
+        </ElButton>
+        <ElButton v-else @click="close">
+          {{ t('reuse.exit') }}
         </ElButton>
       </div>
       <div v-if="props.type === 'detail'">

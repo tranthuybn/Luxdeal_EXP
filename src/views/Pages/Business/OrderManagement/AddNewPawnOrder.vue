@@ -2434,7 +2434,8 @@ const getFormPayment = () => {
 
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
-    <el-collapse v-model="activeName" @change="collapseChangeEvent" :class="[
+    <el-collapse
+v-model="activeName" @change="collapseChangeEvent" :class="[
       'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
     ]">
       <div id="recpPaymentPrint">
@@ -2447,12 +2448,14 @@ const getFormPayment = () => {
       </div>
       <div id="billPrint">
             <slot>
-              <billPrint v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceBill"
+              <billPrint
+v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceBill"
                 :nameDialog="nameDialog" />
             </slot>
           </div>
       <!-- Thông tin dialog in phiếu thanh toán cầm đồ -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="Printpayment" class="font-bold" width="40%"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="Printpayment" class="font-bold" width="40%"
         align-center>
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
@@ -2462,7 +2465,8 @@ const getFormPayment = () => {
           </div>
           <div class="dialog-content">
             <slot>
-              <billPrint v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceBill"
+              <billPrint
+v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceBill"
                 :nameDialog="nameDialog" />
             </slot>
           </div>
@@ -2474,7 +2478,8 @@ const getFormPayment = () => {
         </template>
       </el-dialog>
       <!--  -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="PrintpaymentOrderPrint" class="font-bold"
         width="40%" align-center>
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
@@ -2484,7 +2489,8 @@ const getFormPayment = () => {
           </div>
           <div class="dialog-content">
             <slot>
-              <paymentOrderPrint v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit"
+              <paymentOrderPrint
+v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit"
                 :dataSent="formPaymentRequest" />
             </slot>
           </div>
@@ -2495,7 +2501,8 @@ const getFormPayment = () => {
           </span>
         </template>
       </el-dialog>
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="PrintReceipts" class="font-bold" width="40%"
         align-center>
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
@@ -2516,7 +2523,8 @@ const getFormPayment = () => {
         </template>
       </el-dialog>
       <!-- Dialog thêm nhanh khách hàng -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogAddQuick" width="40%" align-center
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="dialogAddQuick" width="40%" align-center
         :title="t('formDemo.QuicklyAddCustomers')">
         <div v-if="valueClassify == true">
           <el-divider />
@@ -2532,7 +2540,8 @@ const getFormPayment = () => {
                 </div>
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option v-for="item in optionsCustomer" :key="item.value" :label="item.label"
+                    <el-option
+v-for="item in optionsCustomer" :key="item.value" :label="item.label"
                       :value="item.value" />
                   </el-select>
                 </div>
@@ -2541,7 +2550,8 @@ const getFormPayment = () => {
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right">{{ t('formDemo.companyName') }} <span
                   class="text-red-500">*</span></label>
-              <el-input v-model="addQuickCustomerName" style="width: 100%"
+              <el-input
+v-model="addQuickCustomerName" style="width: 100%"
                 :placeholder="t('formDemo.enterCompanyName')" />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
@@ -2550,7 +2560,8 @@ const getFormPayment = () => {
             </div>
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right">{{ t('formDemo.representative') }}</label>
-              <el-input v-model="quickRepresentative" style="width: 100%"
+              <el-input
+v-model="quickRepresentative" style="width: 100%"
                 :placeholder="t('formDemo.enterRepresentative')" />
             </div>
             <div class="flex gap-4 pt-4 pb-4">
@@ -2577,7 +2588,8 @@ const getFormPayment = () => {
                 </div>
                 <div class="w-[50%] fix-full-width">
                   <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option v-for="item in optionsCustomer" :key="item.value" :label="item.label"
+                    <el-option
+v-for="item in optionsCustomer" :key="item.value" :label="item.label"
                       :value="item.value" />
                   </el-select>
                 </div>
@@ -2586,7 +2598,8 @@ const getFormPayment = () => {
 
             <div class="flex gap-4 pt-4 pb-4">
               <label class="w-[30%] text-right">{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label>
-              <el-input v-model="addQuickCustomerName" style="width: 100%"
+              <el-input
+v-model="addQuickCustomerName" style="width: 100%"
                 :placeholder="t('formDemo.enterCustomerName')" />
             </div>
 
@@ -2602,7 +2615,8 @@ const getFormPayment = () => {
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button type="primary" class="w-[150px]" @click.stop.prevent="
+            <el-button
+type="primary" class="w-[150px]" @click.stop.prevent="
               () => {
                 dialogAddQuick = false
                 createQuickCustomer()
@@ -2623,19 +2637,22 @@ const getFormPayment = () => {
         </template>
         <div class="flex w-[100%] gap-6">
           <div class="w-[50%]">
-            <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="181px" class="demo-ruleForm"
+            <el-form
+ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="181px" class="demo-ruleForm"
               status-icon>
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
 
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
-                <el-input :disabled="disableCreateOrder" v-model="ruleForm.orderCode" style="width: 100%"
+                <el-input
+:disabled="disableCreateOrder" v-model="ruleForm.orderCode" style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')" />
                 <!-- :disabled="disableCreateOrder" -->
               </el-form-item>
 
               <div class="css-form_has-child mb-2">
                 <el-form-item :label="t('formDemo.pawnTerm')" prop="pawnTerm">
-                  <el-date-picker :disabled="disableEditData" v-model="ruleForm.pawnTerm" type="daterange"
+                  <el-date-picker
+:disabled="disableEditData" v-model="ruleForm.pawnTerm" type="daterange"
                     :start-placeholder="t('formDemo.startDay')" :end-placeholder="t('formDemo.endDay')"
                     :disabled-date="disabledDate" format="DD/MM/YYYY" />
                   <template #label>
@@ -2653,11 +2670,13 @@ const getFormPayment = () => {
               <div class="flex gap-2 items-center">
                 <div class="w-[60%] max-w-[531.5px]">
                   <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
-                    <el-select :disabled="checkDisabled" v-model="ruleForm.collaborators"
+                    <el-select
+:disabled="checkDisabled" v-model="ruleForm.collaborators"
                       @change="(data) => autoCollaboratorCommission(data)"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')" filterable>
                       <div @scroll="scrolling" id="content">
-                        <el-option v-for="(item, index) in optionsCollaborators" :key="index" :label="item.label"
+                        <el-option
+v-for="(item, index) in optionsCollaborators" :key="index" :label="item.label"
                           :value="item.value" />
                       </div>
                     </el-select>
@@ -2666,7 +2685,8 @@ const getFormPayment = () => {
                 <div class="w-[40%]">
                   <el-form-item prop="collaboratorCommission" class="fix-err" label-width="0">
                     <div class="flex items-center">
-                      <el-input :disabled="checkDisabled" v-model="ruleForm.collaboratorCommission"
+                      <el-input
+:disabled="checkDisabled" v-model="ruleForm.collaboratorCommission"
                         class="w-[100%] border-none outline-none pl-2 bg-transparent"
                         :placeholder="t('formDemo.enterDiscount')" :suffix-icon="percentIcon" />
                     </div>
@@ -2675,7 +2695,8 @@ const getFormPayment = () => {
               </div>
 
               <el-form-item :label="t('formDemo.orderNotes')" prop="orderNotes">
-                <el-input v-model="ruleForm.orderNotes" :disabled="checkDisabled" style="width: 100%" type="text"
+                <el-input
+v-model="ruleForm.orderNotes" :disabled="checkDisabled" style="width: 100%" type="text"
                   :placeholder="`${t('formDemo.addNotes')}`" />
               </el-form-item>
             </el-form>
@@ -2698,7 +2719,8 @@ const getFormPayment = () => {
         </div>
         <div class="flex w-[100%]">
           <div class="w-[100%]">
-            <el-form ref="ruleFormRef2" :model="ruleForm" status-icon :rules="rules" label-width="180px"
+            <el-form
+ref="ruleFormRef2" :model="ruleForm" status-icon :rules="rules" label-width="180px"
               class="demo-ruleForm">
               <div class="flex w-[100%] gap-8">
                 <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
@@ -2713,7 +2735,8 @@ const getFormPayment = () => {
                     <el-form-item label-width="0" prop="customerName" width="100%">
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
-                          <MultipleOptionsBox :fields="[
+                          <MultipleOptionsBox
+:fields="[
                             t('reuse.customerCode'),
                             t('reuse.customerName'),
                             t('reuse.customerInfo')
@@ -2741,7 +2764,8 @@ const getFormPayment = () => {
                   <el-form-item :label="t('reuse.chooseImportWarehouse')" prop="warehouse">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
-                        <el-select :disabled="checkDisabled" v-model="ruleForm.warehouse" class="fix-full-width"
+                        <el-select
+:disabled="checkDisabled" v-model="ruleForm.warehouse" class="fix-full-width"
                           :placeholder="t('formDemo.selectAWarehouse')">
                           <el-option v-for="i in chooseWarehouse" :key="i.value" :label="i.label" :value="i.value" />
                         </el-select>
@@ -2751,7 +2775,8 @@ const getFormPayment = () => {
                   <el-form-item :label="t('formDemo.chooseShipping')" prop="delivery">
                     <div class="flex w-[100%] max-h-[42px] gap-2 items-center">
                       <div class="flex w-[80%] gap-4">
-                        <el-select :disabled="checkDisabled" v-model="ruleForm.delivery" class="fix-full-width"
+                        <el-select
+:disabled="checkDisabled" v-model="ruleForm.delivery" class="fix-full-width"
                           :placeholder="`${t('formDemo.choseDeliveryMethod')}`">
                           <el-option v-for="i in chooseDelivery" :key="i.value" :label="i.label" :value="i.value" />
                         </el-select>
@@ -2776,7 +2801,8 @@ const getFormPayment = () => {
       </el-collapse-item>
 
       <!-- Dialog Thêm nhanh sản phẩm -->
-      <AddQuickProduct :list-products="listProducts" v-model="dialogAddProduct" @save="postQuickProduct"
+      <AddQuickProduct
+        :list-products="listProducts" v-model="dialogAddProduct" @save="postQuickProduct"
         v-if="dialogAddProduct" />
 
 
@@ -2785,12 +2811,14 @@ const getFormPayment = () => {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <el-table :data="ListOfProductsForSale" border :class="[
+        <el-table
+:data="ListOfProductsForSale" border :class="[
           'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
         ]">
           <el-table-column :label="t('formDemo.productManagementCode')" min-width="200" prop="productPropertyId">
             <template #default="props">
-              <MultipleOptionsBox :fields="[
+              <MultipleOptionsBox
+:fields="[
                 t('reuse.productCode'),
                 t('reuse.managementCode'),
                 t('formDemo.productInformation'),
@@ -2802,7 +2830,8 @@ const getFormPayment = () => {
                 @update-value="(value, obj) => getValueOfSelected(value, obj, props)"><template #underButton>
                   <div class="sticky z-999 bottom-0 bg-white dark:bg-black h-10">
                     <div class="block h-1 w-[100%] border-top-1 pb-2"></div>
-                    <div class="text-base text-blue-400 cursor-pointer pl-2" @click="
+                    <div
+class="text-base text-blue-400 cursor-pointer pl-2" @click="
                       () => {
                         addnewproduct(props.$index)
                       }
@@ -2816,7 +2845,8 @@ const getFormPayment = () => {
           <el-table-column :disabled="disabledEdit" prop="accessory" :label="t('reuse.accessory')" width="180">
             <template #default="data">
               <div v-if="disabledEdit">{{ data.row.accessory }}</div>
-              <el-input v-else class="max-w-[150px]" v-model="data.row.accessory"
+              <el-input
+v-else class="max-w-[150px]" v-model="data.row.accessory"
                 :placeholder="`/${t('formDemo.selfImportAccessories')}/`" />
             </template>
           </el-table-column>
@@ -2826,7 +2856,8 @@ const getFormPayment = () => {
               <div v-if="type == 'detail'">
                 {{ data.row.code }}
               </div>
-              <el-input v-else :disabled="disabledEdit" v-model="data.row.code"
+              <el-input
+v-else :disabled="disabledEdit" v-model="data.row.code"
                 :placeholder="`/${t('formDemo.selfImportCode')}/`" />
             </template>
           </el-table-column>
@@ -2836,7 +2867,8 @@ const getFormPayment = () => {
               <div v-if="type == 'detail'">
                 {{ data.row.description }}
               </div>
-              <el-input v-else :disabled="disabledEdit" v-model="data.row.description"
+              <el-input
+v-else :disabled="disabledEdit" v-model="data.row.description"
                 :placeholder="`/${t('formDemo.selfImportDescription')}/`" />
             </template>
           </el-table-column>
@@ -2844,7 +2876,8 @@ const getFormPayment = () => {
           <el-table-column prop="quantity" :label="t('reuse.pawnNumber')" width="90">
             <template #default="data">
               <div v-if="type === 'detail'">{{ data.row.quantity }}</div>
-              <el-input v-else v-model="data.row.quantity" :disabled="disabledEdit" @change="handleTotal(data)"
+              <el-input
+v-else v-model="data.row.quantity" :disabled="disabledEdit" @change="handleTotal(data)"
                 style="width: 100%" />
             </template>
           </el-table-column>
@@ -2854,7 +2887,8 @@ const getFormPayment = () => {
           <el-table-column prop="interestMoney" :label="t('reuse.intoMoneyByday')" width="150">
             <template #default="data">
               <div v-if="type === 'detail'">{{ changeMoney.format(data.row.interestMoney) }}</div>
-              <CurrencyInputComponent v-else v-model="data.row.interestMoney" :disabled="disabledEdit"
+              <CurrencyInputComponent
+v-else v-model="data.row.interestMoney" :disabled="disabledEdit"
                 style="width: 100%" />
             </template>
           </el-table-column>
@@ -2862,7 +2896,8 @@ const getFormPayment = () => {
           <el-table-column prop="principalMoney" :label="t('formDemo.moneyPawnGOC')" width="150">
             <template #default="data">
               <div v-if="type === 'detail'">{{ changeMoney.format(data.row.principalMoney) }}</div>
-              <CurrencyInputComponent v-else @change="changePrincipalMoney" v-model="data.row.principalMoney"
+              <CurrencyInputComponent
+v-else @change="changePrincipalMoney" v-model="data.row.principalMoney"
                 :disabled="disabledEdit" style="width: 100%" />
             </template>
           </el-table-column>
@@ -2880,7 +2915,8 @@ const getFormPayment = () => {
                   <span>{{ data.row.businessSetupName }}</span>
                 </div>
                 <div class="flex-1 text-right">
-                  <el-button :disabled="disabledEdit" text border class="text-blue-500" @click="
+                  <el-button
+:disabled="disabledEdit" text border class="text-blue-500" @click="
                     () => {
                       indexRow = data.$index
                       ckeckChooseProduct(data)
@@ -2895,7 +2931,8 @@ const getFormPayment = () => {
           <el-table-column prop="warehouseTotal" :label="t('reuse.inventory')" width="200">
             <template #default="props">
               <div class="flex w-[100%] items-center">
-                <el-button text :disabled="disabledEdit" @click="
+                <el-button
+text :disabled="disabledEdit" @click="
                   () => {
                     callApiWarehouse(props)
                     openDialogChooseWarehouse = true
@@ -2960,7 +2997,8 @@ const getFormPayment = () => {
           <div class="w-[89%] pl-15px">
             <div class="flex items-center w-[100%] flex-wrap">
               <div class="duplicate-status" v-for="item in arrayStatusOrder" :key="item.orderStatus">
-                <div v-if="
+                <div
+v-if="
                   item.orderStatus == STATUS_ORDER_PAWN[3].orderStatus ||
                   item.orderStatus == STATUS_ORDER_PAWN[4].orderStatus ||
                   item.orderStatus == STATUS_ORDER_PAWN[6].orderStatus ||
@@ -2981,7 +3019,8 @@ const getFormPayment = () => {
                   }}</p>
                   <p v-else class="text-transparent">s</p>
                 </div>
-                <div v-else-if="
+                <div
+v-else-if="
                   item.orderStatus == STATUS_ORDER_PAWN[1].orderStatus ||
                   item.orderStatus == STATUS_ORDER_PAWN[5].orderStatus ||
                   item.orderStatus == STATUS_ORDER_PAWN[7].orderStatus
@@ -3009,7 +3048,8 @@ const getFormPayment = () => {
                   }}</p>
                   <p v-else class="text-transparent">s</p>
                 </div>
-                <div v-else-if="
+                <div
+v-else-if="
                   item.orderStatus == STATUS_ORDER_PAWN[0].orderStatus ||
                   item.orderStatus == STATUS_ORDER_PAWN[11].orderStatus ||
                   item.orderStatus == STATUS_ORDER_PAWN[10].orderStatus
@@ -3034,13 +3074,15 @@ const getFormPayment = () => {
           <div class="w-[12%]"></div>
           <!-- edit -->
           <div v-if="editButton" class="w-[100%] flex ml-1 gap-4">
-            <el-button :disabled="checkDisabled" @click="
+            <el-button
+:disabled="checkDisabled" @click="
               () => {
                 editOrderInfo()
                 changeButtonEdit = false
               }
             " type="primary" class="min-w-42 min-h-11">{{ t('reuse.save') }}</el-button>
-            <el-button @click="
+            <el-button
+@click="
               () => {
                 router.go(-1)
               }
@@ -3048,7 +3090,8 @@ const getFormPayment = () => {
           </div>
 
           <div class="w-[100%] flex ml-1 gap-4" v-if="!editButton">
-            <el-button v-if="
+            <el-button
+v-if="
               statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
               statusOrder == STATUS_ORDER_PAWN[5].orderStatus ||
               statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
@@ -3058,7 +3101,8 @@ const getFormPayment = () => {
             " class="min-w-42 min-h-11" @click="openBillPawnDialog" :disabled="disabledPhieu">{{
   t('formDemo.billPawn') }}</el-button>
 
-            <el-button v-if="
+            <el-button
+v-if="
               statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
               statusOrder == STATUS_ORDER_PAWN[5].orderStatus ||
               statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
@@ -3068,18 +3112,22 @@ const getFormPayment = () => {
             " class="min-w-42 min-h-11" @click="openDepositDialog" :disabled="disabledPhieu || DoiPhieuCamDo">{{
   t('formDemo.bill') }}</el-button>
 
-            <el-button v-if="
+            <el-button
+v-if="
               statusOrder == STATUS_ORDER_PAWN[1].orderStatus
             " type="primary" @click="startOrder" class="min-w-43 min-h-11">Bắt đầu cầm đồ theo kỳ hạn</el-button>
-            <el-button v-if="statusOrder == STATUS_ORDER_PAWN[1].orderStatus" @click="changeEditInDetail"
+            <el-button
+v-if="statusOrder == STATUS_ORDER_PAWN[1].orderStatus" @click="changeEditInDetail"
               class="min-w-42 min-h-11">{{ t('formDemo.editOrder') }}</el-button>
-            <el-button v-if="statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type')"
+            <el-button
+v-if="statusOrder == STATUS_ORDER_PAWN[3].orderStatus && (type == 'add' || type == ':type')"
               @click="
                 () => {
                   submitForm(ruleFormRef, ruleFormRef2)
                 }
               " type="primary" class="min-w-42 min-h-11">{{ t('formDemo.saveAndPending') }}</el-button>
-            <el-button v-if="
+            <el-button
+v-if="
               statusOrder == STATUS_ORDER_PAWN[3].orderStatus ||
               statusOrder == STATUS_ORDER_PAWN[1].orderStatus ||
               (statusOrder == STATUS_ORDER_PAWN[1].orderStatus &&
@@ -3092,7 +3140,8 @@ const getFormPayment = () => {
                 <span>{{ t('reuse.orderStillInWarehouse') }}</span>
               </template>
               <div>
-                <el-button v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus" @click="
+                <el-button
+v-if="statusOrder == STATUS_ORDER_PAWN[5].orderStatus" @click="
                   () => {
                     chuocTruocHan = true
                     earlyEedemption = true
@@ -3105,20 +3154,24 @@ const getFormPayment = () => {
 
             <div
               v-if="statusOrder == STATUS_ORDER_PAWN[6].orderStatus || statusOrder == STATUS_ORDER_PAWN[8].orderStatus">
-              <el-button v-if="duplicateStatusButton" @click="finishReturnRequest" type="warning"
+              <el-button
+v-if="duplicateStatusButton" @click="finishReturnRequest" type="warning"
                 class="min-w-42 min-h-11">Hoàn thành chuộc hàng</el-button>
               <el-button @click="cancelReturnRequest" class="min-w-42 min-h-11">Hủy chuộc hàng</el-button>
             </div>
-            <el-button v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus" @click="finishReturnRequest" type="warning"
+            <el-button
+v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus" @click="finishReturnRequest" type="warning"
               class="min-w-42 min-h-11">Hoàn thành đứt hàng</el-button>
-            <el-button v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus" @click="cancelReturnRequest"
+            <el-button
+v-if="statusOrder == STATUS_ORDER_PAWN[9].orderStatus" @click="cancelReturnRequest"
               class="min-w-42 min-h-11">Hủy đứt hàng</el-button>
             <el-tooltip :disabled="!unref(orderUtility.disableStatusWarehouse)">
               <template #content>
                 <span>{{ t('reuse.orderStillInWarehouse') }}</span>
               </template>
               <div>
-                <el-button :disabled="unref(orderUtility.disableStatusWarehouse)" v-if="
+                <el-button
+:disabled="unref(orderUtility.disableStatusWarehouse)" v-if="
                   statusOrder == STATUS_ORDER_PAWN[12].orderStatus
                 " @click="
   () => {
@@ -3132,7 +3185,8 @@ const getFormPayment = () => {
                 <span>{{ t('reuse.orderStillInWarehouse') }}</span>
               </template>
               <div>
-                <el-button v-if="
+                <el-button
+v-if="
                   statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
                   statusOrder == STATUS_ORDER_PAWN[7].orderStatus
                 " @click="
@@ -3151,7 +3205,8 @@ const getFormPayment = () => {
                 <span>{{ t('reuse.orderStillInWarehouse') }}</span>
               </template>
               <div>
-                <el-button v-if="
+                <el-button
+v-if="
                   statusOrder == STATUS_ORDER_PAWN[11].orderStatus ||
                   statusOrder == STATUS_ORDER_PAWN[7].orderStatus
                 " @click="
@@ -3169,7 +3224,8 @@ const getFormPayment = () => {
                 <span>{{ t('reuse.orderStillInWarehouse') }}</span>
               </template>
               <div>
-                <el-button v-if="
+                <el-button
+v-if="
                   statusOrder == STATUS_ORDER_PAWN[7].orderStatus ||
                   statusOrder == STATUS_ORDER_PAWN[11].orderStatus
                 " :disabled="unref(orderUtility.disableStatusWarehouse)" @click="
@@ -3196,17 +3252,20 @@ const getFormPayment = () => {
       <!-- phieu in -->
       <div id="billPawn">
         <slot>
-          <billLoanConfirmation v-if="dataEdit" :dataCustomer="customerData" :dataEdit="dataEdit"
+          <billLoanConfirmation
+v-if="dataEdit" :dataCustomer="customerData" :dataEdit="dataEdit"
             :priceBillPawn="totalPrincipalMoney" :dayPayment="ruleForm.paymentPeriod" />
         </slot>
       </div>
 
       <!-- Dialog thông tin hợp đồng thanh lý-->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogBillLiquidation"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="dialogBillLiquidation"
         title="Thông tin hợp đồng thanh lý" width="40%" align-center>
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
-            <el-button @click="
+            <el-button
+@click="
               printPage('billPawn')
             ">{{ t('button.print') }}</el-button>
 
@@ -3216,7 +3275,8 @@ const getFormPayment = () => {
           </div>
           <div class="dialog-content">
             <slot>
-              <billLoanConfirmation v-if="dataEdit" :dataCustomer="customerData" :dataEdit="dataEdit"
+              <billLoanConfirmation
+v-if="dataEdit" :dataCustomer="customerData" :dataEdit="dataEdit"
                 :priceBillPawn="totalPrincipalMoney" :dayPayment="ruleForm.paymentPeriod" />
             </slot>
           </div>
@@ -3224,11 +3284,13 @@ const getFormPayment = () => {
       </el-dialog>
 
       <!-- dialog quản lý kinh doanh -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogbusinessManagement"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="dialogbusinessManagement"
         :title="t('formDemo.businessManagement')" width="40%" align-center>
         <el-divider />
         <el-form :model="formBusuness">
-          <el-table ref="multipleTableRef" border :data="listApplyExport"
+          <el-table
+ref="multipleTableRef" border :data="listApplyExport"
             @selection-change="handleSelectionbusinessManagement">
             <el-table-column type="selection" width="55" />
             <el-table-column class="font-normal" prop="applyExport" label="Cho phép xuất hàng" />
@@ -3237,7 +3299,8 @@ const getFormPayment = () => {
 
         <template #footer>
           <span class="dialog-footer">
-            <el-button type="primary" @click="
+            <el-button
+type="primary" @click="
               () => {
                 dialogbusinessManagement = false
               }
@@ -3248,7 +3311,8 @@ const getFormPayment = () => {
       </el-dialog>
 
       <!-- DialogChooseWarehouse -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="openDialogChooseWarehouse"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="openDialogChooseWarehouse"
         :title="t('formDemo.inventoryInformation')" width="35%" align-center class="z-50">
         <el-divider />
         <el-table :data="tableWarehouse" border>
@@ -3299,7 +3363,8 @@ const getFormPayment = () => {
             </template>
           </el-table-column>
           <el-table-column prop="content" :label="t('formDemo.certificateInformation')" min-width="240" />
-          <el-table-column prop="receiptOrPaymentVoucherCode" :label="t('formDemo.receiptOrPayment')" min-width="120"
+          <el-table-column
+prop="receiptOrPaymentVoucherCode" :label="t('formDemo.receiptOrPayment')" min-width="120"
             align="left">
             <template #default="data">
               <div @click="(index) => getDetailPayment(index, data)" class="cursor-pointer text-blue-500">
@@ -3322,7 +3387,8 @@ const getFormPayment = () => {
 
           <el-table-column prop="receiveMoney" :label="t('formDemo.collected')" align="left" min-width="150">
             <template #default="data">
-              <el-input v-model="data.row.receiveMoney" v-if="type != 'detail'"
+              <el-input
+v-model="data.row.receiveMoney" v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none" />
               <div v-else>{{ moneyFormat(data.row.receiveMoney) }}</div>
             </template>
@@ -3330,7 +3396,8 @@ const getFormPayment = () => {
 
           <el-table-column prop="paidMoney" :label="t('formDemo.spent')" min-width="150">
             <template #default="data">
-              <el-input v-model="data.row.paidMoney" v-if="type != 'detail'"
+              <el-input
+v-model="data.row.paidMoney" v-if="type != 'detail'"
                 style="width: 100%; border: none; outline: none" />
               <div v-else>{{ moneyFormat(data.row.paidMoney) }}</div>
             </template>
@@ -3373,7 +3440,8 @@ const getFormPayment = () => {
           <el-table-column :label="t('formDemo.manipulation')" align="center">
             <template #default="data">
               <div class="flex">
-                <button @click="() => openDialogAcountingEntry(data)"
+                <button
+@click="() => openDialogAcountingEntry(data)"
                   class="border-1 border-blue-500 pt-2 pb-2 pl-4 pr-4 dark:text-[#fff] rounded">
                   {{ t('reuse.detail') }}
                 </button>
@@ -3394,7 +3462,8 @@ const getFormPayment = () => {
       </el-collapse-item>
 
       <!-- Thông tin phiếu cầm đồ -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogPawnCouponInfomation"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="dialogPawnCouponInfomation"
         :title="t('formDemo.informationPawn')" width="40%" align-center>
         <div>
           <!-- <Qrcode :text="'abc'" /> -->
@@ -3543,20 +3612,23 @@ const getFormPayment = () => {
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button class="min-w-42 min-h-11" @click="
+            <el-button
+class="min-w-42 min-h-11" @click="
               () => {
                 dialogBillLiquidation = true
               }
             ">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button class="min-w-42 min-h-11" type="primary" v-if="showCreatedOrUpdateButton" @click="
+                <el-button
+class="min-w-42 min-h-11" type="primary" v-if="showCreatedOrUpdateButton" @click="
                   () => {
                     dialogPawnCouponInfomation = false
                     updateInfoAcountingEntry(2)
                   }
                 ">{{ t('formDemo.saveRecordDebts') }}</el-button>
-                <el-button type="danger" class="min-w-42 min-h-11" v-if="showCancelAcountingEntry" @click="
+                <el-button
+type="danger" class="min-w-42 min-h-11" v-if="showCancelAcountingEntry" @click="
                   () => {
                     UpdateStatusTransaction()
                     dialogPawnCouponInfomation = false
@@ -3575,7 +3647,8 @@ const getFormPayment = () => {
 
 
       <!-- Thông tin phiếu thanh toán cầm đồ -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogFeePaymentSlip"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="dialogFeePaymentSlip"
         :title="t('reuse.pawnPaymentInformation')" width="50%" align-center>
         <div>
           <el-divider />
@@ -3599,9 +3672,11 @@ const getFormPayment = () => {
                     class="text-red-500">*</span></label>
 
                 <div class="">
-                  <el-select v-model="paymentType" :disabled="typeButToan == 'detail'" class="m-2" placeholder="Select"
+                  <el-select
+v-model="paymentType" :disabled="typeButToan == 'detail'" class="m-2" placeholder="Select"
                     size="large">
-                    <el-option v-for="item in paymentTypeOptions" :key="item.value" :label="item.label"
+                    <el-option
+v-for="item in paymentTypeOptions" :key="item.value" :label="item.label"
                       :value="item.value" />
                   </el-select>
                 </div>
@@ -3650,7 +3725,8 @@ const getFormPayment = () => {
             <el-table-column label="STT" type="index" width="60" align="center" />
             <el-table-column :label="t('formDemo.productManagementCode')" min-width="200" prop="productPropertyId">
               <template #default="props">
-                <MultipleOptionsBox :fields="[
+                <MultipleOptionsBox
+:fields="[
                   t('reuse.productCode'),
                   t('reuse.managementCode'),
                   t('formDemo.productInformation'),
@@ -3670,12 +3746,14 @@ const getFormPayment = () => {
             </el-table-column>
             <el-table-column v-if="paymentType == 4" prop="nextPaymentDate" :label="t('reuse.nextDatePaid')" width="100">
               <template #default="scope">
-                <el-date-picker v-model="scope.row.nextPaymentDate" type="date" placeholder="Pick a day"
+                <el-date-picker
+v-model="scope.row.nextPaymentDate" type="date" placeholder="Pick a day"
                   format="DD/MM/YYYY" value-format="YYYY-MM-DD"
                   :disabled-date="(time) => disabledDatePawnFee(time, scope.row)" />
               </template>
             </el-table-column>
-            <el-table-column v-if="paymentType == 4" prop="interestMoney" :label="t('reuse.intoMoneyByday')"
+            <el-table-column
+v-if="paymentType == 4" prop="interestMoney" :label="t('reuse.intoMoneyByday')"
               width="100" />
             <el-table-column prop="principalDebt" :label="t('reuse.originalDebt')" width="100" />
             <el-table-column prop="pawnPrice" :label="t('reuse.paidMoney')" width="100">
@@ -3762,13 +3840,15 @@ const getFormPayment = () => {
             <el-button @click="getFormPayment()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" class="min-w-42 min-h-11" v-if="showCreatedOrUpdateButton" @click="
+                <el-button
+type="primary" class="min-w-42 min-h-11" v-if="showCreatedOrUpdateButton" @click="
                   () => {
                     dialogFeePaymentSlip = false
                     updateInfoAcountingEntry(1)
                   }
                 ">{{ t('formDemo.saveRecordDebts') }}</el-button>
-                <el-button class="min-w-42 min-h-11" type="danger" v-if="showCancelAcountingEntry" @click="
+                <el-button
+class="min-w-42 min-h-11" type="danger" v-if="showCancelAcountingEntry" @click="
                   () => {
                     UpdateStatusTransaction()
                     dialogFeePaymentSlip = false
@@ -3785,7 +3865,8 @@ const getFormPayment = () => {
         </template>
       </el-dialog>
 
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="paymentRequestFromAnotherOrder"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="paymentRequestFromAnotherOrder"
         :title="t('reuse.paymentRequestInformationTicket')" width="40%" align-center>
         <div>
           <el-divider />
@@ -3814,7 +3895,8 @@ const getFormPayment = () => {
               <label class="w-[30%] text-right">{{ t('formDemo.proponent') }}</label>
               <div class="w-[100%]">
                 <el-select v-model="inputRecharger" placeholder="Chọn người nộp tiền">
-                  <el-option v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+                  <el-option
+v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
                     :value="item.value" />
                 </el-select>
               </div>
@@ -3822,7 +3904,8 @@ const getFormPayment = () => {
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.reasonsSpendMoney') }}</label>
               <div class="w-[100%]">
-                <el-input v-model="inputReasonCollectMoney" style="width: 100%"
+                <el-input
+v-model="inputReasonCollectMoney" style="width: 100%"
                   :placeholder="t('formDemo.enterReasonCollectingMoney')" />
               </div>
             </div>
@@ -3970,7 +4053,8 @@ const getFormPayment = () => {
           <div class="flex justify-end">
             <div>
               <span class="dialog-footer">
-                <el-button class="min-w-42 min-h-11" type="primary" @click="() => {
+                <el-button
+class="min-w-42 min-h-11" type="primary" @click="() => {
                   postPaymentRequest
                   paymentRequestFromAnotherOrder = false
                 }">
@@ -3986,7 +4070,8 @@ const getFormPayment = () => {
       </el-dialog>
 
       <!-- Thông tin phiếu thanh toán tiền đàm phán -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogDepositSlip"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="dialogDepositSlip"
         :title="t('formDemo.negotiatedPaymentInformation')" width="40%" align-center>
         <div>
           <el-divider />
@@ -4183,7 +4268,8 @@ const getFormPayment = () => {
       </el-dialog>
 
       <!-- Bút toán bổ sung -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogAccountingEntryAdditional"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="dialogAccountingEntryAdditional"
         :title="t('formDemo.accountingEntryAdditional')" width="60%" align-center>
         <div>
           <el-divider />
@@ -4254,19 +4340,22 @@ const getFormPayment = () => {
             </el-table-column>
             <el-table-column prop="content" :label="t('formDemo.kindOfMoney')">
               <el-select v-model="paymentType" class="m-2" placeholder="Select">
-                <el-option v-for="item in optionsChooseMoneyType" :key="item.value" :label="item.label"
+                <el-option
+v-for="item in optionsChooseMoneyType" :key="item.value" :label="item.label"
                   :value="item.value" />
               </el-select>
             </el-table-column>
             <el-table-column prop="receiveMoney" :label="t('formDemo.collected')">
               <template #default="props">
-                <CurrencyInputComponent @change="(data) => autoChangeMoneyAccountingEntry(data, props)" class="handle-fix"
+                <CurrencyInputComponent
+@change="(data) => autoChangeMoneyAccountingEntry(data, props)" class="handle-fix"
                   v-model="props.row.receiveMoney" />
               </template>
             </el-table-column>
             <el-table-column prop="paidMoney" :label="t('formDemo.spent')">
               <template #default="props">
-                <CurrencyInputComponent @change="(data) => autoChangeMoneyAccountingEntry(data, props)" class="handle-fix"
+                <CurrencyInputComponent
+@change="(data) => autoChangeMoneyAccountingEntry(data, props)" class="handle-fix"
                   v-model="props.row.paidMoney" />
               </template>
             </el-table-column>
@@ -4340,7 +4429,8 @@ const getFormPayment = () => {
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button size="large" type="primary" v-if="showCreatedOrUpdateButton" @click="
+            <el-button
+size="large" type="primary" v-if="showCreatedOrUpdateButton" @click="
               () => {
                 updateInfoAcountingEntry(4)
                 dialogAccountingEntryAdditional = false
@@ -4348,7 +4438,8 @@ const getFormPayment = () => {
             ">
               {{ t('formDemo.saveRecordDebts') }}
             </el-button>
-            <el-button type="danger" v-if="showCancelAcountingEntry" @click="
+            <el-button
+type="danger" v-if="showCancelAcountingEntry" @click="
               () => {
                 UpdateStatusTransaction()
                 dialogAccountingEntryAdditional = false
@@ -4364,7 +4455,8 @@ const getFormPayment = () => {
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu thu -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogInformationReceipts"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')" width="40%" align-center>
         <div>
           <el-divider />
@@ -4388,14 +4480,16 @@ const getFormPayment = () => {
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.recharger') }} <span class="text-red-500">*</span></label>
               <el-select v-model="inputRecharger" placeholder="Chọn người nộp tiền">
-                <el-option v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+                <el-option
+v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
                   :value="item.value" />
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.reasonCollectingMoney') }}
                 <span class="text-red-500">*</span></label>
-              <el-input v-model="inputReasonCollectMoney" style="width: 100%"
+              <el-input
+v-model="inputReasonCollectMoney" style="width: 100%"
                 :placeholder="t('formDemo.enterReasonCollectingMoney')" />
             </div>
           </div>
@@ -4437,7 +4531,8 @@ const getFormPayment = () => {
             <!-- <el-button>In phiếu</el-button> -->
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" @click="
+                <el-button
+type="primary" @click="
                   () => {
                     dialogInformationReceipts = false
                     postPT()
@@ -4453,7 +4548,8 @@ const getFormPayment = () => {
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu chi -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogPaymentVoucher"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="dialogPaymentVoucher"
         :title="t('formDemo.paymentVoucherInformation')" width="40%" align-center>
         <div>
           <el-divider />
@@ -4478,14 +4574,16 @@ const getFormPayment = () => {
               <label class="w-[30%] text-right">{{ t('formDemo.moneyReceiver') }} <span
                   class="text-red-500">*</span></label>
               <el-select v-model="inputRecharger" placeholder="Chọn người nhận tiền">
-                <el-option v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+                <el-option
+v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
                   :value="item.value" />
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-6 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.reasonsSpendMoney') }} <span
                   class="text-red-500">*</span></label>
-              <el-input v-model="inputReasonCollectMoney" style="width: 100%"
+              <el-input
+v-model="inputReasonCollectMoney" style="width: 100%"
                 :placeholder="t('formDemo.enterReasonForThePayment')" />
             </div>
           </div>
@@ -4526,7 +4624,8 @@ const getFormPayment = () => {
             <el-button @click="getFormReceipts(1)">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" @click="
+                <el-button
+type="primary" @click="
                   () => {
                     dialogPaymentVoucher = false
                     postPC()
@@ -4540,20 +4639,25 @@ const getFormPayment = () => {
       </el-dialog>
 
       <!-- Thông tin chuộc hàng trước thời hạn-->
-      <ReturnOrder v-model="chuocTruocHan" :orderId="id" :orderData="rentReturnOrder"
+      <ReturnOrder
+v-model="chuocTruocHan" :orderId="id" :orderData="rentReturnOrder"
         :listProductsTable="listOfOrderProduct" @add-row="addRow" @remove-row="removeRow"
         @post-return-request="postReturnRequest" :orderStatusType="5" :type="4" />
-      <ReturnOrder v-model="chuocHetHan" :orderId="id" :orderData="rentReturnOrder"
+      <ReturnOrder
+v-model="chuocHetHan" :orderId="id" :orderData="rentReturnOrder"
         :listProductsTable="listOfOrderProduct" @add-row="addRow" @post-return-request="postReturnRequest"
         :orderStatusType="51" :type="4" />
-      <ReturnOrder v-model="dutHang" :orderId="id" :orderData="rentReturnOrder" :listProductsTable="listOfOrderProduct"
+      <ReturnOrder
+v-model="dutHang" :orderId="id" :orderData="rentReturnOrder" :listProductsTable="listOfOrderProduct"
         @add-row="addRow" @post-return-request="postReturnRequest" :orderStatusType="6" :type="4" />
-      <ReturnOrder v-model="giaHan" :orderId="id" :orderData="rentReturnOrder" :listProductsTable="listOfOrderProduct"
+      <ReturnOrder
+v-model="giaHan" :orderId="id" :orderData="rentReturnOrder" :listProductsTable="listOfOrderProduct"
         @add-row="addRow" @post-return-request="postReturnRequest" :orderStatusType="7" @extend-date="extendDate"
         :type="4" />
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogIPRForm"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')" width="40%" align-center>
         <div>
           <el-divider />
@@ -4581,14 +4685,16 @@ const getFormPayment = () => {
               <label class="w-[30%] text-right hello">{{ t('formDemo.proponent') }} <span
                   class="text-red-500">*</span></label>
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
-                <el-option v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+                <el-option
+v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
                   :value="item.value" />
               </el-select>
             </div>
             <div class="flex gap-4 pt-4 pb-4 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.reasonsSpendMoney') }} <span
                   class="text-red-500">*</span></label>
-              <el-input style="width: 100%" v-model="inputReasonCollectMoney"
+              <el-input
+style="width: 100%" v-model="inputReasonCollectMoney"
                 :placeholder="t('formDemo.enterReasonPaymentRequest')" />
             </div>
           </div>
@@ -4675,7 +4781,8 @@ const getFormPayment = () => {
             <el-button @click="printPaymentRequest()">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
-                <el-button type="primary" @click="
+                <el-button
+type="primary" @click="
                   () => {
                     dialogIPRForm = false
                     handleChangePaymentRequest()
@@ -4689,7 +4796,8 @@ const getFormPayment = () => {
         </template>
       </el-dialog>
       <!-- Thông tin phiếu xuất đổi -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="informationWarehouseReceipt"
+      <el-dialog
+:close-on-click-modal="doCloseOnClickModal" v-model="informationWarehouseReceipt"
         :title="warehouseTicketData?.transactionType == 2 ? t('reuse.informationExportReturnSpaTicket') : t('reuse.informationTransferReturnSpaTicket')"
         width="40%" align-center>
         <div>
@@ -4720,7 +4828,8 @@ const getFormPayment = () => {
               <label class="w-[30%] text-right">{{ t('formDemo.warehouserExport') }} <span
                   class="text-red-500">*</span></label>
               <el-select v-model="warehouseTicketData.staffId" placeholder="Trần Hữu Dương | 0998844533">
-                <el-option v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+                <el-option
+v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
                   :value="item.value" />
               </el-select>
             </div>
@@ -4792,7 +4901,8 @@ const getFormPayment = () => {
             <el-table-column prop="quantity" :label="t('formDemo.amount')" width="150" />
             <el-table-column prop="unitName" :label="t('reuse.dram')" width="120" />
 
-            <el-table-column prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" align="left"
+            <el-table-column
+prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" align="left"
               width="200">
               <template #default="props">
                 <div @click="() => openDetailFullyIntegrated(props)" class="text-blue-500" role="button">

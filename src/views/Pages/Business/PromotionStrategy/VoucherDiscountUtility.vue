@@ -12,6 +12,7 @@ import moment from 'moment'
 import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
+// import { disabledDate } from './common'
 
 const { t } = useI18n()
 const curDate = 'VC' + moment().format('hhmmss')
@@ -138,8 +139,8 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       format: 'DD/MM/YYYY',
       valueFormat: 'YYYY-MM-DD',
-      type: 'daterange'
-    }
+      type: 'daterange',
+    },
   },
   {
     field: 'shortDescription',
@@ -593,3 +594,10 @@ const back = async () => {
     </el-collapse>
   </div>
 </template>
+<style lang="less" scoped>
+
+  ::v-deep(.btn-wrap) {
+    margin-left: 165px;
+  }
+
+</style>

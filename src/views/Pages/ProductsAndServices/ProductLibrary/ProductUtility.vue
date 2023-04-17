@@ -684,7 +684,6 @@ const editData = async (data) => {
     )
 }
 const editDataSeo = async (data) => {
-  console.log('run here', data, newId.value)
   if(newId.value){
     data.Id = newId.value
   }
@@ -2372,7 +2371,7 @@ const disabledEverything = () =>{
     </el-collapse-item>
   </el-collapse>
 </template>
-<style scoped>
+<style lang="less" scoped>
 .text-center {
   font-size: 20px;
 }
@@ -2389,4 +2388,9 @@ const disabledEverything = () =>{
 :deep(.cell) {
   word-break: break-word;
 }
+
+::v-deep(.btn-wrap) {
+    margin-left: 356px;
+  }
+
 </style>

@@ -44,7 +44,6 @@ const rules = reactive({
   enterMoney: [required()],
   typeOfPayment: [required()],
   peopleType: [required()],
-  accountNumber: [required()],
 })
 
 //random field code

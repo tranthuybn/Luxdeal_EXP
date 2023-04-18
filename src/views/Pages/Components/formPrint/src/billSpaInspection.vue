@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElDivider } from 'element-plus'
+import { ElDivider, ElTable, ElTableColumn } from 'element-plus'
 // import { useIcon } from '@/hooks/web/useIcon'
 
 import { useI18n } from '@/hooks/web/useI18n'
@@ -15,10 +15,14 @@ const props = defineProps({
   titleCategory: {
     type: String,
     default: ''
+  },
+  dataProduc: {
+    type: Object,
+    default: () => {}
   }
 })
 
-let dataEditor = ref(props.dataEditor)
+// let dataEditor = ref(props.dataEditor)
 let titleCategory = ref(props.titleCategory)
 console.log('props:', props)
 // const locateIcon = useIcon({ icon: 'entypo:location' })
@@ -67,18 +71,35 @@ console.log('props:', props)
 
     <el-divider />
 
-    <div class="about-product mb-2">
-      <p class="name mb-2"> TÊN SẢN PHẨM: </p>
-      <p class="product-code">MÃ SẢN PHẨM: </p>
+    <div class="about-product mb-2" v-if="props.dataProduc">
+      <p class="name mb-2">MÃ ĐƠN HÀNG: <b>{{ props.dataProduc.code }}</b></p>
+      <p class="name mb-2"> THÔNG TIN KHÁCH HÀNG: <br/>
+       Họ và tên:  {{ props.dataProduc.customer.name }} <br/>
+       Điện thoại:  {{ props.dataProduc.customer.phonenumber }} <br/>
+       Email:  {{ props.dataProduc.customer.email }} <br/>
+      </p>
     </div>
 
     <hr />
     {{ titleCategory }}
-    <h2 class="title-bill-spa font-medium text-2xl py-2">TÚI / VÍ</h2>
-    <hr />
+    <!-- <h2 class="title-bill-spa font-medium text-2xl py-2">TÚI / VÍ</h2>
+    <hr /> -->
     <div id="content-data"></div>
-
-    <p v-html="dataEditor"> </p>
+    <el-table
+    width="100%"
+        :data="props.dataProduc ? props.dataProduc.orderDetails : []"
+        border
+      >
+        <el-table-column label="STT" type="index" align="center" />
+        <el-table-column prop="productPropertyCode" label="Mã quản lý sản phẩm" width="200" />
+        <el-table-column prop="productPropertyName" label="Thông ti sản phẩm" />
+        <el-table-column prop="description" label="Nội dung thăm khám">
+          <template #default="data">
+            <p v-html="data.row.description"> </p> 
+          </template>
+        </el-table-column>
+      </el-table>
+    <!-- <p v-html="dataEditor"> </p> -->
   </div>
 </template>
 

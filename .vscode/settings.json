@@ -2,11 +2,13 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "prettier.enable": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": true,
+    "source.fixAll.tslint": true,
   },
   "[vue]": {
     "editor.defaultFormatter": "Vue.volar"
   },
+  
   "i18n-ally.localesPaths": ["src/locales"],
   "i18n-ally.keystyle": "nested",
   "i18n-ally.sortKeys": true,

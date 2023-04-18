@@ -117,7 +117,6 @@ const callAPI = async (pageIndex: number) => {
   if(data.length > 0) {
     const arr = data.map(propsObj.mapFunction)
     options.value.push(...arr);  
-    console.log('options', options.value)
   }
 }
 
@@ -205,7 +204,7 @@ watch(pageIndex, async (newPageIndex) => {
       v-if="fields.length > 0"
     >
       <div>
-        <ElRow type="flex" justify="space-between">
+        <ElRow type="flex">
           <ElCol
             :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"

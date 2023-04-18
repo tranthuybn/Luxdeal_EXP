@@ -25,7 +25,7 @@ import {
   ElRadio,
   ElInput
 } from 'element-plus'
-import { CancelCampaign, getAllCustomer, getProductsList, SendVoucher } from '@/api/Business'
+import { CancelCampaign, getAllCustomer, getProductsList, SendVoucher, getCollaboratorsList } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
@@ -42,9 +42,11 @@ import { Approvement, CampaignTypeArr } from '@/utils/API.Variables'
 import moment from 'moment'
 import {CampaignStatusV2} from './CampaignStatusEnum'
 import { statusCampaign } from '@/utils/status'
+import InfinitOptions from '@/components/Select/InfinitOptions.vue'
 
 const currentDate = ref(moment().format("DD/MM/YYYY"))
 const { t } = useI18n()
+const pageIndex = ref(1)
 const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
@@ -172,6 +174,7 @@ const getTableValue = async () => {
       } else {
         formValue.value = res.data
       }
+      console.log('formValue.value', formValue.value)
       await setFormValue()
     } else {
       ElNotification({
@@ -261,29 +264,6 @@ watch(
   }
 )
 
-// watch(
-//   () => formValue.value,
-//   () => {
-//     if (formValue.value) {
-//       if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
-//         let newArr = ref(formValue.value[0].productProperties)
-//         let formService: any = ref([])
-//         newArr.value[0]?.spaServices.map((e) => {
-//           formService.value.push(e.name)
-//         })
-//         let formDataTable = formValue.value[0]?.productProperties.map((val) => ({
-//           code: val.code,
-//           id: val.id,
-//           isActive: val.isActive,
-//           service: formService.value
-//         }))
-//         dataTable.spaData = formDataTable
-//         spaMoney.value = formValue.value[0].comboValue
-//         imageUrl.value = formValue.value[0].images
-//       }
-//     }
-//   }
-// )
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData
@@ -293,6 +273,20 @@ const loading = ref(false)
 
 const sendImmediately = async () =>{
   await SendVoucher({id: props.id, campaignType: props.campaignAndStrategyType})
+  .then(() => {
+      ElNotification({
+        message: t('reuse.sendVoucherSuccess'),
+        type: 'success'
+      })
+    })
+    .catch(() =>
+      {
+        ElNotification({
+          message: t('reuse.sendVoucherFail'),
+          type: 'warning'
+        })
+      }
+    )
 }
 
 //doc du lieu tu bang roi emit len goi API
@@ -680,6 +674,8 @@ const callAPICustomer = async () => {
   }
 }
 
+const getMapDataCTV = ({customer}) => ({code: customer.code, phonenumber: customer.phonenumber, name:customer.name, id: customer.id})
+
 //get list product, before that check serviceTyle
 const listProducts = ref()
 const pageIndexProducts = ref(1)
@@ -994,6 +990,11 @@ const approvisionnement = async (val: boolean) => {
     )
 }
 
+const saveChangeConditionVoucher = () => {
+  conditionVoucherVisible.value = false
+  dataTable.customerData = [{ id: -1, code: '', name: null }]
+}
+
 const spaMoney = ref(0)
 </script>
 <template>
@@ -1001,21 +1002,42 @@ const spaMoney = ref(0)
     <ElRow :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register">
-          <template #tableCustomer>
+          <template #tableCustomer=form>
             <el-table :data="dataTable.customerData" border header-row-class-name="dark:text-white text-black">
               <el-table-column prop="code" :label="t('reuse.customerCode')" width="180">
                 <template #default="scope">
-                  <MultipleOptionsBox
-                  :fields="[
-                    t('reuse.customerCode'),
-                    t('reuse.phoneNumber'),
-                    t('formDemo.customerName')
-                  ]" filterable min-width="500px" :items="listCustomer" valueKey="value" labelKey="value"
-                    :hiddenKey="['id']" :placeHolder="t('reuse.chooseCustomerCode')" :clearable="false"
-                    :defaultValue="scope.row.code"
-                    @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
-                    @change="(option) => changeCustomer(option, scope)" @scroll-top="ScrollCustomerTop"
-                    @scroll-bottom="ScrollCustomerBottom" />
+                  <div v-if="form.condition == 2">
+                    <InfinitOptions 
+                      :fields="[t('reuse.customerCode'), t('reuse.phoneNumber'), t('formDemo.customerName')]"
+                      :placeHolder="t('reuse.chooseCustomerCode')"
+                      valueKey="id" 
+                      labelKey="code"
+                      :hiddenKey="['id']"
+                      :clearable="false"
+                      :pageIndex="pageIndex"
+                      :api="getCollaboratorsList"
+                      :mapFunction="getMapDataCTV"
+                      :defaultValue="scope.row.code"
+                      @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
+                      @change="(option) => changeCustomer(option, scope)" 
+                    />
+                  </div>
+                  <div v-else>
+                    <MultipleOptionsBox
+                      :fields="[
+                        t('reuse.customerCode'),
+                        t('reuse.phoneNumber'),
+                        t('formDemo.customerName')
+                      ]"
+                      filterable min-width="500px" :items="listCustomer" valueKey="value" labelKey="value"
+                      :hiddenKey="['id']" :placeHolder="t('reuse.chooseCustomerCode')" :clearable="false"
+                      :defaultValue="scope.row.code"
+                      @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
+                      @change="(option) => changeCustomer(option, scope)" 
+                      @scroll-top="ScrollCustomerTop"
+                      @scroll-bottom="ScrollCustomerBottom" 
+                    />
+                  </div>
                 </template>
               </el-table-column>
               <el-table-column prop="name" :label="t('reuse.customerName')" min-width="780"><template #default="scope">{{
@@ -1266,13 +1288,16 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
           {{ t('reuse.saveAndPending') }}
         </ElButton>
       </div>
-      <div v-else-if="props.type === 'detail'" class="flex">
+      <div v-else-if="props.type === 'detail'">
         <div
-              class="flex"
-              v-if="(lastStatus != CampaignStatusV2.DuyetKhoiTao && approved != false)
-                || (lastStatus != CampaignStatusV2.SuaChuongTrinh && approved != false)">
+          class="flex"
+          v-if="approved && !formValue?.[0]?.voucherStatus"
+        >
           <ElButton :loading="loading" @click="edit">
             {{ t('reuse.edit') }}
+          </ElButton>
+          <ElButton type="primary" :loading="loading" @click="sendImmediately">
+            {{ t('reuse.sendImmediately') }}
           </ElButton>
           <ElButton type="danger" :loading="loading" @click="delAction">
             {{ t('formDemo.cancelTheProgram') }}
@@ -1291,21 +1316,13 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
         <!-- If its pending for approving(approved == false) then hide all button -->
         <div
               class="flex"
-              v-if="(lastStatus != CampaignStatusV2.DuyetKhoiTao && approved != false)
-                || (lastStatus != CampaignStatusV2.SuaChuongTrinh && approved != false)">
+              v-if="(lastStatus != CampaignStatusV2.DuyetKhoiTao && approved)
+                || (lastStatus != CampaignStatusV2.SuaChuongTrinh && approved)">
           <ElButton type="primary" :loading="loading" @click="save('edit')">
             {{ t('reuse.saveAndPending') }}
           </ElButton>
           <ElButton :loading="loading" @click="cancel">
             {{ t('reuse.cancel') }}
-          </ElButton>
-          <div v-if="props.campaignAndStrategyType == 4 || props.campaignAndStrategyType == 5" class="mx-10px">
-            <ElButton type="primary" :loading="loading" @click="sendImmediately">
-            {{ t('reuse.sendImmediately') }}
-            </ElButton>
-          </div>
-          <ElButton type="danger" :loading="loading" @click="delAction">
-            {{ t('formDemo.cancelTheProgram') }}
           </ElButton>
         </div>
       </div>
@@ -1345,7 +1362,7 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
         <el-table-column label="" width="70">
           <template #default="scope">
             <el-radio
-v-model="radioSelected" :label="scope.$index + 1"
+              v-model="radioSelected" :label="scope.$index + 1"
               style=" margin-right: -25px;color: #fff"><span></span></el-radio>
           </template>
         </el-table-column>
@@ -1353,7 +1370,8 @@ v-model="radioSelected" :label="scope.$index + 1"
           <template #default="scope">
             <div>{{ scope.row.condition }}</div>
             <div class="explainText">({{ scope.row.explainCondition }})</div>
-          </template></el-table-column>
+          </template>
+        </el-table-column>
         <el-table-column :label="t('reuse.enterCondition')"><template #default="scope">
             <div v-if="scope.row.enterCondition !== ''" class="w-full">
               <div v-if="scope.row.enterCondition == 'points'"><el-input v-model="scope.row.point" type="number"><template
@@ -1362,11 +1380,12 @@ v-model="radioSelected" :label="scope.$index + 1"
                 <CurrencyInputComponent v-model="scope.row.price" />
               </div>
             </div>
-          </template></el-table-column>
+          </template>
+        </el-table-column>
       </el-table>
       <template #footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="conditionVoucherVisible = false">
+          <el-button type="primary" @click="saveChangeConditionVoucher">
             {{ t('reuse.save') }}
           </el-button>
           <el-button @click="conditionVoucherVisible = false">{{ t('reuse.exit') }}</el-button>
@@ -1492,5 +1511,18 @@ v-model="radioSelected" :label="scope.$index + 1"
   padding-right: 5rem;
   padding-left: 1rem;
   color: white;
+}
+::v-deep(.readonly-info) {
+  .el-input__wrapper{
+    box-shadow: none;
+    padding: 0
+  }
+}
+
+::v-deep(.readonly-info) {
+  .el-input__wrapper{
+    box-shadow: none;
+    padding: 0
+  }
 }
 </style>

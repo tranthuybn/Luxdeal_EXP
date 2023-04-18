@@ -31,7 +31,7 @@ import {
   UploadUserFile,
   ElForm,
   ElFormItem,
-  ElMessage
+  ElMessage,
 } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -671,8 +671,8 @@ const getMapData = ({code, type,totalMoney, createdBy, createdAt, id}) => ({labe
                       t('reuse.proposalCode'),
                       t('reuse.receiptAndPayment'),
                       t('reuse.amountOfMoney'),
+                      t('reuse.creator'),
                       t('reuse.createDate'),
-                      t('reuse.creator')
                     ]"
                     filterable
                     valueKey="id"
@@ -749,15 +749,15 @@ const getMapData = ({code, type,totalMoney, createdBy, createdAt, id}) => ({labe
               <div class="pl-4">
                 <el-upload
                   ref="upload"
-                  class="upload-demo"
                   action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                  :disabled="disabledForm"
+                  :auto-upload="false"
+                  v-model:fileList="ListFileUpload"
                   :limit="10"
                   :on-change="handleChange"
-                  :before-remove="beforeRemove"
-                  :auto-upload="false"
                   :multiple="true"
-                  v-model:fileList="ListFileUpload"
-                  :disabled="disabledForm"
+                  :before-remove="beforeRemove"
+                  class="upload-demo"
                 >
                   <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogVisible">
                     <div class="text-[#303133] font-medium dark:text-[#fff]"

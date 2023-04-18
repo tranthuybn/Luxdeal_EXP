@@ -959,6 +959,11 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    paidAndFinish: 'Đã thanh toán & kết thúc',
+    saveAndComfirm: 'Lưu & xác nhận',
+    orderIsNotEligibleForPromotion: 'Giá trị đơn hàng không đủ điều kiện để áp dụng khuyến mại',
+    sendVoucherSuccess: 'Gửi voucher thành công',
+    sendVoucherFail: 'Gửi voucher thất bại',
     generateCodeFail: 'Lấy mã tự động thất bại',
     userAccountApprovaeDetail: 'Chi tiết duyệt tài khoản khách hàng',
     collaboratorsAccountApprovaeDetail: 'Chi tiết duyệt tài khoản CTV',

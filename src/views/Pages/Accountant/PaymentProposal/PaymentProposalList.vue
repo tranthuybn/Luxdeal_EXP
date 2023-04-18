@@ -2,7 +2,6 @@
 import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
-import { ATTACH_DOCUMENT } from '@/utils/API.Variables'
 import {  filterStatusGeneral } from '@/utils/filters'
 import { getPaymentList, getAllCustomer } from '@/api/Business'
 import { dateTimeFormat, formatStatusGeneral } from '@/utils/format'
@@ -68,9 +67,6 @@ const columns = reactive<TableColumn[]>([
     label: t('reuse.attachDocument'),
     minWidth: '200',
     filters: [],
-    formatter: (_record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
-      return h(cellValue ? h('div', ATTACH_DOCUMENT[1].label) : h('div', ATTACH_DOCUMENT[0].label))
-    },
   },
   {
     field: 'createdAt',
@@ -109,7 +105,6 @@ const columns = reactive<TableColumn[]>([
       ])
     }
   }
-
 ])
 
 </script>

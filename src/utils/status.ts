@@ -36,3 +36,15 @@ export const statusService = (status) => {
     }
 }
 
+export const renderStatus = (status) => {
+  switch (status) {
+    case 1:
+      return 'box_2';
+    case 2:
+      return 'box_1';
+    case 3:
+      return 'box_4';
+    default:
+      return '';
+  }
+}

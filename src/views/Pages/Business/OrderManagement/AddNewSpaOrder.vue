@@ -736,10 +736,19 @@ const autoCalculateOrder = () => {
   ListOfProductsForSale.value.forEach((val) => {
     if (val.totalPrice) totalPriceOrder.value += val.totalPrice
   })
-  promoCash.value != 0
-    ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
-    : (totalFinalOrder.value =
-        totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+
+  if(totalPriceOrder.value > promoMin.value) {
+    promoCash.value != 0
+      ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
+      : (totalFinalOrder.value =
+          totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
+  } else {
+    ElNotification({
+        message: t('reuse.orderIsNotEligibleForPromotion'),
+        type: 'warning'
+    })
+  }
+
 
   /* Tạm thời bỏ VAT 21/02/2023 
   if (radioVAT.value.length < 4) {
@@ -859,16 +868,23 @@ let promoActive = ref()
 let campaignId = ref()
 let isActivePromo = ref()
 
-const handleCurrentChange = (val: undefined) => {
-  promoCash.value = 0
-  promoValue.value = 0
-  currentRow.value = val
-  promo.value = val
-  promo.value?.reduceCash != 0
-    ? (promoCash.value = promo.value.reduceCash)
-    : (promoValue.value = promo.value?.reducePercent)
-  changeRowPromo()
-  checkPromo.value = true
+const handleCurrentChange = (val) => {
+  if(totalPriceOrder.value > val?.min) {
+    promoCash.value = 0
+    promoValue.value = 0
+    currentRow.value = val
+    promo.value = val
+    promo.value?.reduceCash != 0
+      ? (promoCash.value = promo.value.reduceCash)
+      : (promoValue.value = promo.value?.reducePercent)
+    changeRowPromo()
+    checkPromo.value = true
+    return
+  }
+  ElNotification({
+    message: t('reuse.orderIsNotEligibleForPromotion'),
+    type: 'warning'
+  })
 }
 
 const dialogPaymentVoucher = ref(false)

@@ -372,7 +372,7 @@ export const VoucherType = (val) => {
 
 export const dateTimeFormat = (val) => {
   if (val) return moment(val).format('DD/MM/YYYY')
-  return ''
+  return val
 }
 
 export const statusBranch = (val) => {

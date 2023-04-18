@@ -23,9 +23,6 @@ const props = defineProps({
   }
 })
 
-console.log('props:', props)
-console.log('dataPriceBill:', props.dataPriceBill)
-
 const policySale = [
   {
     title: 'Quý khách vui lòng kiểm tra hàng trước khi thanh toán',

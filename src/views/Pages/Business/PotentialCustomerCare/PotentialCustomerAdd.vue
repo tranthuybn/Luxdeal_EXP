@@ -9,7 +9,8 @@ import {
   deletePotentialCustomer,
   deletePotentialCustomerHistory,
   getOrderList,
-  getEmployeeRatingList
+  getEmployeeRatingList,
+  getPotentialCustomerList
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -31,11 +32,11 @@ import {
   ElForm,
   ElFormItem,
   ElNotification,
-  FormInstance
+  FormInstance,
+  ElMessageBox
 } from 'element-plus'
-import { dateTimeFormat } from '@/utils/format'
-import { orderType } from '@/utils/format'
-import {ComponentOptions, tableChildren, tableDataType, potentialCustomerInfo, potentialCustomerHistoryInfo } from './type.d'
+import { orderType, dateTimeFormat } from '@/utils/format'
+import {ComponentOptions, tableChildren, tableDataType, potentialCustomerInfo, potentialCustomerHistoryInfo, setFormCustomData } from './type.d'
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -54,7 +55,7 @@ const rules = reactive({
   taxCode: [requiredOption()],
   customerName: [required()],
   phonenumber: [required(), ValidService.checkPhone],
-  email: [ValidService.required, ValidService.checkEmail],
+  email: [ValidService.checkEmail],
 })
 
 const postData = async (data) => {
@@ -87,7 +88,7 @@ const postData = async (data) => {
     representative: data.representative,
     historyTransaction: data.transactionHistory,
     isOnline: data.isOnline,
-    accessChannel: data.customerContactChannel,
+    customerContactChannel: data.accessChannel,
     source: data.newCustomerSource,
     note: data.Note,
     service: data.service || NaN,
@@ -223,31 +224,20 @@ const disabledDate = (time: Date) => {
   return time.getTime() > Date.now()
 }
 
-//get orderlist
-let callOrderAPI = 0
-const orderOptions = ref()
-const getOrdersOptions = async () => {
-  if (callOrderAPI == 0) {
-    await getOrderList({})
-      .then((res) => {
-        if (res.data) {
-          orderOptions.value = res.data.map((tag) => ({
-            label: tag.code,
-            value: `${t(orderType(tag.serviceType))}`,
-            name: tag.userName,
-            id: tag.id
-          }))
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-      .finally(() => callOrderAPI++)
-    // columnProfileCustomer[20].componentProps!.options = orderOptions
-    columnProfileCustomer[20].componentProps!.loading = false
-  }
-}
-
+const getMapOrderData =  ({code, serviceType, userName, createdAt,createdBy , id}) => ({
+  label: code,
+  serviceType: t(`${orderType(serviceType)}`),
+  userName,
+  createdAt: dateTimeFormat(createdAt),
+  createdBy,
+  value: id
+})
+const getMapCustomerData = ({name, id, phonenumber, service}) => ({
+  label: name,
+  phonenumber,
+  service:  t(`${orderType(service)}`),
+  value: id
+})
 
 const columnProfileCustomer = reactive<FormSchema[]>([
   {
@@ -261,9 +251,9 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     component: 'Select',
     value: false,
     componentProps: {
+      style: 'width: 100%',
       allowCreate: true,
       filterable: true,
-      style: 'width: 100%',
       onChange: (data) => {
         changeValueClassify(data)
       },
@@ -280,7 +270,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       ]
     },
     colProps: {
-      span: 10
+      span: 7
     }
   },
   {
@@ -294,15 +284,15 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       options: [
         {
-          value: t('reuse.customer'),
+          value: 1,
           label: t('reuse.customer')
         },
         {
-          value: t('reuse.supplier'),
+          value: 2,
           label: t('reuse.supplier')
         },
         {
-          value: t('formDemo.joint'),
+          value: 3,
           label: t('formDemo.joint')
         }
       ]
@@ -311,40 +301,46 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       labelWidth: '0'
     },
     colProps: {
-      span: 10
+      span: 6
     }
   },
   {
     field: 'customerName',
     label: t('reuse.customerName'),
-    component: 'Input',
+    component: 'SelectMultipleOption',
     componentProps: {
-      style: 'width: 100%',
-      allowCreate: true,
-      filterable: true,
+      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.customerService')],
       placeholder: t('formDemo.enterCustomerName'),
+      allowCreate: true,
+      valueKey: "value" ,
+      labelKey: "label",
+      hiddenKey: ['value'],
+      mapFunction: getMapCustomerData,
+      api: getPotentialCustomerList,
+      onChange: fillCustomerInfo,
+      onInput: setCustomerName
     },
     colProps: {
-      span: 20
+      span: 13
     },
   },
   {
     field: 'companyName',
     label: t('reuse.companyName'),
-    component: 'Select',
-
+    component: 'SelectMultipleOption',
     componentProps: {
-      style: 'width: 100%',
       allowCreate: true,
-      filterable: true,
       placeholder: t('reuse.enterSelectCompanyName'),
-      options: [],
-      onChange: (data) => {
-        fillTaxCode(data)
-      }
+      valueKey: "value" ,
+      labelKey: "label",
+      hiddenKey: ['value'],
+      mapFunction: getMapCustomerData,
+      api: getPotentialCustomerList,
+      onChange: fillCustomerInfo,
+      onInput: setCustomerName
     },
     colProps: {
-      span: 20
+      span: 13
     },
     hidden: true
   },
@@ -362,7 +358,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       placeholder: t('reuse.enterSelectTaxCode')
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
 
@@ -375,19 +371,28 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       placeholder: t('reuse.enterRepresentativeName')
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
 
   {
     field: 'phonenumber',
     label: t('reuse.phoneNumber'),
-    component: 'Input',
+    component: 'SelectMultipleOption',
     componentProps: {
-      placeholder: t('reuse.enterPhoneNumber')
+      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.customerService')],
+      placeholder: t('reuse.enterPhoneNumber'),
+      allowCreate: true,
+      valueKey: "value" ,
+      labelKey: "phonenumber",
+      hiddenKey: ['value'],
+      mapFunction: getMapCustomerData,
+      api: getPotentialCustomerList,
+      onChange: fillCustomerInfo,
+      onInput: setCustomerPhonenumber
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -399,7 +404,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%'
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -411,7 +416,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%'
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -441,7 +446,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       ]
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -465,7 +470,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       ]
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -490,7 +495,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       ]
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -515,7 +520,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       ]
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -527,7 +532,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%'
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -558,17 +563,21 @@ const columnProfileCustomer = reactive<FormSchema[]>([
           value: 3
         },
         {
-          label: t('workplace.mortgage'),
+          label: t('reuse.pawn'),
           value: 4
         },
         {
           label: t('workplace.spa'),
           value: 5
+        },
+        {
+          label: t('reuse.internal'),
+          value: 6
         }
       ]
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -580,7 +589,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%'
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -593,17 +602,15 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.result'),
     component: 'SelectMultipleOption',
     componentProps: {
-      valueKey: "id" ,
+      fields: [t('reuse.orderCode'),t('formDemo.orderType'),t('reuse.customerName'), t('reuse.createDate'), t('reuse.creator')],
+      valueKey: "value" ,
       labelKey: "label",
-      hiddenKey: ['id'],
-      clearable: false,
-      defaultValue: '1',
-      items: orderOptions,
-      fields: [t('reuse.orderCode'),t('formDemo.orderType'),t('reuse.customerName')],
-      onChange: (value) => {console.log(value)}
+      hiddenKey: ['value'],
+      mapFunction: getMapOrderData,
+      api: getOrderList,
     },
     colProps: {
-      span: 20
+      span: 13
     }
   },
   {
@@ -612,7 +619,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     component: 'Radio',
     value: 1,
     colProps: {
-      span: 24
+      span: 13
     },
     componentProps: {
       options: [
@@ -629,10 +636,66 @@ const columnProfileCustomer = reactive<FormSchema[]>([
           value: 3
         }
       ],
-      disabled: true
     }
   }
 ])
+
+function setCustomerName({target}) {
+  formRef.value?.setValues({
+    companyName: target.value,
+    customerName: target.value,
+  })
+}
+function setCustomerPhonenumber({target}) {
+  formRef.value?.setValues({
+    phonenumber: target.value,
+  })
+}
+
+function fillCustomerInfo(id) {
+  if(id) {
+    ElMessageBox.confirm(t('reuse.getAvailableCustomer'), t('reuse.availableCustomer'), {
+      confirmButtonText: t('reuse.confirm'),
+      cancelButtonText: t('reuse.cancel'),
+      type: 'info'
+    })
+    .then(async () => {
+      await getPotentialCustomerById({Id: id})
+      .then(({data}) => {
+        console.log(data)
+        formRef.value?.setValues({
+          supplier: data.supplier || 1,
+          taxCode: data.taxCode,
+          companyName: data.name,
+          customerName: data.name,
+          representative: data.representative,
+          phonenumber: data.phonenumber,
+          email: data.email,
+          link: data.link,
+          transactionHistory: data.historyTransaction,
+          isOnline: data.isOnline,
+          accessChannel: data.accessChannel,
+          newCustomerSource: data.source,
+          Note: data.note,
+          serviceDetails: data.serviceDetails,
+          result: data.customerOrderId,
+          status: data.statusId
+        })
+      })
+      .catch(() => {
+        ElNotification({
+          message: t('reuse.cantFindData'),
+          type: 'warning'
+        })
+      })
+    })
+    .catch(() => {
+      formRef.value?.setValues({
+        phonenumber: '',
+      })
+    })
+  }
+}
 const collapse: Array<Collapse> = [
   {
     icon: minusIcon,
@@ -661,8 +724,12 @@ const changeValueClassify = (data) => {
       columnProfileCustomer[5].hidden = true
       columnProfileCustomer[6].hidden = true
     }
+    clearData()
 }
 
+const clearData = () => {
+  formRef.value?.setValues({})
+}
 
 // get list company
 let cutomerOptions = ref<Array<ComponentOptions>>([])
@@ -687,23 +754,11 @@ const getSaleOptions = async () => {
 }
 const formRef = ref<InstanceType<typeof TableOperator>>()
 
-const fillTaxCode = (data) => {
-  const list = cutomerOptions.value.find((el) => el.value == data)
-  formRef.value?.setValues({
-    taxCode: list!['tax'],
-    companyName: list!['label'],
-    phonenumber: list!['phonenumber'],
-    email: list!['email'],
-    link: list!['link']
-  })
-  
-}
 const form = ref<FormInstance>()
 
 
 onBeforeMount(async () => {
   await getSaleOptions()
-  await getOrdersOptions()
 })
 // add history for sale
 const historyRow = reactive<tableDataType>({
@@ -735,29 +790,12 @@ const addNewSale = () => {
 }
 
 //custom form data
-type setFormCustomData = {
-  email: string
-  link: string
-  customerName: string
-  phonenumber: string
-  name: string
-  companyName: string
-  taxCode: string
-  representative: string
-  serviceDetails: string
-  customerContactChannel: number
-  transactionHistory: string
-  isOnline: boolean
-  Note: string
-  newCustomerSource: number
-  service: number
-  classify: boolean
-  result: number
-}
+
 const emptyFormCustom = {} as setFormCustomData
 const formDataCustomize = ref(emptyFormCustom)
 //set form value
 const customizeData = (formData) => {
+  console.log('formData', formData)
   formDataCustomize.value.email = formData.email
   formDataCustomize.value.phonenumber = formData.phonenumber
   formDataCustomize.value.link = formData.link
@@ -770,37 +808,23 @@ const customizeData = (formData) => {
   formDataCustomize.value.Note = formData.note
   formDataCustomize.value.newCustomerSource = formData.source
   formDataCustomize.value.result = formData.customerOrderId
-  
+  formDataCustomize.value.supplier = formData.supplier || 1
   formDataCustomize.value.customerName = formData.name
   formDataCustomize.value.companyName = formData.name
   formDataCustomize.value.classify = formData.isOrganization
-  
-  changeValueClassify(formDataCustomize.value.classify)
-
   formDataCustomize.value.service = formData.service
-  tableData.value = formData.potentialCustomerHistorys
-  if (formData.statusId == 1) {
-    formDataCustomize.value['status'] = 1
-  }
-  if (formData.statusId == 2) {
-    formDataCustomize.value['status'] = 2
-  }
-  if (formData.statusId == 3) {
-    formDataCustomize.value['status'] = 3
-  }
-
+  formDataCustomize.value.status = formData.statusId
+  tableData.value = formData.potentialCustomerHistorys[0] ? formData.potentialCustomerHistorys : []
+  changeValueClassify(formDataCustomize.value.classify)
 }
 
 // data update api
 const customPostData = (data) => {
   const customData = {} as potentialCustomerInfo
   customData.id = id
-  
   customData.isOrganization = data.classify
-
- if (data.classify == true) customData.name = data.companyName
-  else customData.name = data.customerName
-
+  customData.name = data.classify ? data.companyName : data.customerName
+  customData.supplier = data.supplier || 1
   customData.userName = data.userName
   customData.code = data.code
   customData.phonenumber = data.phonenumber
@@ -811,15 +835,12 @@ const customPostData = (data) => {
   customData.accessChannel = data.customerContactChannel
   customData.source = data.newCustomerSource
   customData.note = data.Note
-  // customData.service = []
-  customData.service = data.service || 0
-  
+  customData.service = data.service || 1
   customData.serviceDetail = data.serviceDetails
-  customData.orderCode = ''
-  customData.statusId = 1
+  customData.customerOrderId = data.result
+  customData.statusId = data.status
   customData.total = 0
   customData.historyTransaction = data.transactionHistory
-
   return customData
 }
 
@@ -1090,7 +1111,11 @@ watch(
   </div>
 </template>
 
-<style scoped>
+<style lang="less" scoped>
+
+::v-deep(.btn-wrap) {
+    margin-left: 127px;
+  }
 .header-icon {
   margin: 10px;
 }
@@ -1129,4 +1154,5 @@ watch(
   font-size: 14px;
   color: var(--el-text-color-secondary);
 }
+
 </style>

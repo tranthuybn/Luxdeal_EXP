@@ -46,6 +46,8 @@ export interface potentialCustomerInfo {
   orderCode: string
   statusId: Number
   total: Number
+  supplier: Number
+  customerOrderId: Number
 }
 
 export interface potentialCustomerHistoryInfo {
@@ -53,4 +55,26 @@ export interface potentialCustomerHistoryInfo {
   staffId: Number
   content: any
   percentageOfSales: Number
+}
+
+export type setFormCustomData = {
+  email: string
+  link: string
+  customerName: string
+  phonenumber: string
+  name: string
+  companyName: string
+  taxCode: string
+  representative: string
+  serviceDetails: string
+  customerContactChannel: number
+  transactionHistory: string
+  isOnline: boolean
+  Note: string
+  newCustomerSource: number
+  service: number
+  classify: boolean
+  result: number
+  supplier: number
+  status: number
 }

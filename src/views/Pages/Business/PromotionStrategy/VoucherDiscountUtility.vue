@@ -15,7 +15,7 @@ import { API_URL } from '@/utils/API_URL'
 // import { disabledDate } from './common'
 
 const { t } = useI18n()
-const curDate = 'VC' + moment().format('hhmmss')
+const curDate = 'VC' + moment().format('DDMMYYHHmmss')
 
 const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 

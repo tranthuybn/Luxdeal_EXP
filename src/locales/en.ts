@@ -907,6 +907,8 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    availableCustomer: 'This customer already exists',
+    getAvailableCustomer: 'Get available customer',
     paidAndFinish: 'Paid & Finish',
     saveAndComfirm: 'Save & comfirm',
     orderIsNotEligibleForPromotion: 'Order value is not eligible for promotion',

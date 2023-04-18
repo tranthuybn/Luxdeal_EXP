@@ -263,7 +263,7 @@ type FormDataPost = {
   isActive: boolean
   DeleteFileIds: string
 }
-var curDate = 'WH' + moment().format('hhmmss')
+var curDate = 'WH' + moment().format('DDMMYYHHmmss')
 
 const customPostData = (data) => {
   const customData = {} as FormDataPost

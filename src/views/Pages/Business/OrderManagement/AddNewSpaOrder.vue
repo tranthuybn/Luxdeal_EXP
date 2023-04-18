@@ -1112,7 +1112,7 @@ const quickEmail = ref()
 // WardId: 1,
 // Address: 1,
 // CustomerType: valueSelectCustomer.value
-var autoCustomerCode = 'KH' + moment().format('hhmmss')
+var autoCustomerCode = 'KH' + moment().format('DDMMYYHHmmss')
 // Thêm nhanh khách hàng
 const createQuickCustomer = async () => {
   const payload = {
@@ -2435,7 +2435,7 @@ const dialogPrinBillSpa = ref(false)
 const dialogPrinRepairSpa = ref(false)
 const billRepairData = ref()
 const openRepairBill = () =>{
-  var curDate = 'SPLND' + moment().format('hhmmss')
+  var curDate = 'SPLND' + moment().format('DDMMYYHHmmss')
   const store = warehouseOptions.value.find((warehouse)=>warehouse.value == dataEdit.value.warehouseId)
   dialogPrinRepairSpa.value = true
   billRepairData.value =dataEdit.value.orderDetails.map((orderDetail)=>({
@@ -2583,7 +2583,7 @@ const changeReturnGoods = ref(false)
 var autoCodePawnOrder = 'CD' + moment().format('hmmss')
 var autoCodeReceipts = 'PT' + moment().format('hmmss')
 var autoCodeExpenditures = 'PC' + moment().format('hmmss')
-var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
+var autoCodePaymentRequest = 'DNTT' + moment().format('DDMMYYHHmmss')
 
 
 let ListInfoSpa = ref()

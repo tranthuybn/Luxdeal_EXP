@@ -249,7 +249,7 @@ const callApiForData = async () => {
   } else {
     type.value == 'add'
     ticketData.value.updatedAt = moment().format()
-    ticketData.value.ticketCode = 'XK' + moment().format('hhmmss')
+    ticketData.value.ticketCode = 'XK' + moment().format('DDMMYYHHmmss')
 
     arrayStatusWH.value.push({
     name: 'Khởi tạo & ghi số',

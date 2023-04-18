@@ -19,7 +19,7 @@ const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
 const router = useRouter()
 //random field code
-const curDate = 'FS' + moment().format('hhmmss')
+const curDate = 'FS' + moment().format('DDMMYYHHmmss')
 
 // Validate input
 const { required, ValidService, requiredOption } = useValidator()

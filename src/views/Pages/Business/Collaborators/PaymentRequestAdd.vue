@@ -58,7 +58,7 @@ const collapse: Array<Collapse> = [
 const dialogVisible = ref(false)
 // const disabled = ref(false)
 const disabledTable = ref(false)
-var curDate = 'HH' + moment().format('hhmmss')
+var curDate = 'HH' + moment().format('DDMMYYHHmmss')
 let requestCode = ref('')
 const collapseChangeEvent = (val) => {
   if (val) {

@@ -58,7 +58,7 @@ const closeDialog = () => {
   emit('close-dialog-warehouse', null)
 }
 const createNewLot = async () => {
-  const Code = 'lot' + moment().format('hhmmss')
+  const Code = 'lot' + moment().format('DDMMYYHHmmss')
   const res = await createWarehouseLot(
     FORM_IMAGES({
       OrderId: isNaN(props.orderId) || props.orderId == 0 ? null : props.orderId,

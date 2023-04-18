@@ -24,7 +24,7 @@ const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[5].key }
 
 //random mã
-const curDate = 'DG0' + moment().format('hhmmss')
+const curDate = 'DG0' + moment().format('DDMMYYHHmmss')
 
 const schema = reactive<FormSchema[]>([
   {

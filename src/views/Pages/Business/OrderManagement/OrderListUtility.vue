@@ -96,10 +96,10 @@ const ruleFormRef = ref<FormInstance>()
 const ruleAddQuickCustomerFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
-// var curDate = 'DHB' + moment().format('hhmmss')
-var autoCustomerCode = 'KH' + moment().format('hhmmss')
+// var curDate = 'DHB' + moment().format('DDMMYYHHmmss')
+var autoCustomerCode = 'KH' + moment().format('DDMMYYHHmmss')
 var autoCodeSellOrder = 'BH' + moment().format('hmmss')
-var autoCodePaymentRequest = 'DNTT' + moment().format('hhmmss')
+var autoCodePaymentRequest = 'DNTT' + moment().format('DDMMYYHHmmss')
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReturnRequest = ref()
 const sellOrderCode = ref()
@@ -640,7 +640,6 @@ let totalFinalOrder = ref(0)
 let promoValue = ref(0)
 let promoCash = ref(0)
 const duplicateProduct = ref()
-
 const duplicateProductMessage = () => {
   ElMessage.error('Sản phẩm đã được chọn, vui lòng tăng số lượng hoặc chọn sản phẩm khác')
 }
@@ -1084,6 +1083,7 @@ let orderDetailsTable = reactive([{}])
 
 // Tạo đơn hàng
 const postData = async (pushBack: boolean) => {
+  console.log('promo.value', promo.value)
   orderDetailsTable = ListOfProductsForSale.value
   .filter((row)=>row.productPropertyId && row.productPropertyId !== '' && row.productPropertyId != null)
   .map((val) => ({
@@ -1131,6 +1131,7 @@ const postData = async (pushBack: boolean) => {
           ? (totalPriceOrder.value * promoValue.value) / 100
           : 0,
       InterestMoney: 0,
+      VoucherId: promo.value?.id || 0,
       // VATMoney: valueVAT.value ? (totalFinalOrder.value * parseInt(valueVAT.value)) / 100 : 0,
       VATMoney: 0,
       Files: Files.value,

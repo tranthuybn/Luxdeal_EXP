@@ -33,68 +33,6 @@ const props = defineProps({
 })
 const schema = reactive<FormSchema[]>([
   {
-    field: 'Divider02',
-    label: t('reuse.generalProductInformation'),
-    component: 'Divider'
-  },
-  {
-    field: 'ProductCode',
-    label: t('reuse.productCode'),
-    component: 'Select',
-    componentProps: {
-      placeholder: t('reuse.enterProductCode'),
-      style: 'width: 100%',
-      loading: true,
-      allowCreate: true,
-      filterable: true,
-      options: []
-    },
-    colProps: {
-      span: 24
-    },
-    formItemProps: {
-      style: { height: '55px' }
-    }
-  },
-  {
-    field: 'Name',
-    label: t('reuse.productName'),
-    component: 'Select',
-    componentProps: {
-      placeholder: t('reuse.enterProductName'),
-      style: 'width: 100%',
-      loading: true,
-      allowCreate: true,
-      filterable: true,
-      options: []
-    },
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'ShortDescription',
-    label: t('reuse.shortDescription'),
-    component: 'Input',
-    componentProps: {
-      placeholder: t('reuse.under256Characters')
-    },
-    colProps: {
-      span: 24
-    }
-  },
-  {
-    field: 'productCharacteristics',
-    label: t('formDemo.productCharacteristics'),
-    component: 'Select',
-    componentProps: {
-      placeholder: t('formDemo.selectFeature')
-    },
-    colProps: {
-      span: 24
-    }
-  },
-  {
     field: 'Divider',
     label: t('router.productCategoryProducts'),
     component: 'Divider'
@@ -172,6 +110,77 @@ const schema = reactive<FormSchema[]>([
       span: 24
     }
   },
+  {
+    field: 'Divider02',
+    label: t('reuse.generalProductInformation'),
+    component: 'Divider'
+  },
+  {
+    field: 'ProductCode',
+    label: t('reuse.productCode'),
+    component: 'Select',
+    componentProps: {
+      placeholder: t('reuse.enterProductCode'),
+      style: 'width: 100%',
+      loading: true,
+      allowCreate: true,
+      filterable: true,
+      options: []
+    },
+    colProps: {
+      span: 24
+    },
+    formItemProps: {
+      style: { height: '55px' }
+    }
+  },
+  {
+    field: 'quickManagementCode',
+    label: t('reuse.managementCode'),
+    component: 'Input',
+    colProps: {
+      span: 24
+    },
+  },
+  {
+    field: 'Name',
+    label: t('reuse.productName'),
+    component: 'Select',
+    componentProps: {
+      placeholder: t('reuse.enterProductName'),
+      style: 'width: 100%',
+      loading: true,
+      allowCreate: true,
+      filterable: true,
+      options: []
+    },
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'ShortDescription',
+    label: t('reuse.shortDescription'),
+    component: 'Input',
+    componentProps: {
+      placeholder: t('reuse.under256Characters')
+    },
+    colProps: {
+      span: 24
+    }
+  },
+  {
+    field: 'productCharacteristics',
+    label: t('formDemo.productCharacteristics'),
+    component: 'Select',
+    componentProps: {
+      placeholder: t('formDemo.selectFeature')
+    },
+    colProps: {
+      span: 24
+    }
+  },
+
 ])
 const close = () =>{
   emit('update:modelValue', false)
@@ -179,9 +188,7 @@ const close = () =>{
 
 const rules = reactive({
   ProductTypeId: [required()],
-  BrandId: [required()],
   UnitId: [required()],
-  OriginId: [required()],
   ProductCode: [
     required(),
     { validator: notSpace },
@@ -198,7 +205,8 @@ const rules = reactive({
   ],
   productCharacteristics: [
     required()
-  ]
+  ],
+  quickManagementCode: [required()]
 })
 
 const postData = async (data) => {
@@ -263,6 +271,6 @@ const postData = async (data) => {
 
 <style lange="less" scoped>
   ::v-deep(.btn-wrap) {
-    margin-left: 540px;
+    margin-left: 520px;
   }
 </style>

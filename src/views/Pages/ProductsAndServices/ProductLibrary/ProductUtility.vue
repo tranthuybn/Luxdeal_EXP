@@ -577,7 +577,6 @@ const postData = async (data) => {
         name: `products-services.productLibrary.Products`
         })
       } else {
-        console.log('disable', disabledTabOpen)
         disabledTabOpen.value = false
         //open collapse 1
         activeName.value = [collapse[1].name]

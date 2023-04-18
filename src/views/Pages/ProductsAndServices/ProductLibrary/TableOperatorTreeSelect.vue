@@ -479,6 +479,7 @@ const apiTreeSelect = async () => {
     await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key, pageSize: 20, pageIndex: 1 })
       .then((res) => {
         if (res.data) {
+          console.log('res.data', res.data)
           treeSelectData.value = res.data.map((index) => ({
             label: index.name,
             value: index.name,

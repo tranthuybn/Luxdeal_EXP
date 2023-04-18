@@ -7,14 +7,23 @@ import {
 } from 'element-plus'
 import { createQuickProduct } from '@/api/Business'
 import { useValidator } from '@/hooks/web/useValidator'
-import {  getBusinessProductLibrary } from '@/api/LibraryAndSetting'
+import {  getBusinessProductLibrary, getCategories } from '@/api/LibraryAndSetting'
 import TableOperatorTreeSelect from '@/views/Pages/ProductsAndServices/ProductLibrary/TableOperatorTreeSelect.vue'
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 
 const doCloseOnClickModal = ref(false)
 const { t } = useI18n()
 const apiStatus = ref(true)
 const emit = defineEmits(['save', 'update:modelValue'])
 const { required, ValidService, notSpace } = useValidator()
+const getMapData =  ({id, name}) => ({label: name, value: id})
+const getMapTreeData =  ({name, id, children}) => ({
+  label: name,
+  value: id,
+  children: children.length > 0 
+    ? children.map(({name, id}) => ({label: name, value: id}))
+    : []
+})
 const props = defineProps({
   modelValue:{
     type: Boolean,
@@ -93,6 +102,18 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'ProductTypeId',
     label: t('reuse.selectCategory'),
+    component: 'SelectMultipleOption',
+    componentProps: {
+      placeholder: t('reuse.selectCategory'),
+      valueKey: "value" ,
+      labelKey: "label",
+      hiddenKey: ['value'],
+      params: { TypeName: PRODUCTS_AND_SERVICES[0].key },
+      api: getCategories,
+      mapFunction: getMapTreeData,
+      clearable: false,
+      isTreeSelect: true
+    },
     colProps: {
       span: 24
     }
@@ -100,11 +121,16 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'BrandId',
     label: t('router.productCategoryBrand'),
-    component: 'Select',
+    component: 'SelectMultipleOption',
     componentProps: {
       placeholder: t('reuse.chooseBrand'),
-      style: 'width: 100%',
-      options: []
+      valueKey: "value" ,
+      labelKey: "label",
+      hiddenKey: ['value'],
+      params: { TypeName: PRODUCTS_AND_SERVICES[7].key },
+      api: getCategories,
+      mapFunction: getMapData,
+      clearable: false,
     },
     colProps: {
       span: 24
@@ -113,11 +139,16 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'UnitId',
     label: t('router.productCategoryUnit'),
-    component: 'Select',
+    component: 'SelectMultipleOption',
     componentProps: {
-      style: 'width: 100%',
       placeholder: t('reuse.chooseUnit'),
-      options: []
+      valueKey: "value" ,
+      labelKey: "label",
+      hiddenKey: ['value'],
+      params: { TypeName: PRODUCTS_AND_SERVICES[6].key },
+      api: getCategories,
+      mapFunction: getMapData,
+      clearable: false,
     },
     colProps: {
       span: 24
@@ -126,11 +157,16 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'OriginId',
     label: t('router.productCategoryOrigin'),
-    component: 'Select',
+    component: 'SelectMultipleOption',
     componentProps: {
       placeholder: t('reuse.chooseOrigin'),
-      style: 'width: 100%',
-      options: []
+      valueKey: "value" ,
+      labelKey: "label",
+      hiddenKey: ['value'],
+      params: { TypeName: PRODUCTS_AND_SERVICES[8].key },
+      api: getCategories,
+      mapFunction: getMapData,
+      clearable: false,
     },
     colProps: {
       span: 24
@@ -174,8 +210,8 @@ const postData = async (data) => {
       shortDescription: data.ShortDescription,
       productTypeId: data.ProductTypeId.id,
       brandId: data.BrandId,
-      originId: data.UnitId,
-      unitId: data.OriginId,
+      originId: data.OriginId,
+      unitId: data.UnitId,
       categories: data.productCharacteristics,
     }
     await createQuickProduct(JSON.stringify(payload))

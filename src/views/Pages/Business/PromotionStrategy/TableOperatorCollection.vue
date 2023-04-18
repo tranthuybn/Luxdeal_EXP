@@ -174,7 +174,6 @@ const getTableValue = async () => {
       } else {
         formValue.value = res.data
       }
-      console.log('formValue.value', formValue.value)
       await setFormValue()
     } else {
       ElNotification({
@@ -1296,7 +1295,7 @@ class="w-250px flex justify-center" :class="multipleImages ? 'avatar-uploader' :
           <ElButton :loading="loading" @click="edit">
             {{ t('reuse.edit') }}
           </ElButton>
-          <ElButton type="primary" :loading="loading" @click="sendImmediately">
+          <ElButton v-if="params.CampaignType == 4" type="primary" :loading="loading" @click="sendImmediately">
             {{ t('reuse.sendImmediately') }}
           </ElButton>
           <ElButton type="danger" :loading="loading" @click="delAction">

@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
-import { ElRow, ElCol, ElOption, ElSelect } from 'element-plus'
+import { ElRow, ElCol, ElOption, ElSelect, ElTreeSelect } from 'element-plus'
 import { computed, ref, PropType, watch, onBeforeMount } from 'vue'
 import { TableResponse } from '@/views/Pages/Components/Type'
 import { TableData } from '@/api/table/types'
@@ -86,6 +86,10 @@ const propsObj = defineProps({
   getMoreAPI: {
     type: Boolean,
     default: true
+  },
+  isTreeSelect: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
@@ -100,7 +104,6 @@ const options: any = computed(() => opTionList.value)
 // if have not value, it will be set by first value key
 const identifyKey = ref(propsObj.valueKey)
 const identifyLabel = ref(propsObj.labelKey)
-
 // set value for multiple select if defaultValue available
 
 onBeforeMount(async () => {
@@ -116,6 +119,7 @@ const callAPI = async (pageIndex: number) => {
   const data = response.data?.data ? response.data.data : response.data
   if(data.length > 0) {
     const arr = data.map(propsObj.mapFunction)
+    console.log('arr', arr)
     options.value.push(...arr);  
   }
 }
@@ -182,6 +186,7 @@ watch(pageIndex, async (newPageIndex) => {
 </script>
 <template>
   <ElSelect
+    v-if="!isTreeSelect"
     ref="MultipleSelect"
     :loading="loading"
     v-model="selected"
@@ -216,7 +221,7 @@ watch(pageIndex, async (newPageIndex) => {
         </ElRow>
       </div>
     </ElOption>
-    <div @scroll="scrolling" class="h-52 px-2.5 overflow-auto">
+    <div @scroll="scrolling" class="h-52 overflow-auto">
       <ElOption
         :style="`width: ${width}`"
         v-for="(item, index) in options"
@@ -244,6 +249,13 @@ watch(pageIndex, async (newPageIndex) => {
     </div>
     <slot name="underButton"> </slot>
   </ElSelect>
+  <ElTreeSelect 
+    v-else 
+    v-model="selected"
+    class="el-select-custom"
+    @change="(data) => valueChangeEvent(data)"
+    :data="options"
+  />
 </template>
 <style lang="css" scoped>
 .el-select-custom {
@@ -271,7 +283,7 @@ watch(pageIndex, async (newPageIndex) => {
 }
 
 .el-select-dropdown__item {
-  padding: 0;
+  padding: 0 5px;
 }
 
 ::v-deep(.el-input__wrapper) {

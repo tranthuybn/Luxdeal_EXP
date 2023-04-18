@@ -710,22 +710,20 @@ let campaignId = ref()
 let isActivePromo = ref()
 
 const handleCurrentChange = (val) => {
-  if(totalPriceOrder.value > val?.min) {
-    promoCash.value = 0
-    promoValue.value = 0
-    currentRow.value = val
-    promo.value = val
-    promo.value?.reduceCash != 0
-      ? (promoCash.value = promo.value.reduceCash)
-      : (promoValue.value = promo.value?.reducePercent)
-    changeRowPromo()
-    checkPromo.value = true
-    return
+  const { min, reduceCash, reducePercent } = val || {}
+  if (!min) return;
+  if (totalPriceOrder.value > min) {
+    promoCash.value = reduceCash || 0;
+    promoValue.value = reducePercent || 0;
+    currentRow.value = promo.value = val;
+    changeRowPromo();
+    checkPromo.value = true;
+  } else {
+    ElNotification({
+      message: t('reuse.orderIsNotEligibleForPromotion'),
+      type: 'warning',
+    });
   }
-  ElNotification({
-    message: t('reuse.orderIsNotEligibleForPromotion'),
-    type: 'warning'
-  })
 }
 
 const changeRowPromo = () => {
@@ -835,14 +833,14 @@ const autoCalculateOrder = () => {
     if (val.totalPrice) totalPriceOrder.value += val.totalPrice
     if (val.depositePrice) totalDeposit.value += val.depositePrice
   })
-  if(totalPriceOrder.value > promoMin.value) {
+  if( promoMin.value && totalPriceOrder.value > promoMin.value) {
     promoCash.value != 0
       ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value + totalDeposit.value)
       : (totalFinalOrder.value =
           totalPriceOrder.value -
           (totalPriceOrder.value * promoValue.value) / 100 +
           totalDeposit.value)
-  } else {
+  } else if (promoMin.value) {
     ElNotification({
         message: t('reuse.orderIsNotEligibleForPromotion'),
         type: 'warning'

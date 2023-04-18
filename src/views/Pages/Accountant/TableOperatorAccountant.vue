@@ -702,7 +702,6 @@ const setStatusHistory = () => {
   ]
   if(statusHistory.length > 0) statusHistory.splice(0, statusHistory.length)
   statusHistory.push(...newStatus)
-  console.log('statusHistory', statusHistory)
 }
 
 const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email  })

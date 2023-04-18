@@ -158,19 +158,6 @@ const schema = reactive<FormSchema[]>([
       }
     }
   },
-  {
-    field: 'approval',
-    label: ' ',
-    colProps: {
-      span: 18
-    },
-    component: 'Input',
-    componentProps: {
-      value: t('reuse.pendings'),
-      class: 'approval-wrap',
-      readonly: true
-    }
-  }
 ])
 const rules = reactive({
   name: [required()],
@@ -346,20 +333,20 @@ const activeName = ref('information')
     display: flex;
   }
 
-  ::v-deep(.approval-wrap) {
-      width: 150px;
+  // ::v-deep(.approval-wrap) {
+  //     width: 150px;
 
-    .el-input__wrapper{
-      padding: 0;
-    }
+  //   .el-input__wrapper{
+  //     padding: 0;
+  //   }
 
-    input {
-      padding: 0 8px ;
-      color: rgb(234 179 8); 
-      background-color: #fff0d9;
-      border-width: 0;
-    }
-  } 
+  //   input {
+  //     padding: 0 8px ;
+  //     color: rgb(234 179 8); 
+  //     background-color: #fff0d9;
+  //     border-width: 0;
+  //   }
+  // } 
 
   ::v-deep(.el-input__icon){
     min-width: 30px;

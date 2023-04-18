@@ -12,6 +12,7 @@ import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
 import moment from 'moment'
+import { disabledDate } from './common'
 
 
 const { t } = useI18n()
@@ -36,10 +37,6 @@ const rules = reactive({
   shortDescription: [required(), { validator: ValidService.checkDescriptionLength.validator }]
 })
 //
-const disabledDate = (date) => {
-  console.log('date', date)
-  return date.getTime() < Date.now()
-}
 
 const schema = reactive<FormSchema[]>([
   {

@@ -136,23 +136,36 @@ const acceptKey = (item) => {
 
 const remoteMethod = async (query: string) => {
   // Only search when query is at least 2 characters long
-  if (query.length >= 2) {
-    loading.value = true
-    setTimeout(async () => {
-      loading.value = false
-      await propsObj.api({Search: query})
-      .then(res => {
-        options.value.splice(0, options.value.length, ...res.data.map(propsObj.mapFunction))
-        console.log('res.data.map(propsObj.mapFunction)', res.data.map(propsObj.mapFunction))
-      })
-      .catch((errorMessage) => {
-        ElMessage({
-          message: t(errorMessage),
-          type: 'error'
-      })
-      })
-    }, 200)
-  }
+  // if (query.length >= 2) {
+  //   loading.value = true
+  //   setTimeout(async () => {
+  //     loading.value = false
+  //     await propsObj.api({Search: query})
+  //     .then(res => {
+  //       options.value.splice(0, options.value.length, ...res.data.map(propsObj.mapFunction))
+  //     })
+  //     .catch((errorMessage) => {
+  //       ElMessage({
+  //         message: t(errorMessage),
+  //         type: 'error'
+  //     })
+  //     })
+  //   }, 200)
+  // }
+  loading.value = true
+  setTimeout(async () => {
+    loading.value = false
+    await propsObj.api({Search: query})
+    .then(res => {
+      options.value.splice(0, options.value.length, ...res.data.map(propsObj.mapFunction))
+    })
+    .catch((errorMessage) => {
+      ElMessage({
+        message: t(errorMessage),
+        type: 'error'
+    })
+    })
+  }, 200)
 }
  
 const valueChangeEvent = (val) => {

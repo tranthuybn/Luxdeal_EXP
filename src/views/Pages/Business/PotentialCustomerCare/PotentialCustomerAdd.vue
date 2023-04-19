@@ -318,7 +318,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       mapFunction: getMapCustomerData,
       api: getPotentialCustomerList,
       onChange: fillCustomerInfo,
-      onInput: setCustomerName
+      onBlur: setCustomerName
     },
     colProps: {
       span: 13
@@ -337,7 +337,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       mapFunction: getMapCustomerData,
       api: getPotentialCustomerList,
       onChange: fillCustomerInfo,
-      onInput: setCustomerName
+      onBlur: setCustomerName
     },
     colProps: {
       span: 13
@@ -389,7 +389,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       mapFunction: getMapCustomerData,
       api: getPotentialCustomerList,
       onChange: fillCustomerInfo,
-      onInput: setCustomerPhonenumber
+      onBlur: setCustomerPhonenumber
     },
     colProps: {
       span: 13
@@ -641,6 +641,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
 ])
 
 function setCustomerName({target}) {
+  console.log(target)
   formRef.value?.setValues({
     companyName: target.value,
     customerName: target.value,

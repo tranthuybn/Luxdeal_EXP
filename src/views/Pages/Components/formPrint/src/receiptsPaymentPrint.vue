@@ -73,27 +73,27 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
     </div>
     <div class="pb-10">
       <div class="flex pb-3 items-center text-[16px]">
-        <label class="basis-1/4">{{ t('reuse.fullName') }} :</label>
+        <label >{{ t('reuse.fullName') }} :</label>
         <div> {{ getUser(props.dataEdit.user) ?? '' }} </div>
       </div>
       <div class="flex pb-3 items-center text-[16px]">
-        <label class="basis-1/4">{{ t('reuse.reason') }} :</label>
+        <label >{{ t('reuse.reason') }} :</label>
         <div>{{ props.dataEdit.reasonCollectingMoney ?? '' }}</div>
       </div>
       <div class="flex pb-3 items-center text-[16px]">
-        <label class="basis-1/4">{{ t('reuse.amountOfMoney') }} :</label>
+        <label >{{ t('reuse.amountOfMoney') }} :</label>
         <div> {{ currencyFormatter.format(props.dataEdit.moneyReceipts)   }}</div>
       </div>
       <div class="flex pb-3 items-center text-[16px]">
-        <label class="basis-1/4">{{ t('formDemo.writtenWords') }} :</label>
+        <label >{{ t('formDemo.writtenWords') }} :</label>
         <div>{{ props.dataEdit.enterMoney ?? '' }}</div>
       </div>
       <div class="flex pb-3 items-center text-[16px]">
-        <label class="basis-1/4">{{ t('formDemo.formPayment') }} :</label>
+        <label >{{ t('formDemo.formPayment') }} :</label>
         <div>{{ props.dataEdit.payment ?? '' }}</div>
       </div>
       <div class="flex pb-3 items-center text-[16px]">
-        <label class="basis-1/4">{{ t('formDemo.documentsAttached') }} :</label>
+        <label >{{ t('formDemo.documentsAttached') }} :</label>
         <div>{{ props.dataEdit.sellOrderCode ?? '' }}</div>
       </div>
     </div>

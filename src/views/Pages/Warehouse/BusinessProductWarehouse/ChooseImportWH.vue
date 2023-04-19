@@ -12,6 +12,7 @@ import {
   ElOption,
   ElTable,
   ElTableColumn,
+  ElRadioGroup,
   ElRadio,
   ElMessage
 } from 'element-plus'
@@ -38,7 +39,7 @@ const props = defineProps({
   },
   warehouseFormData: {
     type: Object,
-    default: () => {}
+    default: () => { }
   },
   orderId: {
     type: Number,
@@ -46,11 +47,15 @@ const props = defineProps({
   },
   warehouse: {
     type: Object,
-    default: () => {}
+    default: () => { }
   },
   serviceType: {
     type: Number,
     default: 6
+  },
+  unitPrice: {
+    type: Number,
+    default:0
   }
 })
 
@@ -88,6 +93,7 @@ const warehouseForm = computed(() => {
 })
 const rules = reactive<FormRules>({
   quantity: [required()],
+  unitPrice: [required()],
   warehouseImportId: [required()],
   locationImportId: [required()]
 })
@@ -117,9 +123,11 @@ const changeWarehouseData = async (warehouseId) => {
         location: item.locationName,
         lotCode: item.code,
         orderType: item.serviceType,
-        inventory: item.inventory,
+        inventory: item.inventory ?? 0,
         unit: item?.unitName,
-        createdAt: item.createdAt
+        createdAt: item.createdAt ?? null,
+        unitPrice: item?.unitPrice ?? 0,
+        businessSetup:item?.businessSetupValue ?? []
       }))
       lotData.value = lotData.value.filter((lot) => lot.orderType == 6)
     })
@@ -187,6 +195,20 @@ watch(
     props.orderId == 0 ? await changeWarehouseData(props.warehouse?.value) : ''
   }
 )
+//
+const lotChoosingEvent = (data) => {
+  if (parseInt(data?.unitPrice) != props?.unitPrice)
+  {
+    radioSelected.value = -1
+    ElMessage({
+      message: 'Giá nhập khác giá của lot, vui lòng tạo lot mới',
+      type: 'warning'
+    })
+  }
+    
+}
+const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+ 
 </script>
 <template>
   <el-dialog 
@@ -199,7 +221,7 @@ watch(
     @close="closeDialog"
   >
     <template #header>
-      <h1>{{ t('reuse.chooseWarehouse') }}</h1>
+      <h1 class="text-gray-500">{{ t('reuse.chooseWarehouse') }}</h1>
       <el-divider class="!mb-0" />
     </template>
     <el-form
@@ -207,16 +229,18 @@ watch(
       :model="warehouseForm"
       :rules="rules"
       label-width="120px"
-      label-position="top"
     >
-      <el-form-item :label="t('reuse.quantity')" prop="quantity">
-        {{ warehouseForm.quantity }}
+      <el-form-item label-position="left" :label="t('reuse.quantity')" prop="quantity">
+       : {{ warehouseForm.quantity }}
       </el-form-item>
-      <el-form-item :label="t('reuse.type')" prop="serviceType">
-        {{ t(orderType(serviceType)) }}
+      <el-form-item label-position="left" :label="t('reuse.priceImport')" prop="unitPrice">
+        : {{ currencyFormatter.format(unitPrice) }}
+      </el-form-item>
+      <el-form-item label-position="left" :label="t('reuse.type')" prop="serviceType">
+        : {{ t(orderType(serviceType)) }}
       </el-form-item>
       <div class="flex import" v-if="transactionType != 2">
-        <el-form-item :label="t('reuse.chooseLocation')" prop="locationImportId" class="w-full">
+        <el-form-item  label-position="top" :label="t('reuse.chooseLocation')" prop="locationImportId" class="w-full">
           <el-select
             class="w-full"
             v-model="warehouseForm.locationImportId"
@@ -250,12 +274,16 @@ watch(
         </template>
         <el-table-column label="" width="70">
           <template #default="scope">
+            <el-radio-group 
+            @change="lotChoosingEvent(scope.row)"
+            v-model="radioSelected"
+            >
             <el-radio
-              v-model="radioSelected"
               :label="scope.$index"
               style=" margin-right: -25px;color: #fff"
               ><span></span
             ></el-radio>
+          </el-radio-group>
           </template>
         </el-table-column>
         <el-table-column prop="location" :label="t('reuse.location')" width="180" />
@@ -271,7 +299,14 @@ watch(
             {{ calculateQuantity(scope) }}
           </template>
         </el-table-column>
-        <el-table-column prop="unit" :label="t('reuse.unit')" width="180" />
+        <el-table-column prop="unitName" :label="t('reuse.unit')" width="180" />
+        <el-table-column prop="unitPrice" :label="t('reuse.priceImport')" width="180" >
+          <template #default="scope">
+            <div>
+                {{currencyFormatter.format(parseInt(scope.row.unitPrice))}}    
+            </div>
+          </template>
+          </el-table-column>
         <el-table-column prop="createdAt" :label="t('reuse.createDate')" width="180">
           <template #default="scope">
             {{ dateTimeFormat(scope.row.createdAt) }}

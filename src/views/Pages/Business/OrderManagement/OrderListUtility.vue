@@ -1316,18 +1316,22 @@ const idAcountingEntry = ref()
 const openDialogAcountingEntry = (scope,isDisable) => {
   condition.value = isDisable;
   const data = scope.row
+  console.log("6666666666666666666666666666")
+  console.log(data.receiptOrPaymentVoucherCode)
+  // showCancelAcountingEntry.value = false
+  // condition.value = false
   switch (data.typeOfAccountingEntry) {
     case 1:
-      openAcountingEntryDialog(data.id, 1)
+      openAcountingEntryDialog(data.id, 1, data.receiptOrPaymentVoucherCode)
       break
     case 2:
-      openAcountingEntryDialog(data.id, 2)
+      openAcountingEntryDialog(data.id, 2,data.receiptOrPaymentVoucherCode)
       break
     case 3:
-      openAcountingEntryDialog(data.id, 3)
+      openAcountingEntryDialog(data.id, 3,null)
       break
     case 4:
-      openAcountingEntryDialog(data.id, 4)
+      openAcountingEntryDialog(data.id, 4, null)
       break
     default:
       console.log(`Sorry, we are out of ${data.typeOfAccountingEntry}.`)
@@ -1394,7 +1398,7 @@ const updateOrderStransaction = async() => {
 }
 
 const checkEditAcountingEntryPaymentType = ref(false)
-const openAcountingEntryDialog = async (index, num) => {
+const openAcountingEntryDialog = async (index, num, disblebutton) => {
   idAcountingEntry.value = index
   updateDetailAcountingEntry.value = true
   const res = await getDetailAccountingEntryById({ id: index })
@@ -1434,6 +1438,9 @@ const openAcountingEntryDialog = async (index, num) => {
   } else if (num == 2) {
     totalOutstandingDebt()
     dialogDepositSlipAdvance.value = true
+    if(disblebutton != null){
+      showCancelAcountingEntry.value = false
+    }
   } else if (num == 4) {
     dialogAccountingEntryAdditional.value = true
   } else if (num == 3) {
@@ -2865,7 +2872,6 @@ const handleClose = (done: () => void) => {
           <div class="dialog-content">
             <slot>
               <billPrint
-            class="w-[796px] h-[1123px]"
             v-if="dataEdit && dataPriceBill"
             :dataEdit="dataEdit"
             :dataPriceBill = "dataPriceBill"

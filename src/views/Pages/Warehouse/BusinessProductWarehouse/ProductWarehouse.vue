@@ -191,7 +191,7 @@ const ScrollProductBottom = () => {
 const dialogWarehouse = ref(false)
 const currentRow = ref(0)
 const curPPID = ref(0)
-
+const unitPrice = ref(0)
 const warehouseData = ref({
   quantity: 0,
   warehouse: { value: undefined, label: undefined },
@@ -223,7 +223,7 @@ const openDialogWarehouse = (props) => {
     dialogWarehouse.value = true
     curPPID.value = props.row.productPropertyId
     currentRow.value = props.$index
-
+    unitPrice.value = props.row.price
     warehouseData.value.quantity = props.row.quantity
     warehouseData.value.warehouse = props.row?.warehouse
     warehouseData.value.location.value = props.row?.location?.value
@@ -394,6 +394,7 @@ const disabled = computed(() => {
     :orderId="orderId"
     :warehouse="warehouse"
     :serviceType="serviceType"
+    :unitPrice="unitPrice"
   />
   <el-table
     border

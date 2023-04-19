@@ -15,8 +15,9 @@ export interface tableChildren {
 }
 export interface tableDataType {
   id: any
-  staffId: Number
-  staffName: Number | String
+  indexSale: Number
+  staffId: Number | String
+  staffName: String
   content: String
   createdAt: String
   date: any
@@ -53,7 +54,7 @@ export interface potentialCustomerInfo {
 
 export interface potentialCustomerHistoryInfo {
   id: any
-  staffId: Number
+  staffId: Number | String
   content: any
   percentageOfSales: Number
 }

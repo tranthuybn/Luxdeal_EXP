@@ -68,7 +68,7 @@ const postData = async (data) => {
       if (element.family && Array.isArray(element.family) && element.family.length > 0)
         element.family.forEach((ChildEl) => {
           potentialSaleList.push({
-            id: element.staffId,
+            id: element.indexSale,
             staffId: element.staffId,
             content: ChildEl?.customerCareContent ?? '',
             percentageOfSales: Number(element.percentageOfSales)
@@ -805,7 +805,8 @@ onBeforeMount(async () => {
 // add history for sale
 const historyRow = reactive<tableDataType>({
   id: id,
-  staffId: 1,
+  indexSale: 1,
+  staffId: '',
   staffName: '',
   content: '',
   createdAt: '',
@@ -818,7 +819,7 @@ const historyRow = reactive<tableDataType>({
 
 const addNewSale = () => {
   const tempObj = { ...historyRow }
-  tempObj.staffId =  tableData.value.length + 1
+  tempObj.indexSale =  tableData.value.length + 1
   tempObj.content =  ''
   tempObj.date = moment().format('YYYY/MM/DD')
   tempObj.family = [
@@ -856,6 +857,11 @@ const customizeData = (formData) => {
   formDataCustomize.value.service = formData.service
   formDataCustomize.value.status = formData.statusId
   tableData.value = formData.potentialCustomerHistorys[0] ? formData.potentialCustomerHistorys : []
+  // if(tableData.value.length > 0) {
+  //   tableData.value = formData.potentialCustomerHistorys.map((scope) => {
+
+  //   })
+  // }
   changeValueClassify(formDataCustomize.value.classify)
 }
 
@@ -1055,12 +1061,12 @@ watch(
 
             <el-table-column
               :label="`${t('reuse.sale')}`"
-              prop="staffId"
+              prop="indexSale"
               class="text-black font-bold"
               min-width="150"
             >
               <template #default="data">
-                Sale {{ data.row.staffId }}
+                Sale {{ data.row.indexSale }}
               </template>
             </el-table-column>
             <el-table-column :label="`${t('reuse.lastContent')}`" prop="content" min-width="500">
@@ -1075,22 +1081,8 @@ watch(
                 <div> {{ dateTimeFormat(data.row.createdAt) }}</div>
               </template>
             </el-table-column>
-            <el-table-column :label="`${t('reuse.saleName')}`" prop="staffName" min-width="250">
+            <el-table-column :label="`${t('reuse.saleName')}`" prop="staffId" min-width="250">
               <template #default="props">
-                <!-- <el-select
-                  v-model="props.row.staffName"
-                  filterable
-                  class="m-2"
-                  size="large"
-                  v-if="props.row.edited"
-                >
-                  <el-option
-                    v-for="(item, index) in cutomerOptions"
-                    :key="index"
-                    :label="item.label"
-                    :value="item.value!"
-                  />
-                </el-select> -->
                 <InfinitOptions 
                   :fields="[t('reuse.employeeCode'),t('reuse.employeeName')]"
                   valueKey="value" 
@@ -1102,8 +1094,8 @@ watch(
                   :type="type"
                   :api="getEmployeeRatingList"
                   :mapFunction="getMapData"
-                  :defaultValue="props.row.staffName"
-                  @update-value="(_value, option) => props.row.staffName = option.value"
+                  :defaultValue="props.row.staffId"
+                  @update-value="(_value, option) => props.row.staffId = option.value"
                 />
               </template>
             </el-table-column>

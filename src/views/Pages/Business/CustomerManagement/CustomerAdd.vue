@@ -158,7 +158,7 @@ const rules = reactive<FormRules>({
   ],
   accountNumber: [
     {validator: checkNumber},
-    {validator: (...config) =>  checkLength(config, 9, 14)},
+    {validator: (...config) =>  checkLength(config, 0, 14)},
     {validator: (...config) => checkDuplicate(config, accountNumberList.value, t('reuse.accountNumberDuplicated'), type, id)}
   ],
 })

@@ -516,7 +516,7 @@ const updateTicket = (warehouse) => {
               >{{ t('reuse.cancelExport') }}</ElButton
             >
           </div>
-          <ElButton
+           <ElButton
               v-if="status == 5"
               class="w-[150px]"
               type="primary"
@@ -524,7 +524,6 @@ const updateTicket = (warehouse) => {
               @click="updateInventoryOrder"
               >{{ t('formDemo.depositNow') }}</ElButton
             >
-
             <ElButton
               v-if="status == 6"
               class="w-[150px]"

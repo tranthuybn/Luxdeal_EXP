@@ -45,7 +45,6 @@ const rules = reactive<FormRules>({
   staffId: [required(), requiredOption()],
   toWarehouseId: [required()],
   fromWarehouseId: [required()],
-  customerId: [required(), requiredOption()]
 })
 let infoCompany = reactive({
   name: '',
@@ -125,13 +124,15 @@ const getListStaff = async () => {
     label: item.name + ' | ' + item.phonenumber,
     id: item.id
   }))
-  optionsStaffApi.value.push({
-    code: currentCreator.value.code,
-    phone: currentCreator.value.phonenumber,
-    name: currentCreator.value.name,
-    label: currentCreator.value.name + ' | ' + currentCreator.value.phonenumber,
-    id: currentCreator.value.id
-  })
+  if(currentCreator.value.roleId === 4) {
+    optionsStaffApi.value.push({
+      code: currentCreator.value.code,
+      phone: currentCreator.value.phonenumber,
+      name: currentCreator.value.name,
+      label: currentCreator.value.name + ' | ' + currentCreator.value.phonenumber,
+      id: currentCreator.value.id
+    })
+  }
   if(FormData.value.staffId){
     const find = optionsStaffApi.value.find(staff => staff.id == FormData.value.staffId)
     if(!find){
@@ -142,10 +143,11 @@ const getListStaff = async () => {
         label: FormData.value?.staffName,
         id: FormData.value?.staffId
       })
-    }}
-    else{
-      FormData.value.staffId = currentCreator.value.id
     }
+  }
+  else{
+    FormData.value.staffId = currentCreator.value.id
+  }
 }
 const scrollCustomerBottom = ref(false)
 const pageIndexCustomer = ref(1)
@@ -238,16 +240,15 @@ defineExpose({
   submitFormTicket
 })
 
-//sửa giden lại phải làm thêm ;))
 const warehouseOptions = ref()
 const callAPIWarehouse = async () => {
   await getProductStorage({
     pageSize: 1000,
     pageIndex: 1
   }).then((res) => {
-    warehouseOptions.value = res.data.filter(el=>el.isActive)?.map((item) => ({
-          value: item.id,
-          label: item.name 
+    warehouseOptions.value = res.data.filter(el=>el.children.length > 0 && el.isActive)?.map((item) => ({
+      value: item.id,
+      label: item.name 
     }))
   })
 }
@@ -321,8 +322,8 @@ v-model="FormData.fromWarehouseId" @change="chooseExportWarehouse"
           prop="toWarehouseId"
         >
           <el-select
-v-model="FormData.toWarehouseId" @change="chooseImportWarehouse"
-    :disabled="props.type == 'detail' && typeTransaction !== 3">
+              v-model="FormData.toWarehouseId" @change="chooseImportWarehouse"
+              :disabled="props.type == 'detail' && typeTransaction !== 3">
             <el-option
               v-for="item,key in warehouseOptions"
               :key="key"
@@ -335,7 +336,7 @@ v-model="FormData.toWarehouseId" @change="chooseImportWarehouse"
       </div>
       <ElFormItem class="mt-5" :label="t('reuse.petitioner')" prop="staffId">
         <MultipleOptionsBox
-    :disabled="props.type == 'detail'"
+          :disabled="props.type == 'detail'"
           :fields="[t('reuse.employeeCode'), t('reuse.phoneNumber'), t('reuse.employeeName')]"
           filterable
           width="700px"
@@ -362,7 +363,7 @@ v-model="FormData.toWarehouseId" @change="chooseImportWarehouse"
       <div class="flex justify-between">
         <ElFormItem :label="t('reuse.selectObject')" class="w-4/5" prop="customerId">
           <MultipleOptionsBox
-    :disabled="props.type == 'detail'"
+            :disabled="props.type == 'detail'"
             :fields="[t('reuse.customerCode'), t('reuse.phoneNumber'), t('reuse.customerName')]"
             filterable
             class="w-full"
@@ -380,7 +381,7 @@ v-model="FormData.toWarehouseId" @change="chooseImportWarehouse"
         </ElFormItem>
         <ElFormItem label-width="0px">
           <el-button
-    :disabled="props.type == 'detail'"
+           :disabled="props.type == 'detail'"
             @click="openQuickAddDialog"
             :icon="plusIcon"
             class="pl-8"
@@ -388,21 +389,17 @@ v-model="FormData.toWarehouseId" @change="chooseImportWarehouse"
           >
         </ElFormItem>
       </div>
-      <ElFormItem :label="t('formDemo.customerName')" v-if="infoCompany.name">
-        <div class="leading-4">
-          <div class="ml-5">{{ infoCompany.name }}</div>
-        </div>
+      <ElForm class="customerDetail" label-width="278px">
+        <ElFormItem :label="`${t('formDemo.customerName')}:`" v-if="infoCompany.name">
+          {{ infoCompany.name }}
+        </ElFormItem>
+        <ElFormItem :label="`${t('reuse.phoneNumber')}:`" v-if="infoCompany.phonenumber">
+          {{ infoCompany.phonenumber }}
+        </ElFormItem>
+        <ElFormItem :label="`${t('reuse.email')}:`" v-if="infoCompany.email">
+          {{ infoCompany.email }}
       </ElFormItem>
-      <ElFormItem class="w-[100%]" :label="t('reuse.phoneNumber')" v-if="infoCompany.phonenumber">
-        <div class="leading-4">
-          <div class="ml-5">{{ infoCompany.phonenumber }}</div>
-        </div>
-      </ElFormItem>
-      <ElFormItem class="w-[100%]" :label="t('reuse.email')" v-if="infoCompany.email">
-        <div class="leading-4">
-          <div class="ml-5">{{ infoCompany.email }}</div>
-        </div>
-      </ElFormItem>
+      </ElForm>
     </div>
     <div class="w-[50%]">
       <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
@@ -414,8 +411,13 @@ v-model="FormData.toWarehouseId" @change="chooseImportWarehouse"
     </div>
   </ElForm>
 </template>
-<style scoped>
+<style lang="less" scoped>
 :deep(.el-select) {
   width: 100%;
+}
+::v-deep(.customerDetail) {
+  .el-form-item{
+    margin: 0;
+  }
 }
 </style>

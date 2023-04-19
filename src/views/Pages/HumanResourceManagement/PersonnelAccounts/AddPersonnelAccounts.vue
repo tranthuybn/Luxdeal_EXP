@@ -189,12 +189,9 @@ const rules = reactive<FormRules>({
     }
   ],
   userName: [
-    ValidService.required,
     { validator: notSpace }
   ],
-  password: [ValidService.required],
   confirmPassword: [
-    ValidService.required,
     {
       validator: (_rule: any, value: any, callback: any) => {
         if (value !== ruleForm.password) {
@@ -202,7 +199,6 @@ const rules = reactive<FormRules>({
         }
         callback()
       },
-      required: true,
       trigger: 'blur'
     }
   ],

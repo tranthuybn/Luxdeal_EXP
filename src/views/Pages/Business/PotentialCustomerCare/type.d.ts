@@ -16,7 +16,7 @@ export interface tableChildren {
 export interface tableDataType {
   id: any
   staffId: Number
-  staffName: String
+  staffName: Number | String
   content: String
   createdAt: String
   date: any

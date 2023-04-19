@@ -235,7 +235,8 @@ watch(
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData,
-  setValues: methods.setValues
+  setValues: methods.setValues,
+  setSchema: methods.setSchema
 })
 
 const route = useRoute()

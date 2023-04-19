@@ -219,7 +219,7 @@ watch(
 
 defineExpose({
   elFormRef,
-  getFormData: methods.getFormData
+  getFormData: methods.getFormData,
 })
 
 let treeSelectData = ref()
@@ -517,7 +517,6 @@ const getCodeAndNameSelect = async () => {
   CodeOptions.value = CodeAndNameSelect.value
 }
 const remoteProductCode = (query: string) => {
-  setValues({ ProductCode: productCode.value })
   if (query) {
     loading.value = true
     setTimeout(async () => {
@@ -571,7 +570,7 @@ const fillAllInformation = async (data) => {
                   const UnitId = fillValue.categories[2].id
                   const OriginId = fillValue.categories[3].id
                   setValues({
-                    ProductCode: productCode.value,
+                    ProductCode: props.addQuickProduct ? fillValue.productCode : productCode.value,
                     Name: fillValue.name,
                     ShortDescription: fillValue.shortDescription,
                     VerificationInfo: fillValue.verificationInfo,
@@ -594,9 +593,6 @@ const fillAllInformation = async (data) => {
               )
           })
           .catch(() => {})
-          .finally(() => {
-            setValues({ ProductCode: productCode.value })
-          })
       : (sameProductCode.value = false)
 }
 

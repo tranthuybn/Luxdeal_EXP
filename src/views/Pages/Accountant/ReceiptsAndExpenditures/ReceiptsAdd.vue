@@ -25,7 +25,6 @@ const escape = useIcon({ icon: 'quill:escape' })
 const activeName = ref('receiptsAddDetails')
 const setFormData = reactive({} as FormData)
 const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
-
 const back = async () => {
   if(type !== 'approval') {
     push({

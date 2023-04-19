@@ -27,8 +27,6 @@ import {
   ElTable,
   ElTableColumn,
   ElDatePicker,
-  ElOption,
-  ElSelect,
   ElForm,
   ElFormItem,
   ElNotification,
@@ -37,10 +35,12 @@ import {
 } from 'element-plus'
 import { orderType, dateTimeFormat } from '@/utils/format'
 import {ComponentOptions, tableChildren, tableDataType, potentialCustomerInfo, potentialCustomerHistoryInfo, setFormCustomData } from './type.d'
+import InfinitOptions from '@/components/Select/InfinitOptions.vue'
 
+const pageIndex = ref(1)
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
-const { required, ValidService, requiredOption } = useValidator()
+const { required, ValidService, requiredOption, checkLength } = useValidator()
 const { t } = useI18n()
 const percentIcon = useIcon({ icon: 'material-symbols:percent' })
 const tableData = ref<tableDataType[]>([])
@@ -56,6 +56,9 @@ const rules = reactive({
   customerName: [required()],
   phonenumber: [required(), ValidService.checkPhone],
   email: [ValidService.checkEmail],
+  serviceDetails: [{
+    validator: (...config) => checkLength(config, 0, 256)
+  }]
 })
 
 const postData = async (data) => {
@@ -73,9 +76,6 @@ const postData = async (data) => {
         })
     })
   }
-   if(data.result == "") {
-    data.result = null;
-   }
   const payload = {
     name: data.classify == true ? data.companyName : data.customerName,
     userName: 'string',
@@ -85,6 +85,7 @@ const postData = async (data) => {
     phonenumber: data.phonenumber,
     email: data.email,
     link: data.link,
+    accessChannel:  data.customerContactChannel,
     representative: data.representative,
     historyTransaction: data.transactionHistory,
     isOnline: data.isOnline,
@@ -99,6 +100,7 @@ const postData = async (data) => {
     customerOrderId: data.result,
     potentialCustomerHistorys: potentialSaleList
   }
+
   await addNewPotentialCustomer(payload)
     .then(() => {
       ElNotification({
@@ -109,9 +111,9 @@ const postData = async (data) => {
         name: `business.potential-customer-care.potential-customer-list`
       })
     })
-    .catch(() => {
+    .catch((error) => {
       ElNotification({
-        message: t('reuse.addFail'),
+        message: error.message,
         type: 'warning'
       })
     })
@@ -134,6 +136,7 @@ const handleSave = async (row) => {
   if (type == 'edit') {
     row = customPostDataHistory(row)
     row.percentageOfSales = Number(row.percentageOfSales)
+    console.log('row', row)
     await UpdatePotentialCustomerHistory({ ...row })
       .then(() =>
         ElNotification({
@@ -315,10 +318,11 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       valueKey: "value" ,
       labelKey: "label",
       hiddenKey: ['value'],
+      params: {IsOrganization: 0},
       mapFunction: getMapCustomerData,
       api: getPotentialCustomerList,
       onChange: fillCustomerInfo,
-      onBlur: setCustomerName
+      onBlur: setCustomerName,
     },
     colProps: {
       span: 13
@@ -334,6 +338,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       valueKey: "value" ,
       labelKey: "label",
       hiddenKey: ['value'],
+      params: {IsOrganization: 1},
       mapFunction: getMapCustomerData,
       api: getPotentialCustomerList,
       onChange: fillCustomerInfo,
@@ -344,7 +349,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     },
     hidden: true
   },
-
   {
     field: 'taxCode',
     label: t('reuse.taxCode'),
@@ -361,7 +365,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       span: 13
     }
   },
-
   {
     field: 'representative',
     label: t('reuse.representative'),
@@ -389,7 +392,8 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       mapFunction: getMapCustomerData,
       api: getPotentialCustomerList,
       onChange: fillCustomerInfo,
-      onBlur: setCustomerPhonenumber
+      onBlur: setCustomerPhoneNumber,
+      onClick : setCustomerPhoneNumber
     },
     colProps: {
       span: 13
@@ -569,10 +573,6 @@ const columnProfileCustomer = reactive<FormSchema[]>([
         {
           label: t('workplace.spa'),
           value: 5
-        },
-        {
-          label: t('reuse.internal'),
-          value: 6
         }
       ]
     },
@@ -606,6 +606,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       valueKey: "value" ,
       labelKey: "label",
       hiddenKey: ['value'],
+      params: {},
       mapFunction: getMapOrderData,
       api: getOrderList,
     },
@@ -640,20 +641,43 @@ const columnProfileCustomer = reactive<FormSchema[]>([
   }
 ])
 
+async function getParamsOrder(customerName) {
+  formRef.value?.setSchema([
+    {
+      field: 'result',
+      path: 'componentProps.params',
+      value: {Keyword: customerName}
+    }
+  ])
+}
+
 function setCustomerName({target}) {
-  console.log(target)
   formRef.value?.setValues({
     companyName: target.value,
     customerName: target.value,
   })
 }
-function setCustomerPhonenumber({target}) {
+async function setCustomerPhoneNumber({target}) {
   formRef.value?.setValues({
     phonenumber: target.value,
   })
+  const existCustomer = await checkPhoneNumberExist()
+  if(existCustomer) {
+    fillCustomerInfo(existCustomer) 
+    return
+  }
 }
 
-function fillCustomerInfo(id) {
+async function checkPhoneNumberExist() {
+  const formData = await formRef.value?.getFormData()
+  if(formData?.phonenumber && formData?.phonenumber.length === 10) {
+    const existedCustomer = await getPotentialCustomerList({Search: formData.phonenumber})
+    if(existedCustomer.data.length > 0) { return existedCustomer.data[0]?.id }
+    return false
+  }
+}
+
+async function fillCustomerInfo (id) {
   if(id) {
     ElMessageBox.confirm(t('reuse.getAvailableCustomer'), t('reuse.availableCustomer'), {
       confirmButtonText: t('reuse.confirm'),
@@ -663,7 +687,6 @@ function fillCustomerInfo(id) {
     .then(async () => {
       await getPotentialCustomerById({Id: id})
       .then(({data}) => {
-        console.log(data)
         formRef.value?.setValues({
           supplier: data.supplier || 1,
           taxCode: data.taxCode,
@@ -673,7 +696,7 @@ function fillCustomerInfo(id) {
           phonenumber: data.phonenumber,
           email: data.email,
           link: data.link,
-          transactionHistory: data.historyTransaction,
+          transactionHistory: 220,
           isOnline: data.isOnline,
           accessChannel: data.accessChannel,
           newCustomerSource: data.source,
@@ -682,6 +705,7 @@ function fillCustomerInfo(id) {
           result: data.customerOrderId,
           status: data.statusId
         })
+        getParamsOrder(data.name)
       })
       .catch(() => {
         ElNotification({
@@ -753,6 +777,7 @@ const getSaleOptions = async () => {
     }
   }
 }
+const getMapData = ({employeeCode, employeeName, id}) => ({employeeCode, label: employeeName, value: id})
 const formRef = ref<InstanceType<typeof TableOperator>>()
 
 const form = ref<FormInstance>()
@@ -796,7 +821,6 @@ const emptyFormCustom = {} as setFormCustomData
 const formDataCustomize = ref(emptyFormCustom)
 //set form value
 const customizeData = (formData) => {
-  console.log('formData', formData)
   formDataCustomize.value.email = formData.email
   formDataCustomize.value.phonenumber = formData.phonenumber
   formDataCustomize.value.link = formData.link
@@ -820,7 +844,7 @@ const customizeData = (formData) => {
 }
 
 // data update api
-const customPostData = (data) => {
+const customData = (data) => {
   const customData = {} as potentialCustomerInfo
   customData.id = id
   customData.isOrganization = data.classify
@@ -855,7 +879,7 @@ const customPostDataHistory = (data) => {
 }
 
 const editData = async (data) => {
-  data = customPostData(data)
+  data = customData(data)
   await updatePotentialCustomer(JSON.stringify(data))
     .then(() => {
       ElNotification({
@@ -1022,7 +1046,7 @@ watch(
                 Sale {{ data.row.staffId }}
               </template>
             </el-table-column>
-            <el-table-column :label="`${t('reuse.lastContent')}`" prop="content" min-width="720">
+            <el-table-column :label="`${t('reuse.lastContent')}`" prop="content" min-width="500">
               <template #default="scope">
                 <!-- <el-input v-model="scope.row.lastContent" v-if="scope.row.edited" /> -->
                 <div>{{ scope.row.content }}</div>
@@ -1036,7 +1060,7 @@ watch(
             </el-table-column>
             <el-table-column :label="`${t('reuse.saleName')}`" prop="staffName" min-width="250">
               <template #default="props">
-                <el-select
+                <!-- <el-select
                   v-model="props.row.staffName"
                   filterable
                   class="m-2"
@@ -1049,8 +1073,21 @@ watch(
                     :label="item.label"
                     :value="item.value!"
                   />
-                </el-select>
-                <div v-else>{{ props.row.staffName }}</div>
+                </el-select> -->
+                <InfinitOptions 
+                  :fields="[t('reuse.employeeCode'),t('reuse.employeeName')]"
+                  valueKey="value" 
+                  labelKey="label"
+                  :hiddenKey="['value']"
+                  :clearable="false"
+                  :pageIndex="pageIndex"
+                  :disabled="!props.row.edited"
+                  :type="type"
+                  :api="getEmployeeRatingList"
+                  :mapFunction="getMapData"
+                  :defaultValue="props.row.staffName"
+                  @update-value="(_value, option) => props.row.staffName = option.value"
+                />
               </template>
             </el-table-column>
             <el-table-column
@@ -1070,6 +1107,9 @@ watch(
                     controls-position="right"
                     v-model="data.row.percentageOfSales"
                     :suffix-icon="percentIcon"
+                    type="number"
+                    max="100"
+                    min="0"
                     v-if="data.row.edited"
                   />
                   <div v-else>{{ data.row.percentageOfSales }}</div>

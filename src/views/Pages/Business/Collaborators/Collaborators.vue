@@ -44,13 +44,13 @@ const columns = reactive<TableColumn[]>([
     minWidth: '200',
     formatter: (row, _column, _cellValue, _index) => {
       return h('ul', [
-        h('li', `STK: ${row.accountNumber}`),
-        h('li', `Tên TK: ${row.accountName}`),
-        h('li', `NH: ${row.bank.code}`)
+        h('li', `STK: ${row.accountNumber || ''}`),
+        h('li', `Tên TK: ${row.accountName || ''}`),
+        h('li', `NH: ${row?.bank?.name || ''}`)
       ])
     }
   },
-  {
+  { 
     field: 'totalMoney',
     label: t('reuse.totalMoney'),
     minWidth: '150',

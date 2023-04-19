@@ -2557,7 +2557,7 @@ const callApiWarehouseList = async () => {
   const res = await getListWareHouse('')
   if (res?.data) {
     res?.data.map((el) => {
-      if (el.children) {
+      if (el.children.length > 0 && el.isActive) {
         chooseWarehouse.push({
           value: el.id,
           label: el.name

@@ -333,6 +333,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     component: 'SelectMultipleOption',
     componentProps: {
       allowCreate: true,
+      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.customerService')],
       placeholder: t('reuse.enterSelectCompanyName'),
       valueKey: "value" ,
       labelKey: "label",

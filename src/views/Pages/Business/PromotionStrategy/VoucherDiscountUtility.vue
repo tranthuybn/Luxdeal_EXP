@@ -8,14 +8,13 @@ import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-pl
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
-import moment from 'moment'
 import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
 // import { disabledDate } from './common'
 
 const { t } = useI18n()
-const curDate = 'VC' + moment().format('hhmmss')
+const curDate = 'VC' + Date.now()
 
 const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 

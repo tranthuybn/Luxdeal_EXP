@@ -30,14 +30,13 @@ import { FORM_IMAGES } from '@/utils/format'
 import type { FormRules } from 'element-plus'
 // import { appModules } from '@/config/app'
 import { IFormData, FormDataPostAndEdit, ICustomer } from './types'
-import moment from 'moment'
 
 // const { utility } = appModules
 const { required, ValidService } = useValidator()
 const { t } = useI18n()
 const { push } = useRouter()
 const setFormData = reactive({} as IFormData)
-const codeDefault= 'CTV' + moment().format('hhmmss')
+const codeDefault= 'CTV' + Date.now()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const escape = useIcon({ icon: 'quill:escape' })

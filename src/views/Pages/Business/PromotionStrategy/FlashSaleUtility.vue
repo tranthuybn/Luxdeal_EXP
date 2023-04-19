@@ -11,7 +11,6 @@ import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
-import moment from 'moment'
 import { disabledDate } from './common'
 
 
@@ -19,7 +18,7 @@ const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
 const router = useRouter()
 //random field code
-const curDate = 'FS' + moment().format('hhmmss')
+const curDate = 'FS' + Date.now()
 
 // Validate input
 const { required, ValidService, requiredOption } = useValidator()

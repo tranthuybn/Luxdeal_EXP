@@ -44,7 +44,7 @@ const rules = reactive({
 const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 
 //random field code
-const curDate = 'PC' + moment().format('hhmmss')
+const curDate = 'PC' + Date.now()
 const schema = reactive<FormSchema[]>([
   {
     field: 'generalServiceInformation',

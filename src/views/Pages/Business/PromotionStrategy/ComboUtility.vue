@@ -9,11 +9,10 @@ import { getCampaignList, addNewCampaign, updateCampaign } from '@/api/Business'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { useRouter } from 'vue-router'
 import { FORM_IMAGES } from '@/utils/format'
-import moment from 'moment'
 import { API_URL } from '@/utils/API_URL'
 
 const { t } = useI18n()
-const curDate = 'Combo0' + moment().format('hhmmss')
+const curDate = 'Combo0' + Date.now()
 const params = { CampaignType: PROMOTION_STRATEGY[4].key }
 
 const schema = reactive<FormSchema[]>([

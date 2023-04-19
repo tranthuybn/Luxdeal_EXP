@@ -47,7 +47,7 @@ const rules = reactive({
 })
 
 //random field code
-const curDate = 'PT' + moment().format('hhmmss')
+const curDate = 'PT' + Date.now()
 const schema = reactive<FormSchema[]>([
   {
     field: 'generalServiceInformation',

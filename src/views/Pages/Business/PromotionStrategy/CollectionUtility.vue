@@ -37,7 +37,7 @@ const params = { CampaignType: PROMOTION_STRATEGY[1].key }
 
 
 //random mã
-const curDate = 'BST0' + moment().format('hhmmss')
+const curDate = 'BST0' + Date.now()
 const schema = reactive<FormSchema[]>([
   {
     field: 'collectionInfo',

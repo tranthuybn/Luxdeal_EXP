@@ -35,7 +35,7 @@ const rules = reactive({
 const params = { CampaignType: PROMOTION_STRATEGY[2].key }
 
 //random mã
-const curDate = 'HMV0' + moment().format('hhmmss')
+const curDate = 'HMV0' + Date.now()
 const schema = reactive<FormSchema[]>([
   {
     field: 'collectionInfo',

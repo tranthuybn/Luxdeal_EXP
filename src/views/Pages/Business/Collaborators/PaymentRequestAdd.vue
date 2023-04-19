@@ -35,7 +35,6 @@ import {
 } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
 import type { FormInstance, FormRules } from 'element-plus'
-import moment from 'moment'
 import InputPrice from '@/components/CurrencyInputComponent.vue'
 import { changeMoney, formartDate } from '@/utils/tsxHelper'
 import InfinitOptions from '@/components/Select/InfinitOptions.vue'
@@ -58,7 +57,7 @@ const collapse: Array<Collapse> = [
 const dialogVisible = ref(false)
 // const disabled = ref(false)
 const disabledTable = ref(false)
-var curDate = 'HH' + moment().format('hhmmss')
+var curDate = 'HH' + Date.now()
 let requestCode = ref('')
 const collapseChangeEvent = (val) => {
   if (val) {

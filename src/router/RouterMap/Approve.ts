@@ -208,7 +208,7 @@ export default {
         {
           path: `collaborators-accounts-approval-utility/:type?/:id?/:approvalId?`,
           component: () =>
-            import('@/views/Pages/Business/Collaborators/PaymentRequestAdd.vue'),
+            import('@/views/Pages/Business/Collaborators/CollaboratorsAdd.vue'),
           name: `approve.accounts-approval.collaborators-accounts-approval-utility.${utility}`,
           meta: {
             title: t('reuse.collaboratorsAccountApprovaeDetail'),

@@ -38,7 +38,7 @@ const columns = reactive<TableColumn[]>([
   {
     field: 'code',
     label: t('reuse.voucherCode'),
-    minWidth: '130',
+    minWidth: '150',
     headerAlign: 'left',
   },
   {

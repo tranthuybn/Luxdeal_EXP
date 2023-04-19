@@ -40,7 +40,7 @@ import {
 import { approvalProducts } from '@/api/Approval'
 import { FORM_IMAGES } from '@/utils/format'
 import ProductAttribute from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductAttribute.vue'
-import { GenerateCodeOrder } from '@/api/common'
+// import { GenerateCodeOrder } from '@/api/common'
 
 const { t } = useI18n()
 
@@ -219,7 +219,7 @@ watch(
 
 defineExpose({
   elFormRef,
-  getFormData: methods.getFormData
+  getFormData: methods.getFormData,
 })
 
 let treeSelectData = ref()
@@ -280,11 +280,11 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
         data.disabledTabOpen = true
-        if(props.addQuickProduct) {
-          await GenerateCodeOrder({CodeType:1,Code:'SP'}).then((res)=>{
-            data.quickManagementCode = res.data
-          })
-        }
+        // if(props.addQuickProduct) {
+        //   await GenerateCodeOrder({CodeType:1,Code:'SP'}).then((res)=>{
+        //     data.quickManagementCode = res.data
+        //   })
+        // }
         emit('post-data', data)
         //emit a callback function to check if Promise success or fail
         //use this to get the statusResult of emit event
@@ -479,7 +479,6 @@ const apiTreeSelect = async () => {
     await getCategories({ TypeName: PRODUCTS_AND_SERVICES[0].key, pageSize: 20, pageIndex: 1 })
       .then((res) => {
         if (res.data) {
-          console.log('res.data', res.data)
           treeSelectData.value = res.data.map((index) => ({
             label: index.name,
             value: index.name,
@@ -518,7 +517,6 @@ const getCodeAndNameSelect = async () => {
   CodeOptions.value = CodeAndNameSelect.value
 }
 const remoteProductCode = (query: string) => {
-  setValues({ ProductCode: productCode.value })
   if (query) {
     loading.value = true
     setTimeout(async () => {
@@ -572,7 +570,7 @@ const fillAllInformation = async (data) => {
                   const UnitId = fillValue.categories[2].id
                   const OriginId = fillValue.categories[3].id
                   setValues({
-                    ProductCode: productCode.value,
+                    ProductCode: props.addQuickProduct ? fillValue.productCode : productCode.value,
                     Name: fillValue.name,
                     ShortDescription: fillValue.shortDescription,
                     VerificationInfo: fillValue.verificationInfo,
@@ -595,9 +593,6 @@ const fillAllInformation = async (data) => {
               )
           })
           .catch(() => {})
-          .finally(() => {
-            setValues({ ProductCode: productCode.value })
-          })
       : (sameProductCode.value = false)
 }
 
@@ -778,7 +773,7 @@ const attributeChange = (attributeArray, form) => {
                 </el-option>
               </div>
             </el-select>
-            <el-button @click="resetForm" type="danger" size="small">{{
+            <el-button v-if="!addQuickProduct" @click="resetForm" type="danger" size="small">{{
               t('reuse.resetForm')
             }}</el-button>
           </template>
@@ -828,7 +823,7 @@ const attributeChange = (attributeArray, form) => {
               <span class="bg-orange-100 text-orange-300 px-2">{{ t('reuse.pendings') }}</span>
               </div>
           </template>
-          <template #productCharacteristics="form">
+          <template v-if="addQuickProduct" #productCharacteristics="form">
             <ProductAttribute @change-value="(attributeArray) => attributeChange(attributeArray, form)" class="w-full"/>
           </template>
         </Form>

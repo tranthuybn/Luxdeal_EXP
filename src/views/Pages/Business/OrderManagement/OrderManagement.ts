@@ -116,12 +116,6 @@ export const sellOrder = [
     }
   },
   {
-    field: 'receiptAndExpenditure',
-    label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
-    minWidth: '170',
-    filters: filtersReceiptExpenditure
-  },
-  {
     field: 'createdAt',
     label: t('reuse.createDate'),
     minWidth: '150',
@@ -278,12 +272,6 @@ export const rentalorder = [
       const x = changeMoney.format(parseInt(row.totalDebt))
       return x
     }
-  },
-  {
-    field: 'receiptAndExpenditure',
-    label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
-    minWidth: '170',
-    filters: filtersReceiptExpenditure
   },
   {
     field: 'hirePeriodName',
@@ -486,12 +474,6 @@ export const depositOrder = [
     }
   },
   {
-    field: 'thuChi',
-    label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
-    minWidth: '170',
-    filters: filtersReceiptExpenditure
-  },
-  {
     field: 'orderDetails[0]?.businessSetupName',
     label: t('reuse.depositManagement'),
     minWidth: '150',
@@ -689,12 +671,6 @@ export const pawnOrder = [
     sortable: true
   },
   {
-    field: 'receiptAndExpenditure',
-    label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
-    minWidth: '170',
-    filters: filtersReceiptExpenditure
-  },
-  {
     field: 'depositManagement',
     label: t('reuse.depositManagement'),
     minWidth: '150',
@@ -864,12 +840,6 @@ export const spaOrder = [
       const x = changeMoney.format(parseInt(row.totalDebt))
       return x
     }
-  },
-  {
-    field: 'receiptAndExpenditure',
-    label: t('reuse.haveToCollect') + '/' + t('reuse.havetoPay'),
-    minWidth: '170',
-    filters: filtersReceiptExpenditure
   },
   {
     field: 'spaDeadline',

@@ -1,9 +1,10 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
-import { ElRow, ElCol, ElOption, ElSelect, ElTreeSelect } from 'element-plus'
+import { ElRow, ElCol, ElOption, ElSelect, ElTreeSelect, ElMessage } from 'element-plus'
 import { computed, ref, PropType, watch, onBeforeMount } from 'vue'
 import { TableResponse } from '@/views/Pages/Components/Type'
 import { TableData } from '@/api/table/types'
+import { useI18n } from '@/hooks/web/useI18n'
 
 const propsObj = defineProps({
   // columns name
@@ -49,6 +50,7 @@ const propsObj = defineProps({
   defaultValue: {
     type: [String, Number],
     default: null,
+
     description: 'id of option'
   },
   disabled: {
@@ -62,10 +64,6 @@ const propsObj = defineProps({
   width: {
     type: String,
     default: '100%'
-  },
-  loading: {
-    type: Boolean,
-    default: false
   },
   pageIndex :{
     type: Number,
@@ -90,8 +88,14 @@ const propsObj = defineProps({
   isTreeSelect: {
     type: Boolean,
     default: false
+  },
+  allowCreate: {
+    type: Boolean,
+    default: false
   }
 })
+const { t } = useI18n()
+const loading = ref(false)
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
 const pageIndex = ref(propsObj.pageIndex)
 const pageSize = ref(10)
@@ -99,6 +103,7 @@ const pageSize = ref(10)
 let selected = computed(() => {
   return propsObj.defaultValue
 })
+
 const opTionList = ref([])
 const options: any = computed(() => opTionList.value)
 // if have not value, it will be set by first value key
@@ -119,7 +124,6 @@ const callAPI = async (pageIndex: number) => {
   const data = response.data?.data ? response.data.data : response.data
   if(data.length > 0) {
     const arr = data.map(propsObj.mapFunction)
-    console.log('arr', arr)
     options.value.push(...arr);  
   }
 }
@@ -131,25 +135,23 @@ const acceptKey = (item) => {
   } else options.value = Object.keys(item)
 }
 
-const filter = (str) => {
-  const { items } = propsObj
-  if (str) {
-    const searchingKey = str.toLowerCase()
-    options.value = items.filter((item) => {
-      if (
-        item != null &&
-        Object.keys(item).find((key) => {
-          return item[key] ? item[key].toString().toLowerCase().includes(searchingKey) : false
-        })
-      ) {
-        return true
-      }
+const remoteMethod = async (query: string) => {
+  loading.value = true
+  setTimeout(async () => {
+    loading.value = false
+    await propsObj.api({Search: query})
+    .then(res => {
+      options.value.splice(0, options.value.length, ...res.data.map(propsObj.mapFunction))
     })
-  } else {
-    options.value = items
-  }
+    .catch((errorMessage) => {
+      ElMessage({
+        message: t(errorMessage),
+        type: 'error'
+    })
+    })
+  }, 200)
 }
-
+ 
 const valueChangeEvent = (val) => {
   if (val) {
     const { valueKey } = propsObj
@@ -183,6 +185,9 @@ watch(pageIndex, async (newPageIndex) => {
   callAPI(newPageIndex)
 });
 
+const filterMethod = () => {
+}
+
 </script>
 <template>
   <ElSelect
@@ -193,9 +198,12 @@ watch(pageIndex, async (newPageIndex) => {
     remote-show-suffix
     :placeholder="placeHolder"
     :clearable="clearable"
+    :allow-create="allowCreate"
+    default-first-option
     filterable
+    :filter-method="filterMethod"
     remote
-    :remote-method="filter"
+    :remote-method="remoteMethod"
     class="el-select-custom"
     @change="(data) => valueChangeEvent(data)"
     :value-key="identifyKey"

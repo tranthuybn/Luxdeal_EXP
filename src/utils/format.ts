@@ -321,7 +321,7 @@ export const orderType = (val) => {
     case 4:
       return t('reuse.pawn')
     case 5:
-      return 'Spa'
+      return t('workplace.spa')
     case 6:
       return t('reuse.internal')
     default:

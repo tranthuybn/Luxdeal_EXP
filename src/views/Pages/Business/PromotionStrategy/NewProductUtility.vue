@@ -11,7 +11,6 @@ import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { moneyToNumber, FORM_IMAGES } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
-import moment from 'moment'
 const { t } = useI18n()
 
 const { required, ValidService, requiredOption } = useValidator()

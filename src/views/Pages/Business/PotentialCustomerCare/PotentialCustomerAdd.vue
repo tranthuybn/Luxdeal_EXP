@@ -883,7 +883,6 @@ const customData = (data) => {
   customData.total = 0
   customData.historyTransaction = data.transactionHistory
   if(type === 'edit') customData.confirm = changePhoneNumber.value
-  console.log('customData',customData)
   return customData
 }
 
@@ -898,7 +897,7 @@ const customPostDataHistory = (data) => {
 
 const editData = async (data) => {
   data = customData(data)
-  await updatePotentialCustomer(JSON.stringify(data))
+  await updatePotentialCustomer(data)
     .then(() => {
       ElNotification({
         message: t('reuse.updateSuccess'),

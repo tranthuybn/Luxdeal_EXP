@@ -433,7 +433,6 @@ const buttonApproval = ref(false)
 watch(
   () => type,
   () => {
-    console.log('type:', type);
     
     if (type === 'detail') {
       disabledForm.value = true

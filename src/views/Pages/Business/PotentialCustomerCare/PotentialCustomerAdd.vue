@@ -60,7 +60,7 @@ const rules = reactive({
     validator: (...config) => checkLength(config, 0, 256)
   }]
 })
-
+const changePhoneNumber = ref(false)
 const postData = async (data) => {
   const potentialSaleList = reactive<Array<potentialCustomerHistoryInfo>>([])
   if (tableData.value.length > 0) {
@@ -136,7 +136,6 @@ const handleSave = async (row) => {
   if (type == 'edit') {
     row = customPostDataHistory(row)
     row.percentageOfSales = Number(row.percentageOfSales)
-    console.log('row', row)
     await UpdatePotentialCustomerHistory({ ...row })
       .then(() =>
         ElNotification({
@@ -672,8 +671,25 @@ async function checkPhoneNumberExist() {
   const formData = await formRef.value?.getFormData()
   if(formData?.phonenumber && formData?.phonenumber.length === 10) {
     const existedCustomer = await getPotentialCustomerList({Search: formData.phonenumber})
-    if(existedCustomer.data.length > 0) { return existedCustomer.data[0]?.id }
-    return false
+    if(existedCustomer && existedCustomer.data.length > 0) { 
+      return existedCustomer.data[0]?.id 
+    }
+    else{
+      if(type === 'edit') {
+        ElMessageBox.confirm(t('reuse.changePhoneNumberAlert'), t('reuse.updateCustomerPhoneNumber'), {
+          confirmButtonText: t('reuse.confirm'),
+          cancelButtonText: t('reuse.cancel'),
+          type: 'info'
+        })
+        .then(() => {
+          changePhoneNumber.value = true
+          tableData.value = []
+        })
+        .catch(() => {
+
+        })
+      }
+    }
   }
 }
 
@@ -866,6 +882,8 @@ const customData = (data) => {
   customData.statusId = data.status
   customData.total = 0
   customData.historyTransaction = data.transactionHistory
+  if(type === 'edit') customData.confirm = changePhoneNumber.value
+  console.log('customData',customData)
   return customData
 }
 

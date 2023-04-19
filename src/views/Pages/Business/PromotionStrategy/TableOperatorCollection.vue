@@ -1011,6 +1011,7 @@ const spaMoney = ref(0)
                       :placeHolder="t('reuse.chooseCustomerCode')"
                       valueKey="id" 
                       labelKey="code"
+                      width="1000px"
                       :hiddenKey="['id']"
                       :clearable="false"
                       :pageIndex="pageIndex"
@@ -1028,7 +1029,7 @@ const spaMoney = ref(0)
                         t('reuse.phoneNumber'),
                         t('formDemo.customerName')
                       ]"
-                      filterable min-width="500px" :items="listCustomer" valueKey="value" labelKey="value"
+                      filterable width="1000px" :items="listCustomer" valueKey="value" labelKey="value"
                       :hiddenKey="['id']" :placeHolder="t('reuse.chooseCustomerCode')" :clearable="false"
                       :defaultValue="scope.row.code"
                       @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
@@ -1058,7 +1059,7 @@ const spaMoney = ref(0)
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
                     t('reuse.productInformation')
-                  ]" filterable min-width="500px" :items="listProducts" valueKey="value" labelKey="value"
+                  ]" filterable width="1000px" :items="listProducts" valueKey="value" labelKey="value"
                     :hiddenKey="['id']" :placeHolder="t('reuse.chooseProductCode')" :clearable="false"
                     @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"
                     @change="(option) => changeProduct(option, scope)" @scroll-top="ScrollProductTop"

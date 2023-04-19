@@ -103,6 +103,7 @@ const pageSize = ref(10)
 let selected = computed(() => {
   return propsObj.defaultValue
 })
+
 const opTionList = ref([])
 const options: any = computed(() => opTionList.value)
 // if have not value, it will be set by first value key
@@ -135,23 +136,6 @@ const acceptKey = (item) => {
 }
 
 const remoteMethod = async (query: string) => {
-  // Only search when query is at least 2 characters long
-  // if (query.length >= 2) {
-  //   loading.value = true
-  //   setTimeout(async () => {
-  //     loading.value = false
-  //     await propsObj.api({Search: query})
-  //     .then(res => {
-  //       options.value.splice(0, options.value.length, ...res.data.map(propsObj.mapFunction))
-  //     })
-  //     .catch((errorMessage) => {
-  //       ElMessage({
-  //         message: t(errorMessage),
-  //         type: 'error'
-  //     })
-  //     })
-  //   }, 200)
-  // }
   loading.value = true
   setTimeout(async () => {
     loading.value = false
@@ -201,6 +185,9 @@ watch(pageIndex, async (newPageIndex) => {
   callAPI(newPageIndex)
 });
 
+const filterMethod = () => {
+}
+
 </script>
 <template>
   <ElSelect
@@ -214,6 +201,7 @@ watch(pageIndex, async (newPageIndex) => {
     :allow-create="allowCreate"
     default-first-option
     filterable
+    :filter-method="filterMethod"
     remote
     :remote-method="remoteMethod"
     class="el-select-custom"

@@ -46,6 +46,7 @@ export interface potentialCustomerInfo {
   orderCode: string
   statusId: Number
   total: Number
+  confirm: Boolean
   supplier: Number
   customerOrderId: Number
 }

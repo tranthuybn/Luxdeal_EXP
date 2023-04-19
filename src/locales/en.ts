@@ -907,6 +907,8 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    updateCustomerPhoneNumber: 'Update customer phone number',
+    changePhoneNumberAlert: 'Changing the phone number system will automatically delete the customer history, do you want to change it?',
     availableCustomer: 'This customer already exists',
     getAvailableCustomer: 'Get available customer',
     paidAndFinish: 'Paid & Finish',

@@ -227,10 +227,10 @@ const getMapOrderData =  ({code, serviceType, userName, createdAt,createdBy , id
   createdBy,
   value: id
 })
-const getMapCustomerData = ({name, id, phonenumber, service}) => ({
+const getMapCustomerData = ({name, id, phonenumber, email}) => ({
   label: name,
   phonenumber,
-  service:  t(`${orderType(service)}`),
+  email,
   value: id
 })
 
@@ -304,7 +304,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.customerName'),
     component: 'SelectMultipleOption',
     componentProps: {
-      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.customerService')],
+      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.email')],
       placeholder: t('formDemo.enterCustomerName'),
       allowCreate: true,
       valueKey: "value" ,
@@ -327,7 +327,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     component: 'SelectMultipleOption',
     componentProps: {
       allowCreate: true,
-      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.customerService')],
+      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.email')],
       placeholder: t('reuse.enterSelectCompanyName'),
       valueKey: "value" ,
       keyToRemoteSearch: 'Search',
@@ -378,7 +378,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.phoneNumber'),
     component: 'SelectMultipleOption',
     componentProps: {
-      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.customerService')],
+      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.email')],
       placeholder: t('reuse.enterPhoneNumber'),
       allowCreate: true,
       valueKey: "value" ,

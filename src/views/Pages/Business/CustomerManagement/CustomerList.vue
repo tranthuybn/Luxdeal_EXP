@@ -2,11 +2,12 @@
 import { getCustomerList } from '@/api/Business'
 import TableType01 from '../../Components/TableDataBase.vue'
 import { CustomerList } from './CustomerManagement'
+import { provide } from 'vue';
 
 const apiToFilter = {
   ['name'] : getCustomerList,
 }
-
+provide('apiToFilter', apiToFilter)
 </script>
 
 <template>
@@ -14,7 +15,6 @@ const apiToFilter = {
     :customOperator="5"
     :titleAdd="'router.customerAdd'"
     :columns="CustomerList"
-    :apiToFilter="apiToFilter"
     :api="getCustomerList"
   />
 </template>

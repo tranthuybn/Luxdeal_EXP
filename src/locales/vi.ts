@@ -959,6 +959,9 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    noHistoryOfCare: 'Chưa có lịch sử chăm sóc',
+    current: 'Hiện tại',
+    totalSaleMessageAlert: 'Tổng % doanh số các sale không thể lớn hơn 100%',
     selfArrivingGuests: 'Tự đến',
     passersby: 'Vãng lai',
     zalo: 'Zalo',

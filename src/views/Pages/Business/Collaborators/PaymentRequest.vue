@@ -137,9 +137,7 @@ const columns = reactive<TableColumn[]>([
   }
 ])
 
-const apiToFilter = [
-
-]
+const apiToFilter = {}
 const createIcon = useIcon({ icon: 'uil:create-dashboard' })
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const editIcon = useIcon({ icon: 'akar-icons:chat-edit' })

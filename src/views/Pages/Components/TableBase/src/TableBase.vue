@@ -26,6 +26,8 @@ import { useCache } from '@/hooks/web/useCache'
 
 //provide from main component
 const { params }: any = inject('parameters', {})
+const apiToFilter = inject('apiToFilter', {}) 
+const paramsToFilter = inject('paramsToFilter', {}) 
 const { t } = useI18n()
 
 const route = useRoute()
@@ -92,10 +94,6 @@ const props = defineProps({
     description: 'Tiêu đề thông báo khi ấn nút xóa'
   },
   currentT: [String, Number],
-  apiToFilter: {
-    type: Object,
-    default: () => {}
-  },
   showSummary: {
     type: Boolean,
     default: false
@@ -271,7 +269,6 @@ const delData = async (row: TableData | null, _multiple: boolean) => {
               }
             })
             .catch((err) => {
-              console.error(err.response)
               ElNotification({
                 message: err.response.data.message || err.response.message || t('reuse.deleteFail'),
                 type: 'error'
@@ -376,7 +373,7 @@ const setOperatorType = (type)=> {
           v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
           @cancel="cancel" />
         <InputSearch
-            v-if="header.headerFilter === 'Search'" :apiToFilter="props.apiToFilter[header.field]" :field="header.field" @filter-select="filterSelect"
+            v-if="header.headerFilter === 'Search'" :apiToFilter="apiToFilter[header.field]" :paramsToFilter="paramsToFilter[header.field]" :field="header.field" @filter-select="filterSelect"
             @cancel="cancel" />
         <InputName
           v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"

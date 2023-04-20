@@ -24,6 +24,7 @@ export interface tableDataType {
   percentageOfSales: number
   manipulation?: string
   edited?: Boolean
+  disableBtnSaleName: Boolean
   family: Array<tableChildren>
 }
 

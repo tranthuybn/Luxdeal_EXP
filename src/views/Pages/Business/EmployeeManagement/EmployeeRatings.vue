@@ -43,6 +43,7 @@ const appStore = useAppStore()
 const Utility = appStore.getUtility
 const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 provide('parameters', {params})
+provide('apiToFilter', apiToFilter)
 
 const action = (row: any, type: string) => {
   push({
@@ -158,7 +159,6 @@ const getDate = (date) => {
   :columns="columns" 
   :api="getEmployeeRatingList"
   :customOperator="3" 
-  :apiToFilter="apiToFilter"
   :apiHasDateParams="true"
   :dateDefault="dateDefault"
   @get-date="getDate"

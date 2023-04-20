@@ -907,6 +907,9 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    noHistoryOfCare: 'No history of care',
+    current: 'Current',
+    totalSaleMessageAlert: 'Total % of sales cannot be more than 100%',
     selfArrivingGuests: 'self-arriving guests',
     passersby: 'Passers by',
     zalo: 'Zalo',

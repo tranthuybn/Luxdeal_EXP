@@ -281,13 +281,13 @@ export const formatPotentialCustomerStatusIdToText = (val) => {
 export const formatServiceIdToText = (val) => {
   switch (val) {
     case 1:
-      return t('reuse.sell')
+      return t('workplace.sale')
     case 2:
       return t('reuse.deposit')
     case 3:
       return t('reuse.rent')
     case 4:
-      return t('workplace.mortgage')
+      return t('reuse.pawn')
     case 5:
       return t('workplace.spa')
     default:

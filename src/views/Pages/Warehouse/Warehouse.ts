@@ -82,11 +82,12 @@ export const wareHouse = [
     field: 'typeOfTransfer',
     label: t('reuse.category'),
     minWidth: '120',
+    headerFilter: 'Search',
     formatter: (row, _column, _cellValue, _index) => {
       return h(
         'span',
         // assuming `items` is a ref with array value
-        `${row.categoryParentName}/${row.categoryChildName}`
+        `${row.categoryParentName || ''}/${row.categoryChildName || ''}`
       )
     }
   },

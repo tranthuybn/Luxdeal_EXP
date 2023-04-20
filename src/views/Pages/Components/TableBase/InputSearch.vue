@@ -8,10 +8,10 @@ import { getOptionsBySearch } from '@/utils/get_filterList'
 const { t } = useI18n()
 const ArrowDown = useIcon({ icon: 'ic:sharp-keyboard-arrow-down' })
 
-
 const emit = defineEmits(['filter-select', 'cancel'])
 // eslint-disable-next-line vue/require-prop-types
-const props = defineProps(['field', 'apiToFilter'])
+const props = defineProps(['field', 'apiToFilter', 'paramsToFilter'])
+const propParams = props.paramsToFilter || {}
 const propField = ref(props.field)
 
 const value = ref<string>('')
@@ -43,9 +43,15 @@ const remoteMethod = (query: string) => {
   if (query.length >= 2) {
     loading.value = true
     setTimeout(async () => {
-      const params : [() => void, string, object] = reactive([props.apiToFilter, t('reuse.cantGetFilterList'), {Search: query}])
+      const params : [() => void, string, object] = reactive([props.apiToFilter, t('reuse.cantGetFilterList'), {Search: query, ...propParams}])
       loading.value = false
-      options.value = await getOptionsBySearch(...params)
+      await getOptionsBySearch(...params)
+      .then((res) => {
+        options.value = res
+      })
+      .catch(() => {
+        options.value = []
+      })
     }, 200)
   } else {
     options.value = []

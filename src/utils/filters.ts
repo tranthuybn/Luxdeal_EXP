@@ -228,23 +228,29 @@ export const filterService: Array<Filter> = [
   { text: t('router.purchase'), value: 6 },
   { text: t('reuse.internal'), value: 7 }
 ]
+export const filterServiceCustomerCare: Array<Filter> = [
+  { text: t('workplace.sale'), value: 1 },
+  { text: t('reuse.deposit'), value: 2 },
+  { text: t('reuse.rent'), value: 3 },
+  { text: t('reuse.pawn'), value: 4 },
+  { text: t('workplace.spa'), value: 5 },
+]
+
 export const filterSource: Array<Filter> = [
-  { text: 'Facebook', value: 1 },
-  { text: 'App', value: 2 }
+  { text: t('reuse.selfArrivingGuests'), value: 223 },
+  { text: t('reuse.passersby'), value: 224 }
 ]
 export const filterApproaching: Array<Filter> = [
-  { text: t('reuse.online'), value: 1 },
-  { text: t('reuse.booking'), value: 2 },
-  { text: t('reuse.offline'), value: 3 }
+  { text: t('reuse.zalo'), value: 221 },
+  { text: t('reuse.facebook'), value: 222 },
 ]
 export const filterTransactionStatus: Array<Filter> = [
-  { text: t('reuse.online'), value: 1 },
-  { text: t('reuse.booking'), value: 2 },
-  { text: t('reuse.offline'), value: 3 }
+  { text: t('reuse.online'), value: true },
+  { text: t('reuse.offline'), value: false }
 ]
 export const filterTransaction: Array<Filter> = [
-  { text: t('reuse.firstTime'), value: 1 },
-  { text: t('reuse.secondTime'), value: 2 }
+  { text: t('reuse.firstTime'), value: 219 },
+  { text: t('reuse.transacted'), value: 220 }
 ]
 export const filterPromotionCode: Array<Filter> = [
   { text: t('reuse.voucherCode'), value: 1 },

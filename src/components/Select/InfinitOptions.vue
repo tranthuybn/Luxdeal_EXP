@@ -92,13 +92,17 @@ const propsObj = defineProps({
   allowCreate: {
     type: Boolean,
     default: false
+  },
+  keyToRemoteSearch: {
+    type: String,
+    default: 'Search'
   }
 })
 const { t } = useI18n()
 const loading = ref(false)
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
 const pageIndex = ref(propsObj.pageIndex)
-const pageSize = ref(10)
+const pageSize = ref(50)
 
 let selected = computed(() => {
   return propsObj.defaultValue
@@ -139,7 +143,7 @@ const remoteMethod = async (query: string) => {
   loading.value = true
   setTimeout(async () => {
     loading.value = false
-    await propsObj.api({Search: query})
+    await propsObj.api({[propsObj.keyToRemoteSearch]: query})
     .then(res => {
       options.value.splice(0, options.value.length, ...res.data.map(propsObj.mapFunction))
     })
@@ -185,8 +189,6 @@ watch(pageIndex, async (newPageIndex) => {
   callAPI(newPageIndex)
 });
 
-const filterMethod = () => {
-}
 
 </script>
 <template>
@@ -201,7 +203,6 @@ const filterMethod = () => {
     :allow-create="allowCreate"
     default-first-option
     filterable
-    :filter-method="filterMethod"
     remote
     :remote-method="remoteMethod"
     class="el-select-custom"

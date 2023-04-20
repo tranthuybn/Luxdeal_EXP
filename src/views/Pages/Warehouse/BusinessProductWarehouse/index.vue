@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import tableDatetimeFilterBasicVue from '../../Components/TabsBase.vue'
+import { getCategories } from '@/api/LibraryAndSetting'
 import { getWareHouseList, getWareHouseTransactionList } from '@/api/Business'
 import { wareHouse, wareHouseContainer } from '../Warehouse'
 import { Tab } from '../../Components/Type'
+import { provide } from 'vue';
+import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+
 const tabs: Array<Tab> = [
   {
     name: 'followinventory',
@@ -19,6 +23,16 @@ const tabs: Array<Tab> = [
     customOperator: 3
   }
 ]
+const apiToFilter = {
+  ['typeOfTransfer']: getCategories
+}
+const paramsToFilter = {
+  ['typeOfTransfer']: {TypeName: PRODUCTS_AND_SERVICES[0].key}
+}
+
+provide('apiToFilter', apiToFilter)
+provide('paramsToFilter', paramsToFilter)
+
 const typeTable = 'Warehouse'
 </script>
 <template>

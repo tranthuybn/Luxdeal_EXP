@@ -10,7 +10,9 @@ import {
   deletePotentialCustomerHistory,
   getOrderList,
   getEmployeeRatingList,
-  getPotentialCustomerList
+  getPotentialCustomerList,
+  getCustomerList,
+  getCustomerById
 } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
@@ -28,10 +30,10 @@ import {
   ElTableColumn,
   ElDatePicker,
   ElForm,
-  ElFormItem,
   ElNotification,
   FormInstance,
-  ElMessageBox
+  ElMessageBox,
+  ElInputNumber
 } from 'element-plus'
 import { orderType, dateTimeFormat } from '@/utils/format'
 import {ComponentOptions, tableChildren, tableDataType, potentialCustomerInfo, potentialCustomerHistoryInfo, setFormCustomData } from './type.d'
@@ -48,6 +50,10 @@ const ExpandedRow = ref([])
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const indexSale = ref(0)
+const MAX_PERCENTAGE = 100
+const disabledForm = ref(false)
+const disableBtnAddSale = ref(false)
+const percentageOfSalesLeft = ref(0)
 const type = router.currentRoute.value.params.type == ':type' ? 'add' : String(router.currentRoute.value.params.type)
 const rules = reactive({
   classify: [required(), requiredOption()],
@@ -166,25 +172,53 @@ const handleDelete = async (payload) => {
       })
     })
   }
+  percentageOfSalesLeft.value += tableData.value[payload].percentageOfSales
 }
 
 const handleItemDelete = async (payload, scope) => {
-  tableData.value[scope.$index].family.splice(payload, 1)
+  if (type == 'add') tableData.value[scope.$index].family.splice(payload, 1)
   if (type == 'edit') {
-    await deletePotentialCustomerHistory({ ...payload })
-      .then(() =>
-        ElNotification({
-          message: t('reuse.deleteSuccess'),
-          type: 'success'
-        })
-      )
-      .catch(() =>
-        ElNotification({
-          message: t('reuse.deleteFail'),
+    const overdueTime = tableData.value[scope.$index].family[payload].date
+    const momentDate =  moment(overdueTime).startOf('day')
+    const currentDate = moment().startOf('day')
+    if(momentDate.isBefore(currentDate)) {
+      ElNotification({
+          message: t('reuse.overdueTimeCantDelete'),
           type: 'warning'
+      })
+      return
+    }
+    ElMessageBox.confirm(t('reuse.deleteWarning'), t('reuse.deleteCustomerCareContent'), {
+      confirmButtonText: t('reuse.confirm'),
+      cancelButtonText: t('reuse.cancel'),
+      type: 'info'
+    })
+     .then(async () => {
+        await deletePotentialCustomerHistory({ ...payload })
+        .then(() =>
+          {
+            ElNotification({
+              message: t('reuse.deleteSuccess'),
+              type: 'success'
+            })
+            tableData.value[scope.$index].family.splice(payload, 1)
+          }
+        )
+        .catch(() =>
+          ElNotification({
+            message: t('reuse.deleteFail'),
+            type: 'warning'
+          })
+        )
+      })
+      .catch(() => {
+        ElNotification({
+          message: t('reuse.deleteCancel'),
+          type: 'info'
         })
-      )
+      })
   }
+
 }
 const size = ref<'' | 'large' | 'small'>('')
 
@@ -200,10 +234,10 @@ const getMapOrderData =  ({code, serviceType, userName, createdAt,createdBy , id
   createdBy,
   value: id
 })
-const getMapCustomerData = ({name, id, phonenumber, service}) => ({
+const getMapCustomerData = ({name, id, phonenumber, email}) => ({
   label: name,
   phonenumber,
-  service:  t(`${orderType(service)}`),
+  email,
   value: id
 })
 
@@ -277,15 +311,16 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.customerName'),
     component: 'SelectMultipleOption',
     componentProps: {
-      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.customerService')],
+      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.email')],
       placeholder: t('formDemo.enterCustomerName'),
       allowCreate: true,
       valueKey: "value" ,
       labelKey: "label",
+      keyToRemoteSearch: 'Keyword',
       hiddenKey: ['value'],
-      params: {IsOrganization: 0},
+      params: {isOrganization: 0},
       mapFunction: getMapCustomerData,
-      api: getPotentialCustomerList,
+      api: getCustomerList,
       onChange: fillCustomerInfo,
       onBlur: setCustomerName,
     },
@@ -299,14 +334,15 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     component: 'SelectMultipleOption',
     componentProps: {
       allowCreate: true,
-      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.customerService')],
+      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.email')],
       placeholder: t('reuse.enterSelectCompanyName'),
       valueKey: "value" ,
+      keyToRemoteSearch: 'Keyword',
       labelKey: "label",
       hiddenKey: ['value'],
-      params: {IsOrganization: 1},
+      params: {isOrganization: 1},
       mapFunction: getMapCustomerData,
-      api: getPotentialCustomerList,
+      api: getCustomerList,
       onChange: fillCustomerInfo,
       onBlur: setCustomerName
     },
@@ -349,14 +385,15 @@ const columnProfileCustomer = reactive<FormSchema[]>([
     label: t('reuse.phoneNumber'),
     component: 'SelectMultipleOption',
     componentProps: {
-      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.customerService')],
+      fields: [t('reuse.customerName'), t('reuse.phoneNumber'), t('reuse.email')],
       placeholder: t('reuse.enterPhoneNumber'),
       allowCreate: true,
       valueKey: "value" ,
       labelKey: "phonenumber",
+      keyToRemoteSearch: 'Keyword',
       hiddenKey: ['value'],
       mapFunction: getMapCustomerData,
-      api: getPotentialCustomerList,
+      api: getCustomerList,
       onChange: fillCustomerInfo,
       onBlur: setCustomerPhoneNumber,
       onClick : setCustomerPhoneNumber
@@ -406,11 +443,11 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       placeholder: t('reuse.firstTime'),
       options: [
         {
-          label: 'Lần đầu',
+          label: t('reuse.firstTime'),
           value: 219
         },
         {
-          label: 'Đã giao dịch',
+          label: t('reuse.transacted'),
           value: 220
         }
       ]
@@ -455,11 +492,11 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       options: [
         {
-          label: 'Zalo',
+          label: t('reuse.zalo'),
           value: 221
         },
         {
-          label: 'Facebook',
+          label:  t('reuse.facebook'),
           value: 222
         }
       ]
@@ -480,11 +517,11 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       style: 'width: 100%',
       options: [
         {
-          label: 'Tự đến',
+          label: t('reuse.selfArrivingGuests'),
           value: 223
         },
         {
-          label: 'Vãng lai',
+          label: t('reuse.passersby'),
           value: 224
         }
       ]
@@ -572,7 +609,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       valueKey: "value" ,
       labelKey: "label",
       hiddenKey: ['value'],
-      params: {},
+      keyToRemoteSearch: 'Keyword',
       mapFunction: getMapOrderData,
       api: getOrderList,
     },
@@ -634,8 +671,8 @@ async function setCustomerPhoneNumber({target}) {
 async function checkPhoneNumberExist() {
   const formData = await formRef.value?.getFormData()
   if(formData?.phonenumber && formData?.phonenumber.length === 10) {
-    const existedCustomer = await getPotentialCustomerList({Search: formData.phonenumber})
-    if(existedCustomer && existedCustomer.data.length > 0) { 
+    const existedCustomer = await getCustomerList({Keyword: formData.phonenumber})
+    if(existedCustomer.data?.length > 0) { 
       return existedCustomer.data[0]?.id 
     }
     else{
@@ -664,8 +701,10 @@ async function fillCustomerInfo (id) {
       type: 'info'
     })
     .then(async () => {
-      await getPotentialCustomerById({Id: id})
-      .then(({data}) => {
+      await getCustomerById({Id: id})
+      .then(async ({data}) => {
+        const potentialCustomer = await getPotentialCustomerList({Search: data.phonenumber})
+        const existed = potentialCustomer && potentialCustomer.data.length > 0
         formRef.value?.setValues({
           supplier: data.supplier || 1,
           taxCode: data.taxCode,
@@ -675,14 +714,7 @@ async function fillCustomerInfo (id) {
           phonenumber: data.phonenumber,
           email: data.email,
           link: data.link,
-          transactionHistory: 220,
-          isOnline: data.isOnline,
-          accessChannel: data.accessChannel,
-          newCustomerSource: data.source,
-          Note: data.note,
-          serviceDetails: data.serviceDetails,
-          result: data.customerOrderId,
-          status: data.statusId
+          transactionHistory: existed ? 220 : 219,
         })
         getParamsOrder(data.name)
       })
@@ -770,14 +802,33 @@ const getMapData = ({employeeCode, employeeName, id}) => ({employeeCode, label: 
 const formRef = ref<InstanceType<typeof TableOperator>>()
 
 const form = ref<FormInstance>()
-
+const calculateTotalCurrentPercent = () => {
+  const totalCurrentPercent = tableData.value.reduce((total, item) => {
+      return item ? total + item.percentageOfSales : 0
+    }, 0)
+    percentageOfSalesLeft.value = (MAX_PERCENTAGE - totalCurrentPercent) > 0 ? MAX_PERCENTAGE - totalCurrentPercent : 0
+    const isValid = totalCurrentPercent > MAX_PERCENTAGE
+    disableBtnAddSale.value = isValid
+  return isValid
+}
+const calculatePercentageSale = (_number, scope) => {
+  const isValid = calculateTotalCurrentPercent()
+  if(isValid) {
+    ElNotification({
+      message: t('reuse.totalSaleMessageAlert'),
+      type: 'warning'
+    })
+    scope.row.percentageOfSales = 0
+    return
+  }
+}
 
 onBeforeMount(async () => {
   await getSaleOptions()
 })
 // add history for sale
 const historyRow = reactive<tableDataType>({
-  id: id,
+  id: 0,
   indexSale: 1,
   staffId: '',
   staffName: '',
@@ -787,14 +838,18 @@ const historyRow = reactive<tableDataType>({
   percentageOfSales: 0,
   manipulation: '',
   edited: true,
-  family: []
+  family: [],
+  disableBtnSaleName: false
 })
 
 const addNewSale = () => {
+  calculateTotalCurrentPercent()
   const tempObj = { ...historyRow }
+  tempObj.id = tableData.value.length
   tempObj.indexSale =  tableData.value.length + 1
   tempObj.content =  ''
   tempObj.date = moment().format('YYYY/MM/DD')
+  tempObj.percentageOfSales = percentageOfSalesLeft.value
   tempObj.family = [
     {
       date: moment().format('YYYY/MM/DD'),
@@ -803,6 +858,7 @@ const addNewSale = () => {
     }
   ]
   tableData.value.push(tempObj)
+
 }
 
 //custom form data
@@ -829,7 +885,6 @@ const customizeData = (formData) => {
   formDataCustomize.value.classify = formData.isOrganization
   formDataCustomize.value.service = formData.service
   formDataCustomize.value.status = formData.statusId
-  //tableData.value = formData.potentialCustomerHistorys[0] ? formData.potentialCustomerHistorys : []
   const result : Array<tableDataType> = Object.values(formData.potentialCustomerHistorys.reduce((acc, curr) => {
       const key = curr.staffId;
       if (!acc[key]) {
@@ -837,6 +892,7 @@ const customizeData = (formData) => {
         acc[key] = {
           indexSale: indexSale.value,
           date: curr.createdAt,
+          createdAt: curr.createdAt,
           staffId: curr.staffId,
           content: curr.content,
           percentageOfSales: curr.percentageOfSales,
@@ -851,6 +907,7 @@ const customizeData = (formData) => {
       return acc;
     }, {}));
   tableData.value = result.reverse()
+  tableData.value = tableData.value.map((item) => ({...item, disableBtnSaleName:!!item.family[0].customerCareContent}))
   changeValueClassify(formDataCustomize.value.classify)
 }
 
@@ -894,6 +951,7 @@ const customData = (data) => {
   customData.representative = data.representative
   customData.historyTransaction = data.transactionHistory
   customData.potentialCustomerHistorys = potentialSaleList
+  customData.OrderCode  = ''
   return customData
 }
 
@@ -909,9 +967,9 @@ const postData = async (data) => {
         name: `business.potential-customer-care.potential-customer-list`
       })
     })
-    .catch(() => {
+    .catch(({response}) => {
       ElNotification({
-        message: t('reuse.addFail'),
+        message: response.data.message,
         type: 'warning'
       })
     })
@@ -940,13 +998,12 @@ const editData = async (data) => {
     )
 }
 
-const disabledForm = ref(false)
-const btnAddSale = ref(false)
 watch(
   () => type,
   () => {
     if(type == 'detail'){
-      btnAddSale.value = true
+      disableBtnAddSale.value = true
+      disabledForm.value = true
     }
 
     if(type == 'edit'){
@@ -1045,6 +1102,7 @@ watch(
                             v-if="child.row.editedChild"
                             type="primary"
                             size="default"
+                            :disabled="disabledForm"
                             @click.prevent="handleItemEdit(child, props)"
                           >
                             {{ t('reuse.save') }}
@@ -1052,12 +1110,14 @@ watch(
                           <el-button
                             v-else
                             size="default"
+                            :disabled="disabledForm"
                             @click="handleItemEdit(child, props)"
                             >{{ t('formDemo.edit') }}</el-button
                           >
                           <el-button
                             size="default"
                             type="danger"
+                            :disabled="disabledForm"
                             @click="handleItemDelete(child.$index, props)"
                             >{{ t('reuse.delete') }}</el-button
                           >
@@ -1068,6 +1128,7 @@ watch(
                   <div class="flex w-[100%] justify-center">
                     <div class="w-[1040px]"><el-button
                         class="mt-4 w-36"
+    
                         @click="addActions(props.$index)"
                         >+ {{ t('reuse.addActions') }}
                       </el-button>
@@ -1121,27 +1182,19 @@ watch(
             <el-table-column
               :label="`${t('reuse.orderSalesAssign')}`"
               prop="percentageOfSales"
-              min-width="200"
+              min-width="180"
             >
-              <template #default="data">
-                <el-form-item
-                  v-if="data && data.$index >= 0"
-                  label=" "
-                  :prop="'dataList.' + data.$index + '.name'"
-                  style="margin: 0"
-                  size="large"
-                >
-                  <el-input
-                    controls-position="right"
-                    v-model="data.row.percentageOfSales"
-                    :suffix-icon="percentIcon"
-                    type="number"
-                    max="100"
-                    min="0"
-                    v-if="data.row.edited"
-                  />
-                  <div v-else>{{ data.row.percentageOfSales }}</div>
-                </el-form-item>
+              <template #default="scope">
+                <el-input-number
+                  style="width: 100%"
+                  v-model="scope.row.percentageOfSales"
+                  :suffix-icon="percentIcon"
+                  type="number"
+                  :max="100"
+                  @change="(number) => calculatePercentageSale(number, scope)"
+                  :min="0"
+                  :disabled="!scope.row.edited"
+                />
               </template>
             </el-table-column>
             <el-table-column :label="`${t('formDemo.manipulation')}`" min-width="150" prop="manipulation">
@@ -1150,6 +1203,7 @@ watch(
                   v-if="scope.row.edited"
                   type="primary"
                   size="default"
+                  :disabled="disabledForm"
                   @click.prevent="handleSave(scope.row)"
                 >
                   {{ t('reuse.save') }}
@@ -1157,6 +1211,7 @@ watch(
                 <el-button
                   v-else
                   size="default"
+                  :disabled="disabledForm"
                   @click.prevent="handleEdit(scope.row)"
                 >
                   {{ t('formDemo.edit') }}
@@ -1164,6 +1219,7 @@ watch(
                 <el-button
                   type="danger"
                   size="default"
+                  :disabled="disabledForm"
                   @click.prevent="handleDelete(scope.$index)"
                 >
                   {{ t('reuse.delete') }}
@@ -1172,7 +1228,7 @@ watch(
             </el-table-column>
             </el-table>
         </el-form>
-        <el-button class="mt-4 w-32 mx-4" @click="addNewSale" :disabled="btnAddSale"> 
+        <el-button class="mt-4 w-32 mx-4" @click="addNewSale" :disabled="disableBtnAddSale"> 
           + {{ t('reuse.addSale') }} 
         </el-button>
       </el-collapse-item>

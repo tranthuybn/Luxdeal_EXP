@@ -262,7 +262,6 @@ const initMappingObject = (el) => {
       :selection="selection" 
       :showSummary="props.showSummary"
       :getSummaries="getSummaries"
-      :apiToFilter="props.apiToFilter"
       :titleChilden="props.titleChilden">
       <template #expand>
         <slot name="expand"></slot>

@@ -482,6 +482,7 @@ const disabled = computed(() => {
           v-else
           :modelValue="data.row.quantity"
           @input="(event) => (data.row.quantity = parseInt(event))"
+          type="number"
         />
       </template>
     </el-table-column>

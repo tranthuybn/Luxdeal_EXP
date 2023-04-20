@@ -91,8 +91,6 @@ const warehouseForm = computed(() => {
   return props.warehouseFormData
 })
 const rules = reactive<FormRules>({
-  quantity: [required()],
-  unitPrice: [required()],
   warehouseImportId: [required()],
   locationImportId: [required()]
 })

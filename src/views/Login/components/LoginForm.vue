@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {reactive, ref, unref } from 'vue'
+import { reactive, ref, unref } from 'vue'
 import { Form } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElButton, ElCheckbox, ElLink, ElNotification } from 'element-plus'
@@ -234,11 +234,14 @@ const setPermissionForUser = (data) => {
 //   emit('to-register')
 // }
 
-window.addEventListener('keyup', function(event) {
-    if (event.keyCode === 13 && currentRoute.value.name === 'login') { 
+window.addEventListener('keyup', function (event) {
+  if (currentRoute.value.name === 'Login' && event.keyCode === 13 ) { 
+    console.log(currentRoute)
       signIn()
     }
 });
+
+
 </script>
 
 <template>
@@ -265,11 +268,12 @@ window.addEventListener('keyup', function(event) {
     <template #login>
       <div class="w-[100%]">
         <ElButton
+          ref="myButton"
           v-loading.fullscreen.lock="loading"
           type="primary"
           class="w-[100%]"
-          @click="signIn"
           :disabled="loading"
+          @click="signIn"
         >
           {{ t('login.login') }}
         </ElButton>

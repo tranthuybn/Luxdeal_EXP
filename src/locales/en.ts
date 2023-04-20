@@ -907,6 +907,16 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    noHistoryOfCare: 'No history of care',
+    current: 'Current',
+    totalSaleMessageAlert: 'Total % of sales cannot be more than 100%',
+    selfArrivingGuests: 'self-arriving guests',
+    passersby: 'Passers by',
+    zalo: 'Zalo',
+    facebook: 'Facebook',
+    transacted:'Transacted',
+    deleteCustomerCareContent: "Clear the sale's care content",
+    overdueTimeCantDelete: 'Overdue time cant delete',
     deleteCustomerCareHistory: "Clear the sale's care history",
     cantDeleteSale: 'There is care data that cannot be deleted',
     updateCustomerPhoneNumber: 'Update customer phone number',

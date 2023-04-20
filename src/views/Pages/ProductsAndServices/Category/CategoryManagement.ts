@@ -9,7 +9,6 @@ export const productCategories = [
     field: 'imageurl',
     label: t('reuse.categoryTitle'),
     minWidth: '650',
-    headerFilter: 'Name',
     formatter: (record: Recordable, column: TableColumn, cellValue: TableSlotDefault) =>
       setImageDisplayInDOm(record, column, cellValue, record.name)
   },

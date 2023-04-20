@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive } from 'vue'
+import { h, provide, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 import {  filterStatusGeneral } from '@/utils/filters'
@@ -21,6 +21,7 @@ const eyeIcon = useIcon({ icon: 'emojione-monotone:eye-in-speech-bubble' })
 const apiToFilter = {
   ['peopleName'] : getAllCustomer
 }
+provide('apiToFilter', apiToFilter)
 
 const action = (row: any, type: string) => {
   if (type === 'detail' || type === 'edit' || !type) {
@@ -112,7 +113,6 @@ const columns = reactive<TableColumn[]>([
   <tableDatetimeFilterBasicVue 
     :apiHasPagination="true" 
     :columns="columns" 
-    :apiToFilter="apiToFilter" 
     :api="getPaymentList" 
     :customOperator="4" />
 </template>

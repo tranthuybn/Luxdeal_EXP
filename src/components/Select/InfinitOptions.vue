@@ -217,7 +217,7 @@ const filterMethod = () => {
       v-if="fields.length > 0"
     >
       <div>
-        <ElRow type="flex">
+        <ElRow type="flex" justify="space-between">
           <ElCol
             :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"

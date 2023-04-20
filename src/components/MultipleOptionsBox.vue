@@ -185,7 +185,7 @@ const scrolling = (e) => {
       style="position: sticky; top: 0; z-index: 13"
     >
       <div>
-        <ElRow type="flex" justify="space-between" class="px-" v-if="fields.length > 0">
+        <ElRow type="flex" justify="space-between" v-if="fields.length > 0">
           <ElCol
             :span="Math.floor(24 / fields.length)"
             v-for="(filed, index) in fields"

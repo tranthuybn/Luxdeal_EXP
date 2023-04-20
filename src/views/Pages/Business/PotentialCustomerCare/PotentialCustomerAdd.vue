@@ -129,7 +129,6 @@ const handleDelete = async (payload) => {
   if (type == 'add') tableData.value.splice(payload, 1)
   if (type == 'edit') {
     const haveHistoryCare = tableData.value[payload].family[0].customerCareContent
-    console.log(tableData.value[payload])
     if(haveHistoryCare) {
       ElNotification({
           message: t('reuse.cantDeleteSale'),

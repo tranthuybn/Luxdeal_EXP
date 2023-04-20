@@ -385,8 +385,6 @@ const customEditDataVoucher = (data) => {
   customData.ExchangeValue = 1
   customData.ProductPropertyIdJson = '[]'
   customData.VoucherStatus = data.statusVoucher
-
-  console.log('data khi edit', data)
   return customData
 }  
 const activeName = ref(collapse[0].name)

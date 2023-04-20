@@ -51,6 +51,7 @@ export interface potentialCustomerInfo {
   supplier: Number
   representative: string
   customerOrderId: Number
+  OrderCode: string
   potentialCustomerHistorys: Array<Object>
 }
 

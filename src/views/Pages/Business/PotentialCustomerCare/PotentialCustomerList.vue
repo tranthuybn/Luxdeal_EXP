@@ -16,7 +16,10 @@ import {
   dateTimeFormat,
   formatPotentialCustomerStatusIdToText,
   formatServiceIdToText,
-  onlineToText
+  onlineToText,
+  historyTransactionToText,
+  accessChannelToText,
+  sourceToText
 } from '@/utils/format'
 import tableDatetimeFilterBasicVue from '../../Components/TableDataBase.vue'
 
@@ -60,10 +63,13 @@ const columns = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'historyTransactionName',
+    field: 'historyTransaction',
     label: t('reuse.transaction'),
     minWidth: '200',
-    filters: filterTransaction
+    filters: filterTransaction,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${historyTransactionToText(cellValue)}`)
+    }
   },
   {
     field: 'isOnline',
@@ -75,10 +81,13 @@ const columns = reactive<TableColumn[]>([
     }
   },
   {
-    field: 'accessChannelName',
+    field: 'accessChannel',
     label: t('reuse.approachingChannel'),
     minWidth: '150',
-    filters: filterApproaching
+    filters: filterApproaching,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${accessChannelToText(cellValue)}`)
+    }
   },
   {
     field: 'note',
@@ -86,10 +95,13 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150'
   },
   {
-    field: 'sourceName',
+    field: 'source',
     label: t('reuse.sourceNewCustomer'),
     minWidth: '100',
-    filters: filterSource
+    filters: filterSource,
+    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
+      return t(`${sourceToText(cellValue)}`)
+    }
   },
   {
     field: 'service',

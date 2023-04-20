@@ -298,6 +298,41 @@ export const onlineToText = (val) => {
   if (val) return t('reuse.online')
   return t('reuse.offline')
 }
+
+export const historyTransactionToText = (val) => {
+  switch (val) {
+    case 219:
+      return t('reuse.firstTime')
+    case 220:
+      return t('reuse.transacted')
+    default:
+      return ' '
+  }
+}
+
+export const accessChannelToText = (val) => {
+  switch (val) {
+    case 221:
+      return t('reuse.zalo')
+    case 222:
+      return t('reuse.facebook')
+    default:
+      return ' '
+  }
+}
+
+
+export const sourceToText = (val) => {
+  switch (val) {
+    case 223:
+      return t('reuse.selfArrivingGuests')
+    case 224:
+      return t('reuse.passersby')
+    default:
+      return ' '
+  }
+}
+
 export const businessIventoryStatusTransferToText = (val) => {
   if (val) t('reuse.stocking')
   return t('reuse.outOfStock')

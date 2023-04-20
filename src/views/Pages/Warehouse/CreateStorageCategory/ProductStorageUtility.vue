@@ -13,7 +13,6 @@ import { API_URL } from '@/utils/API_URL'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElMessage, ElNotification } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
-import moment from 'moment'
 const { t } = useI18n()
 const params = {}
 let timesCallAPI = 0
@@ -263,7 +262,7 @@ type FormDataPost = {
   isActive: boolean
   DeleteFileIds: string
 }
-var curDate = 'WH' + moment().format('DDMMYYHHmmss')
+var curDate = 'WH' + Date.now()
 
 const customPostData = (data) => {
   const customData = {} as FormDataPost

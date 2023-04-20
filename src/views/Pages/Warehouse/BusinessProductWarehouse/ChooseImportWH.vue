@@ -19,7 +19,6 @@ import {
 import type { FormInstance, FormRules } from 'element-plus'
 import { computed, reactive, ref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
-import moment from 'moment'
 
 const doCloseOnClickModal = ref(false)
 const { required } = useValidator()
@@ -63,7 +62,7 @@ const closeDialog = () => {
   emit('close-dialog-warehouse', null)
 }
 const createNewLot = async () => {
-  const Code = 'lot' + moment().format('DDMMYYHHmmss')
+  const Code = 'lot' + Date.now()
   const res = await createWarehouseLot(
     FORM_IMAGES({
       OrderId: isNaN(props.orderId) || props.orderId == 0 ? null : props.orderId,

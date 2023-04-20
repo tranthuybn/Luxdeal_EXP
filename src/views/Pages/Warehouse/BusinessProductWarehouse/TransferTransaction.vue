@@ -261,7 +261,7 @@ lastStatus.value = res.data[0]?.statusHistory[res.data[0]?.statusHistory.length 
     }
   } else {
     type.value = 'add'
-    ticketData.value.ticketCode = 'CK' + moment().format('DDMMYYHHmmss')
+    ticketData.value.ticketCode = 'CK' + Date.now()
     ticketData.value.updatedAt = moment().format()
 
     arrayStatusWH.value.push({

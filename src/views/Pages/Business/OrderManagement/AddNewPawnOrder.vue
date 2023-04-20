@@ -366,7 +366,7 @@ const callCustomersApi = async () => {
 //     WardId: 1,
 //     Address: 1,
 //     CustomerType: valueSelectCustomer.value
-var autoCustomerCode = 'KH' + moment().format('DDMMYYHHmmss')
+var autoCustomerCode = 'KH' + Date.now()
 const createQuickCustomer = async () => {
   const payload = {
     Code: autoCustomerCode,
@@ -2146,11 +2146,11 @@ const alreadyPaidForTt = ref(false)
 
 const activeName = ref([collapse[0].name, collapse[1].name])
 
-// var curDate = 'CD' + moment().format('DDMMYYHHmmss')
-var autoCodePawnOrder = 'CD' + moment().format('hmmss')
-var autoCodeReceipts = 'PT' + moment().format('hmmss')
-var autoCodeExpenditures = 'PC' + moment().format('hmmss')
-var autoCodePaymentRequest = 'DNTT' + moment().format('DDMMYYHHmmss')
+// var curDate = 'CD' + Date.now()
+var autoCodePawnOrder = 'CD' + Date.now()
+var autoCodeReceipts = 'PT' + Date.now()
+var autoCodeExpenditures = 'PC' + Date.now()
+var autoCodePaymentRequest = 'DNTT' + Date.now()
 const dialogBillLiquidation = ref(false)
 
 const staff = localStorage.getItem('STAFF_INFO')?.toString() || ''

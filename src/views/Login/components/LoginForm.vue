@@ -20,7 +20,7 @@ const { required, notSpecialCharacters } = useValidator()
 
 const permissionStore = usePermissionStore()
 
-const { addRoute, push } = useRouter()
+const { addRoute, push,currentRoute } = useRouter()
 
 const { wsCache } = useCache()
 
@@ -168,6 +168,7 @@ const getRole =  (accountId) => {
         message: t('reuse.authorized'),
         type: 'error'
       })
+    inValidAccountAccess(null)
     }
   }).catch(() => { 
     ElNotification({
@@ -195,6 +196,7 @@ const generateRouter = (routers) => {
       message: t('login.welcome'),
       type: 'success'
     })
+    loading.value = false
   }).catch((err) => { 
       console.error(err);
       ElNotification({
@@ -233,7 +235,7 @@ const setPermissionForUser = (data) => {
 // }
 
 window.addEventListener('keyup', function(event) {
-    if (event.keyCode === 13) { 
+    if (event.keyCode === 13 && currentRoute.value.name === 'login') { 
       signIn()
     }
 });

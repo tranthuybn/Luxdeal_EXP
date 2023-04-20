@@ -31,7 +31,6 @@ import {
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { useRoute, useRouter } from 'vue-router'
-import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
 import { appModules } from '@/config/app'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
@@ -104,11 +103,11 @@ const approvalId = String(route.params.approvalId)
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
-var curDate = 'MH' + moment().format('DDMMYYHHmmss')
-var autoCodeSellOrder = 'MH' + moment().format('DDMMYYHHmmss')
-var autoCodePaymentRequest = 'DNTT' + moment().format('DDMMYYHHmmss')
-var autoCodeReturnRequest = 'DT' + moment().format('DDMMYYHHmmss')
-var autoCustomerCode = 'KH' + moment().format('DDMMYYHHmmss')
+var curDate = 'MH' + Date.now()
+var autoCodeSellOrder = 'MH' + Date.now()
+var autoCodePaymentRequest = 'DNTT' + Date.now()
+var autoCodeReturnRequest = 'DT' + Date.now()
+var autoCustomerCode = 'KH' + Date.now()
 const codeReturnRequest = ref()
 const sellOrderCode = ref()
 const codeReceipts = ref()

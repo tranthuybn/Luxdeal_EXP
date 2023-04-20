@@ -204,11 +204,11 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
 
 let statusOrder = ref(2)
 
-// var curDate = 'DCT' + moment().format('DDMMYYHHmmss')
-var autoCustomerCode = 'KH' + moment().format('DDMMYYHHmmss')
-var autoRentalOrderCode = 'T' + moment().format('hmmss')
-var autoCodeExpenditures = 'PC' + moment().format('hmmss')
-var autoCodeReturnRequest = 'DT' + moment().format('hms')
+// var curDate = 'DCT' + Date.now()
+var autoCustomerCode = 'KH' + Date.now()
+var autoRentalOrderCode = 'T' + Date.now()
+var autoCodeExpenditures = 'PC' + Date.now()
+var autoCodeReturnRequest = 'DT' + Date.now()
 
 // const codeReturnRequest = ref()
 const rentalOrderCode = ref()

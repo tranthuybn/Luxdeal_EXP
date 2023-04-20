@@ -92,7 +92,7 @@ const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 
 
-var autoCustomerCode = 'KH' + moment().format('DDMMYYHHmmss')
+var autoCustomerCode = 'KH' + Date.now()
 
 
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -1272,7 +1272,7 @@ var autoCodeReturnRequest = 'DT' + moment().format('hms')
 const codeReceipts = ref()
 const codeExpenditures = ref()
 const codePaymentRequest = ref()
-// var curDate = 'DHKG' + moment().format('DDMMYYHHmmss')
+// var curDate = 'DHKG' + Date.now()
 
 const dialogBillLiquidation = ref(false)
 const enterdetailAddress = ref([])

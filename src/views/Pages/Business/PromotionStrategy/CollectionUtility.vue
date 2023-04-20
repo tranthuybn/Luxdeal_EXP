@@ -10,8 +10,6 @@ import { useRouter } from 'vue-router'
 import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { API_URL } from '@/utils/API_URL'
-import moment from 'moment'
-
 import { useValidator } from '@/hooks/web/useValidator'
 
 const { t } = useI18n()
@@ -37,7 +35,7 @@ const params = { CampaignType: PROMOTION_STRATEGY[1].key }
 
 
 //random mã
-const curDate = 'BST0' + moment().format('DDMMYYHHmmss')
+const curDate = 'BST0' + Date.now()
 const schema = reactive<FormSchema[]>([
   {
     field: 'collectionInfo',

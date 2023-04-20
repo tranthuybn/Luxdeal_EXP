@@ -56,7 +56,7 @@ const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const showPassword = ref(true)
 //random mã
-const curDate = 'NV' + moment().format('DDMMYYHHmmss')
+const curDate = 'NV' + Date.now()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const escape = useIcon({ icon: 'quill:escape' })

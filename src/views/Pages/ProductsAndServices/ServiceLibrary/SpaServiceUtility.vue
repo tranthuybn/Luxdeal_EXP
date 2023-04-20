@@ -19,8 +19,7 @@ const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
 const activeService = ref(true)
 //random field code
-const curDate = 'SPA' + moment().format("DDMMYYHHmmss")
-console.log(moment())
+const curDate = 'SPA' + Date.now()
 
 const schema = reactive<FormSchema[]>([
   {

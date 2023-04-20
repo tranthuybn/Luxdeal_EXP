@@ -12,7 +12,7 @@ import { FORM_IMAGES } from '@/utils/format'
 import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { API_URL } from '@/utils/API_URL'
 const { t } = useI18n()
-const curDate = 'VC' + moment().format('DDMMYYHHmmss')
+const curDate = 'VC' + Date.now()
 const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 
 const schema = reactive<FormSchema[]>([

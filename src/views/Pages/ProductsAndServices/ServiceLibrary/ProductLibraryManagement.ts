@@ -78,14 +78,11 @@ export const businessProductLibrary = [
     headerFilter: 'Name'
   },
   {
-    field: 'isActive',
+    field: 'statusName',
     label: t('reuse.status'),
     minWidth: '180',
     filters: filterStatusProductAndService,
     filterMethod: filterHandler,
-    formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
-      return t(`${formatStatusProductAndService(cellValue)}`)
-    }
   },
   {
     field: 'operator',

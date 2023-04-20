@@ -11,7 +11,6 @@ import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { moneyToNumber, FORM_IMAGES } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
-import moment from 'moment'
 const { t } = useI18n()
 
 const { required, ValidService, requiredOption } = useValidator()
@@ -35,7 +34,7 @@ const rules = reactive({
 const params = { CampaignType: PROMOTION_STRATEGY[2].key }
 
 //random mã
-const curDate = 'HMV0' + moment().format('DDMMYYHHmmss')
+const curDate = 'HMV0' + Date.now()
 const schema = reactive<FormSchema[]>([
   {
     field: 'collectionInfo',

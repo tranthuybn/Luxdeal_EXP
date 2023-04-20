@@ -17,13 +17,13 @@ export interface tableDataType {
   id: any
   indexSale: Number
   staffId: Number | String
-  staffName: String
+  staffName?: String
   content: String
-  createdAt: String
+  createdAt?: String
   date: any
   percentageOfSales: number
-  manipulation: string
-  edited: Boolean
+  manipulation?: string
+  edited?: Boolean
   family: Array<tableChildren>
 }
 
@@ -49,7 +49,9 @@ export interface potentialCustomerInfo {
   total: Number
   confirm: Boolean
   supplier: Number
+  representative: string
   customerOrderId: Number
+  potentialCustomerHistorys: Array<Object>
 }
 
 export interface potentialCustomerHistoryInfo {

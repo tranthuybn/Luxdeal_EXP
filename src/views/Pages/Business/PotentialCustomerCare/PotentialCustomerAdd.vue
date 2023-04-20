@@ -47,6 +47,7 @@ const tableData = ref<tableDataType[]>([])
 const ExpandedRow = ref([])
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
+const indexSale = ref(0)
 const type = router.currentRoute.value.params.type == ':type' ? 'add' : String(router.currentRoute.value.params.type)
 const rules = reactive({
   classify: [required(), requiredOption()],
@@ -61,76 +62,17 @@ const rules = reactive({
   }]
 })
 const changePhoneNumber = ref(false)
-const postData = async (data) => {
-  const potentialSaleList = reactive<Array<potentialCustomerHistoryInfo>>([])
-  if (tableData.value.length > 0) {
-    tableData.value.forEach((element) => {
-      if (element.family && Array.isArray(element.family) && element.family.length > 0)
-        element.family.forEach((ChildEl) => {
-          potentialSaleList.push({
-            id: element.indexSale,
-            staffId: element.staffId,
-            content: ChildEl?.customerCareContent ?? '',
-            percentageOfSales: Number(element.percentageOfSales)
-          })
-        })
-    })
-  }
-  const payload = {
-    name: data.classify == true ? data.companyName : data.customerName,
-    userName: 'string',
-    code: 'string',
-    isOrganization: data.classify,
-    taxCode: data.taxCode,
-    phonenumber: data.phonenumber,
-    email: data.email,
-    link: data.link,
-    accessChannel:  data.customerContactChannel,
-    representative: data.representative,
-    historyTransaction: data.transactionHistory,
-    isOnline: data.isOnline,
-    customerContactChannel: data.accessChannel,
-    source: data.newCustomerSource,
-    note: data.Note,
-    service: data.service || NaN,
-    serviceDetail: data.serviceDetails,
-    orderId: 1,
-    statusId: 1,
-    total: 1,
-    customerOrderId: data.result,
-    potentialCustomerHistorys: potentialSaleList
-  }
-
-  await addNewPotentialCustomer(payload)
-    .then(() => {
-      ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-      router.push({
-        name: `business.potential-customer-care.potential-customer-list`
-      })
-    })
-    .catch((error) => {
-      ElNotification({
-        message: error.message,
-        type: 'warning'
-      })
-    })
-}
-
-const collapseChangeEvent = (val) => {
-  if (val) {
-    collapse.forEach((el) => {
-      if (val.includes(el.name)) el.icon = minusIcon
-      else if (el.icon == minusIcon) el.icon = plusIcon
-    })
-  } else
-    collapse.forEach((el) => {
-      el.icon = plusIcon
-    })
-}
 const activeName = ref('collapse[0].name')
+
+const customPostDataHistory = (data) => {
+  const customDataHistory = {} as potentialCustomerHistoryInfo
+  customDataHistory.id = id
+  customDataHistory.staffId = data.staffId
+  customDataHistory.content = data.content
+  customDataHistory.percentageOfSales = data.percentageOfSales
+  return customDataHistory
+}
+
 const handleSave = async (row) => {
   row.edited = false
   if (type == 'edit') {
@@ -184,14 +126,32 @@ const addActions = (props) => {
   temp.push(newObj)
 }
 const handleDelete = async (payload) => {
-  tableData.value.splice(payload, 1)
+  if (type == 'add') tableData.value.splice(payload, 1)
   if (type == 'edit') {
-    await deletePotentialCustomer({ ...payload })
+    const haveHistoryCare = tableData.value[payload].family[0].customerCareContent
+    console.log(tableData.value[payload])
+    if(haveHistoryCare) {
+      ElNotification({
+          message: t('reuse.cantDeleteSale'),
+          type: 'warning'
+      })
+      return
+    }
+    ElMessageBox.confirm(t('reuse.deleteWarning'), t('reuse.deleteCustomerCareHistory'), {
+      confirmButtonText: t('reuse.confirm'),
+      cancelButtonText: t('reuse.cancel'),
+      type: 'info'
+    })
+    .then(async () => {
+      await deletePotentialCustomer({ ...payload })
       .then(() =>
-        ElNotification({
+        {
+          ElNotification({
           message: t('reuse.deleteSuccess'),
           type: 'success'
-        })
+          })
+          tableData.value.splice(payload, 1)
+        }
       )
       .catch(() =>
         ElNotification({
@@ -199,6 +159,13 @@ const handleDelete = async (payload) => {
           type: 'warning'
         })
       )
+    })
+    .catch(() => {
+      ElNotification({
+          message: t('reuse.deleteCancel'),
+          type: 'info'
+      })
+    })
   }
 }
 
@@ -662,10 +629,7 @@ async function setCustomerPhoneNumber({target}) {
     phonenumber: target.value,
   })
   const existCustomer = await checkPhoneNumberExist()
-  if(existCustomer) {
-    fillCustomerInfo(existCustomer) 
-    return
-  }
+  if(existCustomer) fillCustomerInfo(existCustomer) 
 }
 
 async function checkPhoneNumberExist() {
@@ -684,7 +648,6 @@ async function checkPhoneNumberExist() {
         })
         .then(() => {
           changePhoneNumber.value = true
-          tableData.value = []
         })
         .catch(() => {
 
@@ -753,7 +716,17 @@ const collapse: Array<Collapse> = [
     type: type
   }
 ]
-
+const collapseChangeEvent = (val) => {
+  if (val) {
+    collapse.forEach((el) => {
+      if (val.includes(el.name)) el.icon = minusIcon
+      else if (el.icon == minusIcon) el.icon = plusIcon
+    })
+  } else
+    collapse.forEach((el) => {
+      el.icon = plusIcon
+    })
+}
 const changeValueClassify = (data) => {
     if(data == true){
       columnProfileCustomer[3].hidden = true
@@ -857,17 +830,48 @@ const customizeData = (formData) => {
   formDataCustomize.value.classify = formData.isOrganization
   formDataCustomize.value.service = formData.service
   formDataCustomize.value.status = formData.statusId
-  tableData.value = formData.potentialCustomerHistorys[0] ? formData.potentialCustomerHistorys : []
-  // if(tableData.value.length > 0) {
-  //   tableData.value = formData.potentialCustomerHistorys.map((scope) => {
-
-  //   })
-  // }
+  //tableData.value = formData.potentialCustomerHistorys[0] ? formData.potentialCustomerHistorys : []
+  const result : Array<tableDataType> = Object.values(formData.potentialCustomerHistorys.reduce((acc, curr) => {
+      const key = curr.staffId;
+      if (!acc[key]) {
+        indexSale.value++
+        acc[key] = {
+          indexSale: indexSale.value,
+          date: curr.createdAt,
+          staffId: curr.staffId,
+          content: curr.content,
+          percentageOfSales: curr.percentageOfSales,
+          id: curr.id,
+          family: [],
+        };
+      }
+      acc[key].family.push({
+        date: curr.createdAt,
+        customerCareContent: curr.content,
+      });
+      return acc;
+    }, {}));
+  tableData.value = result.reverse()
   changeValueClassify(formDataCustomize.value.classify)
 }
 
 // data update api
 const customData = (data) => {
+  const potentialSaleList = reactive<Array<potentialCustomerHistoryInfo>>([])
+  if (tableData.value.length > 0) {
+    tableData.value.forEach((element) => {
+      if (element.family && Array.isArray(element.family) && element.family.length > 0)
+        element.family.forEach((ChildEl) => {
+          potentialSaleList.push({
+            id: element.indexSale,
+            staffId: element.staffId,
+            content: ChildEl?.customerCareContent ?? '',
+            percentageOfSales: Number(element.percentageOfSales)
+          })
+        })
+    })
+  }
+
   const customData = {} as potentialCustomerInfo
   customData.id = id
   customData.isOrganization = data.classify
@@ -888,21 +892,36 @@ const customData = (data) => {
   customData.customerOrderId = data.result
   customData.statusId = data.status
   customData.total = 0
+  customData.representative = data.representative
   customData.historyTransaction = data.transactionHistory
-  if(type === 'edit') customData.confirm = changePhoneNumber.value
+  customData.potentialCustomerHistorys = potentialSaleList
   return customData
 }
 
-const customPostDataHistory = (data) => {
-  const customDataHistory = {} as potentialCustomerHistoryInfo
-  customDataHistory.id = id
-  customDataHistory.staffId = data.staffId
-  customDataHistory.content = data.content
-  customDataHistory.percentageOfSales = data.percentageOfSales
-  return customDataHistory
+const postData = async (data) => {
+  data = customData(data)
+  await addNewPotentialCustomer(data)
+    .then(() => {
+      ElNotification({
+        message: t('reuse.addSuccess'),
+        type: 'success'
+      })
+      router.push({
+        name: `business.potential-customer-care.potential-customer-list`
+      })
+    })
+    .catch(() => {
+      ElNotification({
+        message: t('reuse.addFail'),
+        type: 'warning'
+      })
+    })
 }
-
 const editData = async (data) => {
+  if(changePhoneNumber.value) {
+    postData(data)
+    return
+  }
   data = customData(data)
   await updatePotentialCustomer(data)
     .then(() => {

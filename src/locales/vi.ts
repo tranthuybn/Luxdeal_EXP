@@ -959,8 +959,10 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    deleteCustomerCareHistory: 'Xóa lịch sử chăm sóc của sale',
+    cantDeleteSale: 'Đang có dữ liệu chăm sóc không thể xóa',
     updateCustomerPhoneNumber: 'Cập nhập mới số điện thoại',
-    changePhoneNumberAlert: 'Thay đổi số điện thoại hệ thống sẽ tự động xóa lịch sử khách hàng, bạn có muốn thay đổi không?',
+    changePhoneNumberAlert: 'Thay đổi số điện thoại hệ thống sẽ thêm mới KH tiềm năng, bạn có muốn thay đổi không?',
     availableCustomer: 'Khách hàng đã tồn tại trong danh sách',
     getAvailableCustomer: 'Lấy thông tin khách hàng có sẵn',
     paidAndFinish: 'Đã thanh toán & kết thúc',

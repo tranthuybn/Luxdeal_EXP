@@ -363,7 +363,8 @@ const callAPIWarehouse = async () => {
   if (callAPIWarehouseTimes == 0) {
     await getProductStorage({
       pageSize: 1000,
-      pageIndex: 1
+      pageIndex: 1,
+      status:true
     }).then((res) => {
       warehouseOptions.value = res.data
         .filter((warehouse) => warehouse.children.length > 0)
@@ -2242,7 +2243,7 @@ const editData = async () => {
 
 // Lấy danh sách kho
 const callApiWarehouseList = async () => {
-  const res = await getListWareHouse('')
+  const res = await getListWareHouse({status:true})
   if (res?.data) {
     res?.data.map((el) => {
       if (el.children.length > 0 && el.isActive) {

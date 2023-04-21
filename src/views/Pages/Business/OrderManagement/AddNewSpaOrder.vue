@@ -772,7 +772,9 @@ const callApiCollaborators = async () => {
     PageSize: 20
   })
   if (res.data && res.data?.length > 0) {
-    optionsCollaborators.value = res.data.map((collaborator) => ({
+    optionsCollaborators.value = res.data
+    .filter(collaborator => collaborator.status === 1)
+    .map((collaborator) => ({
       label: collaborator.code + ' | ' + collaborator.accountName,
       value: collaborator.id,
       collaboratorCommission: collaborator.discount,
@@ -795,7 +797,9 @@ const ScrollCollaboratorBottom = () => {
         .then((res) => {
           res.data.length == 0
             ? (noMoreCollaboratorData.value = true)
-            : res.data.map((el) =>
+            : res.data
+            .filter(collaborator => collaborator.status === 1)
+            .map((el) =>
                 optionsCollaborators.value.push({
                   label: el.code + ' | ' + el.accountName,
                   value: el.id,

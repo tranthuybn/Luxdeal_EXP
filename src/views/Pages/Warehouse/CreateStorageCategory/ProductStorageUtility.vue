@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -13,8 +13,10 @@ import { API_URL } from '@/utils/API_URL'
 import { useValidator } from '@/hooks/web/useValidator'
 import { ElMessage, ElNotification } from 'element-plus'
 import { FORM_IMAGES } from '@/utils/format'
+
 const { t } = useI18n()
 const params = {}
+const formRef= ref<InstanceType<typeof TableOperator>>()
 let timesCallAPI = 0
 let rank1SelectOptions = reactive([])
 const { required, ValidService, notSpecialCharacters } = useValidator()
@@ -369,6 +371,23 @@ const editData = async (data) => {
       })
   }
 }
+
+
+watch(formRef, async () => {
+  await formRef.value?.getFormData()
+  .then(res => {
+    console.log('res', res)
+  })
+  .catch(() => {})
+  formRef.value?.setSchema([
+    {
+      field: 'status',
+      path: 'componentProps.disabled',
+      value: true
+    }
+  ])
+})
+
 </script>
 
 <template>
@@ -389,4 +408,5 @@ const editData = async (data) => {
     :delApi="deleteProductStorage"
     :multipleImages="false"
   />
+
 </template>

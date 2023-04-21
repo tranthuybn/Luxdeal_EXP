@@ -245,7 +245,7 @@ const postData = async (data) => {
         :close-on-click-modal="doCloseOnClickModal"
         :modelValue="props.modelValue"
         :title="t('formDemo.quicklyAddProducts')"
-        width="40%"
+        width="750px"
         align-center
         @close="close"
     >
@@ -269,8 +269,10 @@ const postData = async (data) => {
     </el-dialog>
 </template>
 
-<style lange="less" scoped>
+<style lang="less" scoped>
   ::v-deep(.btn-wrap) {
-    margin-left: 520px;
+    justify-content: flex-end;
+    padding-bottom: 15px;
+    padding-right: 10px;
   }
 </style>

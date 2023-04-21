@@ -20,7 +20,8 @@ export interface FormDataPostAndEdit  {
 export interface FormData {
     code: string
     createdAt: string
-    createdBy: string
+    createdBy?: string
+    createdId: number
     description: string
     peopleId: number
     totalMoney: number

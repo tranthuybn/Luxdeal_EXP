@@ -16,7 +16,6 @@ import {
   ElNotification,
   ElImage,
   ElDivider,
-  ElTreeSelect,
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -254,7 +253,7 @@ const setFormValue = async () => {
   // If a receiptForm (or paymentForm) is approval in detail page, cancel disabled some filed
   if(props.module == 1) {
     if(formValue.value.isApproved && !formValue.value.isCancel) {
-      const arrField = ['createdBy', 'description', 'peopleId', 'totalMoney', 'enterMoney' ]
+      const arrField = ['createdId', 'description', 'peopleId', 'totalMoney', 'enterMoney' ]
       const config = arrField.map(item => (
         {
           field: item,
@@ -546,13 +545,16 @@ onBeforeMount(async () => {
 
 const handleChangeOptions = (option,form, formType) => {
   switch (formType) {
-    case 'createdBy' :
+    case 'createdId' :
       optionCreatedBy.value = option
-      form.createdBy = Number(option.id)
+      form.createdId = Number(option.id)
       return
     case 'peopleId' : 
       optionPeopleType.value = option
       form.peopleId = Number(option.id)
+      return
+    case 'accountNumber' : 
+      form.accountNumber = Number(option.value)
       return
     default: return ''
   }
@@ -705,6 +707,12 @@ const setStatusHistory = () => {
 }
 
 const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email  })
+const getMapAccountNumberData = ({accountNumber, accountName, id , children}) => ({
+  label: `${accountNumber} | ${accountName}`,
+  value: id,
+  children: children.length > 0 ? 
+    children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
+})
 </script>
 <template>
   <ContentWrap :title="title" :back-button="backButton">
@@ -781,7 +789,7 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
               </div>
           </template>
           
-          <template #createdBy="form">
+          <template #createdId="form">
             <InfinitOptions 
               :fields="[t('reuse.employeeCode'),t('reuse.phoneNumber'),t('reuse.employeeName')]"
               min-width="500px"
@@ -792,21 +800,27 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
               :items="createdByOptions"
               :disabled="isDisabled"
               :pageIndex="pageIndex"
-              :type="type"
               :api="getStaffList"
               :mapFunction="getMapData"
-              :defaultValue="form.createdBy"
-              @update-value="(_value, option) => handleChangeOptions(option, form, 'createdBy')"
+              :defaultValue="form.createdId"
+              @update-value="(_value, option) => handleChangeOptions(option, form, 'createdId')"
             />
           </template>
 
           <template #accountNumber="form">
-            <el-tree-select
-              v-model="form.accountNumber"
-              :data="accountNumberOptions"
-              check-strictly
-              :render-after-expand="false"
-              show-checkbox
+            <InfinitOptions 
+              min-width="500px"
+              valueKey="value" 
+              labelKey="label"
+              :hiddenKey="['value', 'label']"
+              :clearable="false"
+              :pageIndex="pageIndex"
+              :isTreeSelect="true"
+              :api="getAccountantList"
+              :mapFunction="getMapAccountNumberData"
+              :defaultValue="form.accountNumber"
+              @update-value="(_value, option) => handleChangeOptions(option, form, 'accountNumber')"
+              @check-change="(option) => handleChangeOptions(option, form, 'accountNumber')"
             />
           </template>
 
@@ -823,7 +837,6 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
               :pageIndex="pageIndex"
               :api="getAllCustomer"
               :mapFunction="getMapData"
-              :type="type"
               :defaultValue="form.peopleId"
               @update-value="(_value, option) => handleChangeOptions(option, form, 'peopleId')"
             />
@@ -900,6 +913,9 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
       </ElCol>
       <ElCol :span="hasAttachDocument ? 12 : 0" v-if="hasAttachDocument" class="max-h-400px overflow-y-auto">
         <ElDivider content-position="left" class="text-center font-bold ml-2">{{ t('reuse.attachDocument') }}</ElDivider>
+        <ul class="px-10">
+          <li v-for="(item, index) in  formValue?.attachDocument" :key="index">{{ item }}</li>
+        </ul>
       </ElCol>
     </ElRow>
     <template #under>

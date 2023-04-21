@@ -98,9 +98,10 @@ const propsObj = defineProps({
     default: 'Search'
   }
 })
+const treeSelectValue = ref()
 const { t } = useI18n()
 const loading = ref(false)
-const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
+const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom', 'checkChange'])
 const pageIndex = ref(propsObj.pageIndex)
 const pageSize = ref(50)
 let selected = computed(() => {
@@ -168,6 +169,10 @@ const valueChangeEvent = (val) => {
   }
 }
 
+const checkChange = (obj, checked) => {
+  if (obj && checked) emit('checkChange', obj)
+}
+
 const scrolling = (e) => {
   const clientHeight = e.target.clientHeight
   const scrollHeight = e.target.scrollHeight
@@ -229,9 +234,8 @@ watch(pageIndex, async (newPageIndex) => {
         </ElRow>
       </div>
     </ElOption>
-    <div @scroll="scrolling" class="h-52 overflow-auto">
+    <div @scroll="scrolling" class="h-52 overflow-auto" :style="`min-width: ${width}`">
       <ElOption
-        :style="`width: ${width}`"
         v-for="(item, index) in options"
         :key="index"
         :value="item[identifyKey] ?? ''"
@@ -259,10 +263,13 @@ watch(pageIndex, async (newPageIndex) => {
   </ElSelect>
   <ElTreeSelect 
     v-else 
-    v-model="selected"
+    v-model="treeSelectValue"
     class="el-select-custom"
-    @change="(data) => valueChangeEvent(data)"
+    @check-change="checkChange"
     :data="options"
+    check-strictly
+    :render-after-expand="false"
+    show-checkbox
   />
 </template>
 <style lang="css" scoped>

@@ -199,7 +199,7 @@ const scrolling = (e) => {
     </ElOption>
     <div @scroll="scrolling" class="h-52 px-2.5 overflow-auto">
       <ElOption
-        :style="`width: ${width}`"
+        :style="`min-width: ${width}`"
         v-for="(item, index) in options"
         :key="index"
         :value="item[identifyKey] ?? ''"

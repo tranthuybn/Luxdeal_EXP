@@ -37,7 +37,7 @@ const back = async () => {
   })
 }
 const rules = reactive({
-  createdBy: [required()],
+  createdId: [required()],
   description: [required()],
   totalMoney: [required()],
   enterMoney: [required()],
@@ -80,7 +80,7 @@ const schema = reactive<FormSchema[]>([
     value: moment().format('DD/MM/YYYY')
   },
   {
-    field: 'createdBy',
+    field: 'createdId',
     label: t('reuse.petitioner'),
     component: 'Select',
     colProps: {
@@ -202,7 +202,7 @@ const customizeData = async (data) => {
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney
-  setFormData.createdBy = data.createdBy
+  setFormData.createdId = data.createdId
   setFormData.createdAt = formartDate(data.createdAt)
   setFormData.peopleId =  data.peopleId
   setFormData.enterMoney = data.enterMoney

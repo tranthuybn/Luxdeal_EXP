@@ -10,10 +10,10 @@ const ArrowDown = useIcon({ icon: 'ic:sharp-keyboard-arrow-down' })
 
 const emit = defineEmits(['filter-select', 'cancel'])
 // eslint-disable-next-line vue/require-prop-types
-const props = defineProps(['field', 'apiToFilter', 'paramsToFilter'])
+const props = defineProps(['field', 'apiToFilter', 'paramsToFilter', 'typeOfSearch'])
 const propParams = props.paramsToFilter || {}
 const propField = ref(props.field)
-
+const KeySearch = props.typeOfSearch || 'Search'
 const value = ref<string>('')
 const loading = ref(false)
 interface IOptions {
@@ -43,7 +43,7 @@ const remoteMethod = (query: string) => {
   if (query.length >= 2) {
     loading.value = true
     setTimeout(async () => {
-      const params : [() => void, string, object] = reactive([props.apiToFilter, t('reuse.cantGetFilterList'), {Search: query, ...propParams}])
+      const params : [() => void, string, object] = reactive([props.apiToFilter, t('reuse.cantGetFilterList'), {[`${KeySearch}`]: query, ...propParams}])
       loading.value = false
       await getOptionsBySearch(...params)
       .then((res) => {

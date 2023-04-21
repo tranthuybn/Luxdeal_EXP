@@ -94,7 +94,9 @@ export const wareHouse = [
   {
     field: 'warehouse',
     label: t('router.warehouse'),
-    minWidth: '150'
+    minWidth: '150',
+    headerFilter: 'Search',
+
   },
   {
     field: 'locationWarehouse',

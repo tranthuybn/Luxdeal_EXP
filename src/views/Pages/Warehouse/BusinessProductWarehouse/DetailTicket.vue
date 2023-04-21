@@ -244,7 +244,8 @@ const warehouseOptions = ref()
 const callAPIWarehouse = async () => {
   await getProductStorage({
     pageSize: 1000,
-    pageIndex: 1
+    pageIndex: 1,
+    status:true
   }).then((res) => {
     warehouseOptions.value = res.data.filter(el=>el.children.length > 0 && el.isActive)?.map((item) => ({
       value: item.id,

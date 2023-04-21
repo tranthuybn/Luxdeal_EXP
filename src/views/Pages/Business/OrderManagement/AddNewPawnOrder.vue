@@ -457,7 +457,9 @@ const callApiCollaborators = async () => {
     PageSize: 20
   })
   if (res.data && res.data?.length > 0) {
-    optionsCollaborators.value = res.data.map((collaborator) => ({
+    optionsCollaborators.value = res.data
+    .filter(collaborator => collaborator.status === 1)
+    .map((collaborator) => ({
       label: collaborator.code + ' | ' + collaborator.accountName,
       value: collaborator.id,
       collaboratorCommission: collaborator.discount,
@@ -486,14 +488,16 @@ const ScrollCollaboratorBottom = () => {
       .then((res) => {
         res.data.length == 0
           ? (noMoreCollaboratorData.value = true)
-          : res.data.map((el) =>
-            optionsCollaborators.value.push({
-              label: el.code + ' | ' + el.accountName,
-              value: el.id,
-              collaboratorCommission: el.discount,
-              phone: el.accountNumber
-            })
-          )
+          : res.data
+            .filter(collaborator => collaborator.status === 1)
+            .map((el) =>
+              optionsCollaborators.value.push({
+                label: el.code + ' | ' + el.accountName,
+                value: el.id,
+                collaboratorCommission: el.discount,
+                phone: el.accountNumber
+              })
+            )
       })
       .catch(() => {
         noMoreCollaboratorData.value = true
@@ -1782,7 +1786,7 @@ const chooseWarehouse = reactive<Array<typeWarehouse>>([])
 
 // Lấy danh sách kho
 const callApiWarehouseList = async () => {
-  const res = await getListWareHouse('')
+  const res = await getListWareHouse({status:true})
   if (res?.data) {
     res?.data.map((el) => {
       if (el.children.length > 0 && el.isActive) {

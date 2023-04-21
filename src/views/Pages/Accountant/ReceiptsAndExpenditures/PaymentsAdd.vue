@@ -78,7 +78,7 @@ const schema = reactive<FormSchema[]>([
     value: moment().format('DD/MM/YYYY')
   },
   {
-    field: 'createdBy',
+    field: 'createdId',
     label: t('reuse.petitioner'),
     component: 'Select',
     colProps: {
@@ -199,7 +199,7 @@ const customizeData = async (data) => {
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney
-  setFormData.createdBy = data.createdBy
+  setFormData.createdId = data.createdBy
   setFormData.createdAt = formartDate(data.createdAt)
   setFormData.peopleId = data.peopleId
   setFormData.enterMoney = data.enterMoney
@@ -213,6 +213,7 @@ const customData = (data) => {
   customData.Id = id || NaN
   customData.Code = data.code
   customData.CreatedBy = data.createdBy
+  customData.CreatedId = data.createdById
   customData.CreateAt = data.createdAt
   customData.Description = data.description
   customData.PeopleId = data.peopleId
@@ -224,7 +225,10 @@ const customData = (data) => {
   customData.Transacted = data.paid
   customData.Type = 0
   customData.Status = 1
-  if(type == 'detail') customData.Carrying = true
+   if(type == 'detail') {
+    customData.Carrying = true
+    customData.Status = 2
+  }
   return customData
 }
 
@@ -304,7 +308,7 @@ const currentCollapse = ref<string>(collapse[0].name)
           :type="type"
           :id="id"
           @post-data="postData"
-          :rules="!(type === 'detail') ? rules : {}"
+          :rules="rules"
           @customize-form-data="customizeData"
           @edit-data="editData"
           :formDataCustomize="setFormData"

@@ -513,7 +513,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
                 {{ customerObj.representative }}
               </ElFormItem>
               <ElRow :gutter="10">
-                <ElCol :span="10">
+                <ElCol :span="12">
                   <ElFormItem
                     :label="t('reuse.phoneNumber')"
                     v-if="customerObj.phonenumber"
@@ -532,7 +532,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
                 </ElCol>
               </ElRow>
               <ElRow :gutter="10">
-                <ElCol :span="10">
+                <ElCol :span="12">
                   <ElFormItem
                     :label="t('reuse.citizenIdentificationNumber')"
                     v-if="customerObj.cccd"
@@ -540,7 +540,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
                     {{ customerObj.cccd }}
                   </ElFormItem>
                 </ElCol>
-                <ElCol :span="7">
+                <ElCol :span="6">
                   <ElFormItem
                     label-width="auto"
                     :label="`${t('formDemo.supplyDate')}:`"
@@ -549,7 +549,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
                     {{ dateTimeFormat(customerObj.cccdCreateAt) }}
                   </ElFormItem>
                 </ElCol>
-                <ElCol :span="7">
+                <ElCol :span="6">
                   <ElFormItem
                     label-width="auto"
                     :label="`${t('formDemo.supplyAddress')}:`"
@@ -602,7 +602,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
                     <span class="right"></span>
                   </span>
                 </div>
-                <div class="italic text-xs text-gray-500">{{dateTimeFormat(item.approveAt)}}</div>
+                <div class="italic text-xs text-gray-500">{{item.approveAt}}</div>
             </div>
           </div>
         </template>

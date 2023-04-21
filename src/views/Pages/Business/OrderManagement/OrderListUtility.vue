@@ -3,10 +3,7 @@ import { reactive, ref, watch, unref, onBeforeMount, computed } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { moneyFormat } from '@/utils/format'
-import { useValidator } from '@/hooks/web/useValidator'
 import {
-  ElRow,
-  ElCol,
   ElCollapse,
   ElCollapseItem,
   ElSelect,
@@ -20,7 +17,6 @@ import {
   ElRadioGroup,
   ElRadio,
   ElDialog,
-  ElMessageBox,
   ElDatePicker,
   ElForm,
   ElFormItem,
@@ -44,7 +40,6 @@ import {
   getAllCustomer,
   addNewOrderList,
   getOrderList,
-  addQuickCustomer,
   getPriceOfSpecificProduct,
   getOrderTransaction,
   addTPV,
@@ -71,7 +66,6 @@ import {
   finishReturnOrder,
 GenerateCodeOrder
 } from '@/api/Business'
-// import QuickAddCustomer from '@/views/Pages/Warehouse/BusinessProductWarehouse/QuickAddCustomer.vue'
 import { FORM_IMAGES } from '@/utils/format'
 import { UpdateStatusTicketFromOrder } from '@/api/Warehouse'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
@@ -84,6 +78,7 @@ import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
 import { changeMoney } from '@/utils/tsxHelper'
+import AddQuickCustomer from './AddQuickCustomer.vue'
 
 import UploadMultipleImages from './UploadMultipleImages.vue'
 import * as orderUtility from './OrderFixbug'
@@ -93,11 +88,9 @@ const { utility } = appModules
 const { t } = useI18n()
 
 const ruleFormRef = ref<FormInstance>()
-const ruleAddQuickCustomerFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
 // var curDate = 'DHB' + Date.now()
-var autoCustomerCode = 'KH' + Date.now()
 var autoCodeSellOrder = 'BH' + Date.now()
 var autoCodePaymentRequest = 'DNTT' + Date.now()
 var autoCodeReturnRequest = 'DT' + moment().format('hms')
@@ -782,22 +775,6 @@ const getValueOfCustomerSelected = (value, obj) => {
   ruleForm.customerName = obj.label
 }
 
-// phân loại khách hàng: 1: công ty, 2: cá nhân
-const optionsClassify = [
-  {
-    value: true,
-    id: 1,
-    label: t('formDemo.company')
-  },
-  {
-    value: false,
-    id: 2,
-    label: t('formDemo.individual')
-  }
-]
-
-const { ValidService } = useValidator()
-
 // form add quick customer
 const addQuickCustomerName = ref()
 const quickTaxCode = ref()
@@ -805,93 +782,43 @@ const quickRepresentative = ref()
 const quickPhoneNumber = ref()
 const quickEmail = ref()
 
-const ruleAddQuickCustomerForm = reactive({
-  valueClassify: false,
-  valueSelectCustomer: 1,
-  addQuickCustomerName: '',
-  quickTaxCode: '',
-  quickRepresentative: '',
-  quickPhoneNumber: '',
-  quickEmail: ''
-})
-const rulesAddQuickCustomer = reactive<FormRules>({
-  classify: [
-    {
-      required: true,
-      message: t('common.required'),
-      trigger: 'blur'
-    },
-  ],
-  addQuickCustomerName: [
-    {
-      required: true,
-      message: t('common.required'),
-      trigger: 'blur'
-    },
-  ],
-  quickTaxCode: [
-    {
-      required: true,
-      message: t('common.required'),
-      trigger: 'blur'
-    },
-  ],
-  quickPhoneNumber: [
-    {
-      required: true,
-      message: t('common.required'),
-      trigger: 'blur'
-    },
-    ValidService.checkPhone
-  ],
-  quickEmail: [
-    ValidService.checkEmail
-  ]
-})
+// const ruleAddQuickCustomerForm = reactive({
+//   valueClassify: false,
+//   valueSelectCustomer: 1,
+//   addQuickCustomerName: '',
+//   quickTaxCode: '',
+//   quickRepresentative: '',
+//   quickPhoneNumber: '',
+//   quickEmail: ''
+// })
 
 // Thêm nhanh khách hàng
-const createQuickCustomer = async () => {
-  const payload = {
-    Code: autoCustomerCode,
-    IsOrganization: ruleAddQuickCustomerForm.valueClassify,
-    Name: ruleAddQuickCustomerForm.addQuickCustomerName,
-    TaxCode: ruleAddQuickCustomerForm.quickTaxCode,
-    Representative: ruleAddQuickCustomerForm.quickRepresentative,
-    Phonenumber: ruleAddQuickCustomerForm.quickPhoneNumber,
-    Email: ruleAddQuickCustomerForm.quickEmail,
-    CustomerType: ruleAddQuickCustomerForm.valueSelectCustomer
-  }
-  const formCustomerPayLoad = FORM_IMAGES(payload)
-  const res = await addQuickCustomer(formCustomerPayLoad)
-  if (res) {
-    ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-    callCustomersApi()
-  } else {
-    ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
-  }  
-}
-
-// select khách hàng
-const optionsCustomer = [
-  {
-    value: 1,
-    label: t('formDemo.customer')
-  },
-  {
-    value: 2,
-    label: t('reuse.supplier')
-  },
-  {
-    value: 3,
-    label: t('formDemo.joint')
-  }
-]
+// const createQuickCustomer = async () => {
+//   const payload = {
+//     Code: autoCustomerCode,
+//     IsOrganization: ruleAddQuickCustomerForm.valueClassify,
+//     Name: ruleAddQuickCustomerForm.addQuickCustomerName,
+//     TaxCode: ruleAddQuickCustomerForm.quickTaxCode,
+//     Representative: ruleAddQuickCustomerForm.quickRepresentative,
+//     Phonenumber: ruleAddQuickCustomerForm.quickPhoneNumber,
+//     Email: ruleAddQuickCustomerForm.quickEmail,
+//     CustomerType: ruleAddQuickCustomerForm.valueSelectCustomer
+//   }
+//   const formCustomerPayLoad = FORM_IMAGES(payload)
+//   const res = await addQuickCustomer(formCustomerPayLoad)
+//   if (res) {
+//     ElNotification({
+//         message: t('reuse.addSuccess'),
+//         type: 'success'
+//       })
+//     callCustomersApi()
+//   } else {
+//     ElNotification({
+//         message: t('reuse.addFail'),
+//         type: 'warning'
+//       })
+//   }  
+// }
 
 const addLastIndexSellTable = () => {
   ListOfProductsForSale.value.push({ ...productForSale })
@@ -2510,7 +2437,10 @@ const callApiCollaborators = async () => {
     PageSize: 20
   })
   if (res.data && res.data?.length > 0) {
-    optionsCollaborators.value = res.data.map((collaborator) => ({
+
+    optionsCollaborators.value = res.data
+    .filter(collaborator => collaborator.status === 1)
+    .map((collaborator) => ({
       label: collaborator.code + ' | ' + collaborator.accountName,
       value: collaborator.id, // cdetailollaborator
       collaboratorCommission: collaborator.discount,
@@ -2533,14 +2463,16 @@ const ScrollCollaboratorBottom = () => {
         .then((res) => {
           res.data.length == 0
             ? (noMoreCollaboratorData.value = true)
-            : res.data.map((el) =>
-                optionsCollaborators.value.push({
-                  label: el.code + ' | ' + el.accountName,
-                  value: el.id,
-                  collaboratorCommission: el.discount,
-                  phone: el.accountNumber
-                })
-              )
+            : res.data
+                .filter(collaborator => collaborator.status === 1)
+                .map((el) =>
+                    optionsCollaborators.value.push({
+                      label: el.code + ' | ' + el.accountName,
+                      value: el.id,
+                      collaboratorCommission: el.discount,
+                      phone: el.accountNumber
+                    })
+                  )
         })
         .catch(() => {
           noMoreCollaboratorData.value = true
@@ -2561,7 +2493,7 @@ const scrolling = (e) => {
 
 // Lấy danh sách kho
 const callApiWarehouseList = async () => {
-  const res = await getListWareHouse('')
+  const res = await getListWareHouse({status: true})
   if (res?.data) {
     res?.data.map((el) => {
       if (el.children.length > 0 && el.isActive) {
@@ -2792,20 +2724,20 @@ onBeforeMount(async () => {
 })
 
 const disabledPhieu = ref(false)
-const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  formEl.resetFields()
-}
+// const resetForm = (formEl: FormInstance | undefined) => {
+//   if (!formEl) return
+//   formEl.resetFields()
+// }
 
-const handleClose = (done: () => void) => {
-  ElMessageBox.confirm(t('reuse.confirmClose'))
-    .then(() => {
-      done()
-    })
-    .catch(() => {
-      // catch error
-    })
-}
+// const handleClose = (done: () => void) => {
+//   ElMessageBox.confirm(t('reuse.confirmClose'))
+//     .then(() => {
+//       done()
+//     })
+//     .catch(() => {
+//       // catch error
+//     })
+// }
 
 </script>
 
@@ -2917,132 +2849,9 @@ const handleClose = (done: () => void) => {
         </slot>
       </div>
 
-      <!-- Dialog In đề nghị khách hàng -->
-      <el-dialog
-        class="pb-3"
-        :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogAddQuick"
-        width="40%"
-        align-center
-        :title="t('formDemo.QuicklyAddCustomers')"
-        :before-close="(done) => {
-          handleClose(done)
-          resetForm(ruleAddQuickCustomerFormRef)
-        }"
-      >
-        <el-form
-          ref="ruleAddQuickCustomerFormRef"
-          :model="ruleAddQuickCustomerForm"
-          :rules="rulesAddQuickCustomer"
-          label-width="180px"
-        >
-        <el-divider />
-          <div class="py-2">
-            <el-form-item :label="t('formDemo.classify')" prop="classify">
-              <el-row :gutter="10">
-                <el-col :span="12">
-                  <el-form-item  prop="valueClassify">
-                      <el-select v-model="ruleAddQuickCustomerForm.valueClassify" placeholder="Select">
-                        <el-option
-                          v-for="item in optionsClassify"
-                          :key="item.id"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item prop="valueSelectCustomer">
-                      <el-select v-model="ruleAddQuickCustomerForm.valueSelectCustomer" placeholder="Select">
-                        <el-option
-                          v-for="item in optionsCustomer"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-            </el-form-item>
-            <el-form-item v-if="ruleAddQuickCustomerForm.valueClassify == false" :label="t('reuse.customerName')" prop="addQuickCustomerName">
-                <el-input
-                  v-model="ruleAddQuickCustomerForm.addQuickCustomerName"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterCustomerName')"
-                />
-            </el-form-item>
-            <div v-if="ruleAddQuickCustomerForm.valueClassify == true">
-              <el-form-item :label="t('formDemo.companyName')" prop="addQuickCustomerName">
-                  <el-input
-                    v-model="ruleAddQuickCustomerForm.addQuickCustomerName"
-                    style="width: 100%"
-                    :placeholder="t('formDemo.enterCompanyName')"
-                  />
-              </el-form-item>
-              <el-form-item :label="t('formDemo.taxCode')" prop="quickTaxCode">
-                  <el-input
-                    v-model="ruleAddQuickCustomerForm.quickTaxCode"
-                    style="width: 100%"
-                    :placeholder="t('formDemo.enterTaxCode')"
-                  />
-              </el-form-item>
-              <el-form-item :label="t('formDemo.representative')" prop="quickRepresentative">
-                  <el-input
-                    v-model="ruleAddQuickCustomerForm.quickRepresentative"
-                    style="width: 100%"
-                    :placeholder="t('formDemo.enterRepresentative')"
-                  />
-              </el-form-item>
-            </div>
-            <el-form-item :label="t('reuse.phoneNumber')" prop="quickPhoneNumber">
-                <el-input
-                  v-model="ruleAddQuickCustomerForm.quickPhoneNumber"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterPhoneNumber')"
-                />
-            </el-form-item>
-            <el-form-item :label="t('reuse.email')" prop="quickEmail">
-                <el-input
-                  v-model="ruleAddQuickCustomerForm.quickEmail"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterEmail')"
-                />
-            </el-form-item>
-          </div>
-        <el-divider />
-        </el-form>
+      <!-- Dialog add quick customer-->
 
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button
-              type="primary"
-              class="w-[150px]"
-              @click.stop.prevent="
-                () => {
-                  dialogAddQuick = false
-                  createQuickCustomer()
-                  callCustomersApi()
-                  resetForm(ruleAddQuickCustomerFormRef)
-                }
-              "
-              >{{ t('reuse.save') }}</el-button
-            >
-            <el-button
-              class="w-[150px]" 
-              @click.stop.prevent="() => {
-              dialogAddQuick = false
-              resetForm(ruleAddQuickCustomerFormRef)}"
-            >
-              {{t('reuse.exit')}}
-            </el-button>
-          </span>
-        </template>
-      </el-dialog>
-
-      <!-- <QuickAddCustomer :showDialog="dialogAddQuick.value"/>  -->
-
+      <AddQuickCustomer v-model="dialogAddQuick" @post-success="callCustomersApi"/>
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
         v-model="dialogInformationReceipts"

@@ -8,7 +8,7 @@ import {
   UpdatePotentialCustomerHistory,
   deletePotentialCustomer,
   deletePotentialCustomerHistory,
-  getOrderList,
+  getOrderListInPotentialCustomer,
   getEmployeeRatingList,
   getPotentialCustomerList,
   getCustomerList,
@@ -53,6 +53,8 @@ const indexSale = ref(0)
 const MAX_PERCENTAGE = 100
 const disabledForm = ref(false)
 const disableBtnAddSale = ref(false)
+const disableSaleName = ref(false)
+const disabledEditDate = ref(false)
 const percentageOfSalesLeft = ref(0)
 const type = router.currentRoute.value.params.type == ':type' ? 'add' : String(router.currentRoute.value.params.type)
 const rules = reactive({
@@ -101,6 +103,7 @@ const handleSave = async (row) => {
 }
 const handleEdit = async (row) => {
   row.edited = true
+  disableSaleName.value = !!row.family[0].customerCareContent
 }
 let isLastChild = false
 let lastChildContent = ref('')
@@ -611,7 +614,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       hiddenKey: ['value'],
       keyToRemoteSearch: 'Keyword',
       mapFunction: getMapOrderData,
-      api: getOrderList,
+      api: getOrderListInPotentialCustomer,
     },
     colProps: {
       span: 13
@@ -770,11 +773,6 @@ const changeValueClassify = (data) => {
       columnProfileCustomer[5].hidden = true
       columnProfileCustomer[6].hidden = true
     }
-    clearData()
-}
-
-const clearData = () => {
-  formRef.value?.setValues({})
 }
 
 // get list company
@@ -907,7 +905,6 @@ const customizeData = (formData) => {
       return acc;
     }, {}));
   tableData.value = result.reverse()
-  tableData.value = tableData.value.map((item) => ({...item, disableBtnSaleName:!!item.family[0].customerCareContent}))
   changeValueClassify(formDataCustomize.value.classify)
 }
 
@@ -1004,12 +1001,16 @@ watch(
     if(type == 'detail'){
       disableBtnAddSale.value = true
       disabledForm.value = true
+      disableSaleName.value = true
+      disabledEditDate.value = true
     }
 
     if(type == 'edit'){
       if (columnProfileCustomer[21].componentProps !== undefined) {
         columnProfileCustomer[21].componentProps.disabled = false
       }
+      disabledEditDate.value = true
+      disableSaleName.value = true
     }
   },
   {
@@ -1079,17 +1080,14 @@ watch(
                         <div v-else>{{ data.row.date }}</div> -->
                           <el-date-picker
                             v-model="data.row.date"
-                            v-if="data.row.editedChild"
                             type="date"
+                            :disabled="disabledEditDate"
                             placeholder="Pick a day"
                             :disabled-date="disabledDate"
                             :size="size"
                             format="DD/MM/YYYY"
                             value-format="YYYY-MM-DD"
                           />
-                          <div v-else type="date" :size="size">{{
-                            dateTimeFormat(data.row.date)
-                          }}</div>
                         </template>
                       </el-table-column>
                       <el-table-column
@@ -1170,7 +1168,7 @@ watch(
                   :hiddenKey="['value']"
                   :clearable="false"
                   :pageIndex="pageIndex"
-                  :disabled="!props.row.edited"
+                  :disabled="disableSaleName"
                   :type="type"
                   :api="getEmployeeRatingList"
                   :mapFunction="getMapData"

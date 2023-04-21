@@ -89,6 +89,7 @@ export const CAMPAIGN_API = {
 }
 
 export const ORDER_API = {
+  GET_ORDER_LIST_IN_POTENTIAL_CUSTOMER: 'api/v1/Order/OrderPotential',
   DELETE_CODE_TEMP:'api/v1/Tool/DeleteTemporaryCode',
   GET_AUTO_GEN_CODE :'/api/v1/Tool/GenerateCode',
   GET_ORDER_LIST: '/api/v1/Order/GetOrder',

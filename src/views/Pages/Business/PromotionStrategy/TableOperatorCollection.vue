@@ -697,12 +697,14 @@ const callAPIProduct = async () => {
   if(serviceType.value) params.ServiceType = serviceType.value
   const res = await getProductsList(params)
   if (res.data && res.data?.length > 0) {
+    console.log(res.data)
     listProducts.value = res.data.map((product) => ({
       value: product.productCode,
       label: product.code,
       name: product.name,
+      InventoryNumber: product.tonKho,
       id: product.id,
-      Id: product.id
+      Id: product.id,
     }))
   }
 }
@@ -1058,7 +1060,8 @@ const spaMoney = ref(0)
                   :defaultValue="scope.row.code" :fields="[
                     t('reuse.productCode'),
                     t('reuse.managementCode'),
-                    t('reuse.productInformation')
+                    t('reuse.productInformation'),
+                    t('reuse.inventory')
                   ]" filterable width="1000px" :items="listProducts" valueKey="value" labelKey="value"
                     :hiddenKey="['id']" :placeHolder="t('reuse.chooseProductCode')" :clearable="false"
                     @update-value="(value, obj) => assignTheValuesForRow(value, obj, scope)"

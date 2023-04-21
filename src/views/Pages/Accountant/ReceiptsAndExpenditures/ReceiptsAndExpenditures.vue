@@ -67,7 +67,8 @@ const columns = reactive<TableColumn[]>([
     minWidth: '150',
     filters: filterReciprocalProfile,
     formatter: (_record: Recordable, __: TableColumn, cellValue: TableSlotDefault) => {
-      return h(cellValue ? h('div', ATTACH_DOCUMENT[1].label) : h('div', ATTACH_DOCUMENT[0].label))
+      if(cellValue) return cellValue
+      return h('div', ATTACH_DOCUMENT[0].label)
     },
   },
   {

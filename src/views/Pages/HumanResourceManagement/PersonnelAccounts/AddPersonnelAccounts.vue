@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref, watch } from 'vue'
+import { computed, onBeforeMount, reactive, ref, watch } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { dateTimeFormat } from '@/utils/format'
@@ -48,6 +48,7 @@ import { getEmployeeById } from '@/api/Accountant'
 import { API_URL } from '@/utils/API_URL'
 import InfinitOptions from '@/components/Select/InfinitOptions.vue'
 import { getCategories } from '@/api/LibraryAndSetting'
+import { systemCode } from '@/utils/status'
 
 const centerDialogCancelAccount = ref(false)
 const getMapData = ({id, name, logo}) => ({logo: logo, label: name, value: id,}) 
@@ -56,7 +57,6 @@ const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const showPassword = ref(true)
 //random mã
-const curDate = 'NV' + Date.now()
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const escape = useIcon({ icon: 'quill:escape' })
@@ -104,7 +104,21 @@ const type = String(router.currentRoute.value.params.type)
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const { ValidService, notSpace } = useValidator()
+type branchType = {
+  value: number,
+  code: string,
+  label:string,
+}
+const listBranchs = ref<branchType[]>()
+const staffCode = ref<string>('')
+const changeBranchEvent = () => { 
+  if (listBranchs?.value && listBranchs?.value.length > 0 && ruleForm.branch) {
+    const obj = listBranchs.value.find(el => el.value === parseInt(ruleForm.branch))
+    staffCode.value = obj ? obj.code : ''
+  }   
 
+}
+const curDate = computed(() =>systemCode.NHAN_VIEN + staffCode.value + ruleForm.cccd) 
 const ruleForm = reactive({
   staffCode: curDate,
   phoneNumber: '',
@@ -248,12 +262,10 @@ const alwayShowAdd = ref(false)
 
 const { register } = useForm()
 let disableData = ref(false)
-
-const listBranchs = ref()
 const CallApiBranch = async () => {
   const res = await getBranchList()
   if (res) {
-    listBranchs.value = res.data.map((branchs) => ({ label: branchs.name, value: branchs.id }))
+    listBranchs.value = res.data.map((branch) => ({ label: branch.name,code:branch.code, value: branch.id }))
     return listBranchs.value
   } else {
     ElMessage({
@@ -858,7 +870,7 @@ const cancelEditPassword = () => {
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
                       <el-form-item prop="branch">
-                        <el-select v-model="ruleForm.branch" clearable :placeholder="t('reuse.chooseBranch')" :disabled="isDisable">
+                        <el-select v-model="ruleForm.branch" clearable :placeholder="t('reuse.chooseBranch')" :disabled="isDisable" @change="changeBranchEvent">
                           <el-option
                             v-for="item in listBranchs"
                             :key="item.label"

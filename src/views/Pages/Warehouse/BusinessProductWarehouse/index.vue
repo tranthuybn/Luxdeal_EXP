@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import tableDatetimeFilterBasicVue from '../../Components/TabsBase.vue'
 import { getCategories } from '@/api/LibraryAndSetting'
-import { getWareHouseList, getWareHouseTransactionList } from '@/api/Business'
+import { getWareHouseList, getWareHouseTransactionList, getListWareHouse } from '@/api/Business'
 import { wareHouse, wareHouseContainer } from '../Warehouse'
 import { Tab } from '../../Components/Type'
 import { provide } from 'vue';
@@ -24,14 +24,20 @@ const tabs: Array<Tab> = [
   }
 ]
 const apiToFilter = {
-  ['typeOfTransfer']: getCategories
+  ['typeOfTransfer']: getCategories,
+  ['warehouse']: getListWareHouse
 }
 const paramsToFilter = {
   ['typeOfTransfer']: {TypeName: PRODUCTS_AND_SERVICES[0].key}
 }
 
+const typeOfSearch = {
+  ['warehouse']: 'Keyword'
+}
+
 provide('apiToFilter', apiToFilter)
 provide('paramsToFilter', paramsToFilter)
+provide('typeOfSearch', typeOfSearch)
 
 const typeTable = 'Warehouse'
 </script>

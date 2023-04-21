@@ -2493,7 +2493,7 @@ const scrolling = (e) => {
 
 // Lấy danh sách kho
 const callApiWarehouseList = async () => {
-  const res = await getListWareHouse({status:true})
+  const res = await getListWareHouse({status: true})
   if (res?.data) {
     res?.data.map((el) => {
       if (el.children.length > 0 && el.isActive) {
@@ -2849,133 +2849,9 @@ const disabledPhieu = ref(false)
         </slot>
       </div>
 
-      <!-- Dialog In đề nghị khách hàng -->
-      <!-- <el-dialog
-        class="pb-3"
-        :close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogAddQuick"
-        width="40%"
-        align-center
-        :title="t('formDemo.QuicklyAddCustomers')"
-        :before-close="(done) => {
-          handleClose(done)
-          resetForm(ruleAddQuickCustomerFormRef)
-        }"
-      >
-        <el-form
-          ref="ruleAddQuickCustomerFormRef"
-          :model="ruleAddQuickCustomerForm"
-          :rules="rulesAddQuickCustomer"
-          label-width="180px"
-        >
-        <el-divider />
-          <div class="py-2">
-            <el-form-item :label="t('formDemo.classify')" prop="classify">
-              <el-row :gutter="10">
-                <el-col :span="12">
-                  <el-form-item  prop="valueClassify">
-                      <el-select v-model="ruleAddQuickCustomerForm.valueClassify" placeholder="Select">
-                        <el-option
-                          v-for="item in optionsClassify"
-                          :key="item.id"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item prop="valueSelectCustomer">
-                      <el-select v-model="ruleAddQuickCustomerForm.valueSelectCustomer" placeholder="Select">
-                        <el-option
-                          v-for="item in optionsCustomer"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value"
-                        />
-                      </el-select>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-            </el-form-item>
-            <el-form-item v-if="ruleAddQuickCustomerForm.valueClassify == false" :label="t('reuse.customerName')" prop="addQuickCustomerName">
-                <el-input
-                  v-model="ruleAddQuickCustomerForm.addQuickCustomerName"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterCustomerName')"
-                />
-            </el-form-item>
-            <div v-if="ruleAddQuickCustomerForm.valueClassify == true">
-              <el-form-item :label="t('formDemo.companyName')" prop="addQuickCustomerName">
-                  <el-input
-                    v-model="ruleAddQuickCustomerForm.addQuickCustomerName"
-                    style="width: 100%"
-                    :placeholder="t('formDemo.enterCompanyName')"
-                  />
-              </el-form-item>
-              <el-form-item :label="t('formDemo.taxCode')" prop="quickTaxCode">
-                  <el-input
-                    v-model="ruleAddQuickCustomerForm.quickTaxCode"
-                    style="width: 100%"
-                    :placeholder="t('formDemo.enterTaxCode')"
-                  />
-              </el-form-item>
-              <el-form-item :label="t('formDemo.representative')" prop="quickRepresentative">
-                  <el-input
-                    v-model="ruleAddQuickCustomerForm.quickRepresentative"
-                    style="width: 100%"
-                    :placeholder="t('formDemo.enterRepresentative')"
-                  />
-              </el-form-item>
-            </div>
-            <el-form-item :label="t('reuse.phoneNumber')" prop="quickPhoneNumber">
-                <el-input
-                  v-model="ruleAddQuickCustomerForm.quickPhoneNumber"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterPhoneNumber')"
-                />
-            </el-form-item>
-            <el-form-item :label="t('reuse.email')" prop="quickEmail">
-                <el-input
-                  v-model="ruleAddQuickCustomerForm.quickEmail"
-                  style="width: 100%"
-                  :placeholder="t('formDemo.enterEmail')"
-                />
-            </el-form-item>
-          </div>
-        <el-divider />
-        </el-form>
+      <!-- Dialog add quick customer-->
 
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button
-              type="primary"
-              class="w-[150px]"
-              @click.stop.prevent="
-                () => {
-                  dialogAddQuick = false
-                  createQuickCustomer()
-                  callCustomersApi()
-                  resetForm(ruleAddQuickCustomerFormRef)
-                }
-              "
-              >{{ t('reuse.save') }}</el-button
-            >
-            <el-button
-              class="w-[150px]" 
-              @click.stop.prevent="() => {
-              dialogAddQuick = false
-              resetForm(ruleAddQuickCustomerFormRef)}"
-            >
-              {{t('reuse.exit')}}
-            </el-button>
-          </span>
-        </template>
-      </el-dialog> -->
-
-      <!-- <QuickAddCustomer :showDialog="dialogAddQuick.value"/>  -->
-
-      <AddQuickCustomer v-model="dialogAddQuick"/>
+      <AddQuickCustomer v-model="dialogAddQuick" @post-success="callCustomersApi"/>
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
         v-model="dialogInformationReceipts"

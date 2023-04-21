@@ -28,6 +28,7 @@ import { useCache } from '@/hooks/web/useCache'
 const { params }: any = inject('parameters', {})
 const apiToFilter = inject('apiToFilter', {}) 
 const paramsToFilter = inject('paramsToFilter', {}) 
+const typeOfSearch = inject('typeOfSearch', {}) 
 const { t } = useI18n()
 
 const route = useRoute()
@@ -373,7 +374,7 @@ const setOperatorType = (type)=> {
           v-if="header.headerFilter === 'Number'" :field="header.field" @confirm="confirm"
           @cancel="cancel" />
         <InputSearch
-            v-if="header.headerFilter === 'Search'" :apiToFilter="apiToFilter[header.field]" :paramsToFilter="paramsToFilter[header.field]" :field="header.field" @filter-select="filterSelect"
+            v-if="header.headerFilter === 'Search'" :apiToFilter="apiToFilter[header.field]" :paramsToFilter="paramsToFilter[header.field]" :typeOfSearch="typeOfSearch[header.field]" :field="header.field" @filter-select="filterSelect"
             @cancel="cancel" />
         <InputName
           v-if="header.headerFilter === 'Name'" :field="header.field" @filter-select="filterSelect"

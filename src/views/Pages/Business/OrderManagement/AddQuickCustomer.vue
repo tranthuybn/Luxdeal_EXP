@@ -17,7 +17,7 @@ import { ContentWrap } from '@/components/ContentWrap'
 const { register, elFormRef, methods } = useForm()
 const doCloseOnClickModal = ref(false)
 const { t } = useI18n()
-const emit = defineEmits(['save', 'update:modelValue'])
+const emit = defineEmits(['save', 'update:modelValue', 'postSuccess'])
 const { required, ValidService } = useValidator()
 const loading = ref(false)
 const props = defineProps({
@@ -45,18 +45,15 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'classify',
     label: t('formDemo.classify'),
-    value: false,
     component: 'Select',
     componentProps: {
         options: [
             {
                 value: true,
-                id: 1,
                 label: t('formDemo.company')
             },
             {
                 value: false,
-                id: 2,
                 label: t('formDemo.individual')
             }
         ],
@@ -166,6 +163,7 @@ const schema = reactive<FormSchema[]>([
 ])
 
 const close = () =>{
+  unref(elFormRef)!.resetFields()
   emit('update:modelValue', false)
 }
 
@@ -183,10 +181,9 @@ const postData = async (data) => {
     .then((res) => {
       data.customerCode = res.toString()
     })
-    .catch((err) => {
-      console.error(err)
+    .catch((error) => {
+     throw Error(error)
     })
-    console.log('data', data)
     const payload = {
         Code: data.customerCode,
         IsOrganization: data.classify,
@@ -203,6 +200,7 @@ const postData = async (data) => {
         message: t('reuse.addSuccess'),
         type: 'success'
       })
+      emit('postSuccess', true)
     })
     .catch((error)=>{
         ElNotification({
@@ -216,13 +214,14 @@ const postData = async (data) => {
 }
 
 const save = async () => {
-    loading.value = true
     await unref(elFormRef)!.validate(async (isValid) => {
         if(isValid) {
-            loading.value = false
             const { getFormData } = methods
-            let data = await getFormData
-            postData(data)
+            await getFormData()
+            .then(res => {
+                postData(res)
+            })
+            .catch((error) => { throw Error(error)})
         }
     })
 }

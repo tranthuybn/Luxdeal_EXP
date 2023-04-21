@@ -683,6 +683,18 @@ export const getOrderList = async (params: any): Promise<IResponse> => {
   return res && res.data
 }
 
+export const getOrderListInPotentialCustomer = async (params: any): Promise<IResponse> => {
+  const res = await request.get(
+    {
+      url: `${ORDER_API.GET_ORDER_LIST_IN_POTENTIAL_CUSTOMER}?${objectToQueryParams(params)}`
+    },
+    fixedBaseURL
+  )
+
+  return res && res.data
+}
+
+
 // Lấy danh sách đơn hàng theo mã cộng tác viên
 export const GetOrderByCollabolatorId = async (params: any): Promise<IResponse> => {
   const res = await request.get(

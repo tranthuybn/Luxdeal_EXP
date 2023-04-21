@@ -8,7 +8,7 @@ import {
   UpdatePotentialCustomerHistory,
   deletePotentialCustomer,
   deletePotentialCustomerHistory,
-  getOrderList,
+  getOrderListInPotentialCustomer,
   getEmployeeRatingList,
   getPotentialCustomerList,
   getCustomerList,
@@ -614,7 +614,7 @@ const columnProfileCustomer = reactive<FormSchema[]>([
       hiddenKey: ['value'],
       keyToRemoteSearch: 'Keyword',
       mapFunction: getMapOrderData,
-      api: getOrderList,
+      api: getOrderListInPotentialCustomer,
     },
     colProps: {
       span: 13

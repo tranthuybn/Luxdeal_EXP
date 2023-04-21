@@ -103,7 +103,6 @@ const loading = ref(false)
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom'])
 const pageIndex = ref(propsObj.pageIndex)
 const pageSize = ref(50)
-
 let selected = computed(() => {
   return propsObj.defaultValue
 })

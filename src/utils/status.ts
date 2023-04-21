@@ -48,3 +48,10 @@ export const renderStatus = (status) => {
       return '';
   }
 }
+
+export const systemCode = {
+  DON_HANG: 'DH',
+  NHAN_VIEN: 'NV',
+  PHIEU_THU: 'PTC',
+  HANG_HOA:'HH' 
+}

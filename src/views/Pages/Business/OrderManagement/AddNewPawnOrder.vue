@@ -1782,7 +1782,7 @@ const chooseWarehouse = reactive<Array<typeWarehouse>>([])
 
 // Lấy danh sách kho
 const callApiWarehouseList = async () => {
-  const res = await getListWareHouse('')
+  const res = await getListWareHouse({status:true})
   if (res?.data) {
     res?.data.map((el) => {
       if (el.children.length > 0 && el.isActive) {

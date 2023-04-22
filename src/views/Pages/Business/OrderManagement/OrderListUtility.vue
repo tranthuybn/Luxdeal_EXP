@@ -32,7 +32,7 @@ import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import { dateTimeFormat } from '@/utils/format'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { STATUS_ORDER_SELL } from '@/utils/API.Variables'
+import { CODE, ORDER, STATUS_ORDER_SELL } from '@/utils/API.Variables'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -2702,7 +2702,7 @@ onBeforeMount(async () => {
   callApiCity()
 
   if (type == 'add' || type == ':type') {
-    await GenerateCodeOrder({CodeType:5,ServiceType:1})
+    await GenerateCodeOrder({CodeType:CODE.ORDER,ServiceType:ORDER.SELL})
     .then((res)=>{
       ruleForm.orderCode = res.data
     })

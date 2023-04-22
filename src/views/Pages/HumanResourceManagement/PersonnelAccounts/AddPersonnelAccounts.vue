@@ -110,17 +110,15 @@ type branchType = {
   label:string,
 }
 const listBranchs = ref<branchType[]>()
-const staffCode = ref<string>('')
-const changeBranchEvent = () => { 
+const branchCode = computed(():string => { 
   if (listBranchs?.value && listBranchs?.value.length > 0 && ruleForm.branch) {
     const obj = listBranchs.value.find(el => el.value === parseInt(ruleForm.branch))
-    staffCode.value = obj ? obj.code : ''
-  }   
-
-}
-const curDate = computed(() =>systemCode.NHAN_VIEN + staffCode.value + ruleForm.cccd) 
+    return obj ? obj.code : ''
+  }  
+  return ''
+})
 const ruleForm = reactive({
-  staffCode: curDate,
+  staffCode: '',
   phoneNumber: '',
   name: '',
   accountName: '',
@@ -155,7 +153,6 @@ const ruleForm = reactive({
   ward: '',
   isActive: true
 })
-
 const rules = reactive<FormRules>({
   name: [
     { required: true, message: 'Vui lòng nhập tên', trigger: 'blur' },
@@ -652,9 +649,17 @@ const editData = async (typebtn) => {
         )
   }
 }
-
+const generateStaffCode = () => { 
+  if(type=='add')
+  ruleForm.staffCode = systemCode.NHAN_VIEN + branchCode.value + ruleForm.cccd
+}
+ 
 onBeforeMount(() => {
-  if(type != 'add') getTableValue()
+  if (type != 'add') {
+    getTableValue()
+    generateStaffCode()
+  }
+  
   callApiCity()
   CallApiBranch()
   CallApiDepartment()
@@ -751,7 +756,7 @@ const cancelEditPassword = () => {
                 </el-form-item>
 
                 <el-form-item :label="t('reuse.employeeName')" prop="name">
-                  <el-input v-model="ruleForm.name" :placeholder="t('reuse.fullName')" :disabled="isDisable" />
+                  <el-input v-model="ruleForm.name" :placeholder="t('reuse.fullName')" :disabled="isDisable" @change="generateStaffCode" />
                 </el-form-item>
 
                 <el-form-item :label="t('reuse.phoneNumber')" prop="phoneNumber">
@@ -777,6 +782,7 @@ const cancelEditPassword = () => {
                           type="text"
                           :placeholder="t('formDemo.enterCCCD')"
                           :disabled="isDisable"
+                          @input="generateStaffCode"
                         />
                       </el-form-item>
                     </div>
@@ -870,7 +876,7 @@ const cancelEditPassword = () => {
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
                       <el-form-item prop="branch">
-                        <el-select v-model="ruleForm.branch" clearable :placeholder="t('reuse.chooseBranch')" :disabled="isDisable" @change="changeBranchEvent">
+                        <el-select v-model="ruleForm.branch" clearable :placeholder="t('reuse.chooseBranch')" :disabled="isDisable" @change="generateStaffCode">
                           <el-option
                             v-for="item in listBranchs"
                             :key="item.label"

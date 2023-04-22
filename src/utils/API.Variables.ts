@@ -1,34 +1,49 @@
 import { useI18n } from '@/hooks/web/useI18n'
 const { t } = useI18n()
-
+export const ADMIN_ID ='c491acfb-451d-4dd4-8296-1476d1677579'
+export const ORDER = {
+  SELL: 1,
+  CONSIGNMENT: 2,
+  RENTAL: 3,
+  PAWN: 4,
+  SPA: 5,
+  IMPORT:6
+}
+export const CODE = {
+  PRODUCT_PROPERTY: 1,
+  CUSTOMER: 2,
+  COLLABORATOR: 3,
+  PROMOTION_STRATEGY: 4,
+  ORDER:5
+}
 export const ORDER_STYTE = [
   {
-    value: 1,
+    value:ORDER.SELL ,
     key: 'Bán',
     lable: ''
   },
   {
-    value: 2,
+    value: ORDER.CONSIGNMENT,
     key: 'Kygui',
     lable: 'Đơn hàng Ký Gửi'
   },
   {
-    value: 3,
+    value: ORDER.RENTAL,
     key: 'Chothue',
     lable: 'Cho thuê'
   },
   {
-    value: 4,
+    value: ORDER.PAWN,
     key: 'Thechap',
     lable: 'Thế chấp'
   },
   {
-    value: 5,
+    value: ORDER.SPA,
     key: 'Spa',
     lable: 'Đơn hàng Span'
   },
   {
-    value: 6,
+    value: ORDER.IMPORT,
     key: 'Mua',
     lable: 'Đơn hàng mua'
   },

@@ -30,6 +30,7 @@ import { FORM_IMAGES } from '@/utils/format'
 import type { FormRules } from 'element-plus'
 // import { appModules } from '@/config/app'
 import { IFormData, FormDataPostAndEdit, ICustomer } from './types'
+import { CODE } from '@/utils/API.Variables'
 
 // const { utility } = appModules
 const { required, ValidService } = useValidator()
@@ -68,7 +69,7 @@ const collapse: Array<Collapse> = [
 const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, phonenumber, name, id, email  })
 
 onBeforeMount(async () => {
-  await GenerateCodeOrder({CodeType :3})
+  await GenerateCodeOrder({CodeType :CODE.COLLABORATOR})
   .then(res => {
     schema[1].value = res.data
   })

@@ -80,7 +80,7 @@ import billSpaRepair from '../../Components/formPrint/src/billSpaRepair.vue'
 import { useRoute, useRouter } from 'vue-router'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
-import { STATUS_ORDER_SPA } from '@/utils/API.Variables'
+import { CODE, ORDER, STATUS_ORDER_SPA } from '@/utils/API.Variables'
 import ReturnOrder from './ReturnOrder.vue'
 import { getProductStorage, getWarehouseLot } from '@/api/Warehouse'
 import { API_URL } from '@/utils/API_URL'
@@ -2611,7 +2611,7 @@ onBeforeMount(async () => {
     disableCreateOrder.value = true
     checkDisabled2.value = true
     startSpa.value = true
-    await GenerateCodeOrder({CodeType:5,ServiceType:5})
+    await GenerateCodeOrder({CodeType:CODE.ORDER,ServiceType:ORDER.SPA})
     .then((res) =>
     {
       ruleForm.orderCode = res.data

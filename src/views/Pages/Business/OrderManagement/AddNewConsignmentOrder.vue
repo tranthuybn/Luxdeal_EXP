@@ -68,7 +68,7 @@ createTicketFromReturnOrder
 
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
-import { STATUS_ORDER_DEPOSIT } from '@/utils/API.Variables'
+import { CODE, ORDER, STATUS_ORDER_DEPOSIT } from '@/utils/API.Variables'
 import { useRoute, useRouter } from 'vue-router'
 import ReturnOrder from './ReturnOrder.vue'
 import { API_URL } from '@/utils/API_URL'
@@ -2263,7 +2263,7 @@ onBeforeMount(async () => {
 
   if (type == ('add') || type == (':type') ) {
     disableCreateOrder.value = true
-    await GenerateCodeOrder({CodeType:5,ServiceType:2})
+    await GenerateCodeOrder({CodeType:CODE.ORDER,ServiceType:ORDER.CONSIGNMENT})
     .then((res) =>
     {
       ruleForm.orderCode = res.data

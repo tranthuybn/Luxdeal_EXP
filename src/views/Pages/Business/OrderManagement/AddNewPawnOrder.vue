@@ -70,7 +70,7 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import { useRoute, useRouter } from 'vue-router'
-import { STATUS_ORDER_PAWN } from '@/utils/API.Variables'
+import { CODE, ORDER, STATUS_ORDER_PAWN } from '@/utils/API.Variables'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 //them nhanh sp
 import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
@@ -2174,7 +2174,7 @@ onBeforeMount(async () => {
     disableCreateOrder.value = true
     disabledPhieu.value = true
     disableEditData.value = false
-    await GenerateCodeOrder({ CodeType: 5, ServiceType: 5 }).then((res) => {
+    await GenerateCodeOrder({ CodeType: CODE.ORDER, ServiceType:ORDER.PAWN }).then((res) => {
       ruleForm.orderCode = res.data
     })
     pawnOrderCode.value = autoCodePawnOrder

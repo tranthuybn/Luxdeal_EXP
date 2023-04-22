@@ -71,7 +71,7 @@ import {
   getWareHouseTransactionList
 } from '@/api/Business'
 import { FORM_IMAGES } from '@/utils/format'
-import { STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
+import { CODE, ORDER, STATUS_ORDER_PURCHASE } from '@/utils/API.Variables'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
 import type { FormInstance, FormRules } from 'element-plus'
 import paymentOrderPrint from '../../Components/formPrint/src/paymentOrderPrint.vue'
@@ -87,6 +87,7 @@ import { deleteProductProperty } from '@/api/LibraryAndSetting'
 import AddQuickProduct from '@/views/Pages/Business/OrderManagement/AddQuickProduct.vue'
 import * as orderUtility from '../../Business/OrderManagement/OrderFixbug'
 import UploadMultipleImages from '../../Business/OrderManagement/UploadMultipleImages.vue'
+import { GenerateCodeOrder } from '@/api/common'
 
 const { utility } = appModules
 
@@ -103,7 +104,6 @@ const approvalId = String(route.params.approvalId)
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
-var curDate = 'MH' + Date.now()
 var autoCodeSellOrder = 'MH' + Date.now()
 var autoCodePaymentRequest = 'DNTT' + Date.now()
 var autoCodeReturnRequest = 'DT' + Date.now()
@@ -2518,7 +2518,6 @@ onBeforeMount(async () => {
     doubleDisabled.value = true
     hiddenButton.value = true
     hiddenEditButton.value = true
-    ruleForm.orderCode = curDate
     sellOrderCode.value = autoCodeSellOrder
     codePaymentRequest.value = autoCodePaymentRequest
     arrayStatusOrder.value.push(STATUS_ORDER_PURCHASE[1])
@@ -2527,6 +2526,9 @@ onBeforeMount(async () => {
     checkButtonPrint.value = true
     hiddenEditButton.value = false
     checkAccountEntry.value = true
+    await GenerateCodeOrder({ CodeType: CODE.ORDER, ServiceType:ORDER.PAWN }).then((res) => {
+      ruleForm.orderCode = res.data
+    })
   }
 
   if (type === 'approval-order') {

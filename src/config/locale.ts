@@ -28,5 +28,5 @@ export const localeModules: LocaleState = {
       lang: 'en',
       name: 'English'
     }
-  ]
+  ],
 }

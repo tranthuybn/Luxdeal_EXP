@@ -3,7 +3,6 @@ import { isFunction } from '@/utils/is'
 import moment from 'moment';
 import { usePermissionStore } from '@/store/modules/permission'
 import { useCache } from '@/hooks/web/useCache'
-
 export const getSlot = (slots: Slots, slot = 'default', data?: Recordable) => {
   // Reflect.has determines whether an object exists in a certain attribute
   if (!slots || !Reflect.has(slots, slot)) {

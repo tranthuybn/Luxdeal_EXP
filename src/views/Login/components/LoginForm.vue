@@ -6,7 +6,7 @@ import { ElButton, ElCheckbox, ElLink, ElNotification } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm' 
 import { loginApi, GetRouterByStaffAccountId } from '@/api/login'
 // import { getRoutesAsRolesApi } from '@/api/login'
-import { getStaffInfoByAccountId } from '@/api/HumanResourceManagement'
+import { getBranchByID, getStaffInfoByAccountId } from '@/api/HumanResourceManagement'
 import { useCache } from '@/hooks/web/useCache'
 import { usePermissionStore } from '@/store/modules/permission'
 import { useRouter } from 'vue-router'
@@ -210,6 +210,15 @@ const getUserInfoByAccountId =  (id) => {
    getStaffInfoByAccountId({ Id: id })
     .then((res) => {
       if (res.data && Object.keys(res.data).length > 0) {
+
+        const { branchId } = res.data
+        if(branchId )
+          getBranchByID({ Id: branchId }).then(res => { 
+           wsCache.set(permissionStore.getBranchCode,res.data)
+          })
+          else
+          wsCache.set(permissionStore.getBranchCode, 'ADMIN')
+          
         wsCache.set(permissionStore.getStaffInfo, res.data)
       }
    })

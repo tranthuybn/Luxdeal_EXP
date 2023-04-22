@@ -31,7 +31,7 @@ import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import { formatOrderReturnReason, FORM_IMAGES } from '@/utils/format'
 import { getCity, getDistrict, getWard } from '@/utils/Get_Address'
-import { STATUS_ORDER_RENTAL } from '@/utils/API.Variables'
+import { CODE, ORDER, STATUS_ORDER_RENTAL } from '@/utils/API.Variables'
 import { dateTimeFormat, postDateTime } from '@/utils/format'
 import {
   getCollaboratorsInOrderList,
@@ -2892,7 +2892,7 @@ onBeforeMount(async() => {
   editData()
   callApiWarehouseList()
   if (type == 'add' || type == ':type') {
-    await GenerateCodeOrder({CodeType:5,ServiceType:3})
+    await GenerateCodeOrder({CodeType:CODE.ORDER,ServiceType:ORDER.RENTAL})
     .then((res) => {
       ruleForm.orderCode = res.data
     })

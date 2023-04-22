@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, unref } from 'vue'
+import { reactive, ref, unref, onBeforeMount } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElDialog,
@@ -225,6 +225,11 @@ const save = async () => {
         }
     })
 }
+
+onBeforeMount(() => {
+  console.log('vô đây')
+  changeValueClassify(true)
+})
 
 </script>
 <template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch} from 'vue'
+import { reactive, ref} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -206,7 +206,6 @@ const customizeData = async (formData) => {
     formDataCustomize.rankWarehouse = 2
     await addFormSchema(timesCallAPI, formData.name)
   }
-
   formDataCustomize.Image = formData.warehouseImages[0].path
   formDataCustomize.imageurl = `${API_URL}${formData.warehouseImages[0].path}`
   if (formData?.parentid == 0) {
@@ -215,6 +214,23 @@ const customizeData = async (formData) => {
     formDataCustomize.name2 = formData?.name
   }
   formDataCustomize.isDelete = false
+  if(formData.parentid) {
+    await getProductStorage({Id: formData.parentid})
+    .then(res => {
+      if(res.data.length > 0 && !res.data[0].isActive) {
+        formRef.value?.setSchema([
+          {
+            field: 'status',
+            path: 'componentProps.disabled',
+            value: true
+          }
+        ])
+      }
+    })
+    .catch(error => {
+      console.log('get parent warehouse fail', error)
+    })
+  }
 }
 
 //call api for select options
@@ -372,21 +388,6 @@ const editData = async (data) => {
   }
 }
 
-
-watch(formRef, async () => {
-  await formRef.value?.getFormData()
-  .then(res => {
-    console.log('res', res)
-  })
-  .catch(() => {})
-  formRef.value?.setSchema([
-    {
-      field: 'status',
-      path: 'componentProps.disabled',
-      value: true
-    }
-  ])
-})
 
 </script>
 

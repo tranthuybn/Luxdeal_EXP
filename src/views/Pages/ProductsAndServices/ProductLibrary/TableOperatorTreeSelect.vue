@@ -40,7 +40,7 @@ import {
 import { approvalProducts } from '@/api/Approval'
 import { FORM_IMAGES } from '@/utils/format'
 import ProductAttribute from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductAttribute.vue'
-// import { GenerateCodeOrder } from '@/api/common'
+
 
 const { t } = useI18n()
 
@@ -220,6 +220,7 @@ watch(
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData,
+  setValues: methods.setValues
 })
 
 let treeSelectData = ref()
@@ -280,11 +281,6 @@ const save = async (type) => {
         : (data.Image = rawUploadFile.value?.raw)
       if (type == 'add') {
         data.disabledTabOpen = true
-        // if(props.addQuickProduct) {
-        //   await GenerateCodeOrder({CodeType:1,Code:'SP'}).then((res)=>{
-        //     data.quickManagementCode = res.data
-        //   })
-        // }
         emit('post-data', data)
         //emit a callback function to check if Promise success or fail
         //use this to get the statusResult of emit event
@@ -593,6 +589,9 @@ const fillAllInformation = async (data) => {
               )
           })
           .catch(() => {})
+          .finally(() => {
+            productCode.value = ''
+          })
       : (sameProductCode.value = false)
 }
 
@@ -649,6 +648,7 @@ const productCode = ref('')
 const productName = ref('')
 
 const setProductCode = () => {
+  console.log('productCode.value', productCode.value)
   if(!props.addQuickProduct || props.addQuickProduct && productCode.value) setValues({ ProductCode: productCode.value })
 
   fillAllInformation(productCode.value)
@@ -734,8 +734,8 @@ const attributeChange = (attributeArray, form) => {
               <p class="text-[#FECB80]">{{ t('reuse.forAllAttribute') }}</p>
             </div>
           </template>
-          <template  #ProductCode-label>
-            <div v-if="!addQuickProduct" class="w-2/3 text-right ml-2 leading-5">
+          <template v-if="!addQuickProduct"  #ProductCode-label>
+            <div class="w-2/3 text-right ml-2 leading-5">
               <label>{{ t('reuse.productCode') }}</label>
               <p class="text-[#a1a1a1]">{{ t('reuse.productCodeDescription') }}</p>
             </div>

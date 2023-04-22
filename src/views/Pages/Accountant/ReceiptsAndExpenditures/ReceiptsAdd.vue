@@ -227,7 +227,7 @@ const customData = (data) => {
   customData.FundID = data.accountNumber
   customData.Transacted = data.paid
   customData.Type = 1
-  customData.Status = 1
+  customData.Status = 0
   
   if(type == 'detail') {
     customData.Carrying = true

@@ -547,7 +547,6 @@ const remoteProductName = async (query: string) => {
 }
 const sameProductCode = ref(false)
 const fillAllInformation = async (data) => {
-  console.log('data trong fillallin', data)
   const codeObj = CodeOptions.value.find((code) => code.value.toLowerCase() == data.toLowerCase())
     //if find code in api
     codeObj
@@ -650,8 +649,6 @@ const productCode = ref('')
 const productName = ref('')
 
 const setProductCode = () => {
-  console.log('hello')
-  console.log('productCode.value', productCode.value)
   if(!props.addQuickProduct || props.addQuickProduct && productCode.value) setValues({ ProductCode: productCode.value })
 
   fillAllInformation(productCode.value)

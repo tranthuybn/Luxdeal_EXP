@@ -2809,7 +2809,7 @@ onBeforeMount(async() => {
   editData()
   callApiWarehouseList()
   if (type == 'add' || type == ':type') {
-    await GenerateCodeOrder({CodeType:5,ServiceType:3})
+     GenerateCodeOrder({CodeType:5,ServiceType:3})
     .then((res) => {
       ruleForm.orderCode = res.data
     })
@@ -2828,7 +2828,7 @@ onBeforeMount(async() => {
   } else {
     alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
   }
-  await callApiStaffList()
+   callApiStaffList()
 })
 const PrintReceipts = ref(false)
 const PrintBill = ref(false)

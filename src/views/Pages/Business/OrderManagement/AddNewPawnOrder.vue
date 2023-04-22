@@ -870,7 +870,6 @@ const postData = async () => {
   }
 
   const productPayment = JSON.stringify([...orderDetailsTable])
-
   const payload = {
     StaffId: staffItem?.id,
     ServiceType: 4,
@@ -887,8 +886,8 @@ const postData = async () => {
     Files: Files.value,
     Address: enterdetailAddress.value,
     OrderDetail: productPayment,
-    fromDate: postDateTime(ruleForm.pawnTerm[0]),
-    toDate: postDateTime(ruleForm.pawnTerm[1]),
+    fromDate: ruleForm.pawnTerm ? postDateTime(ruleForm.pawnTerm[0]) : '',
+    toDate: ruleForm.pawnTerm ? postDateTime(ruleForm.pawnTerm[1]) : '',
     CampaignId: null,
     VAT: 1,
     WarehouseId: ruleForm.warehouse,
@@ -899,7 +898,6 @@ const postData = async () => {
     InterestMoney: priceintoMoneyByday.value,
     Status: 4
   }
-
   const formDataPayLoad = FORM_IMAGES(payload)
   const res = await addNewOrderList(formDataPayLoad)
   if (res) {
@@ -2103,17 +2101,16 @@ inputRecharger.value = staffItem?.id
 const currentCreator = ref()
 
 onBeforeMount(async () => {
-  await editData()
-  await callAPIProduct()
-  await callApiWarehouseList()
-
+  editData()
+  callAPIProduct()
+  callApiWarehouseList()
   callCustomersApi()
 
   if (type == 'add' || type == ':type') {
     disableCreateOrder.value = true
     disabledPhieu.value = true
     disableEditData.value = false
-    await GenerateCodeOrder({ CodeType: 5, ServiceType: 5 }).then((res) => {
+    GenerateCodeOrder({ CodeType: 5, ServiceType: 5 }).then((res) => {
       ruleForm.orderCode = res.data
     })
     pawnOrderCode.value = autoCodePawnOrder
@@ -2130,12 +2127,12 @@ onBeforeMount(async () => {
   } else {
     alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
   }
-  await callApiCollaborators()
+  callApiCollaborators()
 
   productArray = ListOfProductsForSale.value.map((row) => row.productPropertyId)
-  listOfOrderProduct.value = listProducts.value.filter((item) => {
+  listOfOrderProduct.value = Array.isArray(listProducts.value) && listProducts.value.length > 0 ?  listProducts.value?.filter((item) => {
     return productArray.includes(item.productPropertyId)
-  })
+  }): []
 })
 
 //TruongNgo
@@ -2365,8 +2362,6 @@ const printPaymentRequest = () => {
 const Printpayment = ref(false)
 const dataPriceBill = ref()
 const getFormPayment = () => {
-  console.log(dataEdit)
-  console.log(nameDialog)
   nameDialog.value = "bill"
   dataPriceBill.value = {
     user: optionsCollaborators,

@@ -1208,7 +1208,7 @@ const postData = async (pushBack: boolean) => {
     CollaboratorId: ruleForm.collaborators,
     CollaboratorCommission: ruleForm.collaboratorCommission,
     Description: ruleForm.orderNotes,
-    CustomerId: valueTypeSpa.value == 0 ? customerID.value : 2,
+    CustomerId: valueTypeSpa.value == 0 ? customerID.value : null,
     Files: Files.value,
     WarehouseId: valueTypeSpa.value == 0 ? ruleForm.warehouseImport : ruleForm.warehouseParent,
     DeliveryOptionId: ruleForm.delivery ?? 0,
@@ -2420,11 +2420,6 @@ const editor = ref()
 
 const indexSpa = ref()
 
-// const addStatusDelay = () => {
-//   setTimeout(() => {
-//     addStatusOrder(0)
-//   }, 4000)
-// }
 const valueMoneyAccoungtingEntry = ref(0)
 
 const lotData = ref()
@@ -2521,10 +2516,10 @@ const disableCreateOrder = ref(false)
 const currentCreator = ref()
 
 onBeforeMount(async () => {
-  await editData()
-  await callApiWarehouseList()
-  await callAPIProduct()
-  await callAPIWarehouse()
+  editData()
+  callApiWarehouseList()
+  callAPIProduct()
+  callAPIWarehouse()
   callCustomersApi()
   callApiCollaborators()
   callApiCity()
@@ -2532,7 +2527,7 @@ onBeforeMount(async () => {
     disableCreateOrder.value = true
     checkDisabled2.value = true
     startSpa.value = true
-    await GenerateCodeOrder({CodeType:5,ServiceType:5})
+    GenerateCodeOrder({CodeType:5,ServiceType:5})
     .then((res) =>
     {
       ruleForm.orderCode = res.data
@@ -2550,7 +2545,7 @@ onBeforeMount(async () => {
     const datas = JSON.parse(data)
     currentCreator.value = JSON.parse(datas.v)
   }
-  await callApiStaffList()
+  callApiStaffList()
 })
 
 const remainingMoney = ref(0)

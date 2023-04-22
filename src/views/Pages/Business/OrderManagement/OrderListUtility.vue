@@ -2694,15 +2694,15 @@ const finishOrder = (id) => {
 }
 
 onBeforeMount(async () => {
-  await editData()
-  await callApiWarehouseList()
+  editData()
+  callApiWarehouseList()
   callCustomersApi()
   callApiCollaborators()
-  await callApiProductList()
+  callApiProductList()
   callApiCity()
 
   if (type == 'add' || type == ':type') {
-    await GenerateCodeOrder({CodeType:5,ServiceType:1})
+    GenerateCodeOrder({CodeType:5,ServiceType:1})
     .then((res)=>{
       ruleForm.orderCode = res.data
     })
@@ -2720,24 +2720,11 @@ onBeforeMount(async () => {
   } else {
     alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
   }
-  await callApiStaffList()
+  callApiStaffList()
 })
 
 const disabledPhieu = ref(false)
-// const resetForm = (formEl: FormInstance | undefined) => {
-//   if (!formEl) return
-//   formEl.resetFields()
-// }
 
-// const handleClose = (done: () => void) => {
-//   ElMessageBox.confirm(t('reuse.confirmClose'))
-//     .then(() => {
-//       done()
-//     })
-//     .catch(() => {
-//       // catch error
-//     })
-// }
 
 </script>
 

@@ -2173,15 +2173,15 @@ const staffItem = JSON.parse(staffInfo?.v) || ''
 inputRecharger.value = staffItem?.id
 
 onBeforeMount(async () => {
-  await editData()
+  editData()
   callCustomersApi()
   callApiCollaborators()
-  await callAPIProduct()
-  await callApiWarehouseList()
+  callAPIProduct()
+  callApiWarehouseList()
 
   if (type == ('add') || type == (':type') ) {
     disableCreateOrder.value = true
-    await GenerateCodeOrder({CodeType:5,ServiceType:2})
+    GenerateCodeOrder({CodeType:5,ServiceType:2})
     .then((res) =>
     {
       ruleForm.orderCode = res.data
@@ -3640,7 +3640,7 @@ const printPaymentRequest = () => {
         >
           <el-table-column
             :label="t('formDemo.productManagementCode')"
-            min-width="100"
+            min-width="150"
             prop="productPropertyId"
           >
             <template #default="props">

@@ -4,7 +4,6 @@ import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElDialog,
   ElNotification,
-  ElMessageBox,
   ElButton
 } from 'element-plus'
 import { addQuickCustomer, getGenCodeCustomers } from '@/api/Business'
@@ -46,6 +45,7 @@ const schema = reactive<FormSchema[]>([
     field: 'classify',
     label: t('formDemo.classify'),
     component: 'Select',
+    value: false,
     componentProps: {
         options: [
             {
@@ -225,22 +225,13 @@ const save = async () => {
         }
     })
 }
-const handleBeforeClose = (done) => {
-    ElMessageBox.confirm(t('reuse.confirmClose'))
-    .then(() => {
-      done()
-    })
-    .catch(() => {
-      // catch error
-    })
-}
+
 </script>
 <template>
     <el-dialog
         :close-on-click-modal="doCloseOnClickModal"
         :modelValue="props.modelValue"
         :title="t('formDemo.QuicklyAddCustomers')"
-        :before-close="handleBeforeClose"
         width="750px"
         align-center
         @close="close"
@@ -264,11 +255,10 @@ const handleBeforeClose = (done) => {
 <style lang="less" scoped>
   ::v-deep(.btn-wrap) {
     justify-content: flex-end;
-    padding-bottom: 0;
     padding-right: 10px;
+    padding-bottom: 0;
   }
-
   ::v-deep(.el-dialog__header){
-    padding-bottom: 15px !important;
+    padding-bottom: 15px ;
   }
 </style>

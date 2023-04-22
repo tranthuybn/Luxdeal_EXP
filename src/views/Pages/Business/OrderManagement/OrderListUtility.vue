@@ -5931,10 +5931,6 @@ const disabledPhieu = ref(false)
   margin-right: 10px;
 }
 
-::v-deep(.el-dialog__header) {
-  padding-bottom: 0;
-}
-
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;
 }

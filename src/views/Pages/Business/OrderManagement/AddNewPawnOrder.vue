@@ -33,6 +33,7 @@ import { dateTimeFormat, moneyFormat, formatOrderReturnReason, postDateTime } fr
 import ReturnOrder from './ReturnOrder.vue'
 import { FORM_IMAGES } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
+import AddQuickCustomer from './AddQuickCustomer.vue'
 
 import {
   getProductsList,
@@ -50,7 +51,6 @@ import {
   addOrderStransaction,
   createReturnRequest,
   getReturnRequestForOrder,
-  addQuickCustomer,
   getDetailAccountingEntryById,
   GetProductPropertyInventory,
   getListWareHouse,
@@ -319,19 +319,6 @@ const removeListProductsSale = async (index) => {
   }
 }
 
-const valueClassify = ref(false)
-const optionsClassify = [
-  {
-    value: true,
-    id: 1,
-    label: t('formDemo.company')
-  },
-  {
-    value: false,
-    id: 2,
-    label: t('formDemo.individual')
-  }
-]
 
 // Call api danh sách khách hàng
 const optionsCustomerApi = ref<Array<any>>([])
@@ -366,34 +353,6 @@ const callCustomersApi = async () => {
 //     WardId: 1,
 //     Address: 1,
 //     CustomerType: valueSelectCustomer.value
-var autoCustomerCode = 'KH' + Date.now()
-const createQuickCustomer = async () => {
-  const payload = {
-    Code: autoCustomerCode,
-    IsOrganization: valueClassify.value,
-    Name: addQuickCustomerName.value,
-    TaxCode: quickTaxCode.value,
-    Representative: quickRepresentative.value,
-    Phonenumber: quickPhoneNumber.value,
-    Email: quickEmail.value,
-    CustomerType: valueSelectCustomer.value
-  }
-  const formCustomerPayLoad = FORM_IMAGES(payload)
-  const res = await addQuickCustomer(formCustomerPayLoad)
-  if (res) {
-    ElNotification({
-      message: t('reuse.addSuccess'),
-      type: 'success'
-    })
-    callCustomersApi()
-
-  } else {
-    ElNotification({
-      message: t('reuse.addFail'),
-      type: 'warning'
-    })
-  }
-}
 
 const valueMoneyAccoungtingEntry = ref(0)
 
@@ -406,12 +365,6 @@ const autoChangeMoneyAccountingEntry = (_val, scope) => {
     if (val.intoMoney) valueMoneyAccoungtingEntry.value += val.intoMoney
   })
 }
-
-const addQuickCustomerName = ref()
-const quickTaxCode = ref()
-const quickRepresentative = ref()
-const quickPhoneNumber = ref()
-const quickEmail = ref()
 
 let customerAddress = ref('')
 
@@ -883,21 +836,7 @@ const autoCollaboratorCommission = (index) => {
     if (val.value == index) ruleForm.collaboratorCommission = val.collaboratorCommission
   })
 }
-const valueSelectCustomer = ref(1)
-const optionsCustomer = [
-  {
-    value: 1,
-    label: t('formDemo.customer')
-  },
-  {
-    value: 2,
-    label: t('reuse.supplier')
-  },
-  {
-    value: 3,
-    label: t('formDemo.joint')
-  }
-]
+
 let orderDetailsTable = reactive([{}])
 const disableEditData = ref(false)
 // tạo đơn hàng
@@ -2527,112 +2466,7 @@ v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit"
         </template>
       </el-dialog>
       <!-- Dialog thêm nhanh khách hàng -->
-      <el-dialog
-:close-on-click-modal="doCloseOnClickModal" v-model="dialogAddQuick" width="40%" align-center
-        :title="t('formDemo.QuicklyAddCustomers')">
-        <div v-if="valueClassify == true">
-          <el-divider />
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right max-w-[162.73px]">{{ t('formDemo.classify') }} <span
-                  class="text-red-500">*</span></label>
-              <div class="w-[80%] flex gap-2">
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueClassify" placeholder="Select">
-                    <el-option v-for="item in optionsClassify" :key="item.id" :label="item.label" :value="item.value" />
-                  </el-select>
-                </div>
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option
-v-for="item in optionsCustomer" :key="item.value" :label="item.label"
-                      :value="item.value" />
-                  </el-select>
-                </div>
-              </div>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('formDemo.companyName') }} <span
-                  class="text-red-500">*</span></label>
-              <el-input
-v-model="addQuickCustomerName" style="width: 100%"
-                :placeholder="t('formDemo.enterCompanyName')" />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('formDemo.taxCode') }} <span class="text-red-500">*</span></label>
-              <el-input v-model="quickTaxCode" style="width: 100%" :placeholder="t('formDemo.enterTaxCode')" />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('formDemo.representative') }}</label>
-              <el-input
-v-model="quickRepresentative" style="width: 100%"
-                :placeholder="t('formDemo.enterRepresentative')" />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label>
-              <el-input v-model="quickPhoneNumber" style="width: 100%" :placeholder="t('formDemo.enterPhoneNumber')" />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
-              <el-input v-model="quickEmail" style="width: 100%" :placeholder="`${t('formDemo.enterEmail')}`" />
-            </div>
-          </div>
-        </div>
-        <div v-else>
-          <el-divider />
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right max-w-[162.73px]">{{ t('formDemo.classify') }} <span
-                  class="text-red-500">*</span></label>
-              <div class="w-[80%] flex gap-2">
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueClassify" placeholder="Select">
-                    <el-option v-for="item in optionsClassify" :key="item.id" :label="item.label" :value="item.value" />
-                  </el-select>
-                </div>
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option
-v-for="item in optionsCustomer" :key="item.value" :label="item.label"
-                      :value="item.value" />
-                  </el-select>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label>
-              <el-input
-v-model="addQuickCustomerName" style="width: 100%"
-                :placeholder="t('formDemo.enterCustomerName')" />
-            </div>
-
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label>
-              <el-input v-model="quickPhoneNumber" style="width: 100%" :placeholder="t('formDemo.enterPhoneNumber')" />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-              <el-input v-model="quickEmail" style="width: 100%" :placeholder="t('formDemo.enterEmail')" />
-            </div>
-          </div>
-        </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button
-type="primary" class="w-[150px]" @click.stop.prevent="
-              () => {
-                dialogAddQuick = false
-                createQuickCustomer()
-                callCustomersApi()
-              }
-            ">{{ t('reuse.save') }}</el-button>
-            <el-button class="w-[150px]" @click.stop.prevent="dialogAddQuick = false">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
-        </template>
-      </el-dialog>
+      <AddQuickCustomer v-model="dialogAddQuick" @post-success="callCustomersApi"/>
 
       <el-collapse-item :name="collapse[0].name">
         <template #title>
@@ -5119,10 +4953,6 @@ prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" a
 
 ::v-deep(.el-dialog__body) {
   padding-top: 0;
-}
-
-::v-deep(.el-dialog__header) {
-  padding-bottom: 0;
 }
 
 ::v-deep(.el-table th.el-table__cell) {

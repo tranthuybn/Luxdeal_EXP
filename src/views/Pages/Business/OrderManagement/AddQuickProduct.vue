@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, onBeforeMount } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElDialog,
@@ -10,9 +10,11 @@ import { useValidator } from '@/hooks/web/useValidator'
 import {  getBusinessProductLibrary, getCategories } from '@/api/LibraryAndSetting'
 import TableOperatorTreeSelect from '@/views/Pages/ProductsAndServices/ProductLibrary/TableOperatorTreeSelect.vue'
 import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { GenerateCodeOrder } from '@/api/common'
 
 const doCloseOnClickModal = ref(false)
 const { t } = useI18n()
+const formRef = ref()
 const apiStatus = ref(true)
 const emit = defineEmits(['save', 'update:modelValue'])
 const { required, ValidService, notSpace } = useValidator()
@@ -239,6 +241,15 @@ const postData = async (data) => {
    close()
 }
 
+onBeforeMount(async () => {
+  await GenerateCodeOrder({CodeType:1,Code:'SP'})
+  .then((res)=>{
+    formRef.value?.setValues({
+      quickManagementCode: res.data
+    })
+  })
+})
+
 </script>
 <template>
     <el-dialog
@@ -250,6 +261,7 @@ const postData = async (data) => {
         @close="close"
     >
       <TableOperatorTreeSelect
+        ref="formRef"
         class="infinite-list"
         style="overflow: auto"
         type="add"

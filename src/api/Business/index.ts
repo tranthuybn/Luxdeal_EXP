@@ -50,7 +50,7 @@ export const addCustomerRatings = async (params): Promise<IResponse> => {
 }
 
 export const cancelCustomerAccount = async (params): Promise<IResponse> => {
-  const res = await request.put(
+  const res = await request.delete(
     {
       url: `${CUSTOMER_API.CANCEL_CUSTOMER_ACCOUNT}`,
       data: params

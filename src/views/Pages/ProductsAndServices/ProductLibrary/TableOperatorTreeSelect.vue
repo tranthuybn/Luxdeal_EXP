@@ -501,7 +501,7 @@ let CodeAndNameSelect = ref()
 let CodeOptions = ref()
 let NameAndCodeSelect = ref()
 const getCodeAndNameSelect = async () => {
-  setValues({ ProductCode: productCode.value })
+  //setValues({ ProductCode: productCode.value })
   const res = await getCodeAndNameProductLibrary({ pageIndex: 1, pageSize: 20 })
   CodeAndNameSelect.value = res.data.map((val) => ({
     label: val.productCode,
@@ -649,7 +649,8 @@ const productCode = ref('')
 const productName = ref('')
 
 const setProductCode = () => {
-  setValues({ ProductCode: productCode.value })
+  if(!props.addQuickProduct || props.addQuickProduct && productCode.value) setValues({ ProductCode: productCode.value })
+
   fillAllInformation(productCode.value)
 }
 const setProductName = () => {

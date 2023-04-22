@@ -40,7 +40,6 @@ import {
   getProductsList,
   addNewOrderList,
   getOrderList,
-  addQuickCustomer,
   getPriceOfSpecificProduct,
   addTPV,
   getReturnRequest,
@@ -88,6 +87,7 @@ import { deleteTempCode } from '@/api/common'
 import { changeMoney } from '@/utils/tsxHelper'
 import * as orderUtility from './OrderFixbug'
 import UploadMultipleImages from './UploadMultipleImages.vue'
+import AddQuickCustomer from './AddQuickCustomer.vue'
 
 const { utility } = appModules
 const { t } = useI18n()
@@ -205,7 +205,6 @@ const submitFormAddress = async (formEl: FormInstance | undefined) => {
 let statusOrder = ref(2)
 
 // var curDate = 'DCT' + Date.now()
-var autoCustomerCode = 'KH' + Date.now()
 var autoRentalOrderCode = 'T' + Date.now()
 var autoCodeExpenditures = 'PC' + Date.now()
 var autoCodeReturnRequest = 'DT' + Date.now()
@@ -476,36 +475,7 @@ const collapseChangeEvent = (val) => {
 const activeName = ref([collapse[0].name, collapse[1].name])
 
 const dialogAddQuick = ref(false)
-const valueClassify = ref(false)
-const optionsClassify = [
-  {
-    value: true,
-    id: 1,
-    label: t('formDemo.company')
-  },
-  {
-    value: false,
-    id: 2,
-    label: t('formDemo.individual')
-  }
-]
 
-// select khách hàng
-const valueSelectCustomer = ref(1)
-const optionsCustomer = [
-  {
-    value: 1,
-    label: t('formDemo.customer')
-  },
-  {
-    value: 2,
-    label: t('reuse.supplier')
-  },
-  {
-    value: 3,
-    label: t('formDemo.joint')
-  }
-]
 
 // Tạm thời bỏ VAT 21/02/2023
 // const radioVAT = ref(t('formDemo.doesNotIncludeVAT'))
@@ -1510,42 +1480,6 @@ const recalculatePrice = (data) => {
 // Xóa sản phẩm trong table sản phẩm và thanh toán
 const removeTableData = (index) => {
   tableData.value.splice(index, 1)
-}
-
-// form add quick customer
-const addQuickCustomerName = ref()
-const quickTaxCode = ref()
-const quickRepresentative = ref()
-const quickPhoneNumber = ref()
-const quickEmail = ref()
-
-// Thêm nhanh khách hàng
-const createQuickCustomer = async () => {
-  const payload = {
-    Code: autoCustomerCode,
-    IsOrganization: valueClassify.value,
-    Name: addQuickCustomerName.value,
-    TaxCode: quickTaxCode.value,
-    Representative: quickRepresentative.value,
-    Phonenumber: quickPhoneNumber.value,
-    Email: quickEmail.value,
-    CustomerType: valueSelectCustomer.value
-  }
-  const formCustomerPayLoad = FORM_IMAGES(payload)
-  const res = await addQuickCustomer(formCustomerPayLoad)
-  if (res) {
-    ElNotification({
-        message: t('reuse.addSuccess'),
-        type: 'success'
-      })
-    callCustomersApi()
-
-  } else {
-    ElNotification({
-        message: t('reuse.addFail'),
-        type: 'warning'
-      })
-  }  
 }
 
 const choosePayment = [
@@ -2577,23 +2511,6 @@ const clearData = () => {
   addRowDetailedListExpoenses()
 }
 
-// Bật dialog thêm nhanh khách hàng
-const openDialogAddQuickCustomer = () => {
-  clearFormPostCustomer()
-
-  dialogAddQuick.value = true
-}
-
-// clear form thêm nhanh khách hàng
-const clearFormPostCustomer = () => {
-  addQuickCustomerName.value = ''
-  quickTaxCode.value = ''
-  quickTaxCode.value = ''
-  quickRepresentative.value = ''
-  quickPhoneNumber.value = ''
-  quickEmail.value = ''
-}
-
 // Lấy danh sách kho
 const callApiWarehouseList = async () => {
   const res = await getListWareHouse({status:true})
@@ -2892,7 +2809,7 @@ onBeforeMount(async() => {
   editData()
   callApiWarehouseList()
   if (type == 'add' || type == ':type') {
-    await GenerateCodeOrder({CodeType:CODE.ORDER,ServiceType:ORDER.RENTAL})
+    GenerateCodeOrder({CodeType:CODE.ORDER,ServiceType:ORDER.RENTAL})
     .then((res) => {
       ruleForm.orderCode = res.data
     })
@@ -2911,7 +2828,7 @@ onBeforeMount(async() => {
   } else {
     alert('LocalStorage không hỗ trợ trên trình duyệt này!!')
   }
-  await callApiStaffList()
+   callApiStaffList()
 })
 const PrintReceipts = ref(false)
 const PrintBill = ref(false)
@@ -3069,174 +2986,8 @@ const printPaymentRequest = () => {
         </template>
       </el-dialog>
       <!-- Dialog Thêm nhanh khách hàng -->
-      <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
-        v-model="dialogAddQuick"
-        class="font-bold"
-        width="40%"
-        align-center
-        :title="t('formDemo.QuicklyAddCustomers')"
-      >
-        <div v-if="valueClassify == true">
-          <el-divider />
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right max-w-[162.73px]"
-                >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-              >
-              <div class="w-[80%] flex gap-2">
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueClassify" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsCustomer"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-              </div>
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.companyName') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="addQuickCustomerName"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterCompanyName')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('formDemo.taxCode') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickTaxCode"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterTaxCode')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('formDemo.representative') }}</label>
-              <el-input
-                v-model="quickRepresentative"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterRepresentative')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickPhoneNumber"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterPhoneNumber')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}<span class="text-red-500">*</span></label>
-              <el-input
-                v-model="quickEmail"
-                style="width: 100%"
-                :placeholder="`${t('formDemo.enterEmail')}`"
-              />
-            </div>
-          </div>
-        </div>
-        <div v-else>
-          <el-divider />
-          <div>
-            <div class="flex gap-4 pt-4 pb-4 items-center">
-              <label class="w-[30%] text-right max-w-[162.73px]"
-                >{{ t('formDemo.classify') }} <span class="text-red-500">*</span></label
-              >
-              <div class="w-[80%] flex gap-2">
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueClassify" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsClassify"
-                      :key="item.id"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-                <div class="w-[50%] fix-full-width">
-                  <el-select v-model="valueSelectCustomer" placeholder="Select">
-                    <el-option
-                      v-for="item in optionsCustomer"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </div>
-              </div>
-            </div>
 
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.customerName') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="addQuickCustomerName"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterCustomerName')"
-              />
-            </div>
-
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right"
-                >{{ t('reuse.phoneNumber') }} <span class="text-red-500">*</span></label
-              >
-              <el-input
-                v-model="quickPhoneNumber"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterPhoneNumber')"
-              />
-            </div>
-            <div class="flex gap-4 pt-4 pb-4">
-              <label class="w-[30%] text-right">{{ t('reuse.email') }}</label>
-              <el-input
-                v-model="quickEmail"
-                style="width: 100%"
-                :placeholder="t('formDemo.enterEmail')"
-              />
-            </div>
-          </div>
-        </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button
-              type="primary"
-              class="w-[150px]"
-              @click.stop.prevent="
-                () => {
-                  dialogAddQuick = false
-                  createQuickCustomer()
-                  callCustomersApi()
-                }
-              "
-              >{{ t('reuse.save') }}</el-button
-            >
-            <el-button class="w-[150px]" @click.stop.prevent="openDialogAddQuickCustomer">{{
-              t('reuse.exit')
-            }}</el-button>
-          </span>
-        </template>
-      </el-dialog>
+      <AddQuickCustomer v-model="dialogAddQuick" @post-success="callCustomersApi"/>
 
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
@@ -6097,9 +5848,6 @@ const printPaymentRequest = () => {
   padding-top: 0;
 }
 
-::v-deep(.el-dialog__header) {
-  padding-bottom: 0;
-}
 
 ::v-deep(.el-table th.el-table__cell) {
   padding: 0 !important;

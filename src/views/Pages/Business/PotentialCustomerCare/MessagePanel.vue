@@ -7,7 +7,8 @@
         <span class="pl-2">{{ user.userName }}</span>
       </div>
       <div class="flex items-center w-1/4">
-        <el-input :placeholder="`${t('reuse.findContent')} ...`" v-model="search" :suffix-icon="searchIcon"
+        <el-input
+:placeholder="`${t('reuse.findContent')} ...`" v-model="search" :suffix-icon="searchIcon"
           class="p-4 h-70px" />
         <div id="showDocument">
           <el-button :icon="leftArrow" class="!pl-4 !border-0 !font-bold hidden" @click="showDocumentList(0)">Tài
@@ -75,10 +76,12 @@
       </ul>
     </section>
     <div class="message-box__footer p-3 h-1/10">
-      <el-form class="message-box__send h-full flex-grow pr-4" ref="messageInput" :model="messageInputForm"
+      <el-form
+class="message-box__send h-full flex-grow pr-4" ref="messageInput" :model="messageInputForm"
         @submit.native.prevent>
         <el-form-item prop="chatContent" class="h-full relative" style="margin: 0">
-          <el-input class="h-45px" :placeholder="`${t('reuse.inputContent')} ...`" v-model="messageInputForm.chatContent"
+          <el-input
+class="h-45px" :placeholder="`${t('reuse.inputContent')} ...`" v-model="messageInputForm.chatContent"
             @keyup.enter.native="onSubmit" />
           <el-button :icon="sendIcon" @click="onSubmit" class="absolute right-1 !text-blue-500 biggerIcon" />
         </el-form-item>
@@ -150,6 +153,9 @@ const searchIcon = useIcon({ icon: 'uiw:search' })
 const leftArrow = useIcon({ icon: 'material-symbols:chevron-left' })
 export default {
   name: 'MessagePanel',
+  components: {
+    Modal,
+  },
   props: {
     user: Object,
     channelId: String,
@@ -157,9 +163,6 @@ export default {
     refss: Array
   },
   expose: ['showMessage1', 'showMessage', 'showMessageSocketRe', 'displayDealPrice'],
-  components: {
-    Modal,
-  },
   data() {
     return {
       dataProduct: null,
@@ -300,8 +303,6 @@ export default {
 
     },
     showMessageSocketRe(message) {
-      console.log(wsCache.get(permissionStore.getUserIDReceive))
-      console.log("6666666666666666666666666666")
       if (message.sender.id == wsCache.get(permissionStore.getUserIDReceive) && message.chatTypeId == wsCache.get(permissionStore.getTypeChat)) {
         this.showMessage(message);
       }
@@ -371,7 +372,6 @@ export default {
 
     },
     showMessage1(val) {
-      console.log(val)
       messages.innerHTML = "";
       for (var i = 0; i < val.message.length; i++) {
         this.showMessage(val.message[i])

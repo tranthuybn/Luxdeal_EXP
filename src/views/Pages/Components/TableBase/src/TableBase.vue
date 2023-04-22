@@ -225,6 +225,7 @@ const router = useRouter()
 let buttonShow = true
 
 const action = (row: TableData, type: string) => {
+  console.log('row', row)
   if (type === 'detail' || type === 'edit' || !type) {
     push({
       name: `${String(router.currentRoute.value.name)}.${utility}`,

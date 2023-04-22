@@ -519,10 +519,12 @@ const postQuickProduct = (product,productId)=>{
       price: 0,
       productPropertyId: productId,
       productPropertyCode: product.productPropertyCode
-    })
+  })
     //Change productpropertyId of currentNewProductRow
+    
     ListOfProductsForSale.value[currentNewProductRow.value].productPropertyId = productId
     ListOfProductsForSale.value[currentNewProductRow.value].productName = product.name
+    ListOfProductsForSale.value[currentNewProductRow.value].productPropertyName = product.name
     //set value like newProduct:true
     ListOfProductsForSale.value[currentNewProductRow.value].newProduct = true
     //when remove row check newProduct if(true){call api remove proudct(id), shift listProducts}
@@ -1054,8 +1056,8 @@ const postData = async () => {
       DistrictId: valueDistrict.value ?? 1,
       WardId: valueCommune.value ?? 1,
       Address: enterdetailAddress.value,
-      fromDate: moment(ruleForm.rentalPeriod[0]).format('YYYY/MM/DD'),
-      toDate: moment(ruleForm.rentalPeriod[1]).format('YYYY/MM/DD'),
+      fromDate: moment(ruleForm.rentalPeriod?.[0]).format('YYYY/MM/DD'),
+      toDate: moment(ruleForm.rentalPeriod?.[1]).format('YYYY/MM/DD'),
       Days: 1,
       OrderDetail: productPayment,
       CampaignId: null,
@@ -3655,7 +3657,7 @@ const printPaymentRequest = () => {
                 width="650px" 
                 :items="listProducts"
                 valueKey="productPropertyId"
-                :disabled="disabledEdit || props.row.newProduct"
+                :disabled="disabledEdit"
                 labelKey="value"
                 :hiddenKey="['id']"
                 :placeHolder="t('reuse.chooseProductCode')"

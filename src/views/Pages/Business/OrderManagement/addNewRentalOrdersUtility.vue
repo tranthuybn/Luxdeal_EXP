@@ -1659,7 +1659,6 @@ function printPage(id: string) {
     '',
     'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
   )
-  console.log(prtHtml)
   WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>
@@ -1744,7 +1743,6 @@ const moneyReceipts = ref(0)
 const inputRecharger = ref()
 
 const getFormReceipts = async (textTitle) => {
-  console.log(enterMoney.value)
   if(textTitle == 2){
     nameDialog.value = 'Phiếu thu cho thuê'
   }else{
@@ -2195,7 +2193,6 @@ const openDetailRentalPaymentBill = () => {
       })
     }
   })
-  console.log(dataEdit)
   // feePaymentPeriod.value = optionAcountingEntry.value[0].value
   // if (countApi.value == 0) callApiDetailAccountingEntry(feePaymentPeriod.value)
   // countApi.value++

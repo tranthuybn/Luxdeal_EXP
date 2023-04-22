@@ -648,7 +648,6 @@ const productCode = ref('')
 const productName = ref('')
 
 const setProductCode = () => {
-  console.log('productCode.value', productCode.value)
   if(!props.addQuickProduct || props.addQuickProduct && productCode.value) setValues({ ProductCode: productCode.value })
 
   fillAllInformation(productCode.value)

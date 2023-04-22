@@ -19,6 +19,7 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { STATUS_ORDER_RENTAL, STATUS_ORDER_DEPOSIT } from '@/utils/API.Variables'
+import moment from 'moment'
 
 const doCloseOnClickModal = ref(false)
 const { t } = useI18n()
@@ -182,7 +183,6 @@ const cancelPaymentRequest = async (orderStatusType) => {
 const disableCheck = ref(false)
 
 const extendDate = (data) => {
-  console.log('extend', data)
   emit('extend-date', data)
 }
 // const removeRow = (scope) => {
@@ -231,7 +231,9 @@ const updateValueTable = (_value, obj, scope) => {
       data.maximumQuantity = obj?.maximumQuantity
   }
 }
-
+const handleDisabledDate = (date) => {
+  return date.getTime() <= moment(props.orderData?.period[1]).valueOf()
+}
 // Trả hàng trước hạn
 watch(
   () => tableAheadOfTime.value[tableAheadOfTime.value.length - 1],
@@ -1406,7 +1408,7 @@ onBeforeMount(()=>{
           <div class="flex gap-4 pt-2 pb-2">
             <label class="w-[40%] text-right">Gia hạn ký gửi đến</label>
             <div class="w-[60%] text-black dark:text-light-50">
-              <ElDatePicker modelValue="extendDate" @change="extendDate" />
+              <ElDatePicker modelValue="extendDate" :disabledDate="handleDisabledDate" @change="extendDate" />
             </div>
           </div>
         </div>

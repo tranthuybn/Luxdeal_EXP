@@ -177,6 +177,7 @@ type SetFormData = {
   target: number
   percent: number
   money: number
+  parentid: number
   imageurl?: string
   name2: string
 }
@@ -193,7 +194,8 @@ const customizeData = async (formData) => {
     schema[1].componentProps.disabled = true
   }
   formDataCustomize.status = []
-
+  formDataCustomize.Image = formData.warehouseImages[0].path
+  formDataCustomize.imageurl = `${API_URL}${formData.warehouseImages[0].path}`
   if (formData?.isActive == true) {
     formDataCustomize.status.push('active')
   }
@@ -204,17 +206,7 @@ const customizeData = async (formData) => {
     formDataCustomize.rankWarehouse = 1
   } else {
     formDataCustomize.rankWarehouse = 2
-    await addFormSchema(timesCallAPI, formData.name)
-  }
-  formDataCustomize.Image = formData.warehouseImages[0].path
-  formDataCustomize.imageurl = `${API_URL}${formData.warehouseImages[0].path}`
-  if (formData?.parentid == 0) {
-    formDataCustomize.name = formData?.name
-  } else {
-    formDataCustomize.name2 = formData?.name
-  }
-  formDataCustomize.isDelete = false
-  if(formData.parentid) {
+    formDataCustomize.parentid = Number(formData.parentid)
     await getProductStorage({Id: formData.parentid})
     .then(res => {
       if(res.data.length > 0 && !res.data[0].isActive) {
@@ -230,7 +222,15 @@ const customizeData = async (formData) => {
     .catch(error => {
       console.log('get parent warehouse fail', error)
     })
+    await addFormSchema(timesCallAPI, formData.name)
   }
+  if (formData?.parentid == 0) {
+    formDataCustomize.name = formData?.name
+  } else {
+    formDataCustomize.name2 = formData?.name
+  }
+  formDataCustomize.isDelete = false
+
 }
 
 //call api for select options
@@ -253,16 +253,16 @@ const getRank1SelectOptions = async () => {
     })
 }
 const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
+  schema[3].hidden = true
+  schema[4].hidden = false
+  schema[5].hidden = false
+  schema[5].value = nameChildren
   if (timesCallAPI == 0) {
     await getRank1SelectOptions()
     if (schema[4].componentProps?.options != undefined) {
       schema[4].componentProps.options = rank1SelectOptions
     }
   }
-  schema[3].hidden = true
-  schema[4].hidden = false
-  schema[5].hidden = false
-  schema[5].value = nameChildren
 }
 const removeFormSchema = () => {
   schema[3].hidden = false

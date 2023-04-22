@@ -227,7 +227,6 @@ const save = async () => {
 }
 
 onBeforeMount(() => {
-  console.log('vô đây')
   changeValueClassify(true)
 })
 

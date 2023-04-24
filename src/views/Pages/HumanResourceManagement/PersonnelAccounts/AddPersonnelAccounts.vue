@@ -164,7 +164,6 @@ const rules = reactive<FormRules>({
   jobPosition: [ValidService.required],
   ProvinceId: [ValidService.required],
   DistrictId: [ValidService.required],
-  roleAcces: [ValidService.required],
   typeOfEmployee: [ValidService.required],
   department: [ValidService.required],
   city: [ValidService.required],
@@ -224,7 +223,7 @@ const rules = reactive<FormRules>({
       required: true,
       trigger: 'blur'
     },
-    ValidService.checkCCCD
+    ValidService.checkCCCD,
   ],
   type: [
     {
@@ -772,10 +771,10 @@ const cancelEditPassword = () => {
                   <el-input v-model="ruleForm.email" :placeholder="t('reuse.enterEmail')" :disabled="isDisable" />
                 </el-form-item>
 
-                <el-form-item required :label="t('reuse.cmnd')">
+                <el-form-item :label="t('reuse.cmnd')">
                   <div class="flex gap-2 w-[100%] cccd-format">
                     <div class="flex-1 fix-width">
-                      <el-form-item prop="cccd">
+                      <el-form-item prop="cccd" >
                         <el-input
                           v-model="ruleForm.cccd"
                           class="w-[25%] outline-none dark:bg-transparent"
@@ -821,7 +820,6 @@ const cancelEditPassword = () => {
                 <el-form-item
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
                   :label="t('reuse.dateOfBirthAnGender')"
-                  required
                 >
                   <div class="flex gap-2 w-[100%] cccd-format">
                     <div class="flex-1 fix-width">
@@ -871,7 +869,6 @@ const cancelEditPassword = () => {
                 <el-form-item
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
                   :label="t('reuse.brandAndDepartment')"
-                  required
                 >
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
@@ -909,7 +906,6 @@ const cancelEditPassword = () => {
                 <el-form-item
                   class="flex items-center w-[100%] mt-5 custom-select-w38"
                   :label="t('reuse.rankAndType')"
-                  required
                 >
                   <div class="flex gap-2 w-[100%]">
                     <div class="flex-1 fix-width">
@@ -955,7 +951,7 @@ const cancelEditPassword = () => {
                   <el-input v-model="ruleForm.userName" :placeholder="t('formDemo.enterUserName')" :disabled="isDisable" />
                 </el-form-item>
 
-                <el-form-item prop="roleAcces" :label="t('reuse.setRole')" :placeholder="t('reuse.fullName')" required>
+              <el-form-item :label="t('reuse.setRole')" :placeholder="t('reuse.fullName')">
                   <el-select
                     v-model="ruleForm.roleAcces"
                     clearable
@@ -969,7 +965,7 @@ const cancelEditPassword = () => {
                       :value="item.value"
                     />
                   </el-select>
-                </el-form-item>
+                </el-form-item> 
 
                 <el-form-item v-if="showPassword" :label="t('reuse.password')" prop="password">
                   <el-input v-model="ruleForm.password" :placeholder="t('formDemo.enterPassword')" :disabled="isDisable" />

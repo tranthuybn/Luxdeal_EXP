@@ -20,5 +20,6 @@
   "god.tsconfig": "./tsconfig.json",
   "cSpell.words": [
     "unref"
-  ]
+  ],
+  "vue.features.codeActions.enable": false
 }

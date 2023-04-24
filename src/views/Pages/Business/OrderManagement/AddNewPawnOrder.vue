@@ -1602,8 +1602,11 @@ const priceintoMoneyByday = ref(0)
 const editData = async () => {
   await orderUtility.getStatusWarehouse(id)
 
-  if (type == 'detail') checkDisabled.value = true
-  disableEditData.value = true
+  if (type == 'detail')
+  {
+   checkDisabled.value = true
+    disableEditData.value = true
+  }
   if (type == 'approval-order') {
     statusOrder.value = 200
     checkDisabled.value = true

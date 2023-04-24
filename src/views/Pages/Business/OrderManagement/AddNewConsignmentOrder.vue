@@ -1515,8 +1515,10 @@ const disableCreateOrder = ref(false)
 const editData = async () => {
   await orderUtility.getStatusWarehouse(id)
 
-  if (type == 'detail') checkDisabled.value = true
-  disableEditData.value = true
+  if (type == 'detail') {
+    checkDisabled.value = true
+    disableEditData.value = true
+  }
   if (type == 'approval-order') {
     statusOrder.value = 200
     checkDisabled.value = true
@@ -2181,7 +2183,7 @@ onBeforeMount(async () => {
 
   if (type == ('add') || type == (':type') ) {
     disableCreateOrder.value = true
-    GenerateCodeOrder({CodeType:5,ServiceType:2})
+    GenerateCodeOrder({CodeType:CODE.ORDER,ServiceType:ORDER.CONSIGNMENT})
     .then((res) =>
     {
       ruleForm.orderCode = res.data

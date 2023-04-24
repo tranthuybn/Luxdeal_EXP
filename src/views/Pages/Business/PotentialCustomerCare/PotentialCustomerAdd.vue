@@ -942,7 +942,7 @@ const customData = (data) => {
   customData.note = data.Note
   customData.service = data.service || 1
   customData.serviceDetail = data.serviceDetails
-  customData.customerOrderId = data.result
+  customData.customerOrderId = data.result || NaN
   customData.statusId = data.status
   customData.total = 0
   customData.representative = data.representative

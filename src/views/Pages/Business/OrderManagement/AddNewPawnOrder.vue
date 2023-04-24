@@ -1592,9 +1592,13 @@ const ckeckChooseProduct = (scope) => {
 const Files = ref<UploadUserFile[]>([])
 
 const disableCreateOrder = ref(false)
-const disabledDate = (_time: Date) => {
-  return false
-  // return time.getTime() <= Date.now() - 86400000
+const disabledDate = (time: Date) => {
+  if(startDate.value){
+    const day = moment(time)
+    const endDate = moment(startDate.value).add(10, "days").format()
+    return day.isBefore(endDate)
+  }
+  return false //ko disable
 }
 const totalPrincipalMoney = ref(0)
 const totalPrincipalDebt = ref(0)
@@ -1602,18 +1606,17 @@ const priceintoMoneyByday = ref(0)
 const editData = async () => {
   await orderUtility.getStatusWarehouse(id)
 
-  if (type == 'detail')
-  {
-   checkDisabled.value = true
+  if (type == 'detail') {
+    checkDisabled.value = true
     disableEditData.value = true
   }
   if (type == 'approval-order') {
     statusOrder.value = 200
     checkDisabled.value = true
+    disableEditData.value = true
+
   }
   if (type == 'edit' || type == 'detail' || type == 'approval-order') {
-
-
     disabledEdit.value = true
     disableCreateOrder.value = true
     const res = await getOrderList({ Id: id, ServiceType: 4 })
@@ -1655,7 +1658,6 @@ const editData = async () => {
     }
 
     if (statusOrder.value == 2 && type == 'edit') {
-      disableEditData.value = true
       editButton.value = true
     }
 
@@ -2371,6 +2373,13 @@ const getFormPayment = () => {
   };
   Printpayment.value = !Printpayment.value
 }
+const startDate = ref()
+const changeDateRanges = (dates) =>{
+  startDate.value = dates[0]
+}
+const changeDate = (data) => {
+  if(!data) startDate.value= null
+}
 </script>
 
 <template>
@@ -2488,9 +2497,15 @@ ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="181px" class="de
               <div class="css-form_has-child mb-2">
                 <el-form-item :label="t('formDemo.pawnTerm')" prop="pawnTerm">
                   <el-date-picker
-:disabled="disableEditData" v-model="ruleForm.pawnTerm" type="daterange"
-                    :start-placeholder="t('formDemo.startDay')" :end-placeholder="t('formDemo.endDay')"
-                    :disabled-date="disabledDate" format="DD/MM/YYYY" />
+                    :disabled="disableEditData" 
+                    v-model="ruleForm.pawnTerm" 
+                    type="daterange"
+                    :start-placeholder="t('formDemo.startDay')" 
+                    :end-placeholder="t('formDemo.endDay')"
+                    :disabled-date="disabledDate" 
+                    @change=changeDate
+                    @calendar-change="changeDateRanges"
+                    format="DD/MM/YYYY" />
                   <template #label>
                     <div style="translate: 0px -10px">
                       <div class="text-right h-15px">{{ t('formDemo.pawnTerm') }}</div>

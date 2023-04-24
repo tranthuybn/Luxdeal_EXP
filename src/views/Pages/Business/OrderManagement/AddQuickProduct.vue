@@ -140,6 +140,10 @@ const schema = reactive<FormSchema[]>([
     field: 'quickManagementCode',
     label: t('reuse.managementCode'),
     component: 'Input',
+    componentProps: {
+      readonly: true,
+      class: 'readonly-info',
+    },
     colProps: {
       span: 24
     },
@@ -242,11 +246,16 @@ const postData = async (data) => {
 }
 
 onBeforeMount(async () => {
+
   await GenerateCodeOrder({CodeType:1,Code:'SP'})
   .then((res)=>{
     formRef.value?.setValues({
       quickManagementCode: res.data
     })
+
+  })
+  .catch((error) => {
+    throw Error(error)
   })
 })
 
@@ -286,5 +295,14 @@ onBeforeMount(async () => {
     justify-content: flex-end;
     padding-bottom: 15px;
     padding-right: 10px;
+  }
+  ::v-deep(.readonly-info) {
+    .el-input__wrapper{
+      box-shadow: none;
+      padding: 0
+    }
+  }
+  ::v-deep(.el-form-item){
+    height: unset !important;;
   }
 </style>

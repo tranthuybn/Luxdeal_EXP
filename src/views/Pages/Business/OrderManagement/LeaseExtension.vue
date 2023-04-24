@@ -18,6 +18,7 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
 import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { changeMoney } from '@/utils/tsxHelper'
+import moment from 'moment'
 
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
@@ -212,6 +213,10 @@ onBeforeMount(()=>{
   calculateMoney()
 })
 
+const handleDisabledDate = (date) => {
+  return date.getTime() <= moment(props.orderData?.period[1]).valueOf()
+}
+
 </script>
 <template>
   <!-- Gia hạn thuê -->
@@ -263,6 +268,7 @@ onBeforeMount(()=>{
                 <el-date-picker
                     v-model="rentExtensionValue"
                     type="date"
+                    :disabledDate="handleDisabledDate"
                     format="DD/MM/YYYY"
                     placeholder="Chọn ngày"
                 />

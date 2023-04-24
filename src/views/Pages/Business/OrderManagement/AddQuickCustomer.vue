@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, unref } from 'vue'
+import { reactive, ref, unref} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElDialog,
@@ -165,6 +165,7 @@ const schema = reactive<FormSchema[]>([
 const close = () =>{
   unref(elFormRef)!.resetFields()
   emit('update:modelValue', false)
+  changeValueClassify(false)
 }
 
 const rules = reactive({
@@ -201,6 +202,7 @@ const postData = async (data) => {
         type: 'success'
       })
       emit('postSuccess', true)
+      changeValueClassify(false)
     })
     .catch((error)=>{
         ElNotification({

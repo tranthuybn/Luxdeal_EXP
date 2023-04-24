@@ -199,6 +199,7 @@ const schema = reactive<FormSchema[]>([
 
 
 const customizeData = async (data) => {
+  console.log('data', data)
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney
@@ -227,7 +228,8 @@ const customData = (data) => {
   customData.FundID = data.accountNumber
   customData.Transacted = data.paid
   customData.Type = 1
-  customData.Status = 1
+  customData.Status = 0
+  customData.Document = data.Images
   
   if(type == 'detail') {
     customData.Carrying = true

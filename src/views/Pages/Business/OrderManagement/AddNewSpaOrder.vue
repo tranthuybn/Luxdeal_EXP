@@ -412,7 +412,7 @@ const callCustomersApi = async () => {
     }))
   }
   if(dataEdit.value.customer){
-  const find = optionsCustomerApi.value.find(customer => customer.id == dataEdit.value.customerId)
+  const find = Array.isArray(optionsCustomerApi.value) && optionsCustomerApi.value.length > 0 ? optionsCustomerApi.value.find(customer => customer.id == dataEdit.value.customerId) : 0
     if(!find){
       optionsCustomerApi.value.unshift({
         code: dataEdit.value?.code,
@@ -1511,8 +1511,6 @@ function printPage(id: string) {
   }else {
     indexHeight = 297;
   }
-  console.log(id)
-  console.log(indexHeight)
   WinPrint?.document.write(`<!DOCTYPE html>
                 <html>
                   <head>

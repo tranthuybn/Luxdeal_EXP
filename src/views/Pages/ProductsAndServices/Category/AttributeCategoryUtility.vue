@@ -291,7 +291,6 @@ const postData = async (data) => {
 const formDataCustomize = ref()
 const customizeData = async (formData) => {
   formDataCustomize.value = formData
-  console.log('formData', formData)
 
   if (formData.isActive == true) {
     formDataCustomize.value['status'] = 1

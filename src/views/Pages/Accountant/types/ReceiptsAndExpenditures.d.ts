@@ -15,6 +15,7 @@ export interface FormDataPostAndEdit  {
     Status: number
     Carrying: boolean
     CreatedId: number
+    Document: Array
 }
 
 export interface FormData {

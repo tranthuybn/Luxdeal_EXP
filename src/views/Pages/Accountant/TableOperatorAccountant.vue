@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
-import { PropType, watch, ref, unref, onBeforeMount, reactive } from 'vue'
+import { PropType, watch, ref, unref, reactive } from 'vue'
 import { TableData } from '@/api/table/types'
 import {
   ElRow,
@@ -14,7 +14,6 @@ import {
   ElMessage,
   ElMessageBox,
   ElNotification,
-  ElImage,
   ElDivider,
 } from 'element-plus'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -58,10 +57,6 @@ const props = defineProps({
   schema: {
     type: Array as PropType<FormSchema[]>,
     default: () => []
-  },
-  hasImage: {
-    type: Boolean,
-    default: true
   },
   hasAttachDocument: {
     type: Boolean,
@@ -154,8 +149,6 @@ const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const imageUrl = ref()
 const addIcon = useIcon({ icon: 'uil:plus' })
-const viewIcon = useIcon({ icon: 'uil:search' })
-const deleteIcon = useIcon({ icon: 'uil:trash-alt' })
 const deleteFileIds: any = []
 const fileList = ref<UploadUserFile[]>([])
 const loading = ref(false)
@@ -163,7 +156,6 @@ const fullSpan = ref<number>()
 const rawUploadFile = ref<UploadFile>()
 const optionPeopleType = ref()
 const optionCreatedBy = ref(currentUser)
-const accountNumberOptions = ref()
 const pageIndex = ref(1)
 const createdByOptions = ref([{}])
 const nameDialog = ref('')
@@ -174,7 +166,7 @@ const { register, methods, elFormRef } = useForm({schema})
 const { getFormData, setProps } = methods
 
 //if schema has image then split screen
-props.hasImage || props.hasAttachDocument || props.splitScreen ? (fullSpan.value = 12) : (fullSpan.value = 24)
+props.hasAttachDocument || props.splitScreen ? (fullSpan.value = 12) : (fullSpan.value = 24)
 
 //get data from table
 const getTableValue = async () => {
@@ -220,13 +212,9 @@ const setFormValue = async () => {
       imageUrl.value = ''
       imageUrl.value.disable = true
     }
-
-    if (props.hasImage && !props.multipleImages) {
+    if (props.hasAttachDocument) {
       imageUrl.value = props.formDataCustomize.imageurl
-    }
-    if (props.hasImage && props.multipleImages) {
-      // Images tao tu formDataCustomize
-      props.formDataCustomize?.Images.map((image) =>
+      formValue.value?.documents?.map((image) =>
         fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
       )
     }
@@ -309,12 +297,8 @@ const save = async (type) => {
   await unref(elFormRef)!.validate(async (isValid) => {
     //validate image
     let validateFile = false
-    if (props.hasImage) {
-      if (props.multipleImages) {
-        validateFile = await beforeAvatarUpload(ListFileUpload.value, 'list')
-      } else {
-        validateFile = await beforeAvatarUpload(rawUploadFile.value, 'single')
-      }
+    if (props.hasAttachDocument) {
+      validateFile = await beforeAvatarUpload(ListFileUpload.value, 'list')
     } else {
       validateFile = true
     }
@@ -398,15 +382,10 @@ const handlePictureCardPreview = (file: UploadFile) => {
   dialogVisible.value = true
 }
 //validate Ảnh
-const validImageType = ['jpeg', 'png']
+const validImageType = ['jpeg', 'png', 'pdf']
 const beforeAvatarUpload = async (rawFile, type: string) => {
   if (rawFile) {
-    //nếu là 1 ảnh
-    if (type === 'single') {
-      if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
-        return false
-      } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
+      if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
         ElMessage.error(t('reuse.onlyAcceptValidImageType'))
         return false
       } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
@@ -416,29 +395,6 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
         ElMessage.error(t('reuse.checkNameImageLength'))
         return false
       }
-    }
-    //nếu là 1 list ảnh
-    else if (type === 'list') {
-      let inValid = true
-      rawFile.map((file) => {
-        if (file.raw && file.raw['type'].split('/')[0] !== 'image') {
-          ElMessage.error(t('reuse.notImageFile'))
-          inValid = false
-        } else if (file.raw && !validImageType.includes(file.raw['type'].split('/')[1])) {
-          ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-          inValid = false
-          return false
-        } else if (file.size / 1024 / 1024 > 4) {
-          ElMessage.error(t('reuse.imageOver4MB'))
-          inValid = false
-        } else if (file.name?.split('.')[0].length > 100) {
-          ElMessage.error(t('reuse.checkNameImageLength'))
-          inValid = false
-          return false
-        }
-      })
-      return inValid
-    }
     return true
   } else {
     if (props.imageRequired) {
@@ -505,43 +461,48 @@ const edit = () => {
 
 //Image handle
 const ListFileUpload = ref()
-const handleChange: UploadProps['onChange'] = async (uploadFile, uploadFiles) => {
-  if (!props.multipleImages) {
-    const validImage = await beforeAvatarUpload(uploadFile, 'single')
-    if (validImage) {
-      rawUploadFile.value = uploadFile
-      imageUrl.value = URL.createObjectURL(uploadFile.raw!)
-    } else {
-    }
-  } else {
-    ListFileUpload.value = uploadFiles
-    uploadFiles.map(async (file) => {
-      ;(await beforeAvatarUpload(file, 'single')) ? '' : file.raw ? handleRemove(file) : ''
-    })
+const handleChangeUpload: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
+  ListFileUpload.value = uploadFiles
+  const lastItem = uploadFiles.at(-1)
+  if(lastItem) {
+    ;(await beforeAvatarUpload(lastItem, 'list')) ? '' : lastItem.raw ? handleRemove(lastItem) : ''
   }
 }
-const previewImage = () => {
-  dialogVisible.value = true
-  dialogImageUrl.value = imageUrl.value
+
+let FileDeleteIds: any = []
+const beforeRemove : any = (uploadFile) => {
+  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Hủy',
+    type: 'warning',
+    draggable: true
+  })
+    .then(() => {
+      ElMessage({
+        type: 'success',
+        message: 'Delete completed'
+      })
+      let imageRemove = uploadFile.id
+      FileDeleteIds.push(imageRemove)
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Delete canceled'
+      })
+    })
 }
-const removeImage = () => {
-  rawUploadFile.value = undefined
-  imageUrl.value = undefined
-}
+
+// const previewImage = () => {
+//   dialogVisible.value = true
+//   dialogImageUrl.value = imageUrl.value
+// }
+// const removeImage = () => {
+//   rawUploadFile.value = undefined
+//   imageUrl.value = undefined
+// }
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
-
-
-onBeforeMount(async () => {
-  const accountNumberList = await getAccountantList({})
-  accountNumberOptions.value = accountNumberList.data.filter(item => item.isActive)
-    .map(item => ({
-      label: `${item.accountNumber} | ${item.accountName}`,
-      value: item.id,
-      children: item.children.length > 0 ? 
-        item.children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
-    }))
-})
 
 const handleChangeOptions = (option,form, formType) => {
   switch (formType) {
@@ -713,6 +674,8 @@ const getMapAccountNumberData = ({accountNumber, accountName, id , children}) =>
   children: children.length > 0 ? 
     children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
 })
+
+
 </script>
 <template>
   <ContentWrap :title="title" :back-button="backButton">
@@ -819,7 +782,6 @@ const getMapAccountNumberData = ({accountNumber, accountName, id , children}) =>
               :api="getAccountantList"
               :mapFunction="getMapAccountNumberData"
               :defaultValue="form.accountNumber"
-              @update-value="(_value, option) => handleChangeOptions(option, form, 'accountNumber')"
               @check-change="(option) => handleChangeOptions(option, form, 'accountNumber')"
             />
           </template>
@@ -848,74 +810,34 @@ const getMapAccountNumberData = ({accountNumber, accountName, id , children}) =>
           </template>
         </Form>
       </ElCol>
-      
-      <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
-        <ElDivider class="text-center font-bold ml-2">{{ t('reuse.addImage') }}</ElDivider>
-        <el-upload
-          action="#"
-          :disabled="props.type === 'detail'"
-          :auto-upload="false"
-          :show-file-list="multipleImages"
-          v-model:file-list="fileList"
-          :list-type="listType"
-          :limit="limitUpload"
-          :on-change="handleChange"
-          :multiple="multipleImages"
-          :class="multipleImages ? '' : 'avatar-uploader'"
-        >
-          <div v-if="!multipleImages">
-            <div
-              v-if="imageUrl"
-              style="width: 148px; height: 148px; border-radius: 4px"
-              class="flex justify-center relative mb-2"
-            >
-              <ElImage fit="contain" :src="imageUrl" class="avatar" />
-            </div>
-            <ElButton
-              v-else
-              :icon="addIcon"
-              style="border: dashed 1px #e5e7eb"
-              class="avatar-uploader-icon"
-            />
-          </div>
-          <div v-else>
-            <ElButton :icon="addIcon" />
-          </div>
-          <template #file="{ file }">
-            <div class="ml-auto mr-auto">
-              <ElImage fit="contain" style="width: 148px; height: 148px" :src="file.url" alt="" />
-              <span class="el-upload-list__item-actions">
-                <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
-                  <ElButton :icon="viewIcon" />
-                </span>
-                <span
-                  v-if="props.type !== 'detail'"
-                  class="el-upload-list__item-delete"
-                  @click="handleRemove(file)"
-                >
-                  <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" />
-                </span>
-              </span>
-            </div>
-          </template>
-        </el-upload>
-        <div
-          class="w-250px flex justify-center"
-          :class="multipleImages ? 'avatar-uploader' : 'one-avatar-uploader'"
-          v-if="imageUrl"
-        >
-          <ElButton :icon="viewIcon" @click="previewImage" />
-          <ElButton :icon="deleteIcon" :disabled="props.type === 'detail'" @click="removeImage" />
-        </div>
-        <el-dialog :close-on-click-modal="doCloseOnClickModal" top="5vh" v-model="dialogVisible" width="130vh">
-          <el-image class="h-full" :src="dialogImageUrl" alt="Preview Image" />
-        </el-dialog>
-      </ElCol>
       <ElCol :span="hasAttachDocument ? 12 : 0" v-if="hasAttachDocument" class="max-h-400px overflow-y-auto">
         <ElDivider content-position="left" class="text-center font-bold ml-2">{{ t('reuse.attachDocument') }}</ElDivider>
-        <ul class="px-10">
-          <li v-for="(item, index) in  formValue?.attachDocument" :key="index">{{ item }}</li>
-        </ul>
+        <div class="flex">
+        <div class="pr-4">
+          <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
+          <div class="text-right text-[#FECB80] italic">{{ t('formDemo.lessThanTenProfiles') }}</div>
+        </div>
+        <div>
+          <el-upload
+            ref="upload"
+            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            :auto-upload="false"
+            list-type="text"
+            v-model:file-list="fileList"
+            :limit="10"
+            :on-change="handleChangeUpload"
+            :multiple="true"
+            :before-remove="beforeRemove"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+          >
+           <ElButton :disabled="props.type === 'detail'" :icon="addIcon">{{ t('formDemo.addPhotosOrFiles') }}</ElButton>
+           <el-dialog v-model="dialogVisible">
+             <img h-full :src="dialogImageUrl" alt="Preview Image" />
+          </el-dialog>
+          </el-upload>
+        </div>
+       </div>
       </ElCol>
     </ElRow>
     <template #under>

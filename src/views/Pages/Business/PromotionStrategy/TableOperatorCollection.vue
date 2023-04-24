@@ -697,7 +697,6 @@ const callAPIProduct = async () => {
   if(serviceType.value) params.ServiceType = serviceType.value
   const res = await getProductsList(params)
   if (res.data && res.data?.length > 0) {
-    console.log(res.data)
     listProducts.value = res.data.map((product) => ({
       value: product.productCode,
       label: product.code,

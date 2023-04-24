@@ -137,12 +137,6 @@ const columns = reactive<TableColumn[]>([
     formatter: (_: Recordable, __: TableColumn, cellValue: boolean) => {
       return t(`${formatStatusAccounting(cellValue)}`)
     },
-  },
-  {
-    field: 'operator',
-    label: t('reuse.operator'),
-    minWidth: '90',
-    align: 'center',
   }
 ])
 </script>

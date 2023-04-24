@@ -199,7 +199,6 @@ const schema = reactive<FormSchema[]>([
 
 
 const customizeData = async (data) => {
-  console.log('data', data)
   setFormData.code = data.code
   setFormData.description = data.description
   setFormData.totalMoney = data.totalMoney

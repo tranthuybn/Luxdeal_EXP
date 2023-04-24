@@ -332,6 +332,7 @@ const handleRemove = (file: UploadFile) => {
       DeleteFileIds.push(imageRemove?.id)
     }
   }
+  
 }
 
 //validate Ảnh
@@ -512,53 +513,49 @@ const handlePictureCardPreview = (file: UploadFile) => {
               <ElFormItem :label="t('formDemo.represent')" v-if="customerObj.representative">
                 {{ customerObj.representative }}
               </ElFormItem>
-              <ElRow :gutter="10">
-                <ElCol :span="12">
+              <div class="flex gap-8">
+                <div class="w-56">
                   <ElFormItem
                     :label="t('reuse.phoneNumber')"
                     v-if="customerObj.phonenumber"
                   >
                     {{ customerObj.phonenumber }}
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="8">
-                  <ElFormItem
+                </ElFormItem>
+                </div>
+                <ElFormItem
                     label-width="auto"
                     :label="`${t('reuse.email')}:`"
                     v-if="customerObj.email"
                   >
                     {{ customerObj.email }}
-                  </ElFormItem>
-                </ElCol>
-              </ElRow>
-              <ElRow :gutter="10">
-                <ElCol :span="12">
+                </ElFormItem>
+              </div>
+              <div class="flex gap-8">
+                <div class="w-56">
                   <ElFormItem
                     :label="t('reuse.citizenIdentificationNumber')"
                     v-if="customerObj.cccd"
                   >
                     {{ customerObj.cccd }}
                   </ElFormItem>
-                </ElCol>
-                <ElCol :span="6">
-                  <ElFormItem
-                    label-width="auto"
-                    :label="`${t('formDemo.supplyDate')}:`"
-                    v-if="customerObj.cccdCreateAt"
-                  >
-                    {{ dateTimeFormat(customerObj.cccdCreateAt) }}
-                  </ElFormItem>
-                </ElCol>
-                <ElCol :span="6">
-                  <ElFormItem
-                    label-width="auto"
-                    :label="`${t('formDemo.supplyAddress')}:`"
-                    v-if="customerObj.cccdPlaceOfGrant"
-                  >
-                    <span class="leading-5">{{ customerObj.cccdPlaceOfGrant }}</span>
-                  </ElFormItem>
-                </ElCol>
-              </ElRow>
+                </div>
+
+                <ElFormItem
+                  label-width="auto"
+                  :label="`${t('formDemo.supplyDate')}:`"
+                  v-if="customerObj.cccdCreateAt"
+                >
+                  {{ dateTimeFormat(customerObj.cccdCreateAt) }}
+                </ElFormItem>
+
+                <ElFormItem
+                  label-width="auto"
+                  :label="`${t('formDemo.supplyAddress')}:`"
+                  v-if="customerObj.cccdPlaceOfGrant"
+                >
+                  <span class="leading-5">{{ customerObj.cccdPlaceOfGrant }}</span>
+                </ElFormItem>
+              </div>
               <ElFormItem
                 :label="t('reuse.dateOfBirth')"
                 v-if="customerObj.doB"

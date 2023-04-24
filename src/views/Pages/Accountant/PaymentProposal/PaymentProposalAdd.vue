@@ -18,7 +18,8 @@ import {
   ElDatePicker,
   ElNotification,
   ElMessageBox,
-  ElMessage
+  ElMessage,
+  UploadUserFile
 } from 'element-plus'
 import type {FormRules, FormInstance} from 'element-plus'
 import InfinitOptions from '@/components/Select/InfinitOptions.vue'
@@ -44,7 +45,10 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { statusService } from '@/utils/status'
 import { IStatusHistory } from '../types'
 import paymentOrderPrint from '@/views/Pages/Components/formPrint/src/paymentOrderPrint.vue'
+import DocumentUpload from '@/views/Pages/Components/DocumentUpload.vue'
 
+const listFileUpload = ref<UploadUserFile[]>([])
+const deleteFileIds = ref()
 const statusHistory = reactive<Array<IStatusHistory>>([])
 const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 const { t } = useI18n()
@@ -54,6 +58,7 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const ruleFormRef = ref<FormInstance>()
 const rulePaymentFormRef = ref<FormInstance>()
 const formValue = ref()
+const dataResponse = ref()
 const router = useRouter()
 const route = useRoute()
 const currentDate = ref(moment().format("DD/MM/YYYY"))
@@ -61,7 +66,7 @@ const curCode = 'DNTT' + Date.now()
 const createdByOptions = ref([{}])
 const peopleOptions = ref([{}])
 const optionPeople = ref()
-const optionCreatedBy = ref()
+const optionCreatedBy = ref(currentUser)
 const id = Number(router.currentRoute.value.params.id)
 const approvalId = String(route.params.approvalId)
 const type = String(route.params.type) == ':type' ? 'add' : String(route.params.type)
@@ -73,6 +78,7 @@ const nameDialog = ref('')
 const printPayment = ref(false)
 const pageIndex = ref(1)
 const doCloseOnClickModal = ref(false)
+const imageRequired = ref(false)
 const detailedListExpenses = ref<Array<IDetailExpenses>>([])
 const { ValidService } = useValidator()
 const rules = reactive<FormRules>({  
@@ -233,11 +239,12 @@ const postData = async() => {
       totalPrice: el.totalPrice,
       note: el.note
     }))
+    const listFile = listFileUpload.value.length > 0 ? listFileUpload.value?.map((file) => (file.raw || null)) : []
     const payload = {
       Code: form.value.code,
       TotalMoney: form.value.totalMoney,
       PaymentType : form.value.typeOfPayment,
-      PeopleId: optionPeople.value.id,
+      PeopleId: optionPeople.value?.id,
       CreatedBy: optionCreatedBy.value.name,
       CreatedById: form.value.createdBy,
       status: 1,
@@ -247,7 +254,8 @@ const postData = async() => {
       ExpensesDetail: JSON.stringify(detailedListExpenses.value),
       DepositeMoney: form.value.depositeMoney,
       DebtMoney: form.value.debtMoney,
-      TotalPrice: form.value.totalPrice
+      TotalPrice: form.value.totalPrice,
+      Document: listFile
     }
     await postNewPaymentRequest(FORM_IMAGES(payload))
       .then(() => {
@@ -277,6 +285,7 @@ const getDetailPayment = async() => {
   if(!isNaN(id)) {
     const res = await GetPaymentRequestDetail({id: id})
     if(res) {
+      dataResponse.value = res.data
       formValue.value  = res.data.paymentRequest
       tableData.value = res.data.paymentRequestDetail
       await setFormValue()
@@ -314,11 +323,13 @@ const handleChangeOptions = (option, form, formType) => {
   switch (formType) {
     case 'createdBy' :
       form.createdBy = Number(option.id)
+      console.log('optionCreatedBy', optionCreatedBy)
       optionCreatedBy.value = option
       return
     case 'peopleId' : 
       form.peopleId = Number(option.id)
       optionPeople.value = option
+      console.log('optionCreatedBy', optionPeople)
       return
     default: return ''
   }
@@ -416,6 +427,11 @@ const getFormPayment = () => {
   }
 }
 const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, phonenumber, name, id, email  })
+
+const handleDocumentUpload = (listFile, delFileIds) => {
+  listFileUpload.value = listFile
+  deleteFileIds.value = delFileIds
+}
 </script>
 <template>
   <div id="IPRFormPrint">
@@ -525,7 +541,8 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
           </el-form>
         </el-col>
         <el-col :span="12">
-          <el-divider content-position="left">{{ t('formDemo.documentsAttached') }}</el-divider>
+          <ElDivider content-position="left" class="text-center font-bold ml-2 fixed top-0">{{ t('reuse.attachDocument') }}</ElDivider>
+          <DocumentUpload :imageRequired="imageRequired" :type="type" :formValue="dataResponse" @update-value="handleDocumentUpload"/>
         </el-col>
       </el-row>
     </el-collapse-item>

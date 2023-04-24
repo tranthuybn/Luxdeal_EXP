@@ -154,6 +154,7 @@ export default {
     pleaseEnterANote: 'Please enter a note',
     pleaseSelectRentalPaymentPeriod: 'Please select rental payment period',
     pleaseSelectARentalTerm: 'Please select a rental term',
+    pleaseSelectAPawnTerm: 'Please choose a pawn term',
     pleaseEnterOrderCode: 'Please enter order code',
     ChooseADayWeek: 'Choose a day of the week',
     selectRecurringDayMonth: 'Select recurring day of the month',
@@ -907,6 +908,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    confirmDeleteFile: 'Are you sure you want to delete',
     noHistoryOfCare: 'No history of care',
     current: 'Current',
     totalSaleMessageAlert: 'Total % of sales cannot be more than 100%',

@@ -133,7 +133,7 @@ const callAPI = async (pageIndex: number) => {
 
 const acceptKey = (item) => {
   const { hiddenKey } = propsObj
-  if (hiddenKey.length > 0) {
+  if (hiddenKey?.length > 0) {
     return Object.keys(item).filter((el) => hiddenKey.indexOf(el) === -1)
   } else options.value = Object.keys(item)
 }
@@ -144,7 +144,7 @@ const remoteMethod = async (query: string) => {
     loading.value = false
     await propsObj.api({[propsObj.keyToRemoteSearch]: query})
     .then(res => {
-      options.value.splice(0, options.value.length, ...res.data.map(propsObj.mapFunction))
+      options.value.splice(0, options.value?.length, ...res.data.map(propsObj.mapFunction))
     })
     .catch((errorMessage) => {
       ElMessage({
@@ -215,10 +215,10 @@ watch(pageIndex, async (newPageIndex) => {
   >
     <!-- value is tje first object when click on title -->
     <ElOption
-      :value="items.length > 0 && items[0][identifyKey] ? items[0][identifyKey] : ''"
+      :value="items?.length > 0 && items[0][identifyKey] ? items[0][identifyKey] : ''"
       label=""
       style="position: sticky; top: 0; z-index: 13"
-      v-if="fields.length > 0"
+      v-if="fields?.length > 0"
     >
       <div>
         <ElRow type="flex" >
@@ -247,7 +247,7 @@ watch(pageIndex, async (newPageIndex) => {
               v-for="(key, i) in acceptKey(item)"
               :key="i"
               class="text-ellipsis text-center"
-              :span="Math.floor(24 / fields.length)"
+              :span="Math.floor(24 / fields?.length)"
             >
              <div v-if="key !== 'logo'"> {{ item[key] }}</div>
              <div v-else>

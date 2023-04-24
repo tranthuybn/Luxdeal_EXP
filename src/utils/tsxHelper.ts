@@ -1,8 +1,16 @@
-import { Slots,ref, computed } from 'vue'
+import { Slots, computed } from 'vue'
 import { isFunction } from '@/utils/is'
 import moment from 'moment';
 import { usePermissionStore } from '@/store/modules/permission'
 import { useCache } from '@/hooks/web/useCache'
+import {
+  UploadProps,
+  ElMessage,
+} from 'element-plus'
+import { useI18n } from '@/hooks/web/useI18n'
+
+const { t } = useI18n()
+
 export const getSlot = (slots: Slots, slot = 'default', data?: Recordable) => {
   // Reflect.has determines whether an object exists in a certain attribute
   if (!slots || !Reflect.has(slots, slot)) {
@@ -69,4 +77,13 @@ export function printPage(id: string) {
     WinPrint?.print()
     WinPrint?.close()
   }, 800)
+}
+
+
+export const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `${t('reuse.limitUploadImages')}. ${t('reuse.imagesYouChoose')}: ${files.length}. ${t(
+      'reuse.total'
+    )} ${files.length + uploadFiles.length}`
+  )
 }

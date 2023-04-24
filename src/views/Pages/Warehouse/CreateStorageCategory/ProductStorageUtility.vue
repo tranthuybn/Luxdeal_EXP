@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch} from 'vue'
+import { reactive, ref} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import { TableOperator } from '../../Components/TableBase'
 import { useRouter } from 'vue-router'
@@ -177,6 +177,7 @@ type SetFormData = {
   target: number
   percent: number
   money: number
+  parentid: number
   imageurl?: string
   name2: string
 }
@@ -193,7 +194,8 @@ const customizeData = async (formData) => {
     schema[1].componentProps.disabled = true
   }
   formDataCustomize.status = []
-
+  formDataCustomize.Image = formData.warehouseImages[0].path
+  formDataCustomize.imageurl = `${API_URL}${formData.warehouseImages[0].path}`
   if (formData?.isActive == true) {
     formDataCustomize.status.push('active')
   }
@@ -204,17 +206,31 @@ const customizeData = async (formData) => {
     formDataCustomize.rankWarehouse = 1
   } else {
     formDataCustomize.rankWarehouse = 2
+    formDataCustomize.parentid = Number(formData.parentid)
+    await getProductStorage({Id: formData.parentid})
+    .then(res => {
+      if(res.data.length > 0 && !res.data[0].isActive) {
+        formRef.value?.setSchema([
+          {
+            field: 'status',
+            path: 'componentProps.disabled',
+            value: true
+          }
+        ])
+      }
+    })
+    .catch(error => {
+      console.log('get parent warehouse fail', error)
+    })
     await addFormSchema(timesCallAPI, formData.name)
   }
-
-  formDataCustomize.Image = formData.warehouseImages[0].path
-  formDataCustomize.imageurl = `${API_URL}${formData.warehouseImages[0].path}`
   if (formData?.parentid == 0) {
     formDataCustomize.name = formData?.name
   } else {
     formDataCustomize.name2 = formData?.name
   }
   formDataCustomize.isDelete = false
+
 }
 
 //call api for select options
@@ -237,16 +253,16 @@ const getRank1SelectOptions = async () => {
     })
 }
 const addFormSchema = async (timesCallAPI, nameChildren?: string) => {
+  schema[3].hidden = true
+  schema[4].hidden = false
+  schema[5].hidden = false
+  schema[5].value = nameChildren
   if (timesCallAPI == 0) {
     await getRank1SelectOptions()
     if (schema[4].componentProps?.options != undefined) {
       schema[4].componentProps.options = rank1SelectOptions
     }
   }
-  schema[3].hidden = true
-  schema[4].hidden = false
-  schema[5].hidden = false
-  schema[5].value = nameChildren
 }
 const removeFormSchema = () => {
   schema[3].hidden = false
@@ -372,21 +388,6 @@ const editData = async (data) => {
   }
 }
 
-
-watch(formRef, async () => {
-  await formRef.value?.getFormData()
-  .then(res => {
-    console.log('res', res)
-  })
-  .catch(() => {})
-  formRef.value?.setSchema([
-    {
-      field: 'status',
-      path: 'componentProps.disabled',
-      value: true
-    }
-  ])
-})
 
 </script>
 

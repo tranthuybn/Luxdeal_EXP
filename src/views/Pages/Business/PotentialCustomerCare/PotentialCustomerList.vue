@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h, reactive } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
-import { filterHandler, formartDate } from '@/utils/tsxHelper'
+import { filterHandler } from '@/utils/tsxHelper'
 import { getPotentialCustomerList, deletePotentialCustomer } from '@/api/Business'
 import {
   filterStatus,
@@ -157,7 +157,7 @@ const columns = reactive<TableColumn[]>([
       return h('ul', [
         h('li', [
           h('span', [t('reuse.date'), ':']),
-          h('span', { style: { paddingLeft: '3px' } }, formartDate(Recordable['feedbackDate']))
+          h('span', { style: { paddingLeft: '3px' } }, '') //api hasn't returned so it is empty formartDate(Recordable['feedbackDate']
         ]),
         h('li', [
           h('span', [t('reuse.rating'), ':']),

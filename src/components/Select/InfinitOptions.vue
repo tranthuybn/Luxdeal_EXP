@@ -98,7 +98,6 @@ const propsObj = defineProps({
     default: 'Search'
   }
 })
-const treeSelectValue = ref()
 const { t } = useI18n()
 const loading = ref(false)
 const emit = defineEmits(['updateValue', 'scrollTop', 'scrollBottom', 'checkChange'])
@@ -263,7 +262,7 @@ watch(pageIndex, async (newPageIndex) => {
   </ElSelect>
   <ElTreeSelect 
     v-else 
-    v-model="treeSelectValue"
+    v-model="selected"
     class="el-select-custom"
     @check-change="checkChange"
     :data="options"

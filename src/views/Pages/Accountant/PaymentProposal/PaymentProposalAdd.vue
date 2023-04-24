@@ -233,13 +233,12 @@ const postData = async() => {
       totalPrice: el.totalPrice,
       note: el.note
     }))
-
     const payload = {
       Code: form.value.code,
       TotalMoney: form.value.totalMoney,
       PaymentType : form.value.typeOfPayment,
       PeopleId: optionPeople.value.id,
-      CreatedBy: '',
+      CreatedBy: optionCreatedBy.value.name,
       CreatedById: form.value.createdBy,
       status: 1,
       PeopleType: 1,
@@ -295,7 +294,7 @@ const setFormValue = () => {
   const data = formValue.value
   form.value.code = data.code
   form.value.createdAt = data.createdAt
-  form.value.createdBy = data.createdBy
+  form.value.createdBy = data.createdById
   form.value.description = data.description
   form.value.peopleId = data.peopleId
   form.value.debtMoney = data.debtMoney
@@ -304,7 +303,6 @@ const setFormValue = () => {
   form.value.totalMoney = data.totalMoney
   form.value.enterMoney = data.enterMoney
   form.value.totalPrice = data.totalPrice
-  form
   setStatusHistory()
 }
 
@@ -315,11 +313,11 @@ onBeforeMount(async () => {
 const handleChangeOptions = (option, form, formType) => {
   switch (formType) {
     case 'createdBy' :
-      form.createdBy = `${option.name} | ${option.value}`
+      form.createdBy = Number(option.id)
       optionCreatedBy.value = option
       return
     case 'peopleId' : 
-      form.peopleId = `${option.name} | ${option.value}`
+      form.peopleId = Number(option.id)
       optionPeople.value = option
       return
     default: return ''
@@ -417,7 +415,7 @@ const getFormPayment = () => {
     printPayment.value = !printPayment.value
   }
 }
-const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, value: phonenumber, name, id, email  })
+const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, phonenumber, name, id, email  })
 </script>
 <template>
   <div id="IPRFormPrint">
@@ -689,7 +687,7 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
                           <span class="triangle-right"></span>
                         </span>
                       </div>
-                      <div class="italic text-xs text-gray-500">{{dateTimeFormat(item.approvedAt)}}</div>
+                      <div class="italic text-xs text-gray-500">{{ item.approvedAt }}</div>
                   </div>
                 </div>
               </div>

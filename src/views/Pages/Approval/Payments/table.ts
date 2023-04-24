@@ -36,7 +36,7 @@ const recepitAndPayment = reactive<TableColumn[]>([
       }
     },
     {
-      field: 'customerName',
+      field: 'PeopleName',
       label: t('reuse.subject'),
       minWidth: '200',
       headerFilter: 'Name',

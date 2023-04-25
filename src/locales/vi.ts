@@ -960,6 +960,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    requestDeleteAccountSuccess: 'Gửi yêu cầu hủy tài khoản thành công, đợi duyệt!',
     confirmDeleteFile: 'Bạn có chắc muốn xóa',
     noHistoryOfCare: 'Chưa có lịch sử chăm sóc',
     current: 'Hiện tại',
@@ -1909,7 +1910,7 @@ export default {
     // product
     under256Characters: 'Dưới 256 ký tự',
     citizenIdentificationNumber: 'Số cccd/cmnd',
-    CustomersDoNotBankAccount: 'khách hàng chưa có tài khoản ngân hàng',
+    CustomersDoNotBankAccount: 'Khách hàng chưa có tài khoản ngân hàng!',
     pleaseAddBankAccount: 'Vui lòng thêm tài khoản ngân hàng',
     enterSearchingData: 'Hãy nhập dữ liệu cần tìm kiếm',
     sameQuantity: 'Không được nhập cùng 1 số lượng',

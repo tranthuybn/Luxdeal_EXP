@@ -3,11 +3,10 @@ import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
 import { dateTimeFormat, moneyFormat } from '@/utils/format'
 import TableOperatorCollaborators from './TableOperatorCollaborators.vue'
-import { onBeforeMount, reactive, ref, h } from 'vue'
+import { reactive, ref, h } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   getCollaboratorsById,
-  // getGenCodeCollaborators,
   addNewCollaborators,
   updateCollaborators,
   cancelCustomerCollabolator,
@@ -17,7 +16,6 @@ import {
 import { useValidator } from '@/hooks/web/useValidator'
 import { useRouter } from 'vue-router'
 import { getAllCustomer, getCustomerById } from '@/api/Business'
-import { GenerateCodeOrder } from '@/api/common'
 import {
   ElCollapse,
   ElCollapseItem,
@@ -30,7 +28,6 @@ import { FORM_IMAGES } from '@/utils/format'
 import type { FormRules } from 'element-plus'
 // import { appModules } from '@/config/app'
 import { IFormData, FormDataPostAndEdit, ICustomer } from './types'
-import { CODE } from '@/utils/API.Variables'
 
 // const { utility } = appModules
 const { required, ValidService } = useValidator()
@@ -51,6 +48,7 @@ const totalCumulativeCom = ref(0)
 const customerObj = ref({} as ICustomer)
 const orderList = ref()
 const commissionPaymentList = ref()
+const isValid = ref(false)
 
 const type = String(router.currentRoute.value.params.type) === ':type' ? 'add' : String(router.currentRoute.value.params.type)
 const collapse: Array<Collapse> = [
@@ -68,19 +66,6 @@ const collapse: Array<Collapse> = [
 
 const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, phonenumber, name, id, email  })
 
-onBeforeMount(async () => {
-  await GenerateCodeOrder({CodeType :CODE.COLLABORATOR})
-  .then(res => {
-    schema[1].value = res.data
-  })
-  .catch(() => {
-    ElNotification({
-        message: t('reuse.generateCodeFail'),
-        type: 'warning'
-    })
-  })
-
-})
 const getOrderByCollaborator = async (formValue) => {
   const res = await GetOrderByCollabolatorId({ Id: id })
   const obj = [...res?.data.data]
@@ -130,10 +115,21 @@ const getCommissionPaymentByCollaborator = async (formValue) => {
 }
 const setCustomer = async (id) => {
   await getCustomerById({Id: id})
-    .then(res => customerObj.value = res.data)
+    .then(res => {
+      customerObj.value = res.data
+      isValid.value = !!customerObj.value.accountNumber
+      isCustomerValid()
+    }) 
     .catch(error => {throw new Error(error)})
 }
-
+const isCustomerValid = () => {
+  console.log('isValid.value', isValid.value)
+  if(isValid.value) return isValid.value
+  ElNotification({
+    message: t('reuse.CustomersDoNotBankAccount'),
+    type: 'warning'
+  })
+}
 const schema = reactive<FormSchema[]>([
   {
     field: 'generalInformation',
@@ -209,7 +205,7 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 18
     },
-    value: true,
+    value: false,
     componentProps: {
       label: t('formDemo.isActive'),
       disabled: true
@@ -245,7 +241,7 @@ const rules = reactive<FormRules>({
     required(),
     ValidService.maxPercent
   ],
-  customersValue: [required()]
+  customerId: [required()]
 })
 
 
@@ -276,12 +272,14 @@ const customData = (data) => {
   customData.AccountNumber = customerObj.value.accountNumber
   customData.AccountName = customerObj.value.accountName
   customData.BankId = customerObj.value.bankId
+  customData.Files = data.Images
   return customData
 }
 
 const activeName = ref(collapse[0].name)
 
 const editData = async (data) => {
+  if(!isCustomerValid()) return
   data = customData(data)
   await updateCollaborators(FORM_IMAGES(data))
     .then(() => {
@@ -303,7 +301,9 @@ const editData = async (data) => {
 }
 
 const postData = async (data) => {
+  if(!isCustomerValid()) return
   data = customData(data)
+  console.log('data', data)
   await addNewCollaborators(FORM_IMAGES(data))
     .then(() => {
       ElNotification({

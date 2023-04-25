@@ -908,6 +908,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    requestDeleteAccountSuccess: 'Submit request to cancel account successfully, waiting for approval!',
     confirmDeleteFile: 'Are you sure you want to delete',
     noHistoryOfCare: 'No history of care',
     current: 'Current',

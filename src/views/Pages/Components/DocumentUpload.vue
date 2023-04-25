@@ -108,7 +108,7 @@ if (rawFile) {
 const handleRemove = (file: UploadFile) => {
     listFileUpload.value = listFileUpload.value?.filter((image) => image.url !== file.url)
     // remove image when edit data
-    if (props.formValue.Images.length > 0 && props.type === 'edit') {
+    if (props.formValue?.Images.length > 0 && props.type === 'edit') {
         let imageRemove = props.formValue?.Images.find(
         (image) => `${API_URL}${image.path}` === file.url
         )

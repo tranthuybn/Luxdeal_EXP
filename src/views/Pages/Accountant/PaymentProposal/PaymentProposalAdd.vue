@@ -460,7 +460,7 @@ const handleDocumentUpload = (listFile, delFileIds) => {
   </div>
 
       <!-- Dialog In phiếu thanh toán -->
-      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="printPayment" class="font-bold" width="40%" align-center >
+      <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="printPayment" class="font-bold" width="30%" align-center >
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
             <el-button @click="printPage('IPRFormPrint')">{{ t('button.print') }}</el-button>

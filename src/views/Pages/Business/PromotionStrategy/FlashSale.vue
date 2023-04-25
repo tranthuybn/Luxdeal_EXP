@@ -99,13 +99,6 @@ const columns = reactive<TableColumn[]>([
      return t(`${formatStatusVoucher(cellValue)}`)
     }
   },
-  {
-    field: 'operator',
-    label: t('reuse.operator'),
-    minWidth: '150',
-    align: 'center',
-    headerAlign: 'left',
-  }
 ])
 </script>
 

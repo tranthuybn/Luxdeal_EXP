@@ -6,22 +6,19 @@ import { TableData } from '@/api/table/types'
 import {
   ElRow,
   ElCol,
-  ElUpload,
   ElButton,
   ElDialog,
   UploadUserFile,
-  UploadProps,
   ElMessage,
   ElMessageBox,
   ElNotification,
-  ElDivider,
+  ElDivider
 } from 'element-plus'
-import { useIcon } from '@/hooks/web/useIcon'
+
 import { useI18n } from '@/hooks/web/useI18n'
 import { ContentWrap } from '@/components/ContentWrap'
 import type { UploadFile } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
-import { API_URL } from '@/utils/API_URL'
 import { approvalProducts } from '@/api/Approval'
 import { FORM_IMAGES } from '@/utils/format'
 import { statusService } from '@/utils/status'
@@ -32,6 +29,7 @@ import { getStaffList, getAllCustomer, getAccountantList, balanceAccount, getCus
 import { IStatusHistory, ListImages } from './types'
 import { usePermission, printPage, formartDate } from '@/utils/tsxHelper'
 import receiptsPaymentPrint from '@/views/Pages/Components/formPrint/src/receiptsPaymentPrint.vue'
+import DocumentUpload from '@/views/Pages/Components/DocumentUpload.vue'
 
 const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 const { t } = useI18n()
@@ -144,23 +142,21 @@ const props = defineProps({
 // eslint-disable-next-line vue/no-setup-props-destructure
 const schema = props.schema
 const formValue = ref()
+const fileUploadList = ref()
 const currentDate = ref(moment().format("DD/MM/YYYY"))
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-const imageUrl = ref()
-const addIcon = useIcon({ icon: 'uil:plus' })
-const deleteFileIds: any = []
-const fileList = ref<UploadUserFile[]>([])
+const deleteFileIds = ref()
 const loading = ref(false)
 const fullSpan = ref<number>()
+const fullSpanAttachDocument = ref(false)
 const rawUploadFile = ref<UploadFile>()
 const optionPeopleType = ref()
 const optionCreatedBy = ref(currentUser)
 const pageIndex = ref(1)
 const createdByOptions = ref([{}])
 const nameDialog = ref('')
+const disabledForm = ref(false)
 const isDisabled = ref(false)
-
+const listFileUpload = ref<UploadUserFile[]>([])
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
 const { getFormData, setProps } = methods
@@ -206,21 +202,6 @@ const setFormValue = async () => {
   const { setValues, setSchema, setProps } = methods
   if (props.formDataCustomize !== undefined) {
     setValues(props.formDataCustomize)
-    const ImageNull = props.formDataCustomize.imageurl
-    const linkNull = 'https://dev-luxdeal-api.cftsoft.com/null'
-    if (ImageNull == linkNull) {
-      imageUrl.value = ''
-      imageUrl.value.disable = true
-    }
-    if (props.hasAttachDocument) {
-      imageUrl.value = props.formDataCustomize.imageurl
-      formValue.value?.documents?.map((image) =>
-        fileList.value.push({ url: `${API_URL}${image.path}`, name: image.domainUrl })
-      )
-    }
-    if (props.formDataCustomize && props.formDataCustomize.images) {
-      imageUrl.value = `${API_URL}${props.formDataCustomize.images[0].path}`
-    }
   } else {
     setValues(formValue.value)
   }
@@ -265,7 +246,11 @@ const setFormValue = async () => {
       email: res.data.email
     })
     .catch(error => {throw new Error(error)})
+    fullSpanAttachDocument.value = !!formValue.value.orderCode
 
+    if(formValue.value?.documents && formValue.value?.documents?.length > 0) {
+     fileUploadList.value = formValue.value.documents.map(item => item)
+    }
   }
 }
 
@@ -278,6 +263,7 @@ watch(
     if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
       getTableValue()
     }
+    disabledForm.value = props.type === 'approval' || props.type === 'detail'
   },
   {
     deep: true,
@@ -295,20 +281,13 @@ defineExpose({
 //doc du lieu tu bang roi emit len goi API
 const save = async (type) => {
   await unref(elFormRef)!.validate(async (isValid) => {
-    //validate image
-    let validateFile = false
-    if (props.hasAttachDocument) {
-      validateFile = await beforeAvatarUpload(ListFileUpload.value, 'list')
-    } else {
-      validateFile = true
-    }
-    if (isValid && validateFile) {
+    if (isValid) {
       loading.value = true
       const { getFormData } = methods
       let data = (await getFormData()) as TableData
       props.multipleImages
-        ? (data.Images = ListFileUpload.value
-            ? ListFileUpload.value?.map((file) => (file.raw ? file.raw : null))
+        ? (data.Images = listFileUpload.value
+            ? listFileUpload.value?.map((file) => (file.raw ? file.raw : null))
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
@@ -330,10 +309,7 @@ const save = async (type) => {
       if (type == 'edit') {
         data.backRouter = true
         data.Id = props.id
-        // fix cung theo api (nen theo 1 quy tac)
-        data.NewPhotos = fileList.value
-        data.DeleteFileIds = deleteFileIds
-        data.Imageurl = data.Image ? null : imageUrl.value
+        data.DeleteFileIds = deleteFileIds.value
         if(props.module == 1) {
           const form = await getFormData()
           if(!form?.paid) {
@@ -350,8 +326,6 @@ const save = async (type) => {
         emit('edit-data', data)
         loading.value = false
       }
-      fileList.value = []
-      imageUrl.value = undefined
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
     }
@@ -363,55 +337,6 @@ if (props.title == 'undefined') {
   title.value = 'Category'
 }
 
-const handleRemove = (file: UploadFile) => {
-  fileList.value = fileList.value?.filter((image) => image.url !== file.url)
-  ListFileUpload.value = ListFileUpload.value?.filter((image) => image.url !== file.url)
-  // remove image when edit data
-  if (props.formDataCustomize.Images.length > 0) {
-    let imageRemove = props.formDataCustomize?.Images.find(
-      (image) => `${API_URL}${image.path}` === file.url
-    )
-    if (imageRemove) {
-      deleteFileIds.push(imageRemove?.id)
-    }
-  }
-}
-
-const handlePictureCardPreview = (file: UploadFile) => {
-  dialogImageUrl.value = file.url!
-  dialogVisible.value = true
-}
-//validate Ảnh
-const validImageType = ['jpeg', 'png', 'pdf']
-const beforeAvatarUpload = async (rawFile, type: string) => {
-  if (rawFile) {
-      if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
-        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
-        return false
-      } else if (rawFile.raw?.size / 1024 / 1024 > 4) {
-        ElMessage.error(t('reuse.imageOver4MB'))
-        return false
-      } else if (rawFile.name?.split('.')[0].length > 100) {
-        ElMessage.error(t('reuse.checkNameImageLength'))
-        return false
-      }
-    return true
-  } else {
-    if (props.imageRequired) {
-      //báo lỗi nếu ko có ảnh
-      if (type === 'list' && fileList.value.length > 0) {
-        return true
-      }
-      if (type === 'single' && (rawUploadFile.value != undefined || imageUrl.value != undefined)) {
-        return true
-      } else {
-        ElMessage.warning(t('reuse.notHaveImage'))
-        return false
-      }
-    }
-    return true
-  }
-}
 //xóa dữ liệu sản phẩm
 const delAction = async () => {
   {
@@ -459,48 +384,6 @@ const edit = () => {
   })
 }
 
-//Image handle
-const ListFileUpload = ref()
-const handleChangeUpload: UploadProps['onChange'] = async (_uploadFile, uploadFiles) => {
-  ListFileUpload.value = uploadFiles
-  const lastItem = uploadFiles.at(-1)
-  if(lastItem) {
-    ;(await beforeAvatarUpload(lastItem, 'list')) ? '' : lastItem.raw ? handleRemove(lastItem) : ''
-  }
-}
-
-let FileDeleteIds: any = []
-const beforeRemove : any = (uploadFile) => {
-  return ElMessageBox.confirm(`Cancel the transfert of ${uploadFile.name} ?`, {
-    confirmButtonText: 'OK',
-    cancelButtonText: 'Hủy',
-    type: 'warning',
-    draggable: true
-  })
-    .then(() => {
-      ElMessage({
-        type: 'success',
-        message: 'Delete completed'
-      })
-      let imageRemove = uploadFile.id
-      FileDeleteIds.push(imageRemove)
-    })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: 'Delete canceled'
-      })
-    })
-}
-
-// const previewImage = () => {
-//   dialogVisible.value = true
-//   dialogImageUrl.value = imageUrl.value
-// }
-// const removeImage = () => {
-//   rawUploadFile.value = undefined
-//   imageUrl.value = undefined
-// }
 const listType = ref<ListImages>('text')
 !props.multipleImages ? (listType.value = 'text') : (listType.value = 'picture-card')
 
@@ -541,6 +424,7 @@ const approvalProduct = async (val) => {
       })
     )
 }
+
 
 const handleAccounting = async () => {
   const form = await getFormData()
@@ -674,7 +558,10 @@ const getMapAccountNumberData = ({accountNumber, accountName, id , children}) =>
   children: children.length > 0 ? 
     children.map(item => ({label: `${item.accountNumber} | ${item.accountName}`, value: item.id})) : []
 })
-
+const handleDocumentUpload = (listFile, delFileIds) => {
+  listFileUpload.value = listFile
+  deleteFileIds.value = delFileIds
+}
 
 </script>
 <template>
@@ -810,38 +697,23 @@ const getMapAccountNumberData = ({accountNumber, accountName, id , children}) =>
           </template>
         </Form>
       </ElCol>
-      <ElCol :span="hasAttachDocument ? 12 : 0" v-if="hasAttachDocument" class="max-h-400px overflow-y-auto">
-        <ElDivider content-position="left" class="text-center font-bold ml-2">{{ t('reuse.attachDocument') }}</ElDivider>
-        <div class="flex">
-        <div class="pr-4">
-          <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
-          <div class="text-right text-[#FECB80] italic">{{ t('formDemo.lessThanTenProfiles') }}</div>
-        </div>
-        <div>
-          <el-upload
-            ref="upload"
-            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-            :auto-upload="false"
-            list-type="text"
-            v-model:file-list="fileList"
-            :limit="10"
-            :on-change="handleChangeUpload"
-            :multiple="true"
-            :before-remove="beforeRemove"
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
-          >
-           <ElButton :disabled="props.type === 'detail'" :icon="addIcon">{{ t('formDemo.addPhotosOrFiles') }}</ElButton>
-           <el-dialog v-model="dialogVisible">
-             <img h-full :src="dialogImageUrl" alt="Preview Image" />
-          </el-dialog>
-          </el-upload>
-        </div>
-       </div>
+      <ElCol :span="hasAttachDocument ? 12 : 0" v-if="hasAttachDocument">
+        <ElDivider content-position="left" class="text-center font-bold ml-2 fixed top-0">{{ t('reuse.attachDocument') }}</ElDivider>
+        <ElRow>
+          <ElCol :span="fullSpanAttachDocument ? 12 : 24">
+            <DocumentUpload :disabledButton="disabledForm" :imageRequired="imageRequired" :type="type" :fileUploadList="fileUploadList" @update-value="handleDocumentUpload"/>
+          </ElCol>
+          <ElCol :span=12>
+            <div v-if="fullSpanAttachDocument">
+                <span>{{ `${t('reuse.orderCode')}: ` }}</span>
+                <span class="font-bold">{{formValue.orderCode}}</span>
+            </div>
+          </ElCol>
+        </ElRow>
       </ElCol>
     </ElRow>
     <template #under>
-      <div class="w-[100%]" v-if="props.type === 'add'">
+    <div class="w-[100%]" v-if="props.type === 'add'">
         <div class="w-[50%] flex justify-left gap-2 ml-8">
           <div v-if="module == 2">
             <ElButton type="primary" :loading="loading" @click="save('add')">
@@ -911,46 +783,6 @@ const getMapAccountNumberData = ({accountNumber, accountName, id , children}) =>
   </ContentWrap>
 </template>
 <style lang="scss" scoped>
-.avatar-uploader{
-  .avatar {
-    display: block;
-    width: 250px;
-    padding-bottom: 1rem;
-  }
-  .el-upload {
-    position: relative;
-    margin-left: 2rem;
-    overflow: hidden;
-    cursor: pointer;
-    border: 1px dashed var(--el-border-color);
-    border-radius: 6px;
-    transition: var(--el-transition-duration-fast);
-  }
-  &:deep(.el-upload) {
-    display: flex;
-  }
-  .el-upload:hover {
-    border-color: var(--el-color-primary);
-  }
-} 
-
-.avatar-uploader-icon {
-  width: 148px;
-  height: 148px;
-}
-
-.one-avatar-uploader {
-  display: flex;
-  justify-content: center;
-  margin: 0 auto;
-}
-
-:deep(.el-dialog__body) {
-  display: flex;
-  max-height: 85vh;
-  overflow: auto;
-  justify-content: center;
-}
 
 :deep(.el-button) {
   min-width: 150px;

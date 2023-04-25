@@ -32,9 +32,9 @@ const columns = reactive<TableColumn[]>([
     formatter: (row, _column, _cellValue, _index) => {
       return h('ul', [
         h('li', row.customerType == 2 ? `${t('reuse.mst')}: ${row.customer.taxCode}` : ''),
-        h('li', `${t('reuse.sdt')}: ${row.customer.phonenumber}`),
-        h('li', `${t('reuse.email')}: ${row.customer.email}`),
-        h('li', `${t('formDemo.address')}: ${row.customer.address}`)
+        h('li', `${t('reuse.sdt')}: ${row.customer?.phonenumber}`),
+        h('li', `${t('reuse.email')}: ${row.customer?.email}`),
+        h('li', `${t('formDemo.address')}: ${row.customer?.address}`)
       ])
     }
   },
@@ -44,8 +44,8 @@ const columns = reactive<TableColumn[]>([
     minWidth: '200',
     formatter: (row, _column, _cellValue, _index) => {
       return h('ul', [
-        h('li', `STK: ${row.accountNumber || ''}`),
-        h('li', `Tên TK: ${row.accountName || ''}`),
+        h('li', `STK: ${row?.accountNumber || ''}`),
+        h('li', `Tên TK: ${row?.accountName || ''}`),
         h('li', `NH: ${row?.bank?.name || ''}`)
       ])
     }

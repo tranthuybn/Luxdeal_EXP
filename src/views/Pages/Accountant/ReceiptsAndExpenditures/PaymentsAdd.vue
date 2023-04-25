@@ -225,6 +225,8 @@ const customData = (data) => {
   customData.Transacted = data.paid
   customData.Type = 0
   customData.Status = 0
+  customData.Document = data.Images
+
    if(type == 'detail') {
     customData.Carrying = true
     customData.Status = 2

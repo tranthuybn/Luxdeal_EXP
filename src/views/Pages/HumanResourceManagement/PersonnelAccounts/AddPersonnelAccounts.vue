@@ -50,6 +50,7 @@ import InfinitOptions from '@/components/Select/InfinitOptions.vue'
 import { getCategories } from '@/api/LibraryAndSetting'
 import { systemCode } from '@/utils/status'
 
+const disableUserName = ref(false)
 const centerDialogCancelAccount = ref(false)
 const getMapData = ({id, name, logo}) => ({logo: logo, label: name, value: id,}) 
 const { push } = useRouter()
@@ -585,6 +586,8 @@ const getTableValue = async () => {
     ruleForm.Address = formValue.value.address
     ruleForm.userName = formValue.value.username
     ruleForm.roleAcces = formValue.value.roleId
+
+    disableUserName.value = !!formValue.value.username
     // ListFileUpload.value = formValue.value.fieldId
   }
 }
@@ -649,7 +652,6 @@ const editData = async (typebtn) => {
   }
 }
 const generateStaffCode = () => { 
-  if(type=='add')
   ruleForm.staffCode = systemCode.NHAN_VIEN + branchCode.value + ruleForm.cccd
 }
  
@@ -733,523 +735,524 @@ const cancelEditPassword = () => {
             </div>
           </div>
         </template>
-        <div class="contai-full-w">
-          <div class="flex gap-8">
-            <div class="w-[50%]">
-              <el-divider content-position="left">{{
-                t('formDemo.generalInformation')
-              }}</el-divider>
-              <el-form
-                ref="ruleFormRef"
-                :model="ruleForm"
-                :rules="rules"
-                label-width="170px"
-                class="demo-ruleForm"
-                status-icon
-              >
-                <el-form-item :label="t('reuse.employeeCode')" prop="staffCode">
-                  <!-- <el-input v-model="ruleForm.staffCode" /> -->
-                  <span class="pl-2">
-                    {{ ruleForm.staffCode }}
-                  </span>
-                </el-form-item>
-
-                <el-form-item :label="t('reuse.employeeName')" prop="name">
-                  <el-input v-model="ruleForm.name" :placeholder="t('reuse.fullName')" :disabled="isDisable" @change="generateStaffCode" />
-                </el-form-item>
-
-                <el-form-item :label="t('reuse.phoneNumber')" prop="phoneNumber">
-                  <el-input
-                    v-model="ruleForm.phoneNumber"
-                    type="text"
-                    :placeholder="t('reuse.enterPhoneNumber')"
-                    :disabled="isDisable"
-                  />
-                </el-form-item>
-
-                <el-form-item :label="t('reuse.email')" prop="email">
-                  <el-input v-model="ruleForm.email" :placeholder="t('reuse.enterEmail')" :disabled="isDisable" />
-                </el-form-item>
-
-                <el-form-item :label="t('reuse.cmnd')">
-                  <div class="flex gap-2 w-[100%] cccd-format">
-                    <div class="flex-1 fix-width">
-                      <el-form-item prop="cccd" >
-                        <el-input
-                          v-model="ruleForm.cccd"
-                          class="w-[25%] outline-none dark:bg-transparent"
-                          type="text"
-                          :placeholder="t('formDemo.enterCCCD')"
-                          :disabled="isDisable"
-                          @input="generateStaffCode"
-                        />
-                      </el-form-item>
-                    </div>
-
-                    <div class="flex-1 fix-width">
-                      <el-form-item prop="cccdCreateAt">
-                        <el-date-picker
-                          v-model="ruleForm.cccdCreateAt"
-                          type="date"
-                          :placeholder="t('formDemo.supplyDate')"
-                          :disabled-date="disabledDate"
-                          :size="size"
-                          :editable="false"
-                          format="DD/MM/YYYY"
-                          value-format="YYYY-MM-DD"
-                          class="w-[25%] min-w-[203px] cccd-createAt outline-none dark:bg-transparent"
-                          :disabled="isDisable"
-                        />
-                      </el-form-item>
-                    </div>
-
-                    <div class="flex-1 fix-width">
-                      <el-form-item prop="cccdPlaceOfGrant">
-                        <el-input
-                          v-model="ruleForm.cccdPlaceOfGrant"
-                          class="w-[25%] outline-none dark:bg-transparent"
-                          type="text"
-                          :placeholder="t('formDemo.supplyAddress')"
-                          :disabled="isDisable"
-                        />
-                      </el-form-item>
-                    </div>
-                  </div>
-                </el-form-item>
-
-                <el-form-item
-                  class="flex items-center w-[100%] mt-5 custom-select-w38"
-                  :label="t('reuse.dateOfBirthAnGender')"
-                >
-                  <div class="flex gap-2 w-[100%] cccd-format">
-                    <div class="flex-1 fix-width">
-                      <el-form-item prop="doB">
-                        <el-date-picker
-                          v-model="ruleForm.doB"
-                          type="date"
-                          :placeholder="t('reuse.dateOfBirth')"
-                          :disabled-date="disabledDate"
-                          :size="size"
-                          :editable="false"
-                          format="DD/MM/YYYY"
-                          value-format="YYYY-MM-DD"
-                          :disabled="isDisable"
-                        />
-                      </el-form-item>
-                    </div>
-                    <div class="flex-1">
-                      <el-form-item prop="sex">
-                        <el-select v-model="ruleForm.sex" clearable :placeholder="t('reuse.chooseGender')" :disabled="isDisable">
-                          <el-option
-                            v-for="item in optionsGender"
-                            :key="item.label"
-                            :label="item.label"
-                            :value="item.value"
-                          />
-                        </el-select>
-                      </el-form-item>
-                    </div>
-                  </div>
-                </el-form-item>
-
-                <el-form-item :label="t('reuse.link')" prop="link">
-                  <el-input
-                    prop="link"
-                    v-model="ruleForm.link"
-                    class="w-[80%] outline-none dark:bg-transparent"
-                    type="text"
-                    :placeholder="t('reuse.enterFacebookZaloLink')"
-                    :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                     :disabled="isDisable"
-                  />
-                </el-form-item>
-
-                <el-divider content-position="left">{{t('formDemo.jobPosition')}}</el-divider>
-
-                <el-form-item
-                  class="flex items-center w-[100%] mt-5 custom-select-w38"
-                  :label="t('reuse.brandAndDepartment')"
-                >
-                  <div class="flex gap-2 w-[100%]">
-                    <div class="flex-1 fix-width">
-                      <el-form-item prop="branch">
-                        <el-select v-model="ruleForm.branch" clearable :placeholder="t('reuse.chooseBranch')" :disabled="isDisable" @change="generateStaffCode">
-                          <el-option
-                            v-for="item in listBranchs"
-                            :key="item.label"
-                            :label="item.label"
-                            :value="item.value"
-                          />
-                        </el-select>
-                      </el-form-item>
-                    </div>
-                    <div class="flex-1">
-                      <el-form-item prop="department">
-                        <el-select
-                          v-model="ruleForm.department"
-                          clearable
-                          :placeholder="t('reuse.chooseDepartment')"
-                          :disabled="isDisable"
-                        >
-                          <el-option
-                            v-for="item in listDepartments"
-                            :key="item.label"
-                            :label="item.label"
-                            :value="item.value"
-                          />
-                        </el-select>
-                      </el-form-item>
-                    </div>
-                  </div>
-                </el-form-item>
-
-                <el-form-item
-                  class="flex items-center w-[100%] mt-5 custom-select-w38"
-                  :label="t('reuse.rankAndType')"
-                >
-                  <div class="flex gap-2 w-[100%]">
-                    <div class="flex-1 fix-width">
-                      <el-form-item prop="jobPosition">
-                        <el-select
-                          v-model="ruleForm.jobPosition"
-                          clearable
-                          :placeholder="t('reuse.chooseWorkLevel')"
-                          :disabled="isDisable"
-                        >
-                          <el-option
-                            v-for="item in listPosition"
-                            :key="item.label"
-                            :label="item.label"
-                            :value="item.value"
-                          />
-                        </el-select>
-                      </el-form-item>
-                    </div>
-                    <div class="flex-1">
-                      <el-form-item prop="typeOfEmployee">
-                        <el-select
-                          v-model="ruleForm.typeOfEmployee"
-                          clearable
-                          :placeholder="t('reuse.chooseTypeAccount')"
-                          :disabled="isDisable"
-                        >
-                          <el-option
-                            v-for="item in listTypeOfStaff"
-                            :key="item.label"
-                            :label="item.label"
-                            :value="item.value"
-                          />
-                        </el-select>
-                      </el-form-item>
-                    </div>
-                  </div>
-                </el-form-item>
-
-                <el-divider content-position="left">{{ t('reuse.accountsAndPermissions') }}</el-divider>
-
-                <el-form-item :label="t('formDemo.userName')" prop="userName">
-                  <el-input v-model="ruleForm.userName" :placeholder="t('formDemo.enterUserName')" :disabled="isDisable" />
-                </el-form-item>
-
-              <el-form-item :label="t('reuse.setRole')" :placeholder="t('reuse.fullName')">
-                  <el-select
-                    v-model="ruleForm.roleAcces"
-                    clearable
-                    :placeholder="t('reuse.choosePermission')"
-                    :disabled="isDisable"
+          <div class="contain-full-w">
+              <div class="flex gap-8">
+                <div class="w-[50%]">
+                  <el-divider content-position="left">{{
+                    t('formDemo.generalInformation')
+                  }}</el-divider>
+                  <el-form
+                    :loading="true"
+                    ref="ruleFormRef"
+                    :model="ruleForm"
+                    :rules="rules"
+                    label-width="170px"
+                    class="demo-ruleForm"
+                    status-icon
                   >
-                    <el-option
-                      v-for="item in optionsRole"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </el-form-item> 
-
-                <el-form-item v-if="showPassword" :label="t('reuse.password')" prop="password">
-                  <el-input v-model="ruleForm.password" :placeholder="t('formDemo.enterPassword')" :disabled="isDisable" />
-                </el-form-item>
-
-                <el-form-item v-if="showPassword" :label="t('formDemo.confirmPassword')" prop="confirmPassword">
-                  <el-input
-                    v-model="ruleForm.confirmPassword"
-                    :placeholder="t('reuse.confirmPasswordAgain')"
-                    :disabled="isDisable"
-                  />
-                </el-form-item>
-                <el-form-item v-if="type == 'edit'">
-                  <el-button @click="editPassword">{{ t('reuse.editPassword') }}</el-button>
-                  <el-button v-if="showCancelEditPassword" @click="cancelEditPassword">{{ t('reuse.cancelEditPassword') }}</el-button>
-                </el-form-item>
-
-                <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">
-                  <el-checkbox class="ml-4" :disabled="alwayShowAdd || isDisable" v-model="ruleForm.isActive">{{
-                    t('formDemo.isActive')
-                  }}</el-checkbox>
-                </ElFormItem>
-                <ElFormItem
-                  class="flex align-items-start w-[100%]"
-                  :label="t('formDemo.statusAccount')"
-                >
-                  <ElRow class="ml-2">
-                    <ElCol>
-                      <span class="day-updated">
-                        {{ t('formDemo.isNewAccount') }}
+                    <el-form-item :label="t('reuse.employeeCode')" prop="staffCode">
+                      <!-- <el-input v-model="ruleForm.staffCode" /> -->
+                      <span class="pl-2">
+                        {{ ruleForm.staffCode }}
                       </span>
-                    </ElCol>
-                    <ElCol
-                      ><label style=" font-size: 13px;font-style: italic">
-                        {{ dateTimeFormat(moment()) }}</label
-                      >
-                    </ElCol>
-                  </ElRow>
-                </ElFormItem>
+                    </el-form-item>
 
-                <div class="option-page mt-5">
-                  <div v-if="type === 'detail'" class="flex justify-center">
-                    <el-button @click="editPage()" type="primary" class="min-w-42 min-h-11">{{
-                      t('reuse.fix')
-                    }}</el-button>
-                    <el-button
-                      type="danger"
-                      class="min-w-42 min-h-11"
-                      @click="centerDialogCancelAccount = true"
-                      >{{ t('formDemo.cancelAccount') }}</el-button
-                    >
-                    <el-dialog
-                      :close-on-click-modal="doCloseOnClickModal"
-                      v-model="centerDialogCancelAccount"
-                      :title="t('formDemo.cancelAccount')"
-                      width="30%"
-                      align-center
-                      class="font-semibold"
-                    >
-                      <div class="text-red-600">
-                        {{ t('reuse.cancelAccountCheck') }}
+                    <el-form-item :label="t('reuse.employeeName')" prop="name">
+                      <el-input v-model="ruleForm.name" :placeholder="t('reuse.fullName')" :disabled="isDisable" @change="generateStaffCode" />
+                    </el-form-item>
+
+                    <el-form-item :label="t('reuse.phoneNumber')" prop="phoneNumber">
+                      <el-input
+                        v-model="ruleForm.phoneNumber"
+                        type="text"
+                        :placeholder="t('reuse.enterPhoneNumber')"
+                        :disabled="isDisable"
+                      />
+                    </el-form-item>
+
+                    <el-form-item :label="t('reuse.email')" prop="email">
+                      <el-input v-model="ruleForm.email" :placeholder="t('reuse.enterEmail')" :disabled="isDisable" />
+                    </el-form-item>
+
+                    <el-form-item :label="t('reuse.cmnd')">
+                      <div class="flex gap-2 w-[100%] cccd-format">
+                        <div class="flex-1 fix-width">
+                          <el-form-item prop="cccd" >
+                            <el-input
+                              v-model="ruleForm.cccd"
+                              class="w-[25%] outline-none dark:bg-transparent"
+                              type="text"
+                              :placeholder="t('formDemo.enterCCCD')"
+                              :disabled="isDisable"
+                              @input="generateStaffCode"
+                            />
+                          </el-form-item>
+                        </div>
+
+                        <div class="flex-1 fix-width">
+                          <el-form-item prop="cccdCreateAt">
+                            <el-date-picker
+                              v-model="ruleForm.cccdCreateAt"
+                              type="date"
+                              :placeholder="t('formDemo.supplyDate')"
+                              :disabled-date="disabledDate"
+                              :size="size"
+                              :editable="false"
+                              format="DD/MM/YYYY"
+                              value-format="YYYY-MM-DD"
+                              class="w-[25%] min-w-[203px] cccd-createAt outline-none dark:bg-transparent"
+                              :disabled="isDisable"
+                            />
+                          </el-form-item>
+                        </div>
+
+                        <div class="flex-1 fix-width">
+                          <el-form-item prop="cccdPlaceOfGrant">
+                            <el-input
+                              v-model="ruleForm.cccdPlaceOfGrant"
+                              class="w-[25%] outline-none dark:bg-transparent"
+                              type="text"
+                              :placeholder="t('formDemo.supplyAddress')"
+                              :disabled="isDisable"
+                            />
+                          </el-form-item>
+                        </div>
                       </div>
-                      <template #footer>
-                        <span class="dialog-footer">
-                          <el-button
-                            type="danger"
-                            @click="deleteAccount"
-                            class="min-w-36 min-h-10"
-                            >{{ t('formDemo.cancelAccount') }}</el-button
+                    </el-form-item>
+
+                    <el-form-item
+                      class="flex items-center w-[100%] mt-5 custom-select-w38"
+                      :label="t('reuse.dateOfBirthAnGender')"
+                    >
+                      <div class="flex gap-2 w-[100%] cccd-format">
+                        <div class="flex-1 fix-width">
+                          <el-form-item prop="doB">
+                            <el-date-picker
+                              v-model="ruleForm.doB"
+                              type="date"
+                              :placeholder="t('reuse.dateOfBirth')"
+                              :disabled-date="disabledDate"
+                              :size="size"
+                              :editable="false"
+                              format="DD/MM/YYYY"
+                              value-format="YYYY-MM-DD"
+                              :disabled="isDisable"
+                            />
+                          </el-form-item>
+                        </div>
+                        <div class="flex-1">
+                          <el-form-item prop="sex">
+                            <el-select v-model="ruleForm.sex" clearable :placeholder="t('reuse.chooseGender')" :disabled="isDisable">
+                              <el-option
+                                v-for="item in optionsGender"
+                                :key="item.label"
+                                :label="item.label"
+                                :value="item.value"
+                              />
+                            </el-select>
+                          </el-form-item>
+                        </div>
+                      </div>
+                    </el-form-item>
+
+                    <el-form-item :label="t('reuse.link')" prop="link">
+                      <el-input
+                        prop="link"
+                        v-model="ruleForm.link"
+                        class="w-[80%] outline-none dark:bg-transparent"
+                        type="text"
+                        :placeholder="t('reuse.enterFacebookZaloLink')"
+                        :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                        :disabled="isDisable"
+                      />
+                    </el-form-item>
+
+                    <el-divider content-position="left">{{t('formDemo.jobPosition')}}</el-divider>
+
+                    <el-form-item
+                      class="flex items-center w-[100%] mt-5 custom-select-w38"
+                      :label="t('reuse.brandAndDepartment')"
+                    >
+                      <div class="flex gap-2 w-[100%]">
+                        <div class="flex-1 fix-width">
+                          <el-form-item prop="branch">
+                            <el-select v-model="ruleForm.branch" clearable :placeholder="t('reuse.chooseBranch')" :disabled="isDisable" @change="generateStaffCode">
+                              <el-option
+                                v-for="item in listBranchs"
+                                :key="item.label"
+                                :label="item.label"
+                                :value="item.value"
+                              />
+                            </el-select>
+                          </el-form-item>
+                        </div>
+                        <div class="flex-1">
+                          <el-form-item prop="department">
+                            <el-select
+                              v-model="ruleForm.department"
+                              clearable
+                              :placeholder="t('reuse.chooseDepartment')"
+                              :disabled="isDisable"
+                            >
+                              <el-option
+                                v-for="item in listDepartments"
+                                :key="item.label"
+                                :label="item.label"
+                                :value="item.value"
+                              />
+                            </el-select>
+                          </el-form-item>
+                        </div>
+                      </div>
+                    </el-form-item>
+
+                    <el-form-item
+                      class="flex items-center w-[100%] mt-5 custom-select-w38"
+                      :label="t('reuse.rankAndType')"
+                    >
+                      <div class="flex gap-2 w-[100%]">
+                        <div class="flex-1 fix-width">
+                          <el-form-item prop="jobPosition">
+                            <el-select
+                              v-model="ruleForm.jobPosition"
+                              clearable
+                              :placeholder="t('reuse.chooseWorkLevel')"
+                              :disabled="isDisable"
+                            >
+                              <el-option
+                                v-for="item in listPosition"
+                                :key="item.label"
+                                :label="item.label"
+                                :value="item.value"
+                              />
+                            </el-select>
+                          </el-form-item>
+                        </div>
+                        <div class="flex-1">
+                          <el-form-item prop="typeOfEmployee">
+                            <el-select
+                              v-model="ruleForm.typeOfEmployee"
+                              clearable
+                              :placeholder="t('reuse.chooseTypeAccount')"
+                              :disabled="isDisable"
+                            >
+                              <el-option
+                                v-for="item in listTypeOfStaff"
+                                :key="item.label"
+                                :label="item.label"
+                                :value="item.value"
+                              />
+                            </el-select>
+                          </el-form-item>
+                        </div>
+                      </div>
+                    </el-form-item>
+
+                    <el-divider content-position="left">{{ t('reuse.accountsAndPermissions') }}</el-divider>
+
+                    <el-form-item :label="t('formDemo.userName')" prop="userName">
+                      <el-input v-model="ruleForm.userName" :placeholder="t('formDemo.enterUserName')" :disabled="isDisable || disableUserName" />
+                    </el-form-item>
+
+                  <el-form-item :label="t('reuse.setRole')" :placeholder="t('reuse.fullName')">
+                      <el-select
+                        v-model="ruleForm.roleAcces"
+                        clearable
+                        :placeholder="t('reuse.choosePermission')"
+                        :disabled="isDisable"
+                      >
+                        <el-option
+                          v-for="item in optionsRole"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value"
+                        />
+                      </el-select>
+                    </el-form-item> 
+
+                    <el-form-item v-if="showPassword" :label="t('reuse.password')" prop="password">
+                      <el-input v-model="ruleForm.password" :placeholder="t('formDemo.enterPassword')" :disabled="isDisable" />
+                    </el-form-item>
+
+                    <el-form-item v-if="showPassword" :label="t('formDemo.confirmPassword')" prop="confirmPassword">
+                      <el-input
+                        v-model="ruleForm.confirmPassword"
+                        :placeholder="t('reuse.confirmPasswordAgain')"
+                        :disabled="isDisable"
+                      />
+                    </el-form-item>
+                    <el-form-item v-if="type == 'edit'">
+                      <el-button @click="editPassword">{{ t('reuse.editPassword') }}</el-button>
+                      <el-button v-if="showCancelEditPassword" @click="cancelEditPassword">{{ t('reuse.cancelEditPassword') }}</el-button>
+                    </el-form-item>
+
+                    <ElFormItem class="flex items-center w-[100%]" :label="t('formDemo.statusActive')">
+                      <el-checkbox class="ml-4" :disabled="alwayShowAdd || isDisable" v-model="ruleForm.isActive">{{
+                        t('formDemo.isActive')
+                      }}</el-checkbox>
+                    </ElFormItem>
+                    <ElFormItem
+                      class="flex align-items-start w-[100%]"
+                      :label="t('formDemo.statusAccount')"
+                    >
+                      <ElRow class="ml-2">
+                        <ElCol>
+                          <span class="day-updated">
+                            {{ t('formDemo.isNewAccount') }}
+                          </span>
+                        </ElCol>
+                        <ElCol
+                          ><label style=" font-size: 13px;font-style: italic">
+                            {{ dateTimeFormat(moment()) }}</label
                           >
-                          <el-button
-                            @click="centerDialogCancelAccount = false"
-                            class="min-w-36 min-h-10"
-                            >{{ t('reuse.exit') }}</el-button
-                          >
-                        </span>
-                      </template>
-                    </el-dialog>
-                  </div>
-                  <div v-else-if="type === 'edit'" class="flex justify-center">
-                    <el-button @click="editData('save')" type="primary" class="min-w-42 min-h-11">{{
-                      t('reuse.save')
-                    }}</el-button>
-                    <el-button @click="cancel()" type="danger" class="min-w-42 min-h-11">{{
-                      t('reuse.cancel')
-                    }}</el-button>
-                  </div>
-                  <div v-else class="flex justify-center">
-                    <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
-                      t('reuse.save')
-                    }}</el-button>
-                    <el-button
-                      @click="postData('saveAndAdd')"
-                      type="primary"
-                      class="min-w-42 min-h-11"
-                      >{{ t('reuse.saveAndAdd') }}</el-button
-                    >
-                  </div>
-                </div>
-              </el-form>
-            </div>
+                        </ElCol>
+                      </ElRow>
+                    </ElFormItem>
 
-            <div class="w-[50%]">
-              <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
-                <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
+                    <div class="option-page mt-5">
+                      <div v-if="type === 'detail'" class="flex justify-center">
+                        <el-button @click="editPage()" type="primary" class="min-w-42 min-h-11">{{
+                          t('reuse.fix')
+                        }}</el-button>
+                        <el-button
+                          type="danger"
+                          class="min-w-42 min-h-11"
+                          @click="centerDialogCancelAccount = true"
+                          >{{ t('formDemo.cancelAccount') }}</el-button
+                        >
+                        <el-dialog
+                          :close-on-click-modal="doCloseOnClickModal"
+                          v-model="centerDialogCancelAccount"
+                          :title="t('formDemo.cancelAccount')"
+                          width="30%"
+                          align-center
+                          class="font-semibold"
+                        >
+                          <div class="text-red-600">
+                            {{ t('reuse.cancelAccountCheck') }}
+                          </div>
+                          <template #footer>
+                            <span class="dialog-footer">
+                              <el-button
+                                type="danger"
+                                @click="deleteAccount"
+                                class="min-w-36 min-h-10"
+                                >{{ t('formDemo.cancelAccount') }}</el-button
+                              >
+                              <el-button
+                                @click="centerDialogCancelAccount = false"
+                                class="min-w-36 min-h-10"
+                                >{{ t('reuse.exit') }}</el-button
+                              >
+                            </span>
+                          </template>
+                        </el-dialog>
+                      </div>
+                      <div v-else-if="type === 'edit'" class="flex justify-center">
+                        <el-button @click="editData('save')" type="primary" class="min-w-42 min-h-11">{{
+                          t('reuse.save')
+                        }}</el-button>
+                        <el-button @click="cancel()" type="danger" class="min-w-42 min-h-11">{{
+                          t('reuse.cancel')
+                        }}</el-button>
+                      </div>
+                      <div v-else class="flex justify-center">
+                        <el-button @click="postData('save')" type="primary" class="min-w-42 min-h-11">{{
+                          t('reuse.save')
+                        }}</el-button>
+                        <el-button
+                          @click="postData('saveAndAdd')"
+                          type="primary"
+                          class="min-w-42 min-h-11"
+                          >{{ t('reuse.saveAndAdd') }}</el-button
+                        >
+                      </div>
+                    </div>
+                  </el-form>
+                </div>
+
+                <div class="w-[50%]">
+                  <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff]">
+                    <el-divider content-position="left">{{ t('formDemo.attachments') }}</el-divider>
+                  </div>
+                  <div class="flex">
+                    <div class="pl-5">
+                      <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
+                      <div class="text-right text-[#FECB80] italic">{{ t('formDemo.lessThanTenProfiles') }}</div>
+                    </div>
+                    <div class="pl-4">
+                      <el-upload
+                        ref="upload"
+                        class="upload-demo"
+                        action="#"
+                        :limit="10"
+                        :on-change="handleChange"
+                        :before-remove="beforeRemove"
+                        :auto-upload="false"
+                        :on-exceed="handleExceed"
+                        :multiple="true"
+                        v-model:fileList="ListFileUpload"
+                        :disabled="isDisable"
+                      >
+                        <el-button class="text-[#303133] font-medium dark:text-[#fff]"
+                          >+ {{ t('formDemo.addPhotosOrFiles') }}
+                        </el-button>
+                      </el-upload>
+                    </div>
+                  </div>
+                  <ElForm
+                    ref="ruleFormRef2"
+                    :model="ruleForm"
+                    :rules="rules"
+                    label-width="170px"
+                    @register="register"
+                    status-icon
+                    :disabled="disableData"
+                  >
+                    <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
+                      <el-divider content-position="left">{{ t('formDemo.address') }}</el-divider>
+
+                      <ElFormItem
+                        class="flex w-[100%] items-center"
+                        :label="t('formDemo.provinceOrCity')"
+                        prop="city"
+                      >
+                        <el-select
+                          v-model="valueProvince"
+                          style="width: 96%"
+                          class="m-2 fix-full-width"
+                          :placeholder="t('reuse.selectProvinceCity')"
+                          :disabled="isDisable"
+                        >
+                          <el-option
+                            v-for="item in cities"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </ElFormItem>
+                      <ElFormItem
+                        class="flex w-[100%] items-center"
+                        :label="t('formDemo.countyOrDistrict')"
+                        prop="district"
+                      >
+                        <el-select
+                          v-model="valueDistrict"
+                          style="width: 96%"
+                          class="m-2 fix-full-width"
+                          :placeholder="t('reuse.selectCountyOrDistrict')"
+                          :disabled="isDisable"
+                        >
+                          <el-option
+                            v-for="item in district"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </ElFormItem>
+                      <ElFormItem
+                        class="flex w-[100%] items-center"
+                        :label="t('formDemo.wardOrCommune')"
+                        prop="ward"
+                      >
+                        <el-select
+                          v-model="valueCommune"
+                          style="width: 96%"
+                          class="m-2 fix-full-width"
+                          :placeholder="t('reuse.selectWardOrCommune')"
+                          :disabled="isDisable"
+                        >
+                          <el-option
+                            v-for="item in ward"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                          />
+                        </el-select>
+                      </ElFormItem>
+                      <ElFormItem
+                        class="flex w-[100%] items-center"
+                        :label="t('formDemo.detailedAddress')"
+                        prop="Address"
+                      >
+                        <el-input
+                          v-model="ruleForm.Address"
+                          style="width: 96%"
+                          class="m-2 fix-full-width"
+                          :placeholder="t('reuse.enterDetailedAddress')"
+                          :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                          clearable
+                          filterable
+                          allow-create
+                          :disabled="isDisable"
+                        />
+                      </ElFormItem>
+                    </div>
+                    <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
+                      <el-divider content-position="left">{{ t('reuse.accountBank') }}</el-divider>
+
+                      <ElFormItem
+                        class="flex items-center w-[98%]"
+                        :label="t('userDemo.username')"
+                        prop="accountName"
+                      >
+                        <el-input
+                          v-model="ruleForm.accountName"
+                          class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                          type="text"
+                          :placeholder="t('formDemo.enterAccountName')"
+                          :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                          :disabled="isDisable"
+                        />
+                      </ElFormItem>
+
+                      <ElFormItem
+                        class="flex items-center w-[98%]"
+                        :label="t('userDemo.accountNumber')"
+                        prop="accountNumber"
+                      >
+                        <el-input
+                          v-model="ruleForm.accountNumber"
+                          class="w-[80%] outline-none pl-2 dark:bg-transparent"
+                          type="text"
+                          :placeholder="t('formDemo.enterAccountNumber')"
+                          :formatter="(value) => value.replace(/^\s+$/gm, '')"
+                          :disabled="isDisable"
+                        />
+                      </ElFormItem>
+
+                      <ElFormItem
+                        class="flex items-center w-[98%] pl-2"
+                        :label="t('reuse.bank')"
+                        prop="bankName"
+                      >
+                        <InfinitOptions 
+                          :placeholder="t('reuse.selectBank')"
+                          valueKey="value" 
+                          labelKey="label"
+                          :disabled="isDisable"
+                          :hiddenKey="['value']"
+                          :clearable="false"
+                          :pageIndex="pageIndex"
+                          :params="{TypeName: 'nganhang'}"
+                          :api="getCategories"
+                          :mapFunction="getMapData"
+                          :defaultValue="ruleForm.bankName"
+                          :getMoreAPI="false"
+                          @update-value="(_value, option) => handleChangeOptions(option)"
+                        />
+                      </ElFormItem>
+                    </div>
+                    <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
+                      <el-divider content-position="left">{{ t('formDemo.codeQR') }}</el-divider>
+                      <Qrcode :text="ruleForm.staffCode" />
+                    </div>
+                  </ElForm>
+                </div>
               </div>
-              <div class="flex">
-                <div class="pl-5">
-                  <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
-                  <div class="text-right text-[#FECB80] italic">{{ t('formDemo.lessThanTenProfiles') }}</div>
-                </div>
-                <div class="pl-4">
-                  <el-upload
-                    ref="upload"
-                    class="upload-demo"
-                    action="#"
-                    :limit="10"
-                    :on-change="handleChange"
-                    :before-remove="beforeRemove"
-                    :auto-upload="false"
-                    :on-exceed="handleExceed"
-                    :multiple="true"
-                    v-model:fileList="ListFileUpload"
-                    :disabled="isDisable"
-                  >
-                    <el-button class="text-[#303133] font-medium dark:text-[#fff]"
-                      >+ {{ t('formDemo.addPhotosOrFiles') }}
-                    </el-button>
-                  </el-upload>
-                </div>
-              </div>
-              <ElForm
-                ref="ruleFormRef2"
-                :model="ruleForm"
-                :rules="rules"
-                label-width="170px"
-                @register="register"
-                status-icon
-                :disabled="disableData"
-              >
-                <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-28">
-                  <el-divider content-position="left">{{ t('formDemo.address') }}</el-divider>
-
-                  <ElFormItem
-                    class="flex w-[100%] items-center"
-                    :label="t('formDemo.provinceOrCity')"
-                    prop="city"
-                  >
-                    <el-select
-                      v-model="valueProvince"
-                      style="width: 96%"
-                      class="m-2 fix-full-width"
-                      :placeholder="t('reuse.selectProvinceCity')"
-                      :disabled="isDisable"
-                    >
-                      <el-option
-                        v-for="item in cities"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </ElFormItem>
-                  <ElFormItem
-                    class="flex w-[100%] items-center"
-                    :label="t('formDemo.countyOrDistrict')"
-                    prop="district"
-                  >
-                    <el-select
-                      v-model="valueDistrict"
-                      style="width: 96%"
-                      class="m-2 fix-full-width"
-                      :placeholder="t('reuse.selectCountyOrDistrict')"
-                      :disabled="isDisable"
-                    >
-                      <el-option
-                        v-for="item in district"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </ElFormItem>
-                  <ElFormItem
-                    class="flex w-[100%] items-center"
-                    :label="t('formDemo.wardOrCommune')"
-                    prop="ward"
-                  >
-                    <el-select
-                      v-model="valueCommune"
-                      style="width: 96%"
-                      class="m-2 fix-full-width"
-                      :placeholder="t('reuse.selectWardOrCommune')"
-                      :disabled="isDisable"
-                    >
-                      <el-option
-                        v-for="item in ward"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </ElFormItem>
-                  <ElFormItem
-                    class="flex w-[100%] items-center"
-                    :label="t('formDemo.detailedAddress')"
-                    prop="Address"
-                  >
-                    <el-input
-                      v-model="ruleForm.Address"
-                      style="width: 96%"
-                      class="m-2 fix-full-width"
-                      :placeholder="t('reuse.enterDetailedAddress')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                      clearable
-                      filterable
-                      allow-create
-                      :disabled="isDisable"
-                    />
-                  </ElFormItem>
-                </div>
-                <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
-                  <el-divider content-position="left">{{ t('reuse.accountBank') }}</el-divider>
-
-                  <ElFormItem
-                    class="flex items-center w-[98%]"
-                    :label="t('userDemo.username')"
-                    prop="accountName"
-                  >
-                    <el-input
-                      v-model="ruleForm.accountName"
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.enterAccountName')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                      :disabled="isDisable"
-                    />
-                  </ElFormItem>
-
-                  <ElFormItem
-                    class="flex items-center w-[98%]"
-                    :label="t('userDemo.accountNumber')"
-                    prop="accountNumber"
-                  >
-                    <el-input
-                      v-model="ruleForm.accountNumber"
-                      class="w-[80%] outline-none pl-2 dark:bg-transparent"
-                      type="text"
-                      :placeholder="t('formDemo.enterAccountNumber')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                      :disabled="isDisable"
-                    />
-                  </ElFormItem>
-
-                  <ElFormItem
-                    class="flex items-center w-[98%] pl-2"
-                    :label="t('reuse.bank')"
-                    prop="bankName"
-                  >
-                    <InfinitOptions 
-                      :placeholder="t('reuse.selectBank')"
-                      valueKey="value" 
-                      labelKey="label"
-                      :disabled="isDisable"
-                      :hiddenKey="['value']"
-                      :clearable="false"
-                      :pageIndex="pageIndex"
-                      :params="{TypeName: 'nganhang'}"
-                      :api="getCategories"
-                      :mapFunction="getMapData"
-                      :defaultValue="ruleForm.bankName"
-                      :getMoreAPI="false"
-                      @update-value="(_value, option) => handleChangeOptions(option)"
-                    />
-                  </ElFormItem>
-                </div>
-                <div class="text-sm text-[#303133] font-medium p pl-4 dark:text-[#fff] mt-14">
-                  <el-divider content-position="left">{{ t('formDemo.codeQR') }}</el-divider>
-                  <Qrcode :text="ruleForm.staffCode" />
-                </div>
-              </ElForm>
-            </div>
           </div>
-        </div>
       </el-collapse-item>
     </el-collapse>
   </div>

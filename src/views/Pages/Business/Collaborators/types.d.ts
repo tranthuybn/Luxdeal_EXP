@@ -11,7 +11,7 @@ export interface FormDataPostAndEdit {
     AccountNumber: string
     AccountName: string
     BankId: number | null
-    Files?: any
+    Files?: Array
 }
 
 export interface ICustomer {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref, unref, watch } from 'vue'
+import { onBeforeMount, reactive, ref, unref, watch} from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import {
   ElCollapse,
@@ -826,6 +826,13 @@ const rules = reactive<FormRules>({
       message: t('formDemo.pleaseChooseDelivery'),
       trigger: 'change'
     }
+  ],
+  pawnTerm: [
+    {
+      required: true,
+      message: t('formDemo.pleaseSelectAPawnTerm'),
+      trigger: 'change'
+    }
   ]
 })
 const valueDistrict = ref('')
@@ -1595,7 +1602,7 @@ const disableCreateOrder = ref(false)
 const disabledDate = (time: Date) => {
   if(startDate.value){
     const day = moment(time)
-    const endDate = moment(startDate.value).add(10, "days").format()
+    const endDate = moment(startDate.value).add(9, "days").format()
     return day.isBefore(endDate)
   }
   return false //ko disable
@@ -2385,7 +2392,7 @@ const changeDate = (data) => {
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse
-v-model="activeName" @change="collapseChangeEvent" :class="[
+       v-model="activeName" @change="collapseChangeEvent" :class="[
       'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
     ]">
       <div id="recpPaymentPrint">
@@ -2399,13 +2406,13 @@ v-model="activeName" @change="collapseChangeEvent" :class="[
       <div id="billPrint">
             <slot>
               <billPrint
-v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceBill"
+                v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceBill"
                 :nameDialog="nameDialog" />
             </slot>
           </div>
       <!-- Thông tin dialog in phiếu thanh toán cầm đồ -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal" v-model="Printpayment" class="font-bold" width="40%"
+        :close-on-click-modal="doCloseOnClickModal" v-model="Printpayment" class="font-bold" width="40%"
         align-center>
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
@@ -2440,7 +2447,8 @@ v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceB
           <div class="dialog-content">
             <slot>
               <paymentOrderPrint
-v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit"
+                v-if="dataEdit && formPaymentRequest" 
+                :dataEdit="dataEdit"
                 :dataSent="formPaymentRequest" />
             </slot>
           </div>
@@ -2483,19 +2491,18 @@ v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit"
         <div class="flex w-[100%] gap-6">
           <div class="w-[50%]">
             <el-form
-ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="181px" class="demo-ruleForm"
+              ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="181px" class="demo-ruleForm"
               status-icon>
               <el-divider content-position="left">{{ t('formDemo.orderInformation') }}</el-divider>
 
               <el-form-item :label="t('formDemo.orderCode')" prop="orderCode">
                 <el-input
-:disabled="disableCreateOrder" v-model="ruleForm.orderCode" style="width: 100%"
+                  :disabled="disableCreateOrder" v-model="ruleForm.orderCode" style="width: 100%"
                   :placeholder="t('formDemo.enterOrderCode')" />
                 <!-- :disabled="disableCreateOrder" -->
               </el-form-item>
 
-              <div class="css-form_has-child mb-2">
-                <el-form-item :label="t('formDemo.pawnTerm')" prop="pawnTerm">
+              <el-form-item prop="pawnTerm">
                   <el-date-picker
                     :disabled="disableEditData" 
                     v-model="ruleForm.pawnTerm" 
@@ -2514,15 +2521,13 @@ ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="181px" class="de
                       }}</div>
                     </div>
                   </template>
-                </el-form-item>
-
-              </div>
+              </el-form-item>
 
               <div class="flex gap-2 items-center">
                 <div class="w-[60%] max-w-[531.5px]">
                   <el-form-item :label="t('formDemo.collaborators')" prop="collaborators">
                     <el-select
-:disabled="checkDisabled" v-model="ruleForm.collaborators"
+                      :disabled="checkDisabled" v-model="ruleForm.collaborators"
                       @change="(data) => autoCollaboratorCommission(data)"
                       :placeholder="t('formDemo.selectOrEnterTheCollaboratorCode')" filterable>
                       <div @scroll="scrolling" id="content">
@@ -2571,23 +2576,20 @@ v-model="ruleForm.orderNotes" :disabled="checkDisabled" style="width: 100%" type
         <div class="flex w-[100%]">
           <div class="w-[100%]">
             <el-form
-ref="ruleFormRef2" :model="ruleForm" status-icon :rules="rules" label-width="180px"
+              ref="ruleFormRef2" :model="ruleForm" status-icon :rules="rules" label-width="180px"
               class="demo-ruleForm">
               <div class="flex w-[100%] gap-8">
                 <el-divider content-position="left">{{ t('formDemo.customer') }}</el-divider>
                 <el-divider content-position="left">{{ t('formDemo.delivery') }}</el-divider>
               </div>
-              <div class="flex">
+              <div class="flex gap-8">
                 <div class="flex-1">
                   <div class="flex fix-width">
-                    <div class="w-[20%] max-w-[170px] text-right pr-[12px] leading-5">
-                      <label>{{ t('formDemo.chooseCustomer') }}</label>
-                    </div>
-                    <el-form-item label-width="0" prop="customerName" width="100%">
+                    <el-form-item prop="customerName" :label="t('formDemo.chooseCustomer')" width="100%">
                       <div class="flex items-center gap-4">
                         <div class="flex w-[100%] gap-2 bg-transparent">
                           <MultipleOptionsBox
-:fields="[
+                          :fields="[
                             t('reuse.customerCode'),
                             t('reuse.customerName'),
                             t('reuse.customerInfo')
@@ -2596,7 +2598,7 @@ ref="ruleFormRef2" :model="ruleForm" status-icon :rules="rules" label-width="180
                             :defaultValue="ruleForm.customerName" :clearable="false"
                             @update-value="(value, obj) => getValueOfCustomerSelected(value, obj)" />
                           <el-button :disabled="checkDisabled" @click="dialogAddQuick = true">+ {{ t('button.add')
-                          }}</el-button>
+}}</el-button>
                         </div>
                       </div>
                     </el-form-item>
@@ -3104,7 +3106,7 @@ v-if="
       <div id="billPawn">
         <slot>
           <billLoanConfirmation
-v-if="dataEdit" :dataCustomer="customerData" :dataEdit="dataEdit"
+            v-if="dataEdit" :dataCustomer="customerData" :dataEdit="dataEdit"
             :priceBillPawn="totalPrincipalMoney" :dayPayment="ruleForm.paymentPeriod" />
         </slot>
       </div>
@@ -4769,19 +4771,15 @@ prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" a
     </el-collapse>
   </div>
 </template>
-<style scoped>
+<style scoped lang="less">
 @media screen {
-  #billPawn {
+  #billPawn, #billPrint, #IPRFormPrint  {
     display: none;
   }
-
   .dialog-content {
     display: block;
   }
-}
 
-.css-form_has-child>.el-form-item {
-  margin: 0;
 }
 
 ::v-deep(.el-select) {
@@ -5004,7 +5002,7 @@ prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" a
 }
 
 .fix-width>.el-form-item {
-  width: 80%;
+  width: 100%;
 }
 
 ::v-deep(.poi-self > .el-form-item__label) {
@@ -5025,4 +5023,5 @@ prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" a
   padding: 0 10px;
   overflow: auto;
 }
+
 </style>

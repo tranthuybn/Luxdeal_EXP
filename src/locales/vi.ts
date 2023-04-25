@@ -152,6 +152,7 @@ export default {
     pleaseEnterANote: 'Vui lòng nhập ghi chú',
     pleaseSelectRentalPaymentPeriod: 'Vui lòng chọn kỳ thanh toán phí thuê',
     pleaseSelectARentalTerm: 'Vui lòng chọn kỳ hạn thuê',
+    pleaseSelectAPawnTerm: 'Vui lòng chọn kỳ hạn cầm đồ',
     pleaseEnterOrderCode: 'Vui lòng nhập mã đơn hàng',
     ChooseADayWeek: 'Chọn ngày trong tuần',
     selectRecurringDayMonth: 'Chọn ngày định kỳ trong tháng',
@@ -959,6 +960,11 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    bankTransferPayment: 'Chuyển khoản',
+    amountMoneyVnd: 'Số tiền (VNĐ)',
+    paymentReason: 'Lý do thanh toán',
+    requestDeleteAccountSuccess: 'Gửi yêu cầu hủy tài khoản thành công, đợi duyệt!',
+    confirmDeleteFile: 'Bạn có chắc muốn xóa',
     noHistoryOfCare: 'Chưa có lịch sử chăm sóc',
     current: 'Hiện tại',
     totalSaleMessageAlert: 'Tổng % doanh số các sale không thể lớn hơn 100%',
@@ -1907,7 +1913,7 @@ export default {
     // product
     under256Characters: 'Dưới 256 ký tự',
     citizenIdentificationNumber: 'Số cccd/cmnd',
-    CustomersDoNotBankAccount: 'khách hàng chưa có tài khoản ngân hàng',
+    CustomersDoNotBankAccount: 'Khách hàng chưa có tài khoản ngân hàng!',
     pleaseAddBankAccount: 'Vui lòng thêm tài khoản ngân hàng',
     enterSearchingData: 'Hãy nhập dữ liệu cần tìm kiếm',
     sameQuantity: 'Không được nhập cùng 1 số lượng',

@@ -18,7 +18,8 @@ import {
   ElDatePicker,
   ElNotification,
   ElMessageBox,
-  ElMessage
+  ElMessage,
+  UploadUserFile
 } from 'element-plus'
 import type {FormRules, FormInstance} from 'element-plus'
 import InfinitOptions from '@/components/Select/InfinitOptions.vue'
@@ -28,6 +29,7 @@ import {
   getStaffList,
   getAllCustomer,
   approvalOrder,
+  getCustomerById
 } from '@/api/Business'
 import { postNewPaymentRequest } from '@/api/Accountant'
 import InputPrice from '@/components/CurrencyInputComponent.vue'
@@ -44,7 +46,10 @@ import { useValidator } from '@/hooks/web/useValidator'
 import { statusService } from '@/utils/status'
 import { IStatusHistory } from '../types'
 import paymentOrderPrint from '@/views/Pages/Components/formPrint/src/paymentOrderPrint.vue'
+import DocumentUpload from '@/views/Pages/Components/DocumentUpload.vue'
 
+const listFileUpload = ref<UploadUserFile[]>([])
+const deleteFileIds = ref()
 const statusHistory = reactive<Array<IStatusHistory>>([])
 const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 const { t } = useI18n()
@@ -61,7 +66,7 @@ const curCode = 'DNTT' + Date.now()
 const createdByOptions = ref([{}])
 const peopleOptions = ref([{}])
 const optionPeople = ref()
-const optionCreatedBy = ref()
+const optionCreatedBy = ref(currentUser)
 const id = Number(router.currentRoute.value.params.id)
 const approvalId = String(route.params.approvalId)
 const type = String(route.params.type) == ':type' ? 'add' : String(route.params.type)
@@ -72,7 +77,9 @@ const formPaymentProposal = ref()
 const nameDialog = ref('')
 const printPayment = ref(false)
 const pageIndex = ref(1)
+const fileUploadList = ref()
 const doCloseOnClickModal = ref(false)
+const imageRequired = ref(false)
 const detailedListExpenses = ref<Array<IDetailExpenses>>([])
 const { ValidService } = useValidator()
 const rules = reactive<FormRules>({  
@@ -233,11 +240,12 @@ const postData = async() => {
       totalPrice: el.totalPrice,
       note: el.note
     }))
+    const listFile = listFileUpload.value.length > 0 ? listFileUpload.value?.map((file) => (file.raw || null)) : []
     const payload = {
       Code: form.value.code,
       TotalMoney: form.value.totalMoney,
       PaymentType : form.value.typeOfPayment,
-      PeopleId: optionPeople.value.id,
+      PeopleId: optionPeople.value?.id,
       CreatedBy: optionCreatedBy.value.name,
       CreatedById: form.value.createdBy,
       status: 1,
@@ -247,7 +255,8 @@ const postData = async() => {
       ExpensesDetail: JSON.stringify(detailedListExpenses.value),
       DepositeMoney: form.value.depositeMoney,
       DebtMoney: form.value.debtMoney,
-      TotalPrice: form.value.totalPrice
+      TotalPrice: form.value.totalPrice,
+      Document: listFile
     }
     await postNewPaymentRequest(FORM_IMAGES(payload))
       .then(() => {
@@ -277,6 +286,7 @@ const getDetailPayment = async() => {
   if(!isNaN(id)) {
     const res = await GetPaymentRequestDetail({id: id})
     if(res) {
+      fileUploadList.value = res.data.documents
       formValue.value  = res.data.paymentRequest
       tableData.value = res.data.paymentRequestDetail
       await setFormValue()
@@ -290,7 +300,7 @@ const getDetailPayment = async() => {
 
 }
 
-const setFormValue = () => {
+const setFormValue = async () => {
   const data = formValue.value
   form.value.code = data.code
   form.value.createdAt = data.createdAt
@@ -304,6 +314,24 @@ const setFormValue = () => {
   form.value.enterMoney = data.enterMoney
   form.value.totalPrice = data.totalPrice
   setStatusHistory()
+
+  await getCustomerById({Id: formValue.value.peopleId})
+    .then(res => {
+      console.log('res', res)
+      optionPeople.value = {
+        label: `${res.data.name} | ${res.data.phonenumber}`,
+        code: res.data.code,
+        value: res.data.phonenumber,
+        name: res.data.name,
+        id: res.data.id,
+        email: res.data.email,
+        accountName: res.data.accountName,
+        accountNumber: res.data.accountNumber
+    }
+    }
+    )
+    .catch(error => {throw new Error(error)})
+ 
 }
 
 onBeforeMount(async () => {
@@ -405,10 +433,12 @@ const getFormPayment = () => {
       moneyReceipts: formValue.value.totalMoney,
       reasonCollectingMoney: formValue.value.description,
       enterMoney: formValue.value.enterMoney,
-      payment: formValue.value.typeOfPayment == 1 ? t('reuse.cashPayment') : t('reuse.cardPayment')
+      payment: formValue.value.typeOfPayment == 1 ? t('reuse.cashPayment') : t('reuse.bankTransferPayment')
     }
     formPaymentProposalPeopleId.value = {
-      username: optionPeople.value
+      userName: optionPeople.value.name,
+      accountName: optionPeople.value.accountName,
+      accountNumber: optionPeople.value.accountNumber
     }
     nameDialog.value = t('reuse.labelPaymentProposalprint')
 
@@ -416,6 +446,11 @@ const getFormPayment = () => {
   }
 }
 const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | ${phonenumber}`, code, phonenumber, name, id, email  })
+
+const handleDocumentUpload = (listFile, delFileIds) => {
+  listFileUpload.value = listFile
+  deleteFileIds.value = delFileIds
+}
 </script>
 <template>
   <div id="IPRFormPrint">
@@ -443,11 +478,6 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
             </slot>
           </div>
         </div>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button class="btn" @click="printPayment = false">{{ t('reuse.exit') }}</el-button>
-          </span>
-        </template>
       </el-dialog>
   <el-collapse
     v-model="activeName" 
@@ -525,7 +555,8 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
           </el-form>
         </el-col>
         <el-col :span="12">
-          <el-divider content-position="left">{{ t('formDemo.documentsAttached') }}</el-divider>
+          <ElDivider content-position="left" class="text-center font-bold ml-2 fixed top-0">{{ t('reuse.attachDocument') }}</ElDivider>
+          <DocumentUpload :disabledButton="disableForm" :imageRequired="imageRequired" :type="type" :fileUploadList="fileUploadList" @update-value="handleDocumentUpload"/>
         </el-col>
       </el-row>
     </el-collapse-item>

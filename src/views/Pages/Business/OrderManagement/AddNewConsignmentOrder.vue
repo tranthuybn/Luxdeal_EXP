@@ -43,7 +43,7 @@ import {
   getOrderList,
   getOrderTransaction,
   addTPV,
-  getReceiptPaymentVoucher,
+  getReceiptPaymentVoucherCode,
   getCodePaymentRequest,
   addDNTT,
   addOrderStransaction,
@@ -1198,11 +1198,11 @@ const dialogBillLiquidation = ref(false)
 const enterdetailAddress = ref([])
 
 const getReceiptCode = async () => {
-  codeReceipts.value = await getReceiptPaymentVoucher()
+  codeReceipts.value = await getReceiptPaymentVoucherCode({CodeType:CODE.RECEIPT_PAYMENT_VOUCHER})
 }
 
 const getcodeExpenditures = async () => {
-  codeExpenditures.value = await getReceiptPaymentVoucher()
+  codeExpenditures.value = await getReceiptPaymentVoucherCode({CodeType:CODE.RECEIPT_PAYMENT_VOUCHER})
 }
 
 const newCodePaymentRequest = async () => {

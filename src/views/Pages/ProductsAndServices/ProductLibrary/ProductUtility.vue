@@ -47,12 +47,13 @@ import { reactive, unref, watch } from 'vue'
 import { useValidator } from '@/hooks/web/useValidator'
 import { FORM_IMAGES } from '@/utils/format'
 import { ref } from 'vue'
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import {CODE, PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { productStatusPending, dateTimeFormat } from '@/utils/format'
 import ProductAttribute from './ProductAttribute.vue'
 import CurrencyInputComponent from '@/components/CurrencyInputComponent.vue'
 import { getLotHistory } from '@/api/Warehouse'
 import { GenerateCodeOrder } from '@/api/common'
+
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const plusIcon = useIcon({ icon: 'akar-icons:plus' })
@@ -221,7 +222,7 @@ const addLastRowAttribute = async () => {
   }
 
   let randomCode = ''
-  await GenerateCodeOrder({CodeType:1,Code:'SP'}).then((res)=>{
+  await GenerateCodeOrder({CodeType:CODE.PRODUCT_PROPERTY}).then((res)=>{
     randomCode = res.data
   })
   //have id when in edit mode

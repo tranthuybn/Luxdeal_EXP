@@ -9,7 +9,7 @@ import { createQuickProduct } from '@/api/Business'
 import { useValidator } from '@/hooks/web/useValidator'
 import {  getBusinessProductLibrary, getCategories } from '@/api/LibraryAndSetting'
 import TableOperatorTreeSelect from '@/views/Pages/ProductsAndServices/ProductLibrary/TableOperatorTreeSelect.vue'
-import { PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
+import { CODE, PRODUCTS_AND_SERVICES } from '@/utils/API.Variables'
 import { GenerateCodeOrder } from '@/api/common'
 
 const doCloseOnClickModal = ref(false)
@@ -247,7 +247,7 @@ const postData = async (data) => {
 
 onBeforeMount(async () => {
 
-  await GenerateCodeOrder({CodeType:1,Code:'SP'})
+  await GenerateCodeOrder({CodeType:CODE.PRODUCT_PROPERTY})
   .then((res)=>{
     formRef.value?.setValues({
       quickManagementCode: res.data

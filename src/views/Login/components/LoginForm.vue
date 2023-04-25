@@ -6,7 +6,7 @@ import { ElButton, ElCheckbox, ElLink, ElNotification } from 'element-plus'
 import { useForm } from '@/hooks/web/useForm' 
 import { loginApi, GetRouterByStaffAccountId } from '@/api/login'
 // import { getRoutesAsRolesApi } from '@/api/login'
-import { getBranchByID, getStaffInfoByAccountId } from '@/api/HumanResourceManagement'
+import { getStaffInfoByAccountId } from '@/api/HumanResourceManagement'
 import { useCache } from '@/hooks/web/useCache'
 import { usePermissionStore } from '@/store/modules/permission'
 import { useRouter } from 'vue-router'
@@ -158,9 +158,9 @@ const inValidAccountAccess = (key:string|null) => {
 
 }
 // Get role information
-const getRole =  (accountId) => {
+const getRole = async (accountId) => {
   // get role list
-  GetRouterByStaffAccountId({ id: accountId }).then(routers => { 
+  await GetRouterByStaffAccountId({ id: accountId }).then(routers => { 
     if (routers?.data && routers.data.length > 0) {   
       generateRouter(routers.data)
     } else {
@@ -206,31 +206,20 @@ const generateRouter = (routers) => {
       inValidAccountAccess(permissionStore.getRouterByRoles)
   })
 }
-const getUserInfoByAccountId =  (id) => {
-   getStaffInfoByAccountId({ Id: id })
-    .then((res) => {
-      if (res.data && Object.keys(res.data).length > 0) {
-
-        const { branchId } = res.data
-        if(branchId )
-          getBranchByID({ Id: branchId }).then(res => { 
-           wsCache.set(permissionStore.getBranchCode,res.data)
-          })
-          else
-          wsCache.set(permissionStore.getBranchCode, 'ADMIN')
-          
-        wsCache.set(permissionStore.getStaffInfo, res.data)
+const getUserInfoByAccountId = async (id) => {
+  try {  
+    const staffInfo = await getStaffInfoByAccountId({ Id: id })
+    if (staffInfo.data && Object.keys(staffInfo.data).length > 0) {       
+        wsCache.set(permissionStore.getStaffInfo, staffInfo.data)
       }
-   })
-    .catch((err) => {
-      console.error(err)
+  }
+  catch {
       ElNotification({
         message: t('reuse.accountInfo'),
         type: 'error'
       })
-      if(permissionStore.getRouters.length > 0)
       inValidAccountAccess(permissionStore.getStaffInfo)
-    }) 
+  }
 }
 // store user information
 const setPermissionForUser = (data) => {
@@ -245,7 +234,6 @@ const setPermissionForUser = (data) => {
 
 window.addEventListener('keyup', function (event) {
   if (currentRoute.value.name === 'Login' && event.keyCode === 13 ) { 
-    console.log(currentRoute)
       signIn()
     }
 });

@@ -32,7 +32,6 @@ export interface PermissionState {
   userIDReceive: string
   accountId: string
   typeChat: string
-  branch:string
 }
 
 export const usePermissionStore = defineStore({
@@ -54,8 +53,7 @@ export const usePermissionStore = defineStore({
     userNameReceive : "userNameReceive",
     userIDReceive: "userIDReceive",
     accountId: 'ACCOUNT_ID',
-    typeChat: 'TYPECHAT',
-    branch:'BRANCH_CODE,'
+    typeChat: 'TYPECHAT'
   }),
   persist: {
     enabled: true
@@ -112,9 +110,6 @@ export const usePermissionStore = defineStore({
     getTypeChat(): string {
       return this.typeChat
     },
-    getBranchCode(): string { 
-      return this.branch
-    }
   },
   actions: {
     generateRoutes(

@@ -294,14 +294,14 @@ export const finishOrder = async (params: any): Promise<IResponse> => {
 }
 
 // Lấy mã phiếu thu chi
-export const getReceiptPaymentVoucher = async (): Promise<IResponse> => {
+export const getReceiptPaymentVoucherCode = async (params:any) => {
   const res = await request.get(
     {
-      url: `${ORDER_API.GET_NEW_RECEIPT_PAYMENT_VOUCHER_CODE}`
+      url: `${ORDER_API.GET_AUTO_GEN_CODE}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )
-  return res && res.data
+  return res.data.data ?? null
 }
 
 // Lấy chi tiết phiếu thu chi

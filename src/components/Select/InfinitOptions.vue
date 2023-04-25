@@ -133,7 +133,7 @@ const callAPI = async (pageIndex: number) => {
 
 const acceptKey = (item) => {
   const { hiddenKey } = propsObj
-  if (hiddenKey?.length > 0) {
+  if (hiddenKey && hiddenKey?.length > 0) {
     return Object.keys(item).filter((el) => hiddenKey.indexOf(el) === -1)
   } else options.value = Object.keys(item)
 }

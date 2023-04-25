@@ -121,6 +121,7 @@ const setCustomer = async (id) => {
       isCustomerValid()
     }) 
     .catch(error => {throw new Error(error)})
+  console.log('customerObj.value', customerObj.value)
 }
 const isCustomerValid = () => {
   console.log('isValid.value', isValid.value)
@@ -264,8 +265,9 @@ const customizeData = async (data) => {
 }
 
 const customData = (data) => {
+  console.log('customData', customerObj.value)
   const customData = {} as FormDataPostAndEdit
-  customData.CustomerId = data.customersValue
+  customData.CustomerId = data.customerId
   customData.Code = data.code
   customData.Status = 0
   customData.Discount = Number(data.discount)

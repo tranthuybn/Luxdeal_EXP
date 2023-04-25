@@ -352,7 +352,7 @@ const beforeAvatarUpload = async (rawFile, type: string) => {
     //nếu là 1 ảnh
     if (type === 'single') {
       if (rawFile.raw && rawFile.raw['type'].split('/')[0] !== 'image') {
-        ElMessage.error(t('reuse.notImageFile'))
+        ElMessage.error(t('reuse.onlyAcceptValidImageType'))
         return false
       } else if (rawFile.raw && !validImageType.includes(rawFile.raw['type'].split('/')[1])) {
         ElMessage.error(t('reuse.onlyAcceptValidImageType'))

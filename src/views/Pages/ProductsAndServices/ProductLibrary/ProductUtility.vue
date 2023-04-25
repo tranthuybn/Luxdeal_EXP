@@ -559,6 +559,7 @@ const getUnitValue = async (UnitId) => {
 const apiStatus = ref(true)
 
 const postData = async (data) => {
+  console.log('data khi post', data)
   const UnitId = data.UnitId
   data.ProductTypeId = data.ProductType
   await postProductLibrary(FORM_IMAGES(data))
@@ -568,24 +569,26 @@ const postData = async (data) => {
         message: t('reuse.saveSuccess'),
         type: 'success'
       })
-      //disabledTabOpen = false when click button Add
-      //disabledTabOpen = true when click button SaveAndAdd
+      //disabledTabOpen = true when click button Add
+      //disabledTabOpen = false when click button SaveAndAdd
       
       if (data.disabledTabOpen) {
         disabledTabOpen.value = data.disabledTabOpen
         router.push({
-        name: `products-services.productLibrary.Products`
+          name: `products-services.productLibrary.Products`
         })
-      } else {
-        disabledTabOpen.value = false
-        //open collapse 1
-        activeName.value = [collapse[1].name]
-        await collapse[1].api({ ProductId: newId.value }).then((res) => {
-          collapse[1].tableList = res.data
-        })
-        collapse[1].loading = false
-        await getAttributeData()
-      }
+        return
+      } 
+      // else {
+      //   disabledTabOpen.value = false
+      //   //open collapse 1
+      //   activeName.value = [collapse[1].name]
+      //   await collapse[1].api({ ProductId: newId.value }).then((res) => {
+      //     collapse[1].tableList = res.data
+      //   })
+      //   collapse[1].loading = false
+      //   await getAttributeData()
+      // }
     })
     .catch((error)=>{
       ElNotification({

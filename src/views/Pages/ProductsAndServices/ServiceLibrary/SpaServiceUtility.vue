@@ -17,7 +17,7 @@ const minusIcon = useIcon({ icon: 'akar-icons:minus' })
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const type = String(router.currentRoute.value.params.type)
-const activeService = ref(true)
+
 //random field code
 const curDate = 'SPA' + Date.now()
 
@@ -141,21 +141,13 @@ const schema = reactive<FormSchema[]>([
   {
     field: 'status',
     label: t('formDemo.status'),
-    component: 'Radio',
+    component: 'CheckboxSingle',
     colProps: {
       span: 18
     },
-    value: activeService.value,
+    value: true,
     componentProps: {
-      options: [
-        {
-          label: t('formDemo.isActive'),
-          value: activeService.value,
-        },
-      ],
-      onClick: (e) => {console.log(e)
-        activeService.value = !activeService.value
-      }
+      label: t('formDemo.isActive'),
     }
   },
 ])
@@ -224,6 +216,7 @@ const customPostData = (data) => {
   customData.UpdatedAt = curDate.toString()
   customData.CreatedAt = curDate.toString()
   customData.IsApproved = false
+
   return customData
 }
 

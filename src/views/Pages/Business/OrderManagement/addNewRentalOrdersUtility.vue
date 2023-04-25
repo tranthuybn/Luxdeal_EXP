@@ -48,7 +48,7 @@ import {
   addOrderStransaction,
   getOrderTransaction,
   createReturnRequest,
-  getReceiptPaymentVoucher,
+  getReceiptPaymentVoucherCode,
   getDetailAccountingEntryById,
   updateOrderTransaction,
   updateStatusTransaction,
@@ -1881,11 +1881,11 @@ watch(
 )
 
 const getReceiptCode = async () => {
-  codeReceipts.value = await getReceiptPaymentVoucher()
+  codeReceipts.value = await getReceiptPaymentVoucherCode({CodeType:CODE.RECEIPT_PAYMENT_VOUCHER})
 }
 
 const getcodeExpenditures = async () => {
-  codeExpenditures.value = await getReceiptPaymentVoucher()
+  codeExpenditures.value = await getReceiptPaymentVoucherCode({CodeType:CODE.RECEIPT_PAYMENT_VOUCHER})
 }
 
 const newCodePaymentRequest = async () => {

@@ -4,10 +4,6 @@ export const LOGIN_API_URL = ERP_DOMAIN_LOGIN
 export const ERP_DOMAIN_CHATS_URL = ERP_DOMAIN_CHATS
 export const ERP_DOMAIN_SOCKET_URL = ERP_DOMAIN_SOCKET
 
-//Mã tạo tự động khi tạo đơn hàng
-export const GENERATE_CODE_API = {
-  GET_GENERATE_CODE:'/api/v1/Tool/GenerateCode'
-}
 export const PRODUCTS_AND_SERVICES_API = {
   GET_CATEGORY: '/api/v1/Category/GetCategory',
   ADD_CATEGORY: '/api/v1/Category/AddCategory',
@@ -114,7 +110,6 @@ export const ORDER_API = {
   CREATE_RETURN_REQUEST: '/api/v1/Order/CreateReturnRequest',
   GET_RETURN_REQUEST: '/api/v1/Order/GetReturnRequest',
   GET_RETURN_REQUEST_FOR_ORDER: '/api/v1/Order/GetReturnRequestForOrder',
-  GET_NEW_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/GetNewReceiptOrPaymentVoucherCode',
   GET_DETAIL_RECEIPT_PAYMENT_VOUCHER_CODE: '/api/v1/Accountant/ReceiptOrPaymentVoucherDetail',
   GET_NEW_RECEIPT_PAYMENT_REQUEST_CODE: '/api/v1/Accountant/GetNewPaymentRequestCode',
   GET_RECEIPT_PAYMENT_REQUEST_DETAIL: '/api/v1/Accountant/GetPaymentRequestDetail',

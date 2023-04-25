@@ -14,7 +14,8 @@ export const CODE = {
   CUSTOMER: 2,
   COLLABORATOR: 3,
   PROMOTION_STRATEGY: 4,
-  ORDER:5
+  ORDER: 5,
+  RECEIPT_PAYMENT_VOUCHER: 6
 }
 export const ORDER_STYTE = [
   {

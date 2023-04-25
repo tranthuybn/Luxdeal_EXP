@@ -3,8 +3,6 @@ import { ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 
 import {
-    ElRow,
-    ElCol,
     ElUpload,
     ElButton,
     ElDialog,
@@ -27,11 +25,16 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  formValue: {
+  fileUploadList: {
     type: Object,
     default: () => {}
   },
+  disabledButton: {
+    type: Boolean,
+    default: false
+  }
 })
+
 const { t } = useI18n()
 const FileDeleteIds :Array<number> = []
 const listFileUpload = ref<UploadUserFile[]>([])
@@ -108,8 +111,8 @@ if (rawFile) {
 const handleRemove = (file: UploadFile) => {
     listFileUpload.value = listFileUpload.value?.filter((image) => image.url !== file.url)
     // remove image when edit data
-    if (props.formValue?.Images.length > 0 && props.type === 'edit') {
-        let imageRemove = props.formValue?.Images.find(
+    if (props.fileUploadList?.length > 0 && props.type === 'edit') {
+        let imageRemove = props.fileUploadList.find(
         (image) => `${API_URL}${image.path}` === file.url
         )
         if (imageRemove) {
@@ -130,8 +133,8 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
     )} ${files.length + uploadFiles.length}`
   )
 }
-watch(() => props.formValue, (newVal) => {
-    newVal.documents?.map((image) =>
+watch(() => props.fileUploadList, (newVal) => {
+    newVal.map((image) =>
     listFileUpload.value.push({ url: `${API_URL}${image.path}`, name: image.fileName }))
 })
 
@@ -139,9 +142,7 @@ watch(() => props.formValue, (newVal) => {
 
 <template>
     <div class="max-h-400px overflow-y-auto">
-        <ElRow>
-            <ElCol :span=12>
-            <div class="flex">
+        <div class="flex">
                 <div class="pr-4">
                 <div class="text-right">{{ t('formDemo.addPhotosOrFiles') }}</div>
                 <div class="text-right text-[#FECB80] italic">{{ t('formDemo.lessThanTenProfiles') }}</div>
@@ -157,29 +158,17 @@ watch(() => props.formValue, (newVal) => {
                     :limit="10"
                     :on-change="handleChangeUpload"
                     :multiple="true"
-                    :disabled="props.type === 'detail'"
+                    :disabled="disabledButton"
                     :before-remove="beforeRemove"
                     :on-preview="handlePictureCardPreview"
                     :on-remove="handleRemove"
                 >
-                    <ElButton :disabled="props.type === 'detail'" :icon="addIcon">{{ t('formDemo.addPhotosOrFiles') }}</ElButton>
+                    <ElButton :disabled="disabledButton" :icon="addIcon">{{ t('formDemo.addPhotosOrFiles') }}</ElButton>
                     <el-dialog v-model="dialogVisible">
                     <img h-full :src="dialogImageUrl" alt="Preview Image" />
                     </el-dialog>
                 </el-upload>
                 </div>
             </div>
-            </ElCol>
-            <ElCol :span=12>
-                <div v-if="formValue?.orderCode">
-                    <span>{{ `${t('reuse.orderCode')}: ` }}</span>
-                    <span class="font-bold">{{formValue.orderCode}}</span>
-                </div>
-            </ElCol>
-        </ElRow>
     </div>
 </template>
-
-<style lang="scss" scoped>
-
-</style>

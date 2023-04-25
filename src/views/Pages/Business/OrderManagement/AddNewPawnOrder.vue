@@ -2392,7 +2392,7 @@ const changeDate = (data) => {
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
     <el-collapse
-v-model="activeName" @change="collapseChangeEvent" :class="[
+       v-model="activeName" @change="collapseChangeEvent" :class="[
       'bg-[var(--el-color-white)] dark:(bg-[var(--el-color-black)] border-[var(--el-border-color)] border-1px)'
     ]">
       <div id="recpPaymentPrint">
@@ -2406,13 +2406,13 @@ v-model="activeName" @change="collapseChangeEvent" :class="[
       <div id="billPrint">
             <slot>
               <billPrint
-v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceBill"
+                v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceBill"
                 :nameDialog="nameDialog" />
             </slot>
           </div>
       <!-- Thông tin dialog in phiếu thanh toán cầm đồ -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal" v-model="Printpayment" class="font-bold" width="40%"
+        :close-on-click-modal="doCloseOnClickModal" v-model="Printpayment" class="font-bold" width="40%"
         align-center>
         <div class="section-bill">
           <div class="flex gap-3 justify-end">
@@ -2447,7 +2447,8 @@ v-if="dataEdit && dataPriceBill" :dataEdit="dataEdit" :dataPriceBill="dataPriceB
           <div class="dialog-content">
             <slot>
               <paymentOrderPrint
-v-if="dataEdit && formPaymentRequest" :dataEdit="dataEdit"
+                v-if="dataEdit && formPaymentRequest" 
+                :dataEdit="dataEdit"
                 :dataSent="formPaymentRequest" />
             </slot>
           </div>
@@ -3105,7 +3106,7 @@ v-if="
       <div id="billPawn">
         <slot>
           <billLoanConfirmation
-v-if="dataEdit" :dataCustomer="customerData" :dataEdit="dataEdit"
+            v-if="dataEdit" :dataCustomer="customerData" :dataEdit="dataEdit"
             :priceBillPawn="totalPrincipalMoney" :dayPayment="ruleForm.paymentPeriod" />
         </slot>
       </div>
@@ -4770,15 +4771,15 @@ prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" a
     </el-collapse>
   </div>
 </template>
-<style scoped>
+<style scoped lang="less">
 @media screen {
-  #billPawn {
+  #billPawn, #billPrint, #IPRFormPrint  {
     display: none;
   }
-
   .dialog-content {
     display: block;
   }
+
 }
 
 ::v-deep(.el-select) {
@@ -5022,4 +5023,5 @@ prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" a
   padding: 0 10px;
   overflow: auto;
 }
+
 </style>

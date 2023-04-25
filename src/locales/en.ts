@@ -908,6 +908,9 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    bankTransferPayment: 'Bank transfer payment',
+    amountMoneyVnd: 'Amount money (VNĐ)',
+    paymentReason: 'Payment reason',
     requestDeleteAccountSuccess: 'Submit request to cancel account successfully, waiting for approval!',
     confirmDeleteFile: 'Are you sure you want to delete',
     noHistoryOfCare: 'No history of care',

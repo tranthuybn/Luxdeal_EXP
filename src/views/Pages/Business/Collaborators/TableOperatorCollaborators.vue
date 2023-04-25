@@ -30,13 +30,14 @@ const route = useRoute()
 const loading = ref(false)
 const tabs = ref()
 const formValue = ref()
-const fileList = ref<UploadUserFile[]>([])
 const { push } = useRouter()
 const router = useRouter()
 const currentDate = ref(moment().format("DD/MM/YYYY"))
 const statusHistory = reactive<Array<IStatusHistory>>([])
 const deleteFileIds = ref()
 const listFileUpload = ref<UploadUserFile[]>([])
+const disabledForm = ref(false)
+const fileUploadList = ref()
 const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
@@ -149,7 +150,6 @@ interface IStatusHistory {
   statusName: string
   statusValue: number
   approveAt: string
-  isActive: boolean
 }
 //get data from table
 const getTableValue = async () => {
@@ -197,13 +197,23 @@ const setFormValue = async () => {
   } else {
     setValues(formValue.value)
   }
+  const dataStatus = formValue.value?.statusHistory.map((item, index) => ({
+    statusName: item.name,
+    statusValue: index + 1,
+    approveAt: dateTimeFormat(item.approveAt),
+  }))
+  statusHistory.push(...dataStatus)
+  if(formValue.value?.collaboratorFiles && formValue.value?.collaboratorFiles?.length > 0) {
+    fileUploadList.value = formValue.value.collaboratorFiles.map(item => (item?.file))
+  }
 }
 
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
 watch(
   () => props.type,
   () => {
-    if (props.type === 'detail') {
+    if (props.type === 'detail' || props.type === 'approval-collab') {
+      disabledForm.value = true
       const { setProps } = methods
       setProps({
         disabled: true
@@ -255,7 +265,6 @@ const save = async (type) => {
         emit('edit-data', data)
         loading.value = false
       }
-      fileList.value = []
       imageUrl.value = undefined
     } else {
       ElMessage.error(t('reuse.notFillAllInformation'))
@@ -329,7 +338,6 @@ onBeforeMount(() => {
     statusHistory.push({
       statusName: t('reuse.newInitialization'),
       statusValue: 1,
-      isActive: true,
       approveAt: currentDate.value
     })
   }
@@ -367,117 +375,119 @@ const handleDocumentUpload = (listFile, delFileIds) => {
     <ElRow class="pl-8" :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
         <Form :rules="rules" @register="register">
-        <template #customerDetail>
-          <ElForm :model="customerObj" label-width="146px">
-              <ElFormItem :label="t('formDemo.customerName')" prop="name" v-if="customerObj.name">
-                {{ customerObj.name }}
-              </ElFormItem>
-              <ElFormItem :label="t('formDemo.taxCode')" v-if="customerObj.taxCode">
-                {{ customerObj.taxCode }}
-              </ElFormItem>
-              <ElFormItem :label="t('formDemo.represent')" v-if="customerObj.representative">
-                {{ customerObj.representative }}
-              </ElFormItem>
-              <div class="flex gap-8">
-                <div class="w-56">
-                  <ElFormItem
-                    :label="t('reuse.phoneNumber')"
-                    v-if="customerObj.phonenumber"
-                  >
-                    {{ customerObj.phonenumber }}
+          <template #customerDetail>
+            <ElForm :model="customerObj" label-width="146px">
+                <ElFormItem :label="t('formDemo.customerName')" prop="name" v-if="customerObj.name">
+                  {{ customerObj.name }}
                 </ElFormItem>
-                </div>
-                <ElFormItem
-                    label-width="auto"
-                    :label="`${t('reuse.email')}:`"
-                    v-if="customerObj.email"
-                  >
-                    {{ customerObj.email }}
+                <ElFormItem :label="t('formDemo.taxCode')" v-if="customerObj.taxCode">
+                  {{ customerObj.taxCode }}
                 </ElFormItem>
-              </div>
-              <div class="flex gap-8">
-                <div class="w-56">
+                <ElFormItem :label="t('formDemo.represent')" v-if="customerObj.representative">
+                  {{ customerObj.representative }}
+                </ElFormItem>
+                <div class="flex gap-8">
+                  <div class="w-56">
+                    <ElFormItem
+                      :label="t('reuse.phoneNumber')"
+                      v-if="customerObj.phonenumber"
+                    >
+                      {{ customerObj.phonenumber }}
+                  </ElFormItem>
+                  </div>
                   <ElFormItem
-                    :label="t('reuse.citizenIdentificationNumber')"
-                    v-if="customerObj.cccd"
-                  >
-                    {{ customerObj.cccd }}
+                      label-width="auto"
+                      :label="`${t('reuse.email')}:`"
+                      v-if="customerObj.email"
+                    >
+                      {{ customerObj.email }}
                   </ElFormItem>
                 </div>
+                <div class="flex gap-8">
+                  <div class="w-56">
+                    <ElFormItem
+                      :label="t('reuse.citizenIdentificationNumber')"
+                      v-if="customerObj.cccd"
+                    >
+                      {{ customerObj.cccd }}
+                    </ElFormItem>
+                  </div>
 
-                <ElFormItem
-                  label-width="auto"
-                  :label="`${t('formDemo.supplyDate')}:`"
-                  v-if="customerObj.cccdCreateAt"
-                >
-                  {{ dateTimeFormat(customerObj.cccdCreateAt) }}
-                </ElFormItem>
+                  <ElFormItem
+                    label-width="auto"
+                    :label="`${t('formDemo.supplyDate')}:`"
+                    v-if="customerObj.cccdCreateAt"
+                  >
+                    {{ dateTimeFormat(customerObj.cccdCreateAt) }}
+                  </ElFormItem>
 
-                <ElFormItem
-                  label-width="auto"
-                  :label="`${t('formDemo.supplyAddress')}:`"
-                  v-if="customerObj.cccdPlaceOfGrant"
-                >
-                  <span class="leading-5">{{ customerObj.cccdPlaceOfGrant }}</span>
-                </ElFormItem>
-              </div>
-              <ElFormItem
-                :label="t('reuse.dateOfBirth')"
-                v-if="customerObj.doB"
-              >
-                {{ dateTimeFormat(customerObj.doB) }}
-              </ElFormItem>
-              <ElFormItem
-                :label="t('reuse.gender')"
-                v-if="customerObj.sex"
-              >
-                {{ customerObj.sex ? t('reuse.male') : t('reuse.female') }}
-              </ElFormItem>
-              <ElFormItem :label="t('formDemo.address')" v-if="customerObj.address">
-                {{ customerObj.address }}
-              </ElFormItem>
-              <ElFormItem
-                class="leading-5"
-                :label="t('reuse.accountBank')"
-                v-if="customerObj.bankId"
-              >
-                <ul class="leading-7">
-                  <li>{{ customerObj.accountName }}</li>
-                  <li>{{ customerObj.accountNumber }}</li>
-                  <li>{{ customerObj.bankName }}</li>
-                </ul>
-              </ElFormItem>
-            </ElForm>
-        </template>
-        <template #status>
-          <div          
-            v-for="(item, index) in statusHistory"
-            :key="index"
-           >
-            <div class="mr-5 flex flex-col justify-start gap-2 ">
-                <div>
-                  <span
-                    class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
-                  ></span>
-                  <span class="box dark:text-divck" :class="[renderStatus(item.statusValue), {'active': index == statusHistory.length - 1}]" >
-                    {{item.statusName }}    
-                    <span class="right"></span>
-                  </span>
+                  <ElFormItem
+                    label-width="auto"
+                    :label="`${t('formDemo.supplyAddress')}:`"
+                    v-if="customerObj.cccdPlaceOfGrant"
+                  >
+                    <span class="leading-5">{{ customerObj.cccdPlaceOfGrant }}</span>
+                  </ElFormItem>
                 </div>
-                <div class="italic text-xs text-gray-500">{{item.approveAt}}</div>
+                <ElFormItem
+                  :label="t('reuse.dateOfBirth')"
+                  v-if="customerObj.doB"
+                >
+                  {{ dateTimeFormat(customerObj.doB) }}
+                </ElFormItem>
+                <ElFormItem
+                  :label="t('reuse.gender')"
+                  v-if="customerObj.sex"
+                >
+                  {{ customerObj.sex ? t('reuse.male') : t('reuse.female') }}
+                </ElFormItem>
+                <ElFormItem :label="t('formDemo.address')" v-if="customerObj.address">
+                  {{ customerObj.address }}
+                </ElFormItem>
+                <ElFormItem
+                  class="leading-5"
+                  :label="t('reuse.accountBank')"
+                  v-if="customerObj.bankId"
+                >
+                  <ul class="leading-7">
+                    <li>{{ customerObj.accountName }}</li>
+                    <li>{{ customerObj.accountNumber }}</li>
+                    <li>{{ customerObj.bankName }}</li>
+                  </ul>
+                </ElFormItem>
+            </ElForm>
+          </template>
+          <template #status>
+            <div class="flex items-start flex-wrap gap-y-3">
+              <div       
+                v-for="(item, index) in statusHistory"
+                :key="index"
+              >
+                <div class="mr-5 flex flex-col justify-start gap-2 ">
+                    <div>
+                      <span
+                        class="triangle-left border-solid border-b-12 border-t-12 border-l-10 border-t-transparent border-b-transparent border-l-white dark:border-l-black dark:bg-transparent"
+                      ></span>
+                      <span class="box dark:text-divck" :class="[renderStatus(item.statusValue), {'active': index == statusHistory.length - 1}]" >
+                        {{item.statusName }}    
+                        <span class="right"></span>
+                      </span>
+                    </div>
+                    <div class="italic text-xs text-gray-500" :class="[index == statusHistory.length - 1 ? 'opacity-100' : 'opacity-60']">{{item.approveAt}}</div>
+                </div>
+              </div>
             </div>
-          </div>
-        </template>
+          </template>
         </Form>
       </ElCol>
-      <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" class="max-h-400px overflow-y-auto">
+      <ElCol :span="hasImage ? 12 : 0" v-if="hasImage" >
         <ElDivider content-position="left" class="font-bold ml-2">{{ t('formDemo.attachments') }}</ElDivider>
-        <DocumentUpload :imageRequired="imageRequired" :type="type" :formValue="formValue" @update-value="handleDocumentUpload"/>
+        <DocumentUpload :disabledButton="disabledForm" :imageRequired="imageRequired" :type="type" :fileUploadList="fileUploadList" @update-value="handleDocumentUpload"/>
       </ElCol>
     </ElRow>
     <template #under v-if="!removeButton">
       <div class="w-[100%]" v-if="type === 'add'">
-        <div class="w-[50%] flex justify-left gap-2 ml-8">
+        <div class="w-[50%] flex justify-left gap-2">
           <ElButton type="primary" :loading="loading" @click="save('add')">
             {{ model === 1 ?  t('reuse.saveAndPending') : t('reuse.saveAndComfirm')}}
           </ElButton>
@@ -503,7 +513,7 @@ const handleDocumentUpload = (listFile, delFileIds) => {
         </div>
       </div>
       <div class="w-[100%]" v-if="type === 'detail'">
-        <div v-if="model === 1 && formValue.isApp" class="w-[50%] flex justify-left gap-2 ml-5">
+        <div v-if="model === 1" class="w-[50%] flex justify-left gap-2">
           <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
             {{ t('reuse.fix') }}
           </ElButton>
@@ -512,7 +522,7 @@ const handleDocumentUpload = (listFile, delFileIds) => {
           </ElButton>
         </div>
       </div>
-      <div class="pl-57" v-if="type === 'approval-collab'">
+      <div v-if="type === 'approval-collab'">
         <el-button @click="approvalProduct" class="min-w-[120px]" type="warning">{{ t('router.approve') }}</el-button>
         <el-button class="min-w-[120px]">{{ t('router.notApproval') }}</el-button>
       </div>

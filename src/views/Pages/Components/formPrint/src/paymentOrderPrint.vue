@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ElDivider, ElTable, ElTableColumn } from 'element-plus'
-
+import { changeMoney } from '@/utils/tsxHelper'
 import { useI18n } from '@/hooks/web/useI18n'
 
 const { t } = useI18n()
@@ -15,18 +15,19 @@ const props = defineProps({
     default: () => {}
   }
 })
-console.log(props)
+console.log('dataEdit', props.dataEdit)
+console.log('dataSent', props.dataSent)
 const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 </script>
 
 <template>
-  <div class="flex" style="width: 100%; font-size: 12px;">
-    <div class="basis-4/12">
+  <div class="flex" style="width: 100%; font-size: 10px;">
+    <div class="basis-3/12">
       <img src="@/assets/imgs/images.png" />
     </div>
 
-    <div class="basis-8/12">
-      <div class="font-bold text-2xl uppercase pl-[30px]"> Giấy đề nghị thanh toán </div>
+    <div class="basis-9/12">
+      <div class="font-bold text-2xl uppercase pl-[30px]"> {{ t('reuse.labelPaymentProposalprint') }} </div>
       <el-divider />
       <div class="flex justify-between">
         <div class="pl-[72px]"
@@ -56,40 +57,36 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
     </div>
   </div>
 
-  <div class="pb-1 m-6">
-    <div class="flex pb-4 items-center ">
-      <label class="font-bold basis-6/12">{{ t('reuse.fullName') }} :</label>
+  <div class="pb-1 ">
+    <div class="flex items-center ">
+      <label class="font-bold basis-5/12">{{ t('reuse.fullName') }} :</label>
       <div>{{ props.dataEdit.userName ?? '' }} </div>
     </div>
-    <div class="flex pb-4 items-center ">
-      <label class="font-bold basis-6/12"
+    <div class="flex items-center ">
+      <label class="font-bold basis-5/12"
         >{{ t('formDemo.paymentOrder') }} {{ t('reuse.amountOfMoney') }} :</label
       >
-      <div>{{ props.dataSent.moneyReceipts ?? '' }} Đồng</div>
+      <div>{{ props.dataSent?.moneyReceipts ? changeMoney.format(props.dataSent.moneyReceipts) : 0 }}</div>
     </div>
-    <div class="flex pb-4 items-center ">
-      <label class="font-bold basis-6/12">{{ t('reuse.reason') }} :</label>
+    <div class="flex items-center ">
+      <label class="font-bold basis-5/12">{{ t('reuse.paymentReason') }} :</label>
       <div>{{ props.dataSent.inputReasonCollectMoney ?? '' }}</div>
     </div>
-    <div class="flex pb-4 items-center ">
-      <label class="font-bold basis-6/12">{{ t('formDemo.formPayment') }} :</label>
+    <div class="flex items-center ">
+      <label class="font-bold basis-5/12">{{ t('formDemo.formPayment') }} :</label>
       <div class="mr-2">{{ props.dataSent.payment}}</div>
     </div>
-    <div class="flex pb-4 items-center ">
-      <label class="font-bold basis-6/12">{{ t('userDemo.accountInfo') }} :</label>
-      <div class="uppercase">.....................................</div>
+    <div class="flex items-center ">
+      <label class="font-bold basis-5/12">{{ t('userDemo.accountInfo') }} :</label>
+      <div class="uppercase">{{ props.dataEdit?.accountName}}</div>
     </div>
-    <div class="flex pb-4 items-center ">
-      <label class="basis-6/12">{{ t('userDemo.accountNumber') }} :</label>
-      <div>.....................................</div>
-    </div>
-    <div class="flex pb-4 items-center ">
-      <label class="basis-6/12">Ngân hàng :</label>
-      <div>.....................................</div>
+    <div class="flex items-center ">
+      <label class="basis-5/12">{{ t('userDemo.accountNumber') }} :</label>
+      <div>{{ props.dataEdit?.accountNumber}}</div>
     </div>
   </div>
 
-  <div class="pb-4 m-6">
+  <div class="m-6">
     <div class="font-bold  pb-5">Bảng kê chi tiết các khoản chi</div>
     <el-table ref="singleTableRef" style="margin-right: 5px ;" v-if="dataSent"  :data="dataSent ? dataSent.detailedListExpenses : []"  border>
       <el-table-column label="Chứng từ" align="center">
@@ -98,13 +95,13 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
         <el-table-column prop="dayVouchers" label="Ngày"  />
       </el-table-column>
       <el-table-column prop="spentFor" :label="t('formDemo.spendFor')" />
-      <el-table-column prop="quantity" :label="t('reuse.quantity')"  />
-      <el-table-column prop="unitPrice" :label="t('reuse.unitPrices')">
+      <el-table-column prop="quantity" :label="t('formDemo.sl')"  />
+      <el-table-column prop="unitPrice" :label="t('reuse.unitPrice')">
         <template #default="data">
           <div class="text-right">{{ currencyFormatter.format(data.row.unitPrice) }}</div>
         </template>
       </el-table-column>
-      <el-table-column prop="finalPrice" :label="t('formDemo.intoMoney')">
+      <el-table-column prop="finalPrice" :label="t('reuse.amountMoneyVnd')">
         <template #default="data">
           <div class="text-right">{{ currencyFormatter.format(data.row.quantity * data.row.unitPrice) }}</div>
         </template>

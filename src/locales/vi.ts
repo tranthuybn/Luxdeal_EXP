@@ -960,6 +960,9 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    bankTransferPayment: 'Chuyển khoản',
+    amountMoneyVnd: 'Số tiền (VNĐ)',
+    paymentReason: 'Lý do thanh toán',
     requestDeleteAccountSuccess: 'Gửi yêu cầu hủy tài khoản thành công, đợi duyệt!',
     confirmDeleteFile: 'Bạn có chắc muốn xóa',
     noHistoryOfCare: 'Chưa có lịch sử chăm sóc',

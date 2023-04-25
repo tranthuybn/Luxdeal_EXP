@@ -121,10 +121,8 @@ const setCustomer = async (id) => {
       isCustomerValid()
     }) 
     .catch(error => {throw new Error(error)})
-  console.log('customerObj.value', customerObj.value)
 }
 const isCustomerValid = () => {
-  console.log('isValid.value', isValid.value)
   if(isValid.value) return isValid.value
   ElNotification({
     message: t('reuse.CustomersDoNotBankAccount'),
@@ -259,16 +257,15 @@ const cancel = async () => {
 const customizeData = async (data) => {
   setFormData.code = data.code
   setFormData.discount = data.discount
-  setFormData.customerId = data.customerId
+  setFormData.customerId = Number(data.customerId)
   setCustomer(data.customerId)
   getOrderByCollaborator(data)
 }
 
 const customData = (data) => {
-  console.log('customData', customerObj.value)
   const customData = {} as FormDataPostAndEdit
   customData.CustomerId = data.customerId
-  customData.Code = data.code
+  customData.Code = data.collaboratorId
   customData.Status = 0
   customData.Discount = Number(data.discount)
   customData.AccountNumber = customerObj.value.accountNumber
@@ -305,7 +302,6 @@ const editData = async (data) => {
 const postData = async (data) => {
   if(!isCustomerValid()) return
   data = customData(data)
-  console.log('data', data)
   await addNewCollaborators(FORM_IMAGES(data))
     .then(() => {
       ElNotification({
@@ -420,6 +416,6 @@ const postData = async (data) => {
 
 <style lang="less" scoped>
   ::v-deep(.btn-wrap) {
-    margin-left: 150px;
+    margin-left: 180px;
   }
 </style>

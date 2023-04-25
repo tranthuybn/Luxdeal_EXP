@@ -845,7 +845,7 @@ export const addNewCollaborators = async (data): Promise<IResponse> => {
   return res && res.data
 }
 export const cancelCustomerCollabolator = async (data): Promise<IResponse> => {
-  const res = await request.put(
+  const res = await request.delete(
     { url: `${CUSTOMER_API.CANCEL_COLLABOLATOR_ACCOUNT}`, data },
     fixedBaseURL
   )

@@ -142,16 +142,19 @@ const props = defineProps({
 // eslint-disable-next-line vue/no-setup-props-destructure
 const schema = props.schema
 const formValue = ref()
+const fileUploadList = ref()
 const currentDate = ref(moment().format("DD/MM/YYYY"))
 const deleteFileIds = ref()
 const loading = ref(false)
 const fullSpan = ref<number>()
+const fullSpanAttachDocument = ref(false)
 const rawUploadFile = ref<UploadFile>()
 const optionPeopleType = ref()
 const optionCreatedBy = ref(currentUser)
 const pageIndex = ref(1)
 const createdByOptions = ref([{}])
 const nameDialog = ref('')
+const disabledForm = ref(false)
 const isDisabled = ref(false)
 const listFileUpload = ref<UploadUserFile[]>([])
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
@@ -243,7 +246,11 @@ const setFormValue = async () => {
       email: res.data.email
     })
     .catch(error => {throw new Error(error)})
+    fullSpanAttachDocument.value = !!formValue.value.orderCode
 
+    if(formValue.value?.documents && formValue.value?.documents?.length > 0) {
+     fileUploadList.value = formValue.value.documents.map(item => item)
+    }
   }
 }
 
@@ -256,6 +263,7 @@ watch(
     if (props.type === 'detail' || props.type === 'edit' || props.type === 'approval') {
       getTableValue()
     }
+    disabledForm.value = props.type === 'approval' || props.type === 'detail'
   },
   {
     deep: true,
@@ -691,7 +699,17 @@ const handleDocumentUpload = (listFile, delFileIds) => {
       </ElCol>
       <ElCol :span="hasAttachDocument ? 12 : 0" v-if="hasAttachDocument">
         <ElDivider content-position="left" class="text-center font-bold ml-2 fixed top-0">{{ t('reuse.attachDocument') }}</ElDivider>
-        <DocumentUpload :imageRequired="imageRequired" :type="type" :formValue="formValue" @update-value="handleDocumentUpload"/>
+        <ElRow>
+          <ElCol :span="fullSpanAttachDocument ? 12 : 24">
+            <DocumentUpload :disabledButton="disabledForm" :imageRequired="imageRequired" :type="type" :fileUploadList="fileUploadList" @update-value="handleDocumentUpload"/>
+          </ElCol>
+          <ElCol :span=12>
+            <div v-if="fullSpanAttachDocument">
+                <span>{{ `${t('reuse.orderCode')}: ` }}</span>
+                <span class="font-bold">{{formValue.orderCode}}</span>
+            </div>
+          </ElCol>
+        </ElRow>
       </ElCol>
     </ElRow>
     <template #under>

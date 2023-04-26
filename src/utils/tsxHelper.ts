@@ -65,6 +65,12 @@ export function printPage(id: string) {
                 <html>
                   <head>
                     ${stylesHtml}
+                    <style>
+                    html, body {
+                      width: 148mm;
+                      height: auto;
+                    }
+                    </style>
                   </head>
                   <body>
                     ${prtHtml}

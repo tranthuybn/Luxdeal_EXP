@@ -2423,19 +2423,21 @@ const openCancelReturnRequest = () => {
 // phieu in thu chi
 const formPaymentRequest = ref()
 const printPaymentRequest = () => {
+  const tableData = [...detailedListExpenses.value]
   formPaymentRequest.value = {
       // sellOrderCode: sellOrderCode.value,
-      codePaymentRequest: codePaymentRequest.value,
+      code: codePaymentRequest.value,
       recharger: inputRecharger.value,
       user: getStaffList,
-      inputReasonCollectMoney: inputReasonCollectMoney.value,
-      reasonCollectingMoney: inputReasonCollectMoney.value,
+      description: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value,
-      detailedListExpenses: detailedListExpenses
+      payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
+      money: moneyDeibt.value,
+      detailedListExpenses: tableData,
+      totalPrice: totalPaymentRequest.value,
+      debtMoney: moneyDepositPayment.value,
+      depositeMoney: inputDepositPayment.value,
     }
-
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
 }
 
@@ -3056,7 +3058,7 @@ onBeforeMount(async () => {
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+        :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')"
         width="40%"

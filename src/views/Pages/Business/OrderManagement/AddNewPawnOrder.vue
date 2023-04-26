@@ -2355,6 +2355,7 @@ const getFormReceipts = async (textTitle) => {
 const formPaymentRequest = ref()
 const PrintpaymentOrderPrint = ref(false)
 const printPaymentRequest = () => {
+  const tableData = [...detailedListExpenses.value]
   formPaymentRequest.value = {
     // sellOrderCode: sellOrderCode.value,
     codePaymentRequest: codePaymentRequest.value,
@@ -2366,7 +2367,7 @@ const printPaymentRequest = () => {
     enterMoney: enterMoney.value,
     payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
     moneyReceipts: moneyReceipts.value,
-    detailedListExpenses: detailedListExpenses
+    detailedListExpenses: tableData
   }
 
   PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
@@ -4510,7 +4511,8 @@ v-model="giaHan" :orderId="id" :orderData="rentReturnOrder" :listProductsTable="
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal" v-model="dialogIPRForm"
+        :close-on-click-modal="doCloseOnClickModal" 
+        v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')" width="40%" align-center>
         <div>
           <el-divider />
@@ -4539,7 +4541,7 @@ v-model="giaHan" :orderId="id" :orderData="rentReturnOrder" :listProductsTable="
                   class="text-red-500">*</span></label>
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
                 <el-option
-v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+          v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
                   :value="item.value" />
               </el-select>
             </div>
@@ -4547,7 +4549,7 @@ v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
               <label class="w-[30%] text-right">{{ t('formDemo.reasonsSpendMoney') }} <span
                   class="text-red-500">*</span></label>
               <el-input
-style="width: 100%" v-model="inputReasonCollectMoney"
+          style="width: 100%" v-model="inputReasonCollectMoney"
                 :placeholder="t('formDemo.enterReasonPaymentRequest')" />
             </div>
           </div>
@@ -4597,6 +4599,23 @@ style="width: 100%" v-model="inputReasonCollectMoney"
             </div>
             <div class="w-[90px]"></div>
           </div>
+          <!-- <el-form label-width="150px">
+            <el-row class="justify-end mt-3 mr-36">
+              <el-col :span="6">
+                <el-form-item :label="t('reuse.totaMoney') " class="margin-0">
+                  <span class="w-[170px] text-right">t</span>
+                </el-form-item>
+                <el-form-item :label="t('formDemo.deposit') " class="margin-0">
+                  <span class="w-[170px] text-right">
+                    <el-input placeholder="đ" class="poi_text_right" />
+                  </span>
+                </el-form-item>
+                <el-form-item :label="t('reuse.remaining')" class="margin-0 debtMoney text-red-500" >
+                  <span class="w-[170px] text-right">{{  }}</span>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form> -->
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>

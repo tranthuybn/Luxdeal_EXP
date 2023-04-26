@@ -186,7 +186,7 @@ const onAddItem = () => {
   tableData.value.push({    
     numberVouchers: "",
     dayVouchers: new Date(),
-    spendFor: "",
+    spentFor: "",
     quantity: 1,
     unitPrice: 0,
     totalPrice: 0,
@@ -197,16 +197,18 @@ const onAddItem = () => {
 watch(
   () => tableData.value[tableData.value.length - 1],
   () => {
+    if(type === 'detail') return
     const lastItem = tableData.value.at(-1)
     if (
       lastItem?.numberVouchers &&
       lastItem?.dayVouchers &&
-      lastItem?.spendFor &&
+      lastItem?.spentFor &&
       lastItem?.quantity &&
       lastItem?.unitPrice &&
       lastItem?.totalPrice
     )
     onAddItem()
+    
   },
   {
     deep: true
@@ -234,7 +236,7 @@ const postData = async() => {
       detailedListExpenses.value = tableData.value.map((el) => ({
       numberVouchers: el.numberVouchers,
       dayVouchers: el.dayVouchers,
-      spendFor: el.spendFor,
+      spentFor: el.spentFor,
       quantity: el.quantity,
       unitPrice: el.unitPrice,
       totalPrice: el.totalPrice,
@@ -423,17 +425,21 @@ const delAction = () => {
       })
   }
 }
-const formPaymentProposalPeopleId = ref()
+const formPaymentProposalPeopleId = ref() 
 
 const getFormPayment = () => {
+  const detailedListExpenses = [...tableData.value]
   if (formValue.value.enterMoney) {
     formPaymentProposal.value = {
-      codeReceipts: formValue.value.code,
-      moneyReceipts: formValue.value.totalMoney,
-      reasonCollectingMoney: formValue.value.description,
+      code: formValue.value.code,
+      money: formValue.value.totalMoney,
+      description: formValue.value.description,
       enterMoney: formValue.value.enterMoney,
       payment: formValue.value.typeOfPayment == 1 ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
-      detailedListExpenses: []
+      totalPrice: formValue.value.totalPrice,
+      debtMoney: formValue.value.debtMoney,
+      depositeMoney: formValue.value.depositeMoney,
+      detailedListExpenses
     }
     formPaymentProposalPeopleId.value = {
       userName: optionPeople.value.name,
@@ -584,9 +590,9 @@ const handleDocumentUpload = (listFile, delFileIds) => {
                 />
             </template>
           </el-table-column>
-          <el-table-column prop="spendFor" :label="t('formDemo.spendFor')" min-width="436" >
+          <el-table-column prop="spentFor" :label="t('formDemo.spendFor')" min-width="436" >
             <template #default="scope">
-                  <el-input v-model="scope.row.spendFor" />
+                  <el-input v-model="scope.row.spentFor" />
             </template>
           </el-table-column>
           <el-table-column prop="quantity" :label="t('reuse.quantity')" min-width="132">

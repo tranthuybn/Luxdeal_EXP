@@ -921,27 +921,6 @@ const getProductPropertyPrice = async (
   return price
 }
 const autoCalculateOrder = () => {
-  // totalPriceOrder.value = 0
-  // totalFinalOrder.value = 0
-  // ListOfProductsForSale.value.map((val) => {
-  //   if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
-  // })
-
-  // if(promoMin.value) {
-  //   if(totalPriceOrder.value > promoMin.value){
-  //     promoCash.value != 0
-  //       ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
-  //       : (totalFinalOrder.value =
-  //           totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
-  //       showPromo.value = true
-  //       openDialogChoosePromotion.value = false
-  //   } else {
-  //     ElNotification({
-  //         message: t('reuse.orderIsNotEligibleForPromotion'),
-  //         type: 'warning'
-  //     })
-  //   }
-  // }
   
   totalPriceOrder.value = ListOfProductsForSale.value
     .filter((val) => val.totalPrice)
@@ -2299,17 +2278,20 @@ const clickBullPrint = () => {
 const formPaymentRequest = ref()
 const PrintpaymentOrderPrint = ref(false)
 const printPaymentRequest = () => {
+  const tableData = [...detailedListExpenses]
   formPaymentRequest.value = {
       sellOrderCode: sellOrderCode.value,
       codePaymentRequest: codePaymentRequest.value,
       recharger: inputRecharger.value,
       user: getStaffList,
-      inputReasonCollectMoney: inputReasonCollectMoney.value,
-      reasonCollectingMoney: inputReasonCollectMoney.value,
+      description: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value,
-      detailedListExpenses: detailedListExpenses
+      payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
+      money: moneyReceipts.value,
+      detailedListExpenses: tableData,
+      totalPrice: totalPaymentRequest.value,
+      debtMoney: depositePayment.value,
+      depositeMoney: debtPayment.value,
     }
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
   printPage('IPRFormPrint')

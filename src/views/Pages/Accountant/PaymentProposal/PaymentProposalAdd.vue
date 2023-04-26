@@ -317,7 +317,6 @@ const setFormValue = async () => {
 
   await getCustomerById({Id: formValue.value.peopleId})
     .then(res => {
-      console.log('res', res)
       optionPeople.value = {
         label: `${res.data.name} | ${res.data.phonenumber}`,
         code: res.data.code,
@@ -433,7 +432,8 @@ const getFormPayment = () => {
       moneyReceipts: formValue.value.totalMoney,
       reasonCollectingMoney: formValue.value.description,
       enterMoney: formValue.value.enterMoney,
-      payment: formValue.value.typeOfPayment == 1 ? t('reuse.cashPayment') : t('reuse.bankTransferPayment')
+      payment: formValue.value.typeOfPayment == 1 ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
+      detailedListExpenses: []
     }
     formPaymentProposalPeopleId.value = {
       userName: optionPeople.value.name,

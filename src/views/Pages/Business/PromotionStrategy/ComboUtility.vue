@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { getCampaignList, addNewCampaign, updateCampaign } from '@/api/Business'
-import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { CODE, CampaignType, PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { useRouter } from 'vue-router'
 import { FORM_IMAGES } from '@/utils/format'
 import { API_URL } from '@/utils/API_URL'
+import { GenerateCodeOrder } from '@/api/common'
 
 const { t } = useI18n()
-const curDate = 'Combo0' + Date.now()
+const generateCode =ref()
 const params = { CampaignType: PROMOTION_STRATEGY[4].key }
 
 const schema = reactive<FormSchema[]>([
@@ -34,7 +35,6 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       disabled: true
     },
-    value: curDate
   },
   {
     field: 'date',
@@ -359,6 +359,15 @@ const back = async () => {
     name: 'business.promotion-strategy.combo'
   })
 }
+onBeforeMount(() => {
+  if(type == 'add')
+  GenerateCodeOrder({ CodeType: CODE.PROMOTION_STRATEGY,CampaignType:CampaignType.Combo})
+    .then((res) =>
+    {
+      if(res)
+      generateCode.value = res.data ?? 'NV' + Date.now()
+    })
+})
 </script>
 
 <template>
@@ -382,6 +391,7 @@ const back = async () => {
           :params="params" :apiId="getCampaignList" @post-data="postData" :formDataCustomize="setFormData" :targetId="targetId"
           @customize-form-data="customizeData" @edit-data="editData" 
           :campaignAndStrategyType="5"
+          :code="generateCode"
           />
       </el-collapse-item>
     </el-collapse>

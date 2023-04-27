@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -7,10 +7,11 @@ import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-pl
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { getCampaignList, addNewCampaign, updateCampaign, deleteCampaign } from '@/api/Business'
 import { useRouter } from 'vue-router'
-import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { CODE, CampaignType, PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { moneyToNumber, FORM_IMAGES } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
+import { GenerateCodeOrder } from '@/api/common'
 const { t } = useI18n()
 
 const { required, ValidService, requiredOption } = useValidator()
@@ -34,7 +35,7 @@ const rules = reactive({
 const params = { CampaignType: PROMOTION_STRATEGY[2].key }
 
 //random mã
-const curDate = 'HMV0' + Date.now()
+const generateCode = ref()
 const schema = reactive<FormSchema[]>([
   {
     field: 'collectionInfo',
@@ -54,7 +55,6 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       disabled: true
     },
-    value: curDate
   },
   {
     field: 'promotion',
@@ -479,6 +479,15 @@ const back = async () => {
     name: 'views/Pages/Business/PromotionStrategy/NewProduct'
   })
 }
+onBeforeMount(() => {
+  if(type == 'add')
+  GenerateCodeOrder({ CodeType: CODE.PROMOTION_STRATEGY,CampaignType:CampaignType.Combo})
+    .then((res) =>
+    {
+      if(res)
+      generateCode.value = res.data ?? 'NV' + Date.now()
+    })
+})
 </script>
 
 
@@ -504,6 +513,7 @@ ref="formRef" :schema="schema" :apiId="getCampaignList" :delApi="deleteCampaign"
           :formDataCustomize="setFormData" :rules="rules" @customize-form-data="customizeData" @edit-data="editData"
           :show-product="true" :tabActive="tab" 
           :campaignAndStrategyType="3"
+          :code="generateCode"
           />
       </el-collapse-item>
     </el-collapse>

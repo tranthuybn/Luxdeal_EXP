@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form } from '@/components/Form'
+import { Form, FormExpose } from '@/components/Form'
 import { useForm } from '@/hooks/web/useForm'
 import { PropType, watch, ref, unref, reactive } from 'vue'
 import { TableData } from '@/api/table/types'
@@ -89,7 +89,7 @@ const props = defineProps({
   //rules để validate
   rules: {
     type: Object,
-    default: () => {}
+    default: () => { }
   },
   //limitUpload ảnh
   limitUpload: {
@@ -99,12 +99,12 @@ const props = defineProps({
   //truyền params cho api nếu cần
   params: {
     type: Object,
-    default: () => {}
+    default: () => { }
   },
   //dữ liệu đã được xử lí được gửi sau khi emit lên component cha
   formDataCustomize: {
     type: Object,
-    default: () => {}
+    default: () => { }
   },
   // add exit button to header
   backButton: {
@@ -137,6 +137,11 @@ const props = defineProps({
   splitScreen: {
     type: Boolean,
     default: false
+  },
+  code: {
+    type: String,
+    default: "",
+    descriptions:"Code auto generate from server"
   }
 })
 // eslint-disable-next-line vue/no-setup-props-destructure
@@ -160,6 +165,8 @@ const listFileUpload = ref<UploadUserFile[]>([])
 const emit = defineEmits(['post-data', 'customize-form-data', 'edit-data'])
 const { register, methods, elFormRef } = useForm({schema})
 const { getFormData, setProps } = methods
+const  formRef = ref<FormExpose>()
+
 
 //if schema has image then split screen
 props.hasAttachDocument || props.splitScreen ? (fullSpan.value = 12) : (fullSpan.value = 24)
@@ -270,7 +277,12 @@ watch(
     immediate: true
   }
 )
-
+watch(() =>props.code, (value) => {
+  if (value && props.type == 'add')
+    methods.setValues({code:value})
+}, {
+  immediate: true
+})
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData,
@@ -562,7 +574,6 @@ const handleDocumentUpload = (listFile, delFileIds) => {
   listFileUpload.value = listFile
   deleteFileIds.value = delFileIds
 }
-
 </script>
 <template>
   <ContentWrap :title="title" :back-button="backButton">
@@ -603,7 +614,7 @@ const handleDocumentUpload = (listFile, delFileIds) => {
 
     <ElRow class="pl-8" :gutter="20" justify="space-between">
       <ElCol :span="fullSpan">
-        <Form :rules="rules" @register="register" >
+        <Form :rules="rules" @register="register" ref="formRef">
           <template #statusHistory>
               <div class="mr-5 flex flex-col justify-start gap-2" v-if="type=='add'">
                 <div>

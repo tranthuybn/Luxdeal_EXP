@@ -144,6 +144,11 @@ const props = defineProps({
     description: 'Loại chiến dịch khuyến mãi',
     validator(val: number) { return CampaignTypeArr.includes(val) }
 
+  },
+  code: {
+    type: String,
+    default: "",
+    descriptions:"auto generate code got from back end"
   }
 })
 
@@ -262,7 +267,12 @@ watch(
     immediate: true
   }
 )
-
+watch(() =>props.code, (value) => {
+  if (value && props.type == 'add')
+    methods.setValues({code:value})
+}, {
+  immediate: true
+})
 defineExpose({
   elFormRef,
   getFormData: methods.getFormData

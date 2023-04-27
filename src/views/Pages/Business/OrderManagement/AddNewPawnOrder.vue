@@ -4749,7 +4749,7 @@ prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" a
 </template>
 <style scoped lang="less">
 @media screen {
-  #billPawn, #billPrint, #IPRFormPrint  {
+  #billPawn, #billPrint, #IPRFormPrint, #recpPaymentPrint  {
     display: none;
   }
   .dialog-content {

@@ -164,6 +164,7 @@ onBeforeMount(() => {
       <div class="money-receipt text-center font-bold py-3 text-xl">BIÊN NHẬN TIỀN</div>
 
       <ElTable 
+        width="1000px"
         :data="payeeTableDate" 
         header-row-class-name="text-black border-black border text-[10px]"
         header-cell-class-name="border-black border text-center"
@@ -197,7 +198,6 @@ onBeforeMount(() => {
 * {
   font-family: Lora, serif;
 }
-
 
 ::v-deep(.el-table--fit){
   border-right: 1px solid #000;

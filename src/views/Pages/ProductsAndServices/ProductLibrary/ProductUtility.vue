@@ -667,7 +667,6 @@ const customizeData = async (formData) => {
 }
 const { push } = useRouter()
 const editData = async (data) => {
-  console.log('data khi sửa', data)
   data.ProductTypeId = data.ProductType
   data.ProductStatus = data.IsActive ? 2 : 3
   await updateProductLibrary(FORM_IMAGES(data))

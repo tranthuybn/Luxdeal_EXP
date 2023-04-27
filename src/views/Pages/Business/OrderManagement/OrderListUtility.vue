@@ -1222,8 +1222,6 @@ const idAcountingEntry = ref()
 const openDialogAcountingEntry = (scope,isDisable) => {
   condition.value = isDisable;
   const data = scope.row
-  console.log("6666666666666666666666666666")
-  console.log(data.receiptOrPaymentVoucherCode)
   // showCancelAcountingEntry.value = false
   // condition.value = false
   switch (data.typeOfAccountingEntry) {

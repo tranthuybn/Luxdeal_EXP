@@ -268,9 +268,7 @@ const save = async (type) => {
             : null)
         : (data.Image = rawUploadFile.value?.raw ? rawUploadFile.value?.raw : null)
       //callback cho hàm emit
-      console.log('vào const save')
       if (type == 'add') {
-        console.log('vào đây')
         data.backRouter = true
         data.tabs = tabs
         data.tab =

@@ -19,7 +19,7 @@ const props = defineProps({
   },
   nameDialog: {
     type: String,
-    default: () => ''
+    default: () => 'bill'
   }
 })
 

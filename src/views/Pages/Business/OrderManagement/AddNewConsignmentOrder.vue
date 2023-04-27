@@ -64,7 +64,7 @@ import {
   cancelReturnOrder,
 createTicketFromReturnOrder
 } from '@/api/Business'
-
+import { printPage } from '@/utils/tsxHelper'
 import { Collapse } from '../../Components/Type'
 import moment from 'moment'
 import { CODE, ORDER, STATUS_ORDER_DEPOSIT } from '@/utils/API.Variables'
@@ -170,7 +170,7 @@ const callCustomersApi = async () => {
       code: customer.code,
       label: customer.isOrganization
         ? customer.name + ' | MST ' + customer.taxCode
-        : customer.name + ' | ' + customer.phonenumber,
+        : customer.name + ' | ' + `${customer.phonenumber || ''}`,
       address: customer.address,
       name: customer.name,
       value: customer.id,
@@ -180,6 +180,10 @@ const callCustomersApi = async () => {
       email: customer.email,
       id: customer.id
     }))
+    optionsCustomerApi.value.push({
+      label: `${staffItem.name} | ${staffItem.phoneNumber || ''}`,
+      value: staffItem.id
+    })
   }
 }
 
@@ -901,7 +905,7 @@ const clearData = () => {
   debtPayment.value = 0
   inputReasonCollectMoney.value = ''
   enterMoney.value = ''
-  inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
+  inputRecharger.value = staffItem.id
 
   detailedListExpenses.value.splice(0, detailedListExpenses.value.length - 1)
   addRowDetailedListExpoenses()
@@ -1094,51 +1098,6 @@ const batDauKyGui = async () =>{
   await orderUtility.startOrder(id,orderUtility.ServiceType.KyGui)
   await reloadStatusOrder()
 
-}
-
-function printPage(id: string) {
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
-  var indexHeight = 0;
-  if(id == "billLiquidationContract"){
-    indexHeight = 630;
-  }else if(id == "recpPaymentPrint"){
-    indexHeight = 210;
-  }else {
-    indexHeight = 297;
-  }
-  const printContents = document.getElementById(id)?.innerHTML
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  )
-  WinPrint?.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                                        <style>
-                    html, body {
-                      width: 148mm;
-    height: ${indexHeight}mm;
-    margin: 0px auto;
-    padding: 20mm;
-  }
-                    </style>
-                  </head>
-                  <body>
-                    ${printContents}
-                  </body>
-                </html>`)
-
-                WinPrint?.document.close()
-                WinPrint?.focus()
-  setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
-  }, 500)
 }
 
 // Bút toán bổ sung
@@ -2264,16 +2223,17 @@ const getFormReceipts = async (textTitle) => {
   }else{
     nameDialog.value = 'Phiếu chi đơn hàng ký gửi'
   }
+  const staffInfo = optionsCustomerApi.value.find(item => item.value === inputRecharger.value)
     formReceipts.value = {
       sellOrderCode: ruleForm.orderCode,
       codeReceipts: codeReceipts.value,
       recharger: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
-      user: optionsCustomerApi,
+      user: staffInfo,
       name: inputRecharger.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value  ? 'Tiền mặt' : 'Tiền thẻ'
+      payment: payment.value  ?  t('reuse.cashPayment') : t('reuse.bankTransferPayment')
     }
     PrintReceipts.value = !PrintReceipts.value
 }
@@ -4747,7 +4707,7 @@ const printPaymentRequest = () => {
 }
 
 @media screen {
-  #billLiquidationContract {
+  #billLiquidationContract, #recpPaymentPrint {
     display: none;
   }
 

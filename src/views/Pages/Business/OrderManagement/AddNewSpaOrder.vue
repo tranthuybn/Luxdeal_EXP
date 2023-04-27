@@ -2320,7 +2320,7 @@ const openRepairBill = () =>{
   var curDate = 'SPLND' + Date.now()
   const store = warehouseOptions.value.find((warehouse)=>warehouse.value == dataEdit.value.warehouseId)
   dialogPrinRepairSpa.value = true
-  billRepairData.value =dataEdit.value.orderDetails.map((orderDetail)=>({
+  billRepairData.value = dataEdit.value.orderDetails.map((orderDetail)=>({
     storeName: store?.label,
     importTicket: curDate,//Tự sinh
     productPropertyCode: orderDetail.productPropertyCode,

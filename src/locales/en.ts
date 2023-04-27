@@ -908,6 +908,14 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    customerSign: 'Customer sign',
+    evaluate: 'Evaluate',
+    quantitativeUse: 'Quantitative use',
+    chemistry: 'Chemistry',
+    completionDate: 'Completion date',
+    receptionDate: 'Reception date',
+    executor: 'Executor',
+    implementationProcess: 'Implementation process',
     bankTransferPayment: 'Bank transfer payment',
     amountMoneyVnd: 'Amount money (VNĐ)',
     paymentReason: 'Payment reason',

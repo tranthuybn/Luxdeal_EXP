@@ -23,8 +23,6 @@ const props = defineProps({
   }
 })
 
-console.log('props:', props)
-
 const policySale = [
   {
     title: 'Quý khách vui lòng kiểm tra hàng trước khi thanh toán',
@@ -57,7 +55,6 @@ function getArraySum(arr) {
     //  total += (arr[i].unitPrice * arr[i].quantity)
      total += arr[i].hirePrice * arr[i].quantity 
   }
-  console.log(total)
   return total
 }
 function getArraySumdepositePrice(arr){
@@ -65,22 +62,21 @@ function getArraySumdepositePrice(arr){
   for (var i in arr) {
      total += arr[i].depositePrice;
   }
-  console.log(total)
   return total
 }
 const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 </script>
 
 <template>
-  <div style="width: 100%; height: 100%;">
+  <div class="h-screen p-4">
     <div class="flex items-end pb-[30px]">
       <div class="basis-8/12 text-center">
         <img class="w-[60%] float-right" src="@/assets/imgs/images.png" />
       </div>
-      <div class="basis-4/12 text-right"> AUTHONLYLUXURY.COM </div>
+      <div class="basis-4/12 text-right text-xs"> AUTHONLYLUXURY.COM </div>
     </div>
-    <div class="flex justify-between">
-      <div class="basis-6/12">
+    <div class="flex justify-between text-xs">
+      <div class="basis-4/12">
         <div class="flex pb-1 items-center">
           <label class="mr-2">{{ t('formDemo.address') }} 1:</label>
           <div>TP. Hồ Chí Minh</div>
@@ -96,11 +92,11 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
 
     <el-divider />
 
-    <div class="flex justify-between items-center divide-x">
+    <div class="flex justify-between items-center divide-x text-xs">
       <div class="basis-5/12">
         <div class="flex pb-2 items-center">
           <label class="basis-2/5">{{ t('reuse.customerName') }}:</label>
-          <div v-if="dataEdit" class="basis-3/5">{{ dataEdit?.customer?.name }}</div>
+          <div v-if="dataEdit" class="basis-3/5">{{ props.dataEdit?.customer?.name }}</div>
         </div>
         <div class="flex pb-2 items-center">
           <label class="basis-2/5">{{ t('formDemo.address') }}:</label>
@@ -112,7 +108,7 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
         </div>
       </div>
       <div class="basis-7/12 text-center">
-        <p v-if="nameDialog === 'bill'" class="text-4xl">Phiếu thanh toán tiền phí thuê</p>
+        <p v-if="nameDialog === 'bill'" class="text-2xl ">PHIẾU THANH TOÁN</p>
         <p v-else class="text-4xl">Phiếu đặt cọc</p>
         <div class="flex justify-center pb-3">
           <label class="mr-2">{{ t('formDemo.day') }}:</label>
@@ -129,13 +125,17 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
 
     <div class="pb-[16px]">
       <el-table
+        size="small"
         ref="singleTableRef"
         :data="dataEdit ? dataEdit.orderDetails : []"
+        header-row-class-name="text-black text-[10px]"
+        header-cell-class-name="text-center"
+        cell-class-name="px-0.5"
         border
       >
         <el-table-column label="STT" type="index" align="center" />
-        <el-table-column prop="productName" width="200" :label="t('formDemo.commodityName')"  />
-        <el-table-column prop="quantity" :label="t('reuse.quantity')"  />
+        <el-table-column prop="productName" width="150" :label="t('formDemo.commodityName')"  />
+        <el-table-column width="70"  prop="quantity" :label="t('reuse.quantity')"  />
         <el-table-column width="120" prop="unitPrice" :label="t('formDemo.rentalUnitPrice')">
           <template #default="data">
             <div class="text-right">{{  currencyFormatter.format(data.row.hirePrice)  }}</div>
@@ -143,14 +143,13 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
         </el-table-column>
         <el-table-column width="120" prop="finalPrice" :label="t('formDemo.rentalFee')">
           <template #default="data">
-            <!-- <div class="text-right">{{ data.row.quantity * data.row.unitPrice }}</div> -->
              <div class="text-right">{{   currencyFormatter.format(data.row.hirePrice * data.row.quantity ) }}</div>
           </template>
         </el-table-column>
       </el-table>
     </div>
 
-    <div class="flex justify-between items-start pb-[20px]">
+    <div class="flex justify-between items-start pb-[20px] text-xs">
       <div class="border basis-6/12 p-2">
         Chính sách:
         <div v-if="nameDialog === 'bill'">
@@ -163,18 +162,17 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
       <div class="basis-5/12 flex flex-col justify-between">
         <div v-if="nameDialog === 'bill'">
           <div class="bill flex justify-between">
-            <div class="text-[20px]">{{ t('formDemo.rentalFee') }}</div>
+            <div class="text-[15px]">{{ t('formDemo.rentalFee') }}</div>
             <div v-if="dataEdit">{{currencyFormatter.format(getArraySum(dataEdit.orderDetails))  }}</div>
           </div>
           <div class="bill flex justify-between">
-            <div class="text-[20px]">{{ t('formDemo.promotions') }}</div>
+            <div class="text-[15px]">{{ t('formDemo.promotions') }}</div>
             <div v-if="dataEdit">0 đ</div>
           </div>
           <div class="bill flex justify-between">
-            <div class="text-[20px]">{{ t('formDemo.totalRentalFee') }}</div>
+            <div class="text-[15px]">{{ t('formDemo.totalRentalFee') }}</div>
             <div>{{currencyFormatter.format(getArraySum(dataEdit.orderDetails))  }}</div>
           </div>
-          
         </div>
         <div v-else>
           <div class="deposit flex justify-between">
@@ -193,12 +191,12 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
       </div>
     </div>
 
-    <div class="flex h-[16vh] justify-between text-center pb-3">
-      <div class="text-1xl font-medium border-b basis-4/12">
+    <div class="flex h-[16vh] justify-between text-center pb-3 ">
+      <div class="font-medium border-b basis-4/12 text-xs"  >
         <div> Chữ ký khách hàng </div>
         <div> (Customer's signature) </div>
       </div>
-      <div class="text-1xl font-medium border-b basis-4/12">
+      <div class="font-medium border-b basis-4/12 text-xs">
         <div> Đại diện bán hàng </div>
         <div> (Sale respresantatives) </div>
       </div>

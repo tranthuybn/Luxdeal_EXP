@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { useI18n } from '@/hooks/web/useI18n'
-const { t } = useI18n()
+import {ElForm, ElFormItem} from 'element-plus'
+import { getTodayDate } from '@/utils/tsxHelper'
 
+
+const { t } = useI18n()
 const props = defineProps({
   dataEdit: {
     type: Object,
@@ -12,25 +15,14 @@ const props = defineProps({
     default: () => ''
   }
 })
-function getUser(arr) {
-  var labelUser= "";
-  for (var i in arr) {
-    if(arr[i].value == props.dataEdit.recharger || arr[i].label == props.dataEdit.recharger) {
-      labelUser = arr[i].label
-    }
-  }
-  if(labelUser == ""){
-    labelUser = props.dataEdit.name
-  }
-  return labelUser
-}
-console.log('dataEdit: ', props.nameDialog)
+
 console.log('dataEdit: ', props.dataEdit)
 const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+const formData = {...props.dataEdit}
 </script>
 
 <template>
-  <div  style="width: 100%; height: 100%; font-size: 14px;">
+  <div class="h-screen text-sm p-4">
     <div class="flex justify-between items-center pb-4">
       <div class="basis-6/12">
         <img
@@ -43,61 +35,30 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
         <div>Chi nhánh: Hồ Chí Minh</div>
       </div>
     </div>
-    <div class="pb-6">
-      <div class="flex pb-1 items-center">
-        <label class="font-bold basis-1/5">{{ t('formDemo.address') }} :</label>
-        <div >
-          <div class="mb-2">73B Lý Nam Đế - Hoàn Kiếm - Hà Nội</div>
-          <div>116 Nguyễn Cư Trinh - Quận 1 - Hồ Chí Minh</div>
+    <ElForm label-width="120px" label-position="left">
+      <ElFormItem :label="`${t('formDemo.address')}:`">
+        <div class="flex flex-col">
+          <span>73B Lý Nam Đế - Hoàn Kiếm - Hà Nội</span>
+          <span>116 Nguyễn Cư Trinh - Quận 1 - Hồ Chí Minh</span>
         </div>
-      </div>
-      <div class="flex pb-1 items-center">
-        <label class="font-bold basis-1/5">{{ t('reuse.phoneNumber') }} :</label>
-        <div >098 23 56789 - 098 202 1919</div>
-      </div>
-      <div class="flex pb-1 items-center">
-        <label class="font-bold basis-1/5">{{ t('reuse.email') }} :</label>
-        <div >info@authonlyluxury.com</div>
-      </div>
-      <div class="flex pb-1 items-center">
-        <label class="font-bold basis-1/5">Website :</label>
-        <div >authonlyluxury.com</div>
-      </div>
-    </div>
-    <div class="text-center pb-6">
+      </ElFormItem>
+      <ElFormItem :label="`${t('reuse.phoneNumber')}:`">098 23 56789 - 098 202 1919</ElFormItem>
+      <ElFormItem :label="`${t('reuse.email')}:`">info@authonlyluxury.com</ElFormItem>
+      <ElFormItem :label="`${t('formDemo.website')}:`">authonlyluxury.com</ElFormItem>
+    </ElForm>
+    <div class="text-center pb-6 mt-4">
       <div class="font-bold text-2xl">{{ nameDialog }}</div>
-      <div
-        >Ngày {{ new Date().getDate() }} tháng {{ new Date().getMonth() + 1 }} năm
-        {{ new Date().getFullYear() }}</div
-      >
+      <div>{{ getTodayDate() }}</div>
     </div>
-    <div class="pb-10">
-      <div class="flex pb-3 items-center text-[16px]">
-        <label >{{ t('reuse.fullName') }} :</label>
-        <div> {{ getUser(props.dataEdit.user) ?? '' }} </div>
-      </div>
-      <div class="flex pb-3 items-center text-[16px]">
-        <label >{{ t('reuse.reason') }} :</label>
-        <div>{{ props.dataEdit.reasonCollectingMoney ?? '' }}</div>
-      </div>
-      <div class="flex pb-3 items-center text-[16px]">
-        <label >{{ t('reuse.amountOfMoney') }} :</label>
-        <div> {{ currencyFormatter.format(props.dataEdit.moneyReceipts)   }}</div>
-      </div>
-      <div class="flex pb-3 items-center text-[16px]">
-        <label >{{ t('formDemo.writtenWords') }} :</label>
-        <div>{{ props.dataEdit.enterMoney ?? '' }}</div>
-      </div>
-      <div class="flex pb-3 items-center text-[16px]">
-        <label >{{ t('formDemo.formPayment') }} :</label>
-        <div>{{ props.dataEdit.payment ?? '' }}</div>
-      </div>
-      <div class="flex pb-3 items-center text-[16px]">
-        <label >{{ t('formDemo.documentsAttached') }} :</label>
-        <div>{{ props.dataEdit.sellOrderCode ?? '' }}</div>
-      </div>
-    </div>
-    <div class="flex items-center justify-between text-center " style="font-size: 11px;">
+    <ElForm :data="formData" label-width="200px" label-position="left">
+      <ElFormItem :label="`${t('reuse.fullName')}:`">{{ dataEdit.user?.label ?? '' }}</ElFormItem>
+      <ElFormItem :label="`${t('reuse.reason')}:`">{{ formData.reasonCollectingMoney }}</ElFormItem>
+      <ElFormItem :label="`${t('reuse.amountOfMoney')}:`">{{ currencyFormatter.format(formData.moneyReceipts) }}</ElFormItem>
+      <ElFormItem :label="`${t('formDemo.writtenWords')}:`">{{ formData.enterMoney }}</ElFormItem>
+      <ElFormItem :label="`${t('formDemo.formPayment')}:`">{{ formData.payment }}</ElFormItem>
+      <ElFormItem :label="`${t('formDemo.documentsAttached')}:`">{{ formData.sellOrderCode }}</ElFormItem>
+    </ElForm>
+    <div class="flex items-center justify-between text-center text-sm mt-2">
       <div class="basis-2/10">
         <div class="font-bold mb-1">Giám đốc</div>
         <div class="italic">(Ký, họ tên, đóng dấu)</div>
@@ -122,11 +83,17 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 
 * {
   font-family: Lora, serif;
   font-weight: 500;
+}
+
+::v-deep(.el-form-item) {
+  margin-bottom: 0 ;
+  display: flex !important;
+  align-items: flex-start !important;
 }
 </style>

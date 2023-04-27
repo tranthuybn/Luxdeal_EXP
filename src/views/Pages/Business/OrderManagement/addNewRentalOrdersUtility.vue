@@ -84,7 +84,7 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
-import { changeMoney } from '@/utils/tsxHelper'
+import { changeMoney, printPage } from '@/utils/tsxHelper'
 import * as orderUtility from './OrderFixbug'
 import UploadMultipleImages from './UploadMultipleImages.vue'
 import AddQuickCustomer from './AddQuickCustomer.vue'
@@ -92,11 +92,9 @@ import AddQuickCustomer from './AddQuickCustomer.vue'
 const { utility } = appModules
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
-
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
 const ruleFormAddress = ref<FormInstance>()
-
 interface IRuleForm { 
   orderCode: 'DHB039423'
   leaseTerm: number
@@ -1648,42 +1646,6 @@ function openDepositDialog() {
 //   nameDialog.value = 'Phiếu thu'
 // }
 
-function printPage(id: string) {
-  const prtHtml = document.getElementById(id)?.innerHTML
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  )
-  WinPrint?.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                    <style>
-                    html, body {
-                      width: 148mm;
-    height: 297mm;
-    margin: 0 auto;
-    padding: 20mm;
-  }
-                    </style>
-                  </head>
-                  <body>
-                    ${prtHtml}
-                  </body>
-                </html>`)
-
-  WinPrint?.document.close()
-  WinPrint?.focus()
-  setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
-  }, 500)
-}
 
 const recharger = ref('Trần Hữu Dương | 0998844533')
 // Lý do thu tiền
@@ -1748,16 +1710,16 @@ const getFormReceipts = async (textTitle) => {
   }else{
     nameDialog.value = 'Phiếu chi cho thuê'
   }
+  const staffInfo = getStaffList.value.find(item => item.value === inputRecharger.value)
     formReceipts.value = {
       sellOrderCode: ruleForm.orderCode,
       codeReceipts: codeReceipts.value,
-      recharger: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
-      user: getStaffList,
+      user: staffInfo,
       name: inputRecharger.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value  ? 'Tiền mặt' : 'Tiền thẻ'
+      payment: payment.value  ?  t('reuse.cashPayment') : t('reuse.bankTransferPayment')
     }
     PrintReceipts.value = !PrintReceipts.value
     // printPage('recpPaymentPrint')
@@ -2688,16 +2650,17 @@ const backToListOrder = () => {
 // Danh sách nhân viên
 const currentCreator = ref()
 const getStaffList = ref()
+
 const callApiStaffList = async () => {
   const res = await getAllStaffList({ PageIndex: 1, PageSize: 40 })
   getStaffList.value = res.data.map((el) => ({
     value: el.id,
-    label: el.name + ' | ' + el.contact
+    label: `${el.name} | ${el.phoneNumber || ''}`
   }))
   getStaffList.value.push(
     {
       value: currentCreator.value.id,
-      label: currentCreator.value.name + ' | ' + currentCreator.value.contact
+      label: `${currentCreator.value.name} | ${currentCreator.value.phoneNumber || ''}`
     }
   )
 }
@@ -2988,7 +2951,7 @@ const printPaymentRequest = () => {
 
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+        :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
         class="font-bold"

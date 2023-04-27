@@ -560,9 +560,9 @@ const getUnitValue = async (UnitId) => {
 const apiStatus = ref(true)
 
 const postData = async (data) => {
-  console.log('data khi post', data)
   const UnitId = data.UnitId
   data.ProductTypeId = data.ProductType
+  data.ProductStatus = 2
   await postProductLibrary(FORM_IMAGES(data))
     .then( async (res) => {
       newId.value = res.data
@@ -667,7 +667,9 @@ const customizeData = async (formData) => {
 }
 const { push } = useRouter()
 const editData = async (data) => {
+  console.log('data khi sửa', data)
   data.ProductTypeId = data.ProductType
+  data.ProductStatus = data.IsActive ? 2 : 3
   await updateProductLibrary(FORM_IMAGES(data))
     .then(() =>{
       ElNotification({

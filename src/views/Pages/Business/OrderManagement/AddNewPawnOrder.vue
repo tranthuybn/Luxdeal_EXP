@@ -34,7 +34,7 @@ import ReturnOrder from './ReturnOrder.vue'
 import { FORM_IMAGES } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import AddQuickCustomer from './AddQuickCustomer.vue'
-
+import { printPage } from '@/utils/tsxHelper'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -581,49 +581,6 @@ interface historyTableType {
 
 const pawnOrderCode = ref()
 
-function printPage(id: string) {
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
-  var indexHeight = 0;
-  if (id == "recpPaymentPrint") {
-    indexHeight = 210;
-  } else {
-    indexHeight = 297;
-  }
-  const printContents = document.getElementById(id)?.innerHTML
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  )
-  WinPrint?.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                    <style>
-                    html, body {
-                      width: 148mm;
-                      height: ${indexHeight}mm;
-    margin: 0 auto;
-    padding: 20mm;
-  }
-                    </style>
-                  </head>
-                  <body >
-                    ${printContents}
-                    <br>
-                  </body>
-                </html>`)
-
-  WinPrint?.document.close()
-  WinPrint?.focus()
-  setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
-  }, 500)
-}
 const radioTracking = ref('2')
 
 const newCodePaymentRequest = async () => {

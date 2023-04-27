@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ElDivider, ElTable, ElTableColumn, ElRow, ElCol } from 'element-plus'
+import { ElDivider, ElRow, ElCol } from 'element-plus'
 // import { useIcon } from '@/hooks/web/useIcon'
 
 import { useI18n } from '@/hooks/web/useI18n'
-import { ref } from 'vue'
 
 const { t } = useI18n()
 
@@ -21,10 +20,6 @@ const props = defineProps({
     default: () => {}
   }
 })
-
-// let dataEditor = ref(props.dataEditor)
-let titleCategory = ref(props.titleCategory)
-console.log('props:', props.dataProduc)
 
 </script>
 
@@ -49,7 +44,7 @@ console.log('props:', props.dataProduc)
         </div>
         <!-- <el-button :icon="callIcon" />  -->
         <div>
-          <div class="items-end text-end">AUTHONLYLUXURY@GMAIL.COM</div>
+          <div class="items-end text-end mb-1">AUTHONLYLUXURY@GMAIL.COM</div>
           <div class="flex items-end">0987654321 - 01245789544 | AUTHONLYLUXURY@GMAIL.COM</div>
         </div>
       </div>

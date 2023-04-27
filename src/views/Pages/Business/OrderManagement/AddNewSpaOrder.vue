@@ -2736,11 +2736,11 @@ const printPaymentRequest = () => {
         </slot>
       </div>
    <div id="repairSpa">
-    <div v-for="(item,index) in billRepairData" :key="index">
-              <slot>
-            <billSpaRepair :billRepairData="item" />
-              </slot>
-          </div>
+    <div>
+      <slot>
+        <billSpaRepair :billRepairData="billRepairData" />
+      </slot>
+    </div>
    </div>
       <div id="IPRFormPrint">
         <slot>
@@ -4278,10 +4278,10 @@ const printPaymentRequest = () => {
               t('reuse.exit')
             }}</el-button>
           </div>
-          <div v-for="(item,index) in billRepairData" :key="index">
-              <slot>
-            <billSpaRepair :billRepairData="item" />
-              </slot>
+          <div>
+            <slot>
+              <billSpaRepair :billRepairData="billRepairData" />
+            </slot>
           </div>
         </div>
       </el-dialog>

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { dateTimeFormat } from '@/utils/format'
+import { ElRow, ElCol } from 'element-plus';
 
 //dialogPrinRepairSpa
-defineProps({
+const props = defineProps({
   billRepairData: {
     type: Object,
     default: ()=>{}
@@ -12,110 +13,102 @@ defineProps({
 </script>
 
 <template>
-  <div class="header">
-    <img class="w-240px h-120px" width="240" height="120" src="@/assets/imgs/images.png" />
-    <div><span class="font-black">Địa chỉ:</span> 73B Lý Nam Đế, Q.Hoàn Kiếm, Hà Nội</div>
-    <div><span class="font-black">Địa chỉ:</span> 116 Nguyễn Cư Trinh, Quận 1, TP.HCM</div>
-    <div><span class="font-black">Email:</span> authonolyluxury@gmail.com</div>
-    <div><span class="font-black">Phone:</span> 0982356789 - 0982021919</div>
-    <div><span class="font-black">Website:</span> http://authonolyluxury.com</div>
-    <div class="my-5 font-bold">PHIẾU SỬA CHỮA SẢN PHẨM AUTHONOLY SPA</div>
+  <div v-for="(item, index) in props.billRepairData" :key="index" class="">
+    <div class="flex justify-center flex-wrap text-[10px]">
+      <img class="h-25" src="@/assets/imgs/images.png" />
+      <div class="mb-1"><span class="font-bold">Địa chỉ:</span> 73B Lý Nam Đế, Q.Hoàn Kiếm, Hà Nội</div>
+      <div class="mb-1"><span class="font-bold">Địa chỉ:</span> 116 Nguyễn Cư Trinh, Quận 1, TP.HCM</div>
+      <div class="mb-1"><span class="font-bold">Email:</span> authonolyluxury@gmail.com</div>
+      <div class="mb-1"><span class="font-bold">Phone:</span> 0982356789 - 0982021919</div>
+      <div class="mb-1"><span class="font-bold">Website:</span> http://authonolyluxury.com</div>
+      <div class="my-4 font-bold text-1xl">PHIẾU SỬA CHỮA SẢN PHẨM AUTHONOLY SPA</div>
+    </div>
+    <div class="mt-4 text-[10px]">
+      <ElRow>
+        <ElCol :span="12"><span class="font-bold">Cửa hàng: {{ item.storeName }}</span></ElCol>
+        <ElCol :span="12"><span class="font-bold">Ngày nhận: {{ dateTimeFormat(item.fromDate) }}</span></ElCol>
+      </ElRow>
+      <ElRow>
+        <ElCol :span="6"><span class="font-bold">Phiếu nhập: </span> <span>{{ item.importTicket }}</span></ElCol>
+        <ElCol :span="6"><span class="font-bold">Code SP: </span> <span>{{ item.codeSP }}</span></ElCol>
+        <ElCol :span="12"><span class="font-bold">Mã hàng: </span> <span>{{ item.productPropertyCode }}</span></ElCol>
+      </ElRow>
+      <ElRow>
+        <ElCol :span="12"><span class="font-bold">Tên KH: </span> <span>{{ item.customerName }}</span></ElCol>
+        <ElCol :span="12"><span class="font-bold">Ngày trả: </span> <span>{{ dateTimeFormat(item.toDate) }}</span></ElCol>
+      </ElRow>
+      <ElRow>
+        <p></p>
+      </ElRow>
+    </div>
+    <table size="small" class="mt-4">
+      <tbody>
+        <tr>
+          <td rowspan="3">
+            <div><span class="font-bold">Tên SP sửa chữa:</span> <span> {{ item.productName }}</span></div>
+            <div><span class="font-bold">Phụ kiện đi kèm:</span> <span> {{ item.accessory }}</span></div>
+            <div><span class="font-bold">Ghi chú:</span> <span v-html="item.description"></span></div>
+          </td>
+          <td rowspan="1"><span class="font-bold">NVTN:</span></td>
+        </tr>
+        <tr>
+          <td rowspan="1"><span class="font-bold">Người giao:</span></td>
+        </tr>
+        <tr>
+          <td rowspan="1"><span class="font-bold">Người nhận:</span></td>
+        </tr>
+        </tbody>
+    </table>
+    <table size="small"  class="mt-8">
+      <tbody>
+        <tr>
+          <td><span class="font-black text-center">Nội dung</span></td>
+        </tr>
+        <tr>
+          <td v-for="(service,index) in item.spaService" :key="index">
+            - {{ service?.name }}
+          </td>
+        </tr>
+        </tbody>
+    </table>
+    <table size="small"  class="mt-4">
+      <thead>
+        <tr>
+          <th>Quy trình thực hiện</th>
+          <th>Người thực hiện</th>
+          <th>Ngày giờ tiếp nhận</th>
+          <th>Ngày giờ hoàn thành</th>
+          <th>Hóa chất</th>
+          <th>Định lượng sử dụng</th>
+          <th>Đánh giá</th>
+          <th>Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        </tr>
+        <tr>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-  <table class="mt-4">
-    <tbody>
-      <tr>
-        <td class="!border-r-0"></td>
-        <td class="!border-x-0"></td>
-        <td class="!border-x-0"></td>
-        <td class="!border-l-0"></td>
-      </tr>
-      <tr>
-        <td colspan="2"><span class="font-black">Cửa hàng: {{ billRepairData.storeName }}</span></td>
-        <td colspan="2"><span class="font-black">Ngày nhận: {{ dateTimeFormat(billRepairData.fromDate) }}</span></td>
-      </tr>
-      <tr>
-      </tr>
-      <tr>
-        <td colspan="1"><span class="font-black">Phiếu nhập: </span> <span>{{ billRepairData.importTicket }}</span></td>
-        <td colspan="1"><span class="font-black">Code SP: </span> <span>{{ billRepairData.codeSP }}</span></td>
-        <td colspan="2"><span class="font-black">Mã hàng: </span> <span>{{ billRepairData.productPropertyCode }}</span></td>
-      </tr>
-      <tr>
-        <td colspan="2"><span class="font-black">Tên KH: </span> <span>{{ billRepairData.customerName }}</span></td>
-        <td colspan="2"><span class="font-black">Ngày trả: </span> <span>{{ dateTimeFormat(billRepairData.toDate) }}</span></td>
-      </tr>
-      <tr>
-        <td colspan="4"></td>
-      </tr>
-    </tbody>
-  </table>
-  <table class="mt-4">
-    <tbody>
-      <tr>
-        <td rowspan="3">
-          <div><span class="font-black">Tên SP sửa chữa:</span> <span> {{ billRepairData.productName }}</span></div>
-          <div><span class="font-black">Phụ kiện đi kèm:</span> <span> {{ billRepairData.accessory }}</span></div>
-          <div><span class="font-black">Ghi chú:</span> <span v-html="billRepairData.description"></span></div>
-        </td>
-        <td rowspan="1"><span class="font-black">NVTN:</span></td>
-      </tr>
-      <tr>
-        <td rowspan="1"><span class="font-black">Người giao:</span></td>
-      </tr>
-      <tr>
-        <td rowspan="1"><span class="font-black">Người nhận:</span></td>
-      </tr>
-      </tbody>
-  </table>
-  <table class="mt-8">
-    <tbody>
-      <tr>
-        <td><span class="font-black text-center">Nội dung</span></td>
-      </tr>
-      <tr>
-        <td v-for="(item,index) in billRepairData.spaService" :key="index">
-          - {{ item?.name }}
-        </td>
-      </tr>
-      </tbody>
-  </table>
-  <table class="mt-4">
-    <thead>
-      <tr>
-        <th>Quy trình thực hiện</th>
-        <th>Người thực hiện</th>
-        <th>Ngày giờ tiếp nhận</th>
-        <th>Ngày giờ hoàn thành</th>
-        <th>Hóa chất</th>
-        <th>Định lượng sử dụng</th>
-        <th>Đánh giá</th>
-        <th>Ghi chú</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-      </tr>
-      <tr>
-        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-      </tr>
-      <tr>
-        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-      </tr>
-      <tr>
-        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-      </tr>
-      <tr>
-        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-      </tr>
-      <tr>
-        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-      </tr>
-      <tr>
-        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-      </tr>
-    </tbody>
-  </table>
 </template>
 
 <style scoped>
@@ -123,17 +116,6 @@ defineProps({
 
 * {
   font-family: Lora, serif;
-}
-
-.header{
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap
-}
-
-.header div{
-  width: 100%;
-  text-align: center;
 }
 
 .text-end {

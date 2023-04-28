@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { addNewCampaign, getCampaignList, updateCampaign } from '@/api/Business'
@@ -9,10 +9,11 @@ import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import moment from 'moment'
 import { FORM_IMAGES } from '@/utils/format'
-import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { CODE, CampaignType, PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { API_URL } from '@/utils/API_URL'
+import { GenerateCodeOrder } from '@/api/common'
 const { t } = useI18n()
-const curDate = 'VC' + Date.now()
+const generateCode = ref()
 const params = { CampaignType: PROMOTION_STRATEGY[3].key }
 
 const schema = reactive<FormSchema[]>([
@@ -34,7 +35,6 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       disabled: true
     },
-    value: curDate
   },
   {
     field: 'date',
@@ -406,7 +406,15 @@ const back = async () => {
     name: 'business.promotion-strategy.voucher'
   })
 }
-
+onBeforeMount(() => {
+  if(type == 'add')
+  GenerateCodeOrder({ CodeType: CODE.PROMOTION_STRATEGY,CampaignType:CampaignType.Voucher})
+    .then((res) =>
+    {
+      if(res)
+      generateCode.value = res.data ?? 'NV' + Date.now()
+    })
+})
 </script>
 
 
@@ -442,6 +450,7 @@ const back = async () => {
           :tabActive="tab"
           :targetId="targetId"
           :campaignAndStrategyType="4"
+          :code="generateCode"
         />
       </el-collapse-item>
     </el-collapse>

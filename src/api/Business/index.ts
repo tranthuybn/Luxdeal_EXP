@@ -10,6 +10,7 @@ import {
   WAREHOUSE_API,
   POINT_API,
   STAFF_API,
+  TOOL_API,
 } from '@/utils/API_URL'
 import { FORM_IMAGES, objectToQueryParams, FORM_DATA1 } from '@/utils/format'
 
@@ -20,7 +21,7 @@ const fixedBaseURL = API_URL
 
 export const GenerateCodeOrder = async (params: any): Promise<IResponse> => {
   const res = await request.get({
-    url: `${ORDER_API.GET_AUTO_GEN_CODE}?${objectToQueryParams(params)}`,
+    url: `${TOOL_API.GENERATE_CODE}?${objectToQueryParams(params)}`,
   },
     fixedBaseURL
   )
@@ -297,7 +298,7 @@ export const finishOrder = async (params: any): Promise<IResponse> => {
 export const getReceiptPaymentVoucherCode = async (params:any) => {
   const res = await request.get(
     {
-      url: `${ORDER_API.GET_AUTO_GEN_CODE}?${objectToQueryParams(params)}`
+      url: `${TOOL_API.GENERATE_CODE}?${objectToQueryParams(params)}`
     },
     fixedBaseURL
   )

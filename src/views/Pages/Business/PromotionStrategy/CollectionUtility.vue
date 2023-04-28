@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { getCampaignList, addNewCampaign, updateCampaign, deleteCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -8,9 +8,10 @@ import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-pl
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
-import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { CODE, CampaignType, PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { API_URL } from '@/utils/API_URL'
 import { useValidator } from '@/hooks/web/useValidator'
+import { GenerateCodeOrder } from '@/api/common'
 
 const { t } = useI18n()
 
@@ -35,7 +36,7 @@ const params = { CampaignType: PROMOTION_STRATEGY[1].key }
 
 
 //random mã
-const curDate = 'BST0' + Date.now()
+const generateCode = ref()
 const schema = reactive<FormSchema[]>([
   {
     field: 'collectionInfo',
@@ -55,7 +56,6 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       disabled: true
     },
-    value: curDate
   },
   {
     field: 'promotion',
@@ -481,7 +481,15 @@ const back = async () => {
   })
 }
 
-
+onBeforeMount(() => {
+  if(type == 'add')
+  GenerateCodeOrder({ CodeType: CODE.PROMOTION_STRATEGY,CampaignType:CampaignType.BoSuuTap })
+    .then((res) =>
+    {
+      if(res)
+      generateCode.value = res.data ?? 'NV' + Date.now()
+    })
+})
 </script>
 
 <template>
@@ -507,6 +515,7 @@ const back = async () => {
           :show-product="true"
           :targetId="targetId"
           :campaignAndStrategyType="2"
+          :code = "generateCode"
           />
       </el-collapse-item>
     </el-collapse>

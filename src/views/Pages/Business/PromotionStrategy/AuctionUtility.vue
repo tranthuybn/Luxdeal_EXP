@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { useIcon } from '@/hooks/web/useIcon'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -16,13 +16,14 @@ import {
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
 import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
-import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { CODE, CampaignType, PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { API_URL } from '@/utils/API_URL'
+import { GenerateCodeOrder } from '@/api/common'
 const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[5].key }
 
 //random mã
-const curDate = 'DG0' + Date.now()
+const generateCode = ref()
 
 const schema = reactive<FormSchema[]>([
   {
@@ -43,7 +44,6 @@ const schema = reactive<FormSchema[]>([
     componentProps: {
       disabled: true
     },
-    value: curDate
   },
   {
     field: 'settingPriceStep',
@@ -470,6 +470,15 @@ const back = async () => {
     name: 'business.promotion-strategy.auction'
   })
 }
+onBeforeMount(() => {
+  if(type == 'add')
+  GenerateCodeOrder({ CodeType: CODE.PROMOTION_STRATEGY,CampaignType:CampaignType.Auction })
+    .then((res) =>
+    {
+      if(res)
+      generateCode.value = res.data ?? 'NV' + Date.now()
+    })
+})
 </script>
 
 <template>
@@ -492,7 +501,9 @@ const back = async () => {
            ref="formRef" :apiId="getCampaignList" :schema="schema" :type="type"
           :multipleImages="false" :id="id" :params="params" @post-data="postData" :formDataCustomize="setFormData"
           @customize-form-data="customizeData" @edit-data="editData" :show-product="true" :targetId="targetId"
-          :campaignAndStrategyType="6" />
+          :campaignAndStrategyType="6"
+          :code ="generateCode"
+           />
       </el-collapse-item>
 
       <el-collapse-item :name="collapse[1].name">

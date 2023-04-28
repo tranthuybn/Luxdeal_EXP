@@ -1,5 +1,5 @@
 import { useAxios } from '@/hooks/web/useAxios'
-import { API_URL, ORDER_API } from '@/utils/API_URL'
+import { API_URL, ORDER_API, TOOL_API } from '@/utils/API_URL'
 import { objectToQueryParams } from '@/utils/format'
 const fixedBaseURL = API_URL
 const request = useAxios()
@@ -18,7 +18,7 @@ export const getDictOneApi = async (): Promise<IResponse> => {
 
 export const GenerateCodeOrder = async (params: any): Promise<IResponse> =>{
   const res = await request.get({
-    url: `${ORDER_API.GET_AUTO_GEN_CODE}?${objectToQueryParams(params)}`,
+    url: `${TOOL_API.GENERATE_CODE}?${objectToQueryParams(params)}`,
   },
   fixedBaseURL
   )

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import { Collapse } from '../../Components/Type'
 import { getCampaignList, addNewCampaign, updateCampaign } from '@/api/Business'
 import { useIcon } from '@/hooks/web/useIcon'
@@ -7,18 +7,19 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ElCollapse, ElCollapseItem, ElButton, ElNotification } from 'element-plus'
 import TableOperatorCollection from './TableOperatorCollection.vue'
 import { useRouter } from 'vue-router'
-import { PROMOTION_STRATEGY } from '@/utils/API.Variables'
+import { CODE, CampaignType, PROMOTION_STRATEGY } from '@/utils/API.Variables'
 import { FORM_IMAGES, moneyToNumber } from '@/utils/format'
 import { useValidator } from '@/hooks/web/useValidator'
 import { API_URL } from '@/utils/API_URL'
 import { disabledDate } from './common'
+import { GenerateCodeOrder } from '@/api/common'
 
 
 const { t } = useI18n()
 const params = { CampaignType: PROMOTION_STRATEGY[0].key }
 const router = useRouter()
 //random field code
-const curDate = 'FS' + Date.now()
+const generateCode = ref()
 
 // Validate input
 const { required, ValidService, requiredOption } = useValidator()
@@ -57,7 +58,6 @@ const schema = reactive<FormSchema[]>([
       readonly: true,
       class: 'readonly-info',
     },
-    value: curDate
   },
   {
     field: 'promotion',
@@ -484,6 +484,15 @@ const editData = async (data) => {
       })
     )
 }
+onBeforeMount(() => {
+  if(type == 'add')
+  GenerateCodeOrder({ CodeType: CODE.PROMOTION_STRATEGY,CampaignType:CampaignType.Flashsale})
+    .then((res) =>
+    {
+      if(res)
+      generateCode.value = res.data ?? 'NV' + Date.now()
+    })
+})
 </script>
 
 <template>
@@ -508,6 +517,7 @@ const editData = async (data) => {
           :targetId="targetId" @customize-form-data="customizeData" :formDataCustomize="setFormData" @edit-data="editData"
           :show-product="true"
           :campaignAndStrategyType="1"
+          :code ="generateCode"
           />
       </el-collapse-item>
     </el-collapse>

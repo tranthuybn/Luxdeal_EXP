@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import TableOperatorAccountant from '../TableOperatorAccountant.vue'
 import { useRouter } from 'vue-router'
@@ -12,6 +12,8 @@ import { FORM_IMAGES } from '@/utils/format'
 import { FormDataPostAndEdit, FormData } from '../types/ReceiptsAndExpenditures'
 import { Collapse } from '../types'
 import { formartDate } from '@/utils/tsxHelper'
+import { GenerateCodeOrder } from '@/api/common'
+import { CODE } from '@/utils/API.Variables'
 const { required } = useValidator()
 const { t } = useI18n()
 const minusIcon = useIcon({ icon: 'akar-icons:minus' })
@@ -44,7 +46,7 @@ const rules = reactive({
 const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 
 //random field code
-const curDate = 'PC' + Date.now()
+const generateCode = ref();
 const schema = reactive<FormSchema[]>([
   {
     field: 'generalServiceInformation',
@@ -62,7 +64,6 @@ const schema = reactive<FormSchema[]>([
       readonly: true,
       class: 'readonly-info',
     },
-    value: curDate
   },
   {
     field: 'createdAt',
@@ -280,7 +281,15 @@ const collapse: Array<Collapse> = [
   }
 ]
 const currentCollapse = ref<string>(collapse[0].name)
-
+  onBeforeMount(() => {
+  if(type == 'add')
+  GenerateCodeOrder({ CodeType: CODE.RECEIPT_PAYMENT_VOUCHER })
+    .then((res) =>
+    {
+      if(res)
+      generateCode.value = res.data ?? 'NV' + Date.now()
+    })
+})
 </script>
 
 <template>
@@ -317,6 +326,8 @@ const currentCollapse = ref<string>(collapse[0].name)
           :delApi="deleteReceiptOrPayment"
           :hasImage="false"
           :hasAttachDocument="true"
+          :code="generateCode"
+
         />
       </el-collapse-item>
     </el-collapse>

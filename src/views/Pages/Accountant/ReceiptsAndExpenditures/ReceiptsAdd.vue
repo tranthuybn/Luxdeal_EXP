@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, reactive, ref } from 'vue'
+import { h, onBeforeMount, reactive, ref } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
 import TableOperatorAccountant from '../TableOperatorAccountant.vue'
 import { useRouter } from 'vue-router'
@@ -12,7 +12,8 @@ import { FORM_IMAGES } from '@/utils/format'
 import { FormDataPostAndEdit, FormData } from '../types/ReceiptsAndExpenditures'
 import { Collapse } from '../types'
 import { formartDate } from '@/utils/tsxHelper'
-
+import {GenerateCodeOrder }from '@/api/Business'
+import { CODE } from '@/utils/API.Variables'
 
 const { required } = useValidator()
 const { t } = useI18n()
@@ -46,8 +47,8 @@ const rules = reactive({
 })
 
 //random field code
-const curDate = 'PT' + Date.now()
-const schema = reactive<FormSchema[]>([
+const generateCode = ref();
+const schema = ref<FormSchema[]>([
   {
     field: 'generalServiceInformation',
     label: t('formDemo.informationReceipts'),
@@ -64,7 +65,7 @@ const schema = reactive<FormSchema[]>([
       readonly: true,
       class: 'readonly-info',
     },
-    value: curDate
+    value: generateCode.value,
   },
   {
     field: 'createdAt',
@@ -274,16 +275,24 @@ const postData = async (data) => {
       })
     )
 }
-const collapse: Array<Collapse> = [
+const collapse = ref<Collapse[]>([
   {
     icon: minusIcon,
     name: 'receiptsAddDetails',
     title: t('reuse.receiptsAddDetails'),
-    columns: schema
+    columns: schema.value
   }
-]
-const currentCollapse = ref<string>(collapse[0].name)
-
+])
+const currentCollapse = ref<string>(collapse.value[0].name)
+onBeforeMount(() => {
+  if(type == 'add')
+  GenerateCodeOrder({ CodeType: CODE.RECEIPT_PAYMENT_VOUCHER })
+    .then((res) =>
+    {
+      if(res)
+      generateCode.value = res.data ?? 'NV' + Date.now()
+    })
+})
 </script>
 
 <template>
@@ -320,6 +329,7 @@ const currentCollapse = ref<string>(collapse[0].name)
           :delApi="deleteReceiptOrPayment"
           :hasImage="false"
           :hasAttachDocument="true"
+          :code="generateCode"
         />
       </el-collapse-item>
     </el-collapse>

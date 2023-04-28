@@ -15,19 +15,41 @@ const props = defineProps({
   }
 })
 
-function getArraySum(arr) {
-  var total = 0
-  for (var i in arr) {
-    if (arr[i].totalPrice !== 0) total = arr[i].totalPrice
-  }
-  return total
-}
 const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
-console.log('props: ', props)
+const getSummaries = (param) => {
+  const { columns, data } = param
+  const sums: string[] = []
+  columns.forEach((column, index) => {
+    if (index == 2) {
+      sums[index] = 'Tổng tiền'
+      return
+    }
+    if(index === 5) {
+      const values = data.map((item) => Number(item[column.property]))
+      if (!values.every((value) => Number.isNaN(value))) {
+         const total = values.reduce((prev, curr) => {
+          const value = Number(curr)
+          if (!Number.isNaN(value)) {
+            return prev + curr
+          } else {
+            return prev
+          }
+        }, 0)
+        sums[index] = currencyFormatter.format(total)
+      }
+      return
+    }
+    sums[index] = ''
+  })
+
+  return sums
+}
+
+
 </script>
 
 <template>
-  <div class="content p-3">
+  <div class="min-w-full">
     <div class="flex">
       <div class="flex-1">
         <div class="text-center">
@@ -102,26 +124,26 @@ console.log('props: ', props)
             hồng được chiết khấu theo bảng mục dưới đây:</P
           >
           <el-table
-            size="small" :data="dataEdit ? dataEdit.orderDetails : []" 
+            size="small"
+            :data="dataEdit ? dataEdit.orderDetails : []" 
             class="mt-2"
-            header-row-class-name="text-black border-black border text-[10px]"
+            header-row-class-name="text-black border-black border "
             header-cell-class-name="border-black border"
-            cell-class-name="border-black border px-0.5 text-[10px]"
+            cell-class-name="border-black border px-0.5  leading-3	"
+            show-summary
+            :summary-method="getSummaries"
           >
-            <el-table-column prop="stt" type="index" min-width="40" label="STT" align="center" />
-            <el-table-column prop="productCode" min-width="60" label="Mã hàng" align="center" />
-            <el-table-column prop="productName" min-width="250" label="Tên hàng" align="center" />
+            <el-table-column prop="stt" type="index"  min-width="40" label="STT" align="center" />
+            <el-table-column prop="productCode" min-width="50" label="Mã hàng" align="center" />
+            <el-table-column prop="productName" min-width="160" label="Tên hàng" align="center" />
             <el-table-column prop="code" label="Code" min-width="60" align="center" />
-            <el-table-column prop="accessory" label="Phụ kiện đi kèm" align="center" />
+            <el-table-column prop="accessory" min-width="60" label="Phụ kiện đi kèm" align="center" />
             <el-table-column prop="unitPrice" label="Giá nhập" align="center">
               <template #default="scope">{{ currencyFormatter.format(scope.row.unitPrice) }}</template>
             </el-table-column>
-            <el-table-column prop="businessSetupName" label="Loại hàng" align="center" />
+            <el-table-column prop="businessSetupName" min-width="60" label="Loại hàng" align="center" />
             <el-table-column prop="description" min-width="40" label="Ghi chú" align="center" />
           </el-table>
-          <div class="total-money text-end pr-[115px]" v-if="dataEdit">
-            <p>Tổng tiền {{  currencyFormatter.format(getArraySum(dataEdit.orderDetails))   }}</p>
-          </div>
           <div class="mt-2">
             <p
               >1.2. <strong>Bên B</strong> có quyền trả lại những mặt hàng không đúng như cam kết
@@ -172,12 +194,12 @@ console.log('props: ', props)
 </template>
 
 <style lang="scss" scoped>
-// @import '@/styles/variables.scss';
-// .content {
-//   font-family: $foundry;
-//   font-size: 13px;
-// }
-// ::v-deep(table) {
-//   font-size: 13px;
-// }
+
+::v-deep(.el-table__footer){
+  border: 1px solid #000;
+  border-bottom: 1px solid #000;
+  border-right: 1px solid #000;
+}
+
+
 </style>

@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 import { ElRow, ElCol, ElOption, ElSelect, ElTreeSelect, ElMessage } from 'element-plus'
-import { computed, ref, PropType, watch, onBeforeMount } from 'vue'
+import { computed, ref, PropType, onBeforeMount, watch } from 'vue'
 import { TableResponse } from '@/views/Pages/Components/Type'
 import { TableData } from '@/api/table/types'
 import { useI18n } from '@/hooks/web/useI18n'
@@ -50,7 +50,6 @@ const propsObj = defineProps({
   defaultValue: {
     type: [String, Number],
     default: null,
-
     description: 'id of option'
   },
   disabled: {

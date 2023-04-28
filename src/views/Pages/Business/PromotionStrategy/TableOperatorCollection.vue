@@ -984,20 +984,18 @@ const approvisionnement = async (val: boolean) => {
         message: val ? 'Duyệt thành công' : 'Hủy duyệt thành công',
         type: 'success'
       })
-      push({
-        name: `approve.approve-promotion-strategy`
-      })
     })
     .catch(() => {
       ElNotification({
         message: 'Duyệt thất bại',
         type: 'warning'
       })
-      push({
-        name: `approve.approve-promotion-strategy`
-      })
+
     }
     )
+    .finally(() => {
+      go(-1)
+    })
 }
 
 const saveChangeConditionVoucher = () => {

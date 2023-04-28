@@ -71,23 +71,24 @@ const getDataTableService = (spaService) => {
           <ElCol class="mb-1"><span class="font-bold">Ghi chú:</span> </ElCol>
         </ElCol>
         <ElCol :span="8">
-          <ElCol class="font-bold mb-1">NVTN</ElCol>
+          <ElCol class="font-bold mb-1 border-custom">NVTN</ElCol>
           <ElCol class="font-bold mb-1">Người giao:</ElCol>
           <ElCol class="font-bold mb-1">Người nhận:</ElCol>
         </ElCol>
       </ElRow>
     </div>
     <div>
-      <ElTable 
+      <el-table 
         size="small" 
         :data="getDataTableService(item.spaService)" 
-        class="mt-2"
-        header-row-class-name="text-black border-black border text-[10px] text-center"
+        class="mt-2 "
+        header-row-class-name="text-black border-black border  text-[10px] text-center"
         header-cell-class-name="border-black border"
+        row-class-name="border-black border"
         cell-class-name="border-black border px-0.5 text-[10px]"
       >
         <ElTableColumn width="679px" :label="t('reuse.content')" prop="serviceInfo"/>
-      </ElTable>
+      </el-table>
     </div>
 
     <ElTable 
@@ -96,6 +97,7 @@ const getDataTableService = (spaService) => {
       class="mt-2"         
       header-row-class-name="text-black border-black border text-[10px]"
       header-cell-class-name="border-black border text-center"
+      row-class-name="border-black border"
       cell-class-name="border-black border px-0.5 h-7"
     >
       <ElTableColumn width="100" :label="t('reuse.implementationProcess')" prop="implementationProcess"/>

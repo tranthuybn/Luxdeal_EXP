@@ -62,8 +62,8 @@ const approvalId = Number(router.currentRoute.value.params.approvalId)
 const accountNumberList = ref()
 const customerClassification = ref('Khách hàng')
 const pageIndex = ref(1)
+const disableUserName = ref(false)
 const escape = useIcon({ icon: 'quill:escape' })
-
 const { ValidService, notSpace, removeVietnameseTones, checkLength, doNotHaveNumber, checkNumber, checkDuplicate } = useValidator()
 
 type Callback = (error?: string | Error | undefined) => void
@@ -318,7 +318,7 @@ const getTableValue = async () => {
     ruleForm.DistrictId = formValue.value.districtId
     ruleForm.WardId = formValue.value.wardId
     arrayStatusCollab.value = formValue.value.statusHistory
-    
+    disableUserName.value = !!formValue.value.userName
     if (arrayStatusCollab.value?.length) {
       arrayStatusCollab.value[arrayStatusCollab.value?.length - 1].isActive = true
       if (type != 'approval-cus')
@@ -1187,6 +1187,7 @@ watch(() => valueCommune.value, val => {
                     </div>
                   </template>
                   <el-input
+                   :disabled="disableUserName"
                     v-model="ruleForm.userName"
                     class="w-[80%] outline-none pl-2 dark:bg-transparent"
                     type="text"
@@ -1199,26 +1200,17 @@ watch(() => valueCommune.value, val => {
               <div v-if="type == 'detail' || type == 'edit'">
                 <ElFormItem
                   class="flex items-center w-[100%]"
-                  prop="password"
-                  :label="t('login.password')"
+                  label=" "
                 >
-                  <div class="flex">
-                    <el-input
-                      v-model="ruleForm.password"
-                      class="w-[50%] outline-none pl-2 dark:bg-transparent"
-                      type="password"
-                      :placeholder="t('formDemo.enterPassword')"
-                      :formatter="(value) => value.replace(/^\s+$/gm, '')"
-                    />
-
+                  <div class="pl-2">
                     <el-button
-                      @click="centerDialogVisible = true"
-                      class="w-[50%] outline-none min-h-9 pl-2 ml-3 dark:bg-transparent"
-                      >{{ t('reuse.changePassword') }}
-                    </el-button>
+                        @click="centerDialogVisible = true"
+                        class="outline-none min-h-9dark:bg-transparent"
+                        >{{ t('reuse.changePassword') }}
+                    </el-button> 
                   </div>
                   <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+                    :close-on-click-modal="doCloseOnClickModal"
                     v-model="centerDialogVisible"
                     :title="t('reuse.changePassword')"
                     width="30%"
@@ -1269,7 +1261,7 @@ watch(() => valueCommune.value, val => {
                 </ElFormItem>
               </div>
               <div class="w-[100%]" v-else>
-                <ElFormItem
+                <ElFormItem 
                   prop="password"
                   class="flex items-center w-[100%]"
                   :label="t('login.password')"

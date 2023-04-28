@@ -508,7 +508,6 @@ const approvalProduct = async () => {
       })
     )
 }
-console.log('type', props.type)
 
 </script>
 <template>

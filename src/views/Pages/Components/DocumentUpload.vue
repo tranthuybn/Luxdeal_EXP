@@ -111,9 +111,9 @@ if (rawFile) {
 const handleRemove = (file: UploadFile) => {
     listFileUpload.value = listFileUpload.value?.filter((image) => image.url !== file.url)
     // remove image when edit data
-    if (props.fileUploadList?.length > 0 && props.type === 'edit') {
+    if (props.fileUploadList?.length > 0 && props?.type === 'edit') {
         let imageRemove = props.fileUploadList.find(
-        (image) => `${API_URL}${image.path}` === file.url
+        (image) => `${API_URL}${image?.path}` === file.url
         )
         if (imageRemove) {
         deleteFileIds.value.push(imageRemove.id)
@@ -134,8 +134,10 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   )
 }
 watch(() => props.fileUploadList, (newVal) => {
-    newVal.map((image) =>
-    listFileUpload.value.push({ url: `${API_URL}${image.path}`, name: image.fileName }))
+    if(newVal) {
+        newVal.map((image) =>
+        listFileUpload.value.push({ url: `${API_URL}${image?.path}`, name: image?.fileName }))
+    }
 })
 
 </script>

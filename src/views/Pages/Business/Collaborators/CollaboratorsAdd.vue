@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useIcon } from '@/hooks/web/useIcon'
 import { Collapse } from '../../Components/Type'
-import { dateTimeFormat, moneyFormat } from '@/utils/format'
+import { dateTimeFormat } from '@/utils/format'
 import TableOperatorCollaborators from './TableOperatorCollaborators.vue'
-import { reactive, ref, h } from 'vue'
+import { reactive, ref, h, provide } from 'vue'
 import { useI18n } from '@/hooks/web/useI18n'
+import { changeMoney } from '@/utils/tsxHelper'
 import {
   getCollaboratorsById,
   addNewCollaborators,
@@ -41,10 +42,6 @@ const escape = useIcon({ icon: 'quill:escape' })
 const router = useRouter()
 const id = Number(router.currentRoute.value.params.id)
 const tableData = ref<Array<any>>([])
-const totalFinalPrice = ref(0)
-const totalPriceCumulativeCom = ref(0)
-const totalReceivePrice = ref(0)
-const totalCumulativeCom = ref(0)
 const customerObj = ref({} as ICustomer)
 const orderList = ref()
 const commissionPaymentList = ref()
@@ -102,14 +99,6 @@ const getCommissionPaymentByCollaborator = async (formValue) => {
       var c: any = new Date(a.date)
       var d: any = new Date(b.date)
       return c - d
-    })
-
-    tableData.value.map((val) => {
-      if (val.totalPrice) {
-        totalFinalPrice.value += val.totalPrice
-        totalPriceCumulativeCom.value += (val.commission * val.totalPrice) / 100
-        totalReceivePrice.value += val.paidMoney
-      }
     })
   }
 }
@@ -178,8 +167,7 @@ const schema = reactive<FormSchema[]>([
       api: getAllCustomer,
       mapFunction: getMapData,
       clearable: false,
-      showDetailOption: true,
-      fields: [t('reuse.customerCode'),t('reuse.phoneNumber'),t('reuse.customerName')],
+      fields: [t('reuse.customerCode'), t('reuse.phoneNumber'), t('reuse.customerName')],
       onChange: setCustomer,
     },
     colProps: {
@@ -255,6 +243,7 @@ const cancel = async () => {
 
 
 const customizeData = async (data) => {
+  provide('id', data.id)
   setFormData.collaboratorId = data.code
   setFormData.discount = data.discount
   setFormData.customerId = Number(data.customerId)
@@ -321,6 +310,37 @@ const postData = async (data) => {
     )
 }
 
+const getSummaries = (param) => {
+  const { columns, data } = param
+  const sums: string[] = []
+  columns.forEach((column, index) => {
+    if (index === 2) {
+      sums[index] = ''
+      return
+    }
+    const values = data.map((item) => {
+      if(index === 4) return Number((item.totalPrice * item.commission) / 100)
+      return Number(item[column.property])
+    })
+    if (!values.every((value) => Number.isNaN(value))) {
+      const total = values.reduce((prev, curr) => {
+        const value = Number(curr)
+        if (!Number.isNaN(value)) {
+          return prev + curr
+        } else {
+          return prev
+        }
+      }, 0)
+      sums[index] = changeMoney.format(total)
+    } else {
+      sums[index] = ''
+    }
+  })
+
+  return sums
+} 
+
+
 </script>
 <template>
   <div class="demo-collapse dark:bg-[#141414]">
@@ -360,7 +380,7 @@ const postData = async (data) => {
           <el-button class="header-icon" :icon="collapse[1].icon" link />
           <span class="text-center text-xl">{{ collapse[1].title }}</span>
         </template>
-        <el-table :data="tableData" border style="width: 100%">
+        <el-table :data="tableData" border style="width: 100%" show-summary :summary-method="getSummaries">
           <el-table-column prop="date" :label="t('reuse.date')" width="180">
             <template #default="data">
               {{ dateTimeFormat(data.row.date) }}
@@ -374,7 +394,7 @@ const postData = async (data) => {
           </el-table-column>
           <el-table-column prop="totalPrice" :label="t('reuse.orderSales')" align="right">
             <template #default="data">
-              {{ moneyFormat(data.row.totalPrice) }}
+              {{ changeMoney.format(data.row.totalPrice) }}
             </template>
           </el-table-column>
           <el-table-column
@@ -383,32 +403,20 @@ const postData = async (data) => {
             align="right"
           >
             <template #default="data">
-              {{ moneyFormat((data.row.totalPrice * data.row.commission) / 100) }}
+              {{ changeMoney.format((data.row.totalPrice * data.row.commission) / 100) }}
             </template>
           </el-table-column>
           <el-table-column prop="paidMoney" :label="t('formDemo.spent')" align="right">
             <template #default="data">
-              {{ moneyFormat(data.row.paidMoney) }}
+              {{ changeMoney.format(data.row.paidMoney) }}
             </template>
           </el-table-column>
           <el-table-column prop="cumulativeCom" :label="t('formDemo.cumulativeCom')" align="right">
             <template #default="data">
-              {{ moneyFormat(data.row.cumulativeCom) }}
+              {{ changeMoney.format(data.row.cumulativeCom) }}
             </template>
           </el-table-column>
         </el-table>
-        <div class="flex justify-end">
-          <div v-if="totalFinalPrice > 0" class="font-bold">{{ moneyFormat(totalFinalPrice) }}</div>
-          <div v-if="totalPriceCumulativeCom > 0" class="font-bold pl-3">{{
-            moneyFormat(totalPriceCumulativeCom)
-          }}</div>
-          <div v-if="totalReceivePrice > 0" class="font-bold pl-3">{{
-            moneyFormat(totalReceivePrice)
-          }}</div>
-          <div v-if="totalCumulativeCom > 0" class="font-bold pl-3">{{
-            moneyFormat(totalCumulativeCom)
-          }}</div>
-        </div>
       </el-collapse-item>
     </el-collapse>
   </div>

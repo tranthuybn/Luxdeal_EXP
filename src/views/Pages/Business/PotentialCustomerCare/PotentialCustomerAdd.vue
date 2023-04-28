@@ -229,10 +229,10 @@ const disabledDate = (time: Date) => {
   return time.getTime() > Date.now()
 }
 
-const getMapOrderData =  ({code, serviceType, userName, createdAt,createdBy , id}) => ({
+const getMapOrderData =  ({code, serviceType, name, createdAt,createdBy , id}) => ({
   label: code,
   serviceType: t(`${orderType(serviceType)}`),
-  userName,
+  name,
   createdAt: dateTimeFormat(createdAt),
   createdBy,
   value: id

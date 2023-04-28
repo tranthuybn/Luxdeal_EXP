@@ -502,7 +502,7 @@ const handleDocumentUpload = (listFile, delFileIds) => {
         </div>
       </div>
       <div class="w-[100%]" v-if="type === 'edit'">
-        <div class="w-[50%] flex justify-left gap-2 ml-5">
+        <div class="w-[50%] flex justify-left gap-2">
           <ElButton :loading="loading" type="primary" @click="save('edit')">
             {{ t('reuse.save') }}
           </ElButton>

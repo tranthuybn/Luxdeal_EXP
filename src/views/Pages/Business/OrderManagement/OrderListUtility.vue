@@ -77,7 +77,7 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import { API_URL } from '@/utils/API_URL'
 import { appModules } from '@/config/app'
 import { deleteTempCode } from '@/api/common'
-import { changeMoney } from '@/utils/tsxHelper'
+import { changeMoney, printPage } from '@/utils/tsxHelper'
 import AddQuickCustomer from './AddQuickCustomer.vue'
 
 import UploadMultipleImages from './UploadMultipleImages.vue'
@@ -1854,48 +1854,6 @@ const openPaymentRequest = () => {
   dialogIPRForm.value = true
 }
 
-function printPage(id: string) {
-  var indexHeight = 0;
-  if(id == "recpPaymentPrint"){
-    indexHeight = 210;
-  }else {
-    indexHeight = 297;
-  }
-  const prtHtml = document.getElementById(id)?.innerHTML
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  )
-  WinPrint?.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                    <style>
-                    html, body {
-                      width: 148mm;
-    height: ${indexHeight}mm;
-    margin: 0 auto;
-    padding: 20mm;
-  }
-                    </style>
-                  </head>
-                  <body style="width: 98%;">
-                    ${prtHtml}
-                  </body>
-                </html>`)
-
-  WinPrint?.document.close()
-  WinPrint?.focus()
-  setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
-  }, 500)
-}
 
 let childrenTable = ref()
 let objOrderStransaction = ref()

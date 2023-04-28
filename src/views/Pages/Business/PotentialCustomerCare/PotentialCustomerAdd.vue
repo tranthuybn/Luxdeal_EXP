@@ -881,28 +881,30 @@ const customizeData = (formData) => {
   formDataCustomize.value.classify = formData.isOrganization
   formDataCustomize.value.service = formData.service
   formDataCustomize.value.status = formData.statusId
-  const result : Array<tableDataType> = Object.values(formData.potentialCustomerHistorys.reduce((acc, curr) => {
-      const key = curr.staffId;
-      if (!acc[key]) {
-        indexSale.value++
-        acc[key] = {
-          indexSale: indexSale.value,
+  if(formData.potentialCustomerHistorys[0]){
+    const result : Array<tableDataType> = Object.values(formData.potentialCustomerHistorys.reduce((acc, curr) => {
+        const key = curr.staffId;
+        if (!acc[key]) {
+          indexSale.value++
+          acc[key] = {
+            indexSale: indexSale.value,
+            date: curr.createdAt,
+            createdAt: curr.createdAt,
+            staffId: curr.staffId,
+            content: curr.content,
+            percentageOfSales: curr.percentageOfSales,
+            id: curr.id,
+            family: [],
+          };
+        }
+        acc[key].family.push({
           date: curr.createdAt,
-          createdAt: curr.createdAt,
-          staffId: curr.staffId,
-          content: curr.content,
-          percentageOfSales: curr.percentageOfSales,
-          id: curr.id,
-          family: [],
-        };
-      }
-      acc[key].family.push({
-        date: curr.createdAt,
-        customerCareContent: curr.content,
-      });
-      return acc;
-    }, {}));
-  tableData.value = result.reverse()
+          customerCareContent: curr.content,
+        });
+        return acc;
+      }, {}));
+    tableData.value = result.reverse()
+  }
   changeValueClassify(formDataCustomize.value.classify)
 }
 

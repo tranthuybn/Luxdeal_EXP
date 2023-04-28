@@ -27,7 +27,7 @@ console.log('props: ', props)
 </script>
 
 <template>
-  <div class="content">
+  <div class="content p-3">
     <div class="flex">
       <div class="flex-1">
         <div class="text-center">
@@ -101,15 +101,23 @@ console.log('props: ', props)
             món đồ đã qua sử dụng theo phương thức ký gửi các món đồ, giá cả, số lượng, tỉ lệ hoa
             hồng được chiết khấu theo bảng mục dưới đây:</P
           >
-          <el-table :data="dataEdit ? dataEdit.orderDetails : []" border class="mt-2">
-            <el-table-column prop="stt" type="index" min-width="80" label="Stt" align="center" />
-            <el-table-column prop="productCode" label="Mã hàng" align="center" />
-            <el-table-column prop="productName" min-width="150" label="Tên hàng" align="center" />
-            <el-table-column prop="code" label="Code" align="center" />
+          <el-table
+            size="small" :data="dataEdit ? dataEdit.orderDetails : []" 
+            class="mt-2"
+            header-row-class-name="text-black border-black border text-[10px]"
+            header-cell-class-name="border-black border"
+            cell-class-name="border-black border px-0.5 text-[10px]"
+          >
+            <el-table-column prop="stt" type="index" min-width="40" label="STT" align="center" />
+            <el-table-column prop="productCode" min-width="60" label="Mã hàng" align="center" />
+            <el-table-column prop="productName" min-width="250" label="Tên hàng" align="center" />
+            <el-table-column prop="code" label="Code" min-width="60" align="center" />
             <el-table-column prop="accessory" label="Phụ kiện đi kèm" align="center" />
-            <el-table-column prop="description" label="Tình trạng" align="center" />
-            <el-table-column prop="unitPrice" label="Giá nhập" align="center" />
+            <el-table-column prop="unitPrice" label="Giá nhập" align="center">
+              <template #default="scope">{{ currencyFormatter.format(scope.row.unitPrice) }}</template>
+            </el-table-column>
             <el-table-column prop="businessSetupName" label="Loại hàng" align="center" />
+            <el-table-column prop="description" min-width="40" label="Ghi chú" align="center" />
           </el-table>
           <div class="total-money text-end pr-[115px]" v-if="dataEdit">
             <p>Tổng tiền {{  currencyFormatter.format(getArraySum(dataEdit.orderDetails))   }}</p>

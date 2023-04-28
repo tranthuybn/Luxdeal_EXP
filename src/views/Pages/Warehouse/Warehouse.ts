@@ -57,15 +57,17 @@ export const wareHouse = [
       return h(
         'ul',
         // assuming `items` is a ref with array value
-        row?.productPropertyAttribute.map((item) => {
-          if (item.value) {
-            return h('span', `${item.value},`)
-          }
-        })
+        [
+          h('span', `${row.productName}/`),
+          ...row?.productPropertyAttribute.map((item) => {
+            if (item.value) {
+              return h('span', `${item.value}/`)
+            }
+          })
+        ]
       )
     }
   },
-
   {
     field: 'accessory',
     label: t('reuse.accessory'),

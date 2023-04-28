@@ -960,6 +960,14 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    customerSign: 'Khách hàng ký',
+    evaluate: 'Đánh giá',
+    quantitativeUse: 'Định lượng sử dụng',
+    chemistry: 'Hóa chất',
+    completionDate: 'Ngày giờ hoàn thành',
+    receptionDate: 'Ngày giờ tiếp nhận',
+    executor: 'Người thực hiện',
+    implementationProcess: 'Quy trình thực hiện',
     bankTransferPayment: 'Chuyển khoản',
     amountMoneyVnd: 'Số tiền (VNĐ)',
     paymentReason: 'Lý do thanh toán',

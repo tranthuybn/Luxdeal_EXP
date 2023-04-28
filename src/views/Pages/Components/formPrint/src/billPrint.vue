@@ -19,7 +19,7 @@ const props = defineProps({
   },
   nameDialog: {
     type: String,
-    default: () => ''
+    default: () => 'bill'
   }
 })
 
@@ -50,7 +50,6 @@ const policyDeposit = [
 ]
 function getArraySum(arr) {
   var total = 0
-  console.log(arr)
   for (var i in arr) {
     //  total += (arr[i].unitPrice * arr[i].quantity)
      total += arr[i].totalPrice

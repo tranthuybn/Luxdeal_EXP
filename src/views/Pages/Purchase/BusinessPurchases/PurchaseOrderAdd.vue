@@ -79,7 +79,7 @@ import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import liquidationPurchaseContractPrint from '../../Components/formPrint/src/liquidationPurchaseContractPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
-import { changeMoney } from '@/utils/tsxHelper'
+import { changeMoney, printPage } from '@/utils/tsxHelper'
 import { API_URL } from '@/utils/API_URL'
 //them nhanh sp
 import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
@@ -1691,45 +1691,6 @@ function openPaymentRequestDialog() {
   nameDialog.value = 'Phiếu đề nghị thanh toán'
 }
 
-function printPage(id: string) {
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
-  const printContents = document.getElementById(id)?.innerHTML
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  )
-  WinPrint?.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                    <style>
-                    html, body {
-                      width: 148mm;
-    height: 420mm;
-    margin: 0 auto;
-    padding: 20mm;
-  }
-                    </style>
-                  </head>
-                  <body>
-                    ${printContents}
-                    <br>
-                  </body>
-                </html>`)
-
-                WinPrint?.document.close()
-                WinPrint?.focus()
-  setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
-  }, 500)
-}
-
-
 
 // input nhập tiền viết bằng chữ
 const enterMoney = ref()
@@ -2423,19 +2384,21 @@ const openCancelReturnRequest = () => {
 // phieu in thu chi
 const formPaymentRequest = ref()
 const printPaymentRequest = () => {
+  const tableData = [...detailedListExpenses.value]
   formPaymentRequest.value = {
       // sellOrderCode: sellOrderCode.value,
-      codePaymentRequest: codePaymentRequest.value,
+      code: codePaymentRequest.value,
       recharger: inputRecharger.value,
       user: getStaffList,
-      inputReasonCollectMoney: inputReasonCollectMoney.value,
-      reasonCollectingMoney: inputReasonCollectMoney.value,
+      description: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value,
-      detailedListExpenses: detailedListExpenses
+      payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
+      money: moneyDeibt.value,
+      detailedListExpenses: tableData,
+      totalPrice: totalPaymentRequest.value,
+      debtMoney: moneyDepositPayment.value,
+      depositeMoney: inputDepositPayment.value,
     }
-
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
 }
 
@@ -3056,7 +3019,7 @@ onBeforeMount(async () => {
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+        :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')"
         width="40%"

@@ -35,7 +35,7 @@ import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import moment from 'moment'
 import ckEditor from '@/components/Editor/src/Editor.vue'
 import MultipleOptionsBox from '@/components/MultipleOptionsBox.vue'
-import { changeMoney } from '@/utils/tsxHelper'
+import { changeMoney, printPage } from '@/utils/tsxHelper'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -411,7 +411,7 @@ const callCustomersApi = async () => {
       id: customer?.id
     }))
   }
-  if(dataEdit.value.customer){
+  if(dataEdit.value?.customer){
   const find = Array.isArray(optionsCustomerApi.value) && optionsCustomerApi.value.length > 0 ? optionsCustomerApi.value.find(customer => customer.id == dataEdit.value.customerId) : 0
     if(!find){
       optionsCustomerApi.value.unshift({
@@ -1494,48 +1494,6 @@ const saveContentEditor = () => {
   ListOfProductsForSale.value[currentRow2.value].description = editor.value
 }
 
-function printPage(id: string) {
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
-  const printContents = document.getElementById(id)?.innerHTML
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  )
-  var indexHeight = 0;
-  if(id == "recpPaymentPrint" || id == 'billSpa'){
-    indexHeight = 210;
-  }else {
-    indexHeight = 297;
-  }
-  WinPrint?.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                    <style>
-                    html, body {
-                      width: 148mm;
-                      height: ${indexHeight}mm;
-                      margin: 0px auto;
-                      padding: 20mm;
-                    }
-                    </style>
-                  </head>
-                  <body>
-                    ${printContents}
-                  </body>
-                </html>`)
-
-                WinPrint?.document.close()
-                WinPrint?.focus()
-  setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
-  }, 500)
-}
 
 const choosePayment = [
   {
@@ -1607,12 +1565,12 @@ const callApiStaffList = async () => {
   const res = await getAllStaffList({ PageIndex: 1, PageSize: 40 })
   getStaffList.value = res.data.map((el) => ({
     value: el.id,
-    label: el.name + ' | ' + el.contact
+    label: `${el.name} | ${el.phoneNumber || ''}`
   }))
   getStaffList.value.push(
     {
       value: currentCreator.value.id,
-      label: currentCreator.value.name + ' | ' + currentCreator.value.contact
+      label: `${currentCreator.value.name} | ${currentCreator.value.phoneNumber || ''}`
     }
   )
 }
@@ -2138,16 +2096,16 @@ const editData = async () => {
       customerAddress.value = orderObj.address
       ruleForm.delivery = orderObj.deliveryOptionName
       customerIdPromo.value = orderObj.customerId
-      if (orderObj.customer?.isOrganization) {
+      if (orderObj?.customer?.isOrganization) {
         infoCompany.name = orderObj?.customer?.name
         infoCompany.taxCode = orderObj?.customer?.taxCode
         infoCompany.phone = orderObj?.customer?.phonenumber
         infoCompany.email = 'Email: ' + orderObj?.customer?.email
       } else {
-        infoCompany.name = orderObj.customer.name + ' | ' + orderObj.customer.taxCode
-        infoCompany.taxCode = orderObj.customer.taxCode
-        infoCompany.phone = orderObj.customer.phonenumber
-        infoCompany.email = 'Email: ' + orderObj.customer.email
+        infoCompany.name = orderObj?.customer.name + ' | ' + orderObj?.customer.taxCode
+        infoCompany.taxCode = orderObj?.customer.taxCode
+        infoCompany.phone = orderObj?.customer.phonenumber
+        infoCompany.email = 'Email: ' + orderObj?.customer.email
       }
     }
     Files.value = orderObj.orderFiles.map((element) => ({
@@ -2165,10 +2123,10 @@ const callApiWarehouseList = async () => {
   const res = await getListWareHouse({status:true})
   if (res?.data) {
     res?.data.map((el) => {
-      if (el.children.length > 0 && el.isActive) {
+      if (el.children.length > 0 && el?.isActive) {
         chooseWarehouseImport.push({
           value: el.id,
-          label: el.name
+          label: el?.name
         })
       }
     })
@@ -2362,7 +2320,7 @@ const openRepairBill = () =>{
   var curDate = 'SPLND' + Date.now()
   const store = warehouseOptions.value.find((warehouse)=>warehouse.value == dataEdit.value.warehouseId)
   dialogPrinRepairSpa.value = true
-  billRepairData.value =dataEdit.value.orderDetails.map((orderDetail)=>({
+  billRepairData.value = dataEdit.value.orderDetails.map((orderDetail)=>({
     storeName: store?.label,
     importTicket: curDate,//Tự sinh
     productPropertyCode: orderDetail.productPropertyCode,
@@ -2373,7 +2331,7 @@ const openRepairBill = () =>{
     fromDate: dataEdit.value.fromDate,
     toDate: dataEdit.value.toDate,
     spaService: orderDetail?.spaServices,
-    customerName: dataEdit.value.customer.name
+    customerName: dataEdit.value?.customer.name
   }))
 }
 
@@ -2393,6 +2351,8 @@ const getFormReceipts = (text) => {
   }else {
     nameDialog.value = 'Phiếu thu đơn hàng Spa'
   }
+  const staffInfo = getStaffList.value.find(item => item.value === inputRecharger.value)
+
   if (enterMoney.value) {
     formReceipts.value = {
       sellOrderCode: spaOrderCode.value,
@@ -2402,7 +2362,8 @@ const getFormReceipts = (text) => {
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       name: inputRecharger.value,
-      payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
+      user: staffInfo,
+      payment: payment.value == 0 ? t('reuse.cashPayment') : t('reuse.bankTransferPayment')
     }
 
     PrintReceipts.value = !PrintReceipts.value
@@ -2741,6 +2702,7 @@ const finishOrder = async () =>{
 const formPaymentRequest = ref()
 const PrintpaymentOrderPrint = ref(false)
 const printPaymentRequest = () => {
+  const tableData = [...detailedListExpenses.value]
   formPaymentRequest.value = {
       // sellOrderCode: sellOrderCode.value,
       codePaymentRequest: codePaymentRequest.value,
@@ -2749,9 +2711,12 @@ const printPaymentRequest = () => {
       inputReasonCollectMoney: inputReasonCollectMoney.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+      payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
       moneyReceipts: moneyReceipts.value,
-      detailedListExpenses: detailedListExpenses
+      detailedListExpenses: tableData,
+      totalPrice: totalPayment.value,
+      depositeMoney: depositePayment.value,
+      debtMoney: debtPayment.value,
     }
 
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
@@ -2778,11 +2743,11 @@ const printPaymentRequest = () => {
         </slot>
       </div>
    <div id="repairSpa">
-    <div v-for="(item,index) in billRepairData" :key="index">
-              <slot>
-            <billSpaRepair :billRepairData="item" />
-              </slot>
-          </div>
+    <div>
+      <slot>
+        <billSpaRepair :billRepairData="billRepairData" />
+      </slot>
+    </div>
    </div>
       <div id="IPRFormPrint">
         <slot>
@@ -4274,7 +4239,7 @@ const printPaymentRequest = () => {
 
       <!-- dialog In Phiếu thăm khám sản phẩm" -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+        :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogPrinBillSpa"
         title="Phiếu thăm khám sản phẩm"
         width="40%"
@@ -4286,7 +4251,7 @@ const printPaymentRequest = () => {
               @click="
                 printPage('billSpa')
               "
-              >{{ t('button.print') }}</el-button
+            >{{ t('button.print') }}</el-button
             >
 
             <el-button class="btn" @click="dialogPrinBillSpa = false">{{
@@ -4320,10 +4285,10 @@ const printPaymentRequest = () => {
               t('reuse.exit')
             }}</el-button>
           </div>
-          <div v-for="(item,index) in billRepairData" :key="index">
-              <slot>
-            <billSpaRepair :billRepairData="item" />
-              </slot>
+          <div>
+            <slot>
+              <billSpaRepair :billRepairData="billRepairData" />
+            </slot>
           </div>
         </div>
       </el-dialog>
@@ -4461,7 +4426,7 @@ const printPaymentRequest = () => {
           <div>
             <div class="flex gap-4 pt-4 items-center">
               <label class="w-[30%] text-right">{{ t('reuse.customerName') }}</label>
-              <div class="w-[100%]">{{ infoCompany.name }}</div>
+              <div class="w-[100%]">{{ infoCompany?.name }}</div>
             </div>
             <div class="flex gap-4 pt-2 items-center">
               <label class="w-[30%] text-right">{{ t('formDemo.address') }}</label>
@@ -5448,18 +5413,9 @@ const printPaymentRequest = () => {
 </template>
 <style scoped>
 @media screen {
-  #billSpa {
+  #billSpa, #IPRFormPrint, #recpPaymentPrint, #repairSpa {
     display: none;
   }
-
-  #recpPaymentPrint {
-    display: none;
-  }
-
-  #repairSpa{
-    display: none;
-  }
-
   .dialog-content {
     display: block;
   }

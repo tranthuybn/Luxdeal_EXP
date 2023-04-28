@@ -921,27 +921,6 @@ const getProductPropertyPrice = async (
   return price
 }
 const autoCalculateOrder = () => {
-  // totalPriceOrder.value = 0
-  // totalFinalOrder.value = 0
-  // ListOfProductsForSale.value.map((val) => {
-  //   if (val.totalPrice) totalPriceOrder.value += parseInt(val.totalPrice)
-  // })
-
-  // if(promoMin.value) {
-  //   if(totalPriceOrder.value > promoMin.value){
-  //     promoCash.value != 0
-  //       ? (totalFinalOrder.value = totalPriceOrder.value - promoCash.value)
-  //       : (totalFinalOrder.value =
-  //           totalPriceOrder.value - (totalPriceOrder.value * promoValue.value) / 100)
-  //       showPromo.value = true
-  //       openDialogChoosePromotion.value = false
-  //   } else {
-  //     ElNotification({
-  //         message: t('reuse.orderIsNotEligibleForPromotion'),
-  //         type: 'warning'
-  //     })
-  //   }
-  // }
   
   totalPriceOrder.value = ListOfProductsForSale.value
     .filter((val) => val.totalPrice)
@@ -1243,8 +1222,6 @@ const idAcountingEntry = ref()
 const openDialogAcountingEntry = (scope,isDisable) => {
   condition.value = isDisable;
   const data = scope.row
-  console.log("6666666666666666666666666666")
-  console.log(data.receiptOrPaymentVoucherCode)
   // showCancelAcountingEntry.value = false
   // condition.value = false
   switch (data.typeOfAccountingEntry) {
@@ -1716,12 +1693,12 @@ const callApiStaffList = async () => {
   const res = await getAllStaffList({ PageIndex: 1, PageSize: 40 })
   getStaffList.value = res.data.map((el) => ({
     value: el.id,
-    label: el.name + ' | ' + el.contact
+    label: `${el.name} | ${el.phoneNumber || ''}`
   }))
   getStaffList.value.push(
     {
       value: currentCreator.value.id,
-      label: currentCreator.value.name + ' | ' + currentCreator.value.contact
+      label: `${currentCreator.value.name} | ${currentCreator.value.phoneNumber || ''}`
     }
   )
 }
@@ -2267,17 +2244,18 @@ const formReceipts = ref()
 const moneyReceipts = ref(0)
 
 const getFormReceipts = () => {
+  const staffInfo = getStaffList.value.find(item => item.value === inputRecharger.value)
   if (enterMoney.value) {
     formReceipts.value = {
       sellOrderCode: sellOrderCode.value,
       codeReceipts: codeReceipts.value,
       recharger: inputRecharger.value,
-      user: getStaffList,
+      user: staffInfo,
       name: inputRecharger.value,
       moneyReceipts: moneyReceipts.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value ? 'Tiền mặt' : 'Tiền thẻ'
+      payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment')
     }
 
     PrintReceipts.value = !PrintReceipts.value
@@ -2299,17 +2277,17 @@ const clickBullPrint = () => {
 const formPaymentRequest = ref()
 const PrintpaymentOrderPrint = ref(false)
 const printPaymentRequest = () => {
+  const tableData = [...detailedListExpenses.value]
   formPaymentRequest.value = {
       sellOrderCode: sellOrderCode.value,
       codePaymentRequest: codePaymentRequest.value,
       recharger: inputRecharger.value,
       user: getStaffList,
-      inputReasonCollectMoney: inputReasonCollectMoney.value,
-      reasonCollectingMoney: inputReasonCollectMoney.value,
+      description: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value,
-      detailedListExpenses: detailedListExpenses
+      payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
+      money: moneyReceipts.value,
+      detailedListExpenses: tableData,
     }
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
   printPage('IPRFormPrint')
@@ -2790,12 +2768,12 @@ const disabledPhieu = ref(false)
           </div>
           <div class="dialog-content">
             <slot>
-              <billPrint
-            v-if="dataEdit && dataPriceBill"
-            :dataEdit="dataEdit"
-            :dataPriceBill = "dataPriceBill"
-            :nameDialog="nameDialog"
-          />
+            <billPrint
+              v-if="dataEdit && dataPriceBill"
+              :dataEdit="dataEdit"
+              :dataPriceBill = "dataPriceBill"
+              :nameDialog="nameDialog"
+             />
             </slot>
           </div>
         </div>
@@ -3509,7 +3487,12 @@ const disabledPhieu = ref(false)
         </div>
         <template #footer>
           <div class="flex justify-between">
-            <el-button @click="printPage('billDepositPrint')">{{ t('button.print') }}</el-button>
+            <el-button
+            @click="async () => {
+              await clickBullPrint()
+              printPage('billDepositPrint')
+    
+            }">{{ t('button.print') }}</el-button>
             <div>
               <span class="dialog-footer">
                 <el-button

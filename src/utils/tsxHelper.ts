@@ -65,6 +65,12 @@ export function printPage(id: string) {
                 <html>
                   <head>
                     ${stylesHtml}
+                    <style>
+                    html, body {
+                      width: 148mm;
+                      height: auto;
+                    }
+                    </style>
                   </head>
                   <body>
                     ${prtHtml}
@@ -86,4 +92,13 @@ export const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
       'reuse.total'
     )} ${files.length + uploadFiles.length}`
   )
+}
+
+export const getTodayDate = () => {
+  const today = new Date();
+  const day = today.getDate().toString().padStart(2, '0');
+  const month = (today.getMonth() + 1).toString().padStart(2, '0');
+  const year = today.getFullYear().toString();
+  const formattedDate = `Ngày ${day} tháng ${month} năm ${year}`;
+  return formattedDate
 }

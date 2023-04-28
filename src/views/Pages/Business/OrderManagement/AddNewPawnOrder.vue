@@ -34,7 +34,7 @@ import ReturnOrder from './ReturnOrder.vue'
 import { FORM_IMAGES } from '@/utils/format'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
 import AddQuickCustomer from './AddQuickCustomer.vue'
-
+import { printPage } from '@/utils/tsxHelper'
 import {
   getProductsList,
   getCollaboratorsInOrderList,
@@ -581,49 +581,6 @@ interface historyTableType {
 
 const pawnOrderCode = ref()
 
-function printPage(id: string) {
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
-  var indexHeight = 0;
-  if (id == "recpPaymentPrint") {
-    indexHeight = 210;
-  } else {
-    indexHeight = 297;
-  }
-  const printContents = document.getElementById(id)?.innerHTML
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  )
-  WinPrint?.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                    <style>
-                    html, body {
-                      width: 148mm;
-                      height: ${indexHeight}mm;
-    margin: 0 auto;
-    padding: 20mm;
-  }
-                    </style>
-                  </head>
-                  <body >
-                    ${printContents}
-                    <br>
-                  </body>
-                </html>`)
-
-  WinPrint?.document.close()
-  WinPrint?.focus()
-  setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
-  }, 500)
-}
 const radioTracking = ref('2')
 
 const newCodePaymentRequest = async () => {
@@ -2339,22 +2296,24 @@ const getFormReceipts = async (textTitle) => {
   } else {
     nameDialog.value = 'Phiếu chi cầm đồ'
   }
+  const staffInfo = optionsCollaborators.value.find(item => item.value === inputRecharger.value)
   formReceipts.value = {
     sellOrderCode: ruleForm.orderCode,
     codeReceipts: codeReceipts.value,
     recharger: inputRecharger.value,
     moneyReceipts: moneyReceipts.value,
-    user: optionsCollaborators,
+    user: staffInfo,
     name: inputRecharger.value,
     reasonCollectingMoney: inputReasonCollectMoney.value,
     enterMoney: enterMoney.value,
-    payment: payment.value ? 'Tiền mặt' : 'Tiền thẻ'
+    payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
   }
   PrintReceipts.value = !PrintReceipts.value
 }
 const formPaymentRequest = ref()
 const PrintpaymentOrderPrint = ref(false)
 const printPaymentRequest = () => {
+  const tableData = [...detailedListExpenses.value]
   formPaymentRequest.value = {
     // sellOrderCode: sellOrderCode.value,
     codePaymentRequest: codePaymentRequest.value,
@@ -2364,9 +2323,12 @@ const printPaymentRequest = () => {
     inputReasonCollectMoney: inputReasonCollectMoney.value,
     reasonCollectingMoney: inputReasonCollectMoney.value,
     enterMoney: enterMoney.value,
-    payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+    payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
     moneyReceipts: moneyReceipts.value,
-    detailedListExpenses: detailedListExpenses
+    detailedListExpenses: tableData,
+    totalPrice: totalPayment.value,
+    depositeMoney: depositePayment.value,
+    debtMoney: debtPayment.value,
   }
 
   PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
@@ -4510,7 +4472,8 @@ v-model="giaHan" :orderId="id" :orderData="rentReturnOrder" :listProductsTable="
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal" v-model="dialogIPRForm"
+        :close-on-click-modal="doCloseOnClickModal" 
+        v-model="dialogIPRForm"
         :title="t('formDemo.informationPaymentRequestForm')" width="40%" align-center>
         <div>
           <el-divider />
@@ -4539,7 +4502,7 @@ v-model="giaHan" :orderId="id" :orderData="rentReturnOrder" :listProductsTable="
                   class="text-red-500">*</span></label>
               <el-select v-model="inputRecharger" placeholder="Chọn người đề nghị">
                 <el-option
-v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
+          v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
                   :value="item.value" />
               </el-select>
             </div>
@@ -4547,7 +4510,7 @@ v-for="item in optionsCollaborators" :key="item.value" :label="item.label"
               <label class="w-[30%] text-right">{{ t('formDemo.reasonsSpendMoney') }} <span
                   class="text-red-500">*</span></label>
               <el-input
-style="width: 100%" v-model="inputReasonCollectMoney"
+          style="width: 100%" v-model="inputReasonCollectMoney"
                 :placeholder="t('formDemo.enterReasonPaymentRequest')" />
             </div>
           </div>
@@ -4597,6 +4560,23 @@ style="width: 100%" v-model="inputReasonCollectMoney"
             </div>
             <div class="w-[90px]"></div>
           </div>
+          <!-- <el-form label-width="150px">
+            <el-row class="justify-end mt-3 mr-36">
+              <el-col :span="6">
+                <el-form-item :label="t('reuse.totaMoney') " class="margin-0">
+                  <span class="w-[170px] text-right">t</span>
+                </el-form-item>
+                <el-form-item :label="t('formDemo.deposit') " class="margin-0">
+                  <span class="w-[170px] text-right">
+                    <el-input placeholder="đ" class="poi_text_right" />
+                  </span>
+                </el-form-item>
+                <el-form-item :label="t('reuse.remaining')" class="margin-0 debtMoney text-red-500" >
+                  <span class="w-[170px] text-right">{{  }}</span>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form> -->
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
@@ -4773,7 +4753,7 @@ prop="warehouseTicketCode" :label="t('formDemo.deliveryNotesExportWarehouse')" a
 </template>
 <style scoped lang="less">
 @media screen {
-  #billPawn, #billPrint, #IPRFormPrint  {
+  #billPawn, #billPrint, #IPRFormPrint, #recpPaymentPrint  {
     display: none;
   }
   .dialog-content {

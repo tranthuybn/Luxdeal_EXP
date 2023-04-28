@@ -2240,6 +2240,7 @@ const getFormReceipts = async (textTitle) => {
 const formPaymentRequest = ref()
 const PrintpaymentOrderPrint = ref(false)
 const printPaymentRequest = () => {
+  const tableData = [...detailedListExpenses.value]
   formPaymentRequest.value = {
       // sellOrderCode: sellOrderCode.value,
       codePaymentRequest: codePaymentRequest.value,
@@ -2248,9 +2249,12 @@ const printPaymentRequest = () => {
       inputReasonCollectMoney: inputReasonCollectMoney.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+      payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
       moneyReceipts: moneyReceipts.value,
-      detailedListExpenses: detailedListExpenses
+      detailedListExpenses: tableData,
+      totalPrice: totalPayment.value,
+      depositeMoney: depositePayment.value,
+      debtMoney: debtPayment.value,
     }
 
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
@@ -4707,7 +4711,7 @@ const printPaymentRequest = () => {
 }
 
 @media screen {
-  #billLiquidationContract, #recpPaymentPrint {
+  #billLiquidationContract, #recpPaymentPrint, #IPRFormPrint {
     display: none;
   }
 

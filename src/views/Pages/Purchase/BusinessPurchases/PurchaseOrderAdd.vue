@@ -79,7 +79,7 @@ import billPrint from '../../Components/formPrint/src/billPrint.vue'
 import liquidationPurchaseContractPrint from '../../Components/formPrint/src/liquidationPurchaseContractPrint.vue'
 import receiptsPaymentPrint from '../../Components/formPrint/src/receiptsPaymentPrint.vue'
 import Qrcode from '@/components/Qrcode/src/Qrcode.vue'
-import { changeMoney } from '@/utils/tsxHelper'
+import { changeMoney, printPage } from '@/utils/tsxHelper'
 import { API_URL } from '@/utils/API_URL'
 //them nhanh sp
 import { getBrandSelectOptions, getUnitSelectOptions, getOriginSelectOptions, getCategory } from '@/views/Pages/ProductsAndServices/ProductLibrary/ProductLibraryManagement'
@@ -1690,45 +1690,6 @@ function openPaymentRequestDialog() {
   dialogIPRForm.value = !dialogIPRForm.value
   nameDialog.value = 'Phiếu đề nghị thanh toán'
 }
-
-function printPage(id: string) {
-  let stylesHtml = ''
-  for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
-    stylesHtml += node.outerHTML
-  }
-  const printContents = document.getElementById(id)?.innerHTML
-  const WinPrint = window.open(
-    '',
-    '',
-    'left=0,top=0,width=800px,height=1123px,toolbar=0,scrollbars=0,status=0'
-  )
-  WinPrint?.document.write(`<!DOCTYPE html>
-                <html>
-                  <head>
-                    ${stylesHtml}
-                    <style>
-                    html, body {
-                      width: 148mm;
-    height: 420mm;
-    margin: 0 auto;
-    padding: 20mm;
-  }
-                    </style>
-                  </head>
-                  <body>
-                    ${printContents}
-                    <br>
-                  </body>
-                </html>`)
-
-                WinPrint?.document.close()
-                WinPrint?.focus()
-  setTimeout(() => {
-    WinPrint?.print()
-    WinPrint?.close()
-  }, 500)
-}
-
 
 
 // input nhập tiền viết bằng chữ

@@ -38,6 +38,7 @@ const deleteFileIds = ref()
 const listFileUpload = ref<UploadUserFile[]>([])
 const disabledForm = ref(false)
 const fileUploadList = ref()
+const isApproved = ref(false)
 const props = defineProps({
   // api lấy dữ liệu sản phẩm
   apiId: {
@@ -206,6 +207,7 @@ const setFormValue = async () => {
   if(formValue.value?.collaboratorFiles && formValue.value?.collaboratorFiles?.length > 0) {
     fileUploadList.value = formValue.value.collaboratorFiles.map(item => (item?.file))
   }
+  isApproved.value = formValue.value.status !== 0
 }
 
 //Lấy dữ liệu từ bảng khi ấn nút detail hoặc edit
@@ -513,7 +515,7 @@ const handleDocumentUpload = (listFile, delFileIds) => {
         </div>
       </div>
       <div class="w-[100%]" v-if="type === 'detail'">
-        <div v-if="model === 1" class="w-[50%] flex justify-left gap-2">
+        <div v-if="model === 1 && isApproved" class="w-[50%] flex justify-left gap-2">
           <ElButton class="pl-8 pr-8" :loading="loading" @click="edit">
             {{ t('reuse.fix') }}
           </ElButton>

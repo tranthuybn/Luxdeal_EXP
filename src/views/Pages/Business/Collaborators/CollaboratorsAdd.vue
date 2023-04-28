@@ -204,7 +204,7 @@ const schema = reactive<FormSchema[]>([
     colProps: {
       span: 18
     },
-    value: false,
+    value: true,
     componentProps: {
       label: t('formDemo.isActive'),
       disabled: true
@@ -255,7 +255,7 @@ const cancel = async () => {
 
 
 const customizeData = async (data) => {
-  setFormData.code = data.code
+  setFormData.collaboratorId = data.code
   setFormData.discount = data.discount
   setFormData.customerId = Number(data.customerId)
   setCustomer(data.customerId)

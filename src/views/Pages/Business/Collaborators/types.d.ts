@@ -1,5 +1,5 @@
 export interface IFormData {
-    code: string
+    collaboratorId: string
     discount: number
     customerId: number
 }

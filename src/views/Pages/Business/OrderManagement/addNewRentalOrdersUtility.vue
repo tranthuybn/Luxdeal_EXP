@@ -2813,6 +2813,7 @@ const changeDateRanges = (dates) =>{
 
 const formPaymentRequest = ref()
 const printPaymentRequest = () => {
+  const tableData = [...detailedListExpenses.value]
   formPaymentRequest.value = {
       // sellOrderCode: sellOrderCode.value,
       codePaymentRequest: codePaymentRequest.value,
@@ -2821,9 +2822,12 @@ const printPaymentRequest = () => {
       inputReasonCollectMoney: inputReasonCollectMoney.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
-      moneyReceipts: moneyReceipts.value,
-      detailedListExpenses: detailedListExpenses
+      payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
+      money: moneyReceipts.value,
+      detailedListExpenses: tableData,
+      totalPrice: totalPayment.value,
+      depositeMoney: depositePayment.value,
+      debtMoney: debtPayment.value,
     }
 
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value

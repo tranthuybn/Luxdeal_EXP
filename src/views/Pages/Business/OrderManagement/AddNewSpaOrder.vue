@@ -1565,12 +1565,12 @@ const callApiStaffList = async () => {
   const res = await getAllStaffList({ PageIndex: 1, PageSize: 40 })
   getStaffList.value = res.data.map((el) => ({
     value: el.id,
-    label: el.name + ' | ' + el.contact
+    label: `${el.name} | ${el.phoneNumber || ''}`
   }))
   getStaffList.value.push(
     {
       value: currentCreator.value.id,
-      label: currentCreator.value.name + ' | ' + currentCreator.value.contact
+      label: `${currentCreator.value.name} | ${currentCreator.value.phoneNumber || ''}`
     }
   )
 }
@@ -2351,6 +2351,8 @@ const getFormReceipts = (text) => {
   }else {
     nameDialog.value = 'Phiếu thu đơn hàng Spa'
   }
+  const staffInfo = getStaffList.value.find(item => item.value === inputRecharger.value)
+
   if (enterMoney.value) {
     formReceipts.value = {
       sellOrderCode: spaOrderCode.value,
@@ -2360,7 +2362,8 @@ const getFormReceipts = (text) => {
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
       name: inputRecharger.value,
-      payment: payment.value == 0 ? 'Tiền mặt' : 'Tiền thẻ'
+      user: staffInfo,
+      payment: payment.value == 0 ? t('reuse.cashPayment') : t('reuse.bankTransferPayment')
     }
 
     PrintReceipts.value = !PrintReceipts.value
@@ -2699,6 +2702,7 @@ const finishOrder = async () =>{
 const formPaymentRequest = ref()
 const PrintpaymentOrderPrint = ref(false)
 const printPaymentRequest = () => {
+  const tableData = [...detailedListExpenses.value]
   formPaymentRequest.value = {
       // sellOrderCode: sellOrderCode.value,
       codePaymentRequest: codePaymentRequest.value,
@@ -2707,9 +2711,12 @@ const printPaymentRequest = () => {
       inputReasonCollectMoney: inputReasonCollectMoney.value,
       reasonCollectingMoney: inputReasonCollectMoney.value,
       enterMoney: enterMoney.value,
-      payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+      payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
       moneyReceipts: moneyReceipts.value,
-      detailedListExpenses: detailedListExpenses
+      detailedListExpenses: tableData,
+      totalPrice: totalPayment.value,
+      depositeMoney: depositePayment.value,
+      debtMoney: debtPayment.value,
     }
 
     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
@@ -5406,18 +5413,9 @@ const printPaymentRequest = () => {
 </template>
 <style scoped>
 @media screen {
-  #billSpa {
+  #billSpa, #IPRFormPrint, #recpPaymentPrint, #repairSpa {
     display: none;
   }
-
-  #recpPaymentPrint {
-    display: none;
-  }
-
-  #repairSpa{
-    display: none;
-  }
-
   .dialog-content {
     display: block;
   }

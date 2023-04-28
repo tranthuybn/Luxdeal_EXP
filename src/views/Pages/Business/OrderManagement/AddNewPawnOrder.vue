@@ -2296,16 +2296,17 @@ const getFormReceipts = async (textTitle) => {
   } else {
     nameDialog.value = 'Phiếu chi cầm đồ'
   }
+  const staffInfo = optionsCollaborators.value.find(item => item.value === inputRecharger.value)
   formReceipts.value = {
     sellOrderCode: ruleForm.orderCode,
     codeReceipts: codeReceipts.value,
     recharger: inputRecharger.value,
     moneyReceipts: moneyReceipts.value,
-    user: optionsCollaborators,
+    user: staffInfo,
     name: inputRecharger.value,
     reasonCollectingMoney: inputReasonCollectMoney.value,
     enterMoney: enterMoney.value,
-    payment: payment.value ? 'Tiền mặt' : 'Tiền thẻ'
+    payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
   }
   PrintReceipts.value = !PrintReceipts.value
 }
@@ -2322,9 +2323,12 @@ const printPaymentRequest = () => {
     inputReasonCollectMoney: inputReasonCollectMoney.value,
     reasonCollectingMoney: inputReasonCollectMoney.value,
     enterMoney: enterMoney.value,
-    payment: payment.value ? 'Thanh toán  mặt' : 'Thanh toán thẻ',
+    payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
     moneyReceipts: moneyReceipts.value,
-    detailedListExpenses: tableData
+    detailedListExpenses: tableData,
+    totalPrice: totalPayment.value,
+    depositeMoney: depositePayment.value,
+    debtMoney: debtPayment.value,
   }
 
   PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value

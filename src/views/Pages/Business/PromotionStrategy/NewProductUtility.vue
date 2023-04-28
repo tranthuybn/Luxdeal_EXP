@@ -481,7 +481,7 @@ const back = async () => {
 }
 onBeforeMount(() => {
   if(type == 'add')
-  GenerateCodeOrder({ CodeType: CODE.PROMOTION_STRATEGY,CampaignType:CampaignType.Combo})
+  GenerateCodeOrder({ CodeType: CODE.PROMOTION_STRATEGY,CampaignType:CampaignType.HangMoiVe})
     .then((res) =>
     {
       if(res)

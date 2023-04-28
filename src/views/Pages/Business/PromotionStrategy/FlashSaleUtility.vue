@@ -486,7 +486,7 @@ const editData = async (data) => {
 }
 onBeforeMount(() => {
   if(type == 'add')
-  GenerateCodeOrder({ CodeType: CODE.PROMOTION_STRATEGY,CampaignType:CampaignType.Combo})
+  GenerateCodeOrder({ CodeType: CODE.PROMOTION_STRATEGY,CampaignType:CampaignType.Flashsale})
     .then((res) =>
     {
       if(res)

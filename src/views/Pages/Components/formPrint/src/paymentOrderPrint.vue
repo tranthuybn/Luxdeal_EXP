@@ -7,11 +7,7 @@ import { computed, onBeforeMount, reactive } from 'vue'
 const { t } = useI18n()
 
 const props = defineProps({
-  dataEdit: {
-    type: Object,
-    default: () => {}
-  },
-  dataSent:{
+  formPaymentRequest:{
     type: Object,
     default: () => {}
   }
@@ -29,15 +25,15 @@ const rowData = {
 const appendRow = [
   {
     spentFor: t('reuse.totaMoney'),
-    totalPrice: props.dataSent?.totalPrice || ''
+    totalPrice: props.formPaymentRequest?.totalPrice || ''
   },
   {
     spentFor: t('formDemo.deposit'),
-    totalPrice: props.dataSent?.depositeMoney || ''
+    totalPrice: props.formPaymentRequest?.depositeMoney || ''
   },
   {
     spentFor: t('reuse.remaining'),
-    totalPrice: props.dataSent?.debtMoney || ''
+    totalPrice: props.formPaymentRequest?.debtMoney || ''
   },
 ]
 const dataTableDefault: any = reactive([])
@@ -49,7 +45,7 @@ onBeforeMount(() => {
 })
 
 const dataTable = computed(() => {
-  const tableExpensesData = props.dataSent?.detailedListExpenses
+  const tableExpensesData = props.formPaymentRequest?.detailedListExpenses
   if(tableExpensesData && tableExpensesData.length > 0) {
     const tableExpensesDataLength = tableExpensesData.length
     if(tableExpensesDataLength < defaultRowNumber){
@@ -75,9 +71,7 @@ const checkTotalPrice = ({row}) => {
   if(price) return currencyFormatter.format(price * quantity)
   return ''
 }
-
-console.log('dataEdit', props.dataEdit)
-console.log('dataSent', props.dataSent)
+console.log('formPaymentRequest', props.formPaymentRequest)
 const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 </script>
 
@@ -122,29 +116,29 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
     <div class="pb-1 text-[10px]">
       <div class="flex items-center">
         <label class="font-bold basis-4/12 mb-1">{{ t('reuse.fullName') }} :</label>
-        <div>{{ props.dataEdit.userName ?? '' }} </div>
+        <div>{{ formPaymentRequest.user.userName ?? '' }} </div>
       </div>
       <div class="flex items-center">
         <label class="font-bold basis-4/12 mb-1"
           >{{ t('formDemo.paymentOrder') }} {{ t('reuse.amountOfMoney') }} :</label
         >
-        <div>{{ props.dataSent?.money ? changeMoney.format(props.dataSent.money) : 0 }}</div>
+        <div>{{ formPaymentRequest?.money ? changeMoney.format(formPaymentRequest.money) : 0 }}</div>
       </div>
       <div class="flex items-center">
         <label class="font-bold basis-4/12 mb-1">{{ t('reuse.paymentReason') }} :</label>
-        <div>{{ props.dataSent.description ?? '' }}</div>
+        <div>{{ formPaymentRequest.description ?? '' }}</div>
       </div>
       <div class="flex items-center ">
         <label class="font-bold basis-4/12 mb-1">{{ t('formDemo.formPayment') }} :</label>
-        <div class="mr-2">{{ props.dataSent.payment}}</div>
+        <div class="mr-2">{{ formPaymentRequest.payment}}</div>
       </div>
       <div class="flex items-center">
         <label class="font-bold basis-4/12 mb-1">{{ t('userDemo.accountInfo') }} :</label>
-        <div class="uppercase">{{ props.dataEdit?.accountName}}</div>
+        <div class="uppercase">{{ formPaymentRequest.user?.accountName}}</div>
       </div>
       <div class="flex items-center">
         <label class="basis-4/12 mb-1">{{ t('userDemo.accountNumber') }} :</label>
-        <div>{{ props.dataEdit?.accountNumber}}</div>
+        <div>{{ formPaymentRequest.user?.accountNumber}}</div>
       </div>
       <div class="font-bold mb-1">{{ t('formDemo.detailedlistofexpenses') }}</div>
     </div>

@@ -960,6 +960,7 @@ export default {
     remarkMessage2: 'Quyền định tuyến điều khiển phía trước'
   },
   reuse: {
+    billPaymentRequest: 'Phiếu đề nghị thanh toán',
     customerSign: 'Khách hàng ký',
     evaluate: 'Đánh giá',
     quantitativeUse: 'Định lượng sử dụng',

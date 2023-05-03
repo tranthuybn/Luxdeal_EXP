@@ -1,73 +1,99 @@
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue'
+import { onBeforeMount, reactive, ref, watch } from 'vue'
 import {
   ElSelect,
   ElOption,
   ElButton,
+  ElCol,
+  ElRow,
   ElDivider,
   ElTable,
   ElTableColumn,
   ElInput,
+  ElForm,
+  ElFormItem,
   ElDialog,
   ElDatePicker,
-  ElMessage
+  ElMessage,
+  ElNotification
 } from 'element-plus'
 import { useI18n } from '@/hooks/web/useI18n'
 import { changeMoney, printPage } from '@/utils/tsxHelper'
-import { getStaffList} from '@/api/Business'
+import { getStaffList, addDNTT } from '@/api/Business'
 import InfinitOptions from '@/components/Select/InfinitOptions.vue'
 import paymentOrderPrint from '@/views/Pages/Components/formPrint/src/paymentOrderPrint.vue'
-
+import { FORM_IMAGES } from '@/utils/format'
 
 const { t } = useI18n()
 const doCloseOnClickModal = ref(false)
 const props = defineProps({
-    openDialog: {
-        type: Boolean,
-        default: false
-    },
-    formData: {
-        type: Object,
-        default: () => {}
-    },
-    formPrint: {
-        type: String,
-        default: ''
-    }
+  modelValue:{
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  formData: {
+    type: Object,
+    default: () => {}
+  },
+  orderId: {
+    type: Number,
+    default: NaN
+  }
 
 })
+
+const printpaymentOrderPrint = ref(false)
 const formPaymentRequest = ref()
+const currentUser = (JSON.parse(JSON.parse(localStorage.getItem('STAFF_INFO') || '')?.v)) || {}
 const pageIndex = ref(1)
-const formValue = reactive({...props.formData})
-const open = computed(() => props.openDialog)
+const detailedListExpenses  = ref<Array<any>>([
+])
+onBeforeMount(() =>{
+  onAddItem()
+})
+
+interface IFormValue {
+  orderCode: string
+  codePaymentRequest: string
+  describe: string
+  spendMoney: string
+  enterMoney: string
+  payment: number
+  createdById: number
+  money: string
+  customerId: number
+}
+const emit = defineEmits(['changePaymentOrder', 'update:modelValue'])
+const formValue : Partial<IFormValue> = reactive({...props.formData, createdById: currentUser.id })
 const choosePayment = [
   {
     value: 1,
-    label: t('formDemo.cashPayment')
+    key: 0,
+    label: t('reuse.payThroughMoney')
   },
   {
-    value: 2,
-    label: t('formDemo.cardPayment')
+    value: 0,
+    key: 1,
+    label: t('reuse.payThroughCard'),
   }
 ]
-const createdByOption = ref()
-const formTotalMoney = {
-    totalPaymentRequest: NaN,
-    depositPayment: NaN,
-    remaining: NaN
-
+const createdByOption = ref(currentUser)
+const formTotalMoney = reactive({
+    totalPaymentRequest: 0,
+    depositPayment: 0,
+    remaining: 0
+})
+const calculateTotalPaymentRequest = () => {
+  formTotalMoney.totalPaymentRequest = detailedListExpenses.value.reduce((total, item) => {
+    return total + item.totalPrice
+  }, 0)
+  calculateRemaining()
 }
-const detailedListExpenses = ref([
-  {
-    numberVouchers: '',
-    dayVouchers: '',
-    spentFor: '',
-    quantity: 0,
-    unitPrice: 0,
-    totalPrice: 0,
-    note: ''
-  }
-])
+const calculateRemaining = () => {
+  formTotalMoney.remaining = formTotalMoney.totalPaymentRequest - formTotalMoney.depositPayment
+}
+
 const checkQuantity = (value) => {
   if (isNaN(value)) {
     ElMessage.error(t('reuse.numberFormat'))
@@ -79,7 +105,6 @@ const getMapData = ({code, phonenumber,name, id, email}) => ({label: `${name} | 
 const handleChangeOptions = (_value, option) => {
     formValue.createdById = option.id
     createdByOption.value = option
-    console.log('createdByOption.value', createdByOption.value)
 }
 const printPaymentRequest = () => {
     const tableData = [...detailedListExpenses.value]
@@ -89,22 +114,52 @@ const printPaymentRequest = () => {
       description: formValue.describe,
       enterMoney: formValue.enterMoney,
       payment: formValue.payment ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
-      money: formValue.money,
+      money: formValue.spendMoney,
       detailedListExpenses: tableData,
       totalPrice: formTotalMoney.totalPaymentRequest,
       debtMoney: formTotalMoney.remaining,
       depositeMoney: formTotalMoney.depositPayment,
     }
-    printPage(props.formPrint)
+    printpaymentOrderPrint.value = !printpaymentOrderPrint.value
 }
 
-const postPaymentRequest = () => {
-
+const postPaymentRequest = async () => {
+  if (!detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers)
+    detailedListExpenses.value.pop()
+  const payload = {
+    Code: formValue.codePaymentRequest,
+    CreatedBy: createdByOption.value.name,
+    CreatedById: createdByOption.value.id,
+    TotalMoney: formValue.spendMoney,
+    PaymentType: formValue.payment,
+    PeopleId: formValue.customerId,
+    status: 1,
+    PeopleType: 1,
+    OrderId: props.orderId,
+    Description: formValue.describe,
+    TotalPrice: formTotalMoney.totalPaymentRequest,
+    EnterMoney: formValue.enterMoney,
+    DebtMoney: formTotalMoney.remaining,
+    DepositeMoney: formTotalMoney.depositPayment,
+    ExpensesDetail: JSON.stringify(detailedListExpenses.value)
+  }
+  await addDNTT(FORM_IMAGES(payload))
+  .then(res => {
+    ElNotification({
+      message: t('reuse.addSuccess'),
+      type: 'success'
+    })
+    const idPayment = res.paymentRequestId
+    close()
+    emit('changePaymentOrder', idPayment)
+  })
+  .catch(() => {
+    ElNotification({
+      message: t('reuse.addFail'),
+      type: 'warning'
+    })
+  })
 }
-const calculateTotalPaymentRequest = () => {
-
-}
-
 const changeQuantity = (scope) => {
     checkQuantity(scope.row.quantity)
     scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
@@ -114,20 +169,52 @@ const changeUnitPrice = (scope) => {
     scope.row.totalPrice = scope.row.unitPrice * scope.row.quantity
     calculateTotalPaymentRequest()
 }
+const close = () =>{
+  emit('update:modelValue', false)
+}
+const onAddItem = () => {
+  detailedListExpenses.value.push({    
+    numberVouchers: "",
+    dayVouchers: new Date(),
+    spentFor: "",
+    quantity: 1,
+    unitPrice: 0,
+    totalPrice: 0,
+    note: "",
+  })
+}
+const deleteRow = (index: number) => {
+  detailedListExpenses.value.splice(index, 1)
+}
+
+watch(detailedListExpenses.value, () => {
+  const lastItem = detailedListExpenses.value.at(-1)
+  if (
+      lastItem?.numberVouchers &&
+      lastItem?.dayVouchers &&
+      lastItem?.spentFor &&
+      lastItem?.quantity &&
+      lastItem?.unitPrice &&
+      lastItem?.totalPrice
+    )
+    onAddItem()
+})
+
 </script>
 
 <template>
-    <div id="IPRFormPrint">
+    <div id="paymentProposalForm">
         <slot>
             <paymentOrderPrint v-if="formPaymentRequest" :formPaymentRequest="formPaymentRequest" />
         </slot>
     </div>
     <el-dialog
         :close-on-click-modal="doCloseOnClickModal"
-        v-model="open"
+        :modelValue="modelValue"
         :title="t('formDemo.informationPaymentRequestForm')"
-        width="40%"
+        width="650px"
         :lock-scroll="true"
+        @close="close"
       >
         <div>
           <el-divider />
@@ -163,7 +250,7 @@ const changeUnitPrice = (scope) => {
                 :pageIndex="pageIndex"
                 :api="getStaffList"
                 :mapFunction="getMapData"
-                :defaultValue="formValue.createdId"
+                :defaultValue="formValue.createdById"
                 @update-value="handleChangeOptions"
               />
             </div>
@@ -237,7 +324,7 @@ const changeUnitPrice = (scope) => {
                 width="180"
               >
                 <template #default="scope">
-                  <CurrencyInputComponent
+                  <el-input
                     v-model="scope.row.unitPrice"
                     @change="changeUnitPrice(scope)"
                   />
@@ -249,49 +336,40 @@ const changeUnitPrice = (scope) => {
                 align="right"
                 width="180"
               >
-                <template #default="props">
-                  {{ changeMoney.format(props.row.totalPrice) }}
+                <template #default="scope">
+                  {{ changeMoney.format(scope.row.totalPrice) }}
                 </template>
               </el-table-column>
               <el-table-column prop="note" :label="t('reuse.note')" width="180">
-                <template #default="data">
-                  <el-input v-model="data.row.note" type="text" />
+                <template #default="scope">
+                  <el-input v-model="scope.row.note" type="text" />
+                </template>
+              </el-table-column>
+              <el-table-column :label="t('formDemo.manipulation')" min-width="86">
+                <template #default="scope">
+                  <el-button :disabled="detailedListExpenses.length === 1" size="small" type="danger" @click.prevent="deleteRow(scope.$index)">Xóa</el-button>
+
                 </template>
               </el-table-column>
             </el-table>
           </div>
-          <div class="flex justify-end mr-[90px]">
-            <div class="w-[145px] text-right">
-              <p class="text-black font-bold dark:text-white">{{ t('formDemo.total') }}</p>
-            </div>
-            <div class="w-[145px] text-right">
-              <p class="pr-2 text-black font-bold dark:text-white">
-                {{ changeMoney.format(formTotalMoney.totalPaymentRequest) }}
-              </p>
-            </div>
-          </div>
-          <span
-            class="block h-1 float-right w-[45%] border-t-1 dark:border-[#4c4d4f] mt-2 mb-2"
-          ></span>
-          <div class="flex w-[100%] justify-end">
-            <div class="w-[145px] text-right">
-              <p class="text-blue-400 mb-2">
-                {{ t('formDemo.deposit') }}
-                <span class="text-red-500">*</span>
-              </p>
-              <p class="text-red-600">{{ t('reuse.remaining') }}</p>
-            </div>
-            <div class="w-[145px] text-right">
-              <input
-                v-model="formTotalMoney.depositPayment"
-                class="pr-2 w-[130px] text-right border-1 outline-none rounded mb-2"
-              />
-              <p class="pr-2 text-red-600">{{
-                formTotalMoney.remaining ? changeMoney.format(formTotalMoney.remaining) : '0 đ'
-              }}</p>
-            </div>
-            <div class="w-[90px]"></div>
-          </div>
+          <el-row class="justify-end">
+            <el-col :span="12">
+              <el-form :disabled="disableForm" label-width="150px">
+                <el-form-item :label="t('reuse.totaMoney') " class="margin-0">
+                  <span class="w-[170px] text-right">{{ changeMoney.format(formTotalMoney.totalPaymentRequest) }}</span>
+                </el-form-item>
+                <el-form-item :label="t('formDemo.deposit') " class="margin-0">
+                  <span class="w-[170px] text-right">
+                    <el-input @change="calculateRemaining" class="poi_text_right" v-model="formTotalMoney.depositPayment" />
+                  </span>
+                </el-form-item>
+                <el-form-item :label="t('reuse.remaining')" class="margin-0 debtMoney text-red-500" >
+                  <span class="w-[170px] text-right">{{ changeMoney.format(formTotalMoney.remaining) }}</span>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
           <div class="flex items-center">
             <span class="w-[25%] text-base font-bold">{{ t('formDemo.billingInformation') }}</span>
             <span class="block h-1 w-[75%] border-t-1 dark:border-[#4c4d4f]"></span>
@@ -300,7 +378,7 @@ const changeUnitPrice = (scope) => {
         <div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right">{{ t('formDemo.amountSpent') }}</label>
-            <div class="w-[100%] text-xl">{{ formValue.spendMoney }}</div>
+            <div class="w-[100%] text-xl">{{ changeMoney.format(formValue.spendMoney) }}</div>
           </div>
           <div class="flex gap-4 pt-4 items-center">
             <label class="w-[30%] text-right"
@@ -345,18 +423,37 @@ const changeUnitPrice = (scope) => {
               <span class="dialog-footer">
                 <el-button
                   type="primary"
-                  @click="
-                    () => {
-                      open = false
-                      postPaymentRequest()
-                    }
-                  "
+                  @click="postPaymentRequest"
                   >{{ t('formDemo.saveRecordDebts') }}</el-button
                 >
-                <el-button @click="open = false">{{ t('reuse.exit') }}</el-button>
+                <el-button @click="close">{{ t('reuse.exit') }}</el-button>
               </span>
             </div>
           </div>
         </template>
     </el-dialog>
+    <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="printpaymentOrderPrint" class="font-bold" width="40%" align-center >
+      <div class="section-bill">
+        <div class="flex gap-3 justify-end">
+          <el-button @click="printPage('paymentProposalForm')">{{ t('button.print') }}</el-button>
+
+          <el-button class="btn" @click="printpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+        </div>
+        <div class="dialog-content">
+          <slot>
+        <paymentOrderPrint v-if="formPaymentRequest" :formPaymentRequest="formPaymentRequest" />
+      </slot>
+        </div>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button class="btn" @click="printpaymentOrderPrint = false">{{ t('reuse.exit') }}</el-button>
+        </span>
+      </template>
+    </el-dialog>
 </template>
+<style lang="scss">
+  #paymentProposalForm {
+    display: none;
+  }
+</style>

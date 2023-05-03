@@ -116,7 +116,7 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', cu
     <div class="pb-1 text-[10px]">
       <div class="flex items-center">
         <label class="font-bold basis-4/12 mb-1">{{ t('reuse.fullName') }} :</label>
-        <div>{{ formPaymentRequest.user.userName ?? '' }} </div>
+        <div>{{ formPaymentRequest.user.name ?? '' }} </div>
       </div>
       <div class="flex items-center">
         <label class="font-bold basis-4/12 mb-1"

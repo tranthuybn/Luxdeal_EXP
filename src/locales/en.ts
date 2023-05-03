@@ -908,6 +908,7 @@ export default {
     remarkMessage2: 'Front end control routing permission'
   },
   reuse: {
+    billPaymentRequest: 'Bill payment request',
     customerSign: 'Customer sign',
     evaluate: 'Evaluate',
     quantitativeUse: 'Quantitative use',

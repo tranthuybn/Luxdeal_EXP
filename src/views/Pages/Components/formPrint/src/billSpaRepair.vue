@@ -36,7 +36,7 @@ const getDataTableService = (spaService) => {
 </script>
 
 <template>
-  <div v-for="(item, index) in props.billRepairData" :key="index" class="h-screen p-4">
+  <div v-for="(item, index) in props.billRepairData" :key="index" class="h-screen w-full p-4">
     <div class="flex items-center flex-col text-[10px]">
         <div><img class="h-25" src="@/assets/imgs/images.png" /></div>
         <div class="flex flex-col my-2">
@@ -47,7 +47,7 @@ const getDataTableService = (spaService) => {
           <span class="mb-1"><span class="font-bold">Website:</span> http://authonolyluxury.com</span>
         </div>
         <div class="my-2 font-bold text-1xl">PHIẾU SỬA CHỮA SẢN PHẨM AUTHONOLY SPA</div>
-      </div>
+    </div>
     <div class="mt-4 text-[10px]">
       <ElRow>
         <ElCol :span="12"><span class="font-bold">Cửa hàng: {{ item.storeName }}</span></ElCol>
@@ -91,24 +91,23 @@ const getDataTableService = (spaService) => {
       </el-table>
     </div>
 
-    <ElTable 
+    <el-table 
       size="small" 
       :data="tableData" 
       class="mt-2"         
       header-row-class-name="text-black border-black border text-[10px]"
       header-cell-class-name="border-black border text-center"
-      row-class-name="border-black border"
-      cell-class-name="border-black border px-0.5 h-7"
+      cell-class-name="px-0.5 h-7 border-black border"
     >
-      <ElTableColumn width="100" :label="t('reuse.implementationProcess')" prop="implementationProcess"/>
-      <ElTableColumn width="70" :label="t('reuse.executor')" prop="executor"/>
-      <ElTableColumn width="70" :label="t('reuse.receptionDate')" prop="receptionDate"/>
-      <ElTableColumn width="70" :label="t('reuse.completionDate')" prop="completionDate"/>
-      <ElTableColumn width="70" :label="t('reuse.chemistry')" prop="chemistry"/>
-      <ElTableColumn width="70" :label="t('reuse.quantitativeUse')" prop="quantitativeUse"/>
-      <ElTableColumn width="40" :label="t('reuse.evaluate')" prop="evaluate"/>
-      <ElTableColumn width="40" :label="t('reuse.note')" prop="note"/>
-    </ElTable>
+      <el-table-column width="100" :label="t('reuse.implementationProcess')" prop="implementationProcess"/>
+      <el-table-column width="70" :label="t('reuse.executor')" prop="executor"/>
+      <el-table-column width="70" :label="t('reuse.receptionDate')" prop="receptionDate"/>
+      <el-table-column width="70" :label="t('reuse.completionDate')" prop="completionDate"/>
+      <el-table-column width="70" :label="t('reuse.chemistry')" prop="chemistry"/>
+      <el-table-column width="70" :label="t('reuse.quantitativeUse')" prop="quantitativeUse"/>
+      <el-table-column width="40" :label="t('reuse.evaluate')" prop="evaluate"/>
+      <el-table-column width="40" :label="t('reuse.note')" prop="note"/>
+    </el-table>
   </div>
 </template>
 
@@ -117,6 +116,27 @@ const getDataTableService = (spaService) => {
 
 * {
   font-family: Lora, serif;
+}
+
+@page {
+  size: A5 portrait;
+  margin: 0;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    text-shadow: none !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+  }
 }
 
 .text-end {
@@ -139,6 +159,11 @@ table {
   word-break: break-word;
   border: 1px solid #ddd;
 } */
+
+::v-deep(.el-table){
+  border: 1px solid #000;
+  width: 100%;
+}
 
 ::v-deep(.cell) {
   padding: 0px 3px;

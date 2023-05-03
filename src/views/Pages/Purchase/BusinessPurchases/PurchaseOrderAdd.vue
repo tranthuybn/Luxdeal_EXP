@@ -20,7 +20,6 @@ import {
   ElDropdown,
   ElDropdownMenu,
   ElDropdownItem,
-  ElDatePicker,
   ElForm,
   ElFormItem,
   ElMessage,
@@ -50,7 +49,6 @@ import {
   getReceiptPaymentVoucherCode,
   getDetailReceiptPaymentVoucher,
   getCodePaymentRequest,
-  addDNTT,
   updateOrderTransaction,
   updateOrderInfo,
   updateOrderStatus,
@@ -100,7 +98,7 @@ const id = Number(router.currentRoute.value.params.id)
 const route = useRoute()
 const type = String(route.params.type)
 const approvalId = String(route.params.approvalId)
-
+const formPaymentProposalDialog = ref()
 
 const ruleFormRef = ref<FormInstance>()
 const ruleFormRef2 = ref<FormInstance>()
@@ -123,7 +121,7 @@ const ruleForm = reactive({
   customerName: '',
   delivery: 2,
   warehouse: '',
-  orderFiles: []
+  orderFiles: [],
 })
 
 const rules = reactive<FormRules>({
@@ -328,8 +326,6 @@ interface typeWarehouse {
 const chooseWarehouse = reactive<Array<typeWarehouse>>([])
 
 const statusTracking = ref('0')
-
-const input = ref('')
 
 interface ListOfProductsForSaleType {
   name: string
@@ -1247,6 +1243,7 @@ const editData = async () => {
 
     if (res.data) {
       customerData.customerId = orderObj.customerId
+      console.log('customerData.customerId', customerData.customerId)
       await getCustomerInfo(customerData.customerId)
 
       ruleForm.orderCode = orderObj.code
@@ -1677,9 +1674,8 @@ function openPaymentDialog() {
   nameDialog.value = 'Phiếu chi'
 }
 
-function openPaymentRequestDialog() {
+async function openPaymentRequestDialog() {
   moneyDeibt.value = 0
-  newCodePaymentRequest()
   if (newTable.value?.length) {
     newTable.value.forEach((e) => {
       moneyDeibt.value += e.paidMoney
@@ -1688,8 +1684,15 @@ function openPaymentRequestDialog() {
   inputRecharger.value = staffItem?.name + ' | ' + staffItem?.phone
   inputDeposit.value = 0
   inputReasonCollectMoney.value = ''
+  nameDialog.value = t('reuse.billPaymentRequest')
+  await newCodePaymentRequest()
+  formPaymentProposalDialog.value = {
+    orderCode: ruleForm.orderCode,
+    codePaymentRequest: codePaymentRequest.value,
+    spendMoney: moneyDeibt.value,
+    customerId: customerData.customerId
+  }
   dialogIPRForm.value = !dialogIPRForm.value
-  nameDialog.value = 'Phiếu đề nghị thanh toán'
 }
 
 
@@ -1782,43 +1785,43 @@ const getDetailPayment = async (_index, scope) => {
 }
 
 // Thêm mới phiếu đề nghị thanh toán
-let objIdPayment = ref()
-let idPayment = ref()
+// let objIdPayment = ref()
+// let idPayment = ref()
 const moneyDeibt = ref()
 
-const postPaymentRequest = async () => {
-  if (!detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers)
-    detailedListExpenses.value.pop()
-  const payload = {
-    Code: codePaymentRequest.value,
-    TotalMoney: moneyDepositPayment.value ?? moneyDeibt.value,
-    PaymentType: payment.value,
-    PeopleId: staffItem?.id,
-    status: 1,
-    PeopleType: 1,
-    OrderId: id,
-    Description: inputReasonCollectMoney.value,
-    Document: undefined,
-    AccountingEntryId: undefined,
-    TotalPrice: totalPaymentRequest.value,
-    ReasonCollectMoney: enterMoney.value,
-    DebtMoney: moneyDepositPayment.value,
-    DepositeMoney: inputDepositPayment.value,
-    ExpensesDetail: JSON.stringify(detailedListExpenses.value)
-  }
-  const formDataPayLoad = FORM_IMAGES(payload)
-  objIdPayment.value = await addDNTT(formDataPayLoad)
-  idPayment.value = objIdPayment.value.paymentRequestId
-  handleChangePaymentOrder()
-}
+// const postPaymentRequest = async () => {
+//   if (!detailedListExpenses.value[detailedListExpenses.value.length - 1].numberVouchers)
+//     detailedListExpenses.value.pop()
+//   const payload = {
+//     Code: codePaymentRequest.value,
+//     TotalMoney: moneyDepositPayment.value ?? moneyDeibt.value,
+//     PaymentType: payment.value,
+//     PeopleId: staffItem?.id,
+//     status: 1,
+//     PeopleType: 1,
+//     OrderId: id,
+//     Description: inputReasonCollectMoney.value,
+//     Document: undefined,
+//     AccountingEntryId: undefined,
+//     TotalPrice: totalPaymentRequest.value,
+//     ReasonCollectMoney: enterMoney.value,
+//     DebtMoney: moneyDepositPayment.value,
+//     DepositeMoney: inputDepositPayment.value,
+//     ExpensesDetail: JSON.stringify(detailedListExpenses.value)
+//   }
+//   const formDataPayLoad = FORM_IMAGES(payload)
+//   objIdPayment.value = await addDNTT(formDataPayLoad)
+//   idPayment.value = objIdPayment.value.paymentRequestId
+//   handleChangePaymentOrder()
+// }
 
 // Thêm mới mã phiếu đề nghị thanh toán vào debtTable
-const handleChangePaymentOrder = async () => {
+const handleChangePaymentOrder = async (idPayment) => {
   if (newTable.value?.length) {
     newTable.value.forEach((val, index, arr) => {
       const payload = {
         accountingEntryId: val.id,
-        paymentRequestId: idPayment.value,
+        paymentRequestId: idPayment,
         receiptOrPaymentVoucherId: 0,
         isReceiptedMoney: true,
         status: 0,
@@ -2384,24 +2387,24 @@ const openCancelReturnRequest = () => {
 }
 // phieu in thu chi
 const formPaymentRequest = ref()
-const printPaymentRequest = () => {
-  const tableData = [...detailedListExpenses.value]
-  formPaymentRequest.value = {
-      // sellOrderCode: sellOrderCode.value,
-      code: codePaymentRequest.value,
-      recharger: inputRecharger.value,
-      user: getStaffList,
-      description: inputReasonCollectMoney.value,
-      enterMoney: enterMoney.value,
-      payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
-      money: moneyDeibt.value,
-      detailedListExpenses: tableData,
-      totalPrice: totalPaymentRequest.value,
-      debtMoney: moneyDepositPayment.value,
-      depositeMoney: inputDepositPayment.value,
-    }
-    PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
-}
+// const printPaymentRequest = () => {
+//   const tableData = [...detailedListExpenses.value]
+//   formPaymentRequest.value = {
+//       // sellOrderCode: sellOrderCode.value,
+//       code: codePaymentRequest.value,
+//       recharger: inputRecharger.value,
+//       user: getStaffList,
+//       description: inputReasonCollectMoney.value,
+//       enterMoney: enterMoney.value,
+//       payment: payment.value ? t('reuse.cashPayment') : t('reuse.bankTransferPayment'),
+//       money: moneyDeibt.value,
+//       detailedListExpenses: tableData,
+//       totalPrice: totalPaymentRequest.value,
+//       debtMoney: moneyDepositPayment.value,
+//       depositeMoney: inputDepositPayment.value,
+//     }
+//     PrintpaymentOrderPrint.value = !PrintpaymentOrderPrint.value
+// }
 
 //Hoàn thành yêu cầu đổi trả
 const finishReturnRequest = async () => {
@@ -2780,7 +2783,7 @@ onBeforeMount(async () => {
 
       <!-- Dialog Thông tin phiếu thu -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+       :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogInformationReceipts"
         :title="t('formDemo.informationReceipts')"
         width="40%"
@@ -3019,7 +3022,8 @@ onBeforeMount(async () => {
       </el-dialog>
 
       <!-- Dialog Thông tin phiếu đề nghị thanh toán -->
-      <DialogPaymentProposalAdd :openDialog="dialogIPRForm"/>
+      <DialogPaymentProposalAdd v-if="dialogIPRForm" v-model="dialogIPRForm" :formData="formPaymentProposalDialog" :orderId="id" @change-payment-order="handleChangePaymentOrder"/>
+
       <!-- Dialog thông tin hợp đồng thanh lý-->
       <el-dialog :close-on-click-modal="doCloseOnClickModal" v-model="dialogBillLiquidation" class="font-bold" width="40%">
         <div class="section-bill">
@@ -3048,7 +3052,7 @@ onBeforeMount(async () => {
 
       <!-- Thông tin phiếu thanh toán mua hàng -->
       <el-dialog
-:close-on-click-modal="doCloseOnClickModal"
+        :close-on-click-modal="doCloseOnClickModal"
         v-model="dialogSalesSlipInfomation"
         :title="t('formDemo.buySlipInformation')"
         width="40%"
@@ -5218,9 +5222,9 @@ onBeforeMount(async () => {
     display: none;
   }
 
-  #IPRFormPrint {
+  /* #IPRFormPrint {
     display: none;
-  }
+  } */
 
   .dialog-content {
     display: block;
